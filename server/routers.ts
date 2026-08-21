@@ -5,7 +5,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
-import { getAssessmentAdminOverview, getUserAssessmentHistory } from "./db";
+import { getAssessmentAdminOverview, getUserAssessmentHistory, getUserProfile, updateUserProfile } from "./db";
 import { z } from "zod";
 
 const answersSchema = z.array(z.object({ questionId: z.string(), value: z.number().int().min(1).max(5) })).length(assessmentQuestions.length);
@@ -28,6 +28,13 @@ export const appRouter = router({
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
     }),
+  }),
+  profile: router({
+    get: protectedProcedure.query(({ ctx }) => getUserProfile(ctx.user.openId)),
+    update: protectedProcedure.input(z.object({
+      name: z.string().trim().min(2).max(160),
+      notificationPreferences: z.object({ assessmentUpdates: z.boolean(), courseAnnouncements: z.boolean(), monthlyInsights: z.boolean() }),
+    })).mutation(({ ctx, input }) => updateUserProfile(ctx.user.openId, input)),
   }),
   dashboard: router({
     mine: protectedProcedure.query(({ ctx }) => {

@@ -15,6 +15,13 @@
       "when": 1787336381403,
       "tag": "0001_clever_liz_osborn",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1787344108235,
+      "tag": "0002_ambitious_queen_noir",
+      "breakpoints": true
     }
   ]
 }

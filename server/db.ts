@@ -29,6 +29,27 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
 }
 
+export type NotificationPreferences = { assessmentUpdates: boolean; courseAnnouncements: boolean; monthlyInsights: boolean };
+
+export async function getUserProfile(openId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.select({ id: users.id, openId: users.openId, name: users.name, email: users.email, role: users.role, notificationPreferences: users.notificationPreferences }).from(users).where(eq(users.openId, openId)).limit(1);
+  const profile = result[0];
+  if (!profile) return undefined;
+  return {
+    ...profile,
+    notificationPreferences: (profile.notificationPreferences as Partial<NotificationPreferences> | null) ?? { assessmentUpdates: true, courseAnnouncements: true, monthlyInsights: false },
+  };
+}
+
+export async function updateUserProfile(openId: string, input: { name: string; notificationPreferences: NotificationPreferences }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(users).set({ name: input.name, notificationPreferences: input.notificationPreferences }).where(eq(users.openId, openId));
+  return getUserProfile(openId);
+}
+
 export async function getUserByOpenId(openId: string) {
   const db = await getDb();
   if (!db) return undefined;

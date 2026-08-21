@@ -1,8 +1,8 @@
-# User and Admin Dashboards
+# User Profile and Settings
 
-- [x] Review current authentication, assessment, payment, and admin structures.
-- [x] Define user-owned versus admin-only dashboard data boundaries.
-- [x] Implement a protected user dashboard for personal assessment activity and reports.
-- [x] Refine the admin dashboard as the operational management view.
-- [x] Add authorization, ownership, privacy, and server-side dashboard data-boundary tests.
-- [x] Verify desktop/mobile dashboard rendering and save a delivery checkpoint.
+- [x] Review the current user schema, auth flow, and dashboard UI patterns.
+- [x] Define editable account fields and notification preference defaults.
+- [x] Add secure authenticated profile/settings read and update procedures.
+- [x] Build the responsive profile and notification settings page.
+- [x] Add authorization, schema-validation, and update-contract tests.
+- [x] Verify the page on desktop/mobile and prepare the delivery checkpoint.
