@@ -1,8 +1,10 @@
-# User Profile and Settings
+# Avatar and Timezone Settings
 
-- [x] Review the current user schema, auth flow, and dashboard UI patterns.
-- [x] Define editable account fields and notification preference defaults.
-- [x] Add secure authenticated profile/settings read and update procedures.
-- [x] Build the responsive profile and notification settings page.
-- [x] Add authorization, schema-validation, and update-contract tests.
-- [x] Verify the page on desktop/mobile and prepare the delivery checkpoint.
+- [x] Review the current settings schema, storage helpers, and UI.
+- [x] Define secure avatar metadata, upload constraints, and timezone options.
+- [x] Add avatar storage and authenticated profile updates.
+- [x] Add timezone selection and persist it with user preferences.
+- [x] Add validation and ownership tests plus responsive verification.
+- [x] Save a delivery checkpoint.
+- [x] Add upload-avatar tests for unauthenticated access, invalid file type, and oversized payloads.
+- [x] Save a checkpoint containing the avatar upload, timezone persistence, settings link, migration, and tests.

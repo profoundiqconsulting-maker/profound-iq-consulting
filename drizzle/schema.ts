@@ -11,6 +11,8 @@ export const users = mysqlTable("users", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
   notificationPreferences: json("notificationPreferences"),
+  avatarUrl: varchar("avatarUrl", { length: 512 }),
+  timezone: varchar("timezone", { length: 64 }),
 });
 
 export const assessmentAttempts = mysqlTable("assessment_attempts", {

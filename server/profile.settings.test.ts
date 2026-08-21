@@ -32,6 +32,18 @@ describe("profile settings", () => {
     await expect(caller.profile.update({ name: "Test User", notificationPreferences: { assessmentUpdates: true, courseAnnouncements: true, monthlyInsights: false } })).rejects.toMatchObject({ code: "UNAUTHORIZED" });
   });
 
+  it("rejects unauthenticated avatar uploads", async () => {
+    const caller = appRouter.createCaller(context(null));
+    await expect(caller.profile.uploadAvatar({ dataUrl: "data:image/png;base64,AAAA" })).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+  });
+
+  it("rejects invalid and oversized avatar payloads", async () => {
+    const caller = appRouter.createCaller(context({ openId: "owner-1" }));
+    await expect(caller.profile.uploadAvatar({ dataUrl: "data:image/svg+xml;base64,AAAA" })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    const oversized = `data:image/png;base64,${Buffer.alloc(2 * 1024 * 1024 + 1).toString("base64")}`;
+    await expect(caller.profile.uploadAvatar({ dataUrl: oversized })).rejects.toMatchObject({ code: "PAYLOAD_TOO_LARGE" });
+  });
+
   it("rejects invalid profile payloads", async () => {
     const caller = appRouter.createCaller(context({ openId: "owner-1" }));
     await expect(caller.profile.update({ name: "x", notificationPreferences: { assessmentUpdates: true, courseAnnouncements: true, monthlyInsights: false } })).rejects.toMatchObject({ code: "BAD_REQUEST" });
@@ -42,8 +54,8 @@ describe("profile settings", () => {
     updateUserProfile.mockResolvedValue({ openId: "owner-1", name: "Updated User", email: "test@example.com", role: "user", notificationPreferences: { assessmentUpdates: false, courseAnnouncements: true, monthlyInsights: true } });
     const caller = appRouter.createCaller(context({ openId: "owner-1" }));
     await caller.profile.get();
-    await caller.profile.update({ name: "Updated User", notificationPreferences: { assessmentUpdates: false, courseAnnouncements: true, monthlyInsights: true } });
+    await caller.profile.update({ name: "Updated User", timezone: "Africa/Nairobi", notificationPreferences: { assessmentUpdates: false, courseAnnouncements: true, monthlyInsights: true } });
     expect(getUserProfile).toHaveBeenCalledWith("owner-1");
-    expect(updateUserProfile).toHaveBeenCalledWith("owner-1", { name: "Updated User", notificationPreferences: { assessmentUpdates: false, courseAnnouncements: true, monthlyInsights: true } });
+    expect(updateUserProfile).toHaveBeenCalledWith("owner-1", { name: "Updated User", timezone: "Africa/Nairobi", notificationPreferences: { assessmentUpdates: false, courseAnnouncements: true, monthlyInsights: true } });
   });
 });

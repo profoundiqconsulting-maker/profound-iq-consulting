@@ -5,7 +5,8 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
-import { getAssessmentAdminOverview, getUserAssessmentHistory, getUserProfile, updateUserProfile } from "./db";
+import { getAssessmentAdminOverview, getUserAssessmentHistory, getUserProfile, updateUserAvatar, updateUserProfile } from "./db";
+import { storagePut } from "./storage";
 import { z } from "zod";
 
 const answersSchema = z.array(z.object({ questionId: z.string(), value: z.number().int().min(1).max(5) })).length(assessmentQuestions.length);
@@ -33,8 +34,19 @@ export const appRouter = router({
     get: protectedProcedure.query(({ ctx }) => getUserProfile(ctx.user.openId)),
     update: protectedProcedure.input(z.object({
       name: z.string().trim().min(2).max(160),
+      timezone: z.string().regex(/^[A-Za-z_]+\/[A-Za-z_]+(?:\/[A-Za-z_]+)?$/, "Use an IANA timezone such as Africa/Nairobi."),
       notificationPreferences: z.object({ assessmentUpdates: z.boolean(), courseAnnouncements: z.boolean(), monthlyInsights: z.boolean() }),
     })).mutation(({ ctx, input }) => updateUserProfile(ctx.user.openId, input)),
+    uploadAvatar: protectedProcedure.input(z.object({ dataUrl: z.string().regex(/^data:image\/(png|jpeg|webp);base64,/, "Only PNG, JPEG, or WebP images are supported.").max(2_800_000) })).mutation(async ({ ctx, input }) => {
+      const match = input.dataUrl.match(/^data:(image\/(?:png|jpeg|webp));base64,(.+)$/);
+      if (!match) throw new TRPCError({ code: "BAD_REQUEST", message: "Only PNG, JPEG, or WebP images are supported." });
+      const contentType = match[1];
+      const buffer = Buffer.from(match[2], "base64");
+      if (buffer.length > 2 * 1024 * 1024) throw new TRPCError({ code: "PAYLOAD_TOO_LARGE", message: "Avatar must be 2MB or smaller." });
+      const extension = contentType === "image/jpeg" ? "jpg" : contentType.split("/")[1];
+      const uploaded = await storagePut(`avatars/${ctx.user.openId}.${extension}`, buffer, contentType);
+      return updateUserAvatar(ctx.user.openId, uploaded.url);
+    }),
   }),
   dashboard: router({
     mine: protectedProcedure.query(({ ctx }) => {

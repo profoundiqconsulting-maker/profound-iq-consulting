@@ -34,19 +34,28 @@ export type NotificationPreferences = { assessmentUpdates: boolean; courseAnnoun
 export async function getUserProfile(openId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const result = await db.select({ id: users.id, openId: users.openId, name: users.name, email: users.email, role: users.role, notificationPreferences: users.notificationPreferences }).from(users).where(eq(users.openId, openId)).limit(1);
+  const result = await db.select({ id: users.id, openId: users.openId, name: users.name, email: users.email, role: users.role, notificationPreferences: users.notificationPreferences, avatarUrl: users.avatarUrl, timezone: users.timezone }).from(users).where(eq(users.openId, openId)).limit(1);
   const profile = result[0];
   if (!profile) return undefined;
   return {
     ...profile,
-    notificationPreferences: (profile.notificationPreferences as Partial<NotificationPreferences> | null) ?? { assessmentUpdates: true, courseAnnouncements: true, monthlyInsights: false },
+    notificationPreferences: { assessmentUpdates: true, courseAnnouncements: true, monthlyInsights: false, ...((profile.notificationPreferences as Partial<NotificationPreferences> | null) ?? {}) },
+    avatarUrl: profile.avatarUrl,
+    timezone: profile.timezone ?? "Africa/Nairobi",
   };
 }
 
-export async function updateUserProfile(openId: string, input: { name: string; notificationPreferences: NotificationPreferences }) {
+export async function updateUserProfile(openId: string, input: { name: string; timezone: string; notificationPreferences: NotificationPreferences }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db.update(users).set({ name: input.name, notificationPreferences: input.notificationPreferences }).where(eq(users.openId, openId));
+  await db.update(users).set({ name: input.name, timezone: input.timezone, notificationPreferences: input.notificationPreferences }).where(eq(users.openId, openId));
+  return getUserProfile(openId);
+}
+
+export async function updateUserAvatar(openId: string, avatarUrl: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(users).set({ avatarUrl }).where(eq(users.openId, openId));
   return getUserProfile(openId);
 }
 
