@@ -1,7 +1,7 @@
-# Course Catalog Extension
+# Enrollment Modal Extension
 
-- [x] Review the current landing-page structure and identify the best catalog placement.
-- [x] Define a focused set of professional course cards with detailed descriptions and pricing from KES 10,000 to KES 20,000.
-- [x] Add an enrollment action for every course and connect it to the existing inquiry email flow.
-- [x] Preserve the Executive Observatory visual system across the new section.
-- [x] Verify desktop and mobile rendering, build checks, and final checkpoint delivery.
+- [x] Review the current course enrollment links and existing form patterns.
+- [x] Define modal fields for name, email, and selected course, including validation and success feedback.
+- [x] Replace mailto enrollment actions with an accessible pop-up enrollment form.
+- [x] Preserve the Executive Observatory styling and responsive behavior.
+- [x] Verify build quality, keyboard dismissal, and mobile layout before delivery.
