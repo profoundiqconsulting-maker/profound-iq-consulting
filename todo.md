@@ -1,8 +1,10 @@
-# Secure Admin Assessment Dashboard
+# Admin Dashboard Filters
 
-- [x] Review the existing auth, role, assessment-attempt, and payment data model.
-- [x] Define admin-only dashboard queries that expose only necessary participant and payment fields.
-- [x] Implement protected assessment-attempt listing and summary statistics.
-- [x] Build the responsive admin dashboard with score and Paystack status views.
-- [x] Add authorization and data-access tests plus loading, empty, and error states.
-- [x] Verify the dashboard visually and save a delivery checkpoint.
+- [x] Review the current admin dashboard fields and filtering constraints.
+- [x] Define payment-status, date-range, and score-band filter semantics.
+- [x] Implement filter controls and derived filtered dashboard metrics.
+- [x] Add clear/reset behavior and empty filtered-result feedback.
+- [x] Verify filter behavior, responsive layout, tests, and build.
+- [x] Save the filtered admin dashboard checkpoint.
+- [ ] Authenticate the open browser as an administrator for dashboard verification.
+- [ ] Exercise payment, date-range, and score-band filters on populated desktop and mobile views.
