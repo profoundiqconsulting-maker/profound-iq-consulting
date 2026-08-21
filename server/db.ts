@@ -75,3 +75,43 @@ export async function getLatestPaidAssessment(email: string) {
   const result = await db.select().from(assessmentAttempts).where(eq(assessmentAttempts.email, email)).orderBy(desc(assessmentAttempts.createdAt)).limit(20);
   return result.find((item) => item.paymentStatus === "paid");
 }
+
+export async function getAssessmentAdminOverview() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+
+  const rows = await db.select({
+    id: assessmentAttempts.id,
+    name: assessmentAttempts.name,
+    email: assessmentAttempts.email,
+    paymentStatus: assessmentAttempts.paymentStatus,
+    paystackReference: assessmentAttempts.paystackReference,
+    createdAt: assessmentAttempts.createdAt,
+    paidAt: assessmentAttempts.paidAt,
+    report: assessmentAttempts.report,
+  }).from(assessmentAttempts).orderBy(desc(assessmentAttempts.createdAt)).limit(250);
+
+  const attempts = rows.map((row) => {
+    const report = row.report as AssessmentReport | null;
+    return {
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      paymentStatus: row.paymentStatus,
+      paystackReference: row.paystackReference,
+      createdAt: row.createdAt,
+      paidAt: row.paidAt,
+      overallScore: report?.overallScore ?? null,
+      overallBand: report?.overallBand ?? null,
+    };
+  });
+
+  return {
+    attempts,
+    summary: {
+      total: attempts.length,
+      paid: attempts.filter((attempt) => attempt.paymentStatus === "paid").length,
+      pending: attempts.filter((attempt) => attempt.paymentStatus !== "paid").length,
+    },
+  };
+}

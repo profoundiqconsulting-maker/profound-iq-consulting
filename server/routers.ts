@@ -3,8 +3,9 @@ import { assessmentQuestions, ASSESSMENT_PRICE_KES, buildReport } from "../share
 import { getAssessmentAttempt, createAssessmentAttempt, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { adminProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
+import { getAssessmentAdminOverview } from "./db";
 import { z } from "zod";
 
 const answersSchema = z.array(z.object({ questionId: z.string(), value: z.number().int().min(1).max(5) })).length(assessmentQuestions.length);
@@ -29,6 +30,7 @@ export const appRouter = router({
     }),
   }),
   assessment: router({
+    adminOverview: adminProcedure.query(() => getAssessmentAdminOverview()),
     questions: publicProcedure.query(() => ({ questions: assessmentQuestions, priceKes: ASSESSMENT_PRICE_KES })),
     initializePayment: publicProcedure.input(z.object({ name: z.string().trim().min(2).max(160), email: z.string().email(), answers: answersSchema, consent: z.literal(true) })).mutation(async ({ input, ctx }) => {
       const attemptId = await createAssessmentAttempt({ name: input.name, email: input.email, answers: input.answers });
