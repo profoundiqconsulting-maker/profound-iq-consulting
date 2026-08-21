@@ -76,6 +76,33 @@ export async function getLatestPaidAssessment(email: string) {
   return result.find((item) => item.paymentStatus === "paid");
 }
 
+export async function getUserAssessmentHistory(email: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+
+  const rows = await db.select({
+    id: assessmentAttempts.id,
+    name: assessmentAttempts.name,
+    email: assessmentAttempts.email,
+    paymentStatus: assessmentAttempts.paymentStatus,
+    paystackReference: assessmentAttempts.paystackReference,
+    createdAt: assessmentAttempts.createdAt,
+    paidAt: assessmentAttempts.paidAt,
+    report: assessmentAttempts.report,
+  }).from(assessmentAttempts).where(eq(assessmentAttempts.email, email)).orderBy(desc(assessmentAttempts.createdAt)).limit(50);
+
+  return rows.map((row) => ({
+    id: row.id,
+    createdAt: row.createdAt,
+    paidAt: row.paidAt,
+    paymentStatus: row.paymentStatus,
+    paystackReference: row.paystackReference,
+    overallScore: (row.report as AssessmentReport | null)?.overallScore ?? null,
+    overallBand: (row.report as AssessmentReport | null)?.overallBand ?? null,
+    report: row.paymentStatus === "paid" ? row.report : null,
+  }));
+}
+
 export async function getAssessmentAdminOverview() {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");

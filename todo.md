@@ -1,7 +1,8 @@
-# OAuth State Compatibility Fix
+# User and Admin Dashboards
 
-- [x] Trace the preview cookie and OAuth state behavior.
-- [x] Identify the root cause: OAuth reached the callback, but the missing users table prevented session persistence; CSRF validation remains unchanged.
-- [x] Apply the safe database prerequisite repair and retain the existing nonce-based CSRF guard.
-- [x] Revalidate administrator sign-in and protected admin access.
-- [x] Save a corrected checkpoint or document the external preview blocker.
+- [x] Review current authentication, assessment, payment, and admin structures.
+- [x] Define user-owned versus admin-only dashboard data boundaries.
+- [x] Implement a protected user dashboard for personal assessment activity and reports.
+- [x] Refine the admin dashboard as the operational management view.
+- [x] Add authorization, ownership, privacy, and server-side dashboard data-boundary tests.
+- [x] Verify desktop/mobile dashboard rendering and save a delivery checkpoint.

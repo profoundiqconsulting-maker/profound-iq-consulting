@@ -3,9 +3,9 @@ import { assessmentQuestions, ASSESSMENT_PRICE_KES, buildReport } from "../share
 import { getAssessmentAttempt, createAssessmentAttempt, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { adminProcedure, publicProcedure, router } from "./_core/trpc";
+import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
-import { getAssessmentAdminOverview } from "./db";
+import { getAssessmentAdminOverview, getUserAssessmentHistory } from "./db";
 import { z } from "zod";
 
 const answersSchema = z.array(z.object({ questionId: z.string(), value: z.number().int().min(1).max(5) })).length(assessmentQuestions.length);
@@ -27,6 +27,12 @@ export const appRouter = router({
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
+    }),
+  }),
+  dashboard: router({
+    mine: protectedProcedure.query(({ ctx }) => {
+      if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
+      return getUserAssessmentHistory(ctx.user.email);
     }),
   }),
   assessment: router({
