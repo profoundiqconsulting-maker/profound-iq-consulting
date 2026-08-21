@@ -7,6 +7,13 @@ import { Link } from "wouter";
 
 function statusLabel(status: string) { return status === "paid" ? "Paid" : "Pending"; }
 
+export function toLocalDateKey(value: Date | string | number) {
+  const date = new Date(value);
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
 type PaymentFilter = "all" | "paid" | "pending";
 type ScoreFilter = "all" | "high" | "mid" | "developing" | "locked";
 
@@ -20,13 +27,11 @@ export default function AdminDashboard() {
 
   const filteredAttempts = useMemo(() => {
     if (!overview.data) return [];
-    const from = fromDate ? new Date(`${fromDate}T00:00:00`) : null;
-    const to = toDate ? new Date(`${toDate}T23:59:59.999`) : null;
     return overview.data.attempts.filter((attempt) => {
-      const createdAt = new Date(attempt.createdAt);
+      const createdAtKey = toLocalDateKey(attempt.createdAt);
       const matchesPayment = paymentFilter === "all" || (paymentFilter === "paid" ? attempt.paymentStatus === "paid" : attempt.paymentStatus !== "paid");
-      const matchesFrom = !from || createdAt >= from;
-      const matchesTo = !to || createdAt <= to;
+      const matchesFrom = !fromDate || createdAtKey >= fromDate;
+      const matchesTo = !toDate || createdAtKey <= toDate;
       const score = attempt.overallScore;
       const matchesScore = scoreFilter === "all" || (scoreFilter === "locked" ? score === null : score !== null && (scoreFilter === "high" ? score >= 80 : scoreFilter === "mid" ? score >= 60 && score < 80 : score < 60));
       return matchesPayment && matchesFrom && matchesTo && matchesScore;

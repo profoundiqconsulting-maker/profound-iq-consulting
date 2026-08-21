@@ -1,10 +1,7 @@
-# Admin Dashboard Filters
+# OAuth State Compatibility Fix
 
-- [x] Review the current admin dashboard fields and filtering constraints.
-- [x] Define payment-status, date-range, and score-band filter semantics.
-- [x] Implement filter controls and derived filtered dashboard metrics.
-- [x] Add clear/reset behavior and empty filtered-result feedback.
-- [x] Verify filter behavior, responsive layout, tests, and build.
-- [x] Save the filtered admin dashboard checkpoint.
-- [ ] Authenticate the open browser as an administrator for dashboard verification.
-- [ ] Exercise payment, date-range, and score-band filters on populated desktop and mobile views.
+- [x] Trace the preview cookie and OAuth state behavior.
+- [x] Identify the root cause: OAuth reached the callback, but the missing users table prevented session persistence; CSRF validation remains unchanged.
+- [x] Apply the safe database prerequisite repair and retain the existing nonce-based CSRF guard.
+- [x] Revalidate administrator sign-in and protected admin access.
+- [x] Save a corrected checkpoint or document the external preview blocker.
