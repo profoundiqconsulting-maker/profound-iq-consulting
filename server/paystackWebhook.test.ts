@@ -46,4 +46,21 @@ describe("Paystack webhook", () => {
     expect(markAssessmentPaid).toHaveBeenCalledOnce();
     await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
   });
+
+  it("does not unlock an already-paid attempt on duplicate delivery", async () => {
+    const reference = "piq-paid-reference";
+    getAssessmentAttemptByReference.mockResolvedValue({ id: 8, paymentStatus: "paid", answers: [] });
+    const app = express();
+    registerPaystackWebhook(app);
+    const server = createServer(app);
+    await new Promise<void>((resolve) => server.listen(0, resolve));
+    const address = server.address();
+    const port = typeof address === "object" && address ? address.port : 0;
+    const body = JSON.stringify({ event: "charge.success", data: { reference, status: "success", amount: 20000, currency: "KES" } });
+    const signature = crypto.createHmac("sha512", secret).update(body).digest("hex");
+    const response = await fetch(`http://127.0.0.1:${port}/api/paystack/webhook`, { method: "POST", headers: { "content-type": "application/json", "x-paystack-signature": signature }, body });
+    expect(response.status).toBe(200);
+    expect(markAssessmentPaid).not.toHaveBeenCalled();
+    await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  });
 });
