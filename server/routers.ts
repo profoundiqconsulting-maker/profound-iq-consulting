@@ -7,20 +7,21 @@ import { sdk } from "./_core/sdk";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
-import { addEmailPreviewDelivery, createCourseEnrollment, createDeliveryLogExportJob, getAdminAnalyticsSettings, getAdminUsersForReview, getAnalyticsDashboard, getAssessmentAdminOverview, getCourseEnrollments, getDeliveryLogExportJob, getDeliveryLogExportJobs, getEmailPreviewDeliveries, getEmailPreviewDeliveriesForExport, getEmailPreviewDeliveriesPage, getEmailTemplates, getScheduledExport, getScheduledExportRuns, getUserAssessmentHistory, getUserProfile, getVerificationRevocationAudits, getVerificationRevocationAuditsForExport, getVerificationRevocationAuditsPage, recordAnalyticsEvent, revokeUserEmailVerification, updateUserAvatar, updateUserProfile, upsertAdminAnalyticsSettings, upsertEmailTemplate, updateScheduledExport, createScheduledExportIfMissing } from "./db";
+import { addEmailPreviewDelivery, checkLoginRateLimit, clearLoginFailures, createCourseEnrollment, createDeliveryLogExportJob, getAdminAnalyticsSettings, getAdminNotificationRecipients, getAdminUsersForReview, getAnalyticsDashboard, getAssessmentAdminOverview, getCourseEnrollments, getDeliveryLogExportJob, getDeliveryLogExportJobs, getEmailPreviewDeliveries, getEmailPreviewDeliveriesForExport, getEmailPreviewDeliveriesPage, getEmailTemplates, getScheduledExport, getScheduledExportRuns, getUserAssessmentHistory, getUserProfile, getVerificationRevocationAudits, getVerificationRevocationAuditsForExport, getVerificationRevocationAuditsPage, recordAnalyticsEvent, recordFailedLogin, revokeUserEmailVerification, updateUserAvatar, updateUserProfile, upsertAdminAnalyticsSettings, upsertEmailTemplate, updateScheduledExport, createScheduledExportIfMissing } from "./db";
 import { storagePut } from "./storage";
 import { z } from "zod";
 import { renderAssessmentReportPdf } from "./reportPdf";
 import { validateEmailTemplateBody } from "../shared/emailTemplate";
 import { buildCourseEnrollmentCsv } from "../shared/adminExport";
 import { buildDeliveryLogCsv, type DeliveryLogFilters } from "../shared/adminDeliveryLog";
-import { emailAssessmentReportIfNeeded, sendTemplateTestEmail } from "./email";
+import { emailAssessmentReportIfNeeded, sendFailedLoginAlert, sendTemplateTestEmail } from "./email";
 import { createHeartbeatJob } from "./_core/heartbeat";
 import { WEEKLY_EXPORT_KEY } from "./scheduledEnrollmentExport";
 import { DELIVERY_LOG_EXPORT_KEY } from "./deliveryLogExport";
 import { randomUUID } from "node:crypto";
 import { consumePasswordResetToken, createLocalUser, findUserByLocalIdentifier, setPasswordResetToken } from "./db";
-import { createResetToken, hashPassword, hashResetToken, identifierSchema, normalizeIdentifier, validatePassword, verifyPassword } from "../shared/localAuth";
+import { identifierSchema, normalizeIdentifier, validatePassword } from "../shared/localAuth";
+import { createResetToken, hashPassword, hashRateLimitKey, hashResetToken, verifyPassword } from "./localAuthCrypto";
 import { sendPasswordResetEmail } from "./email";
 import { buildVerificationAuditCsv, type AuditHistoryFilters } from "../shared/adminAudit";
 
@@ -57,8 +58,21 @@ export const appRouter = router({
     login: publicProcedure.input(z.object({ identifier: z.string().trim().min(3).max(320), password: z.string().min(1).max(128) })).mutation(async ({ ctx, input }) => {
       const identifier = normalizeIdentifier(input.identifier);
       if (!identifierSchema.test(input.identifier)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid identifier or password." });
+      const forwarded = ctx.req.headers["x-forwarded-for"];
+      const networkAddress = typeof forwarded === "string" ? forwarded.split(",")[0]?.trim() : ctx.req.ip ?? ctx.req.socket?.remoteAddress ?? "unknown";
+      const identifierKey = hashRateLimitKey(identifier);
+      const networkKey = hashRateLimitKey(networkAddress || "unknown");
+      const rateKeys = [[identifierKey, networkKey], [identifierKey, "global"], ["global", networkKey]] as const;
+      const rates = await Promise.all(rateKeys.map(([identifierHash, networkHash]) => checkLoginRateLimit(identifierHash, networkHash)));
+      if (rates.some((rate) => rate.blocked)) throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Too many failed attempts. Please try again later." });
       const user = await findUserByLocalIdentifier(identifier);
-      if (!user?.passwordHash || !verifyPassword(input.password, user.passwordHash)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid identifier or password." });
+      if (!user?.passwordHash || !verifyPassword(input.password, user.passwordHash)) {
+        const failures = await Promise.all(rateKeys.map(([identifierHash, networkHash]) => recordFailedLogin(identifierHash, networkHash)));
+        const alertFailure = failures.find((failure) => failure.shouldAlert);
+        if (alertFailure) { getAdminNotificationRecipients().then((recipients) => sendFailedLoginAlert({ recipients, identifier, failedCount: alertFailure.failedCount })).catch((error) => console.error("[Auth] Failed-login alert could not be sent", error)); }
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid identifier or password." });
+      }
+      await Promise.all(rateKeys.map(([identifierHash, networkHash]) => clearLoginFailures(identifierHash, networkHash)));
       const token = await sdk.createSessionToken(user.openId, { name: user.name ?? identifier });
       ctx.res.cookie(COOKIE_NAME, token, getSessionCookieOptions(ctx.req));
       return { user: { id: user.id, name: user.name, email: user.email, phone: user.phone, username: user.username } };

@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { adminAnalyticsSettings, analyticsEvents, assessmentAttempts, courseEnrollments, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, scheduledExportRuns, scheduledExports, users, verificationRevocationAudits } from "../drizzle/schema";
+import { adminAnalyticsSettings, analyticsEvents, assessmentAttempts, authLoginAttempts, courseEnrollments, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, scheduledExportRuns, scheduledExports, users, verificationRevocationAudits } from "../drizzle/schema";
 import type { AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { selectAdminNotificationRecipients } from "../shared/adminRecipients";
@@ -22,6 +22,37 @@ export async function getAdminNotificationRecipients(): Promise<string[]> {
   if (!db) return [];
   const rows = await db.select({ role: users.role, email: users.email, emailVerifiedAt: users.emailVerifiedAt }).from(users).where(and(eq(users.role, "admin"), isNotNull(users.email), isNotNull(users.emailVerifiedAt)));
   return selectAdminNotificationRecipients(rows);
+}
+
+export async function checkLoginRateLimit(identifierHash: string, networkHash: string, now = new Date()) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const row = (await db.select().from(authLoginAttempts).where(and(eq(authLoginAttempts.identifierHash, identifierHash), eq(authLoginAttempts.networkHash, networkHash))).limit(1))[0];
+  if (!row) return { blocked: false, failedCount: 0 };
+  const windowAge = now.getTime() - row.windowStartedAt.getTime();
+  if (windowAge >= 15 * 60 * 1000) { await db.delete(authLoginAttempts).where(eq(authLoginAttempts.id, row.id)); return { blocked: false, failedCount: 0 }; }
+  return { blocked: row.failedCount >= 5, failedCount: row.failedCount };
+}
+
+export async function recordFailedLogin(identifierHash: string, networkHash: string, now = new Date()) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const existing = (await db.select().from(authLoginAttempts).where(and(eq(authLoginAttempts.identifierHash, identifierHash), eq(authLoginAttempts.networkHash, networkHash))).limit(1))[0];
+  if (!existing || now.getTime() - existing.windowStartedAt.getTime() >= 15 * 60 * 1000) {
+    if (existing) await db.delete(authLoginAttempts).where(eq(authLoginAttempts.id, existing.id));
+    await db.insert(authLoginAttempts).values({ identifierHash, networkHash, failedCount: 1, windowStartedAt: now, lastFailedAt: now });
+    return { failedCount: 1, shouldAlert: false };
+  }
+  const nextCount = existing.failedCount + 1;
+  const shouldAlert = nextCount >= 5 && !existing.alertSentAt;
+  await db.update(authLoginAttempts).set({ failedCount: nextCount, lastFailedAt: now, alertSentAt: shouldAlert ? now : existing.alertSentAt }).where(eq(authLoginAttempts.id, existing.id));
+  return { failedCount: nextCount, shouldAlert };
+}
+
+export async function clearLoginFailures(identifierHash: string, networkHash: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.delete(authLoginAttempts).where(and(eq(authLoginAttempts.identifierHash, identifierHash), eq(authLoginAttempts.networkHash, networkHash)));
 }
 
 export async function findUserByLocalIdentifier(identifier: string) {

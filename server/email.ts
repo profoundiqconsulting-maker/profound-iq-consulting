@@ -66,6 +66,15 @@ export async function sendScheduledExportNotification(input: { status: "success"
   await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to, subject, text: message, html: `<div style="font-family:Arial,sans-serif;color:#16243d"><h2>${escapeHtml(subject)}</h2><p>${escapeHtml(message)}</p></div>` });
 }
 
+export async function sendFailedLoginAlert(input: { recipients: string[]; identifier: string; failedCount: number }): Promise<void> {
+  const config = getSmtpConfig();
+  const recipients = input.recipients.filter(Boolean);
+  if (!recipients.length) return;
+  const subject = "Profound IQ security alert: repeated failed login attempts";
+  const message = `We detected ${input.failedCount} failed login attempts for the identifier ${input.identifier}. Review your account and consider changing your password if this activity was not expected.`;
+  await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to: recipients, subject, text: message, html: `<div style="font-family:Arial,sans-serif;color:#16243d"><h2>${escapeHtml(subject)}</h2><p>${escapeHtml(message)}</p><p>This alert does not reveal the source network or password details.</p></div>` });
+}
+
 export async function sendPasswordResetEmail(input: { to: string; name: string; resetUrl: string }): Promise<void> {
   const config = getSmtpConfig();
   const subject = "Reset your Profound IQ password";

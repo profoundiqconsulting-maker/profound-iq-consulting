@@ -74,6 +74,18 @@ export const scheduledExportRuns = mysqlTable("scheduled_export_runs", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+export const authLoginAttempts = mysqlTable("auth_login_attempts", {
+  id: int("id").autoincrement().primaryKey(),
+  identifierHash: varchar("identifierHash", { length: 64 }).notNull(),
+  networkHash: varchar("networkHash", { length: 64 }).notNull(),
+  failedCount: int("failedCount").default(0).notNull(),
+  windowStartedAt: timestamp("windowStartedAt").notNull(),
+  lastFailedAt: timestamp("lastFailedAt").notNull(),
+  alertSentAt: timestamp("alertSentAt"),
+}, (table) => ({
+  identifierNetworkUnique: uniqueIndex("auth_login_attempts_identifier_network_unique").on(table.identifierHash, table.networkHash),
+}));
+
 export const verificationRevocationAudits = mysqlTable("verification_revocation_audits", {
   id: int("id").autoincrement().primaryKey(),
   targetOpenId: varchar("targetOpenId", { length: 64 }).notNull(),
@@ -144,6 +156,7 @@ export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 export type ScheduledExport = typeof scheduledExports.$inferSelect;
 export type ScheduledExportRun = typeof scheduledExportRuns.$inferSelect;
 export type EmailPreviewDelivery = typeof emailPreviewDeliveries.$inferSelect;
+export type AuthLoginAttempt = typeof authLoginAttempts.$inferSelect;
 export type VerificationRevocationAudit = typeof verificationRevocationAudits.$inferSelect;
 export type DeliveryLogExportJob = typeof deliveryLogExportJobs.$inferSelect;
 export type AdminAnalyticsSettings = typeof adminAnalyticsSettings.$inferSelect;

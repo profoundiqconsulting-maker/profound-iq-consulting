@@ -157,3 +157,13 @@
 - [x] Add authorization, validation, enumeration-resistance, token-expiry, and password-hashing tests.
 - [x] Run schema migration, type checks, tests, production build, and responsive verification.
 - [x] Save a checkpoint containing the local credential authentication enhancement.
+
+# Authentication Security Enhancements
+- [x] Add a real-time password-strength meter to registration and reset-password forms.
+- [x] Confirm password recovery remains email-only; no SMS provider is required.
+- [x] Keep password-reset delivery email-only using the existing single-use, expiring email token flow.
+- [x] Add server-side login rate limiting with safe per-identifier and network controls.
+- [x] Track repeated failed logins and email administrators at the alert threshold.
+- [x] Add tests for strength scoring, rate limiting, alert thresholds, and enumeration resistance; recovery remains email-only by decision.
+- [x] Run type checks, tests, production build, and responsive authentication verification.
+- [x] Save a checkpoint containing the authentication security enhancements.

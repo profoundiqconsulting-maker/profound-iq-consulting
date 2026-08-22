@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { createResetToken, hashPassword, hashResetToken, normalizeIdentifier, validatePassword, verifyPassword } from "./localAuth";
+import { normalizeIdentifier, passwordStrength, validatePassword } from "./localAuth";
+import { createResetToken, hashPassword, hashRateLimitKey, hashResetToken, verifyPassword } from "../server/localAuthCrypto";
 
 describe("local credential authentication", () => {
   it("normalizes supported identifiers", () => {
@@ -16,11 +17,16 @@ describe("local credential authentication", () => {
     expect(verifyPassword("wrongPassword123", first)).toBe(false);
   });
 
-  it("requires a strong password and creates verifiable reset tokens", () => {
+  it("scores password strength and creates verifiable reset tokens", () => {
+    expect(passwordStrength("")).toBe(0);
+    expect(passwordStrength("long-enough-password-1")).toBe(4);
+    expect(passwordStrength("StrongPassword123!")).toBe(5);
     expect(validatePassword("short1")).toBe(false);
     expect(validatePassword("long-enough-password-1")).toBe(true);
+    expect(validatePassword("StrongPassword123!")).toBe(true);
     const token = createResetToken();
     expect(token.raw).not.toBe(token.hash);
     expect(hashResetToken(token.raw)).toBe(token.hash);
+    expect(hashRateLimitKey("amina@example.com")).toHaveLength(64);
   });
 });
