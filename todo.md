@@ -178,3 +178,14 @@
 - [x] Add tests for countdown behavior, explicit user login-history redaction, session ownership, revocation, and admin settings authorization.
 - [x] Run type checks, tests, production build, and responsive verification for auth, admin, and profile flows.
 - [x] Save a checkpoint containing the login-security and session-visibility enhancements.
+
+# Security Observability and Trusted Devices
+
+- [x] Add persisted configurable login-event retention settings with bounded values.
+- [x] Add safe admin security-log export with retention-aware cleanup and CSV serialization.
+- [x] Add an optional trusted-device login flow with explicit consent and security messaging.
+- [x] Store privacy-safe estimated location and device type metadata on active sessions.
+- [x] Display estimated location and device type in the active sessions view.
+- [x] Add admin authorization, retention, export, trusted-device, and metadata privacy tests.
+- [x] Run schema migration, type checks, tests, production build, and responsive verification.
+- [x] Save a checkpoint containing the security observability and trusted-device enhancements.

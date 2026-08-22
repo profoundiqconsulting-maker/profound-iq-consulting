@@ -58,7 +58,7 @@ export async function countFailedLoginEvents(input: { from?: Date; to?: Date }) 
 export async function getAdminSecuritySettings(adminOpenId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  return (await db.select().from(adminSecuritySettings).where(eq(adminSecuritySettings.adminOpenId, adminOpenId)).limit(1))[0] ?? { id: 0, adminOpenId, alertThreshold: 5, reviewWindowDays: 7, updatedAt: new Date(0) };
+  return (await db.select().from(adminSecuritySettings).where(eq(adminSecuritySettings.adminOpenId, adminOpenId)).limit(1))[0] ?? { id: 0, adminOpenId, alertThreshold: 5, reviewWindowDays: 7, loginEventRetentionDays: 90, updatedAt: new Date(0) };
 }
 
 export async function getEffectiveLoginAlertThreshold() {
@@ -68,14 +68,27 @@ export async function getEffectiveLoginAlertThreshold() {
   return Math.max(3, Math.min(20, Number(row?.threshold ?? 5)));
 }
 
-export async function saveAdminSecuritySettings(adminOpenId: string, input: { alertThreshold: number; reviewWindowDays: number }) {
+export async function getEffectiveLoginEventRetentionDays(adminOpenId: string) {
+  const settings = await getAdminSecuritySettings(adminOpenId);
+  return Math.max(30, Math.min(365, Number(settings.loginEventRetentionDays ?? 90)));
+}
+
+export async function purgeExpiredLoginEvents(retentionDays: number, now = new Date()) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const cutoff = new Date(now.getTime() - Math.max(30, Math.min(365, retentionDays)) * 24 * 60 * 60 * 1000);
+  await db.delete(loginEvents).where(lt(loginEvents.createdAt, cutoff));
+  return cutoff;
+}
+
+export async function saveAdminSecuritySettings(adminOpenId: string, input: { alertThreshold: number; reviewWindowDays: number; loginEventRetentionDays: number }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   await db.insert(adminSecuritySettings).values({ adminOpenId, ...input }).onDuplicateKeyUpdate({ set: input });
   return getAdminSecuritySettings(adminOpenId);
 }
 
-export async function createUserSession(input: { openId: string; tokenHash: string; networkHash?: string | null; userAgent?: string | null; createdAt?: Date; expiresAt: Date }) {
+export async function createUserSession(input: { openId: string; tokenHash: string; networkHash?: string | null; userAgent?: string | null; deviceType?: string | null; estimatedLocation?: string | null; trustedDevice?: boolean; trustExpiresAt?: Date | null; createdAt?: Date; expiresAt: Date }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const now = input.createdAt ?? new Date();
@@ -97,7 +110,7 @@ export async function touchUserSession(sessionId: number, now = new Date()) {
 export async function getUserSessions(openId: string, now = new Date()) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  return db.select({ id: userSessions.id, openId: userSessions.openId, userAgent: userSessions.userAgent, createdAt: userSessions.createdAt, lastSeenAt: userSessions.lastSeenAt, expiresAt: userSessions.expiresAt, revokedAt: userSessions.revokedAt }).from(userSessions).where(and(eq(userSessions.openId, openId), isNull(userSessions.revokedAt), gte(userSessions.expiresAt, now))).orderBy(desc(userSessions.lastSeenAt));
+  return db.select({ id: userSessions.id, openId: userSessions.openId, userAgent: userSessions.userAgent, deviceType: userSessions.deviceType, estimatedLocation: userSessions.estimatedLocation, trustedDevice: userSessions.trustedDevice, trustExpiresAt: userSessions.trustExpiresAt, createdAt: userSessions.createdAt, lastSeenAt: userSessions.lastSeenAt, expiresAt: userSessions.expiresAt, revokedAt: userSessions.revokedAt }).from(userSessions).where(and(eq(userSessions.openId, openId), isNull(userSessions.revokedAt), gte(userSessions.expiresAt, now))).orderBy(desc(userSessions.lastSeenAt));
 }
 
 export async function revokeUserSession(openId: string, sessionId: number) {

@@ -91,6 +91,10 @@ export const userSessions = mysqlTable("user_sessions", {
   tokenHash: varchar("tokenHash", { length: 64 }).notNull(),
   networkHash: varchar("networkHash", { length: 64 }),
   userAgent: varchar("userAgent", { length: 512 }),
+  deviceType: varchar("deviceType", { length: 32 }),
+  estimatedLocation: varchar("estimatedLocation", { length: 120 }),
+  trustedDevice: boolean("trustedDevice").default(false).notNull(),
+  trustExpiresAt: timestamp("trustExpiresAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   lastSeenAt: timestamp("lastSeenAt").defaultNow().notNull(),
   expiresAt: timestamp("expiresAt").notNull(),
@@ -104,6 +108,7 @@ export const adminSecuritySettings = mysqlTable("admin_security_settings", {
   adminOpenId: varchar("adminOpenId", { length: 64 }).notNull(),
   alertThreshold: int("alertThreshold").default(5).notNull(),
   reviewWindowDays: int("reviewWindowDays").default(7).notNull(),
+  loginEventRetentionDays: int("loginEventRetentionDays").default(90).notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
   adminUnique: uniqueIndex("admin_security_settings_admin_unique").on(table.adminOpenId),

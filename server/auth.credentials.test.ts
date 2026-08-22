@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { TrpcContext } from "./_core/context";
+import { hashPassword } from "./localAuthCrypto";
 
 const { findUserByLocalIdentifier, createLocalUser, setPasswordResetToken, consumePasswordResetToken, checkLoginRateLimit, recordFailedLogin, clearLoginFailures, getEffectiveLoginAlertThreshold, recordLoginEvent, createUserSession, getAdminNotificationRecipients, sendPasswordResetEmail, sendFailedLoginAlert } = vi.hoisted(() => ({
   findUserByLocalIdentifier: vi.fn(),
@@ -61,6 +62,17 @@ describe("local credential auth procedures", () => {
     await expect(appRouter.createCaller(ctx).auth.login({ identifier: "unknown@example.com", password: "wrongPassword123" })).rejects.toMatchObject({ code: "UNAUTHORIZED" });
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(sendFailedLoginAlert).toHaveBeenCalledWith(expect.objectContaining({ recipients: ["admin@example.com"], failedCount: 5 }));
+  });
+
+  it("creates a trusted session only when the login option is explicitly selected", async () => {
+    findUserByLocalIdentifier.mockResolvedValue({ ...localUser, passwordHash: hashPassword("securePassword123") });
+    const { ctx, cookies } = context();
+    await appRouter.createCaller(ctx).auth.login({ identifier: "amina", password: "securePassword123", trustDevice: true });
+    expect(cookies).toHaveLength(1);
+    expect(createUserSession).toHaveBeenCalledWith(expect.objectContaining({ trustedDevice: true, trustExpiresAt: expect.any(Date), deviceType: "unknown", estimatedLocation: null }));
+    const session = createUserSession.mock.calls.at(-1)?.[0] as { expiresAt: Date; trustExpiresAt: Date };
+    expect(session.expiresAt.getTime() - Date.now()).toBeGreaterThan(364 * 24 * 60 * 60 * 1000);
+    expect(session.trustExpiresAt.getTime()).toBe(session.expiresAt.getTime());
   });
 
   it("returns the same reset response for unknown emails and does not send mail", async () => {
