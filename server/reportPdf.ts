@@ -1,8 +1,8 @@
 import PDFDocument from "pdfkit";
-import type { AssessmentReport } from "../shared/assessment";
+import type { AssessmentReport, RoleLensReadout } from "../shared/assessment";
 import { storageGetSignedUrl } from "./storage";
 
-type ReportPdfInput = { attemptId: number; participantName: string; createdAt: Date | string; report: AssessmentReport };
+type ReportPdfInput = { attemptId: number; participantName: string; createdAt: Date | string; report: AssessmentReport; lens?: RoleLensReadout };
 const NAVY = "#16243d";
 const GOLD = "#a27e2e";
 const MUTED = "#5f6a7b";
@@ -44,6 +44,12 @@ export async function renderAssessmentReportPdf(input: ReportPdfInput): Promise<
   y += doc.heightOfString(summary?.headline ?? `${input.report.overallBand}: a practical view of your current capability pattern`, { width: 491 }) + 7;
   y = writeText(doc, summary?.overview ?? "Use this report as a professional development conversation starter, pairing the signal with observed behavior, context, feedback, and outcomes.", 52, y, 491, 9.8, MUTED, 3) + 7;
   y = writeBullets(doc, summary?.priorities ?? input.report.focusAreas, y, 9.5, NAVY) + 7;
+  if (input.lens) {
+    doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(9).text(input.lens.label.toUpperCase(), 52, y + 4, { characterSpacing: 1.1 });
+    y += 19;
+    y = writeText(doc, input.lens.context, 52, y, 491, 9.3, MUTED, 3) + 6;
+    y = writeBullets(doc, input.lens.priorities, y, 9.2, NAVY) + 4;
+  }
   doc.strokeColor("#d8d1c1").lineWidth(1).moveTo(52, y).lineTo(543, y).stroke();
   y += 18;
   doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("DIMENSION READOUT", 52, y, { characterSpacing: 1.2 });

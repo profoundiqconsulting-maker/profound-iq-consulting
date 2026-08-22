@@ -1,6 +1,7 @@
+import { createHash, randomBytes } from "node:crypto";
 import { and, desc, eq, gte, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, authLoginAttempts, courseEnrollments, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, reportShares, authLoginAttempts, courseEnrollments, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -341,6 +342,37 @@ export async function getUserAssessmentHistory(email: string) {
     overallBand: (row.report as AssessmentReport | null)?.overallBand ?? null,
     report: row.paymentStatus === "paid" ? row.report : null,
   })).map((item, index, items) => ({ ...item, version: `v${items.length - index}` }));
+}
+
+function hashReportShareToken(token: string) { return createHash("sha256").update(token).digest("hex"); }
+
+export async function createReportShare(input: { attemptId: number; ownerOpenId: string; expiresAt: Date }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rawToken = randomBytes(32).toString("base64url");
+  await db.insert(reportShares).values({ attemptId: input.attemptId, ownerOpenId: input.ownerOpenId, tokenHash: hashReportShareToken(rawToken), expiresAt: input.expiresAt });
+  return rawToken;
+}
+
+export async function getActiveReportShare(token: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const rows = await db.select({ share: reportShares, attempt: assessmentAttempts }).from(reportShares).innerJoin(assessmentAttempts, eq(reportShares.attemptId, assessmentAttempts.id)).where(and(eq(reportShares.tokenHash, hashReportShareToken(token)), isNull(reportShares.revokedAt), gte(reportShares.expiresAt, new Date()))).limit(1);
+  const row = rows[0];
+  if (!row || row.attempt.paymentStatus !== "paid" || !row.attempt.report) return undefined;
+  return { share: row.share, attempt: row.attempt };
+}
+
+export async function revokeReportShare(ownerOpenId: string, shareId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(reportShares).set({ revokedAt: new Date() }).where(and(eq(reportShares.id, shareId), eq(reportShares.ownerOpenId, ownerOpenId), isNull(reportShares.revokedAt)));
+}
+
+export async function listReportShares(ownerOpenId: string, attemptId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(reportShares).where(and(eq(reportShares.ownerOpenId, ownerOpenId), attemptId ? eq(reportShares.attemptId, attemptId) : undefined)).orderBy(desc(reportShares.createdAt)).limit(50);
 }
 
 export async function compareUserAssessmentReports(email: string, currentAttemptId: number, previousAttemptId: number) {

@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
-import { assessmentQuestions, ASSESSMENT_PRICE_KES, buildReport, type AssessmentReport } from "../shared/assessment";
+import { assessmentQuestions, ASSESSMENT_PRICE_KES, buildReport, buildRoleLens, type AssessmentReport, type RoleLens } from "../shared/assessment";
 import { parse as parseCookie } from "cookie";
-import { getAssessmentAttempt, createAssessmentAttempt, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference, compareUserAssessmentReports } from "./db";
+import { getAssessmentAttempt, createAssessmentAttempt, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference, compareUserAssessmentReports, createReportShare, getActiveReportShare, revokeReportShare, listReportShares } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { sdk } from "./_core/sdk";
 import { systemRouter } from "./_core/systemRouter";
@@ -50,6 +50,13 @@ function getIdentifierType(value: string) {
 
 export const appRouter = router({
   system: systemRouter,
+  sharedReport: router({
+    get: publicProcedure.input(z.object({ token: z.string().min(32).max(128) })).query(async ({ input }) => {
+      const result = await getActiveReportShare(input.token);
+      if (!result) throw new TRPCError({ code: "NOT_FOUND", message: "This report link is invalid, expired, or no longer available." });
+      return { report: result.attempt.report as AssessmentReport, createdAt: result.attempt.createdAt, participantName: result.attempt.name, expiresAt: result.share.expiresAt };
+    }),
+  }),
   auth: router({
     register: publicProcedure.input(z.object({ name: z.string().trim().min(2).max(160), email: z.string().trim().email().optional(), phone: z.string().trim().min(7).max(32).optional(), username: z.string().trim().min(3).max(40).regex(/^[a-zA-Z0-9_.-]+$/).optional(), password: z.string().refine(validatePassword, "Password must be 10–128 characters and include letters and numbers.") }).refine((input) => Boolean(input.email || input.phone || input.username), "Provide an email, phone number, or username." )).mutation(async ({ ctx, input }) => {
       const identifiers = [input.email ? normalizeIdentifier(input.email) : null, input.phone ? normalizeIdentifier(input.phone) : null, input.username ? normalizeIdentifier(input.username) : null].filter((value): value is string => Boolean(value));
@@ -197,6 +204,16 @@ export const appRouter = router({
       if (!result) throw new TRPCError({ code: "NOT_FOUND", message: "Both paid report versions could not be found for this account." });
       return result;
     }),
+    createShareLink: protectedProcedure.input(z.object({ attemptId: z.number().int().positive(), expiresInDays: z.number().int().min(1).max(30).default(7) })).mutation(async ({ ctx, input }) => {
+      if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
+      const attempt = await getAssessmentAttempt(input.attemptId);
+      if (!attempt || attempt.email !== ctx.user.email) throw new TRPCError({ code: "NOT_FOUND", message: "Assessment report not found." });
+      if (attempt.paymentStatus !== "paid" || !attempt.report) throw new TRPCError({ code: "FORBIDDEN", message: "A verified paid report is required to create a share link." });
+      const token = await createReportShare({ attemptId: attempt.id, ownerOpenId: ctx.user.openId, expiresAt: new Date(Date.now() + input.expiresInDays * 24 * 60 * 60 * 1000) });
+      return { token, expiresAt: new Date(Date.now() + input.expiresInDays * 24 * 60 * 60 * 1000) };
+    }),
+    reportShares: protectedProcedure.input(z.object({ attemptId: z.number().int().positive().optional() }).optional()).query(({ ctx, input }) => listReportShares(ctx.user.openId, input?.attemptId)),
+    revokeShareLink: protectedProcedure.input(z.object({ shareId: z.number().int().positive() })).mutation(({ ctx, input }) => revokeReportShare(ctx.user.openId, input.shareId).then(() => ({ revoked: true as const }))),
     resendReportEmail: protectedProcedure.input(z.object({ attemptId: z.number().int().positive() })).mutation(async ({ ctx, input }) => {
       if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
       const attempt = await getAssessmentAttempt(input.attemptId);
@@ -207,12 +224,13 @@ export const appRouter = router({
       if (!sent) throw new TRPCError({ code: "CONFLICT", message: "This report email is already being prepared. Please try again shortly." });
       return { sent: true as const };
     }),
-    downloadReport: protectedProcedure.input(z.object({ attemptId: z.number().int().positive() })).mutation(async ({ ctx, input }) => {
+    downloadReport: protectedProcedure.input(z.object({ attemptId: z.number().int().positive(), lens: z.enum(["leadership", "careerTransition", "teamDevelopment"]).default("leadership") })).mutation(async ({ ctx, input }) => {
       if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
       const attempt = await getAssessmentAttempt(input.attemptId);
       if (!attempt || attempt.email !== ctx.user.email) throw new TRPCError({ code: "NOT_FOUND", message: "Assessment report not found." });
       if (attempt.paymentStatus !== "paid" || !attempt.report) throw new TRPCError({ code: "FORBIDDEN", message: "A verified payment is required to download this report." });
-      const pdf = await renderAssessmentReportPdf({ attemptId: attempt.id, participantName: attempt.name, createdAt: attempt.createdAt, report: attempt.report as import("../shared/assessment").AssessmentReport });
+      const report = attempt.report as import("../shared/assessment").AssessmentReport;
+      const pdf = await renderAssessmentReportPdf({ attemptId: attempt.id, participantName: attempt.name, createdAt: attempt.createdAt, report, lens: buildRoleLens(report, input.lens as RoleLens) });
       await recordAnalyticsEvent({ eventName: "report_downloaded", attemptId: attempt.id, userOpenId: ctx.user.openId });
       return { filename: `profound-iq-assessment-${attempt.id}.pdf`, contentType: "application/pdf", data: pdf.toString("base64") };
     }),

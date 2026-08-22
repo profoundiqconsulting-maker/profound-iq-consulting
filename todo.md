@@ -230,3 +230,14 @@
 - [x] Add tests for summary content, role lenses, version persistence, comparison privacy, and PDF output.
 - [x] Run schema migration, type checks, tests, production build, and responsive verification.
 - [x] Save a checkpoint containing the report evolution enhancements.
+
+# Report Sharing and Professional Delivery
+
+- [x] Add lens-aware PDF export that includes the selected role lens and executive summary.
+- [x] Add secure temporary report share links with expiry, revocation, and consent-aware access.
+- [x] Add visual trend charts to the report-version comparison panel.
+- [x] Ensure all report reflection prompts contain detailed, adaptable professional content.
+- [x] Create and validate a reusable skill for this report-enhancement workflow.
+- [x] Add tests for share-link authorization, expiry, revocation, lens-aware PDF content, trends, and reflection completeness.
+- [x] Run type checks, tests, production build, and responsive verification.
+- [x] Save a checkpoint containing the report-sharing and professional-delivery enhancements.

@@ -172,6 +172,16 @@ export const adminAnalyticsSettings = mysqlTable("admin_analytics_settings", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+export const reportShares = mysqlTable("report_shares", {
+  id: int("id").autoincrement().primaryKey(),
+  attemptId: int("attemptId").notNull(),
+  ownerOpenId: varchar("ownerOpenId", { length: 64 }).notNull(),
+  tokenHash: varchar("tokenHash", { length: 128 }).notNull().unique(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  revokedAt: timestamp("revokedAt"),
+});
+
 export const assessmentAttempts = mysqlTable("assessment_attempts", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 160 }).notNull(),
@@ -191,6 +201,7 @@ export const assessmentAttempts = mysqlTable("assessment_attempts", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type AssessmentAttempt = typeof assessmentAttempts.$inferSelect;
+export type ReportShare = typeof reportShares.$inferSelect;
 export type InsertAssessmentAttempt = typeof assessmentAttempts.$inferInsert;
 export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
 export type EmailTemplate = typeof emailTemplates.$inferSelect;

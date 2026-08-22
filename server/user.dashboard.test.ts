@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-const { getUserAssessmentHistory, getAssessmentAttempt, compareUserAssessmentReports } = vi.hoisted(() => ({ getUserAssessmentHistory: vi.fn(), getAssessmentAttempt: vi.fn(), compareUserAssessmentReports: vi.fn() }));
+const { getUserAssessmentHistory, getAssessmentAttempt, compareUserAssessmentReports, createReportShare, getActiveReportShare, revokeReportShare, listReportShares } = vi.hoisted(() => ({ getUserAssessmentHistory: vi.fn(), getAssessmentAttempt: vi.fn(), compareUserAssessmentReports: vi.fn(), createReportShare: vi.fn(), getActiveReportShare: vi.fn(), revokeReportShare: vi.fn(), listReportShares: vi.fn() }));
 const { renderAssessmentReportPdf } = vi.hoisted(() => ({ renderAssessmentReportPdf: vi.fn() }));
 const { emailAssessmentReportIfNeeded } = vi.hoisted(() => ({ emailAssessmentReportIfNeeded: vi.fn() }));
 
@@ -10,6 +10,10 @@ vi.mock("./db", () => ({
   getAssessmentAdminOverview: vi.fn(),
   getAssessmentAttempt,
   compareUserAssessmentReports,
+  createReportShare,
+  getActiveReportShare,
+  revokeReportShare,
+  listReportShares,
   createAssessmentAttempt: vi.fn(),
   getAssessmentAttemptByReference: vi.fn(),
   markAssessmentPaid: vi.fn(),
@@ -65,6 +69,33 @@ describe("dashboard.compareReports", () => {
     const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
     await caller.dashboard.compareReports({ currentAttemptId: 2, previousAttemptId: 1 });
     expect(compareUserAssessmentReports).toHaveBeenCalledWith("owner@example.com", 2, 1);
+  });
+});
+
+describe("sharedReport and report-share management", () => {
+  it("creates a share only for the authenticated owner’s paid report", async () => {
+    getAssessmentAttempt.mockResolvedValue({ id: 12, email: "owner@example.com", paymentStatus: "paid", report: paidReport, name: "Participant", createdAt: new Date() });
+    createReportShare.mockResolvedValue("opaque-share-token");
+    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
+    const result = await caller.dashboard.createShareLink({ attemptId: 12, expiresInDays: 7 });
+    expect(result.token).toBe("opaque-share-token");
+    expect(createReportShare).toHaveBeenCalledWith(expect.objectContaining({ attemptId: 12, ownerOpenId: "user-dashboard-test", expiresAt: expect.any(Date) }));
+  });
+
+  it("rejects public access when a share token is invalid or expired", async () => {
+    getActiveReportShare.mockResolvedValue(undefined);
+    const caller = appRouter.createCaller(context(null));
+    await expect(caller.sharedReport.get({ token: "x".repeat(32) })).rejects.toMatchObject({ code: "NOT_FOUND" });
+  });
+
+  it("keeps share listing and revocation scoped to the authenticated owner", async () => {
+    listReportShares.mockResolvedValue([]);
+    revokeReportShare.mockResolvedValue(undefined);
+    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
+    await caller.dashboard.reportShares({ attemptId: 12 });
+    await caller.dashboard.revokeShareLink({ shareId: 4 });
+    expect(listReportShares).toHaveBeenCalledWith("user-dashboard-test", 12);
+    expect(revokeReportShare).toHaveBeenCalledWith("user-dashboard-test", 4);
   });
 });
 
