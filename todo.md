@@ -31,3 +31,14 @@
 - [x] Add tests and verify desktop/mobile dashboard rendering.
 - [x] Save a checkpoint for the dashboard email-delivery indicator.
 - [x] Save a new checkpoint that includes the verified dashboard email-delivery indicator after the passing tests and desktop/mobile dashboard review.
+- [x] Add a protected resend-report-email procedure scoped to the signed-in user's own paid report.
+- [x] Add a Resend email button for failed or pending report delivery with loading and toast feedback.
+- [x] Add resend authorization and delivery tests and verify desktop/mobile dashboard rendering.
+- [x] Save a checkpoint for the manual report-email resend feature.
+- [x] Exercise the dashboard Resend email action in the browser and verify its loading spinner plus success/error toast behavior.
+- [x] Add a resend test covering the already-in-progress conflict path when email delivery is claimed.
+- [x] Re-run desktop/mobile dashboard verification after the final resend-button visibility change.
+- [x] Save a new checkpoint for the manual report-email resend feature after all final verification.
+- [x] Exercise the dashboard Resend email action again and explicitly verify the loading spinner plus success toast; also trigger and verify the resend error/conflict toast path.
+- [x] Save a new checkpoint that includes the verified manual report-email resend feature after final browser verification.
+- [ ] Save a final checkpoint after the confirmed resend loading state, success toast, conflict-path test, and full validation suite.

@@ -55,6 +55,16 @@ export const appRouter = router({
       if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
       return getUserAssessmentHistory(ctx.user.email);
     }),
+    resendReportEmail: protectedProcedure.input(z.object({ attemptId: z.number().int().positive() })).mutation(async ({ ctx, input }) => {
+      if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
+      const attempt = await getAssessmentAttempt(input.attemptId);
+      if (!attempt || attempt.email !== ctx.user.email) throw new TRPCError({ code: "NOT_FOUND", message: "Assessment report not found." });
+      if (attempt.paymentStatus !== "paid" || !attempt.report) throw new TRPCError({ code: "FORBIDDEN", message: "A verified payment is required to resend this report." });
+      if (attempt.reportEmailStatus === "sent") throw new TRPCError({ code: "CONFLICT", message: "This report email has already been sent." });
+      const sent = await emailAssessmentReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report: attempt.report as AssessmentReport, reportEmailStatus: attempt.reportEmailStatus, reportEmailSentAt: attempt.reportEmailSentAt });
+      if (!sent) throw new TRPCError({ code: "CONFLICT", message: "This report email is already being prepared. Please try again shortly." });
+      return { sent: true as const };
+    }),
     downloadReport: protectedProcedure.input(z.object({ attemptId: z.number().int().positive() })).mutation(async ({ ctx, input }) => {
       if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
       const attempt = await getAssessmentAttempt(input.attemptId);

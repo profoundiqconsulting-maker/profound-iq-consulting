@@ -52,6 +52,42 @@ describe("dashboard.mine", () => {
   });
 });
 
+describe("dashboard.resendReportEmail", () => {
+  it("rejects unauthenticated users", async () => {
+    const caller = appRouter.createCaller(context(null));
+    await expect(caller.dashboard.resendReportEmail({ attemptId: 12 })).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+  });
+
+  it("does not reveal another account's report for resend", async () => {
+    getAssessmentAttempt.mockResolvedValue({ id: 12, email: "other@example.com", paymentStatus: "paid", report: paidReport, reportEmailStatus: "pending", name: "Other", createdAt: new Date() });
+    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
+    await expect(caller.dashboard.resendReportEmail({ attemptId: 12 })).rejects.toMatchObject({ code: "NOT_FOUND" });
+    expect(emailAssessmentReportIfNeeded).not.toHaveBeenCalled();
+  });
+
+  it("does not resend an already-sent report", async () => {
+    getAssessmentAttempt.mockResolvedValue({ id: 12, email: "owner@example.com", paymentStatus: "paid", report: paidReport, reportEmailStatus: "sent", reportEmailSentAt: new Date(), name: "Participant", createdAt: new Date() });
+    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
+    await expect(caller.dashboard.resendReportEmail({ attemptId: 12 })).rejects.toMatchObject({ code: "CONFLICT" });
+    expect(emailAssessmentReportIfNeeded).not.toHaveBeenCalled();
+  });
+
+  it("triggers a resend for the authenticated owner's paid pending report", async () => {
+    getAssessmentAttempt.mockResolvedValue({ id: 12, email: "owner@example.com", paymentStatus: "paid", report: paidReport, reportEmailStatus: "pending", name: "Participant", createdAt: new Date() });
+    emailAssessmentReportIfNeeded.mockResolvedValue(true);
+    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
+    await expect(caller.dashboard.resendReportEmail({ attemptId: 12 })).resolves.toEqual({ sent: true });
+    expect(emailAssessmentReportIfNeeded).toHaveBeenCalledWith(expect.objectContaining({ attemptId: 12, email: "owner@example.com", report: paidReport, reportEmailStatus: "pending" }));
+  });
+
+  it("returns a conflict when another resend is already in progress", async () => {
+    getAssessmentAttempt.mockResolvedValue({ id: 12, email: "owner@example.com", paymentStatus: "paid", report: paidReport, reportEmailStatus: "pending", name: "Participant", createdAt: new Date() });
+    emailAssessmentReportIfNeeded.mockResolvedValue(false);
+    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
+    await expect(caller.dashboard.resendReportEmail({ attemptId: 12 })).rejects.toMatchObject({ code: "CONFLICT" });
+  });
+});
+
 describe("dashboard.downloadReport", () => {
   it("rejects unauthenticated users", async () => {
     const caller = appRouter.createCaller(context(null));
