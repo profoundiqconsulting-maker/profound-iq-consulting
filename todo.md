@@ -54,3 +54,8 @@
 - [x] Verify desktop/mobile dashboard rendering and run tests/build.
 - [x] Save a checkpoint for the email-icon refinement.
 - [x] Save a final checkpoint after the verified email-icon refinement, responsive screenshots, tests, and production build.
+- [x] Add a subtle spin animation to the email icon during active resend.
+- [x] Respect prefers-reduced-motion and preserve static sent/pending icon states.
+- [x] Verify animation markup, desktop/mobile dashboard rendering, tests, and build.
+- [x] Save a checkpoint for the resend icon animation.
+- [ ] Save a final checkpoint after the verified resend icon animation, responsive screenshots, tests, and production build.
