@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-const mocks = vi.hoisted(() => ({ authenticateRequest: vi.fn(), getScheduledExport: vi.fn(), getCourseEnrollments: vi.fn(), storagePut: vi.fn(), updateScheduledExport: vi.fn() }));
+const mocks = vi.hoisted(() => ({ authenticateRequest: vi.fn(), getScheduledExport: vi.fn(), getCourseEnrollments: vi.fn(), storagePut: vi.fn(), addScheduledExportRun: vi.fn(), updateScheduledExport: vi.fn() }));
 vi.mock("./_core/sdk", () => ({ sdk: { authenticateRequest: mocks.authenticateRequest } }));
-vi.mock("./db", () => ({ getScheduledExport: mocks.getScheduledExport, getCourseEnrollments: mocks.getCourseEnrollments, updateScheduledExport: mocks.updateScheduledExport }));
+vi.mock("./db", () => ({ getScheduledExport: mocks.getScheduledExport, getCourseEnrollments: mocks.getCourseEnrollments, addScheduledExportRun: mocks.addScheduledExportRun, updateScheduledExport: mocks.updateScheduledExport }));
 vi.mock("./storage", () => ({ storagePut: mocks.storagePut }));
 const { weeklyEnrollmentExportHandler, WEEKLY_EXPORT_KEY } = await import("./scheduledEnrollmentExport");
 

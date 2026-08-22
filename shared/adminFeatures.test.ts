@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildCourseEnrollmentCsv, filterCourseEnrollmentRows } from "./adminExport";
-import { aggregateWeeklyAnalytics, buildAssessmentFunnel, summarizeAnalyticsEvents } from "./adminAnalytics";
+import { aggregateWeeklyAnalytics, buildAssessmentFunnel, buildFunnelComparison, summarizeAnalyticsEvents } from "./adminAnalytics";
 import { renderEmailTemplate, renderEmailTemplateHtml, validateEmailTemplateBody } from "./emailTemplate";
 
 describe("admin communication and export helpers", () => {
@@ -11,6 +11,7 @@ describe("admin communication and export helpers", () => {
   it("aggregates weekly trends and calculates funnel conversion rates", () => {
     expect(aggregateWeeklyAnalytics([{ week: "2026-W34", eventName: "assessment_started", count: 4 }, { week: "2026-W34", eventName: "payment_completed", count: 2 }, { week: "2026-W35", eventName: "assessment_started", count: 6 }])).toEqual([{ week: "2026-W34", assessment_started: 4, payment_completed: 2 }, { week: "2026-W35", assessment_started: 6 }]);
     expect(buildAssessmentFunnel({ assessment_started: 10, payment_completed: 4, report_downloaded: 2 }).map((stage) => stage.rate)).toEqual([100, 40, 50]);
+    expect(buildFunnelComparison({ assessment_started: 10, payment_completed: 4, report_downloaded: 2 }, { assessment_started: 10, payment_completed: 2, report_downloaded: 1 }, { paid: 35, downloaded: 60 }).map((stage) => ({ delta: stage.delta, benchmark: stage.benchmark }))).toEqual([{ delta: 0, benchmark: 100 }, { delta: 20, benchmark: 35 }, { delta: 0, benchmark: 60 }]);
   });
 
   it("filters enrollment rows by date range and status", () => {

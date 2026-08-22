@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { sdk } from "./_core/sdk";
 import { buildCourseEnrollmentCsv } from "../shared/adminExport";
-import { getCourseEnrollments, getScheduledExport, updateScheduledExport } from "./db";
+import { addScheduledExportRun, getCourseEnrollments, getScheduledExport, updateScheduledExport } from "./db";
 import { storagePut } from "./storage";
 
 export const WEEKLY_EXPORT_KEY = "weekly_course_enrollments";
@@ -23,6 +23,7 @@ export async function weeklyEnrollmentExportHandler(req: Request, res: Response)
     const rows = await getCourseEnrollments({ fromDate, toDate: timestamp });
     const data = buildCourseEnrollmentCsv(rows);
     const uploaded = await storagePut(`scheduled-exports/course-enrollments-${timestamp.toISOString().slice(0, 10)}.csv`, data, "text/csv;charset=utf-8");
+    await addScheduledExportRun({ exportKey: WEEKLY_EXPORT_KEY, fileKey: uploaded.key, fileUrl: uploaded.url, rowCount: rows.length });
     await updateScheduledExport(WEEKLY_EXPORT_KEY, { lastRunAt: timestamp, lastFileKey: uploaded.key, lastFileUrl: uploaded.url });
     return res.json({ ok: true, rows: rows.length, fileUrl: uploaded.url });
   } catch (error) {

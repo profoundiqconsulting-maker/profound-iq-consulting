@@ -85,3 +85,10 @@
 - [x] Add a weekly scheduled enrollment export that generates CSV data and stores the report in managed storage with idempotent execution.
 - [x] Add tests for test-email authorization/rendering, funnel and weekly aggregation, and scheduled export behavior.
 - [x] Verify the updated admin UI, run type checks/tests/build, save a checkpoint, and document deployment/schedule prerequisites.
+- [x] Add a schedule status card with latest run time, report link, and export history.
+- [x] Add prior-period funnel comparisons and configurable conversion benchmarks to analytics.
+- [x] Persist test-email delivery records and show preview history in the template editor.
+- [x] Add authorization and behavior tests for status, comparisons, benchmarks, and email history.
+- [x] Verify responsive admin workflows, run checks/tests/build, and save a checkpoint.
+- [x] Add behavioral tests for scheduled export status and report history responses, including latest run and downloadable run list.
+- [ ] Save a checkpoint after the schedule-status, funnel-comparison, and preview-history changes are fully validated.

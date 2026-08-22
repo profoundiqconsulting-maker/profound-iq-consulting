@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, isNull, isNotNull, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { analyticsEvents, assessmentAttempts, courseEnrollments, emailTemplates, InsertAssessmentAttempt, InsertUser, scheduledExports, users } from "../drizzle/schema";
+import { analyticsEvents, assessmentAttempts, courseEnrollments, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, scheduledExportRuns, scheduledExports, users } from "../drizzle/schema";
 import type { AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { ENV } from "./_core/env";
@@ -184,10 +184,18 @@ export async function getAnalyticsDashboard(filters: { fromDate?: Date; toDate?:
   const conditions = [filters.fromDate ? gte(analyticsEvents.createdAt, filters.fromDate) : undefined, filters.toDate ? lte(analyticsEvents.createdAt, filters.toDate) : undefined].filter(Boolean) as Array<ReturnType<typeof gte>>;
   const rows = await db.select({ eventName: analyticsEvents.eventName, count: sql<number>`count(*)` }).from(analyticsEvents).where(conditions.length ? and(...conditions) : undefined).groupBy(analyticsEvents.eventName);
   const summary = summarizeAnalyticsEvents(rows.map((row) => ({ eventName: row.eventName, count: Number(row.count) })));
+  let previousSummary: Record<string, number> = {};
+  if (filters.fromDate && filters.toDate) {
+    const duration = filters.toDate.getTime() - filters.fromDate.getTime();
+    const previousTo = new Date(filters.fromDate.getTime() - 1);
+    const previousFrom = new Date(previousTo.getTime() - duration);
+    const previousRows = await db.select({ eventName: analyticsEvents.eventName, count: sql<number>`count(*)` }).from(analyticsEvents).where(and(gte(analyticsEvents.createdAt, previousFrom), lte(analyticsEvents.createdAt, previousTo))).groupBy(analyticsEvents.eventName);
+    previousSummary = summarizeAnalyticsEvents(previousRows.map((row) => ({ eventName: row.eventName, count: Number(row.count) })));
+  }
   const trendFrom = filters.fromDate ?? new Date(Date.now() - 56 * 24 * 60 * 60 * 1000);
   const trendRows = await db.select({ week: sql<string>`DATE_FORMAT(${analyticsEvents.createdAt}, '%x-W%v')`, eventName: analyticsEvents.eventName, count: sql<number>`count(*)` }).from(analyticsEvents).where(and(gte(analyticsEvents.createdAt, trendFrom), filters.toDate ? lte(analyticsEvents.createdAt, filters.toDate) : undefined)).groupBy(sql`DATE_FORMAT(${analyticsEvents.createdAt}, '%x-W%v')`, analyticsEvents.eventName);
   const weekly = aggregateWeeklyAnalytics(trendRows.map((row) => ({ week: row.week, eventName: row.eventName, count: Number(row.count) })));
-  return { summary, weekly };
+  return { summary, previousSummary, weekly };
 }
 
 const defaultEmailTemplates = [
@@ -213,6 +221,27 @@ export async function updateScheduledExport(exportKey: string, input: { schedule
   if (!db) throw new Error("Database is not available");
   await db.update(scheduledExports).set(input).where(eq(scheduledExports.exportKey, exportKey));
   return getScheduledExport(exportKey);
+}
+
+export async function addScheduledExportRun(input: { exportKey: string; fileKey: string; fileUrl: string; rowCount: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(scheduledExportRuns).values(input);
+}
+export async function getScheduledExportRuns(exportKey: string, limit = 12) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(scheduledExportRuns).where(eq(scheduledExportRuns.exportKey, exportKey)).orderBy(desc(scheduledExportRuns.createdAt)).limit(limit);
+}
+export async function addEmailPreviewDelivery(input: { templateKey: string; recipientEmail: string; subject: string; status: "sent" | "failed"; errorMessage?: string | null }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(emailPreviewDeliveries).values(input);
+}
+export async function getEmailPreviewDeliveries(limit = 20) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select({ id: emailPreviewDeliveries.id, templateKey: emailPreviewDeliveries.templateKey, recipientEmail: emailPreviewDeliveries.recipientEmail, subject: emailPreviewDeliveries.subject, status: emailPreviewDeliveries.status, errorMessage: emailPreviewDeliveries.errorMessage, createdAt: emailPreviewDeliveries.createdAt }).from(emailPreviewDeliveries).orderBy(desc(emailPreviewDeliveries.createdAt)).limit(limit);
 }
 
 export async function getEmailTemplates() {

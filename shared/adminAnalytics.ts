@@ -6,6 +6,11 @@ export function aggregateWeeklyAnalytics(rows: Array<AnalyticsCountRow & { week:
   const weekly = rows.reduce<Record<string, Record<string, number>>>((result, row) => { result[row.week] ??= {}; result[row.week][row.eventName] = (result[row.week][row.eventName] ?? 0) + Number(row.count); return result; }, {});
   return Object.entries(weekly).sort(([a], [b]) => a.localeCompare(b)).map(([week, events]) => ({ week, ...events }));
 }
+export function buildFunnelComparison(current: Record<string, number>, previous: Record<string, number>, benchmarks = { paid: 35, downloaded: 60 }) {
+  const currentFunnel = buildAssessmentFunnel(current);
+  const previousFunnel = buildAssessmentFunnel(previous);
+  return currentFunnel.map((stage, index) => ({ ...stage, previousValue: previousFunnel[index]?.value ?? 0, delta: stage.rate - (previousFunnel[index]?.rate ?? 0), benchmark: index === 1 ? benchmarks.paid : index === 2 ? benchmarks.downloaded : 100 }));
+}
 export function buildAssessmentFunnel(summary: Record<string, number>) {
   const starts = summary.assessment_started ?? 0;
   const payments = summary.payment_completed ?? 0;

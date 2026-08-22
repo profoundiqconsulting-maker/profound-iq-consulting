@@ -54,6 +54,25 @@ export const scheduledExports = mysqlTable("scheduled_exports", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+export const scheduledExportRuns = mysqlTable("scheduled_export_runs", {
+  id: int("id").autoincrement().primaryKey(),
+  exportKey: varchar("exportKey", { length: 80 }).notNull(),
+  fileKey: varchar("fileKey", { length: 512 }).notNull(),
+  fileUrl: varchar("fileUrl", { length: 512 }).notNull(),
+  rowCount: int("rowCount").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const emailPreviewDeliveries = mysqlTable("email_preview_deliveries", {
+  id: int("id").autoincrement().primaryKey(),
+  templateKey: varchar("templateKey", { length: 80 }).notNull(),
+  recipientEmail: varchar("recipientEmail", { length: 320 }).notNull(),
+  subject: varchar("subject", { length: 240 }).notNull(),
+  status: varchar("status", { length: 20 }).notNull(),
+  errorMessage: varchar("errorMessage", { length: 500 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
 export const assessmentAttempts = mysqlTable("assessment_attempts", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 160 }).notNull(),
@@ -78,3 +97,5 @@ export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
 export type EmailTemplate = typeof emailTemplates.$inferSelect;
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 export type ScheduledExport = typeof scheduledExports.$inferSelect;
+export type ScheduledExportRun = typeof scheduledExportRuns.$inferSelect;
+export type EmailPreviewDelivery = typeof emailPreviewDeliveries.$inferSelect;
