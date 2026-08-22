@@ -1,0 +1,15 @@
+import { useState } from "react";
+import { ArrowRight, CheckCircle2, LockKeyhole, RefreshCw } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { BrandLogo } from "@/components/BrandLogo";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+
+export default function ResetPassword() {
+  const [, navigate] = useLocation();
+  const [password, setPassword] = useState("");
+  const token = new URLSearchParams(window.location.search).get("token") ?? "";
+  const reset = trpc.auth.resetPassword.useMutation({ onSuccess: () => { toast.success("Password updated. You can now sign in."); navigate("/auth"); }, onError: (error) => toast.error(error.message) });
+  const submit = (event: React.FormEvent) => { event.preventDefault(); reset.mutate({ token, password }); };
+  return <main className="min-h-screen bg-[#101d35] text-[#f7f3e8]"><header className="border-b border-white/10"><div className="container flex items-center justify-between py-6"><Link href="/" aria-label="Profound IQ Consulting home"><BrandLogo context="home" className="border border-[#c9a34e]/70" /></Link><Link href="/auth" className="text-[10px] font-black uppercase tracking-[.16em] text-[#c9d1df] hover:text-[#c9a34e]">Back to sign in</Link></div></header><section className="container grid min-h-[calc(100vh-90px)] place-items-center py-16"><div className="w-full max-w-xl border border-[#c9a34e]/60 bg-[#f7f3e8] p-7 text-[#16243d] shadow-2xl sm:p-10"><div className="flex items-center gap-3 border-b border-[#16243d]/15 pb-6"><LockKeyhole className="text-[#a27e2e]" size={20} /><div><p className="eyebrow text-[#a27e2e]">Secure account access</p><h1 className="display mt-2 text-3xl">Choose a new password.</h1></div></div>{token ? <form onSubmit={submit} className="mt-8 grid gap-4"><label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">New password<span className="font-normal normal-case tracking-normal text-[#657084]">At least 10 characters, including letters and numbers.</span><input required type="password" minLength={10} maxLength={128} value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="new-password" className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]" /></label><button disabled={reset.isPending} className="inline-flex items-center justify-center gap-2 bg-[#16243d] px-5 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] disabled:opacity-60">{reset.isPending && <RefreshCw size={14} className="animate-spin" />} Update password <ArrowRight size={14} /></button></form> : <p className="mt-8 text-sm leading-7 text-[#657084]">This reset link is missing a token. Request a new link from the sign-in page.</p>}<div className="mt-8 border-t border-[#16243d]/15 pt-6 text-xs leading-6 text-[#657084]"><p className="flex items-start gap-2"><CheckCircle2 size={15} className="mt-0.5 shrink-0 text-[#a27e2e]" />Reset links are single-use and expire after 30 minutes.</p></div></div></section></main>;
+}

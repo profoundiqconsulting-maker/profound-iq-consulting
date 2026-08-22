@@ -145,3 +145,15 @@
 - [x] Add tests for filtering, pagination, CSV escaping, export status, and authorization.
 - [x] Run type checks, tests, production build, and responsive desktop/mobile verification.
 - [x] Save a checkpoint containing the audit-history enhancements.
+
+# Local Credential Authentication
+- [x] Add credential fields and password-reset token storage using secure schema contracts.
+- [x] Implement registration with unique email, phone, and username validation.
+- [x] Implement password login accepting email, phone number, or username.
+- [x] Implement secure session issuance and logout compatibility with existing OAuth sessions.
+- [x] Implement generic password-reset request responses and expiring single-use reset tokens.
+- [x] Send password-reset links through the configured transactional email provider.
+- [x] Build registration, login, forgot-password, and reset-password interfaces.
+- [x] Add authorization, validation, enumeration-resistance, token-expiry, and password-hashing tests.
+- [x] Run schema migration, type checks, tests, production build, and responsive verification.
+- [x] Save a checkpoint containing the local credential authentication enhancement.

@@ -3,6 +3,7 @@ import { assessmentQuestions, ASSESSMENT_PRICE_KES, buildReport, type Assessment
 import { parse as parseCookie } from "cookie";
 import { getAssessmentAttempt, createAssessmentAttempt, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
+import { sdk } from "./_core/sdk";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
@@ -17,6 +18,10 @@ import { emailAssessmentReportIfNeeded, sendTemplateTestEmail } from "./email";
 import { createHeartbeatJob } from "./_core/heartbeat";
 import { WEEKLY_EXPORT_KEY } from "./scheduledEnrollmentExport";
 import { DELIVERY_LOG_EXPORT_KEY } from "./deliveryLogExport";
+import { randomUUID } from "node:crypto";
+import { consumePasswordResetToken, createLocalUser, findUserByLocalIdentifier, setPasswordResetToken } from "./db";
+import { createResetToken, hashPassword, hashResetToken, identifierSchema, normalizeIdentifier, validatePassword, verifyPassword } from "../shared/localAuth";
+import { sendPasswordResetEmail } from "./email";
 import { buildVerificationAuditCsv, type AuditHistoryFilters } from "../shared/adminAudit";
 
 const answersSchema = z.array(z.object({ questionId: z.string(), value: z.number().int().min(1).max(5) })).length(assessmentQuestions.length);
@@ -34,6 +39,40 @@ async function paystackRequest(path: string, init?: RequestInit) {
 export const appRouter = router({
   system: systemRouter,
   auth: router({
+    register: publicProcedure.input(z.object({ name: z.string().trim().min(2).max(160), email: z.string().trim().email().optional(), phone: z.string().trim().min(7).max(32).optional(), username: z.string().trim().min(3).max(40).regex(/^[a-zA-Z0-9_.-]+$/).optional(), password: z.string().refine(validatePassword, "Password must be 10–128 characters and include letters and numbers.") }).refine((input) => Boolean(input.email || input.phone || input.username), "Provide an email, phone number, or username." )).mutation(async ({ ctx, input }) => {
+      const identifiers = [input.email ? normalizeIdentifier(input.email) : null, input.phone ? normalizeIdentifier(input.phone) : null, input.username ? normalizeIdentifier(input.username) : null].filter((value): value is string => Boolean(value));
+      const existing = await Promise.all(identifiers.map((identifier) => findUserByLocalIdentifier(identifier)));
+      if (existing.some(Boolean)) throw new TRPCError({ code: "CONFLICT", message: "An account already exists with one of those identifiers." });
+      let user;
+      try { user = await createLocalUser({ openId: `local_${randomUUID()}`, name: input.name, email: input.email ? normalizeIdentifier(input.email) : null, phone: input.phone ? normalizeIdentifier(input.phone) : null, username: input.username ? normalizeIdentifier(input.username) : null, passwordHash: hashPassword(input.password) }); } catch (error) {
+        const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+        if (message.includes("duplicate") || message.includes("unique") || message.includes("constraint")) throw new TRPCError({ code: "CONFLICT", message: "An account already exists with one of those identifiers." });
+        throw error;
+      }
+      if (!user) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Unable to create the account." });
+      const token = await sdk.createSessionToken(user.openId, { name: user.name ?? input.name });
+      ctx.res.cookie(COOKIE_NAME, token, getSessionCookieOptions(ctx.req));
+      return { user: { id: user.id, name: user.name, email: user.email, phone: user.phone, username: user.username } };
+    }),
+    login: publicProcedure.input(z.object({ identifier: z.string().trim().min(3).max(320), password: z.string().min(1).max(128) })).mutation(async ({ ctx, input }) => {
+      const identifier = normalizeIdentifier(input.identifier);
+      if (!identifierSchema.test(input.identifier)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid identifier or password." });
+      const user = await findUserByLocalIdentifier(identifier);
+      if (!user?.passwordHash || !verifyPassword(input.password, user.passwordHash)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid identifier or password." });
+      const token = await sdk.createSessionToken(user.openId, { name: user.name ?? identifier });
+      ctx.res.cookie(COOKIE_NAME, token, getSessionCookieOptions(ctx.req));
+      return { user: { id: user.id, name: user.name, email: user.email, phone: user.phone, username: user.username } };
+    }),
+    requestPasswordReset: publicProcedure.input(z.object({ email: z.string().trim().email(), origin: z.string().url() })).mutation(async ({ input }) => {
+      const user = await findUserByLocalIdentifier(normalizeIdentifier(input.email));
+      if (user?.email && user.passwordHash) { const reset = createResetToken(); await setPasswordResetToken(user.openId, reset.hash, new Date(Date.now() + 30 * 60 * 1000)); const resetUrl = `${input.origin.replace(/\/$/, "")}/reset-password?token=${encodeURIComponent(reset.raw)}`; try { await sendPasswordResetEmail({ to: user.email, name: user.name ?? "there", resetUrl }); } catch (error) { console.error("[Auth] Password reset email failed", error); } }
+      return { success: true, message: "If an account matches that email, a password-reset link will arrive shortly." } as const;
+    }),
+    resetPassword: publicProcedure.input(z.object({ token: z.string().min(32).max(128), password: z.string().refine(validatePassword, "Password must be 10–128 characters and include letters and numbers.") })).mutation(async ({ input }) => {
+      const user = await consumePasswordResetToken(hashResetToken(input.token), hashPassword(input.password));
+      if (!user) throw new TRPCError({ code: "BAD_REQUEST", message: "This password-reset link is invalid or expired." });
+      return { success: true } as const;
+    }),
     me: publicProcedure.query((opts) => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);

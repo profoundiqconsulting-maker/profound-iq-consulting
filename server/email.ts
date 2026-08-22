@@ -66,6 +66,14 @@ export async function sendScheduledExportNotification(input: { status: "success"
   await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to, subject, text: message, html: `<div style="font-family:Arial,sans-serif;color:#16243d"><h2>${escapeHtml(subject)}</h2><p>${escapeHtml(message)}</p></div>` });
 }
 
+export async function sendPasswordResetEmail(input: { to: string; name: string; resetUrl: string }): Promise<void> {
+  const config = getSmtpConfig();
+  const subject = "Reset your Profound IQ password";
+  const safeName = escapeHtml(input.name);
+  const safeUrl = escapeHtml(input.resetUrl);
+  await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to: input.to, subject, text: `Hello ${input.name},\n\nUse this link to reset your Profound IQ password. It expires in 30 minutes and can be used once:\n${input.resetUrl}\n\nIf you did not request this, you can ignore this message.`, html: `<div style="font-family:Arial,sans-serif;color:#16243d"><p>Hello ${safeName},</p><p>Use the link below to reset your Profound IQ password. It expires in 30 minutes and can be used once.</p><p><a href="${safeUrl}">Reset password</a></p><p>If you did not request this, you can ignore this message.</p></div>` });
+}
+
 export async function sendTemplateTestEmail(input: { to: string; subject: string; body: string }): Promise<void> {
   const values = { name: "Amina Otieno", email: input.to, date: new Date().toLocaleDateString(), course: "Lead with Clarity" };
   const config = getSmtpConfig();

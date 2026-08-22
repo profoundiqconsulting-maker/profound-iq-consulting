@@ -11,10 +11,11 @@ import AdminDashboard from "./pages/AdminDashboard";
 import UserDashboard from "./pages/UserDashboard";
 import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
-  return <Switch><Route path="/" component={Home} /><Route path="/assessment" component={Assessment} /><Route path="/admin" component={AdminDashboard} /><Route path="/dashboard" component={UserDashboard} /><Route path="/settings" component={Settings} /><Route path="/auth" component={Auth} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>;
+  return <Switch><Route path="/" component={Home} /><Route path="/assessment" component={Assessment} /><Route path="/admin" component={AdminDashboard} /><Route path="/dashboard" component={UserDashboard} /><Route path="/settings" component={Settings} /><Route path="/auth" component={Auth} /><Route path="/reset-password" component={ResetPassword} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>;
 }
 
 export default function App() {

@@ -1,10 +1,15 @@
-import { int, json, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, json, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
+  phone: varchar("phone", { length: 32 }),
+  username: varchar("username", { length: 40 }),
+  passwordHash: varchar("passwordHash", { length: 255 }),
+  passwordResetTokenHash: varchar("passwordResetTokenHash", { length: 128 }),
+  passwordResetExpiresAt: timestamp("passwordResetExpiresAt"),
   emailVerifiedAt: timestamp("emailVerifiedAt"),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: varchar("role", { length: 32 }).default("user").notNull(),
@@ -14,7 +19,11 @@ export const users = mysqlTable("users", {
   notificationPreferences: json("notificationPreferences"),
   avatarUrl: varchar("avatarUrl", { length: 512 }),
   timezone: varchar("timezone", { length: 64 }),
-});
+}, (table) => ({
+  emailUnique: uniqueIndex("users_email_unique").on(table.email),
+  phoneUnique: uniqueIndex("users_phone_unique").on(table.phone),
+  usernameUnique: uniqueIndex("users_username_unique").on(table.username),
+}));
 
 export const courseEnrollments = mysqlTable("course_enrollments", {
   id: int("id").autoincrement().primaryKey(),

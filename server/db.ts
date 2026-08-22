@@ -24,6 +24,34 @@ export async function getAdminNotificationRecipients(): Promise<string[]> {
   return selectAdminNotificationRecipients(rows);
 }
 
+export async function findUserByLocalIdentifier(identifier: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return (await db.select().from(users).where(or(eq(users.email, identifier), eq(users.phone, identifier), eq(users.username, identifier))).limit(1))[0] ?? undefined;
+}
+
+export async function createLocalUser(input: { openId: string; name: string; email?: string | null; phone?: string | null; username?: string | null; passwordHash: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(users).values({ ...input, loginMethod: "password", role: "user" });
+  return getUserByOpenId(input.openId);
+}
+
+export async function setPasswordResetToken(openId: string, tokenHash: string, expiresAt: Date) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(users).set({ passwordResetTokenHash: tokenHash, passwordResetExpiresAt: expiresAt }).where(eq(users.openId, openId));
+}
+
+export async function consumePasswordResetToken(tokenHash: string, passwordHash: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const user = (await db.select().from(users).where(and(eq(users.passwordResetTokenHash, tokenHash), gte(users.passwordResetExpiresAt, new Date()))).limit(1))[0];
+  if (!user) return undefined;
+  await db.update(users).set({ passwordHash, passwordResetTokenHash: null, passwordResetExpiresAt: null }).where(and(eq(users.id, user.id), eq(users.passwordResetTokenHash, tokenHash)));
+  return getUserByOpenId(user.openId);
+}
+
 export async function upsertUser(user: InsertUser): Promise<void> {
   if (!user.openId) throw new Error("User openId is required for upsert");
   const db = await getDb();
