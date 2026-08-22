@@ -1,10 +1,8 @@
-# Avatar and Timezone Settings
+# Avatar Crop and Preview
 
-- [x] Review the current settings schema, storage helpers, and UI.
-- [x] Define secure avatar metadata, upload constraints, and timezone options.
-- [x] Add avatar storage and authenticated profile updates.
-- [x] Add timezone selection and persist it with user preferences.
-- [x] Add validation and ownership tests plus responsive verification.
-- [x] Save a delivery checkpoint.
-- [x] Add upload-avatar tests for unauthenticated access, invalid file type, and oversized payloads.
-- [x] Save a checkpoint containing the avatar upload, timezone persistence, settings link, migration, and tests.
+- [x] Review the current avatar upload UI and client constraints.
+- [x] Define a square crop interaction with local preview and cancel/reset behavior.
+- [x] Implement client-side crop rendering before upload.
+- [x] Preserve file type and 2MB upload safeguards.
+- [x] Verify the crop UI on desktop/mobile and run checks/build.
+- [x] Save the avatar crop and preview checkpoint.
