@@ -42,3 +42,10 @@
 - [x] Exercise the dashboard Resend email action again and explicitly verify the loading spinner plus success toast; also trigger and verify the resend error/conflict toast path.
 - [x] Save a new checkpoint that includes the verified manual report-email resend feature after final browser verification.
 - [x] Save a final checkpoint after the confirmed resend loading state, success toast, conflict-path test, and full validation suite.
+- [x] Add an inline last-emailed timestamp beside sent report delivery status.
+- [x] Preserve a clear pending/in-progress presentation when no sent timestamp exists.
+- [x] Add tests and verify desktop/mobile dashboard rendering.
+- [x] Save a checkpoint for the last-emailed timestamp feature.
+- [x] Add automated coverage for the last-emailed timestamp display or rendering logic, then re-run the relevant tests.
+- [x] Save a new checkpoint that includes the verified last-emailed timestamp feature after the tests and responsive dashboard review.
+- [ ] Save a final checkpoint after the executed shared timestamp test coverage, responsive dashboard review, and full validation suite.

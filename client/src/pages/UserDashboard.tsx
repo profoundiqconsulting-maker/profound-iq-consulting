@@ -1,6 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { startLogin } from "@/const";
 import { trpc } from "@/lib/trpc";
+import { formatReportEmailSentAt } from "@shared/emailStatus";
 import { AlertCircle, ArrowLeft, CheckCircle2, Clock3, Download, FileText, LockKeyhole, Loader2, MailCheck, MailWarning, RefreshCw, ShieldCheck } from "lucide-react";
 import { Link } from "wouter";
 import { toast } from "sonner";
@@ -46,7 +47,8 @@ export default function UserDashboard() {
 }
 
 function ReportEmailStatus({ status, sentAt }: { status?: string | null; sentAt?: Date | string | null }) {
-  if (status === "sent") return <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] text-emerald-800" title={sentAt ? `Sent ${new Date(sentAt).toLocaleString()}` : "Report email sent"}><MailCheck size={14} aria-hidden="true" /> Email sent<span className="sr-only">{sentAt ? ` on ${new Date(sentAt).toLocaleString()}` : ""}</span></span>;
+  const formattedSentAt = formatReportEmailSentAt(sentAt);
+  if (status === "sent") return <span className="inline-flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-[.1em] text-emerald-800" title={formattedSentAt ? `Report email sent ${formattedSentAt}` : "Report email sent"}><MailCheck size={14} aria-hidden="true" /> Email sent{formattedSentAt && <span className="font-medium normal-case tracking-normal text-[#657084]">· Last emailed {formattedSentAt}</span>}<span className="sr-only">{formattedSentAt ? `, last emailed ${formattedSentAt}` : ""}</span></span>;
   if (status === "sending") return <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] text-[#a27e2e]" title="Report email is being prepared"><Clock3 size={14} aria-hidden="true" /> Email in progress</span>;
   return <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] text-[#a27e2e]" title="Report email is pending and will be retried"><MailWarning size={14} aria-hidden="true" /> Email pending</span>;
 }
