@@ -3,6 +3,7 @@ import { buildCourseEnrollmentCsv, filterCourseEnrollmentRows } from "./adminExp
 import { aggregateWeeklyAnalytics, buildAssessmentFunnel, buildFunnelComparison, summarizeAnalyticsEvents } from "./adminAnalytics";
 import { renderEmailTemplate, renderEmailTemplateHtml, validateEmailTemplateBody } from "./emailTemplate";
 import { selectAdminNotificationRecipients } from "./adminRecipients";
+import { buildDeliveryLogCsv, filterDeliveryLogRows, paginateDeliveryLogRows } from "./adminDeliveryLog";
 
 describe("admin communication and export helpers", () => {
   it("aggregates analytics event counts for the dashboard", () => {
@@ -38,6 +39,18 @@ describe("admin communication and export helpers", () => {
       { role: "user", email: "user@example.com", emailVerifiedAt: new Date("2026-08-03") },
       { role: "admin", email: " ", emailVerifiedAt: new Date("2026-08-04") },
     ])).toEqual(["one@example.com"]);
+  });
+
+  it("filters and paginates delivery history and safely exports CSV", () => {
+    const rows = [
+      { id: 1, templateKey: "assessment_report", recipientEmail: "a@example.com", subject: "First", status: "sent", errorMessage: null, createdAt: new Date("2026-08-01T10:00:00.000Z") },
+      { id: 2, templateKey: "course_enrollment", recipientEmail: "b@example.com", subject: "Second", status: "failed", errorMessage: "Mailbox, unavailable", createdAt: new Date("2026-08-15T10:00:00.000Z") },
+      { id: 3, templateKey: "assessment_report", recipientEmail: "c@example.com", subject: "Third", status: "sent", errorMessage: null, createdAt: new Date("2026-08-20T10:00:00.000Z") },
+    ];
+    const filtered = filterDeliveryLogRows(rows, { status: "failed", fromDate: new Date("2026-08-10T00:00:00.000Z"), toDate: new Date("2026-08-16T00:00:00.000Z") });
+    expect(filtered.map((row) => row.id)).toEqual([2]);
+    expect(paginateDeliveryLogRows(rows, 2, 2)).toEqual({ rows: [rows[2]], total: 3, totalPages: 2, page: 2, pageSize: 2 });
+    expect(buildDeliveryLogCsv(filtered)).toContain('"2","course_enrollment","b@example.com","Second","failed","Mailbox, unavailable"');
   });
 
   it("creates an escaped, timestamped course enrollment CSV", () => {

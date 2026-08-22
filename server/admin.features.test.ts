@@ -18,6 +18,9 @@ describe("admin feature boundaries", () => {
     await expect(caller.admin.retryTemplateTestEmail({ deliveryId: 1 })).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(caller.admin.saveAnalyticsSettings({ paidBenchmark: 40, downloadBenchmark: 60 })).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(caller.admin.updateExportRetention({ retentionDays: 30 })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(caller.admin.userVerificationReview()).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(caller.admin.revokeUserEmailVerification({ openId: "someone" })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(caller.admin.exportEmailPreviewHistory()).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
   it("rejects analytics events outside the supported event contract", async () => {

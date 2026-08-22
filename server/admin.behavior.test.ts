@@ -10,6 +10,10 @@ const mocks = vi.hoisted(() => ({
   getScheduledExport: vi.fn().mockResolvedValue({ exportKey: "weekly_course_enrollments", scheduleTaskUid: "task-1", lastRunAt: new Date("2026-08-24T09:00:00.000Z"), lastFileKey: "scheduled-exports/latest.csv", lastFileUrl: "/manus-storage/scheduled-exports/latest.csv" }),
   getScheduledExportRuns: vi.fn().mockResolvedValue([{ id: 1, exportKey: "weekly_course_enrollments", fileKey: "scheduled-exports/latest.csv", fileUrl: "/manus-storage/scheduled-exports/latest.csv", rowCount: 4, createdAt: new Date("2026-08-24T09:00:00.000Z") }]),
   getEmailPreviewDeliveries: vi.fn().mockResolvedValue([{ id: 1, templateKey: "assessment_report", recipientEmail: "admin@example.com", subject: "Preview", body: "Hello **{{name}}**", status: "sent", errorMessage: null, createdAt: new Date("2026-08-24T09:00:00.000Z") }]),
+  getEmailPreviewDeliveriesPage: vi.fn().mockResolvedValue({ rows: [{ id: 1, templateKey: "assessment_report", recipientEmail: "admin@example.com", subject: "Preview", status: "sent", errorMessage: null, createdAt: new Date("2026-08-24T09:00:00.000Z") }], total: 1, totalPages: 1, page: 1, pageSize: 12 }),
+  getEmailPreviewDeliveriesForExport: vi.fn().mockResolvedValue([{ id: 1, templateKey: "assessment_report", recipientEmail: "admin@example.com", subject: "Preview", status: "sent", errorMessage: null, createdAt: new Date("2026-08-24T09:00:00.000Z") }]),
+  getAdminUsersForReview: vi.fn().mockResolvedValue({ rows: [{ id: 2, openId: "user-2", name: "Amina", email: "amina@example.com", role: "user", emailVerifiedAt: new Date("2026-08-20T09:00:00.000Z"), createdAt: new Date(), lastSignedIn: new Date() }], total: 1, totalPages: 1, page: 1, pageSize: 8 }),
+  revokeUserEmailVerification: vi.fn().mockResolvedValue({ openId: "user-2", emailVerifiedAt: null }),
   getAdminAnalyticsSettings: vi.fn().mockResolvedValue({ adminOpenId: "admin-test", paidBenchmark: 42, downloadBenchmark: 68 }),
   upsertAdminAnalyticsSettings: vi.fn().mockResolvedValue({ adminOpenId: "admin-test", paidBenchmark: 42, downloadBenchmark: 68 }),
 }));
@@ -45,7 +49,23 @@ describe("admin feature behavior", () => {
     const result = await appRouter.createCaller(adminContext()).admin.scheduledExportStatus();
     expect(result.config?.lastFileUrl).toBe("/manus-storage/scheduled-exports/latest.csv");
     expect(result.runs).toEqual(expect.arrayContaining([expect.objectContaining({ rowCount: 4, fileUrl: "/manus-storage/scheduled-exports/latest.csv" })]));
-    await expect(appRouter.createCaller(adminContext()).admin.emailPreviewHistory()).resolves.toEqual(expect.arrayContaining([expect.objectContaining({ status: "sent", recipientEmail: "admin@example.com" })]));
+    await expect(appRouter.createCaller(adminContext()).admin.emailPreviewHistory({ page: 1, pageSize: 12, status: "sent" })).resolves.toEqual(expect.objectContaining({ rows: expect.arrayContaining([expect.objectContaining({ status: "sent", recipientEmail: "admin@example.com" })]), total: 1 }));
+  });
+
+  it("passes delivery filters to the paginated history query and exports matching CSV", async () => {
+    const caller = appRouter.createCaller(adminContext());
+    await caller.admin.emailPreviewHistory({ page: 2, pageSize: 24, search: "amina", status: "failed", fromDate: "2026-08-01", toDate: "2026-08-24" });
+    expect(mocks.getEmailPreviewDeliveriesPage).toHaveBeenCalledWith({ page: 2, pageSize: 24, search: "amina", status: "failed", fromDate: new Date("2026-08-01T00:00:00.000Z"), toDate: new Date("2026-08-24T23:59:59.999Z") });
+    const exported = await caller.admin.exportEmailPreviewHistory({ status: "sent" });
+    expect(exported.filename).toContain("profound-iq-delivery-log-");
+    expect(exported.data).toContain("Recipient");
+  });
+
+  it("reviews and revokes another user’s verification eligibility", async () => {
+    const caller = appRouter.createCaller(adminContext());
+    await expect(caller.admin.userVerificationReview({ verification: "verified" })).resolves.toEqual(expect.objectContaining({ total: 1 }));
+    await caller.admin.revokeUserEmailVerification({ openId: "user-2" });
+    expect(mocks.revokeUserEmailVerification).toHaveBeenCalledWith("user-2");
   });
 
   it("persists custom benchmark targets for the admin account", async () => {

@@ -1,9 +1,10 @@
-import { and, desc, eq, gte, isNull, isNotNull, lt, lte, or, sql } from "drizzle-orm";
+import { and, desc, eq, gte, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { adminAnalyticsSettings, analyticsEvents, assessmentAttempts, courseEnrollments, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, scheduledExportRuns, scheduledExports, users } from "../drizzle/schema";
 import type { AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { selectAdminNotificationRecipients } from "../shared/adminRecipients";
+import type { DeliveryLogFilters, DeliveryLogRow } from "../shared/adminDeliveryLog";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -270,6 +271,74 @@ export async function getEmailPreviewDeliveries(limit = 20) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   return db.select({ id: emailPreviewDeliveries.id, templateKey: emailPreviewDeliveries.templateKey, recipientEmail: emailPreviewDeliveries.recipientEmail, subject: emailPreviewDeliveries.subject, body: emailPreviewDeliveries.body, status: emailPreviewDeliveries.status, errorMessage: emailPreviewDeliveries.errorMessage, createdAt: emailPreviewDeliveries.createdAt }).from(emailPreviewDeliveries).orderBy(desc(emailPreviewDeliveries.createdAt)).limit(limit);
+}
+
+function deliveryLogConditions(filters: DeliveryLogFilters = {}) {
+  const search = filters.search?.trim();
+  return [
+    search ? or(like(emailPreviewDeliveries.subject, `%${search}%`), like(emailPreviewDeliveries.recipientEmail, `%${search}%`), like(emailPreviewDeliveries.templateKey, `%${search}%`), like(emailPreviewDeliveries.errorMessage, `%${search}%`)) : undefined,
+    filters.status && filters.status !== "all" ? eq(emailPreviewDeliveries.status, filters.status) : undefined,
+    filters.fromDate ? gte(emailPreviewDeliveries.createdAt, filters.fromDate) : undefined,
+    filters.toDate ? lte(emailPreviewDeliveries.createdAt, filters.toDate) : undefined,
+  ].filter(Boolean) as Array<ReturnType<typeof gte>>;
+}
+
+const deliveryLogSelect = {
+  id: emailPreviewDeliveries.id,
+  templateKey: emailPreviewDeliveries.templateKey,
+  recipientEmail: emailPreviewDeliveries.recipientEmail,
+  subject: emailPreviewDeliveries.subject,
+  status: emailPreviewDeliveries.status,
+  errorMessage: emailPreviewDeliveries.errorMessage,
+  createdAt: emailPreviewDeliveries.createdAt,
+} as const;
+
+export async function getEmailPreviewDeliveriesPage(filters: DeliveryLogFilters & { page: number; pageSize: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const conditions = deliveryLogConditions(filters);
+  const where = conditions.length ? and(...conditions) : undefined;
+  const [{ total }] = await db.select({ total: sql<number>`count(*)` }).from(emailPreviewDeliveries).where(where);
+  const safePageSize = Math.min(100, Math.max(1, filters.pageSize));
+  const totalCount = Number(total);
+  const totalPages = Math.max(1, Math.ceil(totalCount / safePageSize));
+  const page = Math.min(Math.max(1, filters.page), totalPages);
+  const rows = await db.select(deliveryLogSelect).from(emailPreviewDeliveries).where(where).orderBy(desc(emailPreviewDeliveries.createdAt)).limit(safePageSize).offset((page - 1) * safePageSize);
+  return { rows, total: totalCount, totalPages, page, pageSize: safePageSize };
+}
+
+export async function getEmailPreviewDeliveriesForExport(filters: DeliveryLogFilters = {}): Promise<DeliveryLogRow[]> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const conditions = deliveryLogConditions(filters);
+  const where = conditions.length ? and(...conditions) : undefined;
+  return db.select(deliveryLogSelect).from(emailPreviewDeliveries).where(where).orderBy(desc(emailPreviewDeliveries.createdAt)).limit(10000);
+}
+
+export async function getAdminUsersForReview(input: { page: number; pageSize: number; search?: string; verification: "all" | "verified" | "unverified" }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const search = input.search?.trim();
+  const conditions = [
+    search ? or(like(users.name, `%${search}%`), like(users.email, `%${search}%`), like(users.openId, `%${search}%`)) : undefined,
+    input.verification === "verified" ? isNotNull(users.emailVerifiedAt) : undefined,
+    input.verification === "unverified" ? isNull(users.emailVerifiedAt) : undefined,
+  ].filter(Boolean) as Array<ReturnType<typeof gte>>;
+  const where = conditions.length ? and(...conditions) : undefined;
+  const [{ total }] = await db.select({ total: sql<number>`count(*)` }).from(users).where(where);
+  const totalCount = Number(total);
+  const safePageSize = Math.min(100, Math.max(1, input.pageSize));
+  const totalPages = Math.max(1, Math.ceil(totalCount / safePageSize));
+  const page = Math.min(Math.max(1, input.page), totalPages);
+  const rows = await db.select({ id: users.id, openId: users.openId, name: users.name, email: users.email, role: users.role, emailVerifiedAt: users.emailVerifiedAt, createdAt: users.createdAt, lastSignedIn: users.lastSignedIn }).from(users).where(where).orderBy(desc(users.lastSignedIn)).limit(safePageSize).offset((page - 1) * safePageSize);
+  return { rows, total: totalCount, totalPages, page, pageSize: safePageSize };
+}
+
+export async function revokeUserEmailVerification(openId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(users).set({ emailVerifiedAt: null }).where(eq(users.openId, openId));
+  return getUserByOpenId(openId);
 }
 
 export async function getEmailTemplates() {

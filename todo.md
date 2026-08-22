@@ -111,3 +111,15 @@
 - [x] Add an explicit verified-email rule for scheduled-export admin recipients and cover recipient selection in tests.
 - [x] Re-run desktop/mobile verification after the final delivery-log and recipient changes.
 - [x] Save the final checkpoint after all gap fixes pass.
+
+# Admin Verification and Delivery Log Enhancements
+
+- [x] Add an admin-only user verification eligibility query with safe user fields and pagination.
+- [x] Add an admin-only mutation to revoke a user’s email-verification eligibility with audit-safe timestamp handling.
+- [x] Add paginated delivery-log query inputs for search, status, and UTC date range.
+- [x] Add a delivery-log CSV export procedure with matching filters and safe CSV escaping.
+- [x] Build the admin verification review/revoke control panel.
+- [x] Build delivery-log advanced filters, pagination controls, result counts, and CSV download.
+- [x] Add authorization and behavior tests for verification revocation, filtering, pagination, and CSV export.
+- [x] Run type checks, tests, production build, and responsive desktop/mobile verification.
+- [x] Save a checkpoint containing all admin enhancements.
