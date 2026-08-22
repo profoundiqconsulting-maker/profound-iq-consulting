@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull, isNotNull, lt, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { assessmentAttempts, InsertAssessmentAttempt, InsertUser, users } from "../drizzle/schema";
 import type { AssessmentReport } from "../shared/assessment";
@@ -97,6 +97,26 @@ export async function markAssessmentPaid(id: number, report: AssessmentReport) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   await db.update(assessmentAttempts).set({ paymentStatus: "paid", report, paidAt: new Date() }).where(eq(assessmentAttempts.id, id));
+}
+
+export async function claimAssessmentReportEmail(id: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const staleBefore = new Date(Date.now() - 10 * 60 * 1000);
+  const result = await db.update(assessmentAttempts).set({ reportEmailStatus: "sending", reportEmailClaimedAt: new Date() }).where(and(eq(assessmentAttempts.id, id), eq(assessmentAttempts.paymentStatus, "paid"), isNotNull(assessmentAttempts.report), or(eq(assessmentAttempts.reportEmailStatus, "pending"), and(eq(assessmentAttempts.reportEmailStatus, "sending"), or(isNull(assessmentAttempts.reportEmailClaimedAt), lt(assessmentAttempts.reportEmailClaimedAt, staleBefore))))));
+  return Number(result[0].affectedRows ?? 0) > 0;
+}
+
+export async function markAssessmentReportEmailSent(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(assessmentAttempts).set({ reportEmailStatus: "sent", reportEmailSentAt: new Date(), reportEmailClaimedAt: null }).where(and(eq(assessmentAttempts.id, id), eq(assessmentAttempts.reportEmailStatus, "sending")));
+}
+
+export async function releaseAssessmentReportEmailClaim(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(assessmentAttempts).set({ reportEmailStatus: "pending", reportEmailClaimedAt: null }).where(and(eq(assessmentAttempts.id, id), eq(assessmentAttempts.reportEmailStatus, "sending")));
 }
 
 export async function getLatestPaidAssessment(email: string) {

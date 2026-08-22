@@ -23,8 +23,11 @@ export const assessmentAttempts = mysqlTable("assessment_attempts", {
   paystackReference: varchar("paystackReference", { length: 120 }).unique(),
   paymentStatus: varchar("paymentStatus", { length: 32 }).default("pending").notNull(),
   report: json("report"),
+  reportEmailStatus: varchar("reportEmailStatus", { length: 16 }).default("pending").notNull(),
+  reportEmailClaimedAt: timestamp("reportEmailClaimedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   paidAt: timestamp("paidAt"),
+  reportEmailSentAt: timestamp("reportEmailSentAt"),
   consentedAt: timestamp("consentedAt").notNull(),
 });
 

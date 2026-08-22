@@ -1,5 +1,5 @@
 import { COOKIE_NAME } from "@shared/const";
-import { assessmentQuestions, ASSESSMENT_PRICE_KES, buildReport } from "../shared/assessment";
+import { assessmentQuestions, ASSESSMENT_PRICE_KES, buildReport, type AssessmentReport } from "../shared/assessment";
 import { getAssessmentAttempt, createAssessmentAttempt, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
@@ -9,6 +9,7 @@ import { getAssessmentAdminOverview, getUserAssessmentHistory, getUserProfile, u
 import { storagePut } from "./storage";
 import { z } from "zod";
 import { renderAssessmentReportPdf } from "./reportPdf";
+import { emailAssessmentReportIfNeeded } from "./email";
 
 const answersSchema = z.array(z.object({ questionId: z.string(), value: z.number().int().min(1).max(5) })).length(assessmentQuestions.length);
 
@@ -78,13 +79,27 @@ export const appRouter = router({
     verifyPayment: publicProcedure.input(z.object({ reference: z.string().min(10).max(120) })).mutation(async ({ input }) => {
       const attempt = await getAssessmentAttemptByReference(input.reference);
       if (!attempt) throw new TRPCError({ code: "NOT_FOUND", message: "Assessment attempt not found." });
-      if (attempt.paymentStatus === "paid" && attempt.report) return { report: attempt.report, reference: input.reference };
+      if (attempt.paymentStatus === "paid" && attempt.report) {
+        let emailSent = false;
+        try {
+          emailSent = await emailAssessmentReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report: attempt.report as AssessmentReport, reportEmailStatus: attempt.reportEmailStatus, reportEmailSentAt: attempt.reportEmailSentAt });
+        } catch (error) {
+          console.error("[Assessment] Report email delivery retry failed:", error);
+        }
+        return { report: attempt.report, reference: input.reference, emailSent };
+      }
       const verification = await paystackRequest(`/transaction/verify/${encodeURIComponent(input.reference)}`);
       const transaction = verification.data;
       if (transaction.reference !== input.reference || transaction.status !== "success" || transaction.amount !== ASSESSMENT_PRICE_KES * 100 || transaction.currency !== "KES") throw new TRPCError({ code: "PAYMENT_REQUIRED", message: "Payment could not be verified." });
       const report = buildReport(attempt.answers as Array<{ questionId: string; value: number }>);
       await markAssessmentPaid(attempt.id, report);
-      return { report, reference: input.reference };
+      let emailSent = false;
+      try {
+        emailSent = await emailAssessmentReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report, reportEmailSentAt: attempt.reportEmailSentAt });
+      } catch (error) {
+        console.error("[Assessment] Report email delivery failed:", error);
+      }
+      return { report, reference: input.reference, emailSent };
     }),
     getReport: publicProcedure.input(z.object({ reference: z.string().min(10).max(120) })).query(async ({ input }) => {
       const attempt = await getAssessmentAttemptByReference(input.reference);

@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 const { getUserAssessmentHistory, getAssessmentAttempt } = vi.hoisted(() => ({ getUserAssessmentHistory: vi.fn(), getAssessmentAttempt: vi.fn() }));
 const { renderAssessmentReportPdf } = vi.hoisted(() => ({ renderAssessmentReportPdf: vi.fn() }));
+const { emailAssessmentReportIfNeeded } = vi.hoisted(() => ({ emailAssessmentReportIfNeeded: vi.fn() }));
 
 vi.mock("./db", () => ({
   getUserAssessmentHistory,
@@ -14,6 +15,7 @@ vi.mock("./db", () => ({
 }));
 
 vi.mock("./reportPdf", () => ({ renderAssessmentReportPdf }));
+vi.mock("./email", () => ({ emailAssessmentReportIfNeeded }));
 
 const { appRouter } = await import("./routers");
 

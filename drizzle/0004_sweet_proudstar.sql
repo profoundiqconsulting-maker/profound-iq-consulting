@@ -1,0 +1,1 @@
+ALTER TABLE `assessment_attempts` ADD `reportEmailSentAt` timestamp;

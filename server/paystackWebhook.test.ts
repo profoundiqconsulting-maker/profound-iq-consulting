@@ -5,8 +5,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 const getAssessmentAttemptByReference = vi.fn();
 const markAssessmentPaid = vi.fn();
+const emailAssessmentReportIfNeeded = vi.fn();
 
 vi.mock("./db", () => ({ getAssessmentAttemptByReference, markAssessmentPaid }));
+vi.mock("./email", () => ({ emailAssessmentReportIfNeeded }));
 
 const { registerPaystackWebhook } = await import("./paystackWebhook");
 
@@ -16,6 +18,7 @@ describe("Paystack webhook", () => {
   afterEach(() => {
     getAssessmentAttemptByReference.mockReset();
     markAssessmentPaid.mockReset();
+    emailAssessmentReportIfNeeded.mockReset();
   });
 
   it("rejects an invalid signature", async () => {
@@ -44,6 +47,7 @@ describe("Paystack webhook", () => {
     const response = await fetch(`http://127.0.0.1:${port}/api/paystack/webhook`, { method: "POST", headers: { "content-type": "application/json", "x-paystack-signature": signature }, body });
     expect(response.status).toBe(200);
     expect(markAssessmentPaid).toHaveBeenCalledOnce();
+    expect(emailAssessmentReportIfNeeded).toHaveBeenCalledOnce();
     await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
   });
 

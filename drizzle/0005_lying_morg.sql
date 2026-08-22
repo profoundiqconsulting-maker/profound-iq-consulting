@@ -1,0 +1,1 @@
+ALTER TABLE `assessment_attempts` ADD `reportEmailStatus` varchar(16) DEFAULT 'pending' NOT NULL;

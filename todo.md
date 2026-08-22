@@ -16,3 +16,13 @@
 - [x] Strengthen PDF tests to assert meaningful participant and report content in the rendered paid-assessment artifact.
 - [x] Verify the updated dashboard download action on a mobile viewport.
 - [x] Save a new checkpoint that includes the verified PDF report download feature after the final passing tests and mobile dashboard verification.
+- [x] Select a transactional email delivery approach and configure its required secret.
+- [x] Email the generated PDF report after verified payment completion with safe delivery-state handling.
+- [x] Add email delivery tests and preserve dashboard download behavior.
+- [x] Verify the end-to-end report email flow, type checks, tests, build, and responsive UI.
+- [x] Save a checkpoint for automatic PDF report email delivery.
+- [x] Make report-email sending truly idempotent across webhook and browser verification paths with an atomic claim and retry for paid-but-unsent reports.
+- [x] Trigger a real paid-report completion to a controlled inbox and verify receipt with the PDF attachment and correct sender/subject.
+- [x] Verify the assessment completion email-status message on a mobile viewport.
+- [x] Save a new checkpoint that includes the verified automatic PDF email delivery feature.
+- [ ] Save a new checkpoint that includes the verified automatic PDF email delivery feature after the final passing tests, real inbox verification, and mobile assessment-page review.

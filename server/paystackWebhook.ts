@@ -3,6 +3,7 @@ import type { Express, Request, Response } from "express";
 import express from "express";
 import { ASSESSMENT_PRICE_KES, buildReport } from "../shared/assessment";
 import { getAssessmentAttemptByReference, markAssessmentPaid } from "./db";
+import { emailAssessmentReportIfNeeded } from "./email";
 
 export function registerPaystackWebhook(app: Express) {
   app.post("/api/paystack/webhook", express.raw({ type: "application/json" }), async (req: Request, res: Response) => {
@@ -15,7 +16,15 @@ export function registerPaystackWebhook(app: Express) {
     const event = JSON.parse(body.toString()) as { event?: string; data?: { reference?: string; status?: string; amount?: number; currency?: string } };
     if (event.event === "charge.success" && event.data?.reference && event.data.status === "success" && event.data.amount === ASSESSMENT_PRICE_KES * 100 && event.data.currency === "KES") {
       const attempt = await getAssessmentAttemptByReference(event.data.reference);
-      if (attempt && attempt.paymentStatus !== "paid") await markAssessmentPaid(attempt.id, buildReport(attempt.answers as Array<{ questionId: string; value: number }>));
+      if (attempt && attempt.paymentStatus !== "paid") {
+        const report = buildReport(attempt.answers as Array<{ questionId: string; value: number }>);
+        await markAssessmentPaid(attempt.id, report);
+        try {
+          await emailAssessmentReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report, reportEmailStatus: attempt.reportEmailStatus, reportEmailSentAt: attempt.reportEmailSentAt });
+        } catch (error) {
+          console.error("[Paystack] Report email delivery failed:", error);
+        }
+      }
     }
     return res.status(200).json({ received: true });
   });
