@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, isNull, isNotNull, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { analyticsEvents, assessmentAttempts, courseEnrollments, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, scheduledExportRuns, scheduledExports, users } from "../drizzle/schema";
+import { adminAnalyticsSettings, analyticsEvents, assessmentAttempts, courseEnrollments, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, scheduledExportRuns, scheduledExports, users } from "../drizzle/schema";
 import type { AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { ENV } from "./_core/env";
@@ -216,7 +216,7 @@ export async function createScheduledExportIfMissing(exportKey: string) {
   await db.insert(scheduledExports).values({ exportKey });
   return getScheduledExport(exportKey);
 }
-export async function updateScheduledExport(exportKey: string, input: { scheduleTaskUid?: string; lastRunAt?: Date; lastFileKey?: string; lastFileUrl?: string }) {
+export async function updateScheduledExport(exportKey: string, input: { scheduleTaskUid?: string; lastRunAt?: Date; lastFileKey?: string; lastFileUrl?: string; retentionDays?: number }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   await db.update(scheduledExports).set(input).where(eq(scheduledExports.exportKey, exportKey));
@@ -233,7 +233,26 @@ export async function getScheduledExportRuns(exportKey: string, limit = 12) {
   if (!db) throw new Error("Database is not available");
   return db.select().from(scheduledExportRuns).where(eq(scheduledExportRuns.exportKey, exportKey)).orderBy(desc(scheduledExportRuns.createdAt)).limit(limit);
 }
-export async function addEmailPreviewDelivery(input: { templateKey: string; recipientEmail: string; subject: string; status: "sent" | "failed"; errorMessage?: string | null }) {
+export async function deleteExpiredScheduledExportRuns(exportKey: string, cutoff: Date) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.delete(scheduledExportRuns).where(and(eq(scheduledExportRuns.exportKey, exportKey), lt(scheduledExportRuns.createdAt, cutoff)));
+}
+export async function getAdminAnalyticsSettings(adminOpenId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return (await db.select().from(adminAnalyticsSettings).where(eq(adminAnalyticsSettings.adminOpenId, adminOpenId)).limit(1))[0] ?? { adminOpenId, paidBenchmark: 35, downloadBenchmark: 60 };
+}
+export async function upsertAdminAnalyticsSettings(adminOpenId: string, input: { paidBenchmark: number; downloadBenchmark: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const existing = await getAdminAnalyticsSettings(adminOpenId);
+  if ("id" in existing) await db.update(adminAnalyticsSettings).set(input).where(eq(adminAnalyticsSettings.adminOpenId, adminOpenId));
+  else await db.insert(adminAnalyticsSettings).values({ adminOpenId, ...input });
+  return getAdminAnalyticsSettings(adminOpenId);
+}
+
+export async function addEmailPreviewDelivery(input: { templateKey: string; recipientEmail: string; subject: string; body?: string | null; status: "sent" | "failed"; errorMessage?: string | null }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   await db.insert(emailPreviewDeliveries).values(input);
@@ -241,7 +260,7 @@ export async function addEmailPreviewDelivery(input: { templateKey: string; reci
 export async function getEmailPreviewDeliveries(limit = 20) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  return db.select({ id: emailPreviewDeliveries.id, templateKey: emailPreviewDeliveries.templateKey, recipientEmail: emailPreviewDeliveries.recipientEmail, subject: emailPreviewDeliveries.subject, status: emailPreviewDeliveries.status, errorMessage: emailPreviewDeliveries.errorMessage, createdAt: emailPreviewDeliveries.createdAt }).from(emailPreviewDeliveries).orderBy(desc(emailPreviewDeliveries.createdAt)).limit(limit);
+  return db.select({ id: emailPreviewDeliveries.id, templateKey: emailPreviewDeliveries.templateKey, recipientEmail: emailPreviewDeliveries.recipientEmail, subject: emailPreviewDeliveries.subject, body: emailPreviewDeliveries.body, status: emailPreviewDeliveries.status, errorMessage: emailPreviewDeliveries.errorMessage, createdAt: emailPreviewDeliveries.createdAt }).from(emailPreviewDeliveries).orderBy(desc(emailPreviewDeliveries.createdAt)).limit(limit);
 }
 
 export async function getEmailTemplates() {

@@ -9,7 +9,9 @@ const mocks = vi.hoisted(() => ({
   addEmailPreviewDelivery: vi.fn().mockResolvedValue(undefined),
   getScheduledExport: vi.fn().mockResolvedValue({ exportKey: "weekly_course_enrollments", scheduleTaskUid: "task-1", lastRunAt: new Date("2026-08-24T09:00:00.000Z"), lastFileKey: "scheduled-exports/latest.csv", lastFileUrl: "/manus-storage/scheduled-exports/latest.csv" }),
   getScheduledExportRuns: vi.fn().mockResolvedValue([{ id: 1, exportKey: "weekly_course_enrollments", fileKey: "scheduled-exports/latest.csv", fileUrl: "/manus-storage/scheduled-exports/latest.csv", rowCount: 4, createdAt: new Date("2026-08-24T09:00:00.000Z") }]),
-  getEmailPreviewDeliveries: vi.fn().mockResolvedValue([{ id: 1, templateKey: "assessment_report", recipientEmail: "admin@example.com", subject: "Preview", status: "sent", errorMessage: null, createdAt: new Date("2026-08-24T09:00:00.000Z") }]),
+  getEmailPreviewDeliveries: vi.fn().mockResolvedValue([{ id: 1, templateKey: "assessment_report", recipientEmail: "admin@example.com", subject: "Preview", body: "Hello **{{name}}**", status: "sent", errorMessage: null, createdAt: new Date("2026-08-24T09:00:00.000Z") }]),
+  getAdminAnalyticsSettings: vi.fn().mockResolvedValue({ adminOpenId: "admin-test", paidBenchmark: 42, downloadBenchmark: 68 }),
+  upsertAdminAnalyticsSettings: vi.fn().mockResolvedValue({ adminOpenId: "admin-test", paidBenchmark: 42, downloadBenchmark: 68 }),
 }));
 vi.mock("./db", async (importOriginal) => ({ ...(await importOriginal<typeof import("./db")>()), ...mocks }));
 vi.mock("./email", async (importOriginal) => ({ ...(await importOriginal<typeof import("./email")>()), sendTemplateTestEmail: mocks.sendTemplateTestEmail }));
@@ -29,7 +31,14 @@ describe("admin feature behavior", () => {
   it("sends a safe test preview to the authenticated admin email", async () => {
     await appRouter.createCaller(adminContext()).admin.sendTemplateTestEmail({ templateKey: "assessment_report", subject: "Preview", body: "Hello **{{name}}** at {{email}} on {{date}}." });
     expect(mocks.sendTemplateTestEmail).toHaveBeenCalledWith({ to: "admin@example.com", subject: "Preview", body: "Hello **{{name}}** at {{email}} on {{date}}." });
-    expect(mocks.addEmailPreviewDelivery).toHaveBeenCalledWith({ templateKey: "assessment_report", recipientEmail: "admin@example.com", subject: "Preview", status: "sent" });
+    expect(mocks.addEmailPreviewDelivery).toHaveBeenCalledWith({ templateKey: "assessment_report", recipientEmail: "admin@example.com", subject: "Preview", body: "Hello **{{name}}** at {{email}} on {{date}}.", status: "sent" });
+  });
+
+  it("retries a failed preview using its original body", async () => {
+    mocks.getEmailPreviewDeliveries.mockResolvedValueOnce([{ id: 9, templateKey: "assessment_report", recipientEmail: "admin@example.com", subject: "Preview", body: "Hello **{{name}}**", status: "failed", errorMessage: "Mailbox unavailable", createdAt: new Date() }]);
+    await appRouter.createCaller(adminContext()).admin.retryTemplateTestEmail({ deliveryId: 9 });
+    expect(mocks.sendTemplateTestEmail).toHaveBeenCalledWith({ to: "admin@example.com", subject: "Preview", body: "Hello **{{name}}**" });
+    expect(mocks.addEmailPreviewDelivery).toHaveBeenCalledWith(expect.objectContaining({ templateKey: "assessment_report", body: "Hello **{{name}}**", status: "sent" }));
   });
 
   it("returns schedule status and report history for an admin", async () => {
@@ -37,6 +46,13 @@ describe("admin feature behavior", () => {
     expect(result.config?.lastFileUrl).toBe("/manus-storage/scheduled-exports/latest.csv");
     expect(result.runs).toEqual(expect.arrayContaining([expect.objectContaining({ rowCount: 4, fileUrl: "/manus-storage/scheduled-exports/latest.csv" })]));
     await expect(appRouter.createCaller(adminContext()).admin.emailPreviewHistory()).resolves.toEqual(expect.arrayContaining([expect.objectContaining({ status: "sent", recipientEmail: "admin@example.com" })]));
+  });
+
+  it("persists custom benchmark targets for the admin account", async () => {
+    const caller = appRouter.createCaller(adminContext());
+    await caller.admin.saveAnalyticsSettings({ paidBenchmark: 42, downloadBenchmark: 68 });
+    expect(mocks.upsertAdminAnalyticsSettings).toHaveBeenCalledWith("admin-test", { paidBenchmark: 42, downloadBenchmark: 68 });
+    await expect(caller.admin.analyticsSettings()).resolves.toEqual(expect.objectContaining({ paidBenchmark: 42, downloadBenchmark: 68 }));
   });
 
   it("saves and reloads a branded email template", async () => {

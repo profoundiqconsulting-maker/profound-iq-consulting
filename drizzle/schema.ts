@@ -51,6 +51,7 @@ export const scheduledExports = mysqlTable("scheduled_exports", {
   lastRunAt: timestamp("lastRunAt"),
   lastFileKey: varchar("lastFileKey", { length: 512 }),
   lastFileUrl: varchar("lastFileUrl", { length: 512 }),
+  retentionDays: int("retentionDays").default(30).notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
@@ -68,9 +69,18 @@ export const emailPreviewDeliveries = mysqlTable("email_preview_deliveries", {
   templateKey: varchar("templateKey", { length: 80 }).notNull(),
   recipientEmail: varchar("recipientEmail", { length: 320 }).notNull(),
   subject: varchar("subject", { length: 240 }).notNull(),
+  body: text("body"),
   status: varchar("status", { length: 20 }).notNull(),
   errorMessage: varchar("errorMessage", { length: 500 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const adminAnalyticsSettings = mysqlTable("admin_analytics_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  adminOpenId: varchar("adminOpenId", { length: 64 }).notNull().unique(),
+  paidBenchmark: int("paidBenchmark").default(35).notNull(),
+  downloadBenchmark: int("downloadBenchmark").default(60).notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export const assessmentAttempts = mysqlTable("assessment_attempts", {
@@ -99,3 +109,4 @@ export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 export type ScheduledExport = typeof scheduledExports.$inferSelect;
 export type ScheduledExportRun = typeof scheduledExportRuns.$inferSelect;
 export type EmailPreviewDelivery = typeof emailPreviewDeliveries.$inferSelect;
+export type AdminAnalyticsSettings = typeof adminAnalyticsSettings.$inferSelect;

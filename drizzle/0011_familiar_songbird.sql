@@ -1,0 +1,1 @@
+ALTER TABLE `email_preview_deliveries` ADD `body` text DEFAULT ('') NOT NULL;

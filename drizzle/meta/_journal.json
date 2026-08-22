@@ -71,6 +71,20 @@
       "when": 1787390580337,
       "tag": "0009_aberrant_squadron_supreme",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1787391614721,
+      "tag": "0010_conscious_hannibal_king",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1787391775428,
+      "tag": "0011_familiar_songbird",
+      "breakpoints": true
     }
   ]
 }

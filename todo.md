@@ -91,4 +91,12 @@
 - [x] Add authorization and behavior tests for status, comparisons, benchmarks, and email history.
 - [x] Verify responsive admin workflows, run checks/tests/build, and save a checkpoint.
 - [x] Add behavioral tests for scheduled export status and report history responses, including latest run and downloadable run list.
-- [ ] Save a checkpoint after the schedule-status, funnel-comparison, and preview-history changes are fully validated.
+- [x] Save a checkpoint after the schedule-status, funnel-comparison, and preview-history changes are fully validated.
+- [x] Add admin retry controls for failed test emails with provider error details.
+- [x] Add a configurable scheduled-export retention policy with safe cleanup of reports older than 30 days.
+- [x] Persist custom conversion benchmark targets per admin account and restore them across sessions.
+- [x] Add authorization and behavior tests for retries, retention cleanup, and benchmark persistence.
+- [x] Verify responsive admin workflows, run checks/tests/build, and save a checkpoint.
+- [x] Document and surface that the managed-storage layer removes expired export references from admin history but does not expose an underlying object-delete endpoint.
+- [x] Add non-admin authorization tests for retryTemplateTestEmail, saveAnalyticsSettings, and updateExportRetention.
+- [ ] Save a new checkpoint after the retry, retention, and persistent benchmark changes are fully validated.
