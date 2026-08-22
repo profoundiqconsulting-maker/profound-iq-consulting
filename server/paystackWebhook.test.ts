@@ -5,9 +5,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 const getAssessmentAttemptByReference = vi.fn();
 const markAssessmentPaid = vi.fn();
+const recordAnalyticsEvent = vi.fn();
 const emailAssessmentReportIfNeeded = vi.fn();
 
-vi.mock("./db", () => ({ getAssessmentAttemptByReference, markAssessmentPaid }));
+vi.mock("./db", () => ({ getAssessmentAttemptByReference, markAssessmentPaid, recordAnalyticsEvent }));
 vi.mock("./email", () => ({ emailAssessmentReportIfNeeded }));
 
 const { registerPaystackWebhook } = await import("./paystackWebhook");
@@ -18,6 +19,7 @@ describe("Paystack webhook", () => {
   afterEach(() => {
     getAssessmentAttemptByReference.mockReset();
     markAssessmentPaid.mockReset();
+    recordAnalyticsEvent.mockReset();
     emailAssessmentReportIfNeeded.mockReset();
   });
 
@@ -48,6 +50,7 @@ describe("Paystack webhook", () => {
     expect(response.status).toBe(200);
     expect(markAssessmentPaid).toHaveBeenCalledOnce();
     expect(emailAssessmentReportIfNeeded).toHaveBeenCalledOnce();
+    expect(recordAnalyticsEvent).toHaveBeenCalledWith(expect.objectContaining({ eventName: "payment_completed", attemptId: 7, metadata: expect.objectContaining({ source: "webhook" }) }));
     await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
   });
 

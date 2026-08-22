@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import type { Express, Request, Response } from "express";
 import express from "express";
 import { ASSESSMENT_PRICE_KES, buildReport } from "../shared/assessment";
-import { getAssessmentAttemptByReference, markAssessmentPaid } from "./db";
+import { getAssessmentAttemptByReference, markAssessmentPaid, recordAnalyticsEvent } from "./db";
 import { emailAssessmentReportIfNeeded } from "./email";
 
 export function registerPaystackWebhook(app: Express) {
@@ -19,6 +19,7 @@ export function registerPaystackWebhook(app: Express) {
       if (attempt && attempt.paymentStatus !== "paid") {
         const report = buildReport(attempt.answers as Array<{ questionId: string; value: number }>);
         await markAssessmentPaid(attempt.id, report);
+        await recordAnalyticsEvent({ eventName: "payment_completed", attemptId: attempt.id, metadata: { currency: "KES", amount: ASSESSMENT_PRICE_KES, source: "webhook" } });
         try {
           await emailAssessmentReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report, reportEmailStatus: attempt.reportEmailStatus, reportEmailSentAt: attempt.reportEmailSentAt });
         } catch (error) {

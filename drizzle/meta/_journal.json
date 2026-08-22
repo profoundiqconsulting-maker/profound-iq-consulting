@@ -50,6 +50,13 @@
       "when": 1787378862884,
       "tag": "0006_careful_nighthawk",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1787388629112,
+      "tag": "0007_cynical_proudstar",
+      "breakpoints": true
     }
   ]
 }

@@ -24,6 +24,7 @@ export default function Assessment() {
 
   const initializePayment = trpc.assessment.initializePayment.useMutation();
   const verifyPayment = trpc.assessment.verifyPayment.useMutation();
+  const trackEvent = trpc.analytics.track.useMutation();
   const currentQuestions = useMemo(() => assessmentQuestions.slice(page * pageSize, (page + 1) * pageSize), [page]);
   const answeredCount = Object.keys(answers).length;
   const totalPages = Math.ceil(assessmentQuestions.length / pageSize);
@@ -40,7 +41,7 @@ export default function Assessment() {
 
   const setAnswer = (questionId: string, value: number) => setAnswers((current) => ({ ...current, [questionId]: value }));
 
-  const beginAssessment = (event: React.FormEvent<HTMLFormElement>) => { event.preventDefault(); setError(""); setStage("questions"); };
+  const beginAssessment = (event: React.FormEvent<HTMLFormElement>) => { event.preventDefault(); setError(""); trackEvent.mutate({ eventName: "assessment_started", metadata: { source: "assessment" } }); setStage("questions"); };
 
   const finishAndPay = () => {
     setError("");

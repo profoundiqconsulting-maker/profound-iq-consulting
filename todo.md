@@ -64,3 +64,14 @@
 - [x] Configure the provided logo as the browser favicon and verify document metadata.
 - [x] Add branding regression coverage and verify desktop/mobile rendering plus production build.
 - [x] Save a checkpoint for the provided logo and favicon rollout.
+- [x] Verify the connected GitHub repository with a read-only metadata and commit fetch, then document its capabilities.
+- [x] Add analytics event tracking for assessment starts, payment completions, and report downloads across client and server flows.
+- [x] Add an admin-only branded email template editor with persisted templates and safe rendering fields.
+- [x] Add an admin-only course enrollment CSV export workflow with appropriate privacy boundaries.
+- [x] Add tests for analytics events, email template authorization/persistence, and CSV export behavior.
+- [x] Verify responsive admin UI, run type checks/tests/build, and save a final checkpoint.
+- [x] Instrument payment-completion analytics in the signed Paystack webhook path and cover both browser and webhook completion routes.
+- [x] Add allowed-token validation and deterministic preview rendering for branded email templates.
+- [x] Add behavioral tests for analytics persistence, template save/reload, and CSV headers/escaping/rows.
+- [x] Deliver the GitHub connector capability summary with repository metadata and a fetched commit example.
+- [ ] Save a new final checkpoint after the hardening work and full validation.

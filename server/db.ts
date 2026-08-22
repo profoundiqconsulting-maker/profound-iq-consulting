@@ -1,6 +1,6 @@
 import { and, desc, eq, isNull, isNotNull, lt, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { assessmentAttempts, InsertAssessmentAttempt, InsertUser, users } from "../drizzle/schema";
+import { analyticsEvents, assessmentAttempts, courseEnrollments, emailTemplates, InsertAssessmentAttempt, InsertUser, users } from "../drizzle/schema";
 import type { AssessmentReport } from "../shared/assessment";
 import { ENV } from "./_core/env";
 
@@ -155,6 +155,44 @@ export async function getUserAssessmentHistory(email: string) {
     overallBand: (row.report as AssessmentReport | null)?.overallBand ?? null,
     report: row.paymentStatus === "paid" ? row.report : null,
   }));
+}
+
+export async function recordAnalyticsEvent(input: { eventName: string; attemptId?: number; userOpenId?: string; metadata?: Record<string, unknown> }) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(analyticsEvents).values({ eventName: input.eventName, attemptId: input.attemptId, userOpenId: input.userOpenId, metadata: input.metadata ?? null });
+}
+
+export async function createCourseEnrollment(input: { courseTitle: string; name: string; email: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.insert(courseEnrollments).values({ ...input, consentedAt: new Date() });
+  return Number(result[0].insertId);
+}
+
+export async function getCourseEnrollments() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select({ id: courseEnrollments.id, courseTitle: courseEnrollments.courseTitle, name: courseEnrollments.name, email: courseEnrollments.email, status: courseEnrollments.status, createdAt: courseEnrollments.createdAt, consentedAt: courseEnrollments.consentedAt }).from(courseEnrollments).orderBy(desc(courseEnrollments.createdAt)).limit(1000);
+}
+
+const defaultEmailTemplates = [
+  { templateKey: "assessment_report", label: "Assessment report delivery", subject: "Your Profound IQ assessment report", body: "Hello {{name}},\n\nYour assessment report is ready. Use the secure link in your dashboard to review your development signals.\n\nProfound IQ Consulting" },
+  { templateKey: "course_enrollment", label: "Course enrollment follow-up", subject: "Your Profound IQ course inquiry", body: "Hello {{name}},\n\nThank you for your interest in {{course}}. Our team will follow up with availability and next steps.\n\nProfound IQ Consulting" },
+];
+
+export async function getEmailTemplates() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db.select().from(emailTemplates).orderBy(emailTemplates.templateKey);
+  return defaultEmailTemplates.map((fallback) => rows.find((row) => row.templateKey === fallback.templateKey) ?? { id: 0, ...fallback, updatedByOpenId: null, updatedAt: null });
+}
+
+export async function upsertEmailTemplate(input: { templateKey: string; label: string; subject: string; body: string; updatedByOpenId: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(emailTemplates).values(input).onDuplicateKeyUpdate({ set: { label: input.label, subject: input.subject, body: input.body, updatedByOpenId: input.updatedByOpenId } });
+  return getEmailTemplates();
 }
 
 export async function getAssessmentAdminOverview() {

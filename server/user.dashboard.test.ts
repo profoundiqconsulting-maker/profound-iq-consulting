@@ -5,6 +5,7 @@ const { renderAssessmentReportPdf } = vi.hoisted(() => ({ renderAssessmentReport
 const { emailAssessmentReportIfNeeded } = vi.hoisted(() => ({ emailAssessmentReportIfNeeded: vi.fn() }));
 
 vi.mock("./db", () => ({
+  recordAnalyticsEvent: vi.fn(),
   getUserAssessmentHistory,
   getAssessmentAdminOverview: vi.fn(),
   getAssessmentAttempt,

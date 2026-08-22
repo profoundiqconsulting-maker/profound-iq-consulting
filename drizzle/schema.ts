@@ -15,6 +15,35 @@ export const users = mysqlTable("users", {
   timezone: varchar("timezone", { length: 64 }),
 });
 
+export const courseEnrollments = mysqlTable("course_enrollments", {
+  id: int("id").autoincrement().primaryKey(),
+  courseTitle: varchar("courseTitle", { length: 180 }).notNull(),
+  name: varchar("name", { length: 160 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  status: varchar("status", { length: 32 }).default("new").notNull(),
+  consentedAt: timestamp("consentedAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const analyticsEvents = mysqlTable("analytics_events", {
+  id: int("id").autoincrement().primaryKey(),
+  eventName: varchar("eventName", { length: 80 }).notNull(),
+  attemptId: int("attemptId"),
+  userOpenId: varchar("userOpenId", { length: 64 }),
+  metadata: json("metadata"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const emailTemplates = mysqlTable("email_templates", {
+  id: int("id").autoincrement().primaryKey(),
+  templateKey: varchar("templateKey", { length: 80 }).notNull().unique(),
+  label: varchar("label", { length: 160 }).notNull(),
+  subject: varchar("subject", { length: 240 }).notNull(),
+  body: text("body").notNull(),
+  updatedByOpenId: varchar("updatedByOpenId", { length: 64 }),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 export const assessmentAttempts = mysqlTable("assessment_attempts", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 160 }).notNull(),
@@ -35,3 +64,6 @@ export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type AssessmentAttempt = typeof assessmentAttempts.$inferSelect;
 export type InsertAssessmentAttempt = typeof assessmentAttempts.$inferInsert;
+export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
+export type EmailTemplate = typeof emailTemplates.$inferSelect;
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;

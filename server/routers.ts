@@ -5,13 +5,16 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
-import { getAssessmentAdminOverview, getUserAssessmentHistory, getUserProfile, updateUserAvatar, updateUserProfile } from "./db";
+import { createCourseEnrollment, getAssessmentAdminOverview, getCourseEnrollments, getEmailTemplates, getUserAssessmentHistory, getUserProfile, recordAnalyticsEvent, updateUserAvatar, updateUserProfile, upsertEmailTemplate } from "./db";
 import { storagePut } from "./storage";
 import { z } from "zod";
 import { renderAssessmentReportPdf } from "./reportPdf";
+import { validateEmailTemplateBody } from "../shared/emailTemplate";
+import { buildCourseEnrollmentCsv } from "../shared/adminExport";
 import { emailAssessmentReportIfNeeded } from "./email";
 
 const answersSchema = z.array(z.object({ questionId: z.string(), value: z.number().int().min(1).max(5) })).length(assessmentQuestions.length);
+const analyticsEventSchema = z.object({ eventName: z.enum(["assessment_started", "payment_completed", "report_downloaded", "course_enrollment_submitted"]), attemptId: z.number().int().positive().optional(), metadata: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional() });
 
 async function paystackRequest(path: string, init?: RequestInit) {
   const secretKey = process.env.PAYSTACK_SECRET_KEY;
@@ -50,6 +53,27 @@ export const appRouter = router({
       return updateUserAvatar(ctx.user.openId, uploaded.url);
     }),
   }),
+  analytics: router({
+    track: publicProcedure.input(analyticsEventSchema).mutation(async ({ ctx, input }) => {
+      await recordAnalyticsEvent({ ...input, userOpenId: ctx.user?.openId });
+      return { tracked: true as const };
+    }),
+  }),
+  enrollment: router({
+    create: publicProcedure.input(z.object({ courseTitle: z.string().trim().min(2).max(180), name: z.string().trim().min(2).max(160), email: z.string().email(), consent: z.literal(true) })).mutation(async ({ input }) => {
+      const id = await createCourseEnrollment({ courseTitle: input.courseTitle, name: input.name, email: input.email });
+      await recordAnalyticsEvent({ eventName: "course_enrollment_submitted", metadata: { courseTitle: input.courseTitle } });
+      return { id };
+    }),
+  }),
+  admin: router({
+    emailTemplates: adminProcedure.query(() => getEmailTemplates()),
+    saveEmailTemplate: adminProcedure.input(z.object({ templateKey: z.enum(["assessment_report", "course_enrollment"]), label: z.string().trim().min(2).max(160), subject: z.string().trim().min(2).max(240), body: z.string().trim().min(2).max(10000) })).mutation(({ ctx, input }) => { const unsupported = validateEmailTemplateBody(input.body); if (unsupported.length) throw new TRPCError({ code: "BAD_REQUEST", message: `Unsupported template token: ${unsupported.join(", ")}. Use only {{name}} and {{course}}.` }); return upsertEmailTemplate({ ...input, updatedByOpenId: ctx.user.openId }); }),
+    exportCourseEnrollments: adminProcedure.query(async () => {
+      const rows = await getCourseEnrollments();
+      return { filename: `profound-iq-course-enrollments-${new Date().toISOString().slice(0, 10)}.csv`, contentType: "text/csv;charset=utf-8", data: buildCourseEnrollmentCsv(rows) };
+    }),
+  }),
   dashboard: router({
     mine: protectedProcedure.query(({ ctx }) => {
       if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
@@ -71,6 +95,7 @@ export const appRouter = router({
       if (!attempt || attempt.email !== ctx.user.email) throw new TRPCError({ code: "NOT_FOUND", message: "Assessment report not found." });
       if (attempt.paymentStatus !== "paid" || !attempt.report) throw new TRPCError({ code: "FORBIDDEN", message: "A verified payment is required to download this report." });
       const pdf = await renderAssessmentReportPdf({ attemptId: attempt.id, participantName: attempt.name, createdAt: attempt.createdAt, report: attempt.report as import("../shared/assessment").AssessmentReport });
+      await recordAnalyticsEvent({ eventName: "report_downloaded", attemptId: attempt.id, userOpenId: ctx.user.openId });
       return { filename: `profound-iq-assessment-${attempt.id}.pdf`, contentType: "application/pdf", data: pdf.toString("base64") };
     }),
   }),
@@ -103,6 +128,7 @@ export const appRouter = router({
       if (transaction.reference !== input.reference || transaction.status !== "success" || transaction.amount !== ASSESSMENT_PRICE_KES * 100 || transaction.currency !== "KES") throw new TRPCError({ code: "PAYMENT_REQUIRED", message: "Payment could not be verified." });
       const report = buildReport(attempt.answers as Array<{ questionId: string; value: number }>);
       await markAssessmentPaid(attempt.id, report);
+      await recordAnalyticsEvent({ eventName: "payment_completed", attemptId: attempt.id, metadata: { currency: "KES", amount: ASSESSMENT_PRICE_KES } });
       let emailSent = false;
       try {
         emailSent = await emailAssessmentReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report, reportEmailSentAt: attempt.reportEmailSentAt });
