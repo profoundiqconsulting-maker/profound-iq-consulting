@@ -25,4 +25,4 @@
 - [x] Trigger a real paid-report completion to a controlled inbox and verify receipt with the PDF attachment and correct sender/subject.
 - [x] Verify the assessment completion email-status message on a mobile viewport.
 - [x] Save a new checkpoint that includes the verified automatic PDF email delivery feature.
-- [ ] Save a new checkpoint that includes the verified automatic PDF email delivery feature after the final passing tests, real inbox verification, and mobile assessment-page review.
+- [x] Save a new checkpoint that includes the verified automatic PDF email delivery feature after the final passing tests, real inbox verification, and mobile assessment-page review.
