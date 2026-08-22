@@ -49,3 +49,8 @@
 - [x] Add automated coverage for the last-emailed timestamp display or rendering logic, then re-run the relevant tests.
 - [x] Save a new checkpoint that includes the verified last-emailed timestamp feature after the tests and responsive dashboard review.
 - [x] Save a final checkpoint after the executed shared timestamp test coverage, responsive dashboard review, and full validation suite.
+- [x] Add a small email icon adjacent to the delivery status and last-emailed timestamp.
+- [x] Preserve accessible text and pending/in-progress status behavior.
+- [x] Verify desktop/mobile dashboard rendering and run tests/build.
+- [x] Save a checkpoint for the email-icon refinement.
+- [ ] Save a final checkpoint after the verified email-icon refinement, responsive screenshots, tests, and production build.
