@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { and, desc, eq, gte, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, reportShares, authLoginAttempts, courseEnrollments, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -347,11 +347,19 @@ export async function getUserAssessmentHistory(email: string) {
 
 function hashReportShareToken(token: string) { return createHash("sha256").update(token).digest("hex"); }
 
-export async function createReportShare(input: { attemptId: number; ownerOpenId: string; lens: string; expiresAt: Date }) {
+export async function createReportShare(input: { attemptId: number; ownerOpenId: string; lens: string; recipientPurpose?: string | null; expiresAt: Date }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const rawToken = randomBytes(32).toString("base64url");
-  await db.insert(reportShares).values({ attemptId: input.attemptId, ownerOpenId: input.ownerOpenId, lens: input.lens, tokenHash: hashReportShareToken(rawToken), expiresAt: input.expiresAt });
+  const tokenHash = hashReportShareToken(rawToken);
+  await db.insert(reportShares).values({ attemptId: input.attemptId, ownerOpenId: input.ownerOpenId, lens: input.lens, recipientPurpose: input.recipientPurpose ?? null, tokenHash, expiresAt: input.expiresAt });
+  const created = await db.select({ id: reportShares.id }).from(reportShares).where(eq(reportShares.tokenHash, tokenHash)).limit(1);
+  const shareId = created[0]?.id;
+  if (!shareId) throw new Error("Report share could not be created");
+  await db.insert(reportShareAuditEvents).values([
+    { shareId, attemptId: input.attemptId, ownerOpenId: input.ownerOpenId, eventType: "consented", recipientPurpose: input.recipientPurpose ?? null },
+    { shareId, attemptId: input.attemptId, ownerOpenId: input.ownerOpenId, eventType: "created", recipientPurpose: input.recipientPurpose ?? null },
+  ]);
   return rawToken;
 }
 
@@ -367,7 +375,16 @@ export async function getActiveReportShare(token: string) {
 export async function revokeReportShare(ownerOpenId: string, shareId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db.update(reportShares).set({ revokedAt: new Date() }).where(and(eq(reportShares.id, shareId), eq(reportShares.ownerOpenId, ownerOpenId), isNull(reportShares.revokedAt)));
+  const existing = await db.select().from(reportShares).where(and(eq(reportShares.id, shareId), eq(reportShares.ownerOpenId, ownerOpenId), isNull(reportShares.revokedAt))).limit(1);
+  if (!existing[0]) return;
+  await db.update(reportShares).set({ revokedAt: new Date() }).where(eq(reportShares.id, shareId));
+  await db.insert(reportShareAuditEvents).values({ shareId, attemptId: existing[0].attemptId, ownerOpenId, eventType: "revoked", recipientPurpose: existing[0].recipientPurpose ?? null });
+}
+
+export async function listReportShareAuditEvents(ownerOpenId: string, attemptId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(reportShareAuditEvents).where(and(eq(reportShareAuditEvents.ownerOpenId, ownerOpenId), attemptId ? eq(reportShareAuditEvents.attemptId, attemptId) : undefined)).orderBy(desc(reportShareAuditEvents.createdAt)).limit(100);
 }
 
 export async function listReportShares(ownerOpenId: string, attemptId?: number) {

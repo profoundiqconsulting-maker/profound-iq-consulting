@@ -177,10 +177,21 @@ export const reportShares = mysqlTable("report_shares", {
   attemptId: int("attemptId").notNull(),
   ownerOpenId: varchar("ownerOpenId", { length: 64 }).notNull(),
   lens: varchar("lens", { length: 32 }).default("leadership").notNull(),
+  recipientPurpose: varchar("recipientPurpose", { length: 40 }),
   tokenHash: varchar("tokenHash", { length: 128 }).notNull().unique(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   expiresAt: timestamp("expiresAt").notNull(),
   revokedAt: timestamp("revokedAt"),
+});
+
+export const reportShareAuditEvents = mysqlTable("report_share_audit_events", {
+  id: int("id").autoincrement().primaryKey(),
+  shareId: int("shareId").notNull(),
+  attemptId: int("attemptId").notNull(),
+  ownerOpenId: varchar("ownerOpenId", { length: 64 }).notNull(),
+  eventType: varchar("eventType", { length: 24 }).notNull(),
+  recipientPurpose: varchar("recipientPurpose", { length: 40 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
 export const assessmentAttempts = mysqlTable("assessment_attempts", {
@@ -203,6 +214,7 @@ export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type AssessmentAttempt = typeof assessmentAttempts.$inferSelect;
 export type ReportShare = typeof reportShares.$inferSelect;
+export type ReportShareAuditEvent = typeof reportShareAuditEvents.$inferSelect;
 export type InsertAssessmentAttempt = typeof assessmentAttempts.$inferInsert;
 export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
 export type EmailTemplate = typeof emailTemplates.$inferSelect;

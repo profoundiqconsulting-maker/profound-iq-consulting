@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { assessmentQuestions, ASSESSMENT_PRICE_KES, buildReport, buildRoleLens, type AssessmentReport, type RoleLens } from "../shared/assessment";
 import { parse as parseCookie } from "cookie";
-import { getAssessmentAttempt, createAssessmentAttempt, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference, compareUserAssessmentReports, createReportShare, getActiveReportShare, revokeReportShare, listReportShares } from "./db";
+import { getAssessmentAttempt, createAssessmentAttempt, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference, compareUserAssessmentReports, createReportShare, getActiveReportShare, revokeReportShare, listReportShares, listReportShareAuditEvents } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { sdk } from "./_core/sdk";
 import { systemRouter } from "./_core/systemRouter";
@@ -206,16 +206,17 @@ export const appRouter = router({
       if (!result) throw new TRPCError({ code: "NOT_FOUND", message: "Both paid report versions could not be found for this account." });
       return result;
     }),
-    createShareLink: protectedProcedure.input(z.object({ attemptId: z.number().int().positive(), expiresInDays: z.union([z.literal(1), z.literal(7), z.literal(30)]).default(7), consent: z.literal(true), lens: z.enum(["leadership", "teamDevelopment"]).default("leadership") })).mutation(async ({ ctx, input }) => {
+    createShareLink: protectedProcedure.input(z.object({ attemptId: z.number().int().positive(), expiresInDays: z.union([z.literal(1), z.literal(7), z.literal(30)]).default(7), consent: z.literal(true), lens: z.enum(["leadership", "teamDevelopment"]).default("leadership"), recipientPurpose: z.enum(["coaching", "manager"]).optional() })).mutation(async ({ ctx, input }) => {
       if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
       const attempt = await getAssessmentAttempt(input.attemptId);
       if (!attempt || attempt.email !== ctx.user.email) throw new TRPCError({ code: "NOT_FOUND", message: "Assessment report not found." });
       if (attempt.paymentStatus !== "paid" || !attempt.report) throw new TRPCError({ code: "FORBIDDEN", message: "A verified paid report is required to create a share link." });
       const expiresAt = new Date(Date.now() + input.expiresInDays * 24 * 60 * 60 * 1000);
-      const token = await createReportShare({ attemptId: attempt.id, ownerOpenId: ctx.user.openId, lens: input.lens, expiresAt });
+      const token = await createReportShare({ attemptId: attempt.id, ownerOpenId: ctx.user.openId, lens: input.lens, recipientPurpose: input.recipientPurpose, expiresAt });
       return { token, expiresAt, lens: input.lens };
     }),
     reportShares: protectedProcedure.input(z.object({ attemptId: z.number().int().positive().optional() }).optional()).query(({ ctx, input }) => listReportShares(ctx.user.openId, input?.attemptId)),
+    reportShareAudit: protectedProcedure.input(z.object({ attemptId: z.number().int().positive().optional() }).optional()).query(({ ctx, input }) => listReportShareAuditEvents(ctx.user.openId, input?.attemptId)),
     revokeShareLink: protectedProcedure.input(z.object({ shareId: z.number().int().positive() })).mutation(({ ctx, input }) => revokeReportShare(ctx.user.openId, input.shareId).then(() => ({ revoked: true as const }))),
     resendReportEmail: protectedProcedure.input(z.object({ attemptId: z.number().int().positive() })).mutation(async ({ ctx, input }) => {
       if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });

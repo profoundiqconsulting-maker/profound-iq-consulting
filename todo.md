@@ -253,3 +253,14 @@
 - [x] Add tests for consent, expiry presets, lens sharing, trend data, and reflection completeness.
 - [x] Run type checks, tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these share and comparison enhancements.
+
+# Share Governance and Chart Controls
+
+- [x] Add owner-only audit history for share consent, creation, and revocation events.
+- [x] Add an optional recipient-purpose field for coaching or manager conversations.
+- [x] Persist and display recipient purpose without exposing it in public report payloads.
+- [x] Add interactive legend toggles for individual dimension trend lines.
+- [x] Update and validate the reusable report-sharing skill with audit and chart-control guidance.
+- [x] Add tests for audit ownership, purpose validation, event persistence, and chart-series visibility.
+- [x] Run type checks, tests, production build, and responsive verification.
+- [x] Save a checkpoint containing the share-governance enhancements.

@@ -155,6 +155,13 @@
       "when": 1787433238992,
       "tag": "0021_mysterious_mantis",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1787433625201,
+      "tag": "0022_aspiring_terror",
+      "breakpoints": true
     }
   ]
 }
