@@ -42,6 +42,14 @@ describe("dashboard.mine", () => {
     await caller.dashboard.mine();
     expect(getUserAssessmentHistory).toHaveBeenCalledWith("owner@example.com");
   });
+
+  it("returns the report email delivery status without exposing report internals", async () => {
+    getUserAssessmentHistory.mockResolvedValue([{ id: 12, paymentStatus: "paid", reportEmailStatus: "sent", reportEmailSentAt: new Date("2026-08-22T06:08:16Z"), overallScore: 79, overallBand: "Building momentum", paystackReference: "reference", createdAt: new Date(), paidAt: new Date(), report: paidReport }]);
+    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
+    const result = await caller.dashboard.mine();
+    expect(result[0]).toMatchObject({ reportEmailStatus: "sent", overallScore: 79 });
+    expect(result[0]).not.toHaveProperty("answers");
+  });
 });
 
 describe("dashboard.downloadReport", () => {

@@ -138,6 +138,8 @@ export async function getUserAssessmentHistory(email: string) {
     paystackReference: assessmentAttempts.paystackReference,
     createdAt: assessmentAttempts.createdAt,
     paidAt: assessmentAttempts.paidAt,
+    reportEmailStatus: assessmentAttempts.reportEmailStatus,
+    reportEmailSentAt: assessmentAttempts.reportEmailSentAt,
     report: assessmentAttempts.report,
   }).from(assessmentAttempts).where(eq(assessmentAttempts.email, email)).orderBy(desc(assessmentAttempts.createdAt)).limit(50);
 
@@ -145,6 +147,8 @@ export async function getUserAssessmentHistory(email: string) {
     id: row.id,
     createdAt: row.createdAt,
     paidAt: row.paidAt,
+    reportEmailStatus: row.reportEmailStatus,
+    reportEmailSentAt: row.reportEmailSentAt,
     paymentStatus: row.paymentStatus,
     paystackReference: row.paystackReference,
     overallScore: (row.report as AssessmentReport | null)?.overallScore ?? null,

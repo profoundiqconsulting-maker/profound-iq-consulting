@@ -26,3 +26,8 @@
 - [x] Verify the assessment completion email-status message on a mobile viewport.
 - [x] Save a new checkpoint that includes the verified automatic PDF email delivery feature.
 - [x] Save a new checkpoint that includes the verified automatic PDF email delivery feature after the final passing tests, real inbox verification, and mobile assessment-page review.
+- [x] Add current email-delivery status data to the user assessment history response.
+- [x] Add accessible sent, sending, and retry-available indicators to paid report cards.
+- [x] Add tests and verify desktop/mobile dashboard rendering.
+- [x] Save a checkpoint for the dashboard email-delivery indicator.
+- [ ] Save a new checkpoint that includes the verified dashboard email-delivery indicator after the passing tests and desktop/mobile dashboard review.
