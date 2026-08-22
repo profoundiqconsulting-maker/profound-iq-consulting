@@ -15,4 +15,4 @@
 - [x] Save a checkpoint for the PDF report download feature.
 - [x] Strengthen PDF tests to assert meaningful participant and report content in the rendered paid-assessment artifact.
 - [x] Verify the updated dashboard download action on a mobile viewport.
-- [ ] Save a new checkpoint that includes the verified PDF report download feature after the final passing tests and mobile dashboard verification.
+- [x] Save a new checkpoint that includes the verified PDF report download feature after the final passing tests and mobile dashboard verification.
