@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { adminAnalyticsSettings, analyticsEvents, assessmentAttempts, courseEnrollments, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, scheduledExportRuns, scheduledExports, users } from "../drizzle/schema";
+import { adminAnalyticsSettings, analyticsEvents, assessmentAttempts, courseEnrollments, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, scheduledExportRuns, scheduledExports, users, verificationRevocationAudits } from "../drizzle/schema";
 import type { AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { selectAdminNotificationRecipients } from "../shared/adminRecipients";
@@ -334,11 +334,66 @@ export async function getAdminUsersForReview(input: { page: number; pageSize: nu
   return { rows, total: totalCount, totalPages, page, pageSize: safePageSize };
 }
 
-export async function revokeUserEmailVerification(openId: string) {
+export async function revokeUserEmailVerification(openId: string, actor: { openId: string; name?: string | null; email?: string | null }, reason: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db.update(users).set({ emailVerifiedAt: null }).where(eq(users.openId, openId));
+  const target = await getUserByOpenId(openId);
+  if (!target) return undefined;
+  await db.transaction(async (tx) => {
+    await tx.update(users).set({ emailVerifiedAt: null }).where(eq(users.openId, openId));
+    await tx.insert(verificationRevocationAudits).values({ targetOpenId: target.openId, targetEmail: target.email, actorOpenId: actor.openId, actorName: actor.name ?? null, actorEmail: actor.email ?? null, reason });
+  });
   return getUserByOpenId(openId);
+}
+
+export async function getVerificationRevocationAudits(limit = 50) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(verificationRevocationAudits).orderBy(desc(verificationRevocationAudits.createdAt)).limit(Math.min(100, Math.max(1, limit)));
+}
+
+export type DeliveryLogExportJobFilters = { search?: string; status?: "all" | "sent" | "failed"; fromDate?: string; toDate?: string };
+
+export async function createDeliveryLogExportJob(requestedByOpenId: string, filters: DeliveryLogExportJobFilters) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.insert(deliveryLogExportJobs).values({ requestedByOpenId, filters, status: "queued" });
+  return getDeliveryLogExportJob(Number(result[0].insertId));
+}
+
+export async function getDeliveryLogExportJob(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return (await db.select().from(deliveryLogExportJobs).where(eq(deliveryLogExportJobs.id, id)).limit(1))[0] ?? undefined;
+}
+
+export async function getDeliveryLogExportJobs(limit = 20) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(deliveryLogExportJobs).orderBy(desc(deliveryLogExportJobs.createdAt)).limit(Math.min(100, Math.max(1, limit)));
+}
+
+export async function claimNextDeliveryLogExportJob() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const next = (await db.select().from(deliveryLogExportJobs).where(eq(deliveryLogExportJobs.status, "queued")).orderBy(deliveryLogExportJobs.createdAt).limit(1))[0];
+  if (!next) return undefined;
+  const result = await db.update(deliveryLogExportJobs).set({ status: "running", startedAt: new Date(), errorMessage: null }).where(and(eq(deliveryLogExportJobs.id, next.id), eq(deliveryLogExportJobs.status, "queued")));
+  return Number(result[0].affectedRows ?? 0) ? getDeliveryLogExportJob(next.id) : undefined;
+}
+
+export async function completeDeliveryLogExportJob(id: number, input: { fileKey: string; fileUrl: string; rowCount: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(deliveryLogExportJobs).set({ status: "completed", ...input, completedAt: new Date() }).where(and(eq(deliveryLogExportJobs.id, id), eq(deliveryLogExportJobs.status, "running")));
+  return getDeliveryLogExportJob(id);
+}
+
+export async function failDeliveryLogExportJob(id: number, errorMessage: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(deliveryLogExportJobs).set({ status: "failed", errorMessage: errorMessage.slice(0, 500), completedAt: new Date() }).where(and(eq(deliveryLogExportJobs.id, id), eq(deliveryLogExportJobs.status, "running")));
+  return getDeliveryLogExportJob(id);
 }
 
 export async function getEmailTemplates() {

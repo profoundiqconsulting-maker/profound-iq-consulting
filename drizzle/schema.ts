@@ -65,6 +65,31 @@ export const scheduledExportRuns = mysqlTable("scheduled_export_runs", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+export const verificationRevocationAudits = mysqlTable("verification_revocation_audits", {
+  id: int("id").autoincrement().primaryKey(),
+  targetOpenId: varchar("targetOpenId", { length: 64 }).notNull(),
+  targetEmail: varchar("targetEmail", { length: 320 }),
+  actorOpenId: varchar("actorOpenId", { length: 64 }).notNull(),
+  actorName: varchar("actorName", { length: 160 }),
+  actorEmail: varchar("actorEmail", { length: 320 }),
+  reason: text("reason").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const deliveryLogExportJobs = mysqlTable("delivery_log_export_jobs", {
+  id: int("id").autoincrement().primaryKey(),
+  requestedByOpenId: varchar("requestedByOpenId", { length: 64 }).notNull(),
+  status: varchar("status", { length: 20 }).default("queued").notNull(),
+  filters: json("filters"),
+  fileKey: varchar("fileKey", { length: 512 }),
+  fileUrl: varchar("fileUrl", { length: 512 }),
+  rowCount: int("rowCount"),
+  errorMessage: varchar("errorMessage", { length: 500 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  startedAt: timestamp("startedAt"),
+  completedAt: timestamp("completedAt"),
+});
+
 export const emailPreviewDeliveries = mysqlTable("email_preview_deliveries", {
   id: int("id").autoincrement().primaryKey(),
   templateKey: varchar("templateKey", { length: 80 }).notNull(),
@@ -110,4 +135,6 @@ export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 export type ScheduledExport = typeof scheduledExports.$inferSelect;
 export type ScheduledExportRun = typeof scheduledExportRuns.$inferSelect;
 export type EmailPreviewDelivery = typeof emailPreviewDeliveries.$inferSelect;
+export type VerificationRevocationAudit = typeof verificationRevocationAudits.$inferSelect;
+export type DeliveryLogExportJob = typeof deliveryLogExportJobs.$inferSelect;
 export type AdminAnalyticsSettings = typeof adminAnalyticsSettings.$inferSelect;

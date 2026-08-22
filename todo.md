@@ -123,3 +123,15 @@
 - [x] Add authorization and behavior tests for verification revocation, filtering, pagination, and CSV export.
 - [x] Run type checks, tests, production build, and responsive desktop/mobile verification.
 - [x] Save a checkpoint containing all admin enhancements.
+
+# Verification Audit and Background Delivery Exports
+
+- [x] Add a verification revocation audit table with target user, admin actor, reason, and UTC timestamp.
+- [x] Add a durable delivery-log export job table and idempotent queue-processing handler.
+- [x] Add admin procedures to create, monitor, and download completed delivery-log export jobs.
+- [x] Add admin-only revocation procedure requiring a validated reason and audit record.
+- [x] Replace browser confirmation with a reason-required confirmation modal.
+- [x] Add export-job status UI and audit-history UI to the admin workspace.
+- [x] Add tests for audit persistence, reason validation, queue processing, export status, and authorization.
+- [x] Run schema migration, type checks, tests, production build, and responsive verification.
+- [x] Save a checkpoint containing the audit, queue, and modal enhancements.

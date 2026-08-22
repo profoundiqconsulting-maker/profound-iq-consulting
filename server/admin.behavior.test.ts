@@ -14,6 +14,10 @@ const mocks = vi.hoisted(() => ({
   getEmailPreviewDeliveriesForExport: vi.fn().mockResolvedValue([{ id: 1, templateKey: "assessment_report", recipientEmail: "admin@example.com", subject: "Preview", status: "sent", errorMessage: null, createdAt: new Date("2026-08-24T09:00:00.000Z") }]),
   getAdminUsersForReview: vi.fn().mockResolvedValue({ rows: [{ id: 2, openId: "user-2", name: "Amina", email: "amina@example.com", role: "user", emailVerifiedAt: new Date("2026-08-20T09:00:00.000Z"), createdAt: new Date(), lastSignedIn: new Date() }], total: 1, totalPages: 1, page: 1, pageSize: 8 }),
   revokeUserEmailVerification: vi.fn().mockResolvedValue({ openId: "user-2", emailVerifiedAt: null }),
+  getVerificationRevocationAudits: vi.fn().mockResolvedValue([{ id: 4, targetOpenId: "user-2", targetEmail: "amina@example.com", actorOpenId: "admin-test", actorName: "Admin Test", actorEmail: "admin@example.com", reason: "Mailbox ownership could not be confirmed", createdAt: new Date() }]),
+  createDeliveryLogExportJob: vi.fn().mockResolvedValue({ id: 7, requestedByOpenId: "admin-test", status: "queued", filters: {}, fileKey: null, fileUrl: null, rowCount: null, errorMessage: null, createdAt: new Date(), startedAt: null, completedAt: null }),
+  getDeliveryLogExportJobs: vi.fn().mockResolvedValue([]),
+  getDeliveryLogExportJob: vi.fn().mockResolvedValue(undefined),
   getAdminAnalyticsSettings: vi.fn().mockResolvedValue({ adminOpenId: "admin-test", paidBenchmark: 42, downloadBenchmark: 68 }),
   upsertAdminAnalyticsSettings: vi.fn().mockResolvedValue({ adminOpenId: "admin-test", paidBenchmark: 42, downloadBenchmark: 68 }),
 }));
@@ -61,11 +65,18 @@ describe("admin feature behavior", () => {
     expect(exported.data).toContain("Recipient");
   });
 
+  it("requires a meaningful reason and blocks self-revocation", async () => {
+    const caller = appRouter.createCaller(adminContext());
+    await expect(caller.admin.revokeUserEmailVerification({ openId: "user-2", reason: "no" })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    await expect(caller.admin.revokeUserEmailVerification({ openId: "admin-test", reason: "Security review" })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
   it("reviews and revokes another user’s verification eligibility", async () => {
     const caller = appRouter.createCaller(adminContext());
     await expect(caller.admin.userVerificationReview({ verification: "verified" })).resolves.toEqual(expect.objectContaining({ total: 1 }));
-    await caller.admin.revokeUserEmailVerification({ openId: "user-2" });
-    expect(mocks.revokeUserEmailVerification).toHaveBeenCalledWith("user-2");
+    await caller.admin.revokeUserEmailVerification({ openId: "user-2", reason: "Mailbox ownership could not be confirmed" });
+    expect(mocks.revokeUserEmailVerification).toHaveBeenCalledWith("user-2", { openId: "admin-test", name: "Admin Test", email: "admin@example.com" }, "Mailbox ownership could not be confirmed");
+    await expect(caller.admin.verificationRevocationAudits()).resolves.toEqual(expect.arrayContaining([expect.objectContaining({ targetOpenId: "user-2", reason: "Mailbox ownership could not be confirmed" })]));
   });
 
   it("persists custom benchmark targets for the admin account", async () => {
