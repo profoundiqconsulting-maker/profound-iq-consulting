@@ -169,6 +169,13 @@
       "when": 1787434616407,
       "tag": "0023_misty_skin",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1787435079176,
+      "tag": "0024_ancient_kinsey_walden",
+      "breakpoints": true
     }
   ]
 }

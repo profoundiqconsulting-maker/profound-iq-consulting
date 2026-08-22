@@ -2,7 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { assessmentQuestions, ASSESSMENT_PRICE_KES, buildReport, buildRoleLens, type AssessmentReport, type RoleLens } from "../shared/assessment";
 import { careerPathQuestions, CAREER_PATH_PRICE_KES, buildCareerPathReport, type CareerPathReport } from "../shared/careerPath";
 import { parse as parseCookie } from "cookie";
-import { getAssessmentAttempt, createAssessmentAttempt, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference, compareUserAssessmentReports, createReportShare, getActiveReportShare, revokeReportShare, listReportShares, listReportShareAuditEvents, createCareerPathAttempt, setCareerPathPaystackReference, getCareerPathAttemptByReference, markCareerPathPaid } from "./db";
+import { getAssessmentAttempt, createAssessmentAttempt, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference, compareUserAssessmentReports, createReportShare, getActiveReportShare, revokeReportShare, listReportShares, listReportShareAuditEvents, createCareerPathAttempt, setCareerPathPaystackReference, getCareerPathAttemptByReference, markCareerPathPaid, listCareerPathAttemptsByEmail } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { sdk } from "./_core/sdk";
 import { systemRouter } from "./_core/systemRouter";
@@ -11,11 +11,11 @@ import { TRPCError } from "@trpc/server";
 import { addEmailPreviewDelivery, checkLoginRateLimit, clearLoginFailures, countFailedLoginEvents, createCourseEnrollment, createDeliveryLogExportJob, createUserSession, getAdminAnalyticsSettings, getAdminNotificationRecipients, getAdminSecuritySettings, getEffectiveLoginEventRetentionDays, getLoginSecurityAnalytics, purgeExpiredLoginEvents, getAdminUsersForReview, getAnalyticsDashboard, getAssessmentAdminOverview, getCourseEnrollments, getDeliveryLogExportJob, getDeliveryLogExportJobs, getEmailPreviewDeliveries, getEmailPreviewDeliveriesForExport, getEmailPreviewDeliveriesPage, getEmailTemplates, getEffectiveLoginAlertThreshold, getFailedLoginEvents, getScheduledExport, getScheduledExportRuns, getSessionByTokenHash, getUserAssessmentHistory, getUserProfile, getUserSessions, getLoginEventsForUser, getVerificationRevocationAudits, getVerificationRevocationAuditsForExport, getVerificationRevocationAuditsPage, recordAnalyticsEvent, recordFailedLogin, recordLoginEvent, revokeOtherUserSessions, revokeUserEmailVerification, revokeUserSession, saveAdminSecuritySettings, touchUserSession, updateUserAvatar, updateUserProfile, upsertAdminAnalyticsSettings, upsertEmailTemplate, updateScheduledExport, createScheduledExportIfMissing } from "./db";
 import { storagePut } from "./storage";
 import { z } from "zod";
-import { renderAssessmentReportPdf } from "./reportPdf";
+import { renderAssessmentReportPdf, renderCareerPathReportPdf } from "./reportPdf";
 import { validateEmailTemplateBody } from "../shared/emailTemplate";
 import { buildCourseEnrollmentCsv } from "../shared/adminExport";
 import { buildDeliveryLogCsv, type DeliveryLogFilters } from "../shared/adminDeliveryLog";
-import { emailAssessmentReportIfNeeded, sendFailedLoginAlert, sendTemplateTestEmail } from "./email";
+import { emailAssessmentReportIfNeeded, emailCareerPathReportIfNeeded, sendFailedLoginAlert, sendTemplateTestEmail } from "./email";
 import { createHeartbeatJob } from "./_core/heartbeat";
 import { WEEKLY_EXPORT_KEY } from "./scheduledEnrollmentExport";
 import { DELIVERY_LOG_EXPORT_KEY } from "./deliveryLogExport";
@@ -262,14 +262,30 @@ export const appRouter = router({
     verifyPayment: publicProcedure.input(z.object({ reference: z.string().min(10).max(120) })).mutation(async ({ input }) => {
       const attempt = await getCareerPathAttemptByReference(input.reference);
       if (!attempt) throw new TRPCError({ code: "NOT_FOUND", message: "CareerPath attempt not found." });
-      if (attempt.paymentStatus === "paid" && attempt.report) return { report: attempt.report as CareerPathReport, reference: input.reference };
+      if (attempt.paymentStatus === "paid" && attempt.report) {
+        let emailSent = false;
+        try { emailSent = await emailCareerPathReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report: attempt.report as CareerPathReport, reportEmailStatus: attempt.reportEmailStatus, reportEmailSentAt: attempt.reportEmailSentAt }); } catch (error) { console.error("[CareerPath] Report email delivery retry failed:", error); }
+        return { report: attempt.report as CareerPathReport, reference: input.reference, emailSent };
+      }
       const verification = await paystackRequest(`/transaction/verify/${encodeURIComponent(input.reference)}`);
       const transaction = verification.data;
       if (transaction.reference !== input.reference || transaction.status !== "success" || transaction.amount !== CAREER_PATH_PRICE_KES * 100 || transaction.currency !== "KES") throw new TRPCError({ code: "PAYMENT_REQUIRED", message: "CareerPath payment could not be verified." });
       const report = buildCareerPathReport(attempt.answers as Array<{ questionId: string; value: number }>);
       await markCareerPathPaid(attempt.id, report);
       await recordAnalyticsEvent({ eventName: "payment_completed", attemptId: attempt.id, metadata: { product: "careerpath", currency: "KES", amount: CAREER_PATH_PRICE_KES } });
-      return { report, reference: input.reference };
+      let emailSent = false;
+      try { emailSent = await emailCareerPathReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report }); } catch (error) { console.error("[CareerPath] Report email delivery failed:", error); }
+      return { report, reference: input.reference, emailSent };
+    }),
+    history: protectedProcedure.query(async ({ ctx }) => {
+      if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
+      return listCareerPathAttemptsByEmail(ctx.user.email);
+    }),
+    downloadReport: publicProcedure.input(z.object({ reference: z.string().min(10).max(120) })).mutation(async ({ input }) => {
+      const attempt = await getCareerPathAttemptByReference(input.reference);
+      if (!attempt || attempt.paymentStatus !== "paid" || !attempt.report) throw new TRPCError({ code: "FORBIDDEN", message: "A verified CareerPath payment is required to download this report." });
+      const pdf = await renderCareerPathReportPdf({ attemptId: attempt.id, participantName: attempt.name, createdAt: attempt.createdAt, report: attempt.report as CareerPathReport });
+      return { filename: `profound-iq-careerpath-${attempt.id}.pdf`, contentType: "application/pdf", data: pdf.toString("base64") };
     }),
     getReport: publicProcedure.input(z.object({ reference: z.string().min(10).max(120) })).query(async ({ input }) => {
       const attempt = await getCareerPathAttemptByReference(input.reference);

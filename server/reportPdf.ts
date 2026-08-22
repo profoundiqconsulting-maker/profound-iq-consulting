@@ -1,5 +1,6 @@
 import PDFDocument from "pdfkit";
 import type { AssessmentReport, RoleLensReadout } from "../shared/assessment";
+import type { CareerPathReport } from "../shared/careerPath";
 import { storageGetSignedUrl } from "./storage";
 
 type ReportPdfInput = { attemptId: number; participantName: string; createdAt: Date | string; report: AssessmentReport; lens?: RoleLensReadout };
@@ -13,6 +14,66 @@ async function loadBrandLogo(): Promise<Buffer | null> {
   if (process.env.NODE_ENV === "test") return null;
   if (!logoBufferPromise) logoBufferPromise = (async () => { try { const signedUrl = await storageGetSignedUrl(LOGO_KEY); const response = await fetch(signedUrl); return response.ok ? Buffer.from(await response.arrayBuffer()) : null; } catch { return null; } })();
   return logoBufferPromise;
+}
+
+type CareerPathPdfInput = { attemptId: number; participantName: string; createdAt: Date | string; report: CareerPathReport };
+
+export async function renderCareerPathReportPdf(input: CareerPathPdfInput): Promise<Buffer> {
+  const doc = new PDFDocument({ size: "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: "Profound IQ CareerPath Report", Author: "Profound IQ Consulting" } });
+  const chunks: Buffer[] = [];
+  doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+  const finished = new Promise<Buffer>((resolve, reject) => { doc.on("end", () => resolve(Buffer.concat(chunks))); doc.on("error", reject); });
+  const brandLogo = await loadBrandLogo();
+  doc.fillColor(NAVY).rect(0, 0, doc.page.width, 92).fill();
+  if (brandLogo) { try { doc.image(brandLogo, 52, 10, { fit: [116, 72], valign: "center" }); } catch { /* Fallback to text lockup. */ } }
+  const headerX = brandLogo ? 190 : 52;
+  doc.fillColor("#f7f3e8").font("Helvetica-Bold").fontSize(10).text("PROFOUND IQ / CONSULTING", headerX, 32, { characterSpacing: 1.4 });
+  doc.fillColor(GOLD).font("Helvetica").fontSize(9).text("CAREERPATH / TALENT FIT", headerX, 52, { characterSpacing: 1.1 });
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(24).text("CareerPath report", 52, 128);
+  doc.fillColor(GOLD).font("Helvetica").fontSize(10).text(`REPORT #${input.attemptId}  ·  ${formatDate(input.createdAt)}`, 52, 163, { characterSpacing: 0.7 });
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(13).text(input.participantName, 52, 198);
+  doc.strokeColor(GOLD).lineWidth(2).moveTo(52, 230).lineTo(543, 230).stroke();
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("PATHWAY SIGNAL", 52, 258, { characterSpacing: 1.5 });
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(23).text(input.report.primary.label, 52, 280);
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(34).text(`${input.report.primary.score}`, 52, 316);
+  doc.fillColor(MUTED).font("Helvetica").fontSize(11).text("primary relative fit / 100", 124, 335);
+  let y = 380;
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("EXECUTIVE READOUT", 52, y, { characterSpacing: 1.2 });
+  y += 20;
+  y = writeText(doc, input.report.overallReadout, 52, y, 491, 10.5, NAVY, 4) + 10;
+  y = writeBullets(doc, input.report.learnerProfile, y, 9.5, MUTED) + 8;
+  doc.strokeColor("#d8d1c1").lineWidth(1).moveTo(52, y).lineTo(543, y).stroke();
+  y += 18;
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("SUB-PATHWAY SCORES", 52, y, { characterSpacing: 1.2 });
+  y += 23;
+  for (const subPathway of input.report.subPathways) {
+    if (y > 680) { addFooter(doc); doc.addPage(); y = 58; }
+    doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(10).text(subPathway.label, 52, y);
+    doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(`${subPathway.score} / 100`, 450, y, { width: 93, align: "right" });
+    y += 16;
+    y = writeText(doc, `${subPathway.band}. ${subPathway.rationale}`, 52, y, 491, 9.2, MUTED, 3) + 7;
+  }
+  addFooter(doc);
+  doc.addPage();
+  y = 58;
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("PATHWAY COMPARISON", 52, y, { characterSpacing: 1.2 });
+  y += 25;
+  for (const pathway of input.report.pathways) {
+    doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(14).text(pathway.label, 52, y);
+    doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(14).text(`${pathway.score} / 100`, 450, y, { width: 93, align: "right" });
+    y += 19;
+    y = writeBullets(doc, pathway.evidence, y, 9.5, MUTED) + 12;
+  }
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("EXPLORATION PLAN", 52, y, { characterSpacing: 1.2 });
+  y += 21;
+  y = writeBullets(doc, input.report.explorationPlan, y, 9.8, NAVY) + 18;
+  if (y > 650) { addFooter(doc); doc.addPage(); y = 58; }
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("IMPORTANT CONTEXT", 52, y, { characterSpacing: 1.2 });
+  y += 20;
+  writeBullets(doc, input.report.importantContext, y, 9.7, MUTED);
+  addFooter(doc);
+  doc.end();
+  return finished;
 }
 
 export async function renderAssessmentReportPdf(input: ReportPdfInput): Promise<Buffer> {

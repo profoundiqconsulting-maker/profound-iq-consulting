@@ -267,6 +267,32 @@ export async function createCareerPathAttempt(input: { name: string; email: stri
   return Number(result[0].insertId);
 }
 
+export async function listCareerPathAttemptsByEmail(email: string) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select({ id: careerPathAttempts.id, name: careerPathAttempts.name, email: careerPathAttempts.email, paystackReference: careerPathAttempts.paystackReference, paymentStatus: careerPathAttempts.paymentStatus, report: careerPathAttempts.report, reportEmailStatus: careerPathAttempts.reportEmailStatus, reportEmailSentAt: careerPathAttempts.reportEmailSentAt, createdAt: careerPathAttempts.createdAt, paidAt: careerPathAttempts.paidAt }).from(careerPathAttempts).where(eq(careerPathAttempts.email, email)).orderBy(desc(careerPathAttempts.createdAt)).limit(50);
+}
+
+export async function claimCareerPathReportEmail(id: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const staleBefore = new Date(Date.now() - 10 * 60 * 1000);
+  const result = await db.update(careerPathAttempts).set({ reportEmailStatus: "sending", reportEmailClaimedAt: new Date() }).where(and(eq(careerPathAttempts.id, id), eq(careerPathAttempts.paymentStatus, "paid"), isNotNull(careerPathAttempts.report), or(eq(careerPathAttempts.reportEmailStatus, "pending"), and(eq(careerPathAttempts.reportEmailStatus, "sending"), or(isNull(careerPathAttempts.reportEmailClaimedAt), lt(careerPathAttempts.reportEmailClaimedAt, staleBefore))))));
+  return Number(result[0].affectedRows ?? 0) > 0;
+}
+
+export async function markCareerPathReportEmailSent(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(careerPathAttempts).set({ reportEmailStatus: "sent", reportEmailSentAt: new Date(), reportEmailClaimedAt: null }).where(and(eq(careerPathAttempts.id, id), eq(careerPathAttempts.reportEmailStatus, "sending")));
+}
+
+export async function releaseCareerPathReportEmailClaim(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(careerPathAttempts).set({ reportEmailStatus: "pending", reportEmailClaimedAt: null }).where(and(eq(careerPathAttempts.id, id), eq(careerPathAttempts.reportEmailStatus, "sending")));
+}
+
 export async function setCareerPathPaystackReference(id: number, reference: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");

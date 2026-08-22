@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { renderAssessmentReportPdf } from "./reportPdf";
+import { renderAssessmentReportPdf, renderCareerPathReportPdf } from "./reportPdf";
 import { buildRoleLens } from "../shared/assessment";
 
 const report = {
@@ -9,6 +9,19 @@ const report = {
   strengths: ["Clarity of direction"],
   focusAreas: ["Growth orientation"],
   disclaimer: "This educational self-assessment is a reflective development tool.",
+};
+
+const careerPathReport = {
+  overallReadout: "STEM is the strongest relative pathway signal.",
+  primary: { key: "stem", label: "STEM", score: 82, band: "Strong Fit", evidence: ["Applied problem solving"], nextSteps: ["Try a technical project"] },
+  secondary: { key: "socialSciences", label: "Social Sciences", score: 68, band: "Good Potential Fit", evidence: ["Communication"], nextSteps: ["Interview a professional"] },
+  alternative: { key: "artsSports", label: "Arts and Sports Science", score: 61, band: "Possible Fit", evidence: ["Creative expression"], nextSteps: ["Build a portfolio"] },
+  pathways: [],
+  subPathways: ["Pure Sciences", "Applied Sciences", "Technical Studies", "Languages", "Humanities", "Arts", "Sports"].map((label, index) => ({ key: label.toLowerCase().replaceAll(" ", "") as never, label, score: 60 + index, band: "Good Potential Fit", rationale: `Evidence relevant to ${label} exploration and development.` })),
+  learnerProfile: ["A multidimensional developmental profile."],
+  explorationPlan: ["Choose a low-risk project and record what you learn."],
+  importantContext: ["This is educational guidance, not a diagnosis."],
+  disclaimer: "This report does not determine a career.",
 };
 
 describe("renderAssessmentReportPdf", () => {
@@ -24,6 +37,19 @@ describe("renderAssessmentReportPdf", () => {
     expect(decodedText).toContain("Building momentum");
     expect(decodedText).toContain("Clarity of direction");
     expect(decodedText).toContain("LEADERSHIP LENS");
+    expect(text).toContain("%%EOF");
+  });
+});
+
+describe("renderCareerPathReportPdf", () => {
+  it("renders a branded PDF with sub-pathway content", async () => {
+    const pdf = await renderCareerPathReportPdf({ attemptId: 77, participantName: "Amina Njeri", createdAt: new Date("2026-08-22T00:00:00Z"), report: careerPathReport });
+    const text = pdf.toString("latin1");
+    const decodedText = text.replace(/<([0-9a-f]+)>/g, (_match, hex: string) => Buffer.from(hex, "hex").toString("latin1"));
+    expect(text.startsWith("%PDF-")).toBe(true);
+    expect(text).toContain("/Title");
+    expect(decodedText).toContain("Profound IQ CareerPath Report");
+    expect(pdf.length).toBeGreaterThan(4_000);
     expect(text).toContain("%%EOF");
   });
 });

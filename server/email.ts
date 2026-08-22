@@ -1,9 +1,10 @@
 import nodemailer from "nodemailer";
 import type { Transporter } from "nodemailer";
 import type { AssessmentReport } from "../shared/assessment";
+import type { CareerPathReport } from "../shared/careerPath";
 import { renderEmailTemplate, renderEmailTemplateHtml } from "../shared/emailTemplate";
-import { renderAssessmentReportPdf } from "./reportPdf";
-import { claimAssessmentReportEmail, markAssessmentReportEmailSent, releaseAssessmentReportEmailClaim } from "./db";
+import { renderAssessmentReportPdf, renderCareerPathReportPdf } from "./reportPdf";
+import { claimAssessmentReportEmail, markAssessmentReportEmailSent, releaseAssessmentReportEmailClaim, claimCareerPathReportEmail, markCareerPathReportEmailSent, releaseCareerPathReportEmailClaim } from "./db";
 
 type SmtpEnv = { SMTP_HOST?: string; SMTP_PORT?: string; SMTP_USER?: string; SMTP_PASSWORD?: string; SMTP_FROM?: string; SMTP_FROM_NAME?: string };
 
@@ -87,6 +88,33 @@ export async function sendTemplateTestEmail(input: { to: string; subject: string
   const values = { name: "Amina Otieno", email: input.to, date: new Date().toLocaleDateString(), course: "Lead with Clarity" };
   const config = getSmtpConfig();
   await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to: input.to, subject: `[Preview] ${input.subject}`, text: renderEmailTemplate(input.body, values), html: renderEmailTemplateHtml(input.body, values) });
+}
+
+export async function emailCareerPathReportIfNeeded(input: { attemptId: number; participantName: string; email: string; createdAt: Date | string; report: CareerPathReport; reportEmailStatus?: string | null; reportEmailSentAt?: Date | string | null }): Promise<boolean> {
+  if (input.reportEmailStatus === "sent" || input.reportEmailSentAt) return false;
+  const claimed = await claimCareerPathReportEmail(input.attemptId);
+  if (!claimed) return false;
+  try {
+    await sendCareerPathReportEmail(input);
+    await markCareerPathReportEmailSent(input.attemptId);
+    return true;
+  } catch (error) {
+    await releaseCareerPathReportEmailClaim(input.attemptId);
+    throw error;
+  }
+}
+
+export async function sendCareerPathReportEmail(input: { attemptId: number; participantName: string; email: string; createdAt: Date | string; report: CareerPathReport }): Promise<void> {
+  const config = getSmtpConfig();
+  const pdf = await renderCareerPathReportPdf({ attemptId: input.attemptId, participantName: input.participantName, createdAt: input.createdAt, report: input.report });
+  await getTransporter().sendMail({
+    from: { name: config.fromName, address: config.from },
+    to: input.email,
+    subject: "Your Profound IQ CareerPath report",
+    text: `Hello ${input.participantName},\n\nYour Profound IQ CareerPath report is attached. Use it to explore subjects, projects and conversations before choosing your next direction.\n\nThis educational guidance tool is not a diagnosis and does not determine a career.\n\nProfound IQ Consulting`,
+    html: `<p>Hello ${escapeHtml(input.participantName)},</p><p>Your Profound IQ CareerPath report is attached. Use it to explore subjects, projects and conversations before choosing your next direction.</p><p><em>This educational guidance tool is not a diagnosis and does not determine a career.</em></p><p>Profound IQ Consulting</p>`,
+    attachments: [{ filename: `profound-iq-careerpath-${input.attemptId}.pdf`, content: pdf, contentType: "application/pdf" }],
+  });
 }
 
 export async function sendAssessmentReportEmail(input: { attemptId: number; participantName: string; email: string; createdAt: Date | string; report: AssessmentReport }): Promise<void> {

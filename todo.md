@@ -287,3 +287,14 @@
 - [x] Add tests for CareerPath scoring, payment amount, ownership, and report privacy.
 - [x] Run production build and responsive verification for the CareerPath flow.
 - [x] Save a checkpoint containing the CareerPath release.
+
+# CareerPath Reporting and Sub-Pathways
+
+- [x] Add CareerPath attempt history to the authenticated user dashboard.
+- [x] Add seven CareerPath sub-pathway scores: Pure Sciences, Applied Sciences, Technical Studies, Languages, Humanities, Arts, and Sports.
+- [x] Add branded CareerPath PDF generation with sub-pathway content.
+- [x] Add automated CareerPath report email delivery and delivery status handling.
+- [x] Enforce KES 999 payment verification before generating or returning CareerPath reports.
+- [x] Add tests for CareerPath history ownership, payment gating, sub-pathway scoring, PDF output, and email delivery.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing the CareerPath reporting enhancements.

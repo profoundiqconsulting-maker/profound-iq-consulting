@@ -11,6 +11,9 @@ describe("CareerPath assessment", () => {
     const report = buildCareerPathReport(careerPathQuestions.map((question, index) => ({ questionId: question.id, value: (index % 5) + 1 })));
     expect(report.pathways).toHaveLength(3);
     expect(report.pathways.every((pathway) => pathway.score >= 0 && pathway.score <= 100)).toBe(true);
+    expect(report.subPathways).toHaveLength(7);
+    expect(report.subPathways.map((pathway) => pathway.label)).toEqual(expect.arrayContaining(["Pure Sciences", "Applied Sciences", "Technical Studies", "Languages", "Humanities", "Arts", "Sports"]));
+    expect(report.subPathways.every((pathway) => pathway.score >= 0 && pathway.score <= 100 && pathway.rationale.length > 20)).toBe(true);
     expect(report.primary.score).toBeGreaterThanOrEqual(report.secondary.score);
     expect(report.secondary.score).toBeGreaterThanOrEqual(report.alternative.score);
     expect(report.importantContext.length).toBeGreaterThanOrEqual(4);
