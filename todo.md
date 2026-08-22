@@ -189,3 +189,14 @@
 - [x] Add admin authorization, retention, export, trusted-device, and metadata privacy tests.
 - [x] Run schema migration, type checks, tests, production build, and responsive verification.
 - [x] Save a checkpoint containing the security observability and trusted-device enhancements.
+
+# Login Analytics and Recent Activity
+
+- [x] Add privacy-safe server aggregation for login-event trends and device classifications over time.
+- [x] Add an admin-only analytics procedure with bounded date-range inputs and authorization coverage.
+- [x] Build Admin login trend and device classification visualizations consistent with the Executive Observatory design.
+- [x] Create a user-facing Recent Activity section in Settings with login history and active sessions.
+- [x] Add safe self-scoped revoke controls for unrecognized sessions with accessible confirmation feedback.
+- [x] Add tests for aggregation, authorization, privacy redaction, and session revocation behavior.
+- [x] Run type checks, tests, production build, and responsive verification for Admin and Settings.
+- [x] Save a checkpoint containing the login analytics and Recent Activity enhancements.

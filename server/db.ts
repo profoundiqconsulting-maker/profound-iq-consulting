@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, authLoginAttempts, courseEnrollments, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits } from "../drizzle/schema";
 import type { AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
+import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
 import { selectAdminNotificationRecipients } from "../shared/adminRecipients";
 import type { DeliveryLogFilters, DeliveryLogRow } from "../shared/adminDeliveryLog";
 import { clampAuditPagination, type AuditHistoryFilters, type AuditHistoryPage, type AuditHistoryQuery } from "../shared/adminAudit";
@@ -53,6 +54,16 @@ export async function countFailedLoginEvents(input: { from?: Date; to?: Date }) 
   if (input.to) conditions.push(lte(loginEvents.createdAt, input.to));
   const row = (await db.select({ count: sql<number>`count(*)` }).from(loginEvents).where(and(...conditions)))[0];
   return Number(row?.count ?? 0);
+}
+
+export async function getLoginSecurityAnalytics(input: { from?: Date; to?: Date } = {}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const loginConditions = [input.from ? gte(loginEvents.createdAt, input.from) : undefined, input.to ? lte(loginEvents.createdAt, input.to) : undefined].filter(Boolean) as Array<ReturnType<typeof gte>>;
+  const sessionConditions = [input.from ? gte(userSessions.createdAt, input.from) : undefined, input.to ? lte(userSessions.createdAt, input.to) : undefined].filter(Boolean) as Array<ReturnType<typeof gte>>;
+  const loginRows = await db.select({ week: sql<string>`DATE_FORMAT(${loginEvents.createdAt}, '%x-W%v')`, success: loginEvents.success, count: sql<number>`count(*)` }).from(loginEvents).where(loginConditions.length ? and(...loginConditions) : undefined).groupBy(sql`DATE_FORMAT(${loginEvents.createdAt}, '%x-W%v')`, loginEvents.success);
+  const deviceRows = await db.select({ week: sql<string>`DATE_FORMAT(${userSessions.createdAt}, '%x-W%v')`, deviceType: userSessions.deviceType, count: sql<number>`count(*)` }).from(userSessions).where(sessionConditions.length ? and(...sessionConditions) : undefined).groupBy(sql`DATE_FORMAT(${userSessions.createdAt}, '%x-W%v')`, userSessions.deviceType);
+  return normalizeLoginAnalyticsRows(loginRows.map((row) => ({ ...row, count: Number(row.count) })), deviceRows.map((row) => ({ ...row, count: Number(row.count) })));
 }
 
 export async function getAdminSecuritySettings(adminOpenId: string) {
