@@ -59,3 +59,8 @@
 - [x] Verify animation markup, desktop/mobile dashboard rendering, tests, and build.
 - [x] Save a checkpoint for the resend icon animation.
 - [x] Save a final checkpoint after the verified resend icon animation, responsive screenshots, tests, and production build.
+- [x] Upload the provided Profound IQ logo to project-managed storage and configure the app logo value.
+- [x] Replace text/placeholder branding with the provided logo across public, dashboard, assessment, settings, and report surfaces.
+- [x] Configure the provided logo as the browser favicon and verify document metadata.
+- [x] Add branding regression coverage and verify desktop/mobile rendering plus production build.
+- [x] Save a checkpoint for the provided logo and favicon rollout.

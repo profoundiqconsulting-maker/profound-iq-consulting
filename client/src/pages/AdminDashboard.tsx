@@ -4,6 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { AlertCircle, ArrowLeft, CheckCircle2, Clock3, Filter, LockKeyhole, RefreshCw, ShieldCheck, Users, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "wouter";
+import { BrandLogo } from "@/components/BrandLogo";
 
 function statusLabel(status: string) { return status === "paid" ? "Paid" : "Pending"; }
 
@@ -47,7 +48,7 @@ export default function AdminDashboard() {
   if (user.role !== "admin") return <AccessState title="Admin access only" message="Your account is authenticated, but it does not have permission to view assessment records." />;
 
   return <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-    <header className="border-b border-[#16243d]/15 bg-[#101d35] text-[#f7f3e8]"><div className="container flex items-center justify-between py-5"><Link href="/" className="flex items-center gap-3"><span className="grid h-9 w-9 place-items-center border border-[#c9a34e]/70"><span className="text-sm font-black text-[#c9a34e]">PIQ</span></span><span className="text-[11px] font-extrabold tracking-[.18em]">PROFOUND IQ <span className="text-[#c9a34e]">/ ADMIN</span></span></Link><Link href="/" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.16em] text-[#c1cad7] hover:text-[#c9a34e]"><ArrowLeft size={14} /> Back to site</Link></div></header>
+    <header className="border-b border-[#16243d]/15 bg-[#101d35] text-[#f7f3e8]"><div className="container flex items-center justify-between py-5"><Link href="/" className="flex items-center gap-3"><BrandLogo context="admin" compactOnMobile /><span className="text-[11px] font-extrabold tracking-[.18em]">/ ADMIN</span></Link><Link href="/" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.16em] text-[#c1cad7] hover:text-[#c9a34e]"><ArrowLeft size={14} /> Back to site</Link></div></header>
     <main className="container py-10 sm:py-14 lg:py-20">
       <div className="flex flex-col justify-between gap-6 border-b border-[#16243d]/20 pb-8 sm:flex-row sm:items-end"><div><p className="eyebrow text-[#a27e2e]">Private workspace / assessment intelligence</p><h1 className="display mt-4 text-5xl leading-none tracking-[-.04em] sm:text-6xl">The <em className="font-normal text-[#a27e2e]">signal</em> room.</h1><p className="mt-5 max-w-xl text-base leading-7 text-[#4a566a]">A restricted view of assessment attempts, payment status, and the score signals unlocked after verified Paystack payment.</p></div><div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.12em] text-[#657084]"><LockKeyhole size={15} className="text-[#a27e2e]" /> Admin only</div></div>
       {overview.isLoading && <div className="mt-10 flex items-center gap-3 border-l-2 border-[#c9a34e] bg-white/50 px-5 py-4 text-sm"><RefreshCw size={16} className="animate-spin text-[#a27e2e]" /> Loading assessment records…</div>}

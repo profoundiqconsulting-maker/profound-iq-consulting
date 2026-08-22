@@ -1,5 +1,6 @@
 import PDFDocument from "pdfkit";
 import type { AssessmentReport } from "../shared/assessment";
+import { storageGetSignedUrl } from "./storage";
 
 type ReportPdfInput = {
   attemptId: number;
@@ -11,6 +12,25 @@ type ReportPdfInput = {
 const NAVY = "#16243d";
 const GOLD = "#a27e2e";
 const MUTED = "#5f6a7b";
+const LOGO_KEY = "ProfoundIQLogo3-cropped_15edcfe0.png";
+let logoBufferPromise: Promise<Buffer | null> | null = null;
+
+async function loadBrandLogo(): Promise<Buffer | null> {
+  if (process.env.NODE_ENV === "test") return null;
+  if (!logoBufferPromise) {
+    logoBufferPromise = (async () => {
+      try {
+        const signedUrl = await storageGetSignedUrl(LOGO_KEY);
+        const response = await fetch(signedUrl);
+        if (!response.ok) return null;
+        return Buffer.from(await response.arrayBuffer());
+      } catch {
+        return null;
+      }
+    })();
+  }
+  return logoBufferPromise;
+}
 
 export async function renderAssessmentReportPdf(input: ReportPdfInput): Promise<Buffer> {
   const doc = new PDFDocument({ size: "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: "Profound IQ Assessment Report", Author: "Profound IQ Consulting" } });
@@ -22,8 +42,13 @@ export async function renderAssessmentReportPdf(input: ReportPdfInput): Promise<
   });
 
   doc.fillColor(NAVY).rect(0, 0, doc.page.width, 92).fill();
-  doc.fillColor("#f7f3e8").font("Helvetica-Bold").fontSize(10).text("PROFOUND IQ / CONSULTING", 52, 32, { characterSpacing: 1.4 });
-  doc.fillColor(GOLD).font("Helvetica").fontSize(9).text("EXECUTIVE OBSERVATORY", 52, 52, { characterSpacing: 1.1 });
+  const brandLogo = await loadBrandLogo();
+  if (brandLogo) {
+    try { doc.image(brandLogo, 52, 10, { fit: [116, 72], valign: "center" }); } catch { /* Keep the text lockup when the image cannot be decoded. */ }
+  }
+  const headerX = brandLogo ? 190 : 52;
+  doc.fillColor("#f7f3e8").font("Helvetica-Bold").fontSize(10).text("PROFOUND IQ / CONSULTING", headerX, 32, { characterSpacing: 1.4 });
+  doc.fillColor(GOLD).font("Helvetica").fontSize(9).text("EXECUTIVE OBSERVATORY", headerX, 52, { characterSpacing: 1.1 });
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(25).text("Assessment report", 52, 128);
   doc.fillColor(GOLD).font("Helvetica").fontSize(10).text(`REPORT #${input.attemptId}  ·  ${formatDate(input.createdAt)}`, 52, 163, { characterSpacing: 0.7 });
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(13).text(input.participantName, 52, 198);
