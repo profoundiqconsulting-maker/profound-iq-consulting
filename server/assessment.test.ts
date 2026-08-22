@@ -12,6 +12,11 @@ describe("assessment scoring", () => {
     expect(report.overallScore).toBe(100);
     expect(report.overallBand).toBe("Strong foundation");
     expect(report.dimensions.every((dimension) => dimension.score === 100)).toBe(true);
+    expect(report.dimensions.every((dimension) => dimension.readout.length > 120 && Array.isArray(dimension.reflectionPoints))).toBe(true);
+    expect(report.dimensions.filter((dimension) => dimension.reflectionPoints.length === 3)).toHaveLength(10);
+    expect(report.reflectionPoints).toHaveLength(4);
+    expect(report.importantContext).toHaveLength(4);
+    expect(report.importantContext.join(" ")).toMatch(/point-in-time|professional decisions/i);
     expect(report.disclaimer).toMatch(/not a clinical/i);
   });
 });
