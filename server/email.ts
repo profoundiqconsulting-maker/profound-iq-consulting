@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import type { Transporter } from "nodemailer";
 import type { AssessmentReport } from "../shared/assessment";
+import { renderEmailTemplate, renderEmailTemplateHtml } from "../shared/emailTemplate";
 import { renderAssessmentReportPdf } from "./reportPdf";
 import { claimAssessmentReportEmail, markAssessmentReportEmailSent, releaseAssessmentReportEmailClaim } from "./db";
 
@@ -52,6 +53,12 @@ export async function emailAssessmentReportIfNeeded(input: { attemptId: number; 
     await releaseAssessmentReportEmailClaim(input.attemptId);
     throw error;
   }
+}
+
+export async function sendTemplateTestEmail(input: { to: string; subject: string; body: string }): Promise<void> {
+  const values = { name: "Amina Otieno", email: input.to, date: new Date().toLocaleDateString(), course: "Lead with Clarity" };
+  const config = getSmtpConfig();
+  await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to: input.to, subject: `[Preview] ${input.subject}`, text: renderEmailTemplate(input.body, values), html: renderEmailTemplateHtml(input.body, values) });
 }
 
 export async function sendAssessmentReportEmail(input: { attemptId: number; participantName: string; email: string; createdAt: Date | string; report: AssessmentReport }): Promise<void> {

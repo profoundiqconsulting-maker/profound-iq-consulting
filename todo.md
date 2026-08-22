@@ -80,3 +80,8 @@
 - [x] Add admin analytics summaries and charts for assessment starts, payment completions, report downloads, and enrollment submissions.
 - [x] Add date-range and status filters to the enrollment CSV export workflow.
 - [x] Add tests for formatting, variables, analytics aggregation, and filtered exports; verify responsive admin UI and save a checkpoint.
+- [x] Add an admin-only test email preview action that renders the selected template with safe sample variables and sends it to the authenticated admin email.
+- [x] Add funnel conversion-rate summaries and weekly trend charts for assessment starts, payment completions, report downloads, and course inquiries.
+- [x] Add a weekly scheduled enrollment export that generates CSV data and stores the report in managed storage with idempotent execution.
+- [x] Add tests for test-email authorization/rendering, funnel and weekly aggregation, and scheduled export behavior.
+- [x] Verify the updated admin UI, run type checks/tests/build, save a checkpoint, and document deployment/schedule prerequisites.

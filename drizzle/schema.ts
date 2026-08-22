@@ -44,6 +44,16 @@ export const emailTemplates = mysqlTable("email_templates", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+export const scheduledExports = mysqlTable("scheduled_exports", {
+  id: int("id").autoincrement().primaryKey(),
+  exportKey: varchar("exportKey", { length: 80 }).notNull().unique(),
+  scheduleTaskUid: varchar("scheduleTaskUid", { length: 65 }),
+  lastRunAt: timestamp("lastRunAt"),
+  lastFileKey: varchar("lastFileKey", { length: 512 }),
+  lastFileUrl: varchar("lastFileUrl", { length: 512 }),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 export const assessmentAttempts = mysqlTable("assessment_attempts", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 160 }).notNull(),
@@ -67,3 +77,4 @@ export type InsertAssessmentAttempt = typeof assessmentAttempts.$inferInsert;
 export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
 export type EmailTemplate = typeof emailTemplates.$inferSelect;
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+export type ScheduledExport = typeof scheduledExports.$inferSelect;

@@ -1,8 +1,8 @@
 import { and, desc, eq, gte, isNull, isNotNull, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { analyticsEvents, assessmentAttempts, courseEnrollments, emailTemplates, InsertAssessmentAttempt, InsertUser, users } from "../drizzle/schema";
+import { analyticsEvents, assessmentAttempts, courseEnrollments, emailTemplates, InsertAssessmentAttempt, InsertUser, scheduledExports, users } from "../drizzle/schema";
 import type { AssessmentReport } from "../shared/assessment";
-import { summarizeAnalyticsEvents } from "../shared/adminAnalytics";
+import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -178,18 +178,42 @@ export async function getCourseEnrollments(filters: { fromDate?: Date; toDate?: 
   return db.select({ id: courseEnrollments.id, courseTitle: courseEnrollments.courseTitle, name: courseEnrollments.name, email: courseEnrollments.email, status: courseEnrollments.status, createdAt: courseEnrollments.createdAt, consentedAt: courseEnrollments.consentedAt }).from(courseEnrollments).where(conditions.length ? and(...conditions) : undefined).orderBy(desc(courseEnrollments.createdAt)).limit(1000);
 }
 
-export async function getAnalyticsSummary(filters: { fromDate?: Date; toDate?: Date } = {}) {
+export async function getAnalyticsDashboard(filters: { fromDate?: Date; toDate?: Date } = {}) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const conditions = [filters.fromDate ? gte(analyticsEvents.createdAt, filters.fromDate) : undefined, filters.toDate ? lte(analyticsEvents.createdAt, filters.toDate) : undefined].filter(Boolean) as Array<ReturnType<typeof gte>>;
   const rows = await db.select({ eventName: analyticsEvents.eventName, count: sql<number>`count(*)` }).from(analyticsEvents).where(conditions.length ? and(...conditions) : undefined).groupBy(analyticsEvents.eventName);
-  return summarizeAnalyticsEvents(rows.map((row) => ({ eventName: row.eventName, count: Number(row.count) })));
+  const summary = summarizeAnalyticsEvents(rows.map((row) => ({ eventName: row.eventName, count: Number(row.count) })));
+  const trendFrom = filters.fromDate ?? new Date(Date.now() - 56 * 24 * 60 * 60 * 1000);
+  const trendRows = await db.select({ week: sql<string>`DATE_FORMAT(${analyticsEvents.createdAt}, '%x-W%v')`, eventName: analyticsEvents.eventName, count: sql<number>`count(*)` }).from(analyticsEvents).where(and(gte(analyticsEvents.createdAt, trendFrom), filters.toDate ? lte(analyticsEvents.createdAt, filters.toDate) : undefined)).groupBy(sql`DATE_FORMAT(${analyticsEvents.createdAt}, '%x-W%v')`, analyticsEvents.eventName);
+  const weekly = aggregateWeeklyAnalytics(trendRows.map((row) => ({ week: row.week, eventName: row.eventName, count: Number(row.count) })));
+  return { summary, weekly };
 }
 
 const defaultEmailTemplates = [
   { templateKey: "assessment_report", label: "Assessment report delivery", subject: "Your Profound IQ assessment report", body: "Hello {{name}},\n\nYour assessment report is ready. Use the secure link in your dashboard to review your development signals.\n\nProfound IQ Consulting" },
   { templateKey: "course_enrollment", label: "Course enrollment follow-up", subject: "Your Profound IQ course inquiry", body: "Hello {{name}},\n\nThank you for your interest in {{course}}. Our team will follow up with availability and next steps.\n\nProfound IQ Consulting" },
 ];
+
+export async function getScheduledExport(exportKey: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return (await db.select().from(scheduledExports).where(eq(scheduledExports.exportKey, exportKey)).limit(1))[0] ?? null;
+}
+export async function createScheduledExportIfMissing(exportKey: string) {
+  const existing = await getScheduledExport(exportKey);
+  if (existing) return existing;
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(scheduledExports).values({ exportKey });
+  return getScheduledExport(exportKey);
+}
+export async function updateScheduledExport(exportKey: string, input: { scheduleTaskUid?: string; lastRunAt?: Date; lastFileKey?: string; lastFileUrl?: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(scheduledExports).set(input).where(eq(scheduledExports.exportKey, exportKey));
+  return getScheduledExport(exportKey);
+}
 
 export async function getEmailTemplates() {
   const db = await getDb();

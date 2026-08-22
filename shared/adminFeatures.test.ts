@@ -1,11 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { buildCourseEnrollmentCsv, filterCourseEnrollmentRows } from "./adminExport";
-import { summarizeAnalyticsEvents } from "./adminAnalytics";
-import { renderEmailTemplate, validateEmailTemplateBody } from "./emailTemplate";
+import { aggregateWeeklyAnalytics, buildAssessmentFunnel, summarizeAnalyticsEvents } from "./adminAnalytics";
+import { renderEmailTemplate, renderEmailTemplateHtml, validateEmailTemplateBody } from "./emailTemplate";
 
 describe("admin communication and export helpers", () => {
   it("aggregates analytics event counts for the dashboard", () => {
     expect(summarizeAnalyticsEvents([{ eventName: "assessment_started", count: 2 }, { eventName: "assessment_started", count: 3 }, { eventName: "payment_completed", count: 1 }])).toEqual({ assessment_started: 5, payment_completed: 1 });
+  });
+
+  it("aggregates weekly trends and calculates funnel conversion rates", () => {
+    expect(aggregateWeeklyAnalytics([{ week: "2026-W34", eventName: "assessment_started", count: 4 }, { week: "2026-W34", eventName: "payment_completed", count: 2 }, { week: "2026-W35", eventName: "assessment_started", count: 6 }])).toEqual([{ week: "2026-W34", assessment_started: 4, payment_completed: 2 }, { week: "2026-W35", assessment_started: 6 }]);
+    expect(buildAssessmentFunnel({ assessment_started: 10, payment_completed: 4, report_downloaded: 2 }).map((stage) => stage.rate)).toEqual([100, 40, 50]);
   });
 
   it("filters enrollment rows by date range and status", () => {
@@ -19,6 +24,8 @@ describe("admin communication and export helpers", () => {
     expect(validateEmailTemplateBody("Hello {{name}} {{secret}}.")).toEqual(["secret"]);
     expect(renderEmailTemplate("Hello {{name}} at {{email}} on {{date}} about {{course}}.", { name: "Amina", email: "amina@example.com", date: "22 Aug 2026", course: "Lead with Clarity" })).toBe("Hello Amina at amina@example.com on 22 Aug 2026 about Lead with Clarity.");
     expect(renderEmailTemplate("{{unsafe}} {{name}}", { name: "Amina" })).toBe(" Amina");
+    expect(renderEmailTemplateHtml("Hello **{{name}}** _{{course}}_ <script>", { name: "Amina", course: "Lead with Clarity" })).toContain("<strong>Amina</strong>");
+    expect(renderEmailTemplateHtml("Hello **{{name}}** _{{course}}_ <script>", { name: "Amina", course: "Lead with Clarity" })).not.toContain("<script>");
   });
 
   it("creates an escaped, timestamped course enrollment CSV", () => {

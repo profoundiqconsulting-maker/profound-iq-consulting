@@ -12,6 +12,7 @@ describe("admin feature boundaries", () => {
     const caller = appRouter.createCaller(contextWithRole("user"));
     await expect(caller.admin.emailTemplates()).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(caller.admin.exportCourseEnrollments()).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(caller.admin.sendTemplateTestEmail({ subject: "Preview", body: "Hello {{name}}" })).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
   it("rejects analytics events outside the supported event contract", async () => {
