@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { buildCourseEnrollmentCsv, filterCourseEnrollmentRows } from "./adminExport";
 import { aggregateWeeklyAnalytics, buildAssessmentFunnel, buildFunnelComparison, summarizeAnalyticsEvents } from "./adminAnalytics";
 import { renderEmailTemplate, renderEmailTemplateHtml, validateEmailTemplateBody } from "./emailTemplate";
+import { selectAdminNotificationRecipients } from "./adminRecipients";
 
 describe("admin communication and export helpers", () => {
   it("aggregates analytics event counts for the dashboard", () => {
@@ -27,6 +28,16 @@ describe("admin communication and export helpers", () => {
     expect(renderEmailTemplate("{{unsafe}} {{name}}", { name: "Amina" })).toBe(" Amina");
     expect(renderEmailTemplateHtml("Hello **{{name}}** _{{course}}_ <script>", { name: "Amina", course: "Lead with Clarity" })).toContain("<strong>Amina</strong>");
     expect(renderEmailTemplateHtml("Hello **{{name}}** _{{course}}_ <script>", { name: "Amina", course: "Lead with Clarity" })).not.toContain("<script>");
+  });
+
+  it("selects only verified admin email recipients and removes duplicates", () => {
+    expect(selectAdminNotificationRecipients([
+      { role: "admin", email: "one@example.com", emailVerifiedAt: new Date("2026-08-01") },
+      { role: "admin", email: "one@example.com", emailVerifiedAt: new Date("2026-08-02") },
+      { role: "admin", email: "unverified@example.com", emailVerifiedAt: null },
+      { role: "user", email: "user@example.com", emailVerifiedAt: new Date("2026-08-03") },
+      { role: "admin", email: " ", emailVerifiedAt: new Date("2026-08-04") },
+    ])).toEqual(["one@example.com"]);
   });
 
   it("creates an escaped, timestamped course enrollment CSV", () => {

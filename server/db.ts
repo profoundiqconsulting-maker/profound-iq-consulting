@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { adminAnalyticsSettings, analyticsEvents, assessmentAttempts, courseEnrollments, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, scheduledExportRuns, scheduledExports, users } from "../drizzle/schema";
 import type { AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
+import { selectAdminNotificationRecipients } from "../shared/adminRecipients";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -14,6 +15,13 @@ export async function getDb() {
   return _db;
 }
 
+export async function getAdminNotificationRecipients(): Promise<string[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.select({ role: users.role, email: users.email, emailVerifiedAt: users.emailVerifiedAt }).from(users).where(and(eq(users.role, "admin"), isNotNull(users.email), isNotNull(users.emailVerifiedAt)));
+  return selectAdminNotificationRecipients(rows);
+}
+
 export async function upsertUser(user: InsertUser): Promise<void> {
   if (!user.openId) throw new Error("User openId is required for upsert");
   const db = await getDb();
@@ -23,6 +31,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   const textFields = ["name", "email", "loginMethod"] as const;
   for (const field of textFields) { if (user[field] !== undefined) { values[field] = user[field] ?? null; updateSet[field] = user[field] ?? null; } }
   if (user.lastSignedIn !== undefined) { values.lastSignedIn = user.lastSignedIn; updateSet.lastSignedIn = user.lastSignedIn; }
+  if (user.email?.trim()) { values.emailVerifiedAt = new Date(); updateSet.emailVerifiedAt = new Date(); }
   if (user.role !== undefined) { values.role = user.role; updateSet.role = user.role; }
   else if (user.openId === ENV.ownerOpenId) { values.role = "admin"; updateSet.role = "admin"; }
   if (!values.lastSignedIn) values.lastSignedIn = new Date();

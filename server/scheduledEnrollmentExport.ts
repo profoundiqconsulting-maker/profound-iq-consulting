@@ -1,8 +1,9 @@
 import type { Express, Request, Response } from "express";
 import { sdk } from "./_core/sdk";
 import { buildCourseEnrollmentCsv } from "../shared/adminExport";
-import { addScheduledExportRun, deleteExpiredScheduledExportRuns, getCourseEnrollments, getScheduledExport, updateScheduledExport } from "./db";
+import { addScheduledExportRun, deleteExpiredScheduledExportRuns, getAdminNotificationRecipients, getCourseEnrollments, getScheduledExport, updateScheduledExport } from "./db";
 import { storagePut } from "./storage";
+import { sendScheduledExportNotification } from "./email";
 
 export const WEEKLY_EXPORT_KEY = "weekly_course_enrollments";
 
@@ -27,9 +28,20 @@ export async function weeklyEnrollmentExportHandler(req: Request, res: Response)
     await deleteExpiredScheduledExportRuns(WEEKLY_EXPORT_KEY, new Date(timestamp.getTime() - retentionDays * 24 * 60 * 60 * 1000));
     await addScheduledExportRun({ exportKey: WEEKLY_EXPORT_KEY, fileKey: uploaded.key, fileUrl: uploaded.url, rowCount: rows.length });
     await updateScheduledExport(WEEKLY_EXPORT_KEY, { lastRunAt: timestamp, lastFileKey: uploaded.key, lastFileUrl: uploaded.url });
+    try {
+      await sendScheduledExportNotification({ status: "success", recipients: await getAdminNotificationRecipients(), reportUrl: uploaded.url, rowCount: rows.length });
+    } catch (notificationError) {
+      console.error("[weekly-export] success notification failed", notificationError);
+    }
     return res.json({ ok: true, rows: rows.length, fileUrl: uploaded.url });
   } catch (error) {
-    return res.status(500).json({ error: error instanceof Error ? error.message : String(error), context: { url: req.originalUrl, taskUid: (error as { taskUid?: string })?.taskUid ?? null }, timestamp: timestamp.toISOString() });
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    try {
+      await sendScheduledExportNotification({ status: "failed", recipients: await getAdminNotificationRecipients(), errorMessage: errorMessage.slice(0, 500) });
+    } catch (notificationError) {
+      console.error("[weekly-export] failure notification failed", notificationError);
+    }
+    return res.status(500).json({ error: errorMessage, context: { url: req.originalUrl, taskUid: (error as { taskUid?: string })?.taskUid ?? null }, timestamp: timestamp.toISOString() });
   }
 }
 

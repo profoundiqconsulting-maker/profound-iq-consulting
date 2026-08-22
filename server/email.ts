@@ -55,6 +55,17 @@ export async function emailAssessmentReportIfNeeded(input: { attemptId: number; 
   }
 }
 
+export async function sendScheduledExportNotification(input: { status: "success" | "failed"; recipients?: string[]; reportUrl?: string; rowCount?: number; errorMessage?: string }): Promise<void> {
+  const config = getSmtpConfig();
+  const recipients = input.recipients?.filter(Boolean) ?? [];
+  const to = recipients.length ? recipients : [config.from];
+  const subject = input.status === "success" ? "Profound IQ weekly enrollment export generated" : "Profound IQ weekly enrollment export failed";
+  const message = input.status === "success"
+    ? `The weekly enrollment export was generated successfully with ${input.rowCount ?? 0} row(s). Download it from the admin dashboard: ${input.reportUrl ?? "open the dashboard"}.`
+    : `The weekly enrollment export could not be generated. Error: ${input.errorMessage ?? "Unknown export error"}`;
+  await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to, subject, text: message, html: `<div style="font-family:Arial,sans-serif;color:#16243d"><h2>${escapeHtml(subject)}</h2><p>${escapeHtml(message)}</p></div>` });
+}
+
 export async function sendTemplateTestEmail(input: { to: string; subject: string; body: string }): Promise<void> {
   const values = { name: "Amina Otieno", email: input.to, date: new Date().toLocaleDateString(), course: "Lead with Clarity" };
   const config = getSmtpConfig();

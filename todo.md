@@ -99,4 +99,15 @@
 - [x] Verify responsive admin workflows, run checks/tests/build, and save a checkpoint.
 - [x] Document and surface that the managed-storage layer removes expired export references from admin history but does not expose an underlying object-delete endpoint.
 - [x] Add non-admin authorization tests for retryTemplateTestEmail, saveAnalyticsSettings, and updateExportRetention.
-- [ ] Save a new checkpoint after the retry, retention, and persistent benchmark changes are fully validated.
+- [x] Save a new checkpoint after the retry, retention, and persistent benchmark changes are fully validated.
+- [x] Add clear frontend login and registration entry points using the existing secure OAuth/session flow and database-backed user provisioning.
+- [x] Add visual below-benchmark alerts to the analytics funnel using persisted admin targets.
+- [x] Add search and status filters to the test-email delivery history.
+- [x] Email admins on scheduled CSV export success and failure with safe error details.
+- [x] Add authorization and behavior tests, verify responsive workflows, run checks/tests/build, and save a checkpoint.
+- [x] Add a clear empty state when delivery-log search or status filters return no matches.
+- [x] Send scheduled-export success/failure notifications to all admin users with verified email addresses and test recipient coverage.
+- [x] Re-run responsive verification, mark the gap fixes complete, and save a final checkpoint.
+- [x] Add an explicit verified-email rule for scheduled-export admin recipients and cover recipient selection in tests.
+- [x] Re-run desktop/mobile verification after the final delivery-log and recipient changes.
+- [x] Save the final checkpoint after all gap fixes pass.

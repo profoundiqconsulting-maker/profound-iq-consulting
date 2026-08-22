@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { ArrowDownRight, ArrowUpRight, Check, ChevronRight, Clock3, Mail, Menu, Phone, Sparkles, X } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
 import { trpc } from "@/lib/trpc";
+import { startLogin } from "@/const";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 const courses = [
   { index: "01", title: "Lead with Clarity", price: "KES 20,000", format: "6-week professional course", body: "A practical leadership course for professionals who want to make better decisions, communicate with conviction, and create momentum across a team. Explore self-awareness, strategic thinking, difficult conversations, and the habits that make leadership visible in everyday work." },
@@ -40,6 +42,7 @@ export default function Home() {
   const [selectedCourse, setSelectedCourse] = useState<(typeof courses)[number] | null>(null);
   const [enrollmentSubmitted, setEnrollmentSubmitted] = useState(false);
   const enrollment = trpc.enrollment.create.useMutation();
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     if (!selectedCourse) return;
@@ -82,10 +85,13 @@ export default function Home() {
             <a href="/assessment" className="transition-colors hover:text-[#c9a34e]">Self-assessment</a>
             <a href="#contact" className="transition-colors hover:text-[#c9a34e]">Contact</a>
           </nav>
-          <a href="#contact" className="hidden items-center gap-2 border border-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.16em] text-[#f7f3e8] transition-all hover:bg-[#c9a34e] hover:text-[#101d35] md:flex">Begin a conversation <ArrowUpRight size={14} /></a>
+          <div className="hidden items-center gap-3 md:flex">
+            <a href="#contact" className="inline-flex items-center gap-2 border border-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.16em] text-[#f7f3e8] transition-all hover:bg-[#c9a34e] hover:text-[#101d35]">Begin a conversation <ArrowUpRight size={14} /></a>
+            {isAuthenticated ? <a href="/dashboard" className="border border-white/25 px-3 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#c9d1df] hover:border-[#c9a34e] hover:text-[#c9a34e]">{user?.name ? "My workspace" : "Workspace"}</a> : <><button type="button" onClick={() => startLogin()} className="px-2 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#c9d1df] hover:text-[#c9a34e]">Sign in</button><button type="button" onClick={() => startLogin()} className="border border-white/25 px-3 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#c9d1df] hover:border-[#c9a34e] hover:text-[#c9a34e]">Create account</button></>}
+          </div>
           <button className="md:hidden" aria-label="Toggle navigation" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
         </div>
-        {menuOpen && <nav className="border-t border-white/10 bg-[#101d35] px-5 py-5 md:hidden"><div className="flex flex-col gap-5 text-xs font-extrabold uppercase tracking-[.15em]"><a href="#approach" onClick={() => setMenuOpen(false)}>Approach</a><a href="#offerings" onClick={() => setMenuOpen(false)}>Offerings</a><a href="/assessment" onClick={() => setMenuOpen(false)}>Self-assessment</a><a href="#contact" onClick={() => setMenuOpen(false)}>Contact</a></div></nav>}
+        {menuOpen && <nav className="border-t border-white/10 bg-[#101d35] px-5 py-5 md:hidden"><div className="flex flex-col gap-5 text-xs font-extrabold uppercase tracking-[.15em]"><a href="#approach" onClick={() => setMenuOpen(false)}>Approach</a><a href="#offerings" onClick={() => setMenuOpen(false)}>Offerings</a><a href="/assessment" onClick={() => setMenuOpen(false)}>Self-assessment</a><a href="#contact" onClick={() => setMenuOpen(false)}>Contact</a>{isAuthenticated ? <a href="/dashboard" onClick={() => setMenuOpen(false)}>My workspace</a> : <><button type="button" className="text-left" onClick={() => startLogin()}>Sign in</button><button type="button" className="text-left text-[#c9a34e]" onClick={() => startLogin()}>Create account</button></>}</div></nav>}
       </header>
 
       <main id="top">
