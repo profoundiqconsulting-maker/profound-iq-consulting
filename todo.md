@@ -58,4 +58,4 @@
 - [x] Respect prefers-reduced-motion and preserve static sent/pending icon states.
 - [x] Verify animation markup, desktop/mobile dashboard rendering, tests, and build.
 - [x] Save a checkpoint for the resend icon animation.
-- [ ] Save a final checkpoint after the verified resend icon animation, responsive screenshots, tests, and production build.
+- [x] Save a final checkpoint after the verified resend icon animation, responsive screenshots, tests, and production build.
