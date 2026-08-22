@@ -1,7 +1,8 @@
-import { and, desc, eq, isNull, isNotNull, lt, or } from "drizzle-orm";
+import { and, desc, eq, gte, isNull, isNotNull, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { analyticsEvents, assessmentAttempts, courseEnrollments, emailTemplates, InsertAssessmentAttempt, InsertUser, users } from "../drizzle/schema";
 import type { AssessmentReport } from "../shared/assessment";
+import { summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -170,10 +171,19 @@ export async function createCourseEnrollment(input: { courseTitle: string; name:
   return Number(result[0].insertId);
 }
 
-export async function getCourseEnrollments() {
+export async function getCourseEnrollments(filters: { fromDate?: Date; toDate?: Date; status?: string } = {}) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  return db.select({ id: courseEnrollments.id, courseTitle: courseEnrollments.courseTitle, name: courseEnrollments.name, email: courseEnrollments.email, status: courseEnrollments.status, createdAt: courseEnrollments.createdAt, consentedAt: courseEnrollments.consentedAt }).from(courseEnrollments).orderBy(desc(courseEnrollments.createdAt)).limit(1000);
+  const conditions = [filters.fromDate ? gte(courseEnrollments.createdAt, filters.fromDate) : undefined, filters.toDate ? lte(courseEnrollments.createdAt, filters.toDate) : undefined, filters.status ? eq(courseEnrollments.status, filters.status) : undefined].filter(Boolean) as Array<ReturnType<typeof gte>>;
+  return db.select({ id: courseEnrollments.id, courseTitle: courseEnrollments.courseTitle, name: courseEnrollments.name, email: courseEnrollments.email, status: courseEnrollments.status, createdAt: courseEnrollments.createdAt, consentedAt: courseEnrollments.consentedAt }).from(courseEnrollments).where(conditions.length ? and(...conditions) : undefined).orderBy(desc(courseEnrollments.createdAt)).limit(1000);
+}
+
+export async function getAnalyticsSummary(filters: { fromDate?: Date; toDate?: Date } = {}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const conditions = [filters.fromDate ? gte(analyticsEvents.createdAt, filters.fromDate) : undefined, filters.toDate ? lte(analyticsEvents.createdAt, filters.toDate) : undefined].filter(Boolean) as Array<ReturnType<typeof gte>>;
+  const rows = await db.select({ eventName: analyticsEvents.eventName, count: sql<number>`count(*)` }).from(analyticsEvents).where(conditions.length ? and(...conditions) : undefined).groupBy(analyticsEvents.eventName);
+  return summarizeAnalyticsEvents(rows.map((row) => ({ eventName: row.eventName, count: Number(row.count) })));
 }
 
 const defaultEmailTemplates = [

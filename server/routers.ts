@@ -5,7 +5,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
-import { createCourseEnrollment, getAssessmentAdminOverview, getCourseEnrollments, getEmailTemplates, getUserAssessmentHistory, getUserProfile, recordAnalyticsEvent, updateUserAvatar, updateUserProfile, upsertEmailTemplate } from "./db";
+import { createCourseEnrollment, getAnalyticsSummary, getAssessmentAdminOverview, getCourseEnrollments, getEmailTemplates, getUserAssessmentHistory, getUserProfile, recordAnalyticsEvent, updateUserAvatar, updateUserProfile, upsertEmailTemplate } from "./db";
 import { storagePut } from "./storage";
 import { z } from "zod";
 import { renderAssessmentReportPdf } from "./reportPdf";
@@ -67,10 +67,11 @@ export const appRouter = router({
     }),
   }),
   admin: router({
+    analyticsSummary: adminProcedure.input(z.object({ fromDate: z.string().optional(), toDate: z.string().optional() }).optional()).query(({ input }) => getAnalyticsSummary({ fromDate: input?.fromDate ? new Date(`${input.fromDate}T00:00:00.000Z`) : undefined, toDate: input?.toDate ? new Date(`${input.toDate}T23:59:59.999Z`) : undefined })),
     emailTemplates: adminProcedure.query(() => getEmailTemplates()),
     saveEmailTemplate: adminProcedure.input(z.object({ templateKey: z.enum(["assessment_report", "course_enrollment"]), label: z.string().trim().min(2).max(160), subject: z.string().trim().min(2).max(240), body: z.string().trim().min(2).max(10000) })).mutation(({ ctx, input }) => { const unsupported = validateEmailTemplateBody(input.body); if (unsupported.length) throw new TRPCError({ code: "BAD_REQUEST", message: `Unsupported template token: ${unsupported.join(", ")}. Use only {{name}} and {{course}}.` }); return upsertEmailTemplate({ ...input, updatedByOpenId: ctx.user.openId }); }),
-    exportCourseEnrollments: adminProcedure.query(async () => {
-      const rows = await getCourseEnrollments();
+    exportCourseEnrollments: adminProcedure.input(z.object({ fromDate: z.string().optional(), toDate: z.string().optional(), status: z.enum(["all", "new", "contacted", "enrolled"]).default("all") }).optional()).query(async ({ input }) => {
+      const rows = await getCourseEnrollments({ fromDate: input?.fromDate ? new Date(`${input.fromDate}T00:00:00.000Z`) : undefined, toDate: input?.toDate ? new Date(`${input.toDate}T23:59:59.999Z`) : undefined, status: input?.status && input.status !== "all" ? input.status : undefined });
       return { filename: `profound-iq-course-enrollments-${new Date().toISOString().slice(0, 10)}.csv`, contentType: "text/csv;charset=utf-8", data: buildCourseEnrollmentCsv(rows) };
     }),
   }),

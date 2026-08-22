@@ -1,4 +1,4 @@
-export const EMAIL_TEMPLATE_TOKENS = ["name", "course"] as const;
+export const EMAIL_TEMPLATE_TOKENS = ["name", "email", "date", "course"] as const;
 export type EmailTemplateToken = (typeof EMAIL_TEMPLATE_TOKENS)[number];
 const tokenPattern = /{{\s*([a-zA-Z][a-zA-Z0-9_]*)\s*}}/g;
 

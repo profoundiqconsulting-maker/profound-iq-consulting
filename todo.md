@@ -74,4 +74,9 @@
 - [x] Add allowed-token validation and deterministic preview rendering for branded email templates.
 - [x] Add behavioral tests for analytics persistence, template save/reload, and CSV headers/escaping/rows.
 - [x] Deliver the GitHub connector capability summary with repository metadata and a fetched commit example.
-- [ ] Save a new final checkpoint after the hardening work and full validation.
+- [x] Save a new final checkpoint after the hardening work and full validation.
+- [x] Add safe rich-text formatting controls to the admin email template editor.
+- [x] Expand approved email variables to include user email and date, with live preview and validation.
+- [x] Add admin analytics summaries and charts for assessment starts, payment completions, report downloads, and enrollment submissions.
+- [x] Add date-range and status filters to the enrollment CSV export workflow.
+- [x] Add tests for formatting, variables, analytics aggregation, and filtered exports; verify responsive admin UI and save a checkpoint.
