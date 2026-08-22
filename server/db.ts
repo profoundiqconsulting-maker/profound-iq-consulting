@@ -25,16 +25,17 @@ export async function getAdminNotificationRecipients(): Promise<string[]> {
   return selectAdminNotificationRecipients(rows);
 }
 
-export async function recordLoginEvent(input: { openId?: string | null; identifierType: string; success: boolean; failureCode?: string | null; networkHash: string; userAgent?: string | null; createdAt?: Date }) {
+export async function recordLoginEvent(input: { openId?: string | null; identifierType: string; success: boolean; failureCode?: string | null; networkHash: string; userAgent?: string | null; deviceType?: string | null; estimatedLocation?: string | null; createdAt?: Date }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   await db.insert(loginEvents).values({ ...input, createdAt: input.createdAt ?? new Date() });
 }
 
-export async function getLoginEventsForUser(openId: string, limit = 10) {
+export async function getLoginEventsForUser(input: { openId: string; limit?: number; deviceType?: string; locationSearch?: string }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  return db.select({ id: loginEvents.id, identifierType: loginEvents.identifierType, success: loginEvents.success, failureCode: loginEvents.failureCode, userAgent: loginEvents.userAgent, createdAt: loginEvents.createdAt }).from(loginEvents).where(eq(loginEvents.openId, openId)).orderBy(desc(loginEvents.createdAt)).limit(Math.min(25, Math.max(1, limit)));
+  const conditions = [eq(loginEvents.openId, input.openId), input.deviceType && input.deviceType !== "all" ? eq(loginEvents.deviceType, input.deviceType) : undefined, input.locationSearch ? like(loginEvents.estimatedLocation, `%${input.locationSearch.trim()}%`) : undefined].filter(Boolean) as Array<ReturnType<typeof eq>>;
+  return db.select({ id: loginEvents.id, identifierType: loginEvents.identifierType, success: loginEvents.success, failureCode: loginEvents.failureCode, userAgent: loginEvents.userAgent, deviceType: loginEvents.deviceType, estimatedLocation: loginEvents.estimatedLocation, createdAt: loginEvents.createdAt }).from(loginEvents).where(and(...conditions)).orderBy(desc(loginEvents.createdAt)).limit(Math.min(25, Math.max(1, input.limit ?? 10)));
 }
 
 export async function getFailedLoginEvents(input: { from?: Date; to?: Date; limit: number; offset: number }) {
@@ -56,13 +57,15 @@ export async function countFailedLoginEvents(input: { from?: Date; to?: Date }) 
   return Number(row?.count ?? 0);
 }
 
-export async function getLoginSecurityAnalytics(input: { from?: Date; to?: Date } = {}) {
+export async function getLoginSecurityAnalytics(input: { from?: Date; to?: Date; granularity?: "daily" | "weekly" } = {}) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const loginConditions = [input.from ? gte(loginEvents.createdAt, input.from) : undefined, input.to ? lte(loginEvents.createdAt, input.to) : undefined].filter(Boolean) as Array<ReturnType<typeof gte>>;
   const sessionConditions = [input.from ? gte(userSessions.createdAt, input.from) : undefined, input.to ? lte(userSessions.createdAt, input.to) : undefined].filter(Boolean) as Array<ReturnType<typeof gte>>;
-  const loginRows = await db.select({ week: sql<string>`DATE_FORMAT(${loginEvents.createdAt}, '%x-W%v')`, success: loginEvents.success, count: sql<number>`count(*)` }).from(loginEvents).where(loginConditions.length ? and(...loginConditions) : undefined).groupBy(sql`DATE_FORMAT(${loginEvents.createdAt}, '%x-W%v')`, loginEvents.success);
-  const deviceRows = await db.select({ week: sql<string>`DATE_FORMAT(${userSessions.createdAt}, '%x-W%v')`, deviceType: userSessions.deviceType, count: sql<number>`count(*)` }).from(userSessions).where(sessionConditions.length ? and(...sessionConditions) : undefined).groupBy(sql`DATE_FORMAT(${userSessions.createdAt}, '%x-W%v')`, userSessions.deviceType);
+  const loginBucket = input.granularity === "daily" ? sql<string>`DATE_FORMAT(${loginEvents.createdAt}, '%Y-%m-%d')` : sql<string>`DATE_FORMAT(${loginEvents.createdAt}, '%x-W%v')`;
+  const sessionBucket = input.granularity === "daily" ? sql<string>`DATE_FORMAT(${userSessions.createdAt}, '%Y-%m-%d')` : sql<string>`DATE_FORMAT(${userSessions.createdAt}, '%x-W%v')`;
+  const loginRows = await db.select({ week: loginBucket, success: loginEvents.success, count: sql<number>`count(*)` }).from(loginEvents).where(loginConditions.length ? and(...loginConditions) : undefined).groupBy(loginBucket, loginEvents.success);
+  const deviceRows = await db.select({ week: sessionBucket, deviceType: userSessions.deviceType, count: sql<number>`count(*)` }).from(userSessions).where(sessionConditions.length ? and(...sessionConditions) : undefined).groupBy(sessionBucket, userSessions.deviceType);
   return normalizeLoginAnalyticsRows(loginRows.map((row) => ({ ...row, count: Number(row.count) })), deviceRows.map((row) => ({ ...row, count: Number(row.count) })));
 }
 

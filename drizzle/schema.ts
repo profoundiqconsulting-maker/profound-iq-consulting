@@ -82,6 +82,8 @@ export const loginEvents = mysqlTable("login_events", {
   failureCode: varchar("failureCode", { length: 32 }),
   networkHash: varchar("networkHash", { length: 64 }).notNull(),
   userAgent: varchar("userAgent", { length: 512 }),
+  deviceType: varchar("deviceType", { length: 32 }),
+  estimatedLocation: varchar("estimatedLocation", { length: 120 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

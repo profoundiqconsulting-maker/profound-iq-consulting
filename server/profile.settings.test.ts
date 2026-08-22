@@ -55,7 +55,7 @@ describe("profile settings", () => {
   });
 
   it("returns recent login history and active sessions only for the authenticated user", async () => {
-    getLoginEventsForUser.mockResolvedValue([{ id: 1, identifierType: "email", success: true, failureCode: null, userAgent: "Browser", createdAt: new Date() }]);
+    getLoginEventsForUser.mockResolvedValue([{ id: 1, identifierType: "email", success: true, failureCode: null, userAgent: "Browser", deviceType: "desktop", estimatedLocation: "Kenya", createdAt: new Date() }]);
     getUserSessions.mockResolvedValue([{ id: 4, openId: "owner-1", userAgent: "Browser", createdAt: new Date(), lastSeenAt: new Date(), expiresAt: new Date(Date.now() + 10000), revokedAt: null }]);
     const caller = appRouter.createCaller(context({ openId: "owner-1" }, "app_session_id=test-token"));
     const history = await caller.profile.loginHistory();
@@ -63,9 +63,15 @@ describe("profile settings", () => {
     expect(history).toHaveLength(1);
     expect(history[0]).not.toHaveProperty("networkHash");
     expect(history[0]).not.toHaveProperty("openId");
-    expect(getLoginEventsForUser).toHaveBeenCalledWith("owner-1", 10);
+    expect(getLoginEventsForUser).toHaveBeenCalledWith({ openId: "owner-1", limit: 10, deviceType: "all", locationSearch: undefined });
     expect(sessionList.currentSessionId).toBe(4);
     expect(getUserSessions).toHaveBeenCalledWith("owner-1");
+  });
+
+  it("passes device and location filters without exposing raw identifiers", async () => {
+    const caller = appRouter.createCaller(context({ openId: "owner-1" }));
+    await caller.profile.loginHistory({ deviceType: "mobile", locationSearch: "Kenya" });
+    expect(getLoginEventsForUser).toHaveBeenCalledWith({ openId: "owner-1", limit: 10, deviceType: "mobile", locationSearch: "Kenya" });
   });
 
   it("revokes only sessions belonging to the authenticated user", async () => {

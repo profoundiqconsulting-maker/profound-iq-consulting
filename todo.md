@@ -200,3 +200,12 @@
 - [x] Add tests for aggregation, authorization, privacy redaction, and session revocation behavior.
 - [x] Run type checks, tests, production build, and responsive verification for Admin and Settings.
 - [x] Save a checkpoint containing the login analytics and Recent Activity enhancements.
+
+# Security Observatory UX Refinements
+
+- [x] Add daily/weekly granularity support to Admin login trend and device-classification analytics.
+- [x] Add a Recent Activity login-history filter for device type and estimated location.
+- [x] Add an accessible warning confirmation modal before revoking any active user session.
+- [x] Add tests for granularity aggregation, activity filtering, and revoke-confirmation behavior.
+- [x] Run type checks, tests, production build, and responsive verification for Admin and Settings.
+- [x] Save a checkpoint containing the security observatory UX refinements.
