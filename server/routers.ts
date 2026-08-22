@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { assessmentQuestions, ASSESSMENT_PRICE_KES, buildReport, type AssessmentReport } from "../shared/assessment";
 import { parse as parseCookie } from "cookie";
-import { getAssessmentAttempt, createAssessmentAttempt, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference } from "./db";
+import { getAssessmentAttempt, createAssessmentAttempt, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference, compareUserAssessmentReports } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { sdk } from "./_core/sdk";
 import { systemRouter } from "./_core/systemRouter";
@@ -190,6 +190,12 @@ export const appRouter = router({
     mine: protectedProcedure.query(({ ctx }) => {
       if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
       return getUserAssessmentHistory(ctx.user.email);
+    }),
+    compareReports: protectedProcedure.input(z.object({ currentAttemptId: z.number().int().positive(), previousAttemptId: z.number().int().positive() })).query(async ({ ctx, input }) => {
+      if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
+      const result = await compareUserAssessmentReports(ctx.user.email, input.currentAttemptId, input.previousAttemptId);
+      if (!result) throw new TRPCError({ code: "NOT_FOUND", message: "Both paid report versions could not be found for this account." });
+      return result;
     }),
     resendReportEmail: protectedProcedure.input(z.object({ attemptId: z.number().int().positive() })).mutation(async ({ ctx, input }) => {
       if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });

@@ -37,6 +37,15 @@ export async function renderAssessmentReportPdf(input: ReportPdfInput): Promise<
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(18).text(input.report.overallBand, 52, 342);
 
   let y = 395;
+  const summary = input.report.executiveSummary;
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("EXECUTIVE SUMMARY", 52, y, { characterSpacing: 1.2 });
+  y += 22;
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(15).text(summary?.headline ?? `${input.report.overallBand}: a practical view of your current capability pattern`, 52, y, { width: 491 });
+  y += doc.heightOfString(summary?.headline ?? `${input.report.overallBand}: a practical view of your current capability pattern`, { width: 491 }) + 7;
+  y = writeText(doc, summary?.overview ?? "Use this report as a professional development conversation starter, pairing the signal with observed behavior, context, feedback, and outcomes.", 52, y, 491, 9.8, MUTED, 3) + 7;
+  y = writeBullets(doc, summary?.priorities ?? input.report.focusAreas, y, 9.5, NAVY) + 7;
+  doc.strokeColor("#d8d1c1").lineWidth(1).moveTo(52, y).lineTo(543, y).stroke();
+  y += 18;
   doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("DIMENSION READOUT", 52, y, { characterSpacing: 1.2 });
   y += 24;
   for (const dimension of input.report.dimensions) {

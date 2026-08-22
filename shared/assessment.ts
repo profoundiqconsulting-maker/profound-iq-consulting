@@ -30,7 +30,16 @@ export const assessmentQuestions = dimensions.flatMap((dimension, dimensionIndex
 
 export type AssessmentAnswer = { questionId: string; value: number };
 export type AssessmentDimensionReport = { key: string; label: string; score: number; description: string; readout: string; reflectionPoints: string[] };
-export type AssessmentReport = { overallScore: number; overallBand: string; dimensions: AssessmentDimensionReport[]; strengths: string[]; focusAreas: string[]; reflectionPoints: string[]; importantContext: string[]; disclaimer: string };
+export type ExecutiveSummary = { headline: string; overview: string; priorities: string[]; discussionPrompts: string[] };
+export type AssessmentReport = { overallScore: number; overallBand: string; dimensions: AssessmentDimensionReport[]; strengths: string[]; focusAreas: string[]; reflectionPoints: string[]; importantContext: string[]; disclaimer: string; executiveSummary: ExecutiveSummary };
+export type RoleLens = "leadership" | "careerTransition" | "teamDevelopment";
+export type RoleLensReadout = { key: RoleLens; label: string; context: string; priorities: string[]; reflectionPoints: string[] };
+export type AssessmentComparison = { currentScore: number; previousScore: number; scoreDelta: number; dimensions: Array<{ key: string; label: string; currentScore: number; previousScore: number; delta: number }> };
+export const roleLensOptions: Array<{ key: RoleLens; label: string; description: string }> = [
+  { key: "leadership", label: "Leadership", description: "Translate capability signals into decisions, direction, and influence." },
+  { key: "careerTransition", label: "Career transition", description: "Navigate a new role, industry, or level of responsibility." },
+  { key: "teamDevelopment", label: "Team development", description: "Turn individual patterns into healthier collaboration and shared performance." },
+];
 
 export function buildReport(answers: AssessmentAnswer[]): AssessmentReport {
   const scoreByDimension = new Map<string, number[]>();
@@ -56,6 +65,7 @@ export function buildReport(answers: AssessmentAnswer[]): AssessmentReport {
     strengths: ordered.slice(0, 3).map((item) => item.label),
     focusAreas: ordered.slice(-3).reverse().map((item) => item.label),
     reflectionPoints: buildReflectionPoints(ordered),
+    executiveSummary: buildExecutiveSummary(overallScore, overallBand, ordered),
     importantContext: [
       "This is a point-in-time self-report, shaped by your current role, environment, workload, confidence, and recent experiences.",
       "A lower signal is not a deficiency and a higher signal is not a permanent trait. Both are invitations to examine conditions, habits, and choices.",
@@ -64,6 +74,27 @@ export function buildReport(answers: AssessmentAnswer[]): AssessmentReport {
     ],
     disclaimer: "This educational self-assessment is a reflective development tool, not a clinical, psychological, employment, or medical diagnosis. Use the report as a starting point for conversation and action.",
   };
+}
+
+function buildExecutiveSummary(score: number, band: string, ordered: AssessmentDimensionReport[]): ExecutiveSummary {
+  const strongest = ordered[0]?.label ?? "your strongest capability";
+  const focus = ordered[ordered.length - 1]?.label ?? "your next development priority";
+  return { headline: `${band}: a practical view of your current capability pattern`, overview: `Your overall signal is ${score} out of 100. The clearest current strength is ${strongest}, while ${focus} offers a useful place to focus attention. For managers and coaches, this report is most valuable when paired with examples of behavior, context, and outcomes.`, priorities: [`Name the behavior behind ${strongest} and identify where it creates measurable value.`, `Choose one observable practice related to ${focus} for the next review or coaching cycle.`, "Agree on the conditions, support, and feedback that will make progress more likely."], discussionPrompts: ["What should we keep doing because it is already creating value?", "Where does the current environment make this capability easier or harder to use?", "What evidence will we review next time to understand progress?"] };
+}
+
+export function buildRoleLens(report: AssessmentReport, key: RoleLens): RoleLensReadout {
+  const focus = report.focusAreas.slice(0, 2).map((item) => item.toLowerCase());
+  const strongest = report.strengths[0]?.toLowerCase() ?? "your strongest capability";
+  const lenses: Record<RoleLens, Omit<RoleLensReadout, "key">> = {
+    leadership: { label: "Leadership lens", context: `Use this lens to examine how ${strongest} can create clarity and momentum for others, while deliberately developing ${focus.join(" and ")}.`, priorities: ["Set a visible direction and explain the decision logic behind it.", "Invite dissent and feedback before converting influence into commitment.", "Match accountability with the support, context, and authority people need to act."], reflectionPoints: ["Where do people experience your leadership most clearly today?", "What decision or conversation would benefit from more deliberate clarity?", "What evidence would show that your leadership is improving outcomes for others?"] },
+    careerTransition: { label: "Career transition lens", context: `Use this lens to translate ${strongest} into a credible professional story while treating ${focus.join(" and ")} as development priorities for the next role.`, priorities: ["Identify the transferable behaviors behind your strongest signals.", "Choose a stretch assignment that creates evidence for the capability your next context requires.", "Ask for specific feedback from someone who understands the destination role or environment."], reflectionPoints: ["Which current achievement demonstrates your strongest capability in observable terms?", "What will be different about how you need to work in the next context?", "What experiment could reduce uncertainty before a larger career decision?"] },
+    teamDevelopment: { label: "Team development lens", context: `Use this lens to consider how your individual patterns affect trust, coordination, and shared execution, especially around ${focus.join(" and ")}.`, priorities: ["Make working agreements explicit so different strengths can contribute without guesswork.", "Create regular moments for feedback, repair, and learning after delivery.", "Separate a person’s value from a behavior that the team can practice and improve."], reflectionPoints: ["What does your team reliably receive from you at your best?", "Which pattern might others experience differently from your intention?", "What shared practice would make collaboration easier over the next month?"] },
+  };
+  return { key, ...lenses[key] };
+}
+
+export function compareReports(current: AssessmentReport, previous: AssessmentReport): AssessmentComparison {
+  return { currentScore: current.overallScore, previousScore: previous.overallScore, scoreDelta: current.overallScore - previous.overallScore, dimensions: current.dimensions.map((dimension) => { const prior = previous.dimensions.find((item) => item.key === dimension.key); const previousScore = prior?.score ?? 0; return { key: dimension.key, label: dimension.label, currentScore: dimension.score, previousScore, delta: dimension.score - previousScore }; }) };
 }
 
 function buildDimensionReport(dimension: (typeof dimensions)[number], score: number): AssessmentDimensionReport {

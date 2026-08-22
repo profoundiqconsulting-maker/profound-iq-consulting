@@ -219,3 +219,14 @@
 - [x] Add regression tests for dimension, reflection, context, and PDF content coverage.
 - [x] Run type checks, tests, production build, and responsive/report verification.
 - [x] Save a checkpoint containing the enhanced professional assessment report.
+
+# Report Evolution and Longitudinal Insights
+
+- [x] Add a reusable executive one-page summary to the assessment report and PDF.
+- [x] Add selectable leadership, career-transition, and team-development report lenses.
+- [x] Add persisted assessment report version records for paid report results.
+- [x] Add self-scoped version history and comparison data for authenticated users.
+- [x] Add report UI for switching lenses and comparing results over time.
+- [x] Add tests for summary content, role lenses, version persistence, comparison privacy, and PDF output.
+- [x] Run schema migration, type checks, tests, production build, and responsive verification.
+- [x] Save a checkpoint containing the report evolution enhancements.

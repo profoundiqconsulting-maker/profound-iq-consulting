@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assessmentQuestions, buildReport } from "../shared/assessment";
+import { assessmentQuestions, buildReport, buildRoleLens, compareReports } from "../shared/assessment";
 
 describe("assessment scoring", () => {
   it("exposes 100 questions across ten capability dimensions", () => {
@@ -18,5 +18,14 @@ describe("assessment scoring", () => {
     expect(report.importantContext).toHaveLength(4);
     expect(report.importantContext.join(" ")).toMatch(/point-in-time|professional decisions/i);
     expect(report.disclaimer).toMatch(/not a clinical/i);
+  });
+
+  it("provides adaptable role lenses and longitudinal comparison deltas", () => {
+    const current = buildReport(assessmentQuestions.map((question) => ({ questionId: question.id, value: 5 })));
+    const previous = buildReport(assessmentQuestions.map((question) => ({ questionId: question.id, value: 4 })));
+    expect(buildRoleLens(current, "leadership").priorities).toHaveLength(3);
+    expect(buildRoleLens(current, "careerTransition").reflectionPoints[0]).toMatch(/achievement/i);
+    expect(compareReports(current, previous).scoreDelta).toBe(20);
+    expect(compareReports(current, previous).dimensions).toHaveLength(10);
   });
 });

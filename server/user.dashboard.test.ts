@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-const { getUserAssessmentHistory, getAssessmentAttempt } = vi.hoisted(() => ({ getUserAssessmentHistory: vi.fn(), getAssessmentAttempt: vi.fn() }));
+const { getUserAssessmentHistory, getAssessmentAttempt, compareUserAssessmentReports } = vi.hoisted(() => ({ getUserAssessmentHistory: vi.fn(), getAssessmentAttempt: vi.fn(), compareUserAssessmentReports: vi.fn() }));
 const { renderAssessmentReportPdf } = vi.hoisted(() => ({ renderAssessmentReportPdf: vi.fn() }));
 const { emailAssessmentReportIfNeeded } = vi.hoisted(() => ({ emailAssessmentReportIfNeeded: vi.fn() }));
 
@@ -9,6 +9,7 @@ vi.mock("./db", () => ({
   getUserAssessmentHistory,
   getAssessmentAdminOverview: vi.fn(),
   getAssessmentAttempt,
+  compareUserAssessmentReports,
   createAssessmentAttempt: vi.fn(),
   getAssessmentAttemptByReference: vi.fn(),
   markAssessmentPaid: vi.fn(),
@@ -50,6 +51,20 @@ describe("dashboard.mine", () => {
     const result = await caller.dashboard.mine();
     expect(result[0]).toMatchObject({ reportEmailStatus: "sent", overallScore: 79 });
     expect(result[0]).not.toHaveProperty("answers");
+  });
+});
+
+describe("dashboard.compareReports", () => {
+  it("requires authentication", async () => {
+    const caller = appRouter.createCaller(context(null));
+    await expect(caller.dashboard.compareReports({ currentAttemptId: 2, previousAttemptId: 1 })).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+  });
+
+  it("scopes comparison to the authenticated account email", async () => {
+    compareUserAssessmentReports.mockResolvedValue({ current: { id: 2 }, previous: { id: 1 }, comparison: { currentScore: 80, previousScore: 70, scoreDelta: 10, dimensions: [] } });
+    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
+    await caller.dashboard.compareReports({ currentAttemptId: 2, previousAttemptId: 1 });
+    expect(compareUserAssessmentReports).toHaveBeenCalledWith("owner@example.com", 2, 1);
   });
 });
 

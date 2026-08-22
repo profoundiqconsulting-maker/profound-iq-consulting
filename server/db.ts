@@ -1,7 +1,7 @@
 import { and, desc, eq, gte, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, authLoginAttempts, courseEnrollments, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits } from "../drizzle/schema";
-import type { AssessmentReport } from "../shared/assessment";
+import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
 import { selectAdminNotificationRecipients } from "../shared/adminRecipients";
@@ -340,7 +340,17 @@ export async function getUserAssessmentHistory(email: string) {
     overallScore: (row.report as AssessmentReport | null)?.overallScore ?? null,
     overallBand: (row.report as AssessmentReport | null)?.overallBand ?? null,
     report: row.paymentStatus === "paid" ? row.report : null,
-  }));
+  })).map((item, index, items) => ({ ...item, version: `v${items.length - index}` }));
+}
+
+export async function compareUserAssessmentReports(email: string, currentAttemptId: number, previousAttemptId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db.select({ id: assessmentAttempts.id, createdAt: assessmentAttempts.createdAt, paymentStatus: assessmentAttempts.paymentStatus, report: assessmentAttempts.report }).from(assessmentAttempts).where(and(eq(assessmentAttempts.email, email), or(eq(assessmentAttempts.id, currentAttemptId), eq(assessmentAttempts.id, previousAttemptId))));
+  const current = rows.find((row) => row.id === currentAttemptId);
+  const previous = rows.find((row) => row.id === previousAttemptId);
+  if (!current || !previous || current.paymentStatus !== "paid" || previous.paymentStatus !== "paid" || !current.report || !previous.report) return undefined;
+  return { current: { id: current.id, createdAt: current.createdAt }, previous: { id: previous.id, createdAt: previous.createdAt }, comparison: compareReports(current.report as AssessmentReport, previous.report as AssessmentReport) };
 }
 
 export async function recordAnalyticsEvent(input: { eventName: string; attemptId?: number; userOpenId?: string; metadata?: Record<string, unknown> }) {
