@@ -41,4 +41,4 @@
 - [x] Save a new checkpoint for the manual report-email resend feature after all final verification.
 - [x] Exercise the dashboard Resend email action again and explicitly verify the loading spinner plus success toast; also trigger and verify the resend error/conflict toast path.
 - [x] Save a new checkpoint that includes the verified manual report-email resend feature after final browser verification.
-- [ ] Save a final checkpoint after the confirmed resend loading state, success toast, conflict-path test, and full validation suite.
+- [x] Save a final checkpoint after the confirmed resend loading state, success toast, conflict-path test, and full validation suite.
