@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { and, desc, eq, gte, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, careerPathAttempts, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -258,6 +258,32 @@ export async function createAssessmentAttempt(input: Pick<InsertAssessmentAttemp
   if (!db) throw new Error("Database is not available");
   const result = await db.insert(assessmentAttempts).values({ ...input, paymentStatus: "pending", consentedAt: new Date() });
   return Number(result[0].insertId);
+}
+
+export async function createCareerPathAttempt(input: { name: string; email: string; answers: unknown }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.insert(careerPathAttempts).values({ ...input, paymentStatus: "pending", consentedAt: new Date() });
+  return Number(result[0].insertId);
+}
+
+export async function setCareerPathPaystackReference(id: number, reference: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(careerPathAttempts).set({ paystackReference: reference }).where(eq(careerPathAttempts.id, id));
+}
+
+export async function getCareerPathAttemptByReference(reference: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(careerPathAttempts).where(eq(careerPathAttempts.paystackReference, reference)).limit(1);
+  return result[0];
+}
+
+export async function markCareerPathPaid(id: number, report: unknown) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(careerPathAttempts).set({ paymentStatus: "paid", report, paidAt: new Date() }).where(eq(careerPathAttempts.id, id));
 }
 
 export async function setPaystackReference(id: number, reference: string) {

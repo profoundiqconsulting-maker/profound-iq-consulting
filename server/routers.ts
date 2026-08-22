@@ -1,7 +1,8 @@
 import { COOKIE_NAME } from "@shared/const";
 import { assessmentQuestions, ASSESSMENT_PRICE_KES, buildReport, buildRoleLens, type AssessmentReport, type RoleLens } from "../shared/assessment";
+import { careerPathQuestions, CAREER_PATH_PRICE_KES, buildCareerPathReport, type CareerPathReport } from "../shared/careerPath";
 import { parse as parseCookie } from "cookie";
-import { getAssessmentAttempt, createAssessmentAttempt, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference, compareUserAssessmentReports, createReportShare, getActiveReportShare, revokeReportShare, listReportShares, listReportShareAuditEvents } from "./db";
+import { getAssessmentAttempt, createAssessmentAttempt, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference, compareUserAssessmentReports, createReportShare, getActiveReportShare, revokeReportShare, listReportShares, listReportShareAuditEvents, createCareerPathAttempt, setCareerPathPaystackReference, getCareerPathAttemptByReference, markCareerPathPaid } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { sdk } from "./_core/sdk";
 import { systemRouter } from "./_core/systemRouter";
@@ -27,6 +28,7 @@ import { buildVerificationAuditCsv, type AuditHistoryFilters } from "../shared/a
 import { getRequestSecurityMetadata, buildSecurityLogCsv } from "./securityMetadata";
 
 const answersSchema = z.array(z.object({ questionId: z.string(), value: z.number().int().min(1).max(5) })).length(assessmentQuestions.length);
+const careerPathAnswersSchema = z.array(z.object({ questionId: z.string(), value: z.number().int().min(1).max(5) })).length(careerPathQuestions.length);
 const analyticsEventSchema = z.object({ eventName: z.enum(["assessment_started", "payment_completed", "report_downloaded", "course_enrollment_submitted"]), attemptId: z.number().int().positive().optional(), metadata: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional() });
 
 async function paystackRequest(path: string, init?: RequestInit) {
@@ -243,6 +245,36 @@ export const appRouter = router({
       const pdf = await renderAssessmentReportPdf({ attemptId: attempt.id, participantName: attempt.name, createdAt: attempt.createdAt, report, lens: buildRoleLens(report, input.lens as RoleLens) });
       await recordAnalyticsEvent({ eventName: "report_downloaded", attemptId: attempt.id, userOpenId: ctx.user.openId });
       return { filename: `profound-iq-assessment-${attempt.id}.pdf`, contentType: "application/pdf", data: pdf.toString("base64") };
+    }),
+  }),
+  careerPath: router({
+    questions: publicProcedure.query(() => ({ questions: careerPathQuestions, modules: [{ name: "Career interests", items: 32 }, { name: "Aptitude and cognitive preferences", items: 28 }, { name: "Learning and work style", items: 20 }, { name: "Personality and behavioural tendencies", items: 24 }, { name: "Skills and competencies", items: 24 }, { name: "Values and motivators", items: 20 }, { name: "Creativity, talent and innovation", items: 16 }, { name: "Career aspirations and exposure", items: 8 }, { name: "Situational career judgement", items: 8 }], priceKes: CAREER_PATH_PRICE_KES, estimatedMinutes: "35–45" })),
+    initializePayment: publicProcedure.input(z.object({ name: z.string().trim().min(2).max(160), email: z.string().email(), answers: careerPathAnswersSchema, consent: z.literal(true) })).mutation(async ({ input, ctx }) => {
+      const attemptId = await createCareerPathAttempt({ name: input.name, email: input.email, answers: input.answers });
+      const reference = `piq-career-${Date.now()}-${randomUUID().replace(/-/g, "").slice(0, 12)}`;
+      await setCareerPathPaystackReference(attemptId, reference);
+      const originHeader = ctx.req.headers.origin;
+      const origin = typeof originHeader === "string" ? originHeader : "https://profoundiqconsulting.com";
+      const payment = await paystackRequest("/transaction/initialize", { method: "POST", body: JSON.stringify({ amount: CAREER_PATH_PRICE_KES * 100, currency: "KES", email: input.email, reference, callback_url: `${origin}/careerpath?payment=success&reference=${reference}`, metadata: JSON.stringify({ attemptId, assessment: "profound-iq-careerpath-talent-fit" }) }) });
+      await recordAnalyticsEvent({ eventName: "assessment_started", attemptId, metadata: { product: "careerpath", priceKes: CAREER_PATH_PRICE_KES } });
+      return { authorizationUrl: payment.data.authorization_url as string, reference, attemptId };
+    }),
+    verifyPayment: publicProcedure.input(z.object({ reference: z.string().min(10).max(120) })).mutation(async ({ input }) => {
+      const attempt = await getCareerPathAttemptByReference(input.reference);
+      if (!attempt) throw new TRPCError({ code: "NOT_FOUND", message: "CareerPath attempt not found." });
+      if (attempt.paymentStatus === "paid" && attempt.report) return { report: attempt.report as CareerPathReport, reference: input.reference };
+      const verification = await paystackRequest(`/transaction/verify/${encodeURIComponent(input.reference)}`);
+      const transaction = verification.data;
+      if (transaction.reference !== input.reference || transaction.status !== "success" || transaction.amount !== CAREER_PATH_PRICE_KES * 100 || transaction.currency !== "KES") throw new TRPCError({ code: "PAYMENT_REQUIRED", message: "CareerPath payment could not be verified." });
+      const report = buildCareerPathReport(attempt.answers as Array<{ questionId: string; value: number }>);
+      await markCareerPathPaid(attempt.id, report);
+      await recordAnalyticsEvent({ eventName: "payment_completed", attemptId: attempt.id, metadata: { product: "careerpath", currency: "KES", amount: CAREER_PATH_PRICE_KES } });
+      return { report, reference: input.reference };
+    }),
+    getReport: publicProcedure.input(z.object({ reference: z.string().min(10).max(120) })).query(async ({ input }) => {
+      const attempt = await getCareerPathAttemptByReference(input.reference);
+      if (!attempt || attempt.paymentStatus !== "paid" || !attempt.report) throw new TRPCError({ code: "FORBIDDEN", message: "A verified CareerPath payment is required to view this report." });
+      return { report: attempt.report as CareerPathReport, reference: input.reference, participantName: attempt.name, createdAt: attempt.createdAt };
     }),
   }),
   assessment: router({

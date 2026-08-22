@@ -275,3 +275,15 @@
 - [x] Add tests for non-empty reflection rendering, audit filters, CSV escaping, ownership, and chart bulk controls.
 - [x] Run type checks, tests, production build, and responsive verification.
 - [x] Save a checkpoint containing the reflection and audit usability enhancements.
+
+# CareerPath Career Pathway and Talent Fit Assessment
+
+- [x] Review the attached CareerPathway & Talent Fit Assessment document and map its requirements into the product.
+- [x] Define competency-based learner assessment sections, scoring dimensions, and career/talent-fit output contracts.
+- [x] Add a dedicated CareerPath assessment entry flow with KES 999 pricing and explicit consent.
+- [x] Connect CareerPath payment initialization and verification to the existing Paystack integration.
+- [x] Add secure CareerPath results with learner-friendly pathway, strengths, development, and talent-fit guidance.
+- [x] Add CareerPath report history and delivery integration without exposing unpaid or cross-user data.
+- [x] Add tests for CareerPath scoring, payment amount, ownership, and report privacy.
+- [x] Run production build and responsive verification for the CareerPath flow.
+- [x] Save a checkpoint containing the CareerPath release.
