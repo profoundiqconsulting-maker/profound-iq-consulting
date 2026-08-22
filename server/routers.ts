@@ -8,6 +8,7 @@ import { TRPCError } from "@trpc/server";
 import { getAssessmentAdminOverview, getUserAssessmentHistory, getUserProfile, updateUserAvatar, updateUserProfile } from "./db";
 import { storagePut } from "./storage";
 import { z } from "zod";
+import { renderAssessmentReportPdf } from "./reportPdf";
 
 const answersSchema = z.array(z.object({ questionId: z.string(), value: z.number().int().min(1).max(5) })).length(assessmentQuestions.length);
 
@@ -52,6 +53,14 @@ export const appRouter = router({
     mine: protectedProcedure.query(({ ctx }) => {
       if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
       return getUserAssessmentHistory(ctx.user.email);
+    }),
+    downloadReport: protectedProcedure.input(z.object({ attemptId: z.number().int().positive() })).mutation(async ({ ctx, input }) => {
+      if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
+      const attempt = await getAssessmentAttempt(input.attemptId);
+      if (!attempt || attempt.email !== ctx.user.email) throw new TRPCError({ code: "NOT_FOUND", message: "Assessment report not found." });
+      if (attempt.paymentStatus !== "paid" || !attempt.report) throw new TRPCError({ code: "FORBIDDEN", message: "A verified payment is required to download this report." });
+      const pdf = await renderAssessmentReportPdf({ attemptId: attempt.id, participantName: attempt.name, createdAt: attempt.createdAt, report: attempt.report as import("../shared/assessment").AssessmentReport });
+      return { filename: `profound-iq-assessment-${attempt.id}.pdf`, contentType: "application/pdf", data: pdf.toString("base64") };
     }),
   }),
   assessment: router({
