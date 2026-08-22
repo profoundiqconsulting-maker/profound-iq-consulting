@@ -5,6 +5,7 @@ import type { AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { selectAdminNotificationRecipients } from "../shared/adminRecipients";
 import type { DeliveryLogFilters, DeliveryLogRow } from "../shared/adminDeliveryLog";
+import { clampAuditPagination, type AuditHistoryFilters, type AuditHistoryPage, type AuditHistoryQuery } from "../shared/adminAudit";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -346,10 +347,38 @@ export async function revokeUserEmailVerification(openId: string, actor: { openI
   return getUserByOpenId(openId);
 }
 
-export async function getVerificationRevocationAudits(limit = 50) {
+function auditHistoryConditions(filters: AuditHistoryFilters) {
+  const conditions = [];
+  if (filters.adminSearch) { const search = `%${filters.adminSearch}%`; conditions.push(or(like(verificationRevocationAudits.actorName, search), like(verificationRevocationAudits.actorEmail, search), like(verificationRevocationAudits.actorOpenId, search))); }
+  if (filters.fromDate) conditions.push(gte(verificationRevocationAudits.createdAt, filters.fromDate));
+  if (filters.toDate) conditions.push(lte(verificationRevocationAudits.createdAt, filters.toDate));
+  return conditions;
+}
+
+export async function getVerificationRevocationAuditsPage(input: AuditHistoryQuery): Promise<AuditHistoryPage> {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  return db.select().from(verificationRevocationAudits).orderBy(desc(verificationRevocationAudits.createdAt)).limit(Math.min(100, Math.max(1, limit)));
+  const { page: requestedPage, pageSize } = clampAuditPagination(input.page, input.pageSize);
+  const conditions = auditHistoryConditions(input);
+  const where = conditions.length ? and(...conditions) : undefined;
+  const countRows = await db.select({ count: sql<number>`count(*)` }).from(verificationRevocationAudits).where(where);
+  const total = Number(countRows[0]?.count ?? 0);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const page = Math.min(requestedPage, totalPages);
+  const rows = await db.select().from(verificationRevocationAudits).where(where).orderBy(desc(verificationRevocationAudits.createdAt)).limit(pageSize).offset((page - 1) * pageSize);
+  return { rows, total, totalPages, page, pageSize };
+}
+
+export async function getVerificationRevocationAudits(limit = 50) {
+  const page = await getVerificationRevocationAuditsPage({ page: 1, pageSize: limit });
+  return page.rows;
+}
+
+export async function getVerificationRevocationAuditsForExport(filters: AuditHistoryFilters = {}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const conditions = auditHistoryConditions(filters);
+  return db.select().from(verificationRevocationAudits).where(conditions.length ? and(...conditions) : undefined).orderBy(desc(verificationRevocationAudits.createdAt)).limit(10000);
 }
 
 export type DeliveryLogExportJobFilters = { search?: string; status?: "all" | "sent" | "failed"; fromDate?: string; toDate?: string };

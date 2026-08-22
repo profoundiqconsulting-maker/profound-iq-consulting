@@ -6,7 +6,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
-import { addEmailPreviewDelivery, createCourseEnrollment, createDeliveryLogExportJob, getAdminAnalyticsSettings, getAdminUsersForReview, getAnalyticsDashboard, getAssessmentAdminOverview, getCourseEnrollments, getDeliveryLogExportJob, getDeliveryLogExportJobs, getEmailPreviewDeliveries, getEmailPreviewDeliveriesForExport, getEmailPreviewDeliveriesPage, getEmailTemplates, getScheduledExport, getScheduledExportRuns, getUserAssessmentHistory, getUserProfile, getVerificationRevocationAudits, recordAnalyticsEvent, revokeUserEmailVerification, updateUserAvatar, updateUserProfile, upsertAdminAnalyticsSettings, upsertEmailTemplate, updateScheduledExport, createScheduledExportIfMissing } from "./db";
+import { addEmailPreviewDelivery, createCourseEnrollment, createDeliveryLogExportJob, getAdminAnalyticsSettings, getAdminUsersForReview, getAnalyticsDashboard, getAssessmentAdminOverview, getCourseEnrollments, getDeliveryLogExportJob, getDeliveryLogExportJobs, getEmailPreviewDeliveries, getEmailPreviewDeliveriesForExport, getEmailPreviewDeliveriesPage, getEmailTemplates, getScheduledExport, getScheduledExportRuns, getUserAssessmentHistory, getUserProfile, getVerificationRevocationAudits, getVerificationRevocationAuditsForExport, getVerificationRevocationAuditsPage, recordAnalyticsEvent, revokeUserEmailVerification, updateUserAvatar, updateUserProfile, upsertAdminAnalyticsSettings, upsertEmailTemplate, updateScheduledExport, createScheduledExportIfMissing } from "./db";
 import { storagePut } from "./storage";
 import { z } from "zod";
 import { renderAssessmentReportPdf } from "./reportPdf";
@@ -17,6 +17,7 @@ import { emailAssessmentReportIfNeeded, sendTemplateTestEmail } from "./email";
 import { createHeartbeatJob } from "./_core/heartbeat";
 import { WEEKLY_EXPORT_KEY } from "./scheduledEnrollmentExport";
 import { DELIVERY_LOG_EXPORT_KEY } from "./deliveryLogExport";
+import { buildVerificationAuditCsv, type AuditHistoryFilters } from "../shared/adminAudit";
 
 const answersSchema = z.array(z.object({ questionId: z.string(), value: z.number().int().min(1).max(5) })).length(assessmentQuestions.length);
 const analyticsEventSchema = z.object({ eventName: z.enum(["assessment_started", "payment_completed", "report_downloaded", "course_enrollment_submitted"]), attemptId: z.number().int().positive().optional(), metadata: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional() });
@@ -73,7 +74,8 @@ export const appRouter = router({
   }),
   admin: router({
     scheduledExportStatus: adminProcedure.query(async () => ({ config: await getScheduledExport(WEEKLY_EXPORT_KEY), runs: await getScheduledExportRuns(WEEKLY_EXPORT_KEY) })),
-    verificationRevocationAudits: adminProcedure.query(() => getVerificationRevocationAudits(50)),
+    verificationRevocationAudits: adminProcedure.input(z.object({ page: z.number().int().min(1).default(1), pageSize: z.number().int().min(1).max(100).default(10), adminSearch: z.string().trim().max(160).optional(), fromDate: z.string().optional(), toDate: z.string().optional() }).optional()).query(({ input }) => getVerificationRevocationAuditsPage({ page: input?.page ?? 1, pageSize: input?.pageSize ?? 10, adminSearch: input?.adminSearch, fromDate: input?.fromDate ? new Date(`${input.fromDate}T00:00:00.000Z`) : undefined, toDate: input?.toDate ? new Date(`${input.toDate}T23:59:59.999Z`) : undefined })),
+    exportVerificationRevocationAudits: adminProcedure.input(z.object({ adminSearch: z.string().trim().max(160).optional(), fromDate: z.string().optional(), toDate: z.string().optional() }).optional()).query(async ({ input }) => { const filters: AuditHistoryFilters = { adminSearch: input?.adminSearch, fromDate: input?.fromDate ? new Date(`${input.fromDate}T00:00:00.000Z`) : undefined, toDate: input?.toDate ? new Date(`${input.toDate}T23:59:59.999Z`) : undefined }; return { filename: `profound-iq-verification-audit-${new Date().toISOString().slice(0, 10)}.csv`, contentType: "text/csv;charset=utf-8", data: buildVerificationAuditCsv(await getVerificationRevocationAuditsForExport(filters)) }; }),
     deliveryLogExportJobs: adminProcedure.query(() => getDeliveryLogExportJobs(20)),
     deliveryLogExportJob: adminProcedure.input(z.object({ id: z.number().int().positive() })).query(({ input }) => getDeliveryLogExportJob(input.id)),
     queueDeliveryLogExport: adminProcedure.input(z.object({ search: z.string().trim().max(160).optional(), status: z.enum(["all", "sent", "failed"]).default("all"), fromDate: z.string().optional(), toDate: z.string().optional() })).mutation(({ ctx, input }) => createDeliveryLogExportJob(ctx.user.openId, input)),

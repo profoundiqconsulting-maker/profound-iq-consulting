@@ -135,3 +135,13 @@
 - [x] Add tests for audit persistence, reason validation, queue processing, export status, and authorization.
 - [x] Run schema migration, type checks, tests, production build, and responsive verification.
 - [x] Save a checkpoint containing the audit, queue, and modal enhancements.
+
+# Verification Audit History Enhancements
+- [x] Add shared audit-history filters, pagination, and safe CSV serialization contracts.
+- [x] Add server-side paginated audit queries filtered by admin and UTC date range.
+- [x] Add an admin-only audit CSV export procedure with compliance-safe fields.
+- [x] Build paginated audit history UI with admin/date filters and empty states.
+- [x] Add CSV download behavior and preserve admin authorization boundaries.
+- [x] Add tests for filtering, pagination, CSV escaping, export status, and authorization.
+- [x] Run type checks, tests, production build, and responsive desktop/mobile verification.
+- [x] Save a checkpoint containing the audit-history enhancements.

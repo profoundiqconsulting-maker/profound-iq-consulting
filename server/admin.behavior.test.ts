@@ -14,7 +14,9 @@ const mocks = vi.hoisted(() => ({
   getEmailPreviewDeliveriesForExport: vi.fn().mockResolvedValue([{ id: 1, templateKey: "assessment_report", recipientEmail: "admin@example.com", subject: "Preview", status: "sent", errorMessage: null, createdAt: new Date("2026-08-24T09:00:00.000Z") }]),
   getAdminUsersForReview: vi.fn().mockResolvedValue({ rows: [{ id: 2, openId: "user-2", name: "Amina", email: "amina@example.com", role: "user", emailVerifiedAt: new Date("2026-08-20T09:00:00.000Z"), createdAt: new Date(), lastSignedIn: new Date() }], total: 1, totalPages: 1, page: 1, pageSize: 8 }),
   revokeUserEmailVerification: vi.fn().mockResolvedValue({ openId: "user-2", emailVerifiedAt: null }),
-  getVerificationRevocationAudits: vi.fn().mockResolvedValue([{ id: 4, targetOpenId: "user-2", targetEmail: "amina@example.com", actorOpenId: "admin-test", actorName: "Admin Test", actorEmail: "admin@example.com", reason: "Mailbox ownership could not be confirmed", createdAt: new Date() }]),
+  getVerificationRevocationAudits: vi.fn(),
+  getVerificationRevocationAuditsPage: vi.fn().mockResolvedValue({ rows: [{ id: 4, targetOpenId: "user-2", targetEmail: "amina@example.com", actorOpenId: "admin-test", actorName: "Admin Test", actorEmail: "admin@example.com", reason: "Mailbox ownership could not be confirmed", createdAt: new Date() }], total: 1, totalPages: 1, page: 1, pageSize: 8 }),
+  getVerificationRevocationAuditsForExport: vi.fn().mockResolvedValue([{ id: 4, targetOpenId: "user-2", targetEmail: "amina@example.com", actorOpenId: "admin-test", actorName: "Admin Test", actorEmail: "admin@example.com", reason: "Mailbox ownership could not be confirmed", createdAt: new Date() }]),
   createDeliveryLogExportJob: vi.fn().mockResolvedValue({ id: 7, requestedByOpenId: "admin-test", status: "queued", filters: {}, fileKey: null, fileUrl: null, rowCount: null, errorMessage: null, createdAt: new Date(), startedAt: null, completedAt: null }),
   getDeliveryLogExportJobs: vi.fn().mockResolvedValue([]),
   getDeliveryLogExportJob: vi.fn().mockResolvedValue(undefined),
@@ -76,7 +78,8 @@ describe("admin feature behavior", () => {
     await expect(caller.admin.userVerificationReview({ verification: "verified" })).resolves.toEqual(expect.objectContaining({ total: 1 }));
     await caller.admin.revokeUserEmailVerification({ openId: "user-2", reason: "Mailbox ownership could not be confirmed" });
     expect(mocks.revokeUserEmailVerification).toHaveBeenCalledWith("user-2", { openId: "admin-test", name: "Admin Test", email: "admin@example.com" }, "Mailbox ownership could not be confirmed");
-    await expect(caller.admin.verificationRevocationAudits()).resolves.toEqual(expect.arrayContaining([expect.objectContaining({ targetOpenId: "user-2", reason: "Mailbox ownership could not be confirmed" })]));
+    await expect(caller.admin.verificationRevocationAudits({ page: 1, pageSize: 8 })).resolves.toEqual(expect.objectContaining({ total: 1, rows: expect.arrayContaining([expect.objectContaining({ targetOpenId: "user-2", reason: "Mailbox ownership could not be confirmed" })]) }));
+    await expect(caller.admin.exportVerificationRevocationAudits({ adminSearch: "Admin Test" })).resolves.toEqual(expect.objectContaining({ filename: expect.stringContaining("profound-iq-verification-audit-"), data: expect.stringContaining("Mailbox ownership") }));
   });
 
   it("persists custom benchmark targets for the admin account", async () => {
