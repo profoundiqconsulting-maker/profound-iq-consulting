@@ -7,7 +7,7 @@ import { sdk } from "./_core/sdk";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
-import { addEmailPreviewDelivery, checkLoginRateLimit, clearLoginFailures, createCourseEnrollment, createDeliveryLogExportJob, getAdminAnalyticsSettings, getAdminNotificationRecipients, getAdminUsersForReview, getAnalyticsDashboard, getAssessmentAdminOverview, getCourseEnrollments, getDeliveryLogExportJob, getDeliveryLogExportJobs, getEmailPreviewDeliveries, getEmailPreviewDeliveriesForExport, getEmailPreviewDeliveriesPage, getEmailTemplates, getScheduledExport, getScheduledExportRuns, getUserAssessmentHistory, getUserProfile, getVerificationRevocationAudits, getVerificationRevocationAuditsForExport, getVerificationRevocationAuditsPage, recordAnalyticsEvent, recordFailedLogin, revokeUserEmailVerification, updateUserAvatar, updateUserProfile, upsertAdminAnalyticsSettings, upsertEmailTemplate, updateScheduledExport, createScheduledExportIfMissing } from "./db";
+import { addEmailPreviewDelivery, checkLoginRateLimit, clearLoginFailures, countFailedLoginEvents, createCourseEnrollment, createDeliveryLogExportJob, createUserSession, getAdminAnalyticsSettings, getAdminNotificationRecipients, getAdminSecuritySettings, getAdminUsersForReview, getAnalyticsDashboard, getAssessmentAdminOverview, getCourseEnrollments, getDeliveryLogExportJob, getDeliveryLogExportJobs, getEmailPreviewDeliveries, getEmailPreviewDeliveriesForExport, getEmailPreviewDeliveriesPage, getEmailTemplates, getEffectiveLoginAlertThreshold, getFailedLoginEvents, getScheduledExport, getScheduledExportRuns, getSessionByTokenHash, getUserAssessmentHistory, getUserProfile, getUserSessions, getLoginEventsForUser, getVerificationRevocationAudits, getVerificationRevocationAuditsForExport, getVerificationRevocationAuditsPage, recordAnalyticsEvent, recordFailedLogin, recordLoginEvent, revokeOtherUserSessions, revokeUserEmailVerification, revokeUserSession, saveAdminSecuritySettings, touchUserSession, updateUserAvatar, updateUserProfile, upsertAdminAnalyticsSettings, upsertEmailTemplate, updateScheduledExport, createScheduledExportIfMissing } from "./db";
 import { storagePut } from "./storage";
 import { z } from "zod";
 import { renderAssessmentReportPdf } from "./reportPdf";
@@ -37,6 +37,18 @@ async function paystackRequest(path: string, init?: RequestInit) {
   return payload;
 }
 
+function requestSecurityMeta(req: import("express").Request) {
+  const forwarded = req.headers["x-forwarded-for"];
+  const networkAddress = typeof forwarded === "string" ? forwarded.split(",")[0]?.trim() : req.ip ?? req.socket?.remoteAddress ?? "unknown";
+  return { networkHash: hashRateLimitKey(networkAddress || "unknown"), userAgent: typeof req.headers["user-agent"] === "string" ? req.headers["user-agent"].slice(0, 512) : null };
+}
+
+function getIdentifierType(value: string) {
+  if (value.includes("@")) return "email";
+  if (/^\\+?\\d/.test(value)) return "phone";
+  return "username";
+}
+
 export const appRouter = router({
   system: systemRouter,
   auth: router({
@@ -52,28 +64,34 @@ export const appRouter = router({
       }
       if (!user) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Unable to create the account." });
       const token = await sdk.createSessionToken(user.openId, { name: user.name ?? input.name });
+      const meta = requestSecurityMeta(ctx.req);
+      await createUserSession({ openId: user.openId, tokenHash: hashRateLimitKey(token), ...meta, expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) });
+      await recordLoginEvent({ openId: user.openId, identifierType: "registration", success: true, ...meta });
       ctx.res.cookie(COOKIE_NAME, token, getSessionCookieOptions(ctx.req));
       return { user: { id: user.id, name: user.name, email: user.email, phone: user.phone, username: user.username } };
     }),
     login: publicProcedure.input(z.object({ identifier: z.string().trim().min(3).max(320), password: z.string().min(1).max(128) })).mutation(async ({ ctx, input }) => {
       const identifier = normalizeIdentifier(input.identifier);
       if (!identifierSchema.test(input.identifier)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid identifier or password." });
-      const forwarded = ctx.req.headers["x-forwarded-for"];
-      const networkAddress = typeof forwarded === "string" ? forwarded.split(",")[0]?.trim() : ctx.req.ip ?? ctx.req.socket?.remoteAddress ?? "unknown";
+      const meta = requestSecurityMeta(ctx.req);
       const identifierKey = hashRateLimitKey(identifier);
-      const networkKey = hashRateLimitKey(networkAddress || "unknown");
+      const networkKey = meta.networkHash;
       const rateKeys = [[identifierKey, networkKey], [identifierKey, "global"], ["global", networkKey]] as const;
       const rates = await Promise.all(rateKeys.map(([identifierHash, networkHash]) => checkLoginRateLimit(identifierHash, networkHash)));
-      if (rates.some((rate) => rate.blocked)) throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Too many failed attempts. Please try again later." });
+      if (rates.some((rate) => rate.blocked)) { await recordLoginEvent({ identifierType: getIdentifierType(identifier), success: false, failureCode: "rate_limited", ...meta }); throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Too many failed attempts. Please try again later." }); }
       const user = await findUserByLocalIdentifier(identifier);
       if (!user?.passwordHash || !verifyPassword(input.password, user.passwordHash)) {
-        const failures = await Promise.all(rateKeys.map(([identifierHash, networkHash]) => recordFailedLogin(identifierHash, networkHash)));
+        const alertThreshold = await getEffectiveLoginAlertThreshold();
+        const failures = await Promise.all(rateKeys.map(([identifierHash, networkHash]) => recordFailedLogin(identifierHash, networkHash, new Date(), alertThreshold)));
+        await recordLoginEvent({ openId: user?.openId, identifierType: getIdentifierType(identifier), success: false, failureCode: "invalid_credentials", ...meta });
         const alertFailure = failures.find((failure) => failure.shouldAlert);
         if (alertFailure) { getAdminNotificationRecipients().then((recipients) => sendFailedLoginAlert({ recipients, identifier, failedCount: alertFailure.failedCount })).catch((error) => console.error("[Auth] Failed-login alert could not be sent", error)); }
         throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid identifier or password." });
       }
       await Promise.all(rateKeys.map(([identifierHash, networkHash]) => clearLoginFailures(identifierHash, networkHash)));
       const token = await sdk.createSessionToken(user.openId, { name: user.name ?? identifier });
+      await createUserSession({ openId: user.openId, tokenHash: hashRateLimitKey(token), ...meta, expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) });
+      await recordLoginEvent({ openId: user.openId, identifierType: getIdentifierType(identifier), success: true, ...meta });
       ctx.res.cookie(COOKIE_NAME, token, getSessionCookieOptions(ctx.req));
       return { user: { id: user.id, name: user.name, email: user.email, phone: user.phone, username: user.username } };
     }),
@@ -88,7 +106,9 @@ export const appRouter = router({
       return { success: true } as const;
     }),
     me: publicProcedure.query((opts) => opts.ctx.user),
-    logout: publicProcedure.mutation(({ ctx }) => {
+    logout: publicProcedure.mutation(async ({ ctx }) => {
+      const sessionToken = parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
+      if (sessionToken && ctx.user) { const session = await getSessionByTokenHash(hashRateLimitKey(sessionToken)); if (session) await revokeUserSession(ctx.user.openId, session.id); }
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
@@ -96,6 +116,15 @@ export const appRouter = router({
   }),
   profile: router({
     get: protectedProcedure.query(({ ctx }) => getUserProfile(ctx.user.openId)),
+    loginHistory: protectedProcedure.query(({ ctx }) => getLoginEventsForUser(ctx.user.openId, 10)),
+    sessions: protectedProcedure.query(async ({ ctx }) => {
+      const cookie = parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
+      const current = cookie ? await getSessionByTokenHash(hashRateLimitKey(cookie)) : undefined;
+      return { sessions: await getUserSessions(ctx.user.openId), currentSessionId: current?.id ?? null };
+    }),
+    revokeSession: protectedProcedure.input(z.object({ sessionId: z.number().int().positive() })).mutation(async ({ ctx, input }) => { await revokeUserSession(ctx.user.openId, input.sessionId); return { success: true as const }; }),
+    revokeCurrentSession: protectedProcedure.mutation(async ({ ctx }) => { const cookie = parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? ""; if (cookie) { const session = await getSessionByTokenHash(hashRateLimitKey(cookie)); if (session) await revokeUserSession(ctx.user.openId, session.id); } ctx.res.clearCookie(COOKIE_NAME, { ...getSessionCookieOptions(ctx.req), maxAge: -1 }); return { success: true as const }; }),
+    revokeOtherSessions: protectedProcedure.mutation(async ({ ctx }) => { const cookie = parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? ""; if (!cookie) throw new TRPCError({ code: "UNAUTHORIZED", message: "Current session could not be identified." }); await revokeOtherUserSessions(ctx.user.openId, hashRateLimitKey(cookie)); return { success: true as const }; }),
     update: protectedProcedure.input(z.object({
       name: z.string().trim().min(2).max(160),
       timezone: z.string().regex(/^[A-Za-z_]+\/[A-Za-z_]+(?:\/[A-Za-z_]+)?$/, "Use an IANA timezone such as Africa/Nairobi."),
@@ -147,6 +176,9 @@ export const appRouter = router({
     enableWeeklyExport: adminProcedure.mutation(async ({ ctx }) => { const existing = await createScheduledExportIfMissing(WEEKLY_EXPORT_KEY); if (existing?.scheduleTaskUid) return { taskUid: existing.scheduleTaskUid, alreadyEnabled: true }; const sessionToken = parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? ""; if (!sessionToken) throw new TRPCError({ code: "UNAUTHORIZED", message: "A valid admin session is required to enable scheduling." }); const job = await createHeartbeatJob({ name: "weekly-course-enrollment-export", cron: "0 0 9 * * 1", path: "/api/scheduled/weeklyEnrollmentExport", description: "Generate and store the weekly course enrollment CSV export." }, sessionToken); await updateScheduledExport(WEEKLY_EXPORT_KEY, { scheduleTaskUid: job.taskUid }); return { taskUid: job.taskUid, alreadyEnabled: false }; }),
 
     saveEmailTemplate: adminProcedure.input(z.object({ templateKey: z.enum(["assessment_report", "course_enrollment"]), label: z.string().trim().min(2).max(160), subject: z.string().trim().min(2).max(240), body: z.string().trim().min(2).max(10000) })).mutation(({ ctx, input }) => { const unsupported = validateEmailTemplateBody(input.body); if (unsupported.length) throw new TRPCError({ code: "BAD_REQUEST", message: `Unsupported template token: ${unsupported.join(", ")}. Use only {{name}}, {{email}}, {{date}}, and {{course}}.` }); return upsertEmailTemplate({ ...input, updatedByOpenId: ctx.user.openId }); }),
+    securitySettings: adminProcedure.query(({ ctx }) => getAdminSecuritySettings(ctx.user.openId)),
+    saveSecuritySettings: adminProcedure.input(z.object({ alertThreshold: z.number().int().min(3).max(20), reviewWindowDays: z.number().int().min(1).max(90) })).mutation(({ ctx, input }) => saveAdminSecuritySettings(ctx.user.openId, input)),
+    failedLoginEvents: adminProcedure.input(z.object({ fromDate: z.string().optional(), toDate: z.string().optional(), page: z.number().int().min(1).default(1), pageSize: z.number().int().min(5).max(50).default(20) }).optional()).query(async ({ input }) => { const page = input?.page ?? 1; const pageSize = input?.pageSize ?? 20; const from = input?.fromDate ? new Date(`${input.fromDate}T00:00:00.000Z`) : undefined; const to = input?.toDate ? new Date(`${input.toDate}T23:59:59.999Z`) : undefined; const [rows, total] = await Promise.all([getFailedLoginEvents({ from, to, limit: pageSize, offset: (page - 1) * pageSize }), countFailedLoginEvents({ from, to })]); return { rows, total, page, pageSize, pageCount: Math.max(1, Math.ceil(total / pageSize)) }; }),
     exportCourseEnrollments: adminProcedure.input(z.object({ fromDate: z.string().optional(), toDate: z.string().optional(), status: z.enum(["all", "new", "contacted", "enrolled"]).default("all") }).optional()).query(async ({ input }) => {
       const rows = await getCourseEnrollments({ fromDate: input?.fromDate ? new Date(`${input.fromDate}T00:00:00.000Z`) : undefined, toDate: input?.toDate ? new Date(`${input.toDate}T23:59:59.999Z`) : undefined, status: input?.status && input.status !== "all" ? input.status : undefined });
       return { filename: `profound-iq-course-enrollments-${new Date().toISOString().slice(0, 10)}.csv`, contentType: "text/csv;charset=utf-8", data: buildCourseEnrollmentCsv(rows) };

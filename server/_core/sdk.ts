@@ -5,6 +5,7 @@ import { parse as parseCookieHeader } from "cookie";
 import type { Request } from "express";
 import { SignJWT, jwtVerify } from "jose";
 import type { User } from "../../drizzle/schema";
+import { hashRateLimitKey } from "../localAuthCrypto";
 import * as db from "../db";
 import { ENV } from "./env";
 import type {
@@ -315,6 +316,17 @@ class SDKServer {
       openId: user.openId,
       lastSignedIn: signedInAt,
     });
+
+    const tokenHash = hashRateLimitKey(sessionToken ?? "");
+    const existingSession = await db.getSessionByTokenHash(tokenHash);
+    if (existingSession?.revokedAt || (existingSession && existingSession.expiresAt.getTime() < signedInAt.getTime())) throw ForbiddenError("Session has been revoked or expired");
+    if (existingSession) await db.touchUserSession(existingSession.id, signedInAt);
+    else {
+      const networkHash = req.ip ? hashRateLimitKey(req.ip) : hashRateLimitKey("unknown");
+      const userAgent = typeof req.headers["user-agent"] === "string" ? req.headers["user-agent"].slice(0, 512) : null;
+      await db.createUserSession({ openId: user.openId, tokenHash, networkHash, userAgent, createdAt: signedInAt, expiresAt: new Date(signedInAt.getTime() + 365 * 24 * 60 * 60 * 1000) });
+      await db.recordLoginEvent({ openId: user.openId, identifierType: user.loginMethod ?? "oauth", success: true, networkHash, userAgent, createdAt: signedInAt });
+    }
 
     return user;
   }

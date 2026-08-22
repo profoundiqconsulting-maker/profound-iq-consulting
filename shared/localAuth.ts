@@ -15,6 +15,10 @@ export function passwordStrength(password: string) {
   return Math.min(5, score);
 }
 
+export function getRateLimitCountdownSeconds(lockedUntil: number, now = Date.now()) {
+  return Math.max(0, Math.ceil((lockedUntil - now) / 1000));
+}
+
 export function validatePassword(password: string) {
   return passwordStrength(password) >= 3 && password.length <= 128;
 }

@@ -1,10 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 
-const { getUserProfile, updateUserProfile } = vi.hoisted(() => ({ getUserProfile: vi.fn(), updateUserProfile: vi.fn() }));
+const { getUserProfile, updateUserProfile, getLoginEventsForUser, getSessionByTokenHash, getUserSessions, revokeUserSession, revokeOtherUserSessions } = vi.hoisted(() => ({ getUserProfile: vi.fn(), updateUserProfile: vi.fn(), getLoginEventsForUser: vi.fn().mockResolvedValue([]), getSessionByTokenHash: vi.fn().mockResolvedValue({ id: 4 }), getUserSessions: vi.fn().mockResolvedValue([]), revokeUserSession: vi.fn().mockResolvedValue(undefined), revokeOtherUserSessions: vi.fn().mockResolvedValue(undefined) }));
 
 vi.mock("./db", () => ({
   getUserProfile,
   updateUserProfile,
+  getLoginEventsForUser,
+  getSessionByTokenHash,
+  getUserSessions,
+  revokeUserSession,
+  revokeOtherUserSessions,
   getAssessmentAdminOverview: vi.fn(),
   getUserAssessmentHistory: vi.fn(),
   getAssessmentAttempt: vi.fn(),
@@ -16,11 +21,11 @@ vi.mock("./db", () => ({
 
 const { appRouter } = await import("./routers");
 
-function context(user: { openId: string } | null) {
+function context(user: { openId: string } | null, cookie = "") {
   const now = new Date();
   return {
     user: user ? { id: 1, openId: user.openId, name: "Test User", email: "test@example.com", loginMethod: "test", role: "user", createdAt: now, updatedAt: now, lastSignedIn: now } : null,
-    req: { protocol: "https", headers: {} } as never,
+    req: { protocol: "https", headers: cookie ? { cookie } : {} } as never,
     res: {} as never,
   };
 }
@@ -47,6 +52,28 @@ describe("profile settings", () => {
   it("rejects invalid profile payloads", async () => {
     const caller = appRouter.createCaller(context({ openId: "owner-1" }));
     await expect(caller.profile.update({ name: "x", notificationPreferences: { assessmentUpdates: true, courseAnnouncements: true, monthlyInsights: false } })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("returns recent login history and active sessions only for the authenticated user", async () => {
+    getLoginEventsForUser.mockResolvedValue([{ id: 1, identifierType: "email", success: true, failureCode: null, userAgent: "Browser", createdAt: new Date() }]);
+    getUserSessions.mockResolvedValue([{ id: 4, openId: "owner-1", userAgent: "Browser", createdAt: new Date(), lastSeenAt: new Date(), expiresAt: new Date(Date.now() + 10000), revokedAt: null }]);
+    const caller = appRouter.createCaller(context({ openId: "owner-1" }, "app_session_id=test-token"));
+    const history = await caller.profile.loginHistory();
+    const sessionList = await caller.profile.sessions();
+    expect(history).toHaveLength(1);
+    expect(history[0]).not.toHaveProperty("networkHash");
+    expect(history[0]).not.toHaveProperty("openId");
+    expect(getLoginEventsForUser).toHaveBeenCalledWith("owner-1", 10);
+    expect(sessionList.currentSessionId).toBe(4);
+    expect(getUserSessions).toHaveBeenCalledWith("owner-1");
+  });
+
+  it("revokes only sessions belonging to the authenticated user", async () => {
+    const caller = appRouter.createCaller(context({ openId: "owner-1" }, "app_session_id=test-token"));
+    await caller.profile.revokeSession({ sessionId: 9 });
+    await caller.profile.revokeOtherSessions();
+    expect(revokeUserSession).toHaveBeenCalledWith("owner-1", 9);
+    expect(revokeOtherUserSessions).toHaveBeenCalledWith("owner-1", expect.any(String));
   });
 
   it("scopes reads and writes to the authenticated openId", async () => {

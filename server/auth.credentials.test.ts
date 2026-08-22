@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { TrpcContext } from "./_core/context";
 
-const { findUserByLocalIdentifier, createLocalUser, setPasswordResetToken, consumePasswordResetToken, checkLoginRateLimit, recordFailedLogin, clearLoginFailures, getAdminNotificationRecipients, sendPasswordResetEmail, sendFailedLoginAlert } = vi.hoisted(() => ({
+const { findUserByLocalIdentifier, createLocalUser, setPasswordResetToken, consumePasswordResetToken, checkLoginRateLimit, recordFailedLogin, clearLoginFailures, getEffectiveLoginAlertThreshold, recordLoginEvent, createUserSession, getAdminNotificationRecipients, sendPasswordResetEmail, sendFailedLoginAlert } = vi.hoisted(() => ({
   findUserByLocalIdentifier: vi.fn(),
   createLocalUser: vi.fn(),
   setPasswordResetToken: vi.fn(),
@@ -9,12 +9,15 @@ const { findUserByLocalIdentifier, createLocalUser, setPasswordResetToken, consu
   checkLoginRateLimit: vi.fn().mockResolvedValue({ blocked: false, failedCount: 0 }),
   recordFailedLogin: vi.fn().mockResolvedValue({ failedCount: 1, shouldAlert: false }),
   clearLoginFailures: vi.fn().mockResolvedValue(undefined),
+  getEffectiveLoginAlertThreshold: vi.fn().mockResolvedValue(5),
+  recordLoginEvent: vi.fn().mockResolvedValue(undefined),
+  createUserSession: vi.fn().mockResolvedValue(undefined),
   getAdminNotificationRecipients: vi.fn().mockResolvedValue(["admin@example.com"]),
   sendPasswordResetEmail: vi.fn(),
   sendFailedLoginAlert: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock("./db", async (importOriginal) => ({ ...(await importOriginal<typeof import("./db")>()), findUserByLocalIdentifier, createLocalUser, setPasswordResetToken, consumePasswordResetToken, checkLoginRateLimit, recordFailedLogin, clearLoginFailures, getAdminNotificationRecipients }));
+vi.mock("./db", async (importOriginal) => ({ ...(await importOriginal<typeof import("./db")>()), findUserByLocalIdentifier, createLocalUser, setPasswordResetToken, consumePasswordResetToken, checkLoginRateLimit, recordFailedLogin, clearLoginFailures, getEffectiveLoginAlertThreshold, recordLoginEvent, createUserSession, getAdminNotificationRecipients }));
 vi.mock("./email", async (importOriginal) => ({ ...(await importOriginal<typeof import("./email")>()), sendPasswordResetEmail, sendFailedLoginAlert }));
 const { appRouter } = await import("./routers");
 
@@ -27,7 +30,7 @@ function context() {
 const localUser = { id: 12, openId: "local_user-12", name: "Amina", email: "amina@example.com", phone: "+254727374055", username: "amina", passwordHash: "scrypt$abc$00", role: "user", loginMethod: "password", emailVerifiedAt: null, createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date(), notificationPreferences: null, avatarUrl: null, timezone: null, passwordResetTokenHash: null, passwordResetExpiresAt: null };
 
 describe("local credential auth procedures", () => {
-  beforeEach(() => { vi.clearAllMocks(); checkLoginRateLimit.mockResolvedValue({ blocked: false, failedCount: 0 }); recordFailedLogin.mockResolvedValue({ failedCount: 1, shouldAlert: false }); clearLoginFailures.mockResolvedValue(undefined); getAdminNotificationRecipients.mockResolvedValue(["admin@example.com"]); sendFailedLoginAlert.mockResolvedValue(undefined); });
+  beforeEach(() => { vi.clearAllMocks(); checkLoginRateLimit.mockResolvedValue({ blocked: false, failedCount: 0 }); recordFailedLogin.mockResolvedValue({ failedCount: 1, shouldAlert: false }); clearLoginFailures.mockResolvedValue(undefined); getEffectiveLoginAlertThreshold.mockResolvedValue(5); recordLoginEvent.mockResolvedValue(undefined); createUserSession.mockResolvedValue(undefined); getAdminNotificationRecipients.mockResolvedValue(["admin@example.com"]); sendFailedLoginAlert.mockResolvedValue(undefined); });
 
   it("registers and issues the existing session cookie", async () => {
     findUserByLocalIdentifier.mockResolvedValue(undefined);

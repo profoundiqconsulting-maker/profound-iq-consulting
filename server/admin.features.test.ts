@@ -27,6 +27,9 @@ describe("admin feature boundaries", () => {
     await expect(caller.admin.queueDeliveryLogExport({ status: "all" })).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(caller.admin.enableDeliveryLogExportWorker()).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(caller.admin.exportVerificationRevocationAudits({ adminSearch: "admin" })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(caller.admin.securitySettings()).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(caller.admin.saveSecuritySettings({ alertThreshold: 5, reviewWindowDays: 7 })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(caller.admin.failedLoginEvents()).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
   it("rejects analytics events outside the supported event contract", async () => {

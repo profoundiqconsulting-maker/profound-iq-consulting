@@ -1,4 +1,4 @@
-import { int, json, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
+import { boolean, int, json, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
@@ -73,6 +73,41 @@ export const scheduledExportRuns = mysqlTable("scheduled_export_runs", {
   rowCount: int("rowCount").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
+
+export const loginEvents = mysqlTable("login_events", {
+  id: int("id").autoincrement().primaryKey(),
+  openId: varchar("openId", { length: 64 }),
+  identifierType: varchar("identifierType", { length: 16 }).notNull(),
+  success: boolean("success").notNull(),
+  failureCode: varchar("failureCode", { length: 32 }),
+  networkHash: varchar("networkHash", { length: 64 }).notNull(),
+  userAgent: varchar("userAgent", { length: 512 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const userSessions = mysqlTable("user_sessions", {
+  id: int("id").autoincrement().primaryKey(),
+  openId: varchar("openId", { length: 64 }).notNull(),
+  tokenHash: varchar("tokenHash", { length: 64 }).notNull(),
+  networkHash: varchar("networkHash", { length: 64 }),
+  userAgent: varchar("userAgent", { length: 512 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  lastSeenAt: timestamp("lastSeenAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  revokedAt: timestamp("revokedAt"),
+}, (table) => ({
+  tokenHashUnique: uniqueIndex("user_sessions_token_hash_unique").on(table.tokenHash),
+}));
+
+export const adminSecuritySettings = mysqlTable("admin_security_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  adminOpenId: varchar("adminOpenId", { length: 64 }).notNull(),
+  alertThreshold: int("alertThreshold").default(5).notNull(),
+  reviewWindowDays: int("reviewWindowDays").default(7).notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  adminUnique: uniqueIndex("admin_security_settings_admin_unique").on(table.adminOpenId),
+}));
 
 export const authLoginAttempts = mysqlTable("auth_login_attempts", {
   id: int("id").autoincrement().primaryKey(),
@@ -156,6 +191,9 @@ export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 export type ScheduledExport = typeof scheduledExports.$inferSelect;
 export type ScheduledExportRun = typeof scheduledExportRuns.$inferSelect;
 export type EmailPreviewDelivery = typeof emailPreviewDeliveries.$inferSelect;
+export type LoginEvent = typeof loginEvents.$inferSelect;
+export type UserSession = typeof userSessions.$inferSelect;
+export type AdminSecuritySettings = typeof adminSecuritySettings.$inferSelect;
 export type AuthLoginAttempt = typeof authLoginAttempts.$inferSelect;
 export type VerificationRevocationAudit = typeof verificationRevocationAudits.$inferSelect;
 export type DeliveryLogExportJob = typeof deliveryLogExportJobs.$inferSelect;

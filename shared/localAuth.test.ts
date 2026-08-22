@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeIdentifier, passwordStrength, validatePassword } from "./localAuth";
+import { getRateLimitCountdownSeconds, normalizeIdentifier, passwordStrength, validatePassword } from "./localAuth";
 import { createResetToken, hashPassword, hashRateLimitKey, hashResetToken, verifyPassword } from "../server/localAuthCrypto";
 
 describe("local credential authentication", () => {
@@ -7,6 +7,12 @@ describe("local credential authentication", () => {
     expect(normalizeIdentifier(" User.Name@Example.COM ")).toBe("user.name@example.com");
     expect(normalizeIdentifier("+254 727-374-055")).toBe("+254727374055");
     expect(normalizeIdentifier("  Amina_User ")).toBe("amina_user");
+  });
+
+  it("rounds the rate-limit countdown up and reaches zero at expiry", () => {
+    expect(getRateLimitCountdownSeconds(10_000, 8_501)).toBe(2);
+    expect(getRateLimitCountdownSeconds(10_000, 10_000)).toBe(0);
+    expect(getRateLimitCountdownSeconds(10_000, 12_000)).toBe(0);
   });
 
   it("hashes passwords with a salted one-way encoding", () => {

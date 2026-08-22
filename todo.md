@@ -167,3 +167,14 @@
 - [x] Add tests for strength scoring, rate limiting, alert thresholds, and enumeration resistance; recovery remains email-only by decision.
 - [x] Run type checks, tests, production build, and responsive authentication verification.
 - [x] Save a checkpoint containing the authentication security enhancements.
+
+# Login Security and Session Visibility
+- [x] Add a user-facing rate-limit countdown with automatic refresh when the lockout expires.
+- [x] Add durable login-event history with safe identifier and network redaction.
+- [x] Add active-session listing and revoke-current/other-session controls scoped to the signed-in user, including a dedicated current-device sign-out action.
+- [x] Add persisted admin security settings for failed-login alert threshold and review window.
+- [x] Add an admin security panel for failed-login review, filtering, and threshold configuration.
+- [x] Add profile settings UI for recent login history and active sessions.
+- [x] Add tests for countdown behavior, explicit user login-history redaction, session ownership, revocation, and admin settings authorization.
+- [x] Run type checks, tests, production build, and responsive verification for auth, admin, and profile flows.
+- [x] Save a checkpoint containing the login-security and session-visibility enhancements.

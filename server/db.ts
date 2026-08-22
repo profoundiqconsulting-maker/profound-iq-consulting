@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { adminAnalyticsSettings, analyticsEvents, assessmentAttempts, authLoginAttempts, courseEnrollments, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, scheduledExportRuns, scheduledExports, users, verificationRevocationAudits } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, authLoginAttempts, courseEnrollments, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits } from "../drizzle/schema";
 import type { AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { selectAdminNotificationRecipients } from "../shared/adminRecipients";
@@ -24,6 +24,94 @@ export async function getAdminNotificationRecipients(): Promise<string[]> {
   return selectAdminNotificationRecipients(rows);
 }
 
+export async function recordLoginEvent(input: { openId?: string | null; identifierType: string; success: boolean; failureCode?: string | null; networkHash: string; userAgent?: string | null; createdAt?: Date }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(loginEvents).values({ ...input, createdAt: input.createdAt ?? new Date() });
+}
+
+export async function getLoginEventsForUser(openId: string, limit = 10) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select({ id: loginEvents.id, identifierType: loginEvents.identifierType, success: loginEvents.success, failureCode: loginEvents.failureCode, userAgent: loginEvents.userAgent, createdAt: loginEvents.createdAt }).from(loginEvents).where(eq(loginEvents.openId, openId)).orderBy(desc(loginEvents.createdAt)).limit(Math.min(25, Math.max(1, limit)));
+}
+
+export async function getFailedLoginEvents(input: { from?: Date; to?: Date; limit: number; offset: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const conditions = [eq(loginEvents.success, false)];
+  if (input.from) conditions.push(gte(loginEvents.createdAt, input.from));
+  if (input.to) conditions.push(lte(loginEvents.createdAt, input.to));
+  return db.select().from(loginEvents).where(and(...conditions)).orderBy(desc(loginEvents.createdAt)).limit(input.limit).offset(input.offset);
+}
+
+export async function countFailedLoginEvents(input: { from?: Date; to?: Date }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const conditions = [eq(loginEvents.success, false)];
+  if (input.from) conditions.push(gte(loginEvents.createdAt, input.from));
+  if (input.to) conditions.push(lte(loginEvents.createdAt, input.to));
+  const row = (await db.select({ count: sql<number>`count(*)` }).from(loginEvents).where(and(...conditions)))[0];
+  return Number(row?.count ?? 0);
+}
+
+export async function getAdminSecuritySettings(adminOpenId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return (await db.select().from(adminSecuritySettings).where(eq(adminSecuritySettings.adminOpenId, adminOpenId)).limit(1))[0] ?? { id: 0, adminOpenId, alertThreshold: 5, reviewWindowDays: 7, updatedAt: new Date(0) };
+}
+
+export async function getEffectiveLoginAlertThreshold() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const row = (await db.select({ threshold: sql<number>`min(${adminSecuritySettings.alertThreshold})` }).from(adminSecuritySettings))[0];
+  return Math.max(3, Math.min(20, Number(row?.threshold ?? 5)));
+}
+
+export async function saveAdminSecuritySettings(adminOpenId: string, input: { alertThreshold: number; reviewWindowDays: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(adminSecuritySettings).values({ adminOpenId, ...input }).onDuplicateKeyUpdate({ set: input });
+  return getAdminSecuritySettings(adminOpenId);
+}
+
+export async function createUserSession(input: { openId: string; tokenHash: string; networkHash?: string | null; userAgent?: string | null; createdAt?: Date; expiresAt: Date }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const now = input.createdAt ?? new Date();
+  await db.insert(userSessions).values({ ...input, createdAt: now, lastSeenAt: now });
+}
+
+export async function getSessionByTokenHash(tokenHash: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return (await db.select().from(userSessions).where(eq(userSessions.tokenHash, tokenHash)).limit(1))[0] ?? undefined;
+}
+
+export async function touchUserSession(sessionId: number, now = new Date()) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(userSessions).set({ lastSeenAt: now }).where(and(eq(userSessions.id, sessionId), isNull(userSessions.revokedAt)));
+}
+
+export async function getUserSessions(openId: string, now = new Date()) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select({ id: userSessions.id, openId: userSessions.openId, userAgent: userSessions.userAgent, createdAt: userSessions.createdAt, lastSeenAt: userSessions.lastSeenAt, expiresAt: userSessions.expiresAt, revokedAt: userSessions.revokedAt }).from(userSessions).where(and(eq(userSessions.openId, openId), isNull(userSessions.revokedAt), gte(userSessions.expiresAt, now))).orderBy(desc(userSessions.lastSeenAt));
+}
+
+export async function revokeUserSession(openId: string, sessionId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(userSessions).set({ revokedAt: new Date() }).where(and(eq(userSessions.id, sessionId), eq(userSessions.openId, openId), isNull(userSessions.revokedAt)));
+}
+
+export async function revokeOtherUserSessions(openId: string, currentTokenHash: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(userSessions).set({ revokedAt: new Date() }).where(and(eq(userSessions.openId, openId), sql`${userSessions.tokenHash} <> ${currentTokenHash}`, isNull(userSessions.revokedAt)));
+}
+
 export async function checkLoginRateLimit(identifierHash: string, networkHash: string, now = new Date()) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -34,7 +122,7 @@ export async function checkLoginRateLimit(identifierHash: string, networkHash: s
   return { blocked: row.failedCount >= 5, failedCount: row.failedCount };
 }
 
-export async function recordFailedLogin(identifierHash: string, networkHash: string, now = new Date()) {
+export async function recordFailedLogin(identifierHash: string, networkHash: string, now = new Date(), alertThreshold = 5) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const existing = (await db.select().from(authLoginAttempts).where(and(eq(authLoginAttempts.identifierHash, identifierHash), eq(authLoginAttempts.networkHash, networkHash))).limit(1))[0];
@@ -44,7 +132,7 @@ export async function recordFailedLogin(identifierHash: string, networkHash: str
     return { failedCount: 1, shouldAlert: false };
   }
   const nextCount = existing.failedCount + 1;
-  const shouldAlert = nextCount >= 5 && !existing.alertSentAt;
+  const shouldAlert = nextCount >= alertThreshold && !existing.alertSentAt;
   await db.update(authLoginAttempts).set({ failedCount: nextCount, lastFailedAt: now, alertSentAt: shouldAlert ? now : existing.alertSentAt }).where(eq(authLoginAttempts.id, existing.id));
   return { failedCount: nextCount, shouldAlert };
 }
