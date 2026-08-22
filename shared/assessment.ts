@@ -97,9 +97,16 @@ export function compareReports(current: AssessmentReport, previous: AssessmentRe
   return { currentScore: current.overallScore, previousScore: previous.overallScore, scoreDelta: current.overallScore - previous.overallScore, dimensions: current.dimensions.map((dimension) => { const prior = previous.dimensions.find((item) => item.key === dimension.key); const previousScore = prior?.score ?? 0; return { key: dimension.key, label: dimension.label, currentScore: dimension.score, previousScore, delta: dimension.score - previousScore }; }) };
 }
 
+export function getDimensionReflectionPoints(dimension: Pick<AssessmentDimensionReport, "label" | "reflectionPoints">): string[] {
+  const existing = Array.isArray(dimension.reflectionPoints) ? dimension.reflectionPoints.filter((point) => typeof point === "string" && point.trim().length > 0) : [];
+  if (existing.length > 0) return existing;
+  const label = dimension.label.toLowerCase();
+  return [`Where does ${label} already help you create a better outcome, and what observable evidence supports that view?`, `Which situation, relationship, or pressure condition makes ${label} easier or harder for you to access?`, `What small behavior related to ${label} will you practice over the next two weeks and review with someone you trust?`];
+}
+
 function buildDimensionReport(dimension: (typeof dimensions)[number], score: number): AssessmentDimensionReport {
   const band = score >= 80 ? "a reliable current strength" : score >= 60 ? "a capability with a workable foundation" : "a capability worth developing deliberately";
-  return { ...dimension, score, readout: `${dimension.label} appears as ${band}. In practice, this signal describes how your current patterns may show up when priorities are ambiguous, expectations are changing, or other people depend on your judgment. Treat it as a useful hypothesis to test against real examples rather than a fixed description of who you are.`, reflectionPoints: [`Where does ${dimension.label.toLowerCase()} already help you create a better outcome?`, `What situation, relationship, or pressure condition makes this capability easier or harder to access?`, `What small behavior could you practice over the next two weeks and review with someone you trust?`] };
+  return { ...dimension, score, readout: `${dimension.label} appears as ${band}. In practice, this signal describes how your current patterns may show up when priorities are ambiguous, expectations are changing, or other people depend on your judgment. Treat it as a useful hypothesis to test against real examples rather than a fixed description of who you are.`, reflectionPoints: getDimensionReflectionPoints({ label: dimension.label, reflectionPoints: [] }) };
 }
 
 function buildReflectionPoints(ordered: AssessmentDimensionReport[]): string[] {

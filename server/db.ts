@@ -381,10 +381,10 @@ export async function revokeReportShare(ownerOpenId: string, shareId: number) {
   await db.insert(reportShareAuditEvents).values({ shareId, attemptId: existing[0].attemptId, ownerOpenId, eventType: "revoked", recipientPurpose: existing[0].recipientPurpose ?? null });
 }
 
-export async function listReportShareAuditEvents(ownerOpenId: string, attemptId?: number) {
+export async function listReportShareAuditEvents(ownerOpenId: string, filters?: { attemptId?: number; eventType?: "consented" | "created" | "revoked" }) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(reportShareAuditEvents).where(and(eq(reportShareAuditEvents.ownerOpenId, ownerOpenId), attemptId ? eq(reportShareAuditEvents.attemptId, attemptId) : undefined)).orderBy(desc(reportShareAuditEvents.createdAt)).limit(100);
+  return db.select().from(reportShareAuditEvents).where(and(eq(reportShareAuditEvents.ownerOpenId, ownerOpenId), filters?.attemptId ? eq(reportShareAuditEvents.attemptId, filters.attemptId) : undefined, filters?.eventType ? eq(reportShareAuditEvents.eventType, filters.eventType) : undefined)).orderBy(desc(reportShareAuditEvents.createdAt)).limit(100);
 }
 
 export async function listReportShares(ownerOpenId: string, attemptId?: number) {

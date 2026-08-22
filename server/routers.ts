@@ -216,7 +216,13 @@ export const appRouter = router({
       return { token, expiresAt, lens: input.lens };
     }),
     reportShares: protectedProcedure.input(z.object({ attemptId: z.number().int().positive().optional() }).optional()).query(({ ctx, input }) => listReportShares(ctx.user.openId, input?.attemptId)),
-    reportShareAudit: protectedProcedure.input(z.object({ attemptId: z.number().int().positive().optional() }).optional()).query(({ ctx, input }) => listReportShareAuditEvents(ctx.user.openId, input?.attemptId)),
+    reportShareAudit: protectedProcedure.input(z.object({ attemptId: z.number().int().positive().optional(), eventType: z.enum(["consented", "created", "revoked"]).optional() }).optional()).query(({ ctx, input }) => listReportShareAuditEvents(ctx.user.openId, input)),
+    exportShareAudit: protectedProcedure.input(z.object({ attemptId: z.number().int().positive().optional(), eventType: z.enum(["consented", "created", "revoked"]).optional() }).optional()).query(async ({ ctx, input }) => {
+      const rows = await listReportShareAuditEvents(ctx.user.openId, input);
+      const escapeCsv = (value: unknown) => `"${String(value ?? "").replaceAll('"', '""')}"`;
+      const csv = ["event,report_version,purpose,occurred_at", ...rows.map((row) => [row.eventType, `v${row.attemptId}`, row.recipientPurpose ?? "", new Date(row.createdAt).toISOString()].map(escapeCsv).join(","))].join("\n");
+      return { filename: "profound-iq-share-audit.csv", csv };
+    }),
     revokeShareLink: protectedProcedure.input(z.object({ shareId: z.number().int().positive() })).mutation(({ ctx, input }) => revokeReportShare(ctx.user.openId, input.shareId).then(() => ({ revoked: true as const }))),
     resendReportEmail: protectedProcedure.input(z.object({ attemptId: z.number().int().positive() })).mutation(async ({ ctx, input }) => {
       if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });

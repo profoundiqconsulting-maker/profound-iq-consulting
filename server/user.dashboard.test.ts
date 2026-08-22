@@ -104,8 +104,17 @@ describe("sharedReport and report-share management", () => {
     await caller.dashboard.revokeShareLink({ shareId: 4 });
     expect(audit[0]).toMatchObject({ eventType: "created" });
     expect(listReportShares).toHaveBeenCalledWith("user-dashboard-test", 12);
-    expect(listReportShareAuditEvents).toHaveBeenCalledWith("user-dashboard-test", 12);
+    expect(listReportShareAuditEvents).toHaveBeenCalledWith("user-dashboard-test", { attemptId: 12 });
     expect(revokeReportShare).toHaveBeenCalledWith("user-dashboard-test", 4);
+  });
+
+  it("filters and exports the owner’s share audit as escaped CSV", async () => {
+    listReportShareAuditEvents.mockResolvedValue([{ id: 2, attemptId: 12, eventType: "created", recipientPurpose: "manager, review", createdAt: new Date("2026-08-23T10:00:00Z") }]);
+    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
+    const result = await caller.dashboard.exportShareAudit({ attemptId: 12, eventType: "created" });
+    expect(listReportShareAuditEvents).toHaveBeenCalledWith("user-dashboard-test", { attemptId: 12, eventType: "created" });
+    expect(result.csv).toContain('"manager, review"');
+    expect(result.csv).toContain('"created"');
   });
 });
 

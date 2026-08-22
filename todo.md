@@ -264,3 +264,14 @@
 - [x] Add tests for audit ownership, purpose validation, event persistence, and chart-series visibility.
 - [x] Run type checks, tests, production build, and responsive verification.
 - [x] Save a checkpoint containing the share-governance enhancements.
+
+# Reflection and Share Audit Usability
+
+- [x] Fix dimension Reflection prompts so detailed content is visibly rendered below each dimension readout.
+- [x] Add owner-only share-audit filters for report version and event type.
+- [x] Add owner-only CSV export for filtered share-audit history.
+- [x] Add show-all and hide-all controls for comparison chart dimension lines.
+- [x] Update and validate the reusable assessment-report skill with reflection and audit-export patterns.
+- [x] Add tests for non-empty reflection rendering, audit filters, CSV escaping, ownership, and chart bulk controls.
+- [x] Run type checks, tests, production build, and responsive verification.
+- [x] Save a checkpoint containing the reflection and audit usability enhancements.
