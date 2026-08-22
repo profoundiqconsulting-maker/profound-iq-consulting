@@ -340,17 +340,18 @@ export async function getUserAssessmentHistory(email: string) {
     paystackReference: row.paystackReference,
     overallScore: (row.report as AssessmentReport | null)?.overallScore ?? null,
     overallBand: (row.report as AssessmentReport | null)?.overallBand ?? null,
+    dimensionScores: row.paymentStatus === "paid" ? ((row.report as AssessmentReport | null)?.dimensions ?? []).map((dimension) => ({ key: dimension.key, label: dimension.label, score: dimension.score })) : [],
     report: row.paymentStatus === "paid" ? row.report : null,
   })).map((item, index, items) => ({ ...item, version: `v${items.length - index}` }));
 }
 
 function hashReportShareToken(token: string) { return createHash("sha256").update(token).digest("hex"); }
 
-export async function createReportShare(input: { attemptId: number; ownerOpenId: string; expiresAt: Date }) {
+export async function createReportShare(input: { attemptId: number; ownerOpenId: string; lens: string; expiresAt: Date }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const rawToken = randomBytes(32).toString("base64url");
-  await db.insert(reportShares).values({ attemptId: input.attemptId, ownerOpenId: input.ownerOpenId, tokenHash: hashReportShareToken(rawToken), expiresAt: input.expiresAt });
+  await db.insert(reportShares).values({ attemptId: input.attemptId, ownerOpenId: input.ownerOpenId, lens: input.lens, tokenHash: hashReportShareToken(rawToken), expiresAt: input.expiresAt });
   return rawToken;
 }
 

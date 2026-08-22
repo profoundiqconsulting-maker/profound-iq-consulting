@@ -241,3 +241,15 @@
 - [x] Add tests for share-link authorization, expiry, revocation, lens-aware PDF content, trends, and reflection completeness.
 - [x] Run type checks, tests, production build, and responsive verification.
 - [x] Save a checkpoint containing the report-sharing and professional-delivery enhancements.
+
+# Share Consent and Detailed Trend Enhancements
+
+- [x] Add explicit consent before generating a report share link.
+- [x] Add customizable bounded expiry presets for report share links.
+- [x] Persist the selected role lens with each share and render lens-aware shared views.
+- [x] Add per-dimension trend lines to the report version comparison chart.
+- [x] Ensure all shared and exported report reflection prompts remain detailed and non-empty.
+- [x] Update and validate the reusable assessment-report workflow skill with the new patterns.
+- [x] Add tests for consent, expiry presets, lens sharing, trend data, and reflection completeness.
+- [x] Run type checks, tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these share and comparison enhancements.

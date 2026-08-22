@@ -176,6 +176,7 @@ export const reportShares = mysqlTable("report_shares", {
   id: int("id").autoincrement().primaryKey(),
   attemptId: int("attemptId").notNull(),
   ownerOpenId: varchar("ownerOpenId", { length: 64 }).notNull(),
+  lens: varchar("lens", { length: 32 }).default("leadership").notNull(),
   tokenHash: varchar("tokenHash", { length: 128 }).notNull().unique(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   expiresAt: timestamp("expiresAt").notNull(),

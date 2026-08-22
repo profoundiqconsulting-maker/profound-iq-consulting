@@ -1,0 +1,1 @@
+ALTER TABLE `report_shares` ADD `lens` varchar(32) DEFAULT 'leadership' NOT NULL;

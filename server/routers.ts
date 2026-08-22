@@ -54,7 +54,9 @@ export const appRouter = router({
     get: publicProcedure.input(z.object({ token: z.string().min(32).max(128) })).query(async ({ input }) => {
       const result = await getActiveReportShare(input.token);
       if (!result) throw new TRPCError({ code: "NOT_FOUND", message: "This report link is invalid, expired, or no longer available." });
-      return { report: result.attempt.report as AssessmentReport, createdAt: result.attempt.createdAt, participantName: result.attempt.name, expiresAt: result.share.expiresAt };
+      const report = result.attempt.report as AssessmentReport;
+      const lens = result.share.lens === "teamDevelopment" ? "teamDevelopment" : "leadership";
+      return { report, roleLens: buildRoleLens(report, lens), createdAt: result.attempt.createdAt, participantName: result.attempt.name, expiresAt: result.share.expiresAt };
     }),
   }),
   auth: router({
@@ -204,13 +206,14 @@ export const appRouter = router({
       if (!result) throw new TRPCError({ code: "NOT_FOUND", message: "Both paid report versions could not be found for this account." });
       return result;
     }),
-    createShareLink: protectedProcedure.input(z.object({ attemptId: z.number().int().positive(), expiresInDays: z.number().int().min(1).max(30).default(7) })).mutation(async ({ ctx, input }) => {
+    createShareLink: protectedProcedure.input(z.object({ attemptId: z.number().int().positive(), expiresInDays: z.union([z.literal(1), z.literal(7), z.literal(30)]).default(7), consent: z.literal(true), lens: z.enum(["leadership", "teamDevelopment"]).default("leadership") })).mutation(async ({ ctx, input }) => {
       if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
       const attempt = await getAssessmentAttempt(input.attemptId);
       if (!attempt || attempt.email !== ctx.user.email) throw new TRPCError({ code: "NOT_FOUND", message: "Assessment report not found." });
       if (attempt.paymentStatus !== "paid" || !attempt.report) throw new TRPCError({ code: "FORBIDDEN", message: "A verified paid report is required to create a share link." });
-      const token = await createReportShare({ attemptId: attempt.id, ownerOpenId: ctx.user.openId, expiresAt: new Date(Date.now() + input.expiresInDays * 24 * 60 * 60 * 1000) });
-      return { token, expiresAt: new Date(Date.now() + input.expiresInDays * 24 * 60 * 60 * 1000) };
+      const expiresAt = new Date(Date.now() + input.expiresInDays * 24 * 60 * 60 * 1000);
+      const token = await createReportShare({ attemptId: attempt.id, ownerOpenId: ctx.user.openId, lens: input.lens, expiresAt });
+      return { token, expiresAt, lens: input.lens };
     }),
     reportShares: protectedProcedure.input(z.object({ attemptId: z.number().int().positive().optional() }).optional()).query(({ ctx, input }) => listReportShares(ctx.user.openId, input?.attemptId)),
     revokeShareLink: protectedProcedure.input(z.object({ shareId: z.number().int().positive() })).mutation(({ ctx, input }) => revokeReportShare(ctx.user.openId, input.shareId).then(() => ({ revoked: true as const }))),

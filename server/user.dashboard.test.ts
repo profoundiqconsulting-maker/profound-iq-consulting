@@ -77,9 +77,14 @@ describe("sharedReport and report-share management", () => {
     getAssessmentAttempt.mockResolvedValue({ id: 12, email: "owner@example.com", paymentStatus: "paid", report: paidReport, name: "Participant", createdAt: new Date() });
     createReportShare.mockResolvedValue("opaque-share-token");
     const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
-    const result = await caller.dashboard.createShareLink({ attemptId: 12, expiresInDays: 7 });
+    const result = await caller.dashboard.createShareLink({ attemptId: 12, expiresInDays: 7, consent: true, lens: "teamDevelopment" });
     expect(result.token).toBe("opaque-share-token");
-    expect(createReportShare).toHaveBeenCalledWith(expect.objectContaining({ attemptId: 12, ownerOpenId: "user-dashboard-test", expiresAt: expect.any(Date) }));
+    expect(createReportShare).toHaveBeenCalledWith(expect.objectContaining({ attemptId: 12, ownerOpenId: "user-dashboard-test", lens: "teamDevelopment", expiresAt: expect.any(Date) }));
+  });
+
+  it("requires explicit consent before creating a share", async () => {
+    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
+    await expect(caller.dashboard.createShareLink({ attemptId: 12, expiresInDays: 1, consent: false, lens: "leadership" } as never)).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 
   it("rejects public access when a share token is invalid or expired", async () => {
