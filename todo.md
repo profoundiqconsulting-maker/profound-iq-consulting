@@ -298,3 +298,11 @@
 - [x] Add tests for CareerPath history ownership, payment gating, sub-pathway scoring, PDF output, and email delivery.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing the CareerPath reporting enhancements.
+
+# CareerPath Visuals, Test Fixtures, and Checkout Feedback
+- [x] Add a downloadable coaching image visual (SVG) for the authenticated learner’s sub-pathway comparison.
+- [x] Add safe multi-version test fixtures and a local-only preview path for mobile trend-line legend verification without seeding real customer data.
+- [x] Add Paystack checkout loading animation and clear success-state feedback for the KES 200 and KES 999 flows.
+- [x] Add regression tests for visual export contracts, multi-version chart controls, and checkout state transitions.
+- [x] Run type checks, full tests, production build, and desktop/mobile responsive verification.
+- [x] Save a checkpoint containing the visuals, fixtures, and checkout feedback enhancements.
