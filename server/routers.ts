@@ -302,6 +302,13 @@ export const appRouter = router({
       await sendAssessmentResumeEmail({ to: input.email, name: input.name, resumeUrl, expiresAt });
       return { sent: true as const, expiresAt };
     }),
+    resendDraft: publicProcedure.input(z.object({ name: z.string().trim().min(2).max(160), email: z.string().email(), answers: z.array(z.object({ questionId: z.string(), value: z.number().int().min(1).max(5) })).max(assessmentQuestions.length), currentModule: z.number().int().min(0).max(assessmentQuestions.length - 1), origin: z.string().url() })).mutation(async ({ input }) => {
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      const draft = await createAssessmentDraft({ name: input.name, email: input.email, answers: input.answers, currentModule: input.currentModule, expiresAt });
+      const resumeUrl = `${input.origin.replace(/\/$/, "")}/assessment?resume=${encodeURIComponent(draft.token)}`;
+      await sendAssessmentResumeEmail({ to: input.email, name: input.name, resumeUrl, expiresAt });
+      return { sent: true as const, expiresAt };
+    }),
     resumeDraft: publicProcedure.input(z.object({ token: z.string().min(32).max(128) })).query(async ({ input }) => {
       const draft = await getAssessmentDraft(input.token);
       if (!draft) throw new TRPCError({ code: "NOT_FOUND", message: "This resume link is invalid or expired." });

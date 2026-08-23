@@ -352,3 +352,11 @@
 - [x] Add regression coverage for receipt title handling, resume tokens, preview themes, and module pagination.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these learner UX enhancements.
+
+# Resume Recovery, Module Overview, and Save Confirmation
+- [x] Add a user-friendly expired-resume error page with a Start Over action.
+- [x] Add a slide-out assessment module overview drawer with completion badges.
+- [x] Add a save-success modal with a resend resume-email action.
+- [x] Add regression coverage for expired links, module completion badges, and resend behavior.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these assessment UX enhancements.
