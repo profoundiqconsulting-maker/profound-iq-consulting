@@ -410,3 +410,11 @@
 - [x] Add regression coverage for clear-data behavior, system theme fallback, restore feedback, and module navigation.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these assessment improvements.
+
+# Clear-Data Confirmation, Keyboard Navigation, and Resume Summary
+- [x] Add a confirmation dialog before permanently clearing saved assessment data.
+- [x] Add left/right arrow-key shortcuts for Previous module and Next module navigation.
+- [x] Show the saved module name and completion percentage in the Resume previous session prompt.
+- [x] Add regression coverage for delete confirmation, keyboard navigation, and resume summary values.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these assessment navigation refinements.

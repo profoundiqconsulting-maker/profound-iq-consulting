@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { assessmentQuestions, ASSESSMENT_PRICE_KES, buildReport, buildRoleLens, compareReports } from "../shared/assessment";
+
+const assessmentPageSource = readFileSync(resolve(process.cwd(), "client/src/pages/Assessment.tsx"), "utf8");
 
 describe("assessment scoring", () => {
   it("exposes 100 questions across ten capability dimensions", () => {
@@ -20,6 +24,14 @@ describe("assessment scoring", () => {
     expect(report.importantContext).toHaveLength(4);
     expect(report.importantContext.join(" ")).toMatch(/point-in-time|professional decisions/i);
     expect(report.disclaimer).toMatch(/not a clinical/i);
+  });
+
+  it("protects local draft actions and supports accessible module navigation", () => {
+    expect(assessmentPageSource).toMatch(/Clear saved data\?/);
+    expect(assessmentPageSource).toMatch(/event\.key === "ArrowLeft"/);
+    expect(assessmentPageSource).toMatch(/event\.key === "ArrowRight"/);
+    expect(assessmentPageSource).toMatch(/assessmentModules\[localDraft\.currentModule\]/);
+    expect(assessmentPageSource).toMatch(/% complete/);
   });
 
   it("provides adaptable role lenses and longitudinal comparison deltas", () => {
