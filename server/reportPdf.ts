@@ -173,3 +173,42 @@ function addFooter(doc: PDFKit.PDFDocument): void {
 }
 
 function formatDate(value: Date | string): string { return new Date(value).toLocaleDateString("en-KE", { year: "numeric", month: "short", day: "numeric" }); }
+
+export async function renderAssessmentScoreSummaryPdf(input: { participantName: string; createdAt: Date | string; reports: Array<{ version?: string | null; createdAt: Date | string; overallScore?: number | null; overallBand?: string | null; dimensionScores?: Array<{ label: string; score: number }> }> }): Promise<Buffer> {
+  const doc = new PDFDocument({ size: "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: "Profound IQ Score Summary", Author: "Profound IQ Consulting" } });
+  const chunks: Buffer[] = [];
+  doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+  const finished = new Promise<Buffer>((resolve, reject) => { doc.on("end", () => resolve(Buffer.concat(chunks))); doc.on("error", reject); });
+  const brandLogo = await loadBrandLogo();
+  doc.fillColor(NAVY).rect(0, 0, doc.page.width, 92).fill();
+  if (brandLogo) { try { doc.image(brandLogo, 52, 10, { fit: [116, 72], valign: "center" }); } catch { /* Text lockup remains available. */ } }
+  const headerX = brandLogo ? 190 : 52;
+  doc.fillColor("#f7f3e8").font("Helvetica-Bold").fontSize(10).text("PROFOUND IQ / CONSULTING", headerX, 32, { characterSpacing: 1.4 });
+  doc.fillColor(GOLD).font("Helvetica").fontSize(9).text("PERSONAL SCORE SUMMARY", headerX, 52, { characterSpacing: 1.1 });
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(25).text("Assessment score summary", 52, 128);
+  doc.fillColor(GOLD).font("Helvetica").fontSize(10).text(`GENERATED ${formatDate(input.createdAt)}`, 52, 163, { characterSpacing: 0.7 });
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(13).text(input.participantName, 52, 198);
+  doc.strokeColor(GOLD).lineWidth(2).moveTo(52, 230).lineTo(543, 230).stroke();
+  let y = 264;
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("REPORT HISTORY", 52, y, { characterSpacing: 1.2 });
+  y += 24;
+  for (const report of input.reports) {
+    if (y > 690) { addFooter(doc); doc.addPage(); y = 58; }
+    doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(12).text(report.version ?? "Assessment report", 52, y);
+    doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(12).text(`${report.overallScore ?? "—"} / 100`, 450, y, { width: 93, align: "right" });
+    y += 17;
+    doc.fillColor(MUTED).font("Helvetica").fontSize(9.5).text(`${formatDate(report.createdAt)}${report.overallBand ? `  ·  ${report.overallBand}` : ""}`, 52, y);
+    y += 18;
+    for (const dimension of (report.dimensionScores ?? []).slice(0, 10)) {
+      doc.fillColor(NAVY).font("Helvetica").fontSize(9.5).text(dimension.label, 74, y);
+      doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(9.5).text(`${dimension.score} / 100`, 450, y, { width: 93, align: "right" });
+      y += 14;
+    }
+    doc.strokeColor("#d8d1c1").lineWidth(1).moveTo(52, y + 4).lineTo(543, y + 4).stroke();
+    y += 20;
+  }
+  if (!input.reports.length) writeText(doc, "No paid assessment scores are available yet. Complete an assessment and unlock its report to see your score history here.", 52, y, 491, 10, MUTED, 4);
+  addFooter(doc);
+  doc.end();
+  return finished;
+}

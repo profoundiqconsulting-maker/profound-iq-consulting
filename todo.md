@@ -565,3 +565,12 @@
 - [x] Add regression coverage for sitewide navigation, slide-in review mode, filtering, and shortcut guidance.
 - [x] Run type checks, full tests, production build, and desktop/mobile verification.
 - [x] Save a checkpoint containing the sitewide navigation update.
+
+# Improvement Sorting and Profile Score Summary Export
+- [x] Add a sort option to order high-potential sections by largest possible score increase.
+- [x] Persist the selected high-potential sort mode locally.
+- [x] Add a profile-dropdown action to download a PDF summary of the user’s assessment scores.
+- [x] Ensure the PDF summary is user-specific and handles empty or unavailable score history gracefully.
+- [x] Add regression coverage for improvement sorting and profile PDF export.
+- [x] Run type checks, full tests, production build, and desktop/mobile verification.
+- [x] Save a checkpoint containing the filter and export enhancements.

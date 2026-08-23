@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 const { getUserAssessmentHistory, getAssessmentAttempt, compareUserAssessmentReports, createReportShare, getActiveReportShare, revokeReportShare, listReportShares, listReportShareAuditEvents } = vi.hoisted(() => ({ getUserAssessmentHistory: vi.fn(), getAssessmentAttempt: vi.fn(), compareUserAssessmentReports: vi.fn(), createReportShare: vi.fn(), getActiveReportShare: vi.fn(), revokeReportShare: vi.fn(), listReportShares: vi.fn(), listReportShareAuditEvents: vi.fn() }));
-const { renderAssessmentReportPdf } = vi.hoisted(() => ({ renderAssessmentReportPdf: vi.fn() }));
+const { renderAssessmentReportPdf, renderAssessmentScoreSummaryPdf } = vi.hoisted(() => ({ renderAssessmentReportPdf: vi.fn(), renderAssessmentScoreSummaryPdf: vi.fn() }));
 const { emailAssessmentReportIfNeeded } = vi.hoisted(() => ({ emailAssessmentReportIfNeeded: vi.fn() }));
 
 vi.mock("./db", () => ({
@@ -21,7 +21,7 @@ vi.mock("./db", () => ({
   setPaystackReference: vi.fn(),
 }));
 
-vi.mock("./reportPdf", () => ({ renderAssessmentReportPdf }));
+vi.mock("./reportPdf", () => ({ renderAssessmentReportPdf, renderAssessmentScoreSummaryPdf }));
 vi.mock("./email", () => ({ emailAssessmentReportIfNeeded }));
 
 const { appRouter } = await import("./routers");
@@ -151,6 +151,23 @@ describe("dashboard.resendReportEmail", () => {
     emailAssessmentReportIfNeeded.mockResolvedValue(false);
     const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
     await expect(caller.dashboard.resendReportEmail({ attemptId: 12 })).rejects.toMatchObject({ code: "CONFLICT" });
+  });
+});
+
+describe("dashboard.downloadScoreSummary", () => {
+  it("rejects unauthenticated users", async () => {
+    const caller = appRouter.createCaller(context(null));
+    await expect(caller.dashboard.downloadScoreSummary()).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+  });
+
+  it("returns a concise PDF payload scoped to the authenticated account", async () => {
+    getUserAssessmentHistory.mockResolvedValue([{ id: 12, version: "v2", email: "owner@example.com", paymentStatus: "paid", createdAt: new Date("2026-08-22T00:00:00Z"), report: { ...paidReport, dimensions: [{ label: "Clarity", score: 82 }] } }, { id: 13, version: "v1", email: "owner@example.com", paymentStatus: "pending", createdAt: new Date(), report: null }]);
+    renderAssessmentScoreSummaryPdf.mockResolvedValue(Buffer.from("%PDF-summary-test"));
+    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
+    const result = await caller.dashboard.downloadScoreSummary();
+    expect(result).toMatchObject({ filename: expect.stringContaining("profound-iq-score-summary-"), contentType: "application/pdf", data: Buffer.from("%PDF-summary-test").toString("base64") });
+    expect(getUserAssessmentHistory).toHaveBeenCalledWith("owner@example.com");
+    expect(renderAssessmentScoreSummaryPdf).toHaveBeenCalledWith(expect.objectContaining({ participantName: "Participant", reports: [expect.objectContaining({ overallScore: 78, dimensionScores: [{ label: "Clarity", score: 82 }] })] }));
   });
 });
 

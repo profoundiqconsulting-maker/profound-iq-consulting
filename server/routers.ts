@@ -11,7 +11,7 @@ import { TRPCError } from "@trpc/server";
 import { addEmailPreviewDelivery, checkLoginRateLimit, clearLoginFailures, countFailedLoginEvents, createCourseEnrollment, createDeliveryLogExportJob, createUserSession, getAdminAnalyticsSettings, getAdminNotificationRecipients, getAdminSecuritySettings, getEffectiveLoginEventRetentionDays, getLoginSecurityAnalytics, purgeExpiredLoginEvents, getAdminUsersForReview, getAnalyticsDashboard, getAssessmentAdminOverview, getCourseEnrollments, getDeliveryLogExportJob, getDeliveryLogExportJobs, getEmailPreviewDeliveries, getEmailPreviewDeliveriesForExport, getEmailPreviewDeliveriesPage, getEmailTemplates, getEffectiveLoginAlertThreshold, getFailedLoginEvents, getScheduledExport, getScheduledExportRuns, getSessionByTokenHash, getUserAssessmentHistory, getUserProfile, getUserSessions, getLoginEventsForUser, getVerificationRevocationAudits, getVerificationRevocationAuditsForExport, getVerificationRevocationAuditsPage, recordAnalyticsEvent, recordFailedLogin, recordLoginEvent, revokeOtherUserSessions, revokeUserEmailVerification, revokeUserSession, saveAdminSecuritySettings, touchUserSession, updateUserAvatar, updateUserProfile, upsertAdminAnalyticsSettings, upsertEmailTemplate, updateScheduledExport, createScheduledExportIfMissing } from "./db";
 import { storagePut } from "./storage";
 import { z } from "zod";
-import { renderAssessmentReportPdf, renderCareerPathReportPdf } from "./reportPdf";
+import { renderAssessmentReportPdf, renderAssessmentScoreSummaryPdf, renderCareerPathReportPdf } from "./reportPdf";
 import { validateEmailTemplateBody } from "../shared/emailTemplate";
 import { buildCourseEnrollmentCsv } from "../shared/adminExport";
 import { buildDeliveryLogCsv, type DeliveryLogFilters } from "../shared/adminDeliveryLog";
@@ -235,6 +235,13 @@ export const appRouter = router({
       const sent = await emailAssessmentReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report: attempt.report as AssessmentReport, reportEmailStatus: attempt.reportEmailStatus, reportEmailSentAt: attempt.reportEmailSentAt });
       if (!sent) throw new TRPCError({ code: "CONFLICT", message: "This report email is already being prepared. Please try again shortly." });
       return { sent: true as const };
+    }),
+    downloadScoreSummary: protectedProcedure.mutation(async ({ ctx }) => {
+      if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
+      const attempts = await getUserAssessmentHistory(ctx.user.email);
+      const paidReports = attempts.filter((attempt) => attempt.paymentStatus === "paid" && attempt.report).map((attempt) => { const report = attempt.report as AssessmentReport; return { version: attempt.version, createdAt: attempt.createdAt, overallScore: report.overallScore, overallBand: report.overallBand, dimensionScores: report.dimensions.map((dimension) => ({ label: dimension.label, score: dimension.score })) }; });
+      const pdf = await renderAssessmentScoreSummaryPdf({ participantName: ctx.user.name ?? "Profound IQ learner", createdAt: new Date(), reports: paidReports });
+      return { filename: `profound-iq-score-summary-${new Date().toISOString().slice(0, 10)}.pdf`, contentType: "application/pdf", data: pdf.toString("base64") };
     }),
     downloadReport: protectedProcedure.input(z.object({ attemptId: z.number().int().positive(), lens: z.enum(["leadership", "careerTransition", "teamDevelopment"]).default("leadership") })).mutation(async ({ ctx, input }) => {
       if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });

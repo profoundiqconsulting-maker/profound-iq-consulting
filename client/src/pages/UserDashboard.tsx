@@ -1,5 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { startLogin } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -71,6 +71,22 @@ export default function UserDashboard() {
   const downloadReport = trpc.dashboard.downloadReport.useMutation({
     onError: (error) => toast.error("Report download failed", { description: error.message }),
   });
+  const downloadScoreSummary = trpc.dashboard.downloadScoreSummary.useMutation({
+    onError: (error) => toast.error("Score summary download failed", { description: error.message }),
+  });
+  const downloadScoreSummaryPdf = async () => {
+    try {
+      const result = await downloadScoreSummary.mutateAsync();
+      const bytes = Uint8Array.from(atob(result.data), (character) => character.charCodeAt(0));
+      const url = URL.createObjectURL(new Blob([bytes], { type: result.contentType }));
+      const anchor = document.createElement("a"); anchor.href = url; anchor.download = result.filename; document.body.appendChild(anchor); anchor.click(); anchor.remove(); URL.revokeObjectURL(url);
+      toast.success("Score summary downloaded", { description: "Your assessment score history is ready to review." });
+    } catch { /* Mutation callback provides the user-facing error. */ }
+  };
+  useEffect(() => {
+    if (!user || new URLSearchParams(window.location.search).get("download") !== "score-summary" || downloadScoreSummary.isPending) return;
+    void downloadScoreSummaryPdf();
+  }, [user]);
   const revokeShareLink = trpc.dashboard.revokeShareLink.useMutation({ onSuccess: () => { toast.success("Share link revoked"); void shares.refetch(); }, onError: (error) => toast.error("Could not revoke share link", { description: error.message }) });
   const createShareLink = trpc.dashboard.createShareLink.useMutation({
     onSuccess: (result) => { const url = `${window.location.origin}/shared-report?token=${encodeURIComponent(result.token)}`; setShareLink(url); setShareConsent(false); void navigator.clipboard?.writeText(url); toast.success("Private share link created", { description: "The seven-day link was copied to your clipboard." }); },
