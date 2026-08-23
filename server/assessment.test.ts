@@ -32,6 +32,10 @@ describe("assessment scoring", () => {
     expect(assessmentPageSource).toMatch(/event\.key === "ArrowRight"/);
     expect(assessmentPageSource).toMatch(/assessmentModules\[localDraft\.currentModule\]/);
     expect(assessmentPageSource).toMatch(/% complete/);
+    expect(assessmentPageSource).toMatch(/Saved progress/);
+    expect(assessmentPageSource).toMatch(/Moved to/);
+    expect(assessmentPageSource).toMatch(/Download current progress/);
+    expect(assessmentPageSource).toMatch(/application\/json/);
   });
 
   it("provides adaptable role lenses and longitudinal comparison deltas", () => {

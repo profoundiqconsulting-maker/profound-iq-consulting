@@ -418,3 +418,11 @@
 - [x] Add regression coverage for delete confirmation, keyboard navigation, and resume summary values.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these assessment navigation refinements.
+
+# Resume Progress Bar, Navigation Toast, and Export Before Clear
+- [x] Add a visual progress bar to the Resume previous session prompt.
+- [x] Show a subtle success toast after arrow-key module navigation.
+- [x] Add an export/download current progress action to the clear-data confirmation dialog.
+- [x] Add regression coverage for the new resume, toast, and export contracts.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these progress-management enhancements.
