@@ -393,3 +393,11 @@
 - [x] Add regression coverage for manual save behavior, preference reset, and pulse state.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these assessment progress refinements.
+
+# Auto-save, Local Resume Prompt, and Assessment Theme Preference
+- [x] Auto-save locally after every answered question and update the pulsing saved timestamp.
+- [x] Add a landing-page Resume previous session prompt when a local draft is detected.
+- [x] Add a light/dark theme toggle to Assessment Preferences and apply it to the assessment experience.
+- [x] Add regression coverage for auto-save, local-draft detection/resume, and theme preference behavior.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these assessment enhancements.
