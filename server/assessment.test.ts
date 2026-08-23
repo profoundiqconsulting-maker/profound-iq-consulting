@@ -42,6 +42,11 @@ describe("assessment scoring", () => {
     expect(assessmentPageSource).toMatch(/piq-assessment-skip-resume-prompt/);
     expect(assessmentPageSource).toMatch(/Don’t show this again; always start fresh/);
     expect(assessmentPageSource).toMatch(/modules completed/);
+    expect(assessmentPageSource).toMatch(/resume-celebration/);
+    expect(assessmentPageSource).toMatch(/All modules complete/);
+    expect(assessmentPageSource).toMatch(/const importProgress/);
+    expect(assessmentPageSource).toMatch(/Import Progress/);
+    expect(assessmentPageSource).toMatch(/Open assessment settings/);
 
   });
 

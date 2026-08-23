@@ -85,9 +85,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .reveal-delay-3 { animation-delay: .24s; }
 .trajectory { animation: drawLine 1.1s cubic-bezier(.23,1,.32,1) .3s both; }
 .resume-progress-fill { transform-origin: left center; animation: resumeProgressFill .72s cubic-bezier(.23,1,.32,1) both; }
+.resume-celebration { position: relative; display: flex; min-height: 2rem; align-items: center; justify-content: center; overflow: hidden; margin-top: .65rem; }
+.resume-celebration > span:not(.relative) { position: absolute; top: .1rem; left: calc(8% + (var(--confetti-index) * 7.7%)); width: .32rem; height: .65rem; background: #c9a34e; opacity: 0; animation: confettiDrop .9s cubic-bezier(.23,1,.32,1) calc(var(--confetti-index) * 45ms) both; }
+.resume-celebration > span:nth-child(3n) { background: #16243d; transform: rotate(24deg); }
+.resume-celebration > span:nth-child(3n + 1) { transform: rotate(-18deg); }
+@keyframes confettiDrop { from { opacity: 0; transform: translateY(-.8rem) rotate(0deg); } 25% { opacity: .9; } to { opacity: .1; transform: translateY(1.3rem) rotate(180deg); } }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .reveal, .trajectory, .resume-progress-fill { animation: none; }
+  .reveal, .trajectory, .resume-progress-fill, .resume-celebration > span:not(.relative) { animation: none; }
   * { transition-duration: .01ms !important; }
 }
 

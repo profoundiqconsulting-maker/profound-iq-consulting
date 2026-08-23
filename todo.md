@@ -442,3 +442,13 @@
 - [x] Add regression coverage for the preference, hover pause, and tooltip contracts.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these learner preference refinements.
+
+# Completion Celebration, Import Progress, and Landing Settings Shortcut
+- [x] Add a subtle completion celebration when saved progress reaches 100%.
+- [x] Respect reduced-motion preferences for the completion celebration.
+- [x] Add Import Progress to restore a previously downloaded assessment JSON file locally.
+- [x] Validate imported progress safely and show clear success or error feedback.
+- [x] Add a main-screen settings icon to restore a hidden Resume previous session prompt.
+- [x] Add regression coverage for celebration, import validation, and settings restoration.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these assessment recovery enhancements.
