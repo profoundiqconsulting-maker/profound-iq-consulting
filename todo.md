@@ -433,3 +433,12 @@
 - [x] Add regression coverage for the animation and Escape dismissal contracts.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these interaction refinements.
+
+# Resume Preference, Toast Hover Pause, and Module Tooltip
+- [x] Add a “Don’t show again” checkbox to the Resume previous session prompt.
+- [x] Persist the resume-prompt preference and allow users to restore the prompt from preferences.
+- [x] Pause toast auto-dismiss while a toast is hovered.
+- [x] Add a progress-bar tooltip showing exact completed modules out of the total.
+- [x] Add regression coverage for the preference, hover pause, and tooltip contracts.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these learner preference refinements.
