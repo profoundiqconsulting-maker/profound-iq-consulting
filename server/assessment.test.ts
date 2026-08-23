@@ -99,6 +99,10 @@ describe("assessment scoring", () => {
     expect(navSource).toMatch(/ArrowUp/);
     expect(navSource).toMatch(/aria-activedescendant/);
     expect(assessmentSource).toMatch(/Review Section/);
+    expect(assessmentSource).toMatch(/event.key.toLowerCase\(\) === "m"/);
+    expect(assessmentSource).toMatch(/mobileReviewMode/);
+    expect(assessmentSource).toMatch(/Focused review mode/);
+    expect(assessmentSource).toMatch(/Potential improvement/);
     expect(navSource).toMatch(/Saved progress/);
     expect(navSource).toMatch(/Certificates/);
     expect(navSource).toMatch(/Settings/);

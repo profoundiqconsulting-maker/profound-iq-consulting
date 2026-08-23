@@ -547,3 +547,12 @@
 - [x] Add regression coverage for circular progress, search keyboard navigation, and review actions.
 - [x] Run type checks, full tests, production build, and desktop/mobile verification.
 - [x] Save a checkpoint containing these module-rail accessibility refinements.
+
+# Module Rail Shortcut, Mobile Review Mode, and Improvement Guidance
+- [x] Add Ctrl+M to toggle the module rail collapse state.
+- [x] Preserve shortcut safety by ignoring editable fields and exposing accessible shortcut guidance.
+- [x] Add a focused mobile review mode when Review Section is activated on smaller screens.
+- [x] Show potential score improvement guidance beside the Review Section action.
+- [x] Add regression coverage for Ctrl+M, mobile review mode, and improvement indicators.
+- [x] Run type checks, full tests, production build, and desktop/mobile verification.
+- [x] Save a checkpoint containing these module-rail refinements.
