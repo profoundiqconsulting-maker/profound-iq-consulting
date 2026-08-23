@@ -306,3 +306,11 @@
 - [x] Add regression tests for visual export contracts, multi-version chart controls, and checkout state transitions.
 - [x] Run type checks, full tests, production build, and desktop/mobile responsive verification.
 - [x] Save a checkpoint containing the visuals, fixtures, and checkout feedback enhancements.
+
+# Coaching Visual PNG, QA Toggle, and Receipt Email
+- [x] Add a PNG export option alongside the existing SVG CareerPath coaching visual.
+- [x] Add a dedicated QA-only multi-version fixture toggle in Settings and connect it to the dashboard preview.
+- [x] Attach the coaching visual to the automated email sent after verified Paystack CareerPath completion.
+- [x] Add regression tests for PNG conversion, QA toggle behavior, and coaching-visual email attachments.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing the PNG export, QA toggle, and receipt-email enhancements.
