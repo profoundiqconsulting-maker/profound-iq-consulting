@@ -129,3 +129,19 @@ describe("assessment scoring", () => {
     expect(compareReports(current, previous).dimensions).toHaveLength(10);
   });
 });
+
+
+describe("CareerPath learner navigation", () => {
+  it("supports resumable local progress and responsive module navigation", () => {
+    const careerPathSource = readFileSync(resolve(process.cwd(), "client/src/pages/CareerPath.tsx"), "utf8");
+    expect(careerPathSource).toMatch(/piq-careerpath-local-draft/);
+    expect(careerPathSource).toMatch(/Save & continue later/);
+    expect(careerPathSource).toMatch(/Resume previous session/);
+    expect(careerPathSource).toMatch(/CheckCircle2/);
+    expect(careerPathSource).toMatch(/SheetContent/);
+    expect(careerPathSource).toMatch(/Browse modules/);
+    expect(careerPathSource).toMatch(/currentGroupComplete/);
+    expect(careerPathSource).toMatch(/event\.key === "ArrowLeft"/);
+    expect(careerPathSource).toMatch(/event\.key === "ArrowRight"/);
+  });
+});

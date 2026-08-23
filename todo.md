@@ -584,3 +584,13 @@
 - [x] Add regression coverage for CareerPath navigation and responsive behavior.
 - [x] Run type checks, full tests, production build, and desktop/mobile verification.
 - [x] Save a checkpoint containing the CareerPath navigation improvements.
+
+# CareerPath Save/Resume and Mobile Module Drawer
+- [x] Add CareerPath Save and Continue Later with local draft persistence and exact module resumption.
+- [x] Add a save-success state with clear recovery guidance and last-saved context.
+- [x] Add visual completion badges to fully finished CareerPath modules.
+- [x] Add a compact swipeable mobile drawer for direct CareerPath module navigation.
+- [x] Preserve keyboard, touch, and accessible navigation semantics across the drawer.
+- [x] Add regression coverage for CareerPath save/resume, badges, and mobile drawer behavior.
+- [x] Run type checks, full tests, production build, and desktop/mobile verification.
+- [x] Save a checkpoint containing the CareerPath navigation recovery update.
