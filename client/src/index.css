@@ -117,3 +117,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   @media (min-width: 640px) { .container { padding: 0 2rem; } }
   @media (min-width: 1024px) { .container { max-width: 1280px; padding: 0 3.5rem; } }
 }
+
+@keyframes piqMobileReviewSlideIn {
+  from { opacity: 0; transform: translateX(14px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.mobile-review-mode { animation: piqMobileReviewSlideIn 240ms cubic-bezier(.23,1,.32,1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .mobile-review-mode { animation: none; }
+}

@@ -556,3 +556,12 @@
 - [x] Add regression coverage for Ctrl+M, mobile review mode, and improvement indicators.
 - [x] Run type checks, full tests, production build, and desktop/mobile verification.
 - [x] Save a checkpoint containing these module-rail refinements.
+
+# Sitewide Transformation Navigation and Module Filters
+- [x] Apply the standardized Transformation Services navigation to all Self Assessment and CareerPath routes and states.
+- [x] Add a smooth reduced-motion-aware slide-in animation to focused mobile review mode.
+- [x] Add a module-rail filter for sections with the highest potential improvement scores.
+- [x] Add a visible Ctrl+M shortcut hint or tooltip near the rail toggle.
+- [x] Add regression coverage for sitewide navigation, slide-in review mode, filtering, and shortcut guidance.
+- [x] Run type checks, full tests, production build, and desktop/mobile verification.
+- [x] Save a checkpoint containing the sitewide navigation update.

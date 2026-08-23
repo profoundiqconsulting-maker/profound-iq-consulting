@@ -100,6 +100,11 @@ describe("assessment scoring", () => {
     expect(navSource).toMatch(/aria-activedescendant/);
     expect(assessmentSource).toMatch(/Review Section/);
     expect(assessmentSource).toMatch(/event.key.toLowerCase\(\) === "m"/);
+    expect(assessmentSource).toMatch(/highPotentialOnly/);
+    expect(assessmentSource).toMatch(/High potential/);
+    expect(assessmentSource).toMatch(/Press Ctrl\+M/);
+    expect(assessmentSource).toMatch(/mobile-review-mode/);
+    expect(careerPathSource).toMatch(/TransformationNav active="careerpath"/);
     expect(assessmentSource).toMatch(/mobileReviewMode/);
     expect(assessmentSource).toMatch(/Focused review mode/);
     expect(assessmentSource).toMatch(/Potential improvement/);
