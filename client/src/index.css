@@ -126,3 +126,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 @media (prefers-reduced-motion: reduce) {
   .mobile-review-mode { animation: none; }
 }
+
+@keyframes piqDrawerHandleBounce {
+  0%, 100% { transform: translateY(0); opacity: .68; }
+  50% { transform: translateY(3px); opacity: 1; }
+}
+.careerpath-drawer-handle { animation: piqDrawerHandleBounce 1.8s cubic-bezier(.23,1,.32,1) infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .careerpath-drawer-handle { animation: none; }
+}

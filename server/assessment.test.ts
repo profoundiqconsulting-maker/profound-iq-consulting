@@ -145,3 +145,17 @@ describe("CareerPath learner navigation", () => {
     expect(careerPathSource).toMatch(/event\.key === "ArrowRight"/);
   });
 });
+
+
+describe("CareerPath completion celebration", () => {
+  it("exposes the final-completion certificate and drawer swipe affordance", () => {
+    const careerPathSource = readFileSync(resolve(process.cwd(), "client/src/pages/CareerPath.tsx"), "utf8");
+    const stylesSource = readFileSync(resolve(process.cwd(), "client/src/index.css"), "utf8");
+    expect(careerPathSource).toMatch(/CareerPath complete/);
+    expect(careerPathSource).toMatch(/Download Certificate/);
+    expect(careerPathSource).toMatch(/downloadCareerPathCertificate/);
+    expect(careerPathSource).toMatch(/careerpath-drawer-handle/);
+    expect(stylesSource).toMatch(/piqDrawerHandleBounce/);
+    expect(stylesSource).toMatch(/prefers-reduced-motion: reduce/);
+  });
+});

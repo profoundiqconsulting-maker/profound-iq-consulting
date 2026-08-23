@@ -594,3 +594,12 @@
 - [x] Add regression coverage for CareerPath save/resume, badges, and mobile drawer behavior.
 - [x] Run type checks, full tests, production build, and desktop/mobile verification.
 - [x] Save a checkpoint containing the CareerPath navigation recovery update.
+
+# CareerPath Drawer Affordance and Completion Celebration
+- [x] Add a drag handle icon at the top of the mobile CareerPath module drawer.
+- [x] Add a subtle reduced-motion-aware bounce animation to indicate the drawer can be swiped.
+- [x] Detect final CareerPath completion and show a celebratory confetti state.
+- [x] Add an immediate Download Certificate action when the final completion badge is earned.
+- [x] Add regression coverage for drawer affordances, final completion detection, confetti, and certificate download.
+- [x] Run type checks, full tests, production build, and desktop/mobile verification.
+- [x] Save a checkpoint containing the CareerPath completion refinements.
