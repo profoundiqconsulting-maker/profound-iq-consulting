@@ -88,6 +88,11 @@ describe("assessment scoring", () => {
     expect(assessmentSource).toMatch(/aria-current=\{moduleIndex === page \? "step" : undefined\}/);
     expect(assessmentSource).toMatch(/onClick=\{\(\) => navigateToModule\(moduleIndex\)\}/);
     expect(assessmentSource).toMatch(/Module \{page \+ 1\} of \{totalPages\}/);
+    expect(assessmentSource).toMatch(/moduleRailCollapsed/);
+    expect(assessmentSource).toMatch(/toggleModuleRail/);
+    expect(assessmentSource).toMatch(/piq-search-query/);
+    expect(assessmentSource).toMatch(/moduleScore/);
+    expect(assessmentSource).toMatch(/out of 100/);
     expect(navSource).toMatch(/Saved progress/);
     expect(navSource).toMatch(/Certificates/);
     expect(navSource).toMatch(/Settings/);

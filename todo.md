@@ -529,3 +529,12 @@
 - [x] Run type checks, full tests, production build, and desktop/mobile verification.
 - [x] Complete and validate the reusable Transformation Services UX skill documentation.
 - [x] Save a checkpoint containing the navigation improvements.
+
+# Collapsible Module Rail, Search Highlights, and Score Tooltips
+- [x] Add an accessible toggle to collapse and expand the sticky module rail.
+- [x] Persist the rail’s collapsed preference locally across assessment sessions.
+- [x] Highlight quick-search keywords in matching module-rail labels.
+- [x] Add exact section-score tooltips to completed module indicators.
+- [x] Add regression coverage for rail collapse, search highlighting, and score tooltips.
+- [x] Run type checks, full tests, production build, and desktop/mobile verification.
+- [x] Save a checkpoint containing the module-rail refinements.
