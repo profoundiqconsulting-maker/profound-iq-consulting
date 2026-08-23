@@ -360,3 +360,12 @@
 - [x] Add regression coverage for expired links, module completion badges, and resend behavior.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these assessment UX enhancements.
+
+# Inline Module Completion, Resume Link Copy, and Minimal Receipt Review
+- [x] Add visible completed/checkmark states to inline module navigation controls.
+- [x] Make completion badges in the overview drawer clickable for direct module navigation.
+- [x] Add a Copy Resume Link fallback action to the save-success modal.
+- [x] Remove the detailed top-strengths block from pre-payment receipt review and keep minimal information.
+- [x] Add regression coverage for completion states, badge navigation, resume-link copying, and minimal receipt content.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these assessment UX refinements.
