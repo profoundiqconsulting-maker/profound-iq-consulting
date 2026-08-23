@@ -499,3 +499,13 @@
 - [x] Add regression coverage for theme switching, certificate badge, and quick search.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing the shared header enhancements.
+
+# Recent Searches, Auto Theme, and Certificate Toast
+- [x] Add a Recent Searches section that appears when the quick-search dropdown opens.
+- [x] Persist a concise recent-search history and allow selecting a recent query.
+- [x] Add an Auto theme mode that follows system light/dark preference changes.
+- [x] Preserve manual light/dark overrides across sessions.
+- [x] Show a celebratory toast when a new certificate is awarded with a direct View certificate link.
+- [x] Add regression coverage for recent searches, Auto theme behavior, and certificate toast linking.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these shared-header refinements.

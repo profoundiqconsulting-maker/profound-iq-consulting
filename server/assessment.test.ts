@@ -87,7 +87,8 @@ describe("assessment scoring", () => {
     expect(navSource).toMatch(/Saved progress/);
     expect(navSource).toMatch(/Certificates/);
     expect(navSource).toMatch(/Settings/);
-    expect(navSource).toMatch(/Use \{theme === "dark" \? "light" : "dark"\} theme/);
+    expect(navSource).toMatch(/setTheme\("auto"\)/);
+    expect(navSource).toMatch(/Auto/);
     expect(navSource).toMatch(/piq-new-certificate-available/);
     expect(navSource).toMatch(/Search modules or topics/);
     expect(navSource).toMatch(/transformation-search/);

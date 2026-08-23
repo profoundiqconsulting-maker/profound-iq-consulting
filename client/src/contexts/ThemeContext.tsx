@@ -1,64 +1,30 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-type Theme = "light" | "dark";
-
-interface ThemeContextType {
-  theme: Theme;
-  toggleTheme?: () => void;
-  switchable: boolean;
-}
-
+type Theme = "light" | "dark" | "auto";
+interface ThemeContextType { theme: Theme; setTheme: (theme: Theme) => void; toggleTheme?: () => void; switchable: boolean; effectiveTheme: "light" | "dark"; }
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+interface ThemeProviderProps { children: React.ReactNode; defaultTheme?: Theme; switchable?: boolean; }
 
-interface ThemeProviderProps {
-  children: React.ReactNode;
-  defaultTheme?: Theme;
-  switchable?: boolean;
-}
-
-export function ThemeProvider({
-  children,
-  defaultTheme = "light",
-  switchable = false,
-}: ThemeProviderProps) {
+export function ThemeProvider({ children, defaultTheme = "light", switchable = false }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
-    if (switchable) {
-      const stored = localStorage.getItem("theme");
-      return (stored as Theme) || defaultTheme;
-    }
-    return defaultTheme;
+    if (!switchable) return defaultTheme;
+    const stored = localStorage.getItem("theme");
+    return stored === "light" || stored === "dark" || stored === "auto" ? stored : "auto";
   });
-
+  const [systemDark, setSystemDark] = useState(() => window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false);
   useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-
-    if (switchable) {
-      localStorage.setItem("theme", theme);
-    }
-  }, [theme, switchable]);
-
-  const toggleTheme = switchable
-    ? () => {
-        setTheme(prev => (prev === "light" ? "dark" : "light"));
-      }
-    : undefined;
-
-  return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, switchable }}>
-      {children}
-    </ThemeContext.Provider>
-  );
+    const media = window.matchMedia?.("(prefers-color-scheme: dark)");
+    if (!media) return;
+    const update = () => setSystemDark(media.matches);
+    update(); media.addEventListener?.("change", update);
+    return () => media.removeEventListener?.("change", update);
+  }, []);
+  const effectiveTheme = theme === "auto" ? (systemDark ? "dark" : "light") : theme;
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", effectiveTheme === "dark");
+    if (switchable) localStorage.setItem("theme", theme);
+  }, [effectiveTheme, switchable, theme]);
+  const toggleTheme = switchable ? () => setTheme((prev) => prev === "light" ? "dark" : prev === "dark" ? "auto" : "light") : undefined;
+  return <ThemeContext.Provider value={{ theme, setTheme, toggleTheme, switchable, effectiveTheme }}>{children}</ThemeContext.Provider>;
 }
-
-export function useTheme() {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error("useTheme must be used within ThemeProvider");
-  }
-  return context;
-}
+export function useTheme() { const context = useContext(ThemeContext); if (!context) throw new Error("useTheme must be used within ThemeProvider"); return context; }
