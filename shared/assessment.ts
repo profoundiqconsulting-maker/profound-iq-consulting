@@ -1,4 +1,4 @@
-export const ASSESSMENT_PRICE_KES = 200;
+export const ASSESSMENT_PRICE_KES = 20;
 
 export const dimensions = [
   { key: "clarity", label: "Clarity of direction", description: "How confidently you define priorities and make sense of competing demands." },

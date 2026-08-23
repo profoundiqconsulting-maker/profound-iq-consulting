@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { assessmentQuestions, buildReport, buildRoleLens, compareReports } from "../shared/assessment";
+import { assessmentQuestions, ASSESSMENT_PRICE_KES, buildReport, buildRoleLens, compareReports } from "../shared/assessment";
 
 describe("assessment scoring", () => {
   it("exposes 100 questions across ten capability dimensions", () => {
+    expect(ASSESSMENT_PRICE_KES).toBe(20);
     expect(assessmentQuestions).toHaveLength(100);
     expect(new Set(assessmentQuestions.map((question) => question.dimension)).size).toBe(10);
+    expect(Math.ceil(assessmentQuestions.length / 10)).toBe(10);
   });
 
   it("builds a report from submitted five-point answers", () => {

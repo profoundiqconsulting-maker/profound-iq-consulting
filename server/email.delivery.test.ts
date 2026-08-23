@@ -36,13 +36,17 @@ describe("report email delivery", () => {
   });
 
   it("persists CareerPath email delivery state around the branded PDF send", async () => {
-    const delivered = await emailCareerPathReportIfNeeded({ attemptId: 99, participantName: "Brian Otieno", email: "brian@example.com", createdAt: new Date(), report: { subPathways: [{ label: "Pure Sciences", score: 82 }, { label: "Languages", score: 64 }] } as never });
+    const delivered = await emailCareerPathReportIfNeeded({ attemptId: 99, participantName: "Brian Otieno", email: "brian@example.com", createdAt: new Date(), personalNotes: "Discuss subject choices with my mentor.", report: { subPathways: [{ label: "Pure Sciences", score: 82 }, { label: "Languages", score: 64 }] } as never });
     expect(delivered).toBe(true);
     expect(claimCareerPathReportEmail).toHaveBeenCalledWith(99);
     expect(markCareerPathReportEmailSent).toHaveBeenCalledWith(99);
     expect(releaseCareerPathReportEmailClaim).not.toHaveBeenCalled();
     expect(renderCareerPathReportPdf).toHaveBeenCalledOnce();
     expect(sendMail).toHaveBeenLastCalledWith(expect.objectContaining({ to: "brian@example.com", subject: "Your Profound IQ CareerPath report", text: expect.stringContaining("Your top strengths signals are Pure Sciences (82/100), Languages (64/100)."), html: expect.stringContaining("Your top strengths signals are Pure Sciences (82/100), Languages (64/100)."), attachments: expect.arrayContaining([expect.objectContaining({ filename: "profound-iq-careerpath-99.pdf", content: Buffer.from("%PDF-careerpath-test"), contentType: "application/pdf" }), expect.objectContaining({ filename: "profound-iq-careerpath-99-coaching-visual.svg", contentType: "image/svg+xml" })]) }));
+    const message = sendMail.mock.calls.at(-1)?.[0] as { text?: string; html?: string };
+    expect(message.text).toContain("Discuss subject choices with my mentor.");
+    expect(message.html).toContain("PROFOUND IQ CONSULTING");
+    expect(message.html).toContain("Discuss subject choices with my mentor.");
   });
 });
 

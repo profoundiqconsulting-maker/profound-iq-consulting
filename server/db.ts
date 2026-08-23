@@ -260,7 +260,7 @@ export async function createAssessmentAttempt(input: Pick<InsertAssessmentAttemp
   return Number(result[0].insertId);
 }
 
-export async function createCareerPathAttempt(input: { name: string; email: string; answers: unknown }) {
+export async function createCareerPathAttempt(input: { name: string; email: string; answers: unknown; personalNotes?: string | null }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const result = await db.insert(careerPathAttempts).values({ ...input, paymentStatus: "pending", consentedAt: new Date() });

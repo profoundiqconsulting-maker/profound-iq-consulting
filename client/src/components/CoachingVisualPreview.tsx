@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Download, Eye, Loader2, X } from "lucide-react";
+import { Download, Eye, Loader2, Copy, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { svgToDownloadUrl } from "@shared/reportComparisonVisual";
+import { toast } from "sonner";
 
 type CoachingVisualPreviewProps = {
   svg: string;
@@ -13,6 +14,24 @@ type CoachingVisualPreviewProps = {
 
 export function CoachingVisualPreview({ svg, pngLoading = false, onDownloadSvg, onDownloadPng }: CoachingVisualPreviewProps) {
   const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const copyVisual = async () => {
+    try {
+      if (navigator.clipboard && "ClipboardItem" in window) {
+        const item = new ClipboardItem({ "image/svg+xml": new Blob([svg], { type: "image/svg+xml" }) });
+        await navigator.clipboard.write([item]);
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(svg);
+      } else {
+        throw new Error("Clipboard access is unavailable in this browser.");
+      }
+      setCopied(true);
+      toast.success("Coaching visual copied", { description: "Paste it into compatible coaching notes or documents." });
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch (error) {
+      toast.error("Copy unavailable", { description: error instanceof Error ? error.message : "Use the SVG or PNG download instead." });
+    }
+  };
   return <>
     <Button type="button" variant="outline" onClick={() => setOpen(true)} className="inline-flex items-center gap-2 border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em]">
       <Eye size={13} /> Preview visual
@@ -28,7 +47,7 @@ export function CoachingVisualPreview({ svg, pngLoading = false, onDownloadSvg, 
         </div>
         <DialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <DialogClose asChild><Button type="button" variant="outline" className="border-[#16243d]/25"><X size={14} /> Close</Button></DialogClose>
-          <Button type="button" variant="outline" onClick={onDownloadSvg} className="border-[#16243d]/25"><Download size={14} /> Download SVG</Button>
+          <Button type="button" variant="outline" onClick={copyVisual} className="border-[#16243d]/25">{copied ? <Check size={14} /> : <Copy size={14} />} {copied ? "Copied" : "Copy visual"}</Button><Button type="button" variant="outline" onClick={onDownloadSvg} className="border-[#16243d]/25"><Download size={14} /> Download SVG</Button>
           <Button type="button" onClick={onDownloadPng} disabled={pngLoading} className="bg-[#16243d] text-[#f7f3e8] hover:bg-[#243657]">{pngLoading ? <><Loader2 size={14} className="animate-spin" /> Preparing PNG…</> : <><Download size={14} /> Download PNG</>}</Button>
         </DialogFooter>
       </DialogContent>

@@ -322,3 +322,13 @@
 - [x] Add regression coverage for modal data, top-strengths email copy, and PNG feedback states.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing the preview, email summary, and PNG feedback enhancements.
+
+# Coaching Notes, Assessment Pagination, and KES 20 Pricing
+- [x] Add a Copy to Clipboard action to the coaching-visual preview modal.
+- [x] Add a branded header and footer to automated CareerPath receipt emails.
+- [x] Allow optional personal notes to be added to the strengths summary before receipt email delivery.
+- [x] Add paginated assessment navigation with an accessible progress bar.
+- [x] Update the standard professional assessment price to KES 20 across checkout and reporting copy.
+- [x] Add regression coverage for clipboard fallback, email branding/notes, pagination/progress, and KES 20 pricing.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these enhancements.

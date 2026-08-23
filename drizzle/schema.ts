@@ -221,6 +221,7 @@ export const careerPathAttempts = mysqlTable("career_path_attempts", {
   reportEmailStatus: varchar("reportEmailStatus", { length: 32 }).default("pending").notNull(),
   reportEmailSentAt: timestamp("reportEmailSentAt"),
   reportEmailClaimedAt: timestamp("reportEmailClaimedAt"),
+  personalNotes: text("personalNotes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   paidAt: timestamp("paidAt"),
   consentedAt: timestamp("consentedAt").notNull(),

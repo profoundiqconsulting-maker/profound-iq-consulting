@@ -249,8 +249,8 @@ export const appRouter = router({
   }),
   careerPath: router({
     questions: publicProcedure.query(() => ({ questions: careerPathQuestions, modules: [{ name: "Career interests", items: 32 }, { name: "Aptitude and cognitive preferences", items: 28 }, { name: "Learning and work style", items: 20 }, { name: "Personality and behavioural tendencies", items: 24 }, { name: "Skills and competencies", items: 24 }, { name: "Values and motivators", items: 20 }, { name: "Creativity, talent and innovation", items: 16 }, { name: "Career aspirations and exposure", items: 8 }, { name: "Situational career judgement", items: 8 }], priceKes: CAREER_PATH_PRICE_KES, estimatedMinutes: "35–45" })),
-    initializePayment: publicProcedure.input(z.object({ name: z.string().trim().min(2).max(160), email: z.string().email(), answers: careerPathAnswersSchema, consent: z.literal(true) })).mutation(async ({ input, ctx }) => {
-      const attemptId = await createCareerPathAttempt({ name: input.name, email: input.email, answers: input.answers });
+    initializePayment: publicProcedure.input(z.object({ name: z.string().trim().min(2).max(160), email: z.string().email(), answers: careerPathAnswersSchema, consent: z.literal(true), personalNotes: z.string().trim().max(1000).optional().default("") })).mutation(async ({ input, ctx }) => {
+      const attemptId = await createCareerPathAttempt({ name: input.name, email: input.email, answers: input.answers, personalNotes: input.personalNotes || null });
       const reference = `piq-career-${Date.now()}-${randomUUID().replace(/-/g, "").slice(0, 12)}`;
       await setCareerPathPaystackReference(attemptId, reference);
       const originHeader = ctx.req.headers.origin;
@@ -264,7 +264,7 @@ export const appRouter = router({
       if (!attempt) throw new TRPCError({ code: "NOT_FOUND", message: "CareerPath attempt not found." });
       if (attempt.paymentStatus === "paid" && attempt.report) {
         let emailSent = false;
-        try { emailSent = await emailCareerPathReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report: attempt.report as CareerPathReport, reportEmailStatus: attempt.reportEmailStatus, reportEmailSentAt: attempt.reportEmailSentAt }); } catch (error) { console.error("[CareerPath] Report email delivery retry failed:", error); }
+        try { emailSent = await emailCareerPathReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report: attempt.report as CareerPathReport, personalNotes: attempt.personalNotes, reportEmailStatus: attempt.reportEmailStatus, reportEmailSentAt: attempt.reportEmailSentAt }); } catch (error) { console.error("[CareerPath] Report email delivery retry failed:", error); }
         return { report: attempt.report as CareerPathReport, reference: input.reference, emailSent };
       }
       const verification = await paystackRequest(`/transaction/verify/${encodeURIComponent(input.reference)}`);
@@ -274,7 +274,7 @@ export const appRouter = router({
       await markCareerPathPaid(attempt.id, report);
       await recordAnalyticsEvent({ eventName: "payment_completed", attemptId: attempt.id, metadata: { product: "careerpath", currency: "KES", amount: CAREER_PATH_PRICE_KES } });
       let emailSent = false;
-      try { emailSent = await emailCareerPathReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report }); } catch (error) { console.error("[CareerPath] Report email delivery failed:", error); }
+      try { emailSent = await emailCareerPathReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report, personalNotes: attempt.personalNotes }); } catch (error) { console.error("[CareerPath] Report email delivery failed:", error); }
       return { report, reference: input.reference, emailSent };
     }),
     history: protectedProcedure.query(async ({ ctx }) => {
