@@ -489,3 +489,13 @@
 - [x] Add regression coverage for breadcrumbs, transition behavior, and profile-menu destinations.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing the enhanced Transformation Services header.
+
+# Shared Header Theme, Certificate Badge, and Quick Search
+- [x] Add a light/dark theme toggle to the authenticated profile dropdown.
+- [x] Persist the selected theme across Transformation Services pages.
+- [x] Add a certificate notification badge when a new certificate is available.
+- [x] Add a quick-search bar for modules and topics across Transformation Services.
+- [x] Add keyboard-accessible search results and service-aware navigation.
+- [x] Add regression coverage for theme switching, certificate badge, and quick search.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing the shared header enhancements.

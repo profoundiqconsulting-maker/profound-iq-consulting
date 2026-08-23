@@ -87,6 +87,12 @@ describe("assessment scoring", () => {
     expect(navSource).toMatch(/Saved progress/);
     expect(navSource).toMatch(/Certificates/);
     expect(navSource).toMatch(/Settings/);
+    expect(navSource).toMatch(/Use \{theme === "dark" \? "light" : "dark"\} theme/);
+    expect(navSource).toMatch(/piq-new-certificate-available/);
+    expect(navSource).toMatch(/Search modules or topics/);
+    expect(navSource).toMatch(/transformation-search/);
+    const appSource = readFileSync(resolve(process.cwd(), "client/src/App.tsx"), "utf8");
+    expect(appSource).toMatch(/ThemeProvider defaultTheme="light" switchable/);
   });
 
   it("provides adaptable role lenses and longitudinal comparison deltas", () => {
