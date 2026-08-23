@@ -26,13 +26,25 @@ vi.mock("nodemailer", () => ({ default: { createTransport: vi.fn(() => ({ sendMa
 vi.mock("./reportPdf", () => ({ renderAssessmentReportPdf, renderCareerPathReportPdf }));
 vi.mock("./db", () => ({ claimAssessmentReportEmail, markAssessmentReportEmailSent, releaseAssessmentReportEmailClaim, claimCareerPathReportEmail, markCareerPathReportEmailSent, releaseCareerPathReportEmailClaim }));
 
-const { sendAssessmentReportEmail, emailCareerPathReportIfNeeded } = await import("./email");
+const { sendAssessmentReportEmail, sendAssessmentResumeEmail, emailCareerPathReportIfNeeded } = await import("./email");
 
 describe("report email delivery", () => {
   it("sends the report as a PDF attachment to the assessment email", async () => {
     await sendAssessmentReportEmail({ attemptId: 44, participantName: "Amina <Njeri>", email: "amina@example.com", createdAt: new Date(), report: { overallScore: 82, overallBand: "Strong foundation", dimensions: [], strengths: [], focusAreas: [], disclaimer: "Educational tool." } });
     expect(renderAssessmentReportPdf).toHaveBeenCalledOnce();
     expect(sendMail).toHaveBeenCalledWith(expect.objectContaining({ to: "amina@example.com", subject: "Your Profound IQ assessment report", attachments: [{ filename: "profound-iq-assessment-44.pdf", content: Buffer.from("%PDF-test"), contentType: "application/pdf" }], html: expect.stringContaining("Amina &lt;Njeri&gt;") }));
+  });
+
+  it("sends a branded expiring resume link without embedding answer data", async () => {
+    const expiresAt = new Date("2026-09-01T10:00:00.000Z");
+    await sendAssessmentResumeEmail({ to: "learner@example.com", name: "Learner Example", resumeUrl: "https://example.com/assessment?resume=opaque-token", expiresAt });
+    const message = sendMail.mock.calls.at(-1)?.[0] as { subject?: string; text?: string; html?: string };
+    expect(message.subject).toBe("Continue your Profound IQ assessment");
+    expect(message.text).toContain("https://example.com/assessment?resume=opaque-token");
+    expect(message.text).toContain("This link expires");
+    expect(message.html).toContain("ASSESSMENT / CONTINUE LATER");
+    expect(message.html).toContain("Transformational learning");
+    expect(message.html).not.toContain("answers");
   });
 
   it("persists CareerPath email delivery state around the branded PDF send", async () => {

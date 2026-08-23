@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { and, desc, eq, gte, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, careerPathAttempts, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -260,7 +260,30 @@ export async function createAssessmentAttempt(input: Pick<InsertAssessmentAttemp
   return Number(result[0].insertId);
 }
 
-export async function createCareerPathAttempt(input: { name: string; email: string; answers: unknown; personalNotes?: string | null }) {
+export async function createAssessmentDraft(input: { name: string; email: string; answers: unknown; currentModule: number; expiresAt: Date }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rawToken = randomBytes(32).toString("base64url");
+  const tokenHash = hashReportShareToken(rawToken);
+  await db.insert(assessmentDrafts).values({ ...input, tokenHash });
+  return { token: rawToken, expiresAt: input.expiresAt };
+}
+
+export async function getAssessmentDraft(token: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const tokenHash = hashReportShareToken(token);
+  const rows = await db.select().from(assessmentDrafts).where(and(eq(assessmentDrafts.tokenHash, tokenHash), gte(assessmentDrafts.expiresAt, new Date()))).limit(1);
+  return rows[0] ?? undefined;
+}
+
+export async function markAssessmentDraftResumed(id: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(assessmentDrafts).set({ resumedAt: new Date() }).where(eq(assessmentDrafts.id, id));
+}
+
+export async function createCareerPathAttempt(input: { name: string; email: string; answers: unknown; personalNotes?: string | null; receiptTitle?: string | null }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const result = await db.insert(careerPathAttempts).values({ ...input, paymentStatus: "pending", consentedAt: new Date() });
@@ -270,7 +293,7 @@ export async function createCareerPathAttempt(input: { name: string; email: stri
 export async function listCareerPathAttemptsByEmail(email: string) {
   const db = await getDb();
   if (!db) return [];
-  return db.select({ id: careerPathAttempts.id, name: careerPathAttempts.name, email: careerPathAttempts.email, paystackReference: careerPathAttempts.paystackReference, paymentStatus: careerPathAttempts.paymentStatus, report: careerPathAttempts.report, reportEmailStatus: careerPathAttempts.reportEmailStatus, reportEmailSentAt: careerPathAttempts.reportEmailSentAt, createdAt: careerPathAttempts.createdAt, paidAt: careerPathAttempts.paidAt }).from(careerPathAttempts).where(eq(careerPathAttempts.email, email)).orderBy(desc(careerPathAttempts.createdAt)).limit(50);
+  return db.select({ id: careerPathAttempts.id, name: careerPathAttempts.name, email: careerPathAttempts.email, paystackReference: careerPathAttempts.paystackReference, paymentStatus: careerPathAttempts.paymentStatus, report: careerPathAttempts.report, reportEmailStatus: careerPathAttempts.reportEmailStatus, reportEmailSentAt: careerPathAttempts.reportEmailSentAt, receiptTitle: careerPathAttempts.receiptTitle, createdAt: careerPathAttempts.createdAt, paidAt: careerPathAttempts.paidAt }).from(careerPathAttempts).where(eq(careerPathAttempts.email, email)).orderBy(desc(careerPathAttempts.createdAt)).limit(50);
 }
 
 export async function claimCareerPathReportEmail(id: number): Promise<boolean> {

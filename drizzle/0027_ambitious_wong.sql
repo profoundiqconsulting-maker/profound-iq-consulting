@@ -1,0 +1,1 @@
+ALTER TABLE `career_path_attempts` ADD `receiptTitle` varchar(160);

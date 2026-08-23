@@ -210,6 +210,18 @@ export const assessmentAttempts = mysqlTable("assessment_attempts", {
   consentedAt: timestamp("consentedAt").notNull(),
 });
 
+export const assessmentDrafts = mysqlTable("assessment_drafts", {
+  id: int("id").autoincrement().primaryKey(),
+  tokenHash: varchar("tokenHash", { length: 128 }).notNull().unique(),
+  name: varchar("name", { length: 160 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  answers: json("answers").notNull(),
+  currentModule: int("currentModule").default(0).notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  resumedAt: timestamp("resumedAt"),
+});
+
 export const careerPathAttempts = mysqlTable("career_path_attempts", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 160 }).notNull(),
@@ -222,6 +234,7 @@ export const careerPathAttempts = mysqlTable("career_path_attempts", {
   reportEmailSentAt: timestamp("reportEmailSentAt"),
   reportEmailClaimedAt: timestamp("reportEmailClaimedAt"),
   personalNotes: text("personalNotes"),
+  receiptTitle: varchar("receiptTitle", { length: 160 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   paidAt: timestamp("paidAt"),
   consentedAt: timestamp("consentedAt").notNull(),
@@ -230,6 +243,7 @@ export const careerPathAttempts = mysqlTable("career_path_attempts", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type AssessmentAttempt = typeof assessmentAttempts.$inferSelect;
+export type AssessmentDraft = typeof assessmentDrafts.$inferSelect;
 export type CareerPathAttempt = typeof careerPathAttempts.$inferSelect;
 export type ReportShare = typeof reportShares.$inferSelect;
 export type ReportShareAuditEvent = typeof reportShareAuditEvents.$inferSelect;

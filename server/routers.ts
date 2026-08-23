@@ -2,7 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { assessmentQuestions, ASSESSMENT_PRICE_KES, buildReport, buildRoleLens, type AssessmentReport, type RoleLens } from "../shared/assessment";
 import { careerPathQuestions, CAREER_PATH_PRICE_KES, buildCareerPathReport, type CareerPathReport } from "../shared/careerPath";
 import { parse as parseCookie } from "cookie";
-import { getAssessmentAttempt, createAssessmentAttempt, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference, compareUserAssessmentReports, createReportShare, getActiveReportShare, revokeReportShare, listReportShares, listReportShareAuditEvents, createCareerPathAttempt, setCareerPathPaystackReference, getCareerPathAttemptByReference, markCareerPathPaid, listCareerPathAttemptsByEmail } from "./db";
+import { getAssessmentAttempt, createAssessmentAttempt, createAssessmentDraft, getAssessmentDraft, markAssessmentDraftResumed, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference, compareUserAssessmentReports, createReportShare, getActiveReportShare, revokeReportShare, listReportShares, listReportShareAuditEvents, createCareerPathAttempt, setCareerPathPaystackReference, getCareerPathAttemptByReference, markCareerPathPaid, listCareerPathAttemptsByEmail } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { sdk } from "./_core/sdk";
 import { systemRouter } from "./_core/systemRouter";
@@ -15,7 +15,7 @@ import { renderAssessmentReportPdf, renderCareerPathReportPdf } from "./reportPd
 import { validateEmailTemplateBody } from "../shared/emailTemplate";
 import { buildCourseEnrollmentCsv } from "../shared/adminExport";
 import { buildDeliveryLogCsv, type DeliveryLogFilters } from "../shared/adminDeliveryLog";
-import { emailAssessmentReportIfNeeded, emailCareerPathReportIfNeeded, sendFailedLoginAlert, sendTemplateTestEmail } from "./email";
+import { emailAssessmentReportIfNeeded, emailCareerPathReportIfNeeded, sendAssessmentResumeEmail, sendFailedLoginAlert, sendTemplateTestEmail } from "./email";
 import { createHeartbeatJob } from "./_core/heartbeat";
 import { WEEKLY_EXPORT_KEY } from "./scheduledEnrollmentExport";
 import { DELIVERY_LOG_EXPORT_KEY } from "./deliveryLogExport";
@@ -249,8 +249,8 @@ export const appRouter = router({
   }),
   careerPath: router({
     questions: publicProcedure.query(() => ({ questions: careerPathQuestions, modules: [{ name: "Career interests", items: 32 }, { name: "Aptitude and cognitive preferences", items: 28 }, { name: "Learning and work style", items: 20 }, { name: "Personality and behavioural tendencies", items: 24 }, { name: "Skills and competencies", items: 24 }, { name: "Values and motivators", items: 20 }, { name: "Creativity, talent and innovation", items: 16 }, { name: "Career aspirations and exposure", items: 8 }, { name: "Situational career judgement", items: 8 }], priceKes: CAREER_PATH_PRICE_KES, estimatedMinutes: "35–45" })),
-    initializePayment: publicProcedure.input(z.object({ name: z.string().trim().min(2).max(160), email: z.string().email(), answers: careerPathAnswersSchema, consent: z.literal(true), personalNotes: z.string().trim().max(1000).optional().default("") })).mutation(async ({ input, ctx }) => {
-      const attemptId = await createCareerPathAttempt({ name: input.name, email: input.email, answers: input.answers, personalNotes: input.personalNotes || null });
+    initializePayment: publicProcedure.input(z.object({ name: z.string().trim().min(2).max(160), email: z.string().email(), answers: careerPathAnswersSchema, consent: z.literal(true), personalNotes: z.string().trim().max(1000).optional().default(""), receiptTitle: z.string().trim().max(160).optional().default("") })).mutation(async ({ input, ctx }) => {
+      const attemptId = await createCareerPathAttempt({ name: input.name, email: input.email, answers: input.answers, personalNotes: input.personalNotes || null, receiptTitle: input.receiptTitle || null });
       const reference = `piq-career-${Date.now()}-${randomUUID().replace(/-/g, "").slice(0, 12)}`;
       await setCareerPathPaystackReference(attemptId, reference);
       const originHeader = ctx.req.headers.origin;
@@ -264,7 +264,7 @@ export const appRouter = router({
       if (!attempt) throw new TRPCError({ code: "NOT_FOUND", message: "CareerPath attempt not found." });
       if (attempt.paymentStatus === "paid" && attempt.report) {
         let emailSent = false;
-        try { emailSent = await emailCareerPathReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report: attempt.report as CareerPathReport, personalNotes: attempt.personalNotes, reportEmailStatus: attempt.reportEmailStatus, reportEmailSentAt: attempt.reportEmailSentAt }); } catch (error) { console.error("[CareerPath] Report email delivery retry failed:", error); }
+        try { emailSent = await emailCareerPathReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report: attempt.report as CareerPathReport, personalNotes: attempt.personalNotes, receiptTitle: attempt.receiptTitle, reportEmailStatus: attempt.reportEmailStatus, reportEmailSentAt: attempt.reportEmailSentAt }); } catch (error) { console.error("[CareerPath] Report email delivery retry failed:", error); }
         return { report: attempt.report as CareerPathReport, reference: input.reference, emailSent };
       }
       const verification = await paystackRequest(`/transaction/verify/${encodeURIComponent(input.reference)}`);
@@ -274,7 +274,7 @@ export const appRouter = router({
       await markCareerPathPaid(attempt.id, report);
       await recordAnalyticsEvent({ eventName: "payment_completed", attemptId: attempt.id, metadata: { product: "careerpath", currency: "KES", amount: CAREER_PATH_PRICE_KES } });
       let emailSent = false;
-      try { emailSent = await emailCareerPathReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report, personalNotes: attempt.personalNotes }); } catch (error) { console.error("[CareerPath] Report email delivery failed:", error); }
+      try { emailSent = await emailCareerPathReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report, personalNotes: attempt.personalNotes, receiptTitle: attempt.receiptTitle }); } catch (error) { console.error("[CareerPath] Report email delivery failed:", error); }
       return { report, reference: input.reference, emailSent };
     }),
     history: protectedProcedure.query(async ({ ctx }) => {
@@ -295,6 +295,19 @@ export const appRouter = router({
   }),
   assessment: router({
     adminOverview: adminProcedure.query(() => getAssessmentAdminOverview()),
+    saveDraft: publicProcedure.input(z.object({ name: z.string().trim().min(2).max(160), email: z.string().email(), answers: z.array(z.object({ questionId: z.string(), value: z.number().int().min(1).max(5) })).max(assessmentQuestions.length), currentModule: z.number().int().min(0).max(assessmentQuestions.length - 1), origin: z.string().url() })).mutation(async ({ input }) => {
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      const draft = await createAssessmentDraft({ name: input.name, email: input.email, answers: input.answers, currentModule: input.currentModule, expiresAt });
+      const resumeUrl = `${input.origin.replace(/\/$/, "")}/assessment?resume=${encodeURIComponent(draft.token)}`;
+      await sendAssessmentResumeEmail({ to: input.email, name: input.name, resumeUrl, expiresAt });
+      return { sent: true as const, expiresAt };
+    }),
+    resumeDraft: publicProcedure.input(z.object({ token: z.string().min(32).max(128) })).query(async ({ input }) => {
+      const draft = await getAssessmentDraft(input.token);
+      if (!draft) throw new TRPCError({ code: "NOT_FOUND", message: "This resume link is invalid or expired." });
+      await markAssessmentDraftResumed(draft.id);
+      return { name: draft.name, email: draft.email, answers: draft.answers, currentModule: draft.currentModule, expiresAt: draft.expiresAt };
+    }),
     questions: publicProcedure.query(() => ({ questions: assessmentQuestions, priceKes: ASSESSMENT_PRICE_KES })),
     initializePayment: publicProcedure.input(z.object({ name: z.string().trim().min(2).max(160), email: z.string().email(), answers: answersSchema, consent: z.literal(true) })).mutation(async ({ input, ctx }) => {
       const attemptId = await createAssessmentAttempt({ name: input.name, email: input.email, answers: input.answers });

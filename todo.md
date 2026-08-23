@@ -343,3 +343,12 @@
 - [x] Add regression coverage for preview content, progress labels, clipboard fallback, and CareerPath KES 20 pricing.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these enhancements.
+
+# Receipt Titles, Resume Links, Preview Themes, and Module Pagination
+- [x] Allow learners to edit the receipt subject or coaching-session title in the pre-payment preview.
+- [x] Add a secure Save and Continue Later flow that emails a resume link without exposing raw answers.
+- [x] Add a light/dark theme toggle to the receipt preview screen.
+- [x] Arrange assessment questions by module in pagination with clear module navigation and progress.
+- [x] Add regression coverage for receipt title handling, resume tokens, preview themes, and module pagination.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these learner UX enhancements.

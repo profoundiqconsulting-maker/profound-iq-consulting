@@ -85,13 +85,28 @@ export async function sendPasswordResetEmail(input: { to: string; name: string; 
   await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to: input.to, subject, text: `Hello ${input.name},\n\nUse this link to reset your Profound IQ password. It expires in 30 minutes and can be used once:\n${input.resetUrl}\n\nIf you did not request this, you can ignore this message.`, html: `<div style="font-family:Arial,sans-serif;color:#16243d"><p>Hello ${safeName},</p><p>Use the link below to reset your Profound IQ password. It expires in 30 minutes and can be used once.</p><p><a href="${safeUrl}">Reset password</a></p><p>If you did not request this, you can ignore this message.</p></div>` });
 }
 
+export async function sendAssessmentResumeEmail(input: { to: string; name: string; resumeUrl: string; expiresAt: Date }): Promise<void> {
+  const config = getSmtpConfig();
+  const subject = "Continue your Profound IQ assessment";
+  const safeName = escapeHtml(input.name);
+  const safeUrl = escapeHtml(input.resumeUrl);
+  const expiry = input.expiresAt.toLocaleString("en-KE", { dateStyle: "medium", timeStyle: "short" });
+  await getTransporter().sendMail({
+    from: { name: config.fromName, address: config.from },
+    to: input.to,
+    subject,
+    text: `Hello ${input.name},\n\nYou can continue your Profound IQ assessment using this secure link:\n${input.resumeUrl}\n\nThis link expires on ${expiry}. Keep it private; it contains access to your saved progress.\n\nProfound IQ Consulting`,
+    html: `<div style="margin:0 auto;max-width:680px;background:#f7f3e8;color:#16243d;font-family:Arial,sans-serif"><div style="background:#101d35;color:#f7f3e8;padding:24px 28px;border-top:6px solid #c9a34e"><div style="font-size:12px;letter-spacing:3px;font-weight:700">PROFOUND IQ CONSULTING</div><div style="margin-top:8px;color:#c9a34e;font-size:11px;letter-spacing:2px">ASSESSMENT / CONTINUE LATER</div></div><div style="padding:28px"><p>Hello ${safeName},</p><p>Your saved assessment progress is ready to continue.</p><p><a href="${safeUrl}" style="display:inline-block;background:#c9a34e;color:#16243d;padding:13px 18px;text-decoration:none;font-weight:700">Continue assessment</a></p><p style="font-size:13px;color:#657084">This private link expires on ${escapeHtml(expiry)}. Keep it private; it provides access to your saved progress.</p></div><div style="background:#16243d;color:#c1cad7;padding:18px 28px;font-size:12px">Profound IQ Consulting · Transformational learning</div></div>`,
+  });
+}
+
 export async function sendTemplateTestEmail(input: { to: string; subject: string; body: string }): Promise<void> {
   const values = { name: "Amina Otieno", email: input.to, date: new Date().toLocaleDateString(), course: "Lead with Clarity" };
   const config = getSmtpConfig();
   await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to: input.to, subject: `[Preview] ${input.subject}`, text: renderEmailTemplate(input.body, values), html: renderEmailTemplateHtml(input.body, values) });
 }
 
-export async function emailCareerPathReportIfNeeded(input: { attemptId: number; participantName: string; email: string; createdAt: Date | string; report: CareerPathReport; personalNotes?: string | null; reportEmailStatus?: string | null; reportEmailSentAt?: Date | string | null }): Promise<boolean> {
+export async function emailCareerPathReportIfNeeded(input: { attemptId: number; participantName: string; email: string; createdAt: Date | string; report: CareerPathReport; personalNotes?: string | null; receiptTitle?: string | null; reportEmailStatus?: string | null; reportEmailSentAt?: Date | string | null }): Promise<boolean> {
   if (input.reportEmailStatus === "sent" || input.reportEmailSentAt) return false;
   const claimed = await claimCareerPathReportEmail(input.attemptId);
   if (!claimed) return false;
@@ -105,7 +120,7 @@ export async function emailCareerPathReportIfNeeded(input: { attemptId: number; 
   }
 }
 
-export async function sendCareerPathReportEmail(input: { attemptId: number; participantName: string; email: string; createdAt: Date | string; report: CareerPathReport; personalNotes?: string | null }): Promise<void> {
+export async function sendCareerPathReportEmail(input: { attemptId: number; participantName: string; email: string; createdAt: Date | string; report: CareerPathReport; personalNotes?: string | null; receiptTitle?: string | null }): Promise<void> {
   const config = getSmtpConfig();
   const pdf = await renderCareerPathReportPdf({ attemptId: input.attemptId, participantName: input.participantName, createdAt: input.createdAt, report: input.report });
   const coachingVisual = Buffer.from(buildSubPathwayComparisonSvg({ rows: input.report.subPathways.map((item) => ({ label: item.label, score: item.score })), generatedAt: new Date(input.createdAt).toLocaleDateString("en-KE") }));
@@ -116,7 +131,7 @@ export async function sendCareerPathReportEmail(input: { attemptId: number; part
   await getTransporter().sendMail({
     from: { name: config.fromName, address: config.from },
     to: input.email,
-    subject: "Your Profound IQ CareerPath report",
+    subject: input.receiptTitle?.trim() ? `${input.receiptTitle.trim()} · Profound IQ CareerPath` : "Your Profound IQ CareerPath report",
     text: `PROFOUND IQ CONSULTING\nCAREERPATH / LEARNER INSIGHT\n--------------------------------\nHello ${input.participantName},\n\nYour Profound IQ CareerPath report and coaching visual are attached. Use them to explore subjects, projects and conversations before choosing your next direction.\n\n${strengthsSummary}${personalNote ? `\n\n${personalNote}` : ""}\n\nThis educational guidance tool is not a diagnosis and does not determine a career.\n\n--------------------------------\nProfound IQ Consulting · Transformational learning`,
     html: `<div style="margin:0 auto;max-width:680px;background:#f7f3e8;color:#16243d;font-family:Arial,sans-serif"><div style="background:#101d35;color:#f7f3e8;padding:24px 28px;border-top:6px solid #c9a34e"><div style="font-size:12px;letter-spacing:3px;font-weight:700">PROFOUND IQ CONSULTING</div><div style="margin-top:8px;color:#c9a34e;font-size:11px;letter-spacing:2px">CAREERPATH / LEARNER INSIGHT</div></div><div style="padding:28px"><p>Hello ${escapeHtml(input.participantName)},</p><p>Your Profound IQ CareerPath report and coaching visual are attached. Use them to explore subjects, projects and conversations before choosing your next direction.</p><div style="border-left:3px solid #c9a34e;padding:12px 16px;background:#fff"><p>${escapeHtml(strengthsSummary)}</p>${safePersonalNote}</div><p><em>This educational guidance tool is not a diagnosis and does not determine a career.</em></p></div><div style="background:#16243d;color:#c1cad7;padding:18px 28px;font-size:12px;line-height:1.6"><strong style="color:#f7f3e8">Profound IQ Consulting</strong><br/>Transformational learning · Educational guidance · Online / global reach</div></div>`,
     attachments: [{ filename: `profound-iq-careerpath-${input.attemptId}.pdf`, content: pdf, contentType: "application/pdf" }, { filename: `profound-iq-careerpath-${input.attemptId}-coaching-visual.svg`, content: coachingVisual, contentType: "image/svg+xml" }],
