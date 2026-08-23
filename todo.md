@@ -472,3 +472,11 @@
 - [x] Add regression coverage for grouping, credential download, import preview, and localized sharing.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing the Transformation Services release.
+
+# Unified Transformation Services Navigation
+- [x] Create a shared branded navigation component for Transformation Services.
+- [x] Use the same navigation on Self Assessment and CareerPath pages.
+- [x] Include consistent service switching, home/contact, workspace, and mobile menu behavior.
+- [x] Add regression coverage for shared navigation rendering and links.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing the unified navigation update.

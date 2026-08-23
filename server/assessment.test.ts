@@ -72,6 +72,18 @@ describe("assessment scoring", () => {
     expect(careerPathSource).toMatch(/Email/);
   });
 
+  it("uses one shared navigation across Transformation Services", () => {
+    const navSource = readFileSync(resolve(process.cwd(), "client/src/components/TransformationNav.tsx"), "utf8");
+    const assessmentSource = readFileSync(resolve(process.cwd(), "client/src/pages/Assessment.tsx"), "utf8");
+    const careerPathSource = readFileSync(resolve(process.cwd(), "client/src/pages/CareerPath.tsx"), "utf8");
+    expect(navSource).toMatch(/Self Assessment/);
+    expect(navSource).toMatch(/CareerPath/);
+    expect(navSource).toMatch(/My workspace/);
+    expect(navSource).toMatch(/Mobile transformation services navigation/);
+    expect(assessmentSource).toMatch(/<TransformationNav active="assessment" \/>/);
+    expect(careerPathSource).toMatch(/<TransformationNav active="careerpath" \/>/);
+  });
+
   it("provides adaptable role lenses and longitudinal comparison deltas", () => {
     const current = buildReport(assessmentQuestions.map((question) => ({ questionId: question.id, value: 5 })));
     const previous = buildReport(assessmentQuestions.map((question) => ({ questionId: question.id, value: 4 })));
