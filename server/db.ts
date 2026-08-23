@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { and, desc, eq, gte, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, courseCertificates, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -786,4 +786,60 @@ export async function getAssessmentAdminOverview() {
       pending: attempts.filter((attempt) => attempt.paymentStatus !== "paid").length,
     },
   };
+}
+
+export async function getOrCreateCourseEnrollment(input: { userOpenId: string; courseSlug: string; name: string; email: string; amountKes: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const existing = (await db.select().from(courseLearnerEnrollments).where(and(eq(courseLearnerEnrollments.userOpenId, input.userOpenId), eq(courseLearnerEnrollments.courseSlug, input.courseSlug))).limit(1))[0];
+  if (existing) return existing;
+  const result = await db.insert(courseLearnerEnrollments).values({ userOpenId: input.userOpenId, courseSlug: input.courseSlug, name: input.name, email: input.email });
+  const enrollmentId = Number(result[0].insertId);
+  await db.insert(coursePaymentStages).values([1, 2, 3, 4].map((stage) => ({ enrollmentId, stage, amountKes: input.amountKes })));
+  return (await db.select().from(courseLearnerEnrollments).where(eq(courseLearnerEnrollments.id, enrollmentId)).limit(1))[0];
+}
+export async function getCourseEnrollment(userOpenId: string, courseSlug: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return (await db.select().from(courseLearnerEnrollments).where(and(eq(courseLearnerEnrollments.userOpenId, userOpenId), eq(courseLearnerEnrollments.courseSlug, courseSlug))).limit(1))[0] ?? undefined;
+}
+export async function listCourseEnrollmentState(userOpenId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const enrollments = await db.select().from(courseLearnerEnrollments).where(eq(courseLearnerEnrollments.userOpenId, userOpenId)).orderBy(desc(courseLearnerEnrollments.updatedAt));
+  return Promise.all(enrollments.map(async (enrollment) => ({ enrollment, lessons: await db.select().from(courseLessonProgress).where(eq(courseLessonProgress.enrollmentId, enrollment.id)), quizAttempts: await db.select().from(courseQuizAttempts).where(eq(courseQuizAttempts.enrollmentId, enrollment.id)).orderBy(desc(courseQuizAttempts.createdAt)), stages: await db.select().from(coursePaymentStages).where(eq(coursePaymentStages.enrollmentId, enrollment.id)).orderBy(coursePaymentStages.stage), certificates: await db.select().from(courseCertificates).where(eq(courseCertificates.enrollmentId, enrollment.id)).orderBy(desc(courseCertificates.createdAt)) })));
+}
+export async function markCourseLessonComplete(enrollmentId: number, lessonId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(courseLessonProgress).values({ enrollmentId, lessonId }).onDuplicateKeyUpdate({ set: { completedAt: new Date() } });
+}
+export async function recordCourseQuizAttempt(input: { enrollmentId: number; moduleId: string; score: number; passed: boolean; answers: unknown }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.insert(courseQuizAttempts).values(input);
+  return Number(result[0].insertId);
+}
+export async function getCoursePaymentStageByReference(reference: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return (await db.select().from(coursePaymentStages).where(eq(coursePaymentStages.paystackReference, reference)).limit(1))[0] ?? undefined;
+}
+export async function setCoursePaymentStageReference(id: number, reference: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(coursePaymentStages).set({ paystackReference: reference, initializedAt: new Date() }).where(eq(coursePaymentStages.id, id));
+}
+export async function markCoursePaymentStagePaid(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(coursePaymentStages).set({ paymentStatus: "paid", paidAt: new Date() }).where(and(eq(coursePaymentStages.id, id), eq(coursePaymentStages.paymentStatus, "pending")));
+}
+export async function createCourseCertificate(input: { enrollmentId: number; recipientName: string; courseTitle: string; certificateNumber: string; fileKey?: string; fileUrl?: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const existing = (await db.select().from(courseCertificates).where(eq(courseCertificates.enrollmentId, input.enrollmentId)).limit(1))[0];
+  if (existing) return existing;
+  const result = await db.insert(courseCertificates).values(input);
+  return (await db.select().from(courseCertificates).where(eq(courseCertificates.id, Number(result[0].insertId))).limit(1))[0];
 }

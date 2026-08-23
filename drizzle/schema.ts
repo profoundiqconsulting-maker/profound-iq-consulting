@@ -35,6 +35,54 @@ export const courseEnrollments = mysqlTable("course_enrollments", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+export const courseLearnerEnrollments = mysqlTable("course_learner_enrollments", {
+  id: int("id").autoincrement().primaryKey(),
+  userOpenId: varchar("userOpenId", { length: 64 }).notNull(),
+  courseSlug: varchar("courseSlug", { length: 120 }).notNull(),
+  name: varchar("name", { length: 160 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  status: varchar("status", { length: 32 }).default("active").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({ learnerCourseUnique: uniqueIndex("course_learner_course_unique").on(table.userOpenId, table.courseSlug) }));
+export const courseLessonProgress = mysqlTable("course_lesson_progress", {
+  id: int("id").autoincrement().primaryKey(),
+  enrollmentId: int("enrollmentId").notNull(),
+  lessonId: varchar("lessonId", { length: 180 }).notNull(),
+  completedAt: timestamp("completedAt").defaultNow().notNull(),
+}, (table) => ({ enrollmentLessonUnique: uniqueIndex("course_enrollment_lesson_unique").on(table.enrollmentId, table.lessonId) }));
+export const courseQuizAttempts = mysqlTable("course_quiz_attempts", {
+  id: int("id").autoincrement().primaryKey(),
+  enrollmentId: int("enrollmentId").notNull(),
+  moduleId: varchar("moduleId", { length: 120 }).notNull(),
+  score: int("score").notNull(),
+  passed: boolean("passed").default(false).notNull(),
+  answers: json("answers").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export const coursePaymentStages = mysqlTable("course_payment_stages", {
+  id: int("id").autoincrement().primaryKey(),
+  enrollmentId: int("enrollmentId").notNull(),
+  stage: int("stage").notNull(),
+  amountKes: int("amountKes").notNull(),
+  paymentStatus: varchar("paymentStatus", { length: 32 }).default("pending").notNull(),
+  paystackReference: varchar("paystackReference", { length: 120 }).unique(),
+  initializedAt: timestamp("initializedAt"),
+  paidAt: timestamp("paidAt"),
+}, (table) => ({ enrollmentStageUnique: uniqueIndex("course_enrollment_stage_unique").on(table.enrollmentId, table.stage) }));
+export const courseCertificates = mysqlTable("course_certificates", {
+  id: int("id").autoincrement().primaryKey(),
+  enrollmentId: int("enrollmentId").notNull(),
+  certificateNumber: varchar("certificateNumber", { length: 80 }).notNull().unique(),
+  recipientName: varchar("recipientName", { length: 160 }).notNull(),
+  courseTitle: varchar("courseTitle", { length: 180 }).notNull(),
+  status: varchar("status", { length: 32 }).default("issued").notNull(),
+  fileKey: varchar("fileKey", { length: 512 }),
+  fileUrl: varchar("fileUrl", { length: 512 }),
+  emailStatus: varchar("emailStatus", { length: 32 }).default("pending").notNull(),
+  emailedAt: timestamp("emailedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
 export const analyticsEvents = mysqlTable("analytics_events", {
   id: int("id").autoincrement().primaryKey(),
   eventName: varchar("eventName", { length: 80 }).notNull(),
@@ -249,6 +297,11 @@ export type ReportShare = typeof reportShares.$inferSelect;
 export type ReportShareAuditEvent = typeof reportShareAuditEvents.$inferSelect;
 export type InsertAssessmentAttempt = typeof assessmentAttempts.$inferInsert;
 export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
+export type CourseLearnerEnrollment = typeof courseLearnerEnrollments.$inferSelect;
+export type CourseLessonProgress = typeof courseLessonProgress.$inferSelect;
+export type CourseQuizAttempt = typeof courseQuizAttempts.$inferSelect;
+export type CoursePaymentStage = typeof coursePaymentStages.$inferSelect;
+export type CourseCertificate = typeof courseCertificates.$inferSelect;
 export type EmailTemplate = typeof emailTemplates.$inferSelect;
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 export type ScheduledExport = typeof scheduledExports.$inferSelect;

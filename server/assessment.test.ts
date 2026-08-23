@@ -2,8 +2,26 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { assessmentQuestions, ASSESSMENT_PRICE_KES, buildReport, buildRoleLens, compareReports } from "../shared/assessment";
+import { courseCatalog, COURSE_PASS_MARK, COURSE_PRICE_KES, COURSE_STAGE_AMOUNT_KES } from "../shared/courseCatalog";
 
 const assessmentPageSource = readFileSync(resolve(process.cwd(), "client/src/pages/Assessment.tsx"), "utf8");
+
+describe("professional course curriculum", () => {
+  it("provides ten modules, seven lessons, and fifteen quiz questions per course module", () => {
+    expect(courseCatalog).toHaveLength(4);
+    expect(COURSE_PRICE_KES).toBe(4999);
+    expect(COURSE_STAGE_AMOUNT_KES).toBe(1250);
+    expect(COURSE_PASS_MARK).toBe(50);
+    for (const course of courseCatalog) {
+      expect(course.modules).toHaveLength(10);
+      expect(course.modules.every((module) => Array.isArray(module.lessons))).toBe(true);
+      expect(course.modules.every((module) => module.lessons.length === 7)).toBe(true);
+      expect(course.modules.every((module) => Array.isArray(module.quiz))).toBe(true);
+      expect(course.modules.every((module) => module.quiz.length === 15)).toBe(true);
+      expect(course.modules.every((module) => module.lessons.every((lesson) => lesson.summary.length > 30))).toBe(true);
+    }
+  });
+});
 
 describe("assessment scoring", () => {
   it("exposes 100 questions across ten capability dimensions", () => {

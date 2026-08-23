@@ -613,3 +613,18 @@
 - [x] Add regression coverage for certificate access, preview, and LinkedIn sharing.
 - [x] Run type checks, full tests, production build, and desktop/mobile verification.
 - [x] Save a checkpoint containing the certificate experience enhancements.
+
+# Professional Course Learning Platform
+- [x] Replace the simple course metadata with detailed professional curriculum content for every existing course.
+- [x] Define 10 modules per course, with 7 lessons and a 15-question quiz per module.
+- [x] Add automatic quiz availability after lesson 7 and aggregate module quiz results into final course results.
+- [x] Enforce a 50% quiz pass mark with unlimited learner retries and attempt history.
+- [x] Add a modern course enrollment-to-completion workspace with progress, gates, and resume support.
+- [x] Set each course price to KES 4,999 and model four 25% staged Paystack charges before modules 1, 4, 7, and certificate request.
+- [x] Add server-side payment initialization, verification, idempotency, and stage access controls.
+- [x] Add automated professional certificate generation using the supplied certificate design direction.
+- [x] Email certificates on completion request and support secure dashboard download and update flows.
+- [x] Add authenticated course history, progress, quiz results, staged payment status, and certificate management to the user dashboard.
+- [x] Add regression coverage for curricula, quiz scoring/retries, staged payments, certificates, email delivery, and authorization boundaries.
+- [x] Run schema migration, type checks, full tests, production build, and desktop/mobile end-to-end verification.
+- [x] Save a checkpoint containing the professional course learning platform.

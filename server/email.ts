@@ -154,3 +154,18 @@ export async function sendAssessmentReportEmail(input: { attemptId: number; part
 function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ?? character);
 }
+
+export async function sendCourseCertificateEmail(input: { recipientName: string; email: string; courseTitle: string; certificateNumber: string; certificateSvg: string }) {
+  const config = getSmtpConfig();
+  const safeName = escapeHtml(input.recipientName);
+  const safeCourse = escapeHtml(input.courseTitle);
+  const subject = `Your Profound IQ certificate · ${input.courseTitle}`;
+  await getTransporter().sendMail({
+    from: { name: config.fromName, address: config.from },
+    to: input.email,
+    subject,
+    text: `Hello ${input.recipientName},\n\nCongratulations on completing ${input.courseTitle}. Your branded certificate of completion is attached. Credential: ${input.certificateNumber}.\n\nProfound IQ Consulting · Transformational learning`,
+    html: `<div style="max-width:680px;margin:0 auto;background:#f7f3e8;color:#16243d;font-family:Arial,sans-serif"><div style="background:#101d35;color:#f7f3e8;padding:24px 28px;border-top:6px solid #c9a34e"><div style="font-size:12px;letter-spacing:3px;font-weight:700">PROFOUND IQ CONSULTING</div><div style="margin-top:8px;color:#c9a34e;font-size:11px;letter-spacing:2px">CERTIFICATE OF COMPLETION</div></div><div style="padding:28px"><p>Hello ${safeName},</p><p>Congratulations on completing <strong>${safeCourse}</strong>. Your professional certificate is attached and will remain available in your learner dashboard.</p><p style="border-left:3px solid #c9a34e;padding:12px 16px;background:#fff">Credential: <strong>${escapeHtml(input.certificateNumber)}</strong></p></div><div style="background:#16243d;color:#c1cad7;padding:18px 28px;font-size:12px">Profound IQ Consulting · Transformational learning · Online / global reach</div></div>`,
+    attachments: [{ filename: `profound-iq-${input.certificateNumber}.svg`, content: input.certificateSvg, contentType: "image/svg+xml" }],
+  });
+}
