@@ -462,3 +462,13 @@
 - [x] Add regression coverage for sharing, drag-and-drop import, and the tooltip.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these celebration and import enhancements.
+
+# Transformation Services and Completion Credential Enhancements
+- [x] Group Self Assessment and CareerPath under a Transformation Services service category.
+- [x] Apply recent resume, progress, import, navigation, completion, and sharing UX patterns across Transformation Services.
+- [x] Add a downloadable completion badge or certificate for fully completed assessments.
+- [x] Add an import preview showing saved module and response count before replacement.
+- [x] Add localized WhatsApp and email sharing actions to Share Results.
+- [x] Add regression coverage for grouping, credential download, import preview, and localized sharing.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing the Transformation Services release.

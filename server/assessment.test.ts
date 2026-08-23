@@ -51,7 +51,25 @@ describe("assessment scoring", () => {
     expect(assessmentPageSource).toMatch(/onDrop=/);
     expect(assessmentPageSource).toMatch(/Drop a JSON progress file here/);
     expect(assessmentPageSource).toMatch(/Manage resume preferences/);
+    expect(assessmentPageSource).toMatch(/Review imported progress/);
+    expect(assessmentPageSource).toMatch(/Use this progress/);
+    expect(assessmentPageSource).toMatch(/completion-certificate/);
+    expect(assessmentPageSource).toMatch(/wa\.me/);
+    expect(assessmentPageSource).toMatch(/mailto:/);
 
+  });
+
+  it("exposes the Transformation Services grouping and CareerPath completion actions", () => {
+    const homePageSource = readFileSync(resolve(process.cwd(), "client/src/pages/Home.tsx"), "utf8");
+    const careerPathSource = readFileSync(resolve(process.cwd(), "client/src/pages/CareerPath.tsx"), "utf8");
+    expect(homePageSource).toMatch(/const transformationServices/);
+    expect(homePageSource).toMatch(/Transformation services/);
+    expect(homePageSource).toMatch(/Self Assessment/);
+    expect(homePageSource).toMatch(/CareerPath/);
+    expect(careerPathSource).toMatch(/downloadCompletionCertificate/);
+    expect(careerPathSource).toMatch(/shareResult/);
+    expect(careerPathSource).toMatch(/WhatsApp/);
+    expect(careerPathSource).toMatch(/Email/);
   });
 
   it("provides adaptable role lenses and longitudinal comparison deltas", () => {
