@@ -509,3 +509,23 @@
 - [x] Add regression coverage for recent searches, Auto theme behavior, and certificate toast linking.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these shared-header refinements.
+
+# Certificate Toast Sharing, Theme Fade, and Reusable Skill
+- [x] Add a Share action directly inside the new-certificate toast.
+- [x] Route toast sharing through native sharing with clipboard fallback.
+- [x] Add a smooth reduced-motion-aware fade transition when the theme changes, including Auto mode updates.
+- [x] Create a reusable skill documenting the Transformation Services UX workflow and patterns.
+- [x] Validate the skill package with the official skill validator.
+- [x] Add regression coverage for toast sharing and theme fade behavior.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing the website refinements.
+
+# Transformation Services Navigation Improvement
+- [x] Audit navigation across Self Assessment, CareerPath, report, recovery, and module-level flows.
+- [x] Improve service switching, breadcrumbs, quick search, and workspace access hierarchy.
+- [x] Improve module-level Previous, Next, overview, completion, and keyboard navigation clarity.
+- [x] Standardize mobile navigation and persistent progress context across Transformation Services.
+- [x] Add regression coverage for the improved navigation flows.
+- [x] Run type checks, full tests, production build, and desktop/mobile verification.
+- [x] Complete and validate the reusable Transformation Services UX skill documentation.
+- [x] Save a checkpoint containing the navigation improvements.

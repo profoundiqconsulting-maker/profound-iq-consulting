@@ -96,12 +96,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   * { transition-duration: .01ms !important; }
 }
 
+.theme-transitioning, .theme-transitioning * { transition: background-color .28s ease, color .28s ease, border-color .28s ease, box-shadow .28s ease !important; }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .28s; }
 ::view-transition-old(root) { animation-name: serviceViewOut; }
 ::view-transition-new(root) { animation-name: serviceViewIn; }
 @keyframes serviceViewOut { to { opacity: 0; transform: translateX(-.75rem); } }
 @keyframes serviceViewIn { from { opacity: 0; transform: translateX(.75rem); } }
 @media (prefers-reduced-motion: reduce) {
+  .theme-transitioning, .theme-transitioning * { transition: none !important; }
   ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .01ms; }
 }
 

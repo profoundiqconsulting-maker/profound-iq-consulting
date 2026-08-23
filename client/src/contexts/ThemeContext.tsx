@@ -21,8 +21,13 @@ export function ThemeProvider({ children, defaultTheme = "light", switchable = f
   }, []);
   const effectiveTheme = theme === "auto" ? (systemDark ? "dark" : "light") : theme;
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", effectiveTheme === "dark");
+    const root = document.documentElement;
+    const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    if (!prefersReducedMotion) root.classList.add("theme-transitioning");
+    root.classList.toggle("dark", effectiveTheme === "dark");
     if (switchable) localStorage.setItem("theme", theme);
+    const timeout = window.setTimeout(() => root.classList.remove("theme-transitioning"), prefersReducedMotion ? 0 : 280);
+    return () => window.clearTimeout(timeout);
   }, [effectiveTheme, switchable, theme]);
   const toggleTheme = switchable ? () => setTheme((prev) => prev === "light" ? "dark" : prev === "dark" ? "auto" : "light") : undefined;
   return <ThemeContext.Provider value={{ theme, setTheme, toggleTheme, switchable, effectiveTheme }}>{children}</ThemeContext.Provider>;

@@ -84,6 +84,10 @@ describe("assessment scoring", () => {
     expect(careerPathSource).toMatch(/<TransformationNav active="careerpath" \/>/);
     expect(navSource).toMatch(/aria-label="Breadcrumb"/);
     expect(navSource).toMatch(/startViewTransition/);
+    expect(assessmentSource).toMatch(/sticky top-14 z-10/);
+    expect(assessmentSource).toMatch(/aria-current=\{moduleIndex === page \? "step" : undefined\}/);
+    expect(assessmentSource).toMatch(/onClick=\{\(\) => navigateToModule\(moduleIndex\)\}/);
+    expect(assessmentSource).toMatch(/Module \{page \+ 1\} of \{totalPages\}/);
     expect(navSource).toMatch(/Saved progress/);
     expect(navSource).toMatch(/Certificates/);
     expect(navSource).toMatch(/Settings/);
