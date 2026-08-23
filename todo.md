@@ -628,3 +628,11 @@
 - [x] Add regression coverage for curricula, quiz scoring/retries, staged payments, certificates, email delivery, and authorization boundaries.
 - [x] Run schema migration, type checks, full tests, production build, and desktop/mobile end-to-end verification.
 - [x] Save a checkpoint containing the professional course learning platform.
+
+# CareerPath Introduction and Module Step Reorder
+- [x] Shorten the CareerPath landing view so introduction, purpose, pricing, and start/resume actions appear before modules.
+- [x] Move CareerPath module navigation and questions to a dedicated next step/page.
+- [x] Preserve resume drafts, payment callbacks, completion state, shared navigation, and mobile drawer behavior across the step boundary.
+- [x] Add regression coverage for the introduction-to-modules transition and deep-link/resume behavior.
+- [x] Run type checks, full tests, production build, and responsive verification for both CareerPath steps.
+- [x] Save a checkpoint containing the CareerPath reorder.
