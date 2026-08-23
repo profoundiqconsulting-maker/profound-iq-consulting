@@ -603,3 +603,13 @@
 - [x] Add regression coverage for drawer affordances, final completion detection, confetti, and certificate download.
 - [x] Run type checks, full tests, production build, and desktop/mobile verification.
 - [x] Save a checkpoint containing the CareerPath completion refinements.
+
+# My Certificates, Preview, and LinkedIn Sharing
+- [x] Add a My Certificates section to the authenticated profile dropdown.
+- [x] Allow users to view and re-download previously earned certificates from the certificates destination.
+- [x] Add a miniature generated-certificate preview to the CareerPath completion celebration.
+- [x] Add a Share to LinkedIn action beside Download Certificate.
+- [x] Preserve accessible labels, authenticated routing, and sharing fallbacks.
+- [x] Add regression coverage for certificate access, preview, and LinkedIn sharing.
+- [x] Run type checks, full tests, production build, and desktop/mobile verification.
+- [x] Save a checkpoint containing the certificate experience enhancements.

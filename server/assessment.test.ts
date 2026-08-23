@@ -109,7 +109,7 @@ describe("assessment scoring", () => {
     expect(assessmentSource).toMatch(/Focused review mode/);
     expect(assessmentSource).toMatch(/Potential improvement/);
     expect(navSource).toMatch(/Saved progress/);
-    expect(navSource).toMatch(/Certificates/);
+    expect(navSource).toMatch(/My Certificates/);
     expect(navSource).toMatch(/Settings/);
     expect(navSource).toMatch(/setTheme\("auto"\)/);
     expect(navSource).toMatch(/Auto/);
@@ -153,6 +153,11 @@ describe("CareerPath completion celebration", () => {
     const stylesSource = readFileSync(resolve(process.cwd(), "client/src/index.css"), "utf8");
     expect(careerPathSource).toMatch(/CareerPath complete/);
     expect(careerPathSource).toMatch(/Download Certificate/);
+    expect(careerPathSource).toMatch(/certificatePreviewUrl/);
+    expect(careerPathSource).toMatch(/Preview of the CareerPath completion certificate/);
+    expect(careerPathSource).toMatch(/shareCareerPathToLinkedIn/);
+    expect(careerPathSource).toMatch(/Share to LinkedIn/);
+    expect(careerPathSource).toMatch(/linkedin\.com\/sharing\/share-offsite/);
     expect(careerPathSource).toMatch(/downloadCareerPathCertificate/);
     expect(careerPathSource).toMatch(/careerpath-drawer-handle/);
     expect(stylesSource).toMatch(/piqDrawerHandleBounce/);
