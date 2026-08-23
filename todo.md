@@ -334,3 +334,12 @@
 - [x] Save a checkpoint containing these enhancements.
 
 - [x] Correct the stale homepage standard-assessment price label from KES 200 to KES 20 and revalidate the visible copy.
+
+# Learner Receipt Preview, Progress Labels, and CareerPath KES 20 Pricing
+- [x] Add a pre-payment learner receipt preview screen showing strengths summary, personal notes, and delivery details.
+- [x] Add percentage completion and clear step labels to the assessment progress bar.
+- [x] Add a download fallback when clipboard image copying is unsupported on mobile browsers.
+- [x] Change the CareerPath assessment price from KES 999 to KES 20 across checkout, verification, copy, and tests.
+- [x] Add regression coverage for preview content, progress labels, clipboard fallback, and CareerPath KES 20 pricing.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these enhancements.

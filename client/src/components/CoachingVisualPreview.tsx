@@ -29,7 +29,8 @@ export function CoachingVisualPreview({ svg, pngLoading = false, onDownloadSvg, 
       toast.success("Coaching visual copied", { description: "Paste it into compatible coaching notes or documents." });
       window.setTimeout(() => setCopied(false), 1800);
     } catch (error) {
-      toast.error("Copy unavailable", { description: error instanceof Error ? error.message : "Use the SVG or PNG download instead." });
+      onDownloadSvg();
+      toast.success("Clipboard unavailable", { description: "A compatible SVG download was started instead." });
     }
   };
   return <>

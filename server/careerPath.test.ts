@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { buildCareerPathReport, careerPathQuestions } from "../shared/careerPath";
+import { buildCareerPathReport, CAREER_PATH_PRICE_KES, careerPathQuestions } from "../shared/careerPath";
 
 describe("CareerPath assessment", () => {
+  it("uses the requested KES 20 price", () => {
+    expect(CAREER_PATH_PRICE_KES).toBe(20);
+  });
+
   it("exposes the documented 180-item architecture", () => {
     expect(careerPathQuestions).toHaveLength(180);
     expect(new Set(careerPathQuestions.map((question) => question.module)).size).toBe(9);
