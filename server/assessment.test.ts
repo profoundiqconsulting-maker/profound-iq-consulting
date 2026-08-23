@@ -93,6 +93,12 @@ describe("assessment scoring", () => {
     expect(assessmentSource).toMatch(/piq-search-query/);
     expect(assessmentSource).toMatch(/moduleScore/);
     expect(assessmentSource).toMatch(/out of 100/);
+    expect(assessmentSource).toMatch(/percent overall progress/);
+    expect(assessmentSource).toMatch(/<svg viewBox="0 0 40 40"/);
+    expect(navSource).toMatch(/ArrowDown/);
+    expect(navSource).toMatch(/ArrowUp/);
+    expect(navSource).toMatch(/aria-activedescendant/);
+    expect(assessmentSource).toMatch(/Review Section/);
     expect(navSource).toMatch(/Saved progress/);
     expect(navSource).toMatch(/Certificates/);
     expect(navSource).toMatch(/Settings/);

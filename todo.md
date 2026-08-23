@@ -538,3 +538,12 @@
 - [x] Add regression coverage for rail collapse, search highlighting, and score tooltips.
 - [x] Run type checks, full tests, production build, and desktop/mobile verification.
 - [x] Save a checkpoint containing the module-rail refinements.
+
+# Collapsed Progress, Search Keyboard Navigation, and Review Links
+- [x] Add a circular overall-progress indicator to the collapsed current-module rail.
+- [x] Add Up/Down keyboard navigation through highlighted quick-search results.
+- [x] Add an accessible active-result state and Enter activation for search navigation.
+- [x] Add a Review Section action to completed-score tooltip content.
+- [x] Add regression coverage for circular progress, search keyboard navigation, and review actions.
+- [x] Run type checks, full tests, production build, and desktop/mobile verification.
+- [x] Save a checkpoint containing these module-rail accessibility refinements.
