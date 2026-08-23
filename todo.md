@@ -369,3 +369,11 @@
 - [x] Add regression coverage for completion states, badge navigation, resume-link copying, and minimal receipt content.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these assessment UX refinements.
+
+# Assessment Progress Summary, Copy Confirmation, and Navigation Guard
+- [x] Add a compact completed-modules summary to the assessment header.
+- [x] Confirm successful resume-link copying with a toast notification.
+- [x] Add a confirmation prompt before navigating to a completed module from the overview drawer.
+- [x] Add regression coverage for summary counts, copy success feedback, and navigation guards.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these assessment progress refinements.
