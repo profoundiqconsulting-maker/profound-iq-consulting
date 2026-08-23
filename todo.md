@@ -385,3 +385,11 @@
 - [x] Add regression coverage for timestamp persistence, mobile summary semantics, and prompt preference behavior.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these assessment progress refinements.
+
+# Manual Save, Learner Preferences, and Save Pulse
+- [x] Add a manual Save Now button beside the last-saved timestamp without sending a new email.
+- [x] Add a learner preferences modal for reviewing and resetting navigation-warning choices.
+- [x] Add a subtle visual pulse to the last-saved timestamp after a successful save.
+- [x] Add regression coverage for manual save behavior, preference reset, and pulse state.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these assessment progress refinements.
