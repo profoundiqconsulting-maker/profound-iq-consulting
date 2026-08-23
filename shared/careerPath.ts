@@ -8,6 +8,10 @@ export type CareerPathwayResult = { key: CareerPathwayKey; label: string; score:
 export type CareerSubPathwayResult = { key: CareerSubPathwayKey; label: string; score: number; band: string; rationale: string };
 export type CareerPathReport = { overallReadout: string; primary: CareerPathwayResult; secondary: CareerPathwayResult; alternative: CareerPathwayResult; pathways: CareerPathwayResult[]; subPathways: CareerSubPathwayResult[]; learnerProfile: string[]; explorationPlan: string[]; importantContext: string[]; disclaimer: string };
 
+export function getTopCareerPathStrengths(report: Pick<CareerPathReport, "subPathways">, limit = 3): CareerSubPathwayResult[] {
+  return [...report.subPathways].sort((a, b) => b.score - a.score || a.label.localeCompare(b.label)).slice(0, Math.max(0, limit));
+}
+
 const module = (name: string, prompts: string[]): CareerPathQuestion[] => prompts.map((prompt, index) => ({ id: `cp-${name.toLowerCase().replace(/[^a-z]+/g, "-")}-${index + 1}`, module: name, prompt }));
 
 const interests = module("Career interests", [

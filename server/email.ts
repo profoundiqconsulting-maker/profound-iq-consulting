@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import type { Transporter } from "nodemailer";
 import type { AssessmentReport } from "../shared/assessment";
-import type { CareerPathReport } from "../shared/careerPath";
+import { getTopCareerPathStrengths, type CareerPathReport } from "../shared/careerPath";
 import { buildSubPathwayComparisonSvg } from "../shared/reportComparisonVisual";
 import { renderEmailTemplate, renderEmailTemplateHtml } from "../shared/emailTemplate";
 import { renderAssessmentReportPdf, renderCareerPathReportPdf } from "./reportPdf";
@@ -109,12 +109,14 @@ export async function sendCareerPathReportEmail(input: { attemptId: number; part
   const config = getSmtpConfig();
   const pdf = await renderCareerPathReportPdf({ attemptId: input.attemptId, participantName: input.participantName, createdAt: input.createdAt, report: input.report });
   const coachingVisual = Buffer.from(buildSubPathwayComparisonSvg({ rows: input.report.subPathways.map((item) => ({ label: item.label, score: item.score })), generatedAt: new Date(input.createdAt).toLocaleDateString("en-KE") }));
+  const topStrengths = getTopCareerPathStrengths(input.report).map((item) => `${item.label} (${item.score}/100)`);
+  const strengthsSummary = topStrengths.length ? `Your top strengths signals are ${topStrengths.join(", ")}. Use these as starting points for reflection and conversation, not as fixed labels.` : "Your report contains a coaching visual to support reflection and conversation.";
   await getTransporter().sendMail({
     from: { name: config.fromName, address: config.from },
     to: input.email,
     subject: "Your Profound IQ CareerPath report",
-    text: `Hello ${input.participantName},\n\nYour Profound IQ CareerPath report and coaching visual are attached. Use them to explore subjects, projects and conversations before choosing your next direction.\n\nThis educational guidance tool is not a diagnosis and does not determine a career.\n\nProfound IQ Consulting`,
-    html: `<p>Hello ${escapeHtml(input.participantName)},</p><p>Your Profound IQ CareerPath report and coaching visual are attached. Use them to explore subjects, projects and conversations before choosing your next direction.</p><p><em>This educational guidance tool is not a diagnosis and does not determine a career.</em></p><p>Profound IQ Consulting</p>`,
+    text: `Hello ${input.participantName},\n\nYour Profound IQ CareerPath report and coaching visual are attached. Use them to explore subjects, projects and conversations before choosing your next direction.\n\n${strengthsSummary}\n\nThis educational guidance tool is not a diagnosis and does not determine a career.\n\nProfound IQ Consulting`,
+    html: `<p>Hello ${escapeHtml(input.participantName)},</p><p>Your Profound IQ CareerPath report and coaching visual are attached. Use them to explore subjects, projects and conversations before choosing your next direction.</p><p>${escapeHtml(strengthsSummary)}</p><p><em>This educational guidance tool is not a diagnosis and does not determine a career.</em></p><p>Profound IQ Consulting</p>`,
     attachments: [{ filename: `profound-iq-careerpath-${input.attemptId}.pdf`, content: pdf, contentType: "application/pdf" }, { filename: `profound-iq-careerpath-${input.attemptId}-coaching-visual.svg`, content: coachingVisual, contentType: "image/svg+xml" }],
   });
 }

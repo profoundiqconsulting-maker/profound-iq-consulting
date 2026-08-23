@@ -42,7 +42,7 @@ describe("report email delivery", () => {
     expect(markCareerPathReportEmailSent).toHaveBeenCalledWith(99);
     expect(releaseCareerPathReportEmailClaim).not.toHaveBeenCalled();
     expect(renderCareerPathReportPdf).toHaveBeenCalledOnce();
-    expect(sendMail).toHaveBeenLastCalledWith(expect.objectContaining({ to: "brian@example.com", subject: "Your Profound IQ CareerPath report", attachments: expect.arrayContaining([expect.objectContaining({ filename: "profound-iq-careerpath-99.pdf", content: Buffer.from("%PDF-careerpath-test"), contentType: "application/pdf" }), expect.objectContaining({ filename: "profound-iq-careerpath-99-coaching-visual.svg", contentType: "image/svg+xml" })] ) }));
+    expect(sendMail).toHaveBeenLastCalledWith(expect.objectContaining({ to: "brian@example.com", subject: "Your Profound IQ CareerPath report", text: expect.stringContaining("Your top strengths signals are Pure Sciences (82/100), Languages (64/100)."), html: expect.stringContaining("Your top strengths signals are Pure Sciences (82/100), Languages (64/100)."), attachments: expect.arrayContaining([expect.objectContaining({ filename: "profound-iq-careerpath-99.pdf", content: Buffer.from("%PDF-careerpath-test"), contentType: "application/pdf" }), expect.objectContaining({ filename: "profound-iq-careerpath-99-coaching-visual.svg", contentType: "image/svg+xml" })]) }));
   });
 });
 

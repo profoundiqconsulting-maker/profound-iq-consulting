@@ -314,3 +314,11 @@
 - [x] Add regression tests for PNG conversion, QA toggle behavior, and coaching-visual email attachments.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing the PNG export, QA toggle, and receipt-email enhancements.
+
+# Coaching Visual Preview, Strengths Summary, and PNG Feedback
+- [x] Add a preview modal for the CareerPath coaching visual before download or email delivery.
+- [x] Add a concise top-strengths summary to automated CareerPath receipt emails.
+- [x] Add an accessible PNG generation/download spinner and success toast feedback.
+- [x] Add regression coverage for modal data, top-strengths email copy, and PNG feedback states.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing the preview, email summary, and PNG feedback enhancements.
