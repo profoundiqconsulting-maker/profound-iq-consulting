@@ -452,3 +452,13 @@
 - [x] Add regression coverage for celebration, import validation, and settings restoration.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these assessment recovery enhancements.
+
+# Share Results, Drag-and-Drop Import, and Settings Tooltip
+- [x] Add a Share Results action to the 100% completion celebration.
+- [x] Provide a local/share-sheet fallback with clear success and error feedback.
+- [x] Add a drag-and-drop zone for JSON Import Progress uploads.
+- [x] Preserve validation and keyboard file-selection support for imports.
+- [x] Add a descriptive tooltip explaining the settings icon manages resume preferences.
+- [x] Add regression coverage for sharing, drag-and-drop import, and the tooltip.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these celebration and import enhancements.

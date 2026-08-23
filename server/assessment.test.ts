@@ -47,6 +47,10 @@ describe("assessment scoring", () => {
     expect(assessmentPageSource).toMatch(/const importProgress/);
     expect(assessmentPageSource).toMatch(/Import Progress/);
     expect(assessmentPageSource).toMatch(/Open assessment settings/);
+    expect(assessmentPageSource).toMatch(/Share Results/);
+    expect(assessmentPageSource).toMatch(/onDrop=/);
+    expect(assessmentPageSource).toMatch(/Drop a JSON progress file here/);
+    expect(assessmentPageSource).toMatch(/Manage resume preferences/);
 
   });
 
