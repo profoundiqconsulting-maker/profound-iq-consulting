@@ -377,3 +377,11 @@
 - [x] Add regression coverage for summary counts, copy success feedback, and navigation guards.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these assessment progress refinements.
+
+# Saved Timestamp, Sticky Mobile Progress, and Prompt Preference
+- [x] Add a persistent last-saved timestamp beside the assessment progress summary.
+- [x] Add a sticky compact mobile progress summary for long assessment pages.
+- [x] Add a “Don’t show this again” preference to the completed-module navigation prompt.
+- [x] Add regression coverage for timestamp persistence, mobile summary semantics, and prompt preference behavior.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these assessment progress refinements.
