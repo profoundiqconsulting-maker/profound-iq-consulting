@@ -96,6 +96,15 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   * { transition-duration: .01ms !important; }
 }
 
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .28s; }
+::view-transition-old(root) { animation-name: serviceViewOut; }
+::view-transition-new(root) { animation-name: serviceViewIn; }
+@keyframes serviceViewOut { to { opacity: 0; transform: translateX(-.75rem); } }
+@keyframes serviceViewIn { from { opacity: 0; transform: translateX(.75rem); } }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .01ms; }
+}
+
 @layer base {
   * { @apply border-border outline-ring/50; }
   a { color: inherit; text-decoration: none; }

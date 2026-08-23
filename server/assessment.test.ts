@@ -78,10 +78,15 @@ describe("assessment scoring", () => {
     const careerPathSource = readFileSync(resolve(process.cwd(), "client/src/pages/CareerPath.tsx"), "utf8");
     expect(navSource).toMatch(/Self Assessment/);
     expect(navSource).toMatch(/CareerPath/);
-    expect(navSource).toMatch(/My workspace/);
+    expect(navSource).toMatch(/Profile/);
     expect(navSource).toMatch(/Mobile transformation services navigation/);
     expect(assessmentSource).toMatch(/<TransformationNav active="assessment" \/>/);
     expect(careerPathSource).toMatch(/<TransformationNav active="careerpath" \/>/);
+    expect(navSource).toMatch(/aria-label="Breadcrumb"/);
+    expect(navSource).toMatch(/startViewTransition/);
+    expect(navSource).toMatch(/Saved progress/);
+    expect(navSource).toMatch(/Certificates/);
+    expect(navSource).toMatch(/Settings/);
   });
 
   it("provides adaptable role lenses and longitudinal comparison deltas", () => {

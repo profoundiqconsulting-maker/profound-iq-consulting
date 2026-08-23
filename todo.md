@@ -480,3 +480,12 @@
 - [x] Add regression coverage for shared navigation rendering and links.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing the unified navigation update.
+
+# Transformation Services Header Enhancements
+- [x] Add a breadcrumb trail below the standardized Transformation Services navigation.
+- [x] Add a smooth reduced-motion-aware transition when switching between Self Assessment and CareerPath.
+- [x] Add an authenticated user profile dropdown to the standardized header.
+- [x] Provide quick profile-menu links to saved progress, certificates, and settings.
+- [x] Add regression coverage for breadcrumbs, transition behavior, and profile-menu destinations.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing the enhanced Transformation Services header.
