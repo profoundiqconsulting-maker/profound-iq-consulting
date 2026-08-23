@@ -401,3 +401,12 @@
 - [x] Add regression coverage for auto-save, local-draft detection/resume, and theme preference behavior.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these assessment enhancements.
+
+# Saved Data Clearing, System Theme Sync, and Module Navigation
+- [x] Add a Clear saved data action in Assessment Preferences for local drafts and save metadata.
+- [x] Default assessment theme to the system preference while preserving a manual light/dark override.
+- [x] Show a brief Draft restored successfully toast after resuming a local session.
+- [x] Provide clear Previous module and Next module navigation throughout the assessment.
+- [x] Add regression coverage for clear-data behavior, system theme fallback, restore feedback, and module navigation.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these assessment improvements.
