@@ -332,3 +332,5 @@
 - [x] Add regression coverage for clipboard fallback, email branding/notes, pagination/progress, and KES 20 pricing.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these enhancements.
+
+- [x] Correct the stale homepage standard-assessment price label from KES 200 to KES 20 and revalidate the visible copy.
