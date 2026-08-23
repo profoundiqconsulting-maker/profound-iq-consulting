@@ -36,6 +36,9 @@ describe("assessment scoring", () => {
     expect(assessmentPageSource).toMatch(/Moved to/);
     expect(assessmentPageSource).toMatch(/Download current progress/);
     expect(assessmentPageSource).toMatch(/application\/json/);
+    expect(assessmentPageSource).toMatch(/resume-progress-fill/);
+    expect(assessmentPageSource).toMatch(/event\.key === "Escape"/);
+    expect(assessmentPageSource).toMatch(/toast\.dismiss\(\)/);
   });
 
   it("provides adaptable role lenses and longitudinal comparison deltas", () => {

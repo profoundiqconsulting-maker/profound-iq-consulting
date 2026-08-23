@@ -426,3 +426,10 @@
 - [x] Add regression coverage for the new resume, toast, and export contracts.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these progress-management enhancements.
+
+# Resume Progress Animation and Escape Toast Dismissal
+- [x] Add a smooth entrance fill animation to the Resume previous session progress bar.
+- [x] Add Escape-key dismissal for visible toast notifications.
+- [x] Add regression coverage for the animation and Escape dismissal contracts.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these interaction refinements.
