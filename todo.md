@@ -784,3 +784,10 @@
 - [x] Add a presentation/results receipt download route scoped to successful transactions.
 - [x] Wire dashboard UI controls and countdowns to the new procedures.
 - [x] Add regression tests and complete build/responsive verification.
+
+# Approval History Pagination and Trend Summary
+- [x] Add server-side pagination metadata and page controls for organization approval history.
+- [x] Add compact recent approval trend aggregation for the admin dashboard.
+- [x] Add receipt-download spinner and success toast behavior.
+- [x] Add regression coverage and run type checks, tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these enhancements.

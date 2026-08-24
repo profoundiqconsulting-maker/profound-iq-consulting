@@ -884,7 +884,7 @@ export async function listOrganizationInvitations(input: { status?: string; sear
   return db.select().from(organizationInvitations).where(conditions.length ? and(...conditions) : undefined).orderBy(desc(organizationInvitations.createdAt)).limit(Math.min(500, Math.max(1, input.limit ?? 100))).offset(Math.max(0, input.offset ?? 0));
 }
 
-export async function listOrganizationApprovalEvents(input: { status?: string; search?: string; from?: Date; to?: Date; limit?: number; offset?: number }) {
+export async function listOrganizationApprovalEvents(input: { search?: string; from?: Date; to?: Date; page?: number; pageSize?: number }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const conditions = [
@@ -892,7 +892,15 @@ export async function listOrganizationApprovalEvents(input: { status?: string; s
     input.from ? gte(organizationApprovalEvents.createdAt, input.from) : undefined,
     input.to ? lte(organizationApprovalEvents.createdAt, input.to) : undefined,
   ].filter(Boolean) as Array<ReturnType<typeof eq>>;
-  return db.select().from(organizationApprovalEvents).where(conditions.length ? and(...conditions) : undefined).orderBy(desc(organizationApprovalEvents.createdAt)).limit(Math.min(1000, Math.max(1, input.limit ?? 250))).offset(Math.max(0, input.offset ?? 0));
+  const where = conditions.length ? and(...conditions) : undefined;
+  const page = Math.max(1, input.page ?? 1);
+  const pageSize = Math.min(100, Math.max(1, input.pageSize ?? 20));
+  const [rows, totalRows, trendRows] = await Promise.all([
+    db.select().from(organizationApprovalEvents).where(where).orderBy(desc(organizationApprovalEvents.createdAt)).limit(pageSize).offset((page - 1) * pageSize),
+    db.select({ count: sql<number>`count(*)` }).from(organizationApprovalEvents).where(where),
+    db.select({ bucket: sql<string>`DATE_FORMAT(${organizationApprovalEvents.createdAt}, '%Y-%m-%d')`, eventType: organizationApprovalEvents.eventType, count: sql<number>`count(*)` }).from(organizationApprovalEvents).where(where).groupBy(sql`DATE_FORMAT(${organizationApprovalEvents.createdAt}, '%Y-%m-%d')`, organizationApprovalEvents.eventType).orderBy(sql`DATE_FORMAT(${organizationApprovalEvents.createdAt}, '%Y-%m-%d')`),
+  ]);
+  return { rows, total: Number(totalRows[0]?.count ?? 0), page, pageSize, totalPages: Math.max(1, Math.ceil(Number(totalRows[0]?.count ?? 0) / pageSize)), trends: trendRows.map((row) => ({ bucket: row.bucket, eventType: row.eventType, count: Number(row.count) })) };
 }
 
 export async function reviewOrganizationInvitation(input: { id: number; actorOpenId: string; status: "approved" | "rejected"; note?: string }) {
