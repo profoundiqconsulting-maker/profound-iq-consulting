@@ -636,3 +636,13 @@
 - [x] Add regression coverage for the introduction-to-modules transition and deep-link/resume behavior.
 - [x] Run type checks, full tests, production build, and responsive verification for both CareerPath steps.
 - [x] Save a checkpoint containing the CareerPath reorder.
+
+# CareerPath Step URLs and Progress Sidebar
+- [x] Add unique bookmarkable URLs for CareerPath Introduction, Assessment, and Results steps.
+- [x] Restore the correct CareerPath step from direct links while preserving draft and payment state.
+- [x] Add a visual Introduction → Assessment → Results step indicator at the top of CareerPath.
+- [x] Add a desktop-only sticky sidebar with current payment status and overall assessment progress.
+- [x] Keep the mobile layout compact without forcing the desktop sidebar into narrow screens.
+- [x] Add regression coverage for direct step links and result routing.
+- [x] Run type checks, full tests, production build, and responsive route verification.
+- [x] Save a checkpoint containing the CareerPath step navigation enhancements.

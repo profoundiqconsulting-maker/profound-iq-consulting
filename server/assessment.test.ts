@@ -182,3 +182,20 @@ describe("CareerPath completion celebration", () => {
     expect(stylesSource).toMatch(/prefers-reduced-motion: reduce/);
   });
 });
+
+
+describe("CareerPath bookmarkable steps", () => {
+  it("exposes introduction, assessment, and results routes with a progress summary", () => {
+    const appSource = readFileSync(resolve(process.cwd(), "client/src/App.tsx"), "utf8");
+    const careerPathSource = readFileSync(resolve(process.cwd(), "client/src/pages/CareerPath.tsx"), "utf8");
+    expect(appSource).toMatch(/path="\/careerpath\/assessment"/);
+    expect(appSource).toMatch(/path="\/careerpath\/results"/);
+    expect(appSource).toMatch(/path="\/careerpath"/);
+    expect(careerPathSource).toMatch(/CareerPathStepIndicator/);
+    expect(careerPathSource).toMatch(/href: "\/careerpath\/assessment"/);
+    expect(careerPathSource).toMatch(/href: "\/careerpath\/results"/);
+    expect(careerPathSource).toMatch(/aria-label="CareerPath progress summary"/);
+    expect(careerPathSource).toMatch(/Payment/);
+    expect(careerPathSource).toMatch(/overallCompletion/);
+  });
+});
