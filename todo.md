@@ -891,10 +891,10 @@
 - [x] Run content integrity checks, tests, production build, responsive verification, and save a checkpoint.
 
 # OAuth Configuration and Build Warning
-- [ ] Restore or securely configure OAUTH_SERVER_URL for the backend OAuth flow.
-- [ ] Verify the corresponding frontend OAuth portal configuration and authenticated session behavior.
-- [ ] Adjust the production chunk-size warning threshold or splitting configuration without masking build failures.
-- [ ] Run tests and production build, then save a recoverable checkpoint.
+- [x] Restore or securely configure OAUTH_SERVER_URL for the backend OAuth flow.
+- [x] Verify the corresponding frontend OAuth portal configuration and authenticated session behavior.
+- [x] Adjust the production chunk-size warning threshold or splitting configuration without masking build failures.
+- [x] Run tests and production build, then save a recoverable checkpoint.
 
 # Course Quality Verification
 - [x] Verify every module quiz question references an existing lesson and aligned module content.
