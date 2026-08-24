@@ -1239,3 +1239,26 @@
 - [x] Add regression coverage for metadata, progress, results history, and recommendation logic.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
 - [x] Save the Self Assessment discovery and results checkpoint.
+
+# Psychometrics Assessment Suite
+- [ ] Extract and document the attached suite background for all six psychometric tests.
+- [ ] Define shared test contracts, dimensions, scoring rules, interpretation bands, and non-diagnostic safeguards.
+- [ ] Add the six professional psychometric assessment catalogs with robust question banks and personalized result logic.
+- [ ] Add KES 699 payment gating and Paystack verification for each psychometric test.
+- [ ] Integrate dashboard history, report generation, branded PDF/email delivery, and admin visibility.
+- [ ] Verify certificates/reports include logo, learner identity, test title, issue date, certificate/report number, QR verification, and web address where applicable.
+- [ ] Add structural, scoring, payment, authorization, and delivery regression coverage.
+- [ ] Run full tests, TypeScript validation, production build, runtime review, accessibility, and responsive verification.
+- [ ] Save the Psychometrics Assessment Suite checkpoint.
+
+# Psychometrics Suite Implementation Continuation
+- [x] Complete the six-test shared psychometric catalog with 120 stable items per test, domain metadata, scoring bands, and non-diagnostic safeguards.
+- [x] Correct keyed multiple-choice scoring for the Cognitive & Reasoning Assessment.
+- [x] Add public catalog and interactive branded assessment route with progress indicator, response controls, consent, and KES 699 Paystack checkout.
+- [x] Add server procedures for catalog, questions, payment initialization, idempotent payment verification, and authenticated history.
+- [x] Add learner dashboard history cards for paid and pending psychometric attempts.
+- [x] Add regression coverage for catalog size, price, scoring, and cognitive answer keys.
+- [ ] Add branded PDF/report email delivery for paid psychometric profiles.
+- [ ] Add admin visibility and operational filters for psychometric attempts.
+- [x] Run full tests, production build, runtime checks, and responsive screenshots.
+- [ ] Save the Psychometrics Assessment Suite checkpoint.

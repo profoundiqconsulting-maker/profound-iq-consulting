@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { normalizeLeaderboardDisplayName, rankAchievementLeaderboard, type AchievementBadge, type AchievementLeaderboardRow } from "../shared/achievements";
 import { courseCatalog } from "../shared/courseCatalog";
 import { buildCourseModuleBadges } from "../shared/courseBadges";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -20,6 +20,38 @@ export async function getDb() {
     try { _db = drizzle(process.env.DATABASE_URL); } catch (error) { console.warn("[Database] Failed to connect:", error); _db = null; }
   }
   return _db;
+}
+
+export async function createPsychometricAttempt(input: { testSlug: string; name: string; email: string; answers: unknown; consentedAt: Date }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.insert(psychometricAttempts).values({ ...input, paymentStatus: "pending", reportEmailStatus: "pending" });
+  return Number(result[0].insertId);
+}
+
+export async function setPsychometricPaystackReference(id: number, reference: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(psychometricAttempts).set({ paystackReference: reference }).where(eq(psychometricAttempts.id, id));
+}
+
+export async function getPsychometricAttemptByReference(reference: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db.select().from(psychometricAttempts).where(eq(psychometricAttempts.paystackReference, reference)).limit(1);
+  return rows[0] ?? null;
+}
+
+export async function markPsychometricPaid(id: number, report: unknown) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(psychometricAttempts).set({ paymentStatus: "paid", report, paidAt: new Date() }).where(eq(psychometricAttempts.id, id));
+}
+
+export async function listPsychometricAttemptsByEmail(email: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(psychometricAttempts).where(eq(psychometricAttempts.email, email)).orderBy(desc(psychometricAttempts.createdAt));
 }
 
 export async function getAdminNotificationRecipients(): Promise<string[]> {

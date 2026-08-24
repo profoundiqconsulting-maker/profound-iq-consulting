@@ -246,3 +246,64 @@ export async function renderPaymentReceiptPdf(input: { attemptId: number; partic
   doc.end();
   return finished;
 }
+
+import type { PsychometricReport } from "../shared/psychometrics";
+
+type PsychometricPdfInput = { attemptId: number; participantName: string; email?: string; createdAt: Date | string; report: PsychometricReport; verificationUrl: string };
+
+export async function renderPsychometricReportPdf(input: PsychometricPdfInput): Promise<Buffer> {
+  const doc = new PDFDocument({ size: "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: `${input.report.title} — Profound IQ Consulting`, Author: "Profound IQ Consulting" } });
+  const chunks: Buffer[] = [];
+  doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+  const finished = new Promise<Buffer>((resolve, reject) => { doc.on("end", () => resolve(Buffer.concat(chunks))); doc.on("error", reject); });
+  const brandLogo = await loadBrandLogo();
+  doc.fillColor(NAVY).rect(0, 0, doc.page.width, 92).fill();
+  if (brandLogo) { try { doc.image(brandLogo, 52, 10, { fit: [116, 72], valign: "center" }); } catch { /* Text lockup remains the fallback. */ } }
+  const headerX = brandLogo ? 190 : 52;
+  doc.fillColor("#f7f3e8").font("Helvetica-Bold").fontSize(10).text("PROFOUND IQ / CONSULTING", headerX, 32, { characterSpacing: 1.4 });
+  doc.fillColor(GOLD).font("Helvetica").fontSize(9).text("PSYCHOMETRIC ASSESSMENT SUITE", headerX, 52, { characterSpacing: 1.1 });
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(23).text(input.report.title, 52, 128, { width: 491 });
+  doc.fillColor(GOLD).font("Helvetica").fontSize(9).text(`REPORT #${input.attemptId}  ·  ${formatDate(input.createdAt)}`, 52, 169, { characterSpacing: 0.7 });
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(13).text(input.participantName, 52, 204);
+  if (input.email) doc.fillColor(MUTED).font("Helvetica").fontSize(9.5).text(input.email, 52, 223);
+  doc.strokeColor(GOLD).lineWidth(2).moveTo(52, 250).lineTo(543, 250).stroke();
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("OVERALL PROFILE", 52, 265, { characterSpacing: 1.3 });
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(42).text(`${input.report.overallScore}`, 52, 286);
+  doc.fillColor(MUTED).font("Helvetica").fontSize(11).text("overall signal / 100", 124, 310);
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(16).text(input.report.overallBand, 52, 350);
+  let y = 395;
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("EXECUTIVE READOUT", 52, y, { characterSpacing: 1.2 });
+  y += 21;
+  y = writeText(doc, `This report presents a structured development signal across the dimensions of the ${input.report.title}. Use it to guide reflection, learning plans, coaching, and evidence-based conversations.`, 52, y, 491, 10, MUTED, 4) + 14;
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("TOP SIGNALS", 52, y, { characterSpacing: 1.2 });
+  y += 20;
+  y = writeBullets(doc, input.report.strengths, y, 9.8, NAVY) + 10;
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("DEVELOPMENT PRIORITIES", 52, y, { characterSpacing: 1.2 });
+  y += 20;
+  y = writeBullets(doc, input.report.developmentPriorities, y, 9.8, NAVY) + 10;
+  addFooter(doc);
+  doc.addPage();
+  y = 58;
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("DIMENSION READOUT", 52, y, { characterSpacing: 1.2 });
+  y += 25;
+  for (const dimension of input.report.domains) {
+    if (y > 690) { addFooter(doc); doc.addPage(); y = 58; }
+    doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(12).text(dimension.label, 52, y);
+    doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(12).text(`${dimension.score} / 100`, 450, y, { width: 93, align: "right" });
+    y += 18;
+    y = writeText(doc, dimension.readout, 52, y, 491, 9.3, MUTED, 3) + 4;
+    y = writeBullets(doc, dimension.developmentActions, y, 9.1, NAVY) + 10;
+  }
+  if (y > 640) { addFooter(doc); doc.addPage(); y = 58; }
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("RECOMMENDATIONS", 52, y, { characterSpacing: 1.2 });
+  y += 21;
+  y = writeBullets(doc, input.report.recommendations, y, 9.6, NAVY) + 16;
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("IMPORTANT CONTEXT", 52, y, { characterSpacing: 1.2 });
+  y += 20;
+  writeText(doc, input.report.disclaimer, 52, y, 491, 8.8, MUTED, 3);
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(8.5).text("VERIFY THIS REPORT", 52, 700, { characterSpacing: 1.1 });
+  doc.fillColor(NAVY).font("Helvetica").fontSize(8.5).text(input.verificationUrl, 52, 716, { width: 491, link: input.verificationUrl, underline: true });
+  addFooter(doc);
+  doc.end();
+  return finished;
+}

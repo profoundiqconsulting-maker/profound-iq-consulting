@@ -407,6 +407,22 @@ export const careerPathAttempts = mysqlTable("career_path_attempts", {
   consentedAt: timestamp("consentedAt").notNull(),
 });
 
+export const psychometricAttempts = mysqlTable("psychometric_attempts", {
+  id: int("id").autoincrement().primaryKey(),
+  testSlug: varchar("testSlug", { length: 120 }).notNull(),
+  name: varchar("name", { length: 160 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  answers: json("answers").notNull(),
+  paystackReference: varchar("paystackReference", { length: 120 }).unique(),
+  paymentStatus: varchar("paymentStatus", { length: 32 }).default("pending").notNull(),
+  report: json("report"),
+  reportEmailStatus: varchar("reportEmailStatus", { length: 16 }).default("pending").notNull(),
+  reportEmailSentAt: timestamp("reportEmailSentAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  paidAt: timestamp("paidAt"),
+  consentedAt: timestamp("consentedAt").notNull(),
+});
+
 export const organizationInvitations = mysqlTable("organization_invitations", {
   id: int("id").autoincrement().primaryKey(),
   tokenHash: varchar("tokenHash", { length: 128 }).notNull().unique(),
