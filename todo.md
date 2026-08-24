@@ -834,3 +834,9 @@
 - [x] Add Remember Me to login and carry it through secure session creation without storing passwords client-side.
 - [x] Add Load More behavior for older activity while preserving filters and links.
 - [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
+
+# Profile Validation, Activity Exports, and Recommendations
+- [x] Add real-time inline validation to the Complete Profile modal and success toast after saved updates.
+- [x] Add secure PDF export buttons to completed-assessment activity items.
+- [x] Add profile-driven personalized self-assessment recommendations.
+- [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
