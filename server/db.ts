@@ -1031,7 +1031,10 @@ export async function getOrCreateCourseEnrollment(input: { userOpenId: string; c
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const existing = (await db.select().from(courseLearnerEnrollments).where(and(eq(courseLearnerEnrollments.userOpenId, input.userOpenId), eq(courseLearnerEnrollments.courseSlug, input.courseSlug))).limit(1))[0];
-  if (existing) return existing;
+  if (existing) {
+    await db.update(courseLearnerEnrollments).set({ name: input.name, email: input.email, updatedAt: new Date() }).where(eq(courseLearnerEnrollments.id, existing.id));
+    return (await db.select().from(courseLearnerEnrollments).where(eq(courseLearnerEnrollments.id, existing.id)).limit(1))[0];
+  }
   const result = await db.insert(courseLearnerEnrollments).values({ userOpenId: input.userOpenId, courseSlug: input.courseSlug, name: input.name, email: input.email });
   const enrollmentId = Number(result[0].insertId);
   await db.insert(coursePaymentStages).values([1, 2, 3, 4].map((stage) => ({ enrollmentId, stage, amountKes: input.amountKes })));
@@ -1184,4 +1187,13 @@ export async function listCourseDeliveryEventsForAdmin(input: { status?: string;
   if (!db) throw new Error("Database is not available");
   const conditions = [input.status && input.status !== "all" ? eq(courseDeliveryEvents.status, input.status) : undefined, input.step && input.step !== "all" ? eq(courseDeliveryEvents.step, input.step) : undefined, input.search?.trim() ? or(like(courseDeliveryEvents.recipientEmail, `%${input.search.trim()}%`), like(courseDeliveryEvents.organizationName, `%${input.search.trim()}%`)) : undefined].filter(Boolean) as Array<ReturnType<typeof eq>>;
   return db.select().from(courseDeliveryEvents).where(conditions.length ? and(...conditions) : undefined).orderBy(desc(courseDeliveryEvents.createdAt)).limit(Math.min(500, Math.max(1, input.limit ?? 100))).offset(Math.max(0, input.offset ?? 0));
+}
+
+export async function updateCourseEnrollmentIdentity(userOpenId: string, enrollmentId: number, input: { name: string; email: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const existing = (await db.select().from(courseLearnerEnrollments).where(and(eq(courseLearnerEnrollments.id, enrollmentId), eq(courseLearnerEnrollments.userOpenId, userOpenId))).limit(1))[0];
+  if (!existing) return undefined;
+  await db.update(courseLearnerEnrollments).set({ name: input.name.trim(), email: input.email.trim().toLowerCase(), updatedAt: new Date() }).where(eq(courseLearnerEnrollments.id, enrollmentId));
+  return (await db.select().from(courseLearnerEnrollments).where(eq(courseLearnerEnrollments.id, enrollmentId)).limit(1))[0];
 }

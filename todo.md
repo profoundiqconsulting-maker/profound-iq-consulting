@@ -1081,3 +1081,28 @@
 - [x] Add regression coverage for enrollment validation, payment failure/retry, and first-stage access boundaries.
 - [x] Verify type checks, tests, production build, runtime logs, and responsive enrollment rendering.
 - [x] Save a checkpoint for the enhanced course enrollment workflow.
+
+# Authenticated Payment Experience
+- [x] Capture and persist the authenticated learner name and email before course checkout.
+- [x] Add a user-facing payment rollup for staged course payments and outstanding balance.
+- [x] Add a dedicated payment-success confirmation route with clear course-access next steps.
+- [x] Add incomplete-enrollment dashboard cards with resume-payment actions.
+- [x] Add regression coverage for identity capture, payment rollups, success routing, and resume authorization.
+- [x] Verify type checks, tests, production build, runtime logs, and responsive payment/dashboard rendering.
+- [x] Save a checkpoint for the authenticated payment experience.
+
+# Authenticated Payment Experience
+- [x] Implement the dedicated payment-success page with server-side Paystack reference verification and clear next steps.
+- [x] Add authenticated learner name and email capture before course enrollment checkout.
+- [x] Add learner payment rollup with four staged payments, paid amount, remaining balance, and status.
+- [x] Add incomplete-enrollment dashboard cards with resumable course/payment actions.
+- [x] Add regression tests for enrollment identity capture, payment-success verification, and payment rollup contracts.
+- [x] Run full type checks, tests, production build, runtime log review, and responsive desktop/mobile verification.
+- [x] Save a final completion checkpoint after all inherited payment-experience work is verified.
+
+# Authenticated Payment Experience Stabilization
+- [x] Repair the checkout identity form so a newly created enrollment is initialized before Paystack checkout.
+- [x] Ensure the callback routes to the dedicated payment-success verification page.
+- [x] Verify payment rollup and resume-card rendering contracts against course state data.
+- [x] Re-run all validation and capture final responsive evidence.
+- [x] Fix mobile dashboard header actions wrapping into a cramped four-column line during responsive verification.

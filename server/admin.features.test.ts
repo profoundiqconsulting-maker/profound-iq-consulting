@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
+import { courseCatalog } from "../shared/courseCatalog";
 
 function contextWithRole(role: "admin" | "user"): TrpcContext {
   const now = new Date();
@@ -37,6 +38,11 @@ describe("admin feature boundaries", () => {
   it("rejects analytics events outside the supported event contract", async () => {
     const caller = appRouter.createCaller(contextWithRole("user"));
     await expect(caller.analytics.track({ eventName: "unsupported_event" as never })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("requires the authenticated account email for course enrollment", async () => {
+    const caller = appRouter.createCaller(contextWithRole("user"));
+    await expect(caller.course.enroll({ courseSlug: courseCatalog[0].slug, name: "Test Person", email: "other@example.com", consent: true })).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 
   it("requires privacy consent for course enrollment", async () => {
