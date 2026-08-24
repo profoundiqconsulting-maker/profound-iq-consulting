@@ -7,7 +7,7 @@ export const COURSE_PASS_MARK = 50;
 export type LessonSection = { heading: string; body: string; callout?: string };
 export type LessonSimulation = { prompt: string; options: string[]; feedback: string[] };
 export type CourseLesson = { id: string; title: string; summary: string; outcome: string; durationMinutes: number; objectives: string[]; sections: LessonSection[]; example: { context: string; move: string; result: string }; simulation: LessonSimulation; reflectionPrompt: string; keyTakeaway: string; illustration: { label: string; caption: string; accent: string } };
-export type CourseQuizQuestion = { id: string; prompt: string; options: string[]; correctOption: number; sourceLessonId: string; sourceLessonTitle: string; explanation: string };
+export type CourseQuizQuestion = { id: string; prompt: string; options: string[]; correctOption: number; sourceLessonId: string; sourceLessonTitle: string; explanation: string; optionExplanations: string[] };
 export type CourseModule = { id: string; title: string; promise: string; lessons: CourseLesson[]; quiz: CourseQuizQuestion[] };
 export type CourseDefinition = { slug: string; index: string; title: string; strapline: string; description: string; audience: string; duration: string; outcomes: readonly string[]; priceKes: number; stageAmountsKes: readonly number[]; modules: CourseModule[] };
 
@@ -114,9 +114,18 @@ const quizQuestions = (courseSlug: string, moduleId: string, theme: string, less
   ];
   const correctPosition = (index * 3 + moduleId.length) % 4;
   const base = answerSets[index % answerSets.length];
+  const explanationSets = [
+    [`Correct: this response identifies the intended outcome, makes the next move observable, and creates a review point.`, `Not quite: more information can help, but waiting for complete certainty delays a useful decision and test.`, `Not quite: additional meetings do not change the underlying pattern unless they produce a clear decision or behaviour.`, `Not quite: leaving the pattern untouched provides no evidence that the situation is improving.`],
+    [`Not quite: activity and goodwill are useful context, but they do not show whether the target behaviour changed.`, `Correct: visible evidence connected to the lesson can be reviewed and improved in the next work cycle.`, `Not quite: a polished document matters only if it changes a decision, behaviour, or result.`, `Not quite: postponing review removes the feedback needed to learn.`],
+    [`Not quite: encouragement without a specific practice does not address the working pattern.`, `Not quite: taking over removes ownership and limits learning for the people involved.`, `Correct: naming the pattern and agreeing a small experiment turns the lesson into shared action.`, `Not quite: delaying until every objection is resolved can prevent a timely, constructive conversation.`],
+    [`Not quite: terminology supports understanding, but application requires a visible change in context.`, `Not quite: waiting for a formal programme postpones practice that could begin safely now.`, `Not quite: another person’s solution may not fit the local constraints or intended outcome.`, `Correct: transferring the lesson to a live decision or review conversation creates evidence of learning.`],
+  ];
   const options = [...base];
+  const explanations = [...explanationSets[index % explanationSets.length]];
   const [correctAnswer] = options.splice(index % 4, 1);
+  const [correctExplanation] = explanations.splice(index % 4, 1);
   options.splice(correctPosition, 0, correctAnswer);
+  explanations.splice(correctPosition, 0, correctExplanation);
   return {
     id: `${courseSlug}-${moduleId}-q${index + 1}`,
     prompt: prompts[index % prompts.length],
@@ -124,7 +133,8 @@ const quizQuestions = (courseSlug: string, moduleId: string, theme: string, less
     correctOption: correctPosition,
     sourceLessonId: lesson.id,
     sourceLessonTitle: lesson.title,
-    explanation: `This answer directly revisits the lesson “${lesson.title}” by connecting ${theme} to an observable action and a review point.`,
+    explanation: `This question revisits the lesson “${lesson.title}” by connecting ${theme} to an observable action and a review point.`,
+    optionExplanations: explanations,
   };
 });
 
@@ -186,9 +196,17 @@ const icpcQuizQuestions = (courseSlug: string, moduleId: string, theme: string, 
   ];
   const correctPosition = (index * 5 + moduleId.length) % 4;
   const options = [...distractors[index % distractors.length], correctAnswers[index % correctAnswers.length]];
+  const optionExplanations = [
+    `Not quite: this approach focuses on activity or compliance without checking whether the intended learning is happening.`,
+    `Not quite: a method or document is only useful when it fits the learner, curriculum purpose, and evidence available.`,
+    `Not quite: postponing adjustment removes the timely evidence needed to support learner progress.`,
+    `Correct: this response connects learner evidence, context, professional judgment, and a purposeful next action.`,
+  ];
   const correct = options.pop()!;
+  const correctExplanation = optionExplanations.pop()!;
   options.splice(correctPosition, 0, correct);
-  return { id: `${courseSlug}-${moduleId}-q${index + 1}`, prompt: stems[index % stems.length], options, correctOption: correctPosition, sourceLessonId: lesson.id, sourceLessonTitle: lesson.title, explanation: `This question is aligned to ${lesson.title} and tests whether the learner can connect ${theme} to an observable teaching, learning, or assessment decision.` };
+  optionExplanations.splice(correctPosition, 0, correctExplanation);
+  return { id: `${courseSlug}-${moduleId}-q${index + 1}`, prompt: stems[index % stems.length], options, correctOption: correctPosition, sourceLessonId: lesson.id, sourceLessonTitle: lesson.title, explanation: `This question is aligned to ${lesson.title} and tests whether the learner can connect ${theme} to an observable teaching, learning, or assessment decision.`, optionExplanations };
 });
 
 const buildIcpcModules = (course: { slug: string; title: string }): CourseModule[] => icpcLessonBlueprints.map((lessonTitles, moduleIndex) => {

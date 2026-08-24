@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { courseCatalog, COURSE_PASS_MARK, STANDARD_COURSE_PRICE_KES, STANDARD_COURSE_STAGE_AMOUNTS_KES } from "./courseCatalog";
 import { renderCourseCertificateSvg } from "../server/courseCertificate";
+import { readFileSync } from "node:fs";
 
 describe("expanded professional course catalog", () => {
   const additionalSlugs = ["personal-growth-self-discovery", "building-a-growth-mindset", "continuous-self-improvement", "mastering-self-discipline", "mastering-time-management", "personal-finance-management-essentials", "self-confidence-and-self-esteem", "emotional-intelligence-mastery", "personal-brand-strategy", "personal-excellence-mastery", "effective-communication-essentials", "lasting-interpersonal-relationships", "building-thriving-business-empires", "negotiation-mastery", "critical-thinking-problem-solving", "creativity-and-innovation", "teamwork-and-collaboration", "leadership-and-self-leadership", "adaptability-and-resilience", "time-management-personal-productivity", "decision-making-skills", "conflict-resolution-negotiation", "interpersonal-and-relationship-skills", "digital-literacy-and-etiquette", "presentation-and-public-speaking", "professionalism-and-workplace-ethics", "career-development-employability", "entrepreneurial-mindset"];
@@ -52,5 +53,27 @@ describe("expanded professional course catalog", () => {
     expect(svg).toContain("SCAN TO VERIFY");
     expect(svg).toContain("https://profoundiq-vguqrhsm.manus.space/verify/certificate");
     expect(svg).toContain("Issued");
+  });
+});
+
+describe("quiz learning feedback and analytics", () => {
+  it("provides one explanation for every quiz option", () => {
+    for (const course of courseCatalog) {
+      for (const module of course.modules) {
+        for (const question of module.quiz) {
+          expect(question.options).toHaveLength(4);
+          expect(question.optionExplanations).toHaveLength(4);
+          expect(question.optionExplanations.every((explanation) => explanation.length > 35)).toBe(true);
+          expect(question.optionExplanations[question.correctOption]).toMatch(/correct/i);
+        }
+      }
+    }
+  });
+
+  it("exposes the randomized-attempt and feedback contract in the workspace", async () => {
+    const source = readFileSync("client/src/pages/CourseWorkspace.tsx", "utf8");
+    expect(source).toContain("New randomized attempt");
+    expect(source).toContain("Learning review");
+    expect(source).toContain("optionExplanations");
   });
 });

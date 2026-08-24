@@ -1213,3 +1213,12 @@
 - [x] Add regression coverage for order variation, answer mapping, uniqueness, and repeat-attempt behavior.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive quiz verification.
 - [x] Save the quiz variation enhancement checkpoint.
+
+# Quiz Learning Feedback and Analytics
+- [x] Add detailed explanations for every correct and incorrect quiz response.
+- [x] Show a clear visual indicator when a new randomized quiz attempt begins.
+- [x] Add student dashboard quiz analytics with score trends and improvement areas.
+- [x] Create and validate a reusable skill documenting the quiz variation and feedback workflow.
+- [x] Add regression coverage for feedback content, attempt indicators, analytics calculations, and skill validation.
+- [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
+- [x] Save the quiz learning feedback and analytics checkpoint.
