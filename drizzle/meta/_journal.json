@@ -274,6 +274,13 @@
       "when": 1787593761099,
       "tag": "0038_shallow_hercules",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "5",
+      "when": 1787596504137,
+      "tag": "0039_medical_titania",
+      "breakpoints": true
     }
   ]
 }

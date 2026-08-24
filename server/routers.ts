@@ -1,10 +1,10 @@
 import { COOKIE_NAME } from "@shared/const";
-import { assessmentQuestions, ASSESSMENT_PRICE_KES, buildReport, buildRoleLens, type AssessmentReport, type RoleLens } from "../shared/assessment";
+import { assessmentQuestions, ASSESSMENT_PRICE_KES, buildReport, buildRoleLens, getDimensionReflectionPoints, type AssessmentReport, type RoleLens } from "../shared/assessment";
 import { careerPathQuestions, CAREER_PATH_PRICE_KES, buildCareerPathReport, type CareerPathReport } from "../shared/careerPath";
 import { courseCatalog, COURSE_PASS_MARK, COURSE_PRICE_KES, COURSE_STAGE_AMOUNT_KES } from "../shared/courseCatalog";
 import { buildCoursePaymentSuccessPath } from "../shared/coursePaymentRouting";
 import { parse as parseCookie } from "cookie";
-import { getAssessmentAttempt, createAssessmentAttempt, createAssessmentDraft, getAssessmentDraft, markAssessmentDraftResumed, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference, compareUserAssessmentReports, createReportShare, getActiveReportShare, revokeReportShare, listReportShares, listReportShareAuditEvents, createCareerPathAttempt, setCareerPathPaystackReference, getCareerPathAttemptByReference, markCareerPathPaid, listCareerPathAttemptsByEmail, getCareerPathActiveModule, upsertCareerPathActiveModule, getOrCreateCourseEnrollment, updateCourseEnrollmentIdentity, getCourseEnrollment, listCourseEnrollmentState, markCourseLessonComplete, recordCourseQuizAttempt, getCoursePaymentStageByReference, getCoursePaymentStageById, setCoursePaymentStageReference, markCoursePaymentStagePaid, updateCoursePaymentStageStatus, listCoursePaymentExceptions, getCourseActivePosition, upsertCourseActivePosition, createCourseCertificate } from "./db";
+import { getAssessmentAttempt, createAssessmentAttempt, createAssessmentDraft, getAssessmentDraft, markAssessmentDraftResumed, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference, compareUserAssessmentReports, createReportShare, getActiveReportShare, revokeReportShare, listReportShares, listReportShareAuditEvents, listReflectionResponses, saveReflectionResponse, createCareerPathAttempt, setCareerPathPaystackReference, getCareerPathAttemptByReference, markCareerPathPaid, listCareerPathAttemptsByEmail, getCareerPathActiveModule, upsertCareerPathActiveModule, getOrCreateCourseEnrollment, updateCourseEnrollmentIdentity, getCourseEnrollment, listCourseEnrollmentState, markCourseLessonComplete, recordCourseQuizAttempt, getCoursePaymentStageByReference, getCoursePaymentStageById, setCoursePaymentStageReference, markCoursePaymentStagePaid, updateCoursePaymentStageStatus, listCoursePaymentExceptions, getCourseActivePosition, upsertCourseActivePosition, createCourseCertificate } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { sdk } from "./_core/sdk";
 import { systemRouter } from "./_core/systemRouter";
@@ -487,6 +487,35 @@ export const appRouter = router({
         console.error("[Assessment] Report email delivery failed:", error);
       }
       return { report, reference: input.reference, emailSent };
+    }),
+    reflectionResponses: protectedProcedure.input(z.object({ attemptId: z.number().int().positive() })).query(async ({ ctx, input }) => {
+      const attempt = await getAssessmentAttempt(input.attemptId);
+      if (!attempt || !ctx.user.email || attempt.email.trim().toLowerCase() !== ctx.user.email.trim().toLowerCase() || attempt.paymentStatus !== "paid" || !attempt.report) throw new TRPCError({ code: "FORBIDDEN", message: "A verified payment and matching account are required." });
+      return { attemptId: attempt.id, rows: await listReflectionResponses({ attemptId: attempt.id, ownerOpenId: ctx.user.openId }) };
+    }),
+    saveReflectionResponse: protectedProcedure.input(z.object({ attemptId: z.number().int().positive(), dimensionKey: z.string().min(1).max(48), promptIndex: z.number().int().min(0).max(10), promptText: z.string().trim().min(20).max(600), note: z.string().max(4000), status: z.enum(["planned", "active", "reviewed"]) })).mutation(async ({ ctx, input }) => {
+      const attempt = await getAssessmentAttempt(input.attemptId);
+      if (!attempt || !ctx.user.email || attempt.email.trim().toLowerCase() !== ctx.user.email.trim().toLowerCase() || attempt.paymentStatus !== "paid" || !attempt.report) throw new TRPCError({ code: "FORBIDDEN", message: "A verified payment and matching account are required." });
+      const dimension = (attempt.report as AssessmentReport).dimensions.find((item) => item.key === input.dimensionKey);
+      const prompts = dimension ? getDimensionReflectionPoints(dimension) : [];
+      if (!dimension || !prompts[input.promptIndex] || prompts[input.promptIndex] !== input.promptText) throw new TRPCError({ code: "BAD_REQUEST", message: "That reflection prompt is not valid for this report." });
+      return saveReflectionResponse({ attemptId: attempt.id, ownerOpenId: ctx.user.openId, dimensionKey: input.dimensionKey, promptIndex: input.promptIndex, promptText: input.promptText, note: input.note, status: input.status });
+    }),
+    exportReflectionResponses: protectedProcedure.input(z.object({ attemptId: z.number().int().positive(), selections: z.array(z.object({ dimensionKey: z.string().min(1).max(48), promptIndex: z.number().int().min(0).max(10), note: z.string().max(4000).optional(), status: z.enum(["planned", "active", "reviewed"]).optional() })).min(1).max(30) })).mutation(async ({ ctx, input }) => {
+      const attempt = await getAssessmentAttempt(input.attemptId);
+      if (!attempt || !ctx.user.email || attempt.email.trim().toLowerCase() !== ctx.user.email.trim().toLowerCase() || attempt.paymentStatus !== "paid" || !attempt.report) throw new TRPCError({ code: "FORBIDDEN", message: "A verified payment and matching account are required." });
+      const report = attempt.report as AssessmentReport;
+      const savedRows = await listReflectionResponses({ attemptId: attempt.id, ownerOpenId: ctx.user.openId }) ?? [];
+      const savedMap = new Map(savedRows.map((row) => [`${row.dimensionKey}:${row.promptIndex}`, row]));
+      const rows = input.selections.map((selection) => {
+        const dimension = report.dimensions.find((item) => item.key === selection.dimensionKey);
+        const prompts = dimension ? getDimensionReflectionPoints(dimension) : [];
+        const promptText = prompts[selection.promptIndex];
+        if (!dimension || !promptText) throw new TRPCError({ code: "BAD_REQUEST", message: "One or more selected reflection prompts are invalid." });
+        const saved = savedMap.get(`${selection.dimensionKey}:${selection.promptIndex}`);
+        return { dimensionKey: selection.dimensionKey, dimensionLabel: dimension.label, promptIndex: selection.promptIndex, promptText, note: selection.note ?? saved?.note ?? "", status: selection.status ?? saved?.status ?? "planned" };
+      });
+      return { attemptId: attempt.id, participantName: attempt.name, createdAt: attempt.createdAt, rows };
     }),
     getReport: publicProcedure.input(z.object({ reference: z.string().min(10).max(120) })).query(async ({ input }) => {
       const attempt = await getAssessmentAttemptByReference(input.reference);

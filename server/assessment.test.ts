@@ -147,6 +147,21 @@ describe("assessment scoring", () => {
     expect(sharedReportSource).toMatch(/Reflection prompts/);
   });
 
+  it("exposes learner reflection notes, action statuses, and selected coach exports behind paid ownership", () => {
+    const routerSource = readFileSync(resolve(process.cwd(), "server/routers.ts"), "utf8");
+    const reflectionCardSource = readFileSync(resolve(process.cwd(), "client/src/components/ReflectionPromptCard.tsx"), "utf8");
+    expect(assessmentPageSource).toMatch(/ReflectionPromptCard/);
+    expect(reflectionCardSource).toMatch(/Your reflection note/);
+    expect(reflectionCardSource).toMatch(/Action status/);
+    expect(reflectionCardSource).toMatch(/Include in export/);
+    expect(assessmentPageSource).toMatch(/Export selected/);
+    expect(routerSource).toMatch(/reflectionResponses:/);
+    expect(routerSource).toMatch(/saveReflectionResponse:/);
+    expect(routerSource).toMatch(/exportReflectionResponses:/);
+    expect(routerSource).toMatch(/attempt\.email\.trim\(\)\.toLowerCase\(\)/);
+    expect(routerSource).toMatch(/selections: z\.array/);
+  });
+
   it("provides adaptable role lenses and longitudinal comparison deltas", () => {
     const current = buildReport(assessmentQuestions.map((question) => ({ questionId: question.id, value: 5 })));
     const previous = buildReport(assessmentQuestions.map((question) => ({ questionId: question.id, value: 4 })));

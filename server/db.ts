@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { and, desc, eq, gte, inArray, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -391,6 +391,28 @@ export async function getLatestPaidAssessment(email: string) {
   if (!db) return undefined;
   const result = await db.select().from(assessmentAttempts).where(eq(assessmentAttempts.email, email)).orderBy(desc(assessmentAttempts.createdAt)).limit(20);
   return result.find((item) => item.paymentStatus === "paid");
+}
+
+export async function listReflectionResponses(input: { attemptId: number; ownerOpenId: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const attempt = (await db.select({ id: assessmentAttempts.id, paymentStatus: assessmentAttempts.paymentStatus }).from(assessmentAttempts).where(and(eq(assessmentAttempts.id, input.attemptId), eq(assessmentAttempts.paymentStatus, "paid"))).limit(1))[0];
+  if (!attempt) return undefined;
+  return db.select().from(assessmentReflectionResponses).where(and(eq(assessmentReflectionResponses.attemptId, input.attemptId), eq(assessmentReflectionResponses.ownerOpenId, input.ownerOpenId))).orderBy(assessmentReflectionResponses.dimensionKey, assessmentReflectionResponses.promptIndex);
+}
+
+export async function saveReflectionResponse(input: { attemptId: number; ownerOpenId: string; dimensionKey: string; promptIndex: number; promptText: string; note: string; status: "planned" | "active" | "reviewed" }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const attempt = (await db.select({ id: assessmentAttempts.id, paymentStatus: assessmentAttempts.paymentStatus }).from(assessmentAttempts).where(and(eq(assessmentAttempts.id, input.attemptId), eq(assessmentAttempts.paymentStatus, "paid"))).limit(1))[0];
+  if (!attempt) return undefined;
+  const existing = (await db.select({ id: assessmentReflectionResponses.id }).from(assessmentReflectionResponses).where(and(eq(assessmentReflectionResponses.attemptId, input.attemptId), eq(assessmentReflectionResponses.ownerOpenId, input.ownerOpenId), eq(assessmentReflectionResponses.dimensionKey, input.dimensionKey), eq(assessmentReflectionResponses.promptIndex, input.promptIndex))).limit(1))[0];
+  if (existing) {
+    await db.update(assessmentReflectionResponses).set({ promptText: input.promptText, note: input.note.trim() || null, status: input.status, updatedAt: new Date() }).where(eq(assessmentReflectionResponses.id, existing.id));
+  } else {
+    await db.insert(assessmentReflectionResponses).values({ attemptId: input.attemptId, ownerOpenId: input.ownerOpenId, dimensionKey: input.dimensionKey, promptIndex: input.promptIndex, promptText: input.promptText, note: input.note.trim() || null, status: input.status });
+  }
+  return (await db.select().from(assessmentReflectionResponses).where(and(eq(assessmentReflectionResponses.attemptId, input.attemptId), eq(assessmentReflectionResponses.ownerOpenId, input.ownerOpenId), eq(assessmentReflectionResponses.dimensionKey, input.dimensionKey), eq(assessmentReflectionResponses.promptIndex, input.promptIndex))).limit(1))[0];
 }
 
 export async function getUserAssessmentHistory(email: string) {

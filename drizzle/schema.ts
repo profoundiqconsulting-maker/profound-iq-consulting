@@ -1,4 +1,4 @@
-import { boolean, int, json, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
+import { boolean, index, int, json, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
@@ -353,6 +353,21 @@ export const assessmentAttempts = mysqlTable("assessment_attempts", {
   consentedAt: timestamp("consentedAt").notNull(),
 });
 
+export const assessmentReflectionResponses = mysqlTable("assessment_reflection_responses", {
+  id: int("id").autoincrement().primaryKey(),
+  attemptId: int("attemptId").notNull(),
+  ownerOpenId: varchar("ownerOpenId", { length: 64 }).notNull(),
+  dimensionKey: varchar("dimensionKey", { length: 48 }).notNull(),
+  promptIndex: int("promptIndex").notNull(),
+  promptText: text("promptText").notNull(),
+  note: text("note"),
+  status: varchar("status", { length: 16 }).default("planned").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  attemptPromptUnique: uniqueIndex("assessment_reflection_attempt_prompt_unique").on(table.attemptId, table.dimensionKey, table.promptIndex),
+  ownerAttemptIndex: index("assessment_reflection_owner_attempt_idx").on(table.ownerOpenId, table.attemptId),
+}));
 export const assessmentDrafts = mysqlTable("assessment_drafts", {
   id: int("id").autoincrement().primaryKey(),
   tokenHash: varchar("tokenHash", { length: 128 }).notNull().unique(),

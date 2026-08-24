@@ -1123,3 +1123,12 @@
 - [x] Add regression tests that reject empty reflection sections and verify representative prompt content.
 - [x] Run type checks, tests, production build, runtime review, and responsive report verification.
 - [x] Save the completed reflection-prompt enhancement checkpoint.
+
+# Reflection Notes, Status, and Coach Export
+- [x] Add durable per-report reflection notes and planned/active/reviewed action statuses.
+- [x] Add protected learner procedures to load and save notes/statuses for their own paid reports.
+- [x] Add coach/manager export for explicitly selected prompts and learner responses with access controls.
+- [x] Add learner UI text areas, status controls, save feedback, selection controls, and export actions.
+- [x] Add regression tests for persistence, ownership, selection validation, export content, and authorization.
+- [x] Run schema migration, type checks, tests, production build, runtime review, and responsive audit.
+- [x] Save the completed reflection workflow checkpoint.
