@@ -4,8 +4,9 @@ import type { AssessmentReport } from "../shared/assessment";
 import { getTopCareerPathStrengths, type CareerPathReport } from "../shared/careerPath";
 import { buildSubPathwayComparisonSvg } from "../shared/reportComparisonVisual";
 import { renderEmailTemplate, renderEmailTemplateHtml } from "../shared/emailTemplate";
-import { renderAssessmentReportPdf, renderCareerPathReportPdf } from "./reportPdf";
-import { claimAssessmentReportEmail, markAssessmentReportEmailSent, releaseAssessmentReportEmailClaim, claimCareerPathReportEmail, markCareerPathReportEmailSent, releaseCareerPathReportEmailClaim } from "./db";
+import { renderAssessmentReportPdf, renderCareerPathReportPdf, renderPsychometricReportPdf } from "./reportPdf";
+import { claimAssessmentReportEmail, markAssessmentReportEmailSent, releaseAssessmentReportEmailClaim, claimCareerPathReportEmail, markCareerPathReportEmailSent, releaseCareerPathReportEmailClaim, claimPsychometricReportEmail, markPsychometricReportEmailSent, releasePsychometricReportEmailClaim } from "./db";
+import type { PsychometricReport } from "../shared/psychometrics";
 
 type SmtpEnv = { SMTP_HOST?: string; SMTP_PORT?: string; SMTP_USER?: string; SMTP_PASSWORD?: string; SMTP_FROM?: string; SMTP_FROM_NAME?: string };
 
@@ -136,6 +137,21 @@ export async function sendCareerPathReportEmail(input: { attemptId: number; part
     html: `<div style="margin:0 auto;max-width:680px;background:#f7f3e8;color:#16243d;font-family:Arial,sans-serif"><div style="background:#101d35;color:#f7f3e8;padding:24px 28px;border-top:6px solid #c9a34e"><div style="font-size:12px;letter-spacing:3px;font-weight:700">PROFOUND IQ CONSULTING</div><div style="margin-top:8px;color:#c9a34e;font-size:11px;letter-spacing:2px">CAREERPATH / LEARNER INSIGHT</div></div><div style="padding:28px"><p>Hello ${escapeHtml(input.participantName)},</p><p>Your Profound IQ CareerPath report and coaching visual are attached. Use them to explore subjects, projects and conversations before choosing your next direction.</p><div style="border-left:3px solid #c9a34e;padding:12px 16px;background:#fff"><p>${escapeHtml(strengthsSummary)}</p>${safePersonalNote}</div><p><em>This educational guidance tool is not a diagnosis and does not determine a career.</em></p></div><div style="background:#16243d;color:#c1cad7;padding:18px 28px;font-size:12px;line-height:1.6"><strong style="color:#f7f3e8">Profound IQ Consulting</strong><br/>Transformational learning · Educational guidance · Online / global reach</div></div>`,
     attachments: [{ filename: `profound-iq-careerpath-${input.attemptId}.pdf`, content: pdf, contentType: "application/pdf" }, { filename: `profound-iq-careerpath-${input.attemptId}-coaching-visual.svg`, content: coachingVisual, contentType: "image/svg+xml" }],
   });
+}
+
+export async function emailPsychometricReportIfNeeded(input: { attemptId: number; participantName: string; email: string; createdAt: Date | string; report: PsychometricReport; reportEmailStatus?: string | null; reportEmailSentAt?: Date | string | null; verificationUrl: string }): Promise<boolean> {
+  if (input.reportEmailStatus === "sent" || input.reportEmailSentAt) return false;
+  const claimed = await claimPsychometricReportEmail(input.attemptId);
+  if (!claimed) return false;
+  try { await sendPsychometricReportEmail(input); await markPsychometricReportEmailSent(input.attemptId); return true; } catch (error) { await releasePsychometricReportEmailClaim(input.attemptId); throw error; }
+}
+
+export async function sendPsychometricReportEmail(input: { attemptId: number; participantName: string; email: string; createdAt: Date | string; report: PsychometricReport; verificationUrl: string }): Promise<void> {
+  const config = getSmtpConfig();
+  const pdf = await renderPsychometricReportPdf({ attemptId: input.attemptId, participantName: input.participantName, email: input.email, createdAt: input.createdAt, report: input.report, verificationUrl: input.verificationUrl });
+  const subject = `Your Profound IQ ${input.report.title} report`;
+  const safeName = escapeHtml(input.participantName);
+  await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to: input.email, subject, text: `Hello ${input.participantName},\n\nYour paid Profound IQ psychometric report is attached. Use it as an educational development conversation starter, not as a diagnosis or standalone high-stakes decision.\n\nVerify this report: ${input.verificationUrl}\n\nProfound IQ Consulting`, html: `<div style="margin:0 auto;max-width:680px;background:#f7f3e8;color:#16243d;font-family:Arial,sans-serif"><div style="background:#101d35;color:#f7f3e8;padding:24px 28px;border-top:6px solid #c9a34e"><div style="font-size:12px;letter-spacing:3px;font-weight:700">PROFOUND IQ CONSULTING</div><div style="margin-top:8px;color:#c9a34e;font-size:11px;letter-spacing:2px">PSYCHOMETRIC ASSESSMENT SUITE</div></div><div style="padding:28px"><p>Hello ${safeName},</p><p>Your paid psychometric report is attached and ready for reflection, coaching, and learning conversations.</p><p><a href="${escapeHtml(input.verificationUrl)}" style="color:#7d5e1e;font-weight:700">Verify this report</a></p><p><em>This educational profile is not a clinical diagnosis or a standalone basis for employment, admission, promotion, or other high-stakes decisions.</em></p></div><div style="background:#16243d;color:#c1cad7;padding:18px 28px;font-size:12px">Profound IQ Consulting · Transformational learning</div></div>`, attachments: [{ filename: `profound-iq-${input.report.testSlug}-${input.attemptId}.pdf`, content: pdf, contentType: "application/pdf" }] });
 }
 
 export async function sendAssessmentReportEmail(input: { attemptId: number; participantName: string; email: string; createdAt: Date | string; report: AssessmentReport }): Promise<void> {

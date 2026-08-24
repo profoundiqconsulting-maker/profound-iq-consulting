@@ -1364,3 +1364,29 @@ export async function listOptInAchievementLeaderboard() {
   }
   return rankAchievementLeaderboard(rows);
 }
+
+export async function claimPsychometricReportEmail(id: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.update(psychometricAttempts).set({ reportEmailStatus: "sending" }).where(and(eq(psychometricAttempts.id, id), eq(psychometricAttempts.paymentStatus, "paid"), isNotNull(psychometricAttempts.report), eq(psychometricAttempts.reportEmailStatus, "pending")));
+  return Number(result[0].affectedRows ?? 0) > 0;
+}
+
+export async function markPsychometricReportEmailSent(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(psychometricAttempts).set({ reportEmailStatus: "sent", reportEmailSentAt: new Date() }).where(and(eq(psychometricAttempts.id, id), eq(psychometricAttempts.reportEmailStatus, "sending")));
+}
+
+export async function releasePsychometricReportEmailClaim(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(psychometricAttempts).set({ reportEmailStatus: "pending" }).where(and(eq(psychometricAttempts.id, id), eq(psychometricAttempts.reportEmailStatus, "sending")));
+}
+
+export async function listPsychometricAttemptsForAdmin(input: { paymentStatus?: string; from?: Date; to?: Date; limit?: number; offset?: number }) {
+  const db = await getDb();
+  if (!db) return [];
+  const conditions = [input.paymentStatus && input.paymentStatus !== "all" ? eq(psychometricAttempts.paymentStatus, input.paymentStatus) : undefined, input.from ? gte(psychometricAttempts.createdAt, input.from) : undefined, input.to ? lte(psychometricAttempts.createdAt, input.to) : undefined].filter(Boolean) as Array<ReturnType<typeof eq>>;
+  return db.select({ id: psychometricAttempts.id, testSlug: psychometricAttempts.testSlug, name: psychometricAttempts.name, email: psychometricAttempts.email, paystackReference: psychometricAttempts.paystackReference, paymentStatus: psychometricAttempts.paymentStatus, reportEmailStatus: psychometricAttempts.reportEmailStatus, reportEmailSentAt: psychometricAttempts.reportEmailSentAt, createdAt: psychometricAttempts.createdAt, paidAt: psychometricAttempts.paidAt, overallScore: sql<number | null>`JSON_EXTRACT(${psychometricAttempts.report}, '$.overallScore')` }).from(psychometricAttempts).where(conditions.length ? and(...conditions) : undefined).orderBy(desc(psychometricAttempts.createdAt)).limit(Math.min(100, Math.max(1, input.limit ?? 50))).offset(Math.max(0, input.offset ?? 0));
+}
