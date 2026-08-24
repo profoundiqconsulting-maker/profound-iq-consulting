@@ -1160,3 +1160,13 @@
 - [x] Add regression tests for badge exports, achievement history, consent, and leaderboard ranking.
 - [x] Run type checks, tests, production build, runtime review, and responsive verification.
 - [x] Save the completed achievement gallery and leaderboard checkpoint.
+
+# Expanded Professional Course Catalog
+- [x] Add 28 professionally framed personal-development, workplace, and entrepreneurship courses to the shared catalog.
+- [x] Generate 10 modules, 7 detailed lessons, practical interactions, simulations, and gamification for every new course.
+- [x] Generate 15 aligned auto-marked quiz questions per module with 50% pass threshold and aggregated final scoring.
+- [x] Verify KES 4,999 four-stage pricing and preserve the existing Paystack enrollment/access workflow.
+- [x] Verify automated branded certificates with logo, learner name, course, QR verification, issue date, certificate number, and web address.
+- [x] Add regression coverage for course counts, lesson/quiz structure, pricing, scoring, and certificate metadata.
+- [x] Run full tests, TypeScript validation, production build, runtime review, and responsive course-catalog/workspace verification.
+- [x] Save the expanded course catalog checkpoint.

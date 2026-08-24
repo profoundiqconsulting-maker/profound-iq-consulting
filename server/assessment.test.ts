@@ -8,7 +8,7 @@ const assessmentPageSource = readFileSync(resolve(process.cwd(), "client/src/pag
 
 describe("professional course curriculum", () => {
   it("provides ten modules, seven lessons, and fifteen quiz questions per course module", () => {
-    expect(courseCatalog).toHaveLength(5);
+    expect(courseCatalog).toHaveLength(33);
     expect(COURSE_PRICE_KES).toBe(4999);
     expect(COURSE_STAGE_AMOUNT_KES).toBe(1250);
     expect(COURSE_PASS_MARK).toBe(50);
