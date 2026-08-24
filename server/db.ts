@@ -566,7 +566,7 @@ async function recordContactInquiryAudit(db: Awaited<ReturnType<typeof getDb>>, 
 export async function getAdminTeamMembers() {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  return db.select({ openId: users.openId, name: users.name, email: users.email }).from(users).where(eq(users.role, "admin")).orderBy(users.name);
+  return db.select({ openId: users.openId, name: users.name, email: users.email, role: users.role }).from(users).where(or(eq(users.role, "admin"), eq(users.role, "staff"))).orderBy(users.name);
 }
 
 export async function getContactInquiryAuditHistory(inquiryId: number) {
@@ -583,6 +583,28 @@ export async function updateContactInquiryNotes(id: number, internalNotes: strin
   await db.update(contactInquiries).set({ internalNotes: next }).where(eq(contactInquiries.id, id));
   if (actor && previous !== next) await recordContactInquiryAudit(db, { inquiryId: id, actor, action: "notes", previousValue: previous, nextValue: next });
   return (await db.select().from(contactInquiries).where(eq(contactInquiries.id, id)).limit(1))[0] ?? null;
+}
+
+export async function listAssignedContactInquiries(openId: string, input: Omit<ContactInquiryFilters, "assignedToOpenId"> & { page: number; pageSize: number }) {
+  return listContactInquiries({ ...input, assignedToOpenId: openId });
+}
+
+async function assertAssignedInquiry(id: number, openId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const row = (await db.select().from(contactInquiries).where(and(eq(contactInquiries.id, id), eq(contactInquiries.assignedToOpenId, openId))).limit(1))[0];
+  if (!row) throw new Error("This inquiry is not assigned to your staff account.");
+  return row;
+}
+
+export async function updateAssignedContactInquiryStatus(id: number, openId: string, status: "new" | "contacted" | "closed", actor: ContactInquiryActor) {
+  await assertAssignedInquiry(id, openId);
+  return updateContactInquiryStatus(id, status, actor);
+}
+
+export async function updateAssignedContactInquiryNotes(id: number, openId: string, internalNotes: string, actor: ContactInquiryActor) {
+  await assertAssignedInquiry(id, openId);
+  return updateContactInquiryNotes(id, internalNotes, actor);
 }
 
 export async function updateContactInquiryStatus(id: number, status: "new" | "contacted" | "closed", actor?: ContactInquiryActor) {

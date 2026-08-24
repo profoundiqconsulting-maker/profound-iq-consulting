@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { startLogin } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { BarChart3, BookOpen, ClipboardCheck, LayoutDashboard, LogOut, PanelLeft, Settings, ShieldCheck, Users } from "lucide-react";
+import { BarChart3, BookOpen, ClipboardCheck, LayoutDashboard, LogOut, PanelLeft, Settings, ShieldCheck, Users, ClipboardList } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -33,6 +33,7 @@ const menuItems = [
   { icon: Users, label: "CareerPath", path: "/careerpath" },
   { icon: BookOpen, label: "Courses", path: "/courses" },
   { icon: BarChart3, label: "Admin observatory", path: "/admin", adminOnly: true },
+  { icon: ClipboardList, label: "Staff workspace", path: "/staff", staffOnly: true },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
@@ -182,7 +183,7 @@ function DashboardLayoutContent({
 
           <SidebarContent className="gap-0">
             <SidebarMenu className="px-2 py-1">
-              {menuItems.filter((item) => !item.adminOnly || user?.role === "admin").map((item) => {
+              {menuItems.filter((item) => (!item.adminOnly || user?.role === "admin") && (!item.staffOnly || user?.role === "admin" || user?.role === "staff")).map((item) => {
                 const isActive = location === item.path;
                 return (
                   <SidebarMenuItem key={item.path}>

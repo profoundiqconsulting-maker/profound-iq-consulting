@@ -979,3 +979,11 @@
 - [x] Build the admin revenue report interface with summary cards and charts.
 - [x] Add authorization and calculation regression coverage plus responsive verification.
 - [x] Save a checkpoint for the admin revenue reporting feature.
+
+# Staff Assigned-Work Dashboard
+- [x] Inspect current role, assignment, and dashboard patterns for staff access.
+- [x] Add protected staff inquiry listing scoped to the signed-in team member.
+- [x] Add scoped staff status and internal-note update procedures with audit actors.
+- [x] Build a staff dashboard page with assigned-work summaries, filters, notes, and status actions.
+- [x] Register staff navigation and add authorization, behavior, and responsive regression coverage.
+- [x] Save a checkpoint for the staff dashboard feature.

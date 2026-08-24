@@ -4,6 +4,9 @@ import type { TrpcContext } from "./_core/context";
 const mocks = vi.hoisted(() => ({
   createContactInquiry: vi.fn().mockResolvedValue(27),
   listContactInquiries: vi.fn().mockResolvedValue({ rows: [], total: 0, page: 1, pageSize: 8, totalPages: 1 }),
+  listAssignedContactInquiries: vi.fn().mockResolvedValue({ rows: [{ id: 12, name: "Amina", email: "amina@example.com", category: "general", message: "Hello", status: "new", internalNotes: null, createdAt: new Date("2026-08-24T00:00:00Z") }], total: 1, page: 1, pageSize: 10, totalPages: 1 }),
+  updateAssignedContactInquiryStatus: vi.fn().mockResolvedValue({ id: 12, status: "contacted" }),
+  updateAssignedContactInquiryNotes: vi.fn().mockResolvedValue({ id: 12, internalNotes: "Follow up" }),
   updateContactInquiryStatus: vi.fn().mockResolvedValue({ id: 12, status: "contacted" }),
   getContactInquiriesForExport: vi.fn().mockResolvedValue([{ id: 12, name: "Amina", email: "amina@example.com", category: "general", message: "Hello", status: "new", createdAt: new Date("2026-08-24T00:00:00Z") }]),
   getContactInquiriesForExportWithAudit: vi.fn().mockResolvedValue([{ id: 12, name: "Amina", email: "amina@example.com", category: "general", message: "Hello", status: "new", assignedToName: null, createdAt: new Date("2026-08-24T00:00:00Z"), auditHistory: [] }]),
@@ -23,13 +26,18 @@ function publicContext(): TrpcContext {
   return { user: null, req: { protocol: "https", headers: {} } as TrpcContext["req"], res: {} as TrpcContext["res"] };
 }
 
+function staffContext(): TrpcContext {
+  const now = new Date();
+  return { user: { id: 2, openId: "staff-test", name: "Staff Test", email: "staff@example.com", loginMethod: "test", role: "staff", createdAt: now, updatedAt: now, lastSignedIn: now }, req: { protocol: "https", headers: {} } as TrpcContext["req"], res: {} as TrpcContext["res"] };
+}
+
 function adminContext(): TrpcContext {
   const now = new Date();
   return { user: { id: 1, openId: "admin-test", name: "Admin Test", email: "admin@example.com", loginMethod: "test", role: "admin", createdAt: now, updatedAt: now, lastSignedIn: now }, req: { protocol: "https", headers: {} } as TrpcContext["req"], res: {} as TrpcContext["res"] };
 }
 
 describe("inquiry.create", () => {
-  beforeEach(() => { mocks.createContactInquiry.mockClear(); mocks.listContactInquiries.mockClear(); mocks.updateContactInquiryStatus.mockClear(); mocks.getAdminTeamMembers.mockClear(); mocks.getContactInquiryAuditHistory.mockClear(); mocks.updateContactInquiryAssignment.mockClear(); mocks.getContactInquiriesForExport.mockClear(); mocks.getContactInquiriesForExportWithAudit.mockClear(); mocks.getContactInquiryCategoryCounts.mockClear(); mocks.bulkUpdateContactInquiryStatus.mockClear(); mocks.updateContactInquiryNotes.mockClear(); mocks.recordAnalyticsEvent.mockClear(); });
+  beforeEach(() => { mocks.createContactInquiry.mockClear(); mocks.listAssignedContactInquiries.mockClear(); mocks.updateAssignedContactInquiryStatus.mockClear(); mocks.updateAssignedContactInquiryNotes.mockClear(); mocks.listContactInquiries.mockClear(); mocks.updateContactInquiryStatus.mockClear(); mocks.getAdminTeamMembers.mockClear(); mocks.getContactInquiryAuditHistory.mockClear(); mocks.updateContactInquiryAssignment.mockClear(); mocks.getContactInquiriesForExport.mockClear(); mocks.getContactInquiriesForExportWithAudit.mockClear(); mocks.getContactInquiryCategoryCounts.mockClear(); mocks.bulkUpdateContactInquiryStatus.mockClear(); mocks.updateContactInquiryNotes.mockClear(); mocks.recordAnalyticsEvent.mockClear(); });
   it("persists the inquiry and records analytics", async () => {
     const result = await appRouter.createCaller(publicContext()).inquiry.create({ name: "Amina Njeri", email: "amina@example.com", category: "organizational-development", message: "I would like to discuss leadership training for our team.", mathA: 7, mathB: 5, mathAnswer: 12 });
     expect(result).toEqual({ id: 27 });
@@ -62,6 +70,22 @@ describe("inquiry.create", () => {
     expect(mocks.getContactInquiryAuditHistory).toHaveBeenCalledWith(12);
     expect(mocks.updateContactInquiryAssignment).toHaveBeenCalledWith(12, { openId: "admin-2", name: "Team Member" }, { openId: "admin-test", name: "Admin Test", email: "admin@example.com" });
     expect(mocks.getContactInquiryCategoryCounts).toHaveBeenCalledWith(30);
+  });
+
+  it("allows staff to view and update only assigned inquiries", async () => {
+    const caller = appRouter.createCaller(staffContext());
+    await caller.staff.assignedInquiries({ search: "amina", status: "new" });
+    await caller.staff.updateStatus({ id: 12, status: "contacted" });
+    await caller.staff.updateNotes({ id: 12, internalNotes: "Follow up" });
+    expect(mocks.listAssignedContactInquiries).toHaveBeenCalledWith("staff-test", expect.objectContaining({ search: "amina", status: "new" }));
+    expect(mocks.updateAssignedContactInquiryStatus).toHaveBeenCalledWith(12, "staff-test", "contacted", expect.objectContaining({ openId: "staff-test" }));
+    expect(mocks.updateAssignedContactInquiryNotes).toHaveBeenCalledWith(12, "staff-test", "Follow up", expect.objectContaining({ openId: "staff-test" }));
+  });
+
+  it("rejects regular users from the staff workspace", async () => {
+    const now = new Date();
+    const userContext = { user: { id: 3, openId: "user-test", name: "User Test", email: "user@example.com", loginMethod: "test", role: "user", createdAt: now, updatedAt: now, lastSignedIn: now }, req: { protocol: "https", headers: {} } as TrpcContext["req"], res: {} as TrpcContext["res"] };
+    await expect(appRouter.createCaller(userContext).staff.assignedInquiries()).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
   it("rejects an incorrect math answer before persistence", async () => {
