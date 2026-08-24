@@ -491,11 +491,11 @@ export async function createContactInquiry(input: { name: string; email: string;
   return Number(result[0].insertId);
 }
 
-export async function listContactInquiries(input: { search?: string; category?: string; status?: string; page: number; pageSize: number }) {
+export async function listContactInquiries(input: ContactInquiryFilters & { page: number; pageSize: number }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const filters = [input.search ? or(like(contactInquiries.name, `%${input.search}%`), like(contactInquiries.email, `%${input.search}%`), like(contactInquiries.message, `%${input.search}%`)) : undefined, input.category && input.category !== "all" ? eq(contactInquiries.category, input.category) : undefined, input.status && input.status !== "all" ? eq(contactInquiries.status, input.status) : undefined].filter(Boolean) as Array<ReturnType<typeof eq>>;
-  const where = filters.length ? and(...filters) : undefined;
+  const conditions = contactInquiryConditions(input);
+  const where = conditions.length ? and(...conditions) : undefined;
   const rows = await db.select().from(contactInquiries).where(where).orderBy(desc(contactInquiries.createdAt)).limit(input.pageSize).offset((input.page - 1) * input.pageSize);
   const countRow = (await db.select({ count: sql<number>`count(*)` }).from(contactInquiries).where(where))[0];
   const total = Number(countRow?.count ?? 0);
@@ -521,6 +521,13 @@ export async function getContactInquiryCategoryCounts(days = 30) {
   const fromDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
   const rows = await db.select({ category: contactInquiries.category, count: sql<number>`count(*)` }).from(contactInquiries).where(gte(contactInquiries.createdAt, fromDate)).groupBy(contactInquiries.category).orderBy(desc(sql`count(*)`));
   return rows.map(row => ({ category: row.category, count: Number(row.count) }));
+}
+
+export async function updateContactInquiryNotes(id: number, internalNotes: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(contactInquiries).set({ internalNotes: internalNotes.trim() || null }).where(eq(contactInquiries.id, id));
+  return (await db.select().from(contactInquiries).where(eq(contactInquiries.id, id)).limit(1))[0] ?? null;
 }
 
 export async function updateContactInquiryStatus(id: number, status: "new" | "contacted" | "closed") {

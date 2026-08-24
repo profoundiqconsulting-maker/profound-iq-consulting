@@ -1,0 +1,1 @@
+ALTER TABLE `contact_inquiries` ADD `internal_notes` text;

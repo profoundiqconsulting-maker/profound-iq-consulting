@@ -41,6 +41,7 @@ export const contactInquiries = mysqlTable("contact_inquiries", {
   email: varchar("email", { length: 320 }).notNull(),
   category: varchar("category", { length: 80 }).notNull(),
   message: text("message").notNull(),
+  internalNotes: text("internal_notes"),
   status: varchar("status", { length: 32 }).default("new").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });

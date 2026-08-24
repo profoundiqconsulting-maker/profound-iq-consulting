@@ -232,6 +232,13 @@
       "when": 1787571786911,
       "tag": "0032_thankful_morlocks",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "5",
+      "when": 1787580738090,
+      "tag": "0033_superb_patriot",
+      "breakpoints": true
     }
   ]
 }

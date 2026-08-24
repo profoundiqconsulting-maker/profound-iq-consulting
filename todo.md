@@ -950,3 +950,10 @@
 - [x] Add a 30-day per-category inquiry chart.
 - [x] Add regression coverage and verify public/admin flows responsively.
 - [x] Save a checkpoint for the inquiry operations update.
+
+# Inquiry Date Filters, Notes, and Pagination
+- [x] Add UTC-safe from/to date filters to inquiry listing and filtered CSV export.
+- [x] Add persistent internal notes storage and an admin-only note update procedure.
+- [x] Enhance the inquiry list pagination with stable page reset and navigation states.
+- [x] Add regression coverage and verify filters, notes, export, and responsive pagination.
+- [x] Save a checkpoint for the Contact Desk enhancements.
