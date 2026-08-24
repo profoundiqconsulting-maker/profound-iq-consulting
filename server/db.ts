@@ -863,3 +863,10 @@ export async function countUserSocialShares(userOpenId: string) {
   const rows = await db.select({ eventName: analyticsEvents.eventName, count: sql<number>`count(*)` }).from(analyticsEvents).where(eq(analyticsEvents.userOpenId, userOpenId)).groupBy(analyticsEvents.eventName);
   return Object.fromEntries(rows.filter((row) => row.eventName.startsWith("careerpath_shared_")).map((row) => [row.eventName.replace("careerpath_shared_", ""), Number(row.count)]));
 }
+
+export async function getCareerPathShareAnalytics() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db.select({ eventName: analyticsEvents.eventName, count: sql<number>`count(*)` }).from(analyticsEvents).where(like(analyticsEvents.eventName, "careerpath_shared_%")).groupBy(analyticsEvents.eventName);
+  return rows.map((row) => ({ platform: row.eventName.replace("careerpath_shared_", ""), count: Number(row.count) })).sort((a, b) => b.count - a.count);
+}
