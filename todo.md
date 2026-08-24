@@ -1028,3 +1028,11 @@
 - [x] Add regression tests for creation, authorization, publication filtering, and frontend data contracts.
 - [x] Verify type checks, tests, production build, and responsive catalog/admin rendering.
 - [x] Save a checkpoint for dynamic frontend catalog updates.
+
+# Dedicated Courses Page
+- [x] Add a dedicated public Courses route using the live hybrid catalog.
+- [x] Add Courses links to desktop and mobile main navigation.
+- [x] Preserve branded enrollment, syllabus, and inquiry paths with clear loading and empty states.
+- [x] Add route and catalog rendering regression coverage.
+- [x] Verify type checks, tests, production build, and desktop/mobile page rendering.
+- [x] Save a checkpoint for the dedicated Courses page.

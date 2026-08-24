@@ -125,6 +125,7 @@ export default function Home() {
           <nav className="hidden items-center gap-8 text-[11px] font-extrabold uppercase tracking-[.16em] text-[#c9d1df] md:flex">
             <a href="#approach" className="transition-colors hover:text-[#c9a34e]">Approach</a>
             <a href="#offerings" className="transition-colors hover:text-[#c9a34e]">Offerings</a>
+            <a href="/courses" className="transition-colors hover:text-[#c9a34e]">Courses</a>
             <a href="/assessment" className="transition-colors hover:text-[#c9a34e]">Self-assessment</a>
             <a href="#contact" className="transition-colors hover:text-[#c9a34e]">Contact</a>
           </nav>
@@ -134,7 +135,7 @@ export default function Home() {
           </div>
           <button className="md:hidden" aria-label="Toggle navigation" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
         </div>
-        {menuOpen && <nav className="border-t border-white/10 bg-[#101d35] px-5 py-5 md:hidden"><div className="flex flex-col gap-5 text-xs font-extrabold uppercase tracking-[.15em]"><a href="#approach" onClick={() => setMenuOpen(false)}>Approach</a><a href="#offerings" onClick={() => setMenuOpen(false)}>Offerings</a><a href="/assessment" onClick={() => setMenuOpen(false)}>Self-assessment</a><a href="#contact" onClick={() => setMenuOpen(false)}>Contact</a>{isAuthenticated ? <a href="/dashboard" onClick={() => setMenuOpen(false)}>My workspace</a> : <><button type="button" className="text-left" onClick={() => startLogin()}>Sign in</button><button type="button" className="text-left text-[#c9a34e]" onClick={() => startLogin()}>Create account</button></>}</div></nav>}
+        {menuOpen && <nav className="border-t border-white/10 bg-[#101d35] px-5 py-5 md:hidden"><div className="flex flex-col gap-5 text-xs font-extrabold uppercase tracking-[.15em]"><a href="#approach" onClick={() => setMenuOpen(false)}>Approach</a><a href="#offerings" onClick={() => setMenuOpen(false)}>Offerings</a><a href="/courses" onClick={() => setMenuOpen(false)}>Courses</a><a href="/assessment" onClick={() => setMenuOpen(false)}>Self-assessment</a><a href="#contact" onClick={() => setMenuOpen(false)}>Contact</a>{isAuthenticated ? <a href="/dashboard" onClick={() => setMenuOpen(false)}>My workspace</a> : <><button type="button" className="text-left" onClick={() => startLogin()}>Sign in</button><button type="button" className="text-left text-[#c9a34e]" onClick={() => startLogin()}>Create account</button></>}</div></nav>}
       </header>
 
       <main id="top">

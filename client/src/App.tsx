@@ -14,12 +14,13 @@ import UserDashboard from "./pages/UserDashboard";
 import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import ResetPassword from "@/pages/ResetPassword";
-import CourseWorkspace from "@/pages/CourseWorkspace";
+import CourseWorkspace from "./pages/CourseWorkspace";
+import Courses from "./pages/Courses";
 import SharedReport from "./pages/SharedReport";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
-  return <Switch><Route path="/" component={Home} /><Route path="/assessment" component={Assessment} /><Route path="/careerpath/assessment" component={CareerPath} /><Route path="/careerpath/results" component={CareerPath} /><Route path="/careerpath" component={CareerPath} /><Route path="/courses/:slug" component={CourseWorkspace} /><Route path="/admin" component={AdminDashboard} /><Route path="/staff" component={StaffDashboard} /><Route path="/dashboard" component={UserDashboard} /><Route path="/settings" component={Settings} /><Route path="/auth" component={Auth} /><Route path="/reset-password" component={ResetPassword} /><Route path="/shared-report" component={SharedReport} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>;
+  return <Switch><Route path="/" component={Home} /><Route path="/assessment" component={Assessment} /><Route path="/careerpath/assessment" component={CareerPath} /><Route path="/careerpath/results" component={CareerPath} /><Route path="/careerpath" component={CareerPath} /><Route path="/courses" component={Courses} /><Route path="/courses/:slug" component={CourseWorkspace} /><Route path="/admin" component={AdminDashboard} /><Route path="/staff" component={StaffDashboard} /><Route path="/dashboard" component={UserDashboard} /><Route path="/settings" component={Settings} /><Route path="/auth" component={Auth} /><Route path="/reset-password" component={ResetPassword} /><Route path="/shared-report" component={SharedReport} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>;
 }
 
 export default function App() {
