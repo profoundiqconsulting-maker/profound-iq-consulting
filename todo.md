@@ -1204,3 +1204,12 @@
 - [x] Add regression coverage for lesson depth, daily-life examples, activity content, and quiz alignment.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
 - [x] Save the deep lesson content enhancement checkpoint.
+
+# Quiz Variation Enhancement
+- [x] Shuffle quiz question order on every learner attempt and retake.
+- [x] Shuffle answer-option order while preserving the correct answer mapping.
+- [x] Reduce similarity across correct answers and distractors with varied, lesson-specific wording.
+- [x] Preserve automatic marking, 50% pass threshold, source-lesson alignment, and unlimited retakes.
+- [x] Add regression coverage for order variation, answer mapping, uniqueness, and repeat-attempt behavior.
+- [x] Run full tests, TypeScript validation, production build, runtime review, and responsive quiz verification.
+- [x] Save the quiz variation enhancement checkpoint.

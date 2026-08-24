@@ -276,7 +276,10 @@ describe("course quiz variation and completion delivery", () => {
   it("exposes per-attempt shuffling, celebration feedback, and paid certificate delivery actions", () => {
     const workspaceSource = readFileSync(resolve(process.cwd(), "client/src/pages/CourseWorkspace.tsx"), "utf8");
     expect(workspaceSource).toMatch(/const shuffle =/);
-    expect(workspaceSource).toMatch(/setQuizOrder\(shuffle\(currentModule\.quiz\)\)/);
+    expect(workspaceSource).toMatch(/const shuffleQuizForAttempt =/);
+    expect(workspaceSource).toMatch(/setQuizOrder\(shuffleQuizForAttempt\(currentModule\.quiz\)\)/);
+    expect(workspaceSource).toMatch(/correctOption: optionEntries\.findIndex/);
+    expect(workspaceSource).toMatch(/const canonicalAnswers =/);
     expect(workspaceSource).toMatch(/Lesson complete/);
     expect(workspaceSource).toMatch(/Quiz passed/);
     expect(workspaceSource).toMatch(/autoCertificateRequested/);
