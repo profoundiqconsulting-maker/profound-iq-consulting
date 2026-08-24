@@ -813,3 +813,10 @@
 - [x] Add a dark-mode toggle switch to the Settings tab.
 - [x] Remove the JSON progress-file drop prompt from the dashboard.
 - [x] Run tests, production build, responsive verification, and save a checkpoint.
+
+# Dashboard Activity and Onboarding Polish
+- [x] Add a smooth light/dark theme transition respecting reduced-motion preferences.
+- [x] Add a recent activity feed for completed assessments and unlocked reports.
+- [x] Add a first-use onboarding tooltip for the floating New self-assessment button.
+- [x] Create or update and validate the reusable dashboard-enhancement skill.
+- [x] Run tests, production build, responsive verification, and save a checkpoint.
