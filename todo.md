@@ -742,3 +742,15 @@
 - [x] Create and validate a reusable skill describing the branded output, payment, receipt, sharing, and delivery workflow.
 - [x] Add regression coverage and run schema, type, tests, build, and responsive verification.
 - [x] Save a checkpoint containing these enhancements and deliver the reusable skill.
+
+# Live Verification, PDF Receipts, and Organization Approval
+- [x] Add non-guessable credential verification tokens and a public QR verification route.
+- [x] Render a live verification page showing credential authenticity, course/assessment identity, issue date, and verification status without exposing private report content.
+- [x] Add PDF receipt generation for every successful Paystack transaction and stage.
+- [x] Add authenticated receipt download actions in user transaction history.
+- [x] Add secure organization recipient records and report-forwarding approval states.
+- [x] Add organization review links with explicit accept/reject actions and audit timestamps.
+- [x] Protect organization access, report content, receipt downloads, and verification metadata with server-side authorization.
+- [x] Add regression coverage for token verification, receipt ownership, and organization approval boundaries.
+- [x] Run schema migration, type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these enhancements.
