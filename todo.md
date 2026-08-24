@@ -868,3 +868,10 @@
 - [x] Add a My Bookmarks dashboard section for saved lesson sections and simulations.
 - [x] Add bookmark navigation and removal controls without affecting course progress.
 - [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
+
+# Bookmark Search, My Notes, and AI Summaries
+- [x] Add search and course filters to My Bookmarks.
+- [x] Add a My Notes dashboard tab aggregating saved lesson notes across courses.
+- [x] Add review and export controls for the aggregated notes.
+- [x] Add built-in AI note summarization with safe limits, loading, and error states.
+- [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
