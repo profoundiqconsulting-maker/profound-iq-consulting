@@ -7,6 +7,7 @@ import { courseCatalog, COURSE_PASS_MARK, COURSE_PRICE_KES, COURSE_STAGE_AMOUNT_
 const assessmentPageSource = readFileSync(resolve(process.cwd(), "client/src/pages/Assessment.tsx"), "utf8");
 const coursesPageSource = readFileSync(resolve(process.cwd(), "client/src/pages/Courses.tsx"), "utf8");
 const userDashboardSource = readFileSync(resolve(process.cwd(), "client/src/pages/UserDashboard.tsx"), "utf8");
+const courseWorkspaceSource = readFileSync(resolve(process.cwd(), "client/src/pages/CourseWorkspace.tsx"), "utf8");
 
 describe("professional course curriculum", () => {
   it("provides ten modules, seven lessons, and fifteen quiz questions per course module", () => {
@@ -47,6 +48,19 @@ describe("course discovery and student dashboard", () => {
     expect(userDashboardSource).toMatch(/learningPercent/);
     expect(userDashboardSource).toMatch(/amountKes/);
     expect(userDashboardSource).toMatch(/Before Module 1/);
+  });
+});
+
+describe("timed course lessons", () => {
+  it("exposes a 40-minute countdown and sequential next-lesson gate", () => {
+    expect(courseWorkspaceSource).toMatch(/2400/);
+    expect(courseWorkspaceSource).toMatch(/40-minute study timer/);
+    expect(courseWorkspaceSource).toMatch(/role="timer"/);
+    expect(courseWorkspaceSource).toMatch(/lessonTimers/);
+    expect(courseWorkspaceSource).toMatch(/Finish the previous lesson first/);
+    expect(courseWorkspaceSource).toMatch(/disabled=\{!activeLessonTimerComplete/);
+    expect(courseWorkspaceSource).toMatch(/The next lesson unlocks when the 40-minute timer reaches zero/);
+    expect(courseWorkspaceSource).toMatch(/disabled=\{!progress\.lessons\.includes/);
   });
 });
 

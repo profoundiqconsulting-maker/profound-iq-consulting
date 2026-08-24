@@ -1179,3 +1179,12 @@
 - [x] Add regression coverage for search, filters, dashboard metrics, and payment schedule rendering.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
 - [x] Save the catalog discovery and student dashboard checkpoint.
+
+# Timed Lesson Progression
+- [x] Add a 40-minute countdown timer to every course lesson.
+- [x] Prevent advancing to the next lesson until the active lesson timer completes.
+- [x] Preserve timer state across refreshes and existing lesson progress flows without allowing client clock shortcuts.
+- [x] Add accessible countdown, locked-next controls, and completion feedback for desktop and mobile.
+- [x] Add regression coverage for timer duration, gate behavior, and lesson navigation.
+- [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
+- [x] Save the timed lesson progression checkpoint.
