@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { and, desc, eq, gte, inArray, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, courseCertificates, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, courseCertificates, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -177,10 +177,10 @@ export async function findUserByLocalIdentifier(identifier: string) {
   return (await db.select().from(users).where(or(eq(users.email, identifier), eq(users.phone, identifier), eq(users.username, identifier))).limit(1))[0] ?? undefined;
 }
 
-export async function createLocalUser(input: { openId: string; name: string; email?: string | null; phone?: string | null; username?: string | null; passwordHash: string }) {
+export async function createLocalUser(input: { openId: string; name: string; email?: string | null; phone?: string | null; username?: string | null; passwordHash: string; role?: "user" | "staff" | "admin" }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db.insert(users).values({ ...input, loginMethod: "password", role: "user" });
+  await db.insert(users).values({ ...input, loginMethod: "password", role: input.role ?? "user" });
   return getUserByOpenId(input.openId);
 }
 
@@ -558,9 +558,63 @@ export async function getAdminRevenueReport(filters: AdminRevenueFilters = {}) {
 
 export type ContactInquiryActor = { openId: string; name?: string | null; email?: string | null };
 
-async function recordContactInquiryAudit(db: Awaited<ReturnType<typeof getDb>>, input: { inquiryId: number; actor: ContactInquiryActor; action: "status" | "notes" | "assignment"; previousValue?: string | null; nextValue?: string | null }) {
+async function recordContactInquiryAudit(db: Awaited<ReturnType<typeof getDb>>, input: { inquiryId: number; actor: ContactInquiryActor; action: "status" | "notes" | "assignment" | "workload"; previousValue?: string | null; nextValue?: string | null }) {
   if (!db) throw new Error("Database is not available");
   await db.insert(contactInquiryAuditLogs).values({ inquiryId: input.inquiryId, actorOpenId: input.actor.openId, actorName: input.actor.name ?? null, actorEmail: input.actor.email ?? null, action: input.action, previousValue: input.previousValue ?? null, nextValue: input.nextValue ?? null });
+}
+
+export async function createStaffInvitation(input: { email: string; name: string; role: "staff" | "admin"; tokenHash: string; invitedByOpenId: string; expiresAt: Date }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.insert(staffInvitations).values(input);
+  return Number(result[0].insertId);
+}
+
+export async function listStaffInvitations() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(staffInvitations).orderBy(desc(staffInvitations.createdAt)).limit(100);
+}
+
+export async function consumeStaffInvitation(tokenHash: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const invitation = (await db.select().from(staffInvitations).where(and(eq(staffInvitations.tokenHash, tokenHash), isNull(staffInvitations.acceptedAt), gte(staffInvitations.expiresAt, new Date()))).limit(1))[0];
+  if (!invitation) return undefined;
+  await db.update(staffInvitations).set({ acceptedAt: new Date() }).where(eq(staffInvitations.id, invitation.id));
+  return invitation;
+}
+
+export async function updateUserRole(openId: string, role: "user" | "staff" | "admin") {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(users).set({ role }).where(eq(users.openId, openId));
+  return getUserByOpenId(openId);
+}
+
+export async function updateContactInquiryWorkload(id: number, workload: { dueDate: Date | null; priority: "low" | "normal" | "high" | "urgent" }, actor: ContactInquiryActor) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const previous = (await db.select({ dueDate: contactInquiries.dueDate, priority: contactInquiries.priority }).from(contactInquiries).where(eq(contactInquiries.id, id)).limit(1))[0];
+  await db.update(contactInquiries).set({ dueDate: workload.dueDate, priority: workload.priority }).where(eq(contactInquiries.id, id));
+  const previousValue = JSON.stringify({ dueDate: previous?.dueDate?.toISOString() ?? null, priority: previous?.priority ?? "normal" });
+  const nextValue = JSON.stringify({ dueDate: workload.dueDate?.toISOString() ?? null, priority: workload.priority });
+  if (previousValue !== nextValue) await recordContactInquiryAudit(db, { inquiryId: id, actor, action: "workload", previousValue, nextValue });
+  return (await db.select().from(contactInquiries).where(eq(contactInquiries.id, id)).limit(1))[0] ?? null;
+}
+
+export async function getStaffPerformanceSummary() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const members = await db.select({ openId: users.openId, name: users.name, email: users.email, role: users.role }).from(users).where(or(eq(users.role, "admin"), eq(users.role, "staff"))).orderBy(users.name);
+  const inquiries = await db.select().from(contactInquiries).where(isNotNull(contactInquiries.assignedToOpenId));
+  const audits = await db.select().from(contactInquiryAuditLogs).where(eq(contactInquiryAuditLogs.action, "status"));
+  return members.map(member => {
+    const assigned = inquiries.filter(row => row.assignedToOpenId === member.openId);
+    const completed = assigned.filter(row => row.status === "closed");
+    const durations = completed.map(row => { const closed = audits.find(audit => audit.inquiryId === row.id && audit.nextValue === "closed"); return closed ? Math.max(0, (closed.createdAt.getTime() - row.createdAt.getTime()) / 86400000) : null; }).filter((value): value is number => value !== null);
+    return { ...member, assignedCount: assigned.length, completedCount: completed.length, openCount: assigned.length - completed.length, averageResolutionDays: durations.length ? Math.round((durations.reduce((sum, value) => sum + value, 0) / durations.length) * 10) / 10 : null };
+  });
 }
 
 export async function getAdminTeamMembers() {

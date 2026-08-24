@@ -987,3 +987,11 @@
 - [x] Build a staff dashboard page with assigned-work summaries, filters, notes, and status actions.
 - [x] Register staff navigation and add authorization, behavior, and responsive regression coverage.
 - [x] Save a checkpoint for the staff dashboard feature.
+
+# Staff Operations and Performance
+- [x] Add admin-only staff invitation persistence and onboarding flow.
+- [x] Add admin-only staff role management controls.
+- [x] Add inquiry assignment due dates and priority levels to admin and staff views.
+- [x] Add admin staff performance summaries for completed assignments and resolution times.
+- [x] Add regression coverage and responsive verification for staff operations.
+- [x] Save a checkpoint for the staff operations update.

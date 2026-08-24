@@ -43,6 +43,7 @@ import { Link } from "wouter";
 import { BrandLogo } from "@/components/BrandLogo";
 import AdminInquiryPanel from "@/components/AdminInquiryPanel";
 import AdminRevenuePanel from "@/components/AdminRevenuePanel";
+import AdminStaffPanel from "@/components/AdminStaffPanel";
 import { buildFunnelComparison } from "@shared/adminAnalytics";
 import { renderEmailTemplate } from "@shared/emailTemplate";
 import { Streamdown } from "streamdown";
@@ -598,6 +599,7 @@ export default function AdminDashboard() {
           </div>
         )}
         <AdminRevenuePanel />
+        <AdminStaffPanel />
         <AdminInquiryPanel />
         {overview.data && (
           <>

@@ -25,6 +25,18 @@ export const users = mysqlTable("users", {
   usernameUnique: uniqueIndex("users_username_unique").on(table.username),
 }));
 
+export const staffInvitations = mysqlTable("staff_invitations", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull(),
+  name: varchar("name", { length: 160 }).notNull(),
+  role: varchar("role", { length: 32 }).default("staff").notNull(),
+  tokenHash: varchar("token_hash", { length: 128 }).notNull().unique(),
+  invitedByOpenId: varchar("invited_by_open_id", { length: 64 }).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  acceptedAt: timestamp("accepted_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const courseEnrollments = mysqlTable("course_enrollments", {
   id: int("id").autoincrement().primaryKey(),
   courseTitle: varchar("courseTitle", { length: 180 }).notNull(),
@@ -44,6 +56,8 @@ export const contactInquiries = mysqlTable("contact_inquiries", {
   internalNotes: text("internal_notes"),
   assignedToOpenId: varchar("assigned_to_open_id", { length: 64 }),
   assignedToName: varchar("assigned_to_name", { length: 160 }),
+  dueDate: timestamp("due_date"),
+  priority: varchar("priority", { length: 16 }).default("normal").notNull(),
   status: varchar("status", { length: 32 }).default("new").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });

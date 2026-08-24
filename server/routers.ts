@@ -22,7 +22,7 @@ import { createHeartbeatJob } from "./_core/heartbeat";
 import { WEEKLY_EXPORT_KEY } from "./scheduledEnrollmentExport";
 import { DELIVERY_LOG_EXPORT_KEY } from "./deliveryLogExport";
 import { randomUUID } from "node:crypto";
-import { consumePasswordResetToken, createLocalUser, findUserByLocalIdentifier, setPasswordResetToken } from "./db";
+import { consumePasswordResetToken, consumeStaffInvitation, createLocalUser, createStaffInvitation, listStaffInvitations, updateUserRole, updateContactInquiryWorkload, getStaffPerformanceSummary, findUserByLocalIdentifier, setPasswordResetToken } from "./db";
 import { identifierSchema, normalizeIdentifier, validatePassword } from "../shared/localAuth";
 import { createResetToken, hashPassword, hashRateLimitKey, hashResetToken, verifyPassword } from "./localAuthCrypto";
 import { sendPasswordResetEmail } from "./email";
@@ -70,12 +70,15 @@ export const appRouter = router({
     }),
   }),
   auth: router({
-    register: publicProcedure.input(z.object({ name: z.string().trim().min(2).max(160), email: z.string().trim().email().optional(), phone: z.string().trim().min(7).max(32).optional(), username: z.string().trim().min(3).max(40).regex(/^[a-zA-Z0-9_.-]+$/).optional(), password: z.string().refine(validatePassword, "Password must be 10–128 characters and include letters and numbers.") }).refine((input) => Boolean(input.email || input.phone || input.username), "Provide an email, phone number, or username." )).mutation(async ({ ctx, input }) => {
+    register: publicProcedure.input(z.object({ name: z.string().trim().min(2).max(160), email: z.string().trim().email().optional(), phone: z.string().trim().min(7).max(32).optional(), username: z.string().trim().min(3).max(40).regex(/^[a-zA-Z0-9_.-]+$/).optional(), password: z.string().refine(validatePassword, "Password must be 10–128 characters and include letters and numbers."), inviteToken: z.string().min(32).max(128).optional() }).refine((input) => Boolean(input.email || input.phone || input.username), "Provide an email, phone number, or username." )).mutation(async ({ ctx, input }) => {
       const identifiers = [input.email ? normalizeIdentifier(input.email) : null, input.phone ? normalizeIdentifier(input.phone) : null, input.username ? normalizeIdentifier(input.username) : null].filter((value): value is string => Boolean(value));
       const existing = await Promise.all(identifiers.map((identifier) => findUserByLocalIdentifier(identifier)));
       if (existing.some(Boolean)) throw new TRPCError({ code: "CONFLICT", message: "An account already exists with one of those identifiers." });
+      const invitation = input.inviteToken ? await consumeStaffInvitation(hashResetToken(input.inviteToken)) : undefined;
+      if (input.inviteToken && !invitation) throw new TRPCError({ code: "BAD_REQUEST", message: "This staff invitation is invalid or expired." });
+      if (invitation && (!input.email || normalizeIdentifier(input.email) !== normalizeIdentifier(invitation.email))) throw new TRPCError({ code: "BAD_REQUEST", message: "Register with the email address used for this invitation." });
       let user;
-      try { user = await createLocalUser({ openId: `local_${randomUUID()}`, name: input.name, email: input.email ? normalizeIdentifier(input.email) : null, phone: input.phone ? normalizeIdentifier(input.phone) : null, username: input.username ? normalizeIdentifier(input.username) : null, passwordHash: hashPassword(input.password) }); } catch (error) {
+      try { user = await createLocalUser({ openId: `local_${randomUUID()}`, name: input.name, email: input.email ? normalizeIdentifier(input.email) : null, phone: input.phone ? normalizeIdentifier(input.phone) : null, username: input.username ? normalizeIdentifier(input.username) : null, passwordHash: hashPassword(input.password), role: invitation?.role === "admin" ? "admin" : invitation ? "staff" : "user" }); } catch (error) {
         const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
         if (message.includes("duplicate") || message.includes("unique") || message.includes("constraint")) throw new TRPCError({ code: "CONFLICT", message: "An account already exists with one of those identifiers." });
         throw error;
@@ -199,6 +202,11 @@ export const appRouter = router({
   admin: router({
     contactInquiries: adminProcedure.input(z.object({ page: z.number().int().min(1).default(1), pageSize: z.number().int().min(1).max(50).default(10), search: z.string().trim().max(160).optional(), category: z.enum(["all", "professional-courses", "educational-consulting", "psychometric-testing", "research-surveys", "organizational-development", "general"]).default("all"), status: z.enum(["all", "new", "contacted", "closed"]).default("all"), assignedToOpenId: z.string().max(64).default("all"), fromDate: z.string().optional(), toDate: z.string().optional() }).optional()).query(({ input }) => listContactInquiries({ page: input?.page ?? 1, pageSize: input?.pageSize ?? 10, search: input?.search, category: input?.category ?? "all", status: input?.status ?? "all", assignedToOpenId: input?.assignedToOpenId ?? "all", fromDate: input?.fromDate ? new Date(`${input.fromDate}T00:00:00.000Z`) : undefined, toDate: input?.toDate ? new Date(`${input.toDate}T23:59:59.999Z`) : undefined })),
     teamMembers: adminProcedure.query(() => getAdminTeamMembers()),
+    staffInvitations: adminProcedure.query(() => listStaffInvitations()),
+    inviteStaff: adminProcedure.input(z.object({ email: z.string().email(), name: z.string().trim().min(2).max(160), role: z.enum(["staff", "admin"]).default("staff") })).mutation(async ({ ctx, input }) => { const token = createResetToken(); const invitationId = await createStaffInvitation({ email: input.email.trim().toLowerCase(), name: input.name.trim(), role: input.role, tokenHash: token.hash, invitedByOpenId: ctx.user.openId, expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) }); return { invitationId, inviteUrl: `${(ctx.req.headers.origin as string | undefined) ?? ""}/auth?invite=${encodeURIComponent(token.raw)}` }; }),
+    updateStaffRole: adminProcedure.input(z.object({ openId: z.string().min(1).max(64), role: z.enum(["user", "staff", "admin"]) })).mutation(({ input }) => updateUserRole(input.openId, input.role)),
+    updateContactInquiryWorkload: adminProcedure.input(z.object({ id: z.number().int().positive(), dueDate: z.string().nullable(), priority: z.enum(["low", "normal", "high", "urgent"]) })).mutation(({ ctx, input }) => updateContactInquiryWorkload(input.id, { dueDate: input.dueDate ? new Date(`${input.dueDate}T23:59:59.999Z`) : null, priority: input.priority }, { openId: ctx.user.openId, name: ctx.user.name, email: ctx.user.email })),
+    staffPerformance: adminProcedure.query(() => getStaffPerformanceSummary()),
     contactInquiryAuditHistory: adminProcedure.input(z.object({ inquiryId: z.number().int().positive() })).query(({ input }) => getContactInquiryAuditHistory(input.inquiryId)),
     updateContactInquiryStatus: adminProcedure.input(z.object({ id: z.number().int().positive(), status: z.enum(["new", "contacted", "closed"]) })).mutation(({ ctx, input }) => updateContactInquiryStatus(input.id, input.status, { openId: ctx.user.openId, name: ctx.user.name, email: ctx.user.email })),
     updateContactInquiryNotes: adminProcedure.input(z.object({ id: z.number().int().positive(), internalNotes: z.string().max(5000) })).mutation(({ ctx, input }) => updateContactInquiryNotes(input.id, input.internalNotes, { openId: ctx.user.openId, name: ctx.user.name, email: ctx.user.email })),
