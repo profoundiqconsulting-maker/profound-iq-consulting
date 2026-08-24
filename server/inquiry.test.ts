@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   listContactInquiries: vi.fn().mockResolvedValue({ rows: [], total: 0, page: 1, pageSize: 8, totalPages: 1 }),
   updateContactInquiryStatus: vi.fn().mockResolvedValue({ id: 12, status: "contacted" }),
   getContactInquiriesForExport: vi.fn().mockResolvedValue([{ id: 12, name: "Amina", email: "amina@example.com", category: "general", message: "Hello", status: "new", createdAt: new Date("2026-08-24T00:00:00Z") }]),
+  getContactInquiriesForExportWithAudit: vi.fn().mockResolvedValue([{ id: 12, name: "Amina", email: "amina@example.com", category: "general", message: "Hello", status: "new", assignedToName: null, createdAt: new Date("2026-08-24T00:00:00Z"), auditHistory: [] }]),
   getContactInquiryCategoryCounts: vi.fn().mockResolvedValue([{ category: "general", count: 3 }]),
   bulkUpdateContactInquiryStatus: vi.fn().mockResolvedValue(2),
   updateContactInquiryNotes: vi.fn().mockResolvedValue({ id: 12, internalNotes: "Follow up next week" }),
@@ -28,7 +29,7 @@ function adminContext(): TrpcContext {
 }
 
 describe("inquiry.create", () => {
-  beforeEach(() => { mocks.createContactInquiry.mockClear(); mocks.listContactInquiries.mockClear(); mocks.updateContactInquiryStatus.mockClear(); mocks.getAdminTeamMembers.mockClear(); mocks.getContactInquiryAuditHistory.mockClear(); mocks.updateContactInquiryAssignment.mockClear(); mocks.getContactInquiriesForExport.mockClear(); mocks.getContactInquiryCategoryCounts.mockClear(); mocks.bulkUpdateContactInquiryStatus.mockClear(); mocks.updateContactInquiryNotes.mockClear(); mocks.recordAnalyticsEvent.mockClear(); });
+  beforeEach(() => { mocks.createContactInquiry.mockClear(); mocks.listContactInquiries.mockClear(); mocks.updateContactInquiryStatus.mockClear(); mocks.getAdminTeamMembers.mockClear(); mocks.getContactInquiryAuditHistory.mockClear(); mocks.updateContactInquiryAssignment.mockClear(); mocks.getContactInquiriesForExport.mockClear(); mocks.getContactInquiriesForExportWithAudit.mockClear(); mocks.getContactInquiryCategoryCounts.mockClear(); mocks.bulkUpdateContactInquiryStatus.mockClear(); mocks.updateContactInquiryNotes.mockClear(); mocks.recordAnalyticsEvent.mockClear(); });
   it("persists the inquiry and records analytics", async () => {
     const result = await appRouter.createCaller(publicContext()).inquiry.create({ name: "Amina Njeri", email: "amina@example.com", category: "organizational-development", message: "I would like to discuss leadership training for our team.", mathA: 7, mathB: 5, mathAnswer: 12 });
     expect(result).toEqual({ id: 27 });
@@ -44,14 +45,14 @@ describe("inquiry.create", () => {
     const caller = appRouter.createCaller(adminContext());
     await caller.admin.contactInquiries({ page: 1, pageSize: 8, search: "amina", category: "general", status: "new", fromDate: "2026-08-01", toDate: "2026-08-24" });
     await caller.admin.updateContactInquiryStatus({ id: 12, status: "contacted" });
-    expect(mocks.listContactInquiries).toHaveBeenCalledWith({ page: 1, pageSize: 8, search: "amina", category: "general", status: "new", fromDate: new Date("2026-08-01T00:00:00.000Z"), toDate: new Date("2026-08-24T23:59:59.999Z") });
+    expect(mocks.listContactInquiries).toHaveBeenCalledWith({ page: 1, pageSize: 8, search: "amina", category: "general", status: "new", assignedToOpenId: "all", fromDate: new Date("2026-08-01T00:00:00.000Z"), toDate: new Date("2026-08-24T23:59:59.999Z") });
     expect(mocks.updateContactInquiryStatus).toHaveBeenCalledWith(12, "contacted", { openId: "admin-test", name: "Admin Test", email: "admin@example.com" });
     await caller.admin.teamMembers();
     await caller.admin.contactInquiryAuditHistory({ inquiryId: 12 });
     await caller.admin.updateContactInquiryAssignment({ id: 12, assignedToOpenId: "admin-2", assignedToName: "Team Member" });
     const exported = await caller.admin.exportContactInquiries({ search: "amina", category: "general", status: "new" });
     expect(exported.data).toContain("Name");
-    expect(mocks.getContactInquiriesForExport).toHaveBeenCalledWith({ search: "amina", category: "general", status: "new" });
+    expect(mocks.getContactInquiriesForExportWithAudit).toHaveBeenCalledWith({ search: "amina", category: "general", status: "new", assignedToOpenId: "all" });
     await caller.admin.bulkUpdateContactInquiryStatus({ ids: [12, 13], status: "closed" });
     await caller.admin.updateContactInquiryNotes({ id: 12, internalNotes: "Follow up next week" });
     await caller.admin.contactInquiryCategoryCounts();

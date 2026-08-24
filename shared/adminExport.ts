@@ -10,9 +10,13 @@ export function buildCourseEnrollmentCsv(rows: CourseEnrollmentExportRow[]) {
   return [header, ...lines].join("\n");
 }
 
-export type ContactInquiryExportRow = { id: number; name: string; email: string; category: string; message: string; status: string; createdAt: Date };
+export type ContactInquiryExportAudit = { action: string; previousValue: string | null; nextValue: string | null; actorName: string | null; actorEmail: string | null; createdAt: Date };
+export type ContactInquiryExportRow = { id: number; name: string; email: string; category: string; message: string; status: string; assignedToName?: string | null; createdAt: Date; auditHistory?: ContactInquiryExportAudit[] };
 export function buildContactInquiryCsv(rows: ContactInquiryExportRow[]) {
-  const header = ["ID", "Name", "Email", "Category", "Message", "Status", "Received at"].map(csvCell).join(",");
-  const lines = rows.map((row) => [row.id, row.name, row.email, row.category, row.message, row.status, row.createdAt.toISOString()].map(csvCell).join(","));
+  const header = ["ID", "Name", "Email", "Category", "Message", "Status", "Assigned to", "Received at", "Audit history"].map(csvCell).join(",");
+  const lines = rows.map((row) => {
+    const audit = (row.auditHistory ?? []).map(entry => `${entry.createdAt.toISOString()} | ${entry.action} | ${entry.previousValue ?? "—"} -> ${entry.nextValue ?? "—"} | ${entry.actorName ?? entry.actorEmail ?? "Unknown admin"}`).join("\n");
+    return [row.id, row.name, row.email, row.category, row.message, row.status, row.assignedToName, row.createdAt.toISOString(), audit].map(csvCell).join(",");
+  });
   return [header, ...lines].join("\n");
 }

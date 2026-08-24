@@ -964,3 +964,18 @@
 - [x] Add per-inquiry audit history for status and internal-note updates with UTC timestamps and admin actor details.
 - [x] Add regression coverage and verify presets, assignment, and audit history responsively.
 - [x] Save a checkpoint for the Contact Desk assignment and audit update.
+
+# Inquiry Assignment Filter and Audit Export
+- [x] Add an assigned team-member filter to inquiry listing and CSV export.
+- [x] Ensure inquiry search covers customer name, email, and message keywords.
+- [x] Include per-inquiry audit history records in the CSV export.
+- [x] Add regression coverage and verify filters, search, export, and responsive admin behavior.
+- [x] Save a checkpoint for the Contact Desk export update.
+
+# Admin Revenue Reporting
+- [x] Stabilize and verify the pending Contact Desk assignment-filter and audit-export changes.
+- [x] Inspect existing payment and transaction records and define revenue aggregation rules.
+- [x] Add admin-only revenue summary and trend procedures with date filtering.
+- [x] Build the admin revenue report interface with summary cards and charts.
+- [x] Add authorization and calculation regression coverage plus responsive verification.
+- [x] Save a checkpoint for the admin revenue reporting feature.

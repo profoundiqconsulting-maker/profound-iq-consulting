@@ -55,6 +55,7 @@ export default function AdminInquiryPanel() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<Category>("all");
   const [status, setStatus] = useState<Status>("all");
+  const [assignedToOpenId, setAssignedToOpenId] = useState("all");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [page, setPage] = useState(1);
@@ -62,7 +63,7 @@ export default function AdminInquiryPanel() {
   const [noteDrafts, setNoteDrafts] = useState<Record<number, string>>({});
   const [bulkStatus, setBulkStatus] = useState<ActiveStatus>("contacted");
   const [auditOpen, setAuditOpen] = useState<number | null>(null);
-  const filters = useMemo(() => ({ search: search || undefined, category, status, fromDate: fromDate || undefined, toDate: toDate || undefined }), [category, fromDate, search, status, toDate]);
+  const filters = useMemo(() => ({ search: search || undefined, category, status, assignedToOpenId, fromDate: fromDate || undefined, toDate: toDate || undefined }), [assignedToOpenId, category, fromDate, search, status, toDate]);
   const input = useMemo(() => ({ ...filters, page, pageSize: 8 }), [filters, page]);
   const inquiries = trpc.admin.contactInquiries.useQuery(input, { retry: false });
   const chart = trpc.admin.contactInquiryCategoryCounts.useQuery(undefined, { retry: false });
@@ -109,7 +110,7 @@ export default function AdminInquiryPanel() {
       <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-[1.35fr_1fr_1fr_1fr_1fr_auto]">
         <label className="relative lg:col-span-2"><span className="sr-only">Search inquiries</span><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#657084]" size={15} /><input value={search} onChange={event => setFilter(setSearch, event.target.value)} placeholder="Search name, email, or message" className="w-full border border-[#16243d]/20 bg-[#f7f3e8] py-2 pl-9 pr-3 text-sm outline-none focus:border-[#c9a34e]" /></label>
         <select value={category} onChange={event => { setCategory(event.target.value as Category); resetPage(); }} aria-label="Filter inquiries by subject" className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm"><option value="all">All subjects</option>{categories.filter(([key]) => key !== "all").map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select>
-        <select value={status} onChange={event => { setStatus(event.target.value as Status); resetPage(); }} aria-label="Filter inquiries by status" className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm"><option value="all">All statuses</option><option value="new">New</option><option value="contacted">Contacted</option><option value="closed">Closed</option></select>
+        <select value={status} onChange={event => { setStatus(event.target.value as Status); resetPage(); }} aria-label="Filter inquiries by status" className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm"><option value="all">All statuses</option><option value="new">New</option><option value="contacted">Contacted</option><option value="closed">Closed</option></select><select value={assignedToOpenId} onChange={event => { setAssignedToOpenId(event.target.value); resetPage(); }} aria-label="Filter inquiries by assigned team member" className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm"><option value="all">All assignees</option><option value="unassigned">Unassigned</option>{teamMembers.data?.map(member => <option key={member.openId} value={member.openId}>{member.name ?? member.email ?? member.openId}</option>)}</select>
         <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">From<input type="date" value={fromDate} onChange={event => setFilter(setFromDate, event.target.value)} aria-label="Filter inquiries from date" className="mt-1 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs font-normal tracking-normal text-[#16243d]" /></label>
         <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">To<input type="date" value={toDate} onChange={event => setFilter(setToDate, event.target.value)} aria-label="Filter inquiries to date" className="mt-1 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs font-normal tracking-normal text-[#16243d]" /></label>
         <div className="flex flex-wrap gap-1 lg:col-span-4"><button type="button" onClick={() => setPreset("today")} className="border border-[#16243d]/20 px-2 py-2 text-[9px] font-black uppercase tracking-[.08em]">Today</button><button type="button" onClick={() => setPreset("7d")} className="border border-[#16243d]/20 px-2 py-2 text-[9px] font-black uppercase tracking-[.08em]">Last 7 days</button><button type="button" onClick={() => setPreset("30d")} className="border border-[#16243d]/20 px-2 py-2 text-[9px] font-black uppercase tracking-[.08em]">Last 30 days</button><button type="button" onClick={clearDates} className="px-2 py-2 text-[9px] font-black uppercase tracking-[.08em] text-[#657084]">Clear dates</button></div>

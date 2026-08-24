@@ -502,10 +502,10 @@ export async function listContactInquiries(input: ContactInquiryFilters & { page
   return { rows, total, page: input.page, pageSize: input.pageSize, totalPages: Math.max(1, Math.ceil(total / input.pageSize)) };
 }
 
-export type ContactInquiryFilters = { search?: string; category?: string; status?: string; fromDate?: Date; toDate?: Date };
+export type ContactInquiryFilters = { search?: string; category?: string; status?: string; assignedToOpenId?: string; fromDate?: Date; toDate?: Date };
 
 function contactInquiryConditions(filters: ContactInquiryFilters) {
-  return [filters.search ? or(like(contactInquiries.name, `%${filters.search}%`), like(contactInquiries.email, `%${filters.search}%`), like(contactInquiries.message, `%${filters.search}%`)) : undefined, filters.category && filters.category !== "all" ? eq(contactInquiries.category, filters.category) : undefined, filters.status && filters.status !== "all" ? eq(contactInquiries.status, filters.status) : undefined, filters.fromDate ? gte(contactInquiries.createdAt, filters.fromDate) : undefined, filters.toDate ? lte(contactInquiries.createdAt, filters.toDate) : undefined].filter(Boolean) as Array<ReturnType<typeof eq>>;
+  return [filters.search ? or(like(contactInquiries.name, `%${filters.search}%`), like(contactInquiries.email, `%${filters.search}%`), like(contactInquiries.message, `%${filters.search}%`)) : undefined, filters.category && filters.category !== "all" ? eq(contactInquiries.category, filters.category) : undefined, filters.status && filters.status !== "all" ? eq(contactInquiries.status, filters.status) : undefined, filters.assignedToOpenId && filters.assignedToOpenId !== "all" ? filters.assignedToOpenId === "unassigned" ? isNull(contactInquiries.assignedToOpenId) : eq(contactInquiries.assignedToOpenId, filters.assignedToOpenId) : undefined, filters.fromDate ? gte(contactInquiries.createdAt, filters.fromDate) : undefined, filters.toDate ? lte(contactInquiries.createdAt, filters.toDate) : undefined].filter(Boolean) as Array<ReturnType<typeof eq>>;
 }
 
 export async function getContactInquiriesForExport(filters: ContactInquiryFilters = {}) {
@@ -515,12 +515,45 @@ export async function getContactInquiriesForExport(filters: ContactInquiryFilter
   return db.select().from(contactInquiries).where(conditions.length ? and(...conditions) : undefined).orderBy(desc(contactInquiries.createdAt)).limit(5000);
 }
 
+export async function getContactInquiriesForExportWithAudit(filters: ContactInquiryFilters = {}) {
+  const rows = await getContactInquiriesForExport(filters);
+  const auditRows = await Promise.all(rows.map(row => getContactInquiryAuditHistory(row.id)));
+  return rows.map((row, index) => ({ ...row, auditHistory: auditRows[index] }));
+}
+
 export async function getContactInquiryCategoryCounts(days = 30) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const fromDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
   const rows = await db.select({ category: contactInquiries.category, count: sql<number>`count(*)` }).from(contactInquiries).where(gte(contactInquiries.createdAt, fromDate)).groupBy(contactInquiries.category).orderBy(desc(sql`count(*)`));
   return rows.map(row => ({ category: row.category, count: Number(row.count) }));
+}
+
+export type AdminRevenueFilters = { fromDate?: Date; toDate?: Date };
+export async function getAdminRevenueReport(filters: AdminRevenueFilters = {}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const from = filters.fromDate ?? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const to = filters.toDate ?? new Date();
+  const assessmentRows = await db.select({ paidAt: assessmentAttempts.paidAt, reference: assessmentAttempts.paystackReference }).from(assessmentAttempts).where(and(eq(assessmentAttempts.paymentStatus, "paid"), isNotNull(assessmentAttempts.paidAt), gte(assessmentAttempts.paidAt, from), lte(assessmentAttempts.paidAt, to)));
+  const careerRows = await db.select({ paidAt: careerPathAttempts.paidAt, reference: careerPathAttempts.paystackReference }).from(careerPathAttempts).where(and(eq(careerPathAttempts.paymentStatus, "paid"), isNotNull(careerPathAttempts.paidAt), gte(careerPathAttempts.paidAt, from), lte(careerPathAttempts.paidAt, to)));
+  const courseRows = await db.select({ paidAt: coursePaymentStages.paidAt, reference: coursePaymentStages.paystackReference, amountKes: coursePaymentStages.amountKes }).from(coursePaymentStages).where(and(eq(coursePaymentStages.paymentStatus, "paid"), isNotNull(coursePaymentStages.paidAt), gte(coursePaymentStages.paidAt, from), lte(coursePaymentStages.paidAt, to)));
+  const transactions = [
+    ...assessmentRows.map(row => ({ source: "Self-assessment", amountKes: 20, paidAt: row.paidAt as Date, reference: row.reference })),
+    ...careerRows.map(row => ({ source: "CareerPath", amountKes: 20, paidAt: row.paidAt as Date, reference: row.reference })),
+    ...courseRows.map(row => ({ source: "Professional course", amountKes: Number(row.amountKes), paidAt: row.paidAt as Date, reference: row.reference })),
+  ].sort((a, b) => b.paidAt.getTime() - a.paidAt.getTime());
+  const bySource = new Map<string, { source: string; revenueKes: number; transactions: number }>();
+  const byDay = new Map<string, { date: string; revenueKes: number; transactions: number }>();
+  for (const transaction of transactions) {
+    const source = bySource.get(transaction.source) ?? { source: transaction.source, revenueKes: 0, transactions: 0 };
+    source.revenueKes += transaction.amountKes; source.transactions += 1; bySource.set(transaction.source, source);
+    const date = transaction.paidAt.toISOString().slice(0, 10);
+    const day = byDay.get(date) ?? { date, revenueKes: 0, transactions: 0 };
+    day.revenueKes += transaction.amountKes; day.transactions += 1; byDay.set(date, day);
+  }
+  const totalRevenueKes = transactions.reduce((sum, transaction) => sum + transaction.amountKes, 0);
+  return { fromDate: from, toDate: to, totalRevenueKes, transactionCount: transactions.length, averageTransactionKes: transactions.length ? Math.round(totalRevenueKes / transactions.length) : 0, bySource: Array.from(bySource.values()).sort((a, b) => b.revenueKes - a.revenueKes), trend: Array.from(byDay.values()).sort((a, b) => a.date.localeCompare(b.date)), transactions: transactions.slice(0, 100) };
 }
 
 export type ContactInquiryActor = { openId: string; name?: string | null; email?: string | null };
