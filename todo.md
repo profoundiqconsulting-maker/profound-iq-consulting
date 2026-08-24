@@ -1036,3 +1036,12 @@
 - [x] Add route and catalog rendering regression coverage.
 - [x] Verify type checks, tests, production build, and desktop/mobile page rendering.
 - [x] Save a checkpoint for the dedicated Courses page.
+
+# Paid Course Lesson Access
+- [x] Define the public course highlight versus protected lesson-content boundary.
+- [x] Enforce authentication and first-stage paid enrollment before serving detailed lessons.
+- [x] Add a clear locked-course experience with public highlights, pricing, and payment CTA.
+- [x] Preserve authorized learner progress, quizzes, notes, and certificate flows after unlock.
+- [x] Add regression tests for public, unpaid, partially paid, and authorized lesson access.
+- [x] Verify type checks, tests, production build, and responsive course-workspace rendering.
+- [x] Save a checkpoint for paid course lesson access.

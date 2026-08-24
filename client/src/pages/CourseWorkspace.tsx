@@ -1,8 +1,9 @@
 /* Profound IQ Consulting — Executive Observatory course workspace: editorial navy/ivory surfaces, gold progress signals, and calm motion for globally relevant professional learning. */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, CheckCircle2, Download, LockKeyhole, RotateCcw, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, CheckCircle2, Download, LockKeyhole, RotateCcw, Sparkles } from "lucide-react";
 import { Link, useRoute } from "wouter";
 import { courseCatalog, COURSE_PASS_MARK, COURSE_PRICE_KES, COURSE_STAGE_AMOUNT_KES, type CourseDefinition, type CourseQuizQuestion } from "@shared/courseCatalog";
+import { canAccessCourseLessons, courseAccessReason } from "@shared/courseAccess";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { TransformationNav } from "@/components/TransformationNav";
@@ -26,6 +27,19 @@ export default function CourseWorkspace() {
 }
 
 function CourseWorkspaceContent({ course }: { course: CourseDefinition }) {
+  const { user, isAuthenticated } = useAuth();
+  const courseState = trpc.course.state.useQuery(undefined, { enabled: isAuthenticated });
+  const paidStages = courseState.data?.find((item) => item.enrollment.courseSlug === course.slug)?.stages.filter((stage) => stage.paymentStatus === "paid").length ?? 0;
+  const qualityControl = user?.role === "admin" || user?.email?.toLowerCase() === "profoundiqconsulting@gmail.com";
+  if (!canAccessCourseLessons({ isAuthenticated, paidStages, isQualityControlAdmin: qualityControl })) return <CourseAccessGate course={course} isAuthenticated={isAuthenticated} paidStages={paidStages} />;
+  return <CourseWorkspaceUnlocked course={course} />;
+}
+
+function CourseAccessGate({ course, isAuthenticated, paidStages }: { course: CourseDefinition; isAuthenticated: boolean; paidStages: number }) {
+  return <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]"><TransformationNav active="assessment" /><main className="container py-10 sm:py-16"><div className="mx-auto max-w-4xl"><Link href="/courses" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]"><ArrowLeft size={14} /> Course catalog</Link><p className="eyebrow mt-10 text-[#a27e2e]">Course highlights · {course.duration}</p><h1 className="display mt-4 max-w-3xl text-5xl leading-[.95] tracking-[-.045em] sm:text-7xl">{course.title}</h1><p className="mt-6 max-w-2xl text-lg leading-8 text-[#4a566a]">{course.description}</p><div className="mt-10 grid gap-5 md:grid-cols-3"><div className="border border-[#16243d]/15 bg-white/55 p-5"><p className="eyebrow text-[#a27e2e]">For</p><p className="mt-3 text-sm leading-6">{course.audience}</p></div><div className="border border-[#16243d]/15 bg-white/55 p-5"><p className="eyebrow text-[#a27e2e]">Outcomes</p><p className="mt-3 text-sm leading-6">{course.outcomes.join(" · ")}</p></div><div className="border border-[#16243d]/15 bg-white/55 p-5"><p className="eyebrow text-[#a27e2e]">Investment</p><p className="mt-3 display text-2xl">KES {COURSE_PRICE_KES.toLocaleString()}</p><p className="mt-1 text-xs text-[#657084]">4 staged payments · KES {COURSE_STAGE_AMOUNT_KES.toLocaleString()} each</p></div></div><div className="mt-8 border-l-2 border-[#c9a34e] bg-[#16243d] p-6 text-[#f7f3e8] sm:p-8"><p className="eyebrow text-[#c9a34e]">Detailed lessons are protected</p><h2 className="display mt-3 text-3xl">{isAuthenticated ? "Unlock the learning workspace." : "Create your learner account to begin."}</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-[#c1cad7]">{courseAccessReason({ isAuthenticated, paidStages, isQualityControlAdmin: false })}</p><div className="mt-6 flex flex-wrap gap-3">{isAuthenticated ? <Link href="/courses" className="inline-flex items-center gap-2 bg-[#c9a34e] px-5 py-4 text-[10px] font-black uppercase tracking-[.15em] text-[#16243d]">Enroll and unlock <ArrowRight size={14} /></Link> : <Link href={`/auth?returnTo=${encodeURIComponent(window.location.pathname)}`} className="inline-flex items-center gap-2 bg-[#c9a34e] px-5 py-4 text-[10px] font-black uppercase tracking-[.15em] text-[#16243d]">Sign in to continue <ArrowRight size={14} /></Link>}<Link href="/courses" className="inline-flex items-center gap-2 border border-white/30 px-5 py-4 text-[10px] font-black uppercase tracking-[.15em] text-[#f7f3e8]">View all courses <ArrowUpRight size={14} /></Link></div></div></div></main></div>;
+}
+
+function CourseWorkspaceUnlocked({ course }: { course: CourseDefinition }) {
   const [progress, setProgress] = useState<SavedProgress>(() => readProgress(course));
   const { isAuthenticated } = useAuth();
   const courseState = trpc.course.state.useQuery(undefined, { enabled: isAuthenticated });
