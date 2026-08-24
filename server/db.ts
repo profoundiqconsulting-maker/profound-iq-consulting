@@ -1160,3 +1160,10 @@ export async function markOrganizationReminderSent(id: number) {
   await db.update(organizationInvitations).set({ reminderSentAt: now }).where(and(eq(organizationInvitations.id, id), eq(organizationInvitations.status, "pending"), isNull(organizationInvitations.reminderSentAt), gte(organizationInvitations.expiresAt, now)));
   return now;
 }
+
+export async function createOrganizationInvitation(input: { organizationName: string; organizationEmail: string; requesterOpenId: string; reportType: string; reportId: number; tokenHash: string; expiresAt: Date }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.insert(organizationInvitations).values({ organizationName: input.organizationName, organizationEmail: input.organizationEmail, requesterOpenId: input.requesterOpenId, reportType: input.reportType, reportId: input.reportId, tokenHash: input.tokenHash, expiresAt: input.expiresAt, status: "pending" });
+  return { id: Number(result[0].insertId), expiresAt: input.expiresAt };
+}

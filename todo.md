@@ -1054,3 +1054,12 @@
 - [x] Add regression tests for identity propagation, fallback names, authorization, and output text.
 - [x] Verify type checks, tests, production build, and representative desktop/mobile report surfaces.
 - [x] Save a checkpoint for personalized reporting.
+
+# Course Completion Delivery Queue
+- [x] Refresh course completion and certificate state automatically in the user dashboard.
+- [x] Add a learner-controlled sequential queue for email delivery, organization forwarding, and social-image sharing.
+- [x] Add consent, ordered-step status, retry feedback, and audit-safe handling for outbound actions.
+- [x] Generate a branded course completion share image with download and supported native sharing fallback.
+- [x] Add regression tests for completion refresh, delivery order, consent, retries, and authorization.
+- [x] Verify type checks, tests, production build, and responsive delivery-queue rendering.
+- [x] Save a checkpoint for the course completion delivery queue.

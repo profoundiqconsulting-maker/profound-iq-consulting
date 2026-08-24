@@ -169,3 +169,19 @@ export async function sendCourseCertificateEmail(input: { recipientName: string;
     attachments: [{ filename: `profound-iq-${input.certificateNumber}.svg`, content: input.certificateSvg, contentType: "image/svg+xml" }],
   });
 }
+
+export async function sendOrganizationReviewRequestEmail(input: { organizationName: string; organizationEmail: string; learnerName: string; courseTitle: string; certificateNumber: string }): Promise<void> {
+  const config = getSmtpConfig();
+  const subject = `Profound IQ certificate review request · ${input.learnerName}`;
+  const safeOrganization = escapeHtml(input.organizationName);
+  const safeLearner = escapeHtml(input.learnerName);
+  const safeCourse = escapeHtml(input.courseTitle);
+  const safeCertificate = escapeHtml(input.certificateNumber);
+  await getTransporter().sendMail({
+    from: { name: config.fromName, address: config.from },
+    to: input.organizationEmail,
+    subject,
+    text: `Hello ${input.organizationName},\n\n${input.learnerName} has requested that your organization review their Profound IQ certificate for ${input.courseTitle}. Certificate: ${input.certificateNumber}. Profound IQ will confirm the request before any report access is granted.\n\nProfound IQ Consulting`,
+    html: `<div style="max-width:680px;margin:0 auto;background:#f7f3e8;color:#16243d;font-family:Arial,sans-serif"><div style="background:#101d35;color:#f7f3e8;padding:24px 28px;border-top:6px solid #c9a34e"><div style="font-size:12px;letter-spacing:3px;font-weight:700">PROFOUND IQ CONSULTING</div><div style="margin-top:8px;color:#c9a34e;font-size:11px;letter-spacing:2px">ORGANIZATION REVIEW REQUEST</div></div><div style="padding:28px"><p>Hello ${safeOrganization},</p><p><strong>${safeLearner}</strong> has requested that your organization review their completed course certificate for <strong>${safeCourse}</strong>.</p><p style="border-left:3px solid #c9a34e;padding:12px 16px;background:#fff">Certificate: <strong>${safeCertificate}</strong></p><p>Profound IQ will confirm the request before any report access is granted.</p></div><div style="background:#16243d;color:#c1cad7;padding:18px 28px;font-size:12px">Profound IQ Consulting · Transformational learning · Online / global reach</div></div>`,
+  });
+}
