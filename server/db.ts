@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { and, desc, eq, gte, inArray, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, courseCertificates, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, courseCertificates, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -418,6 +418,39 @@ export async function getUserAssessmentHistory(email: string) {
     dimensionScores: row.paymentStatus === "paid" ? ((row.report as AssessmentReport | null)?.dimensions ?? []).map((dimension) => ({ key: dimension.key, label: dimension.label, score: dimension.score })) : [],
     report: row.paymentStatus === "paid" ? row.report : null,
   })).map((item, index, items) => ({ ...item, version: `v${items.length - index}` }));
+}
+
+export type CatalogItemInput = {
+  slug: string;
+  itemType: "course" | "service" | "program";
+  title: string;
+  strapline: string;
+  description: string;
+  audience: string;
+  duration: string;
+  outcomes: string[];
+  priceKes: number;
+  published: boolean;
+  createdByOpenId: string;
+};
+
+export async function listPublishedCatalogItems() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(catalogItems).where(eq(catalogItems.published, true)).orderBy(catalogItems.createdAt);
+}
+
+export async function listCatalogItemsForAdmin() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(catalogItems).orderBy(desc(catalogItems.createdAt));
+}
+
+export async function createCatalogItem(input: CatalogItemInput) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(catalogItems).values({ ...input, outcomes: input.outcomes });
+  return (await db.select().from(catalogItems).where(eq(catalogItems.slug, input.slug)).limit(1))[0];
 }
 
 function hashReportShareToken(token: string) { return createHash("sha256").update(token).digest("hex"); }

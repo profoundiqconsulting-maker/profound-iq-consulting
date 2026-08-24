@@ -1020,3 +1020,11 @@
 - [x] Add regression tests for recommendation ranking, paid-history eligibility, authorization, and empty states.
 - [x] Verify type checks, tests, production build, and responsive dashboard rendering.
 - [x] Save a checkpoint for the automated course recommendations feature.
+
+# Dynamic Frontend Catalog Updates
+- [x] Define a shared data contract so code-created and admin/database-created catalog items use the same frontend shape.
+- [x] Add protected admin creation/listing for catalog items with validation and publication visibility.
+- [x] Make frontend catalog and recommendation surfaces query live items and refresh after creation.
+- [x] Add regression tests for creation, authorization, publication filtering, and frontend data contracts.
+- [x] Verify type checks, tests, production build, and responsive catalog/admin rendering.
+- [x] Save a checkpoint for dynamic frontend catalog updates.

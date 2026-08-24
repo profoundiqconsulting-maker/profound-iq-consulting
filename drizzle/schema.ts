@@ -47,6 +47,23 @@ export const courseEnrollments = mysqlTable("course_enrollments", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+export const catalogItems = mysqlTable("catalog_items", {
+  id: int("id").autoincrement().primaryKey(),
+  slug: varchar("slug", { length: 120 }).notNull().unique(),
+  itemType: varchar("itemType", { length: 32 }).default("course").notNull(),
+  title: varchar("title", { length: 180 }).notNull(),
+  strapline: varchar("strapline", { length: 240 }).notNull(),
+  description: text("description").notNull(),
+  audience: varchar("audience", { length: 300 }).notNull(),
+  duration: varchar("duration", { length: 120 }).notNull(),
+  outcomes: json("outcomes").notNull(),
+  priceKes: int("priceKes").default(4999).notNull(),
+  published: boolean("published").default(false).notNull(),
+  createdByOpenId: varchar("createdByOpenId", { length: 64 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 export const contactInquiries = mysqlTable("contact_inquiries", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 160 }).notNull(),

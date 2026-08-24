@@ -9,10 +9,11 @@ import { sdk } from "./_core/sdk";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router, staffProcedure } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
-import { addEmailPreviewDelivery, checkLoginRateLimit, clearLoginFailures, countFailedLoginEvents, createContactInquiry, listContactInquiries, listAssignedContactInquiries, updateAssignedContactInquiryStatus, updateAssignedContactInquiryNotes, getContactInquiriesForExportWithAudit, getContactInquiryCategoryCounts, getAdminRevenueReport, getAdminTeamMembers, getContactInquiryAuditHistory, updateContactInquiryAssignment, updateContactInquiryNotes, updateContactInquiryStatus, bulkUpdateContactInquiryStatus, createCourseEnrollment, createDeliveryLogExportJob, createUserSession, getAdminAnalyticsSettings, getAdminNotificationRecipients, getAdminSecuritySettings, getEffectiveLoginEventRetentionDays, getLoginSecurityAnalytics, purgeExpiredLoginEvents, getAdminUsersForReview, getAnalyticsDashboard, getAssessmentAdminOverview, getCourseEnrollments, getDeliveryLogExportJob, getDeliveryLogExportJobs, getEmailPreviewDeliveries, getEmailPreviewDeliveriesForExport, getEmailPreviewDeliveriesPage, getEmailTemplates, getEffectiveLoginAlertThreshold, getFailedLoginEvents, getScheduledExport, getScheduledExportRuns, getSessionByTokenHash, getUserAssessmentHistory, getUserProfile, getUserSessions, getLoginEventsForUser, getVerificationRevocationAudits, getVerificationRevocationAuditsForExport, getVerificationRevocationAuditsPage, getCareerPathShareAnalytics, recordAnalyticsEvent, countUserSocialShares, recordFailedLogin, recordLoginEvent, revokeOtherUserSessions, revokeUserEmailVerification, revokeUserSession, saveAdminSecuritySettings, touchUserSession, updateUserAvatar, updateUserProfile, upsertAdminAnalyticsSettings, upsertEmailTemplate, updateScheduledExport, createScheduledExportIfMissing, listOrganizationInvitations, listOrganizationApprovalEvents, reviewOrganizationInvitation, markOrganizationReminderSent } from "./db";
+import { addEmailPreviewDelivery, checkLoginRateLimit, clearLoginFailures, countFailedLoginEvents, createContactInquiry, listContactInquiries, listAssignedContactInquiries, updateAssignedContactInquiryStatus, updateAssignedContactInquiryNotes, getContactInquiriesForExportWithAudit, getContactInquiryCategoryCounts, getAdminRevenueReport, getAdminTeamMembers, getContactInquiryAuditHistory, updateContactInquiryAssignment, updateContactInquiryNotes, updateContactInquiryStatus, bulkUpdateContactInquiryStatus, createCourseEnrollment, createDeliveryLogExportJob, createUserSession, getAdminAnalyticsSettings, getAdminNotificationRecipients, getAdminSecuritySettings, getEffectiveLoginEventRetentionDays, getLoginSecurityAnalytics, purgeExpiredLoginEvents, getAdminUsersForReview, getAnalyticsDashboard, getAssessmentAdminOverview, getCourseEnrollments, getDeliveryLogExportJob, getDeliveryLogExportJobs, getEmailPreviewDeliveries, getEmailPreviewDeliveriesForExport, getEmailPreviewDeliveriesPage, getEmailTemplates, getEffectiveLoginAlertThreshold, getFailedLoginEvents, getScheduledExport, getScheduledExportRuns, getSessionByTokenHash, getUserAssessmentHistory, listPublishedCatalogItems, listCatalogItemsForAdmin, createCatalogItem, getUserProfile, getUserSessions, getLoginEventsForUser, getVerificationRevocationAudits, getVerificationRevocationAuditsForExport, getVerificationRevocationAuditsPage, getCareerPathShareAnalytics, recordAnalyticsEvent, countUserSocialShares, recordFailedLogin, recordLoginEvent, revokeOtherUserSessions, revokeUserEmailVerification, revokeUserSession, saveAdminSecuritySettings, touchUserSession, updateUserAvatar, updateUserProfile, upsertAdminAnalyticsSettings, upsertEmailTemplate, updateScheduledExport, createScheduledExportIfMissing, listOrganizationInvitations, listOrganizationApprovalEvents, reviewOrganizationInvitation, markOrganizationReminderSent } from "./db";
 import { storagePut } from "./storage";
 import { z } from "zod";
 import { buildCourseRecommendations } from "../shared/courseRecommendations";
+import { normalizeCatalogItem } from "../shared/catalog";
 import { renderAssessmentReportPdf, renderAssessmentScoreSummaryPdf, renderCareerPathReportPdf, renderPaymentReceiptPdf } from "./reportPdf";
 import { validateEmailTemplateBody } from "../shared/emailTemplate";
 import { buildContactInquiryCsv, buildCourseEnrollmentCsv } from "../shared/adminExport";
@@ -69,6 +70,36 @@ export const appRouter = router({
       const report = result.attempt.report as AssessmentReport;
       const lens = result.share.lens === "teamDevelopment" ? "teamDevelopment" : "leadership";
       return { report, roleLens: buildRoleLens(report, lens), createdAt: result.attempt.createdAt, participantName: result.attempt.name, expiresAt: result.share.expiresAt };
+    }),
+  }),
+  catalog: router({
+    listPublished: publicProcedure.query(async () => {
+      const items = await listPublishedCatalogItems();
+      return items.map(normalizeCatalogItem);
+    }),
+    adminList: adminProcedure.query(async () => {
+      const items = await listCatalogItemsForAdmin();
+      return items.map(normalizeCatalogItem);
+    }),
+    create: adminProcedure.input(z.object({
+      slug: z.string().trim().min(3).max(120).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use a lowercase hyphenated slug."),
+      itemType: z.enum(["course", "service", "program"]).default("course"),
+      title: z.string().trim().min(2).max(180),
+      strapline: z.string().trim().min(2).max(240),
+      description: z.string().trim().min(10).max(5000),
+      audience: z.string().trim().min(2).max(300),
+      duration: z.string().trim().min(2).max(120),
+      outcomes: z.array(z.string().trim().min(2).max(240)).min(1).max(8),
+      priceKes: z.number().int().min(0).max(1_000_000),
+      published: z.boolean().default(false),
+    })).mutation(async ({ ctx, input }) => {
+      try {
+        const created = await createCatalogItem({ ...input, createdByOpenId: ctx.user.openId });
+        return created ? normalizeCatalogItem(created) : null;
+      } catch (error) {
+        if (String(error).toLowerCase().includes("duplicate") || String(error).toLowerCase().includes("unique")) throw new TRPCError({ code: "CONFLICT", message: "A catalog item with this slug already exists." });
+        throw error;
+      }
     }),
   }),
   auth: router({

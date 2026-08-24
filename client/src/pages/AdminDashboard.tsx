@@ -44,6 +44,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 import AdminInquiryPanel from "@/components/AdminInquiryPanel";
 import AdminRevenuePanel from "@/components/AdminRevenuePanel";
 import AdminStaffPanel from "@/components/AdminStaffPanel";
+import AdminCatalogPanel from "@/components/AdminCatalogPanel";
 import { buildFunnelComparison } from "@shared/adminAnalytics";
 import { renderEmailTemplate } from "@shared/emailTemplate";
 import { Streamdown } from "streamdown";
@@ -600,6 +601,7 @@ export default function AdminDashboard() {
         )}
         <AdminRevenuePanel />
         <AdminStaffPanel />
+        <AdminCatalogPanel />
         <AdminInquiryPanel />
         {overview.data && (
           <>
