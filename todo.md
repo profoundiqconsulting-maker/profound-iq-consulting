@@ -917,3 +917,15 @@
 - [x] Replace sitewide header, dashboard, course, assessment, and output logo references.
 - [x] Configure the new mark as the browser favicon and application metadata image.
 - [x] Verify logo rendering and generated-output references, then run tests/build and save a checkpoint.
+
+# OAuth Backend Configuration Repair
+- [x] Inspect the current OAuth connector and project configuration without exposing secret values.
+- [x] Restore OAUTH_SERVER_URL through the supported project configuration path or implement a safe platform fallback.
+- [x] Verify OAuth initialization, frontend login/session behavior, and runtime logs.
+- [x] Run authentication regression tests and save a recoverable checkpoint.
+
+# Managed Manus OAuth Restoration
+- [x] Inspect the built-in Manus OAuth configuration and current project deployment environment state.
+- [x] Restore or enable the managed backend OAUTH_SERVER_URL without changing VITE_OAUTH_PORTAL_URL.
+- [x] Verify production backend initialization and OAuth API base URL resolution for ExchangeToken and GetUserInfo.
+- [x] Run authentication regression checks and save a recoverable checkpoint if restored.
