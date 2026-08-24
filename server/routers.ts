@@ -3,7 +3,7 @@ import { assessmentQuestions, ASSESSMENT_PRICE_KES, buildReport, buildRoleLens, 
 import { careerPathQuestions, CAREER_PATH_PRICE_KES, buildCareerPathReport, type CareerPathReport } from "../shared/careerPath";
 import { courseCatalog, COURSE_PASS_MARK, COURSE_PRICE_KES, COURSE_STAGE_AMOUNT_KES } from "../shared/courseCatalog";
 import { parse as parseCookie } from "cookie";
-import { getAssessmentAttempt, createAssessmentAttempt, createAssessmentDraft, getAssessmentDraft, markAssessmentDraftResumed, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference, compareUserAssessmentReports, createReportShare, getActiveReportShare, revokeReportShare, listReportShares, listReportShareAuditEvents, createCareerPathAttempt, setCareerPathPaystackReference, getCareerPathAttemptByReference, markCareerPathPaid, listCareerPathAttemptsByEmail, getOrCreateCourseEnrollment, getCourseEnrollment, listCourseEnrollmentState, markCourseLessonComplete, recordCourseQuizAttempt, getCoursePaymentStageByReference, setCoursePaymentStageReference, markCoursePaymentStagePaid, createCourseCertificate } from "./db";
+import { getAssessmentAttempt, createAssessmentAttempt, createAssessmentDraft, getAssessmentDraft, markAssessmentDraftResumed, getAssessmentAttemptByReference, markAssessmentPaid, setPaystackReference, compareUserAssessmentReports, createReportShare, getActiveReportShare, revokeReportShare, listReportShares, listReportShareAuditEvents, createCareerPathAttempt, setCareerPathPaystackReference, getCareerPathAttemptByReference, markCareerPathPaid, listCareerPathAttemptsByEmail, getCareerPathActiveModule, upsertCareerPathActiveModule, getOrCreateCourseEnrollment, getCourseEnrollment, listCourseEnrollmentState, markCourseLessonComplete, recordCourseQuizAttempt, getCoursePaymentStageByReference, setCoursePaymentStageReference, markCoursePaymentStagePaid, createCourseCertificate } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { sdk } from "./_core/sdk";
 import { systemRouter } from "./_core/systemRouter";
@@ -299,6 +299,8 @@ export const appRouter = router({
       try { emailSent = await emailCareerPathReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report, personalNotes: attempt.personalNotes, receiptTitle: attempt.receiptTitle }); } catch (error) { console.error("[CareerPath] Report email delivery failed:", error); }
       return { report, reference: input.reference, emailSent };
     }),
+    activeModule: protectedProcedure.query(({ ctx }) => getCareerPathActiveModule(ctx.user.openId)),
+    saveActiveModule: protectedProcedure.input(z.object({ moduleIndex: z.number().int().min(0).max(99) })).mutation(({ ctx, input }) => upsertCareerPathActiveModule(ctx.user.openId, input.moduleIndex)),
     history: protectedProcedure.query(async ({ ctx }) => {
       if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
       return listCareerPathAttemptsByEmail(ctx.user.email);

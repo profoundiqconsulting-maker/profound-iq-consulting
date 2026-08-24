@@ -270,6 +270,13 @@ export const assessmentDrafts = mysqlTable("assessment_drafts", {
   resumedAt: timestamp("resumedAt"),
 });
 
+export const careerPathActiveModules = mysqlTable("career_path_active_modules", {
+  id: int("id").autoincrement().primaryKey(),
+  userOpenId: varchar("userOpenId", { length: 64 }).notNull().unique(),
+  moduleIndex: int("moduleIndex").default(0).notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 export const careerPathAttempts = mysqlTable("career_path_attempts", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 160 }).notNull(),

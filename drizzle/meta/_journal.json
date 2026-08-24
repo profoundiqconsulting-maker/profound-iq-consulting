@@ -204,6 +204,13 @@
       "when": 1787521648617,
       "tag": "0028_rare_shooting_star",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "5",
+      "when": 1787550108262,
+      "tag": "0029_lying_blink",
+      "breakpoints": true
     }
   ]
 }

@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { and, desc, eq, gte, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, courseCertificates, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, courseCertificates, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -842,4 +842,17 @@ export async function createCourseCertificate(input: { enrollmentId: number; rec
   if (existing) return existing;
   const result = await db.insert(courseCertificates).values(input);
   return (await db.select().from(courseCertificates).where(eq(courseCertificates.id, Number(result[0].insertId))).limit(1))[0];
+}
+
+export async function getCareerPathActiveModule(userOpenId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return (await db.select().from(careerPathActiveModules).where(eq(careerPathActiveModules.userOpenId, userOpenId)).limit(1))[0] ?? null;
+}
+
+export async function upsertCareerPathActiveModule(userOpenId: string, moduleIndex: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(careerPathActiveModules).values({ userOpenId, moduleIndex }).onDuplicateKeyUpdate({ set: { moduleIndex, updatedAt: new Date() } });
+  return getCareerPathActiveModule(userOpenId);
 }
