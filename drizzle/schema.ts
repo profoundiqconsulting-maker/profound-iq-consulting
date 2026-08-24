@@ -42,8 +42,22 @@ export const contactInquiries = mysqlTable("contact_inquiries", {
   category: varchar("category", { length: 80 }).notNull(),
   message: text("message").notNull(),
   internalNotes: text("internal_notes"),
+  assignedToOpenId: varchar("assigned_to_open_id", { length: 64 }),
+  assignedToName: varchar("assigned_to_name", { length: 160 }),
   status: varchar("status", { length: 32 }).default("new").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const contactInquiryAuditLogs = mysqlTable("contact_inquiry_audit_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  inquiryId: int("inquiry_id").notNull(),
+  actorOpenId: varchar("actor_open_id", { length: 64 }).notNull(),
+  actorName: varchar("actor_name", { length: 160 }),
+  actorEmail: varchar("actor_email", { length: 320 }),
+  action: varchar("action", { length: 32 }).notNull(),
+  previousValue: text("previous_value"),
+  nextValue: text("next_value"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const courseLearnerEnrollments = mysqlTable("course_learner_enrollments", {

@@ -957,3 +957,10 @@
 - [x] Enhance the inquiry list pagination with stable page reset and navigation states.
 - [x] Add regression coverage and verify filters, notes, export, and responsive pagination.
 - [x] Save a checkpoint for the Contact Desk enhancements.
+
+# Inquiry Presets, Assignment, and Audit History
+- [x] Add Today, Last 7 Days, and Last 30 Days date preset controls to the Contact Desk.
+- [x] Add admin team-member assignment storage, listing, and update controls for inquiries.
+- [x] Add per-inquiry audit history for status and internal-note updates with UTC timestamps and admin actor details.
+- [x] Add regression coverage and verify presets, assignment, and audit history responsively.
+- [x] Save a checkpoint for the Contact Desk assignment and audit update.

@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { and, desc, eq, gte, inArray, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, courseCertificates, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, courseCertificates, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -523,25 +523,60 @@ export async function getContactInquiryCategoryCounts(days = 30) {
   return rows.map(row => ({ category: row.category, count: Number(row.count) }));
 }
 
-export async function updateContactInquiryNotes(id: number, internalNotes: string) {
+export type ContactInquiryActor = { openId: string; name?: string | null; email?: string | null };
+
+async function recordContactInquiryAudit(db: Awaited<ReturnType<typeof getDb>>, input: { inquiryId: number; actor: ContactInquiryActor; action: "status" | "notes" | "assignment"; previousValue?: string | null; nextValue?: string | null }) {
+  if (!db) throw new Error("Database is not available");
+  await db.insert(contactInquiryAuditLogs).values({ inquiryId: input.inquiryId, actorOpenId: input.actor.openId, actorName: input.actor.name ?? null, actorEmail: input.actor.email ?? null, action: input.action, previousValue: input.previousValue ?? null, nextValue: input.nextValue ?? null });
+}
+
+export async function getAdminTeamMembers() {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db.update(contactInquiries).set({ internalNotes: internalNotes.trim() || null }).where(eq(contactInquiries.id, id));
+  return db.select({ openId: users.openId, name: users.name, email: users.email }).from(users).where(eq(users.role, "admin")).orderBy(users.name);
+}
+
+export async function getContactInquiryAuditHistory(inquiryId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(contactInquiryAuditLogs).where(eq(contactInquiryAuditLogs.inquiryId, inquiryId)).orderBy(desc(contactInquiryAuditLogs.createdAt)).limit(100);
+}
+
+export async function updateContactInquiryNotes(id: number, internalNotes: string, actor?: ContactInquiryActor) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const previous = (await db.select({ internalNotes: contactInquiries.internalNotes }).from(contactInquiries).where(eq(contactInquiries.id, id)).limit(1))[0]?.internalNotes ?? null;
+  const next = internalNotes.trim() || null;
+  await db.update(contactInquiries).set({ internalNotes: next }).where(eq(contactInquiries.id, id));
+  if (actor && previous !== next) await recordContactInquiryAudit(db, { inquiryId: id, actor, action: "notes", previousValue: previous, nextValue: next });
   return (await db.select().from(contactInquiries).where(eq(contactInquiries.id, id)).limit(1))[0] ?? null;
 }
 
-export async function updateContactInquiryStatus(id: number, status: "new" | "contacted" | "closed") {
+export async function updateContactInquiryStatus(id: number, status: "new" | "contacted" | "closed", actor?: ContactInquiryActor) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
+  const previous = (await db.select({ status: contactInquiries.status }).from(contactInquiries).where(eq(contactInquiries.id, id)).limit(1))[0]?.status ?? null;
   await db.update(contactInquiries).set({ status }).where(eq(contactInquiries.id, id));
+  if (actor && previous !== status) await recordContactInquiryAudit(db, { inquiryId: id, actor, action: "status", previousValue: previous, nextValue: status });
   return (await db.select().from(contactInquiries).where(eq(contactInquiries.id, id)).limit(1))[0] ?? null;
 }
 
-export async function bulkUpdateContactInquiryStatus(ids: number[], status: "new" | "contacted" | "closed") {
+export async function updateContactInquiryAssignment(id: number, assignment: { openId: string | null; name: string | null }, actor: ContactInquiryActor) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const previous = (await db.select({ openId: contactInquiries.assignedToOpenId, name: contactInquiries.assignedToName }).from(contactInquiries).where(eq(contactInquiries.id, id)).limit(1))[0];
+  await db.update(contactInquiries).set({ assignedToOpenId: assignment.openId, assignedToName: assignment.name }).where(eq(contactInquiries.id, id));
+  const previousValue = previous?.openId ? `${previous.name ?? ""} (${previous.openId})` : null;
+  const nextValue = assignment.openId ? `${assignment.name ?? ""} (${assignment.openId})` : null;
+  if (previousValue !== nextValue) await recordContactInquiryAudit(db, { inquiryId: id, actor, action: "assignment", previousValue, nextValue });
+  return (await db.select().from(contactInquiries).where(eq(contactInquiries.id, id)).limit(1))[0] ?? null;
+}
+
+export async function bulkUpdateContactInquiryStatus(ids: number[], status: "new" | "contacted" | "closed", actor?: ContactInquiryActor) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   if (!ids.length) return 0;
-  await db.update(contactInquiries).set({ status }).where(inArray(contactInquiries.id, ids));
+  for (const id of ids) await updateContactInquiryStatus(id, status, actor);
   return ids.length;
 }
 
