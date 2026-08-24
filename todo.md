@@ -731,3 +731,14 @@
 - [x] Add regression coverage for paid-only access, share trends, benchmarks, and action feedback.
 - [x] Run schema migration if required, type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these enhancements.
+
+# Branded Outputs, Receipt History, Share Comparisons, and Payment Recovery
+- [ ] Add the Profound IQ logo, verification QR code, and website address to certificate SVG outputs.
+- [ ] Add logo, QR verification, website address, and verification metadata to all report PDFs and score summaries.
+- [ ] Support secure learner email delivery and an explicitly authorized requesting-organization forwarding flow.
+- [ ] Add payment receipt and transaction history panels beside reports and certificates in user history.
+- [ ] Add date-range comparison overlays to historical Share Observatory charts.
+- [ ] Add a Retry Payment action with clear failure/cancellation messaging and safe Paystack re-initialization.
+- [ ] Create and validate a reusable skill describing the branded output, payment, receipt, sharing, and delivery workflow.
+- [ ] Add regression coverage and run schema, type, tests, build, and responsive verification.
+- [ ] Save a checkpoint containing these enhancements and deliver the reusable skill.
