@@ -1106,3 +1106,12 @@
 - [x] Verify payment rollup and resume-card rendering contracts against course state data.
 - [x] Re-run all validation and capture final responsive evidence.
 - [x] Fix mobile dashboard header actions wrapping into a cramped four-column line during responsive verification.
+
+# Payment Reconciliation and Cross-Device Course Resume
+- [x] Add a secure Paystack webhook endpoint with signature verification and idempotent stage reconciliation.
+- [x] Persist payment event history and expose reconciled, pending, failed, and exception states.
+- [x] Persist the learner's active course module and lesson position server-side and hydrate it across devices.
+- [x] Add admin payment-exception filters, detail views, and manual reconciliation actions.
+- [x] Add regression tests for webhook security/idempotency, payment exception authorization, and cross-device lesson resume.
+- [x] Run type checks, tests, production build, runtime verification, and responsive desktop/mobile audit.
+- [x] Save the completed reconciliation and cross-device resume checkpoint.

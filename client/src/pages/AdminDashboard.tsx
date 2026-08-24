@@ -46,6 +46,7 @@ import AdminRevenuePanel from "@/components/AdminRevenuePanel";
 import AdminStaffPanel from "@/components/AdminStaffPanel";
 import AdminCatalogPanel from "@/components/AdminCatalogPanel";
 import AdminCourseDeliveryPanel from "@/components/AdminCourseDeliveryPanel";
+import AdminPaymentExceptionsPanel from "@/components/AdminPaymentExceptionsPanel";
 import { buildFunnelComparison } from "@shared/adminAnalytics";
 import { renderEmailTemplate } from "@shared/emailTemplate";
 import { Streamdown } from "streamdown";
@@ -604,6 +605,7 @@ export default function AdminDashboard() {
         <AdminStaffPanel />
         <AdminCatalogPanel />
         <AdminCourseDeliveryPanel />
+        <AdminPaymentExceptionsPanel />
         <AdminInquiryPanel />
         {overview.data && (
           <>

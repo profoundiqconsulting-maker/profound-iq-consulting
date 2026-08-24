@@ -45,6 +45,11 @@ describe("admin feature boundaries", () => {
     await expect(caller.course.enroll({ courseSlug: courseCatalog[0].slug, name: "Test Person", email: "other@example.com", consent: true })).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 
+  it("blocks non-admin access to payment exceptions", async () => {
+    const caller = appRouter.createCaller(contextWithRole("user"));
+    await expect(caller.admin.coursePaymentExceptions({ status: "all", limit: 10 })).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
   it("requires privacy consent for course enrollment", async () => {
     const caller = appRouter.createCaller(contextWithRole("user"));
     await expect(caller.enrollment.create({ courseTitle: "Lead with Clarity", name: "Test Person", email: "test@example.com", consent: false as never })).rejects.toMatchObject({ code: "BAD_REQUEST" });

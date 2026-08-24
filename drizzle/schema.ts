@@ -125,7 +125,32 @@ export const coursePaymentStages = mysqlTable("course_payment_stages", {
   paystackReference: varchar("paystackReference", { length: 120 }).unique(),
   initializedAt: timestamp("initializedAt"),
   paidAt: timestamp("paidAt"),
+  lastCheckedAt: timestamp("lastCheckedAt"),
+  lastError: text("lastError"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({ enrollmentStageUnique: uniqueIndex("course_enrollment_stage_unique").on(table.enrollmentId, table.stage) }));
+export const coursePaymentEvents = mysqlTable("course_payment_events", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: varchar("eventId", { length: 160 }).notNull().unique(),
+  enrollmentId: int("enrollmentId"),
+  paymentStageId: int("paymentStageId"),
+  reference: varchar("reference", { length: 120 }),
+  eventType: varchar("eventType", { length: 64 }).notNull(),
+  transactionStatus: varchar("transactionStatus", { length: 32 }),
+  amountKes: int("amountKes"),
+  currency: varchar("currency", { length: 8 }),
+  payload: json("payload"),
+  receivedAt: timestamp("receivedAt").defaultNow().notNull(),
+  processedAt: timestamp("processedAt"),
+  errorMessage: text("errorMessage"),
+});
+export const courseActivePositions = mysqlTable("course_active_positions", {
+  id: int("id").autoincrement().primaryKey(),
+  enrollmentId: int("enrollmentId").notNull().unique(),
+  moduleIndex: int("moduleIndex").default(0).notNull(),
+  lessonId: varchar("lessonId", { length: 180 }),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
 export const courseCertificates = mysqlTable("course_certificates", {
   id: int("id").autoincrement().primaryKey(),
   enrollmentId: int("enrollmentId").notNull(),
@@ -407,6 +432,8 @@ export type CourseLearnerEnrollment = typeof courseLearnerEnrollments.$inferSele
 export type CourseLessonProgress = typeof courseLessonProgress.$inferSelect;
 export type CourseQuizAttempt = typeof courseQuizAttempts.$inferSelect;
 export type CoursePaymentStage = typeof coursePaymentStages.$inferSelect;
+export type CoursePaymentEvent = typeof coursePaymentEvents.$inferSelect;
+export type CourseActivePosition = typeof courseActivePositions.$inferSelect;
 export type CourseCertificate = typeof courseCertificates.$inferSelect;
 export type EmailTemplate = typeof emailTemplates.$inferSelect;
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;

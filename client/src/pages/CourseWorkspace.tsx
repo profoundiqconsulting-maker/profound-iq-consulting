@@ -53,10 +53,14 @@ function CourseWorkspaceUnlocked({ course }: { course: CourseDefinition }) {
   const summarizeNotesMutation = trpc.dashboard.summarizeNotes.useMutation();
   const studyAidMutation = trpc.dashboard.generateStudyAid.useMutation();
   const currentEnrollment = courseState.data?.find((item) => item.enrollment.courseSlug === course.slug);
+  const activePositionInput = useMemo(() => ({ enrollmentId: currentEnrollment?.enrollment.id ?? 0 }), [currentEnrollment?.enrollment.id]);
+  const activePosition = trpc.course.activePosition.useQuery(activePositionInput, { enabled: Boolean(currentEnrollment?.enrollment.id) });
+  const saveActivePositionMutation = trpc.course.saveActivePosition.useMutation();
   const [moduleIndex, setModuleIndex] = useState(0);
   const [quizOpen, setQuizOpen] = useState(false);
   const [quizOrder, setQuizOrder] = useState<CourseQuizQuestion[]>([]);
   const autoCertificateRequested = useRef(false);
+  const serverPositionApplied = useRef(false);
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
   const [simulationChoice, setSimulationChoice] = useState<number | null>(null);
   const [reflection, setReflection] = useState("");
@@ -77,6 +81,8 @@ function CourseWorkspaceUnlocked({ course }: { course: CourseDefinition }) {
   const isModuleReady = currentModule.lessons.every((lesson) => progress.lessons.includes(lesson.id));
   const isCourseComplete = passedQuizzes === course.modules.length && completedLessons === course.modules.length * 7;
   const persist = (next: SavedProgress) => { setProgress(next); window.localStorage.setItem(storageKey(course.slug), JSON.stringify(next)); };
+  useEffect(() => { if (!activePosition.isSuccess || serverPositionApplied.current) return; if (activePosition.data) { setModuleIndex(Math.min(course.modules.length - 1, Math.max(0, activePosition.data.moduleIndex))); setActiveLessonId(activePosition.data.lessonId ?? null); } serverPositionApplied.current = true; }, [activePosition.data, activePosition.isSuccess, course.modules.length]);
+  useEffect(() => { const enrollmentId = currentEnrollment?.enrollment.id; if (!enrollmentId || !serverPositionApplied.current) return; saveActivePositionMutation.mutate({ enrollmentId, moduleIndex, lessonId: activeLessonId }); }, [activeLessonId, currentEnrollment?.enrollment.id, moduleIndex]);
   const openQuiz = () => { setQuizOrder(shuffle(currentModule.quiz)); setSelectedAnswers({}); setQuizOpen(true); };
   const toggleLesson = (lessonId: string) => { const isCompleting = !progress.lessons.includes(lessonId); const lessons = isCompleting ? [...progress.lessons, lessonId] : progress.lessons.filter((id) => id !== lessonId); persist({ ...progress, lessons }); if (isCompleting) toast.success("Lesson complete", { description: "Your progress has been saved." }); if (isCompleting && currentEnrollment?.enrollment.id) completeLessonMutation.mutate({ enrollmentId: currentEnrollment.enrollment.id, lessonId }); };
   const submitQuiz = () => { const correct = currentModule.quiz.filter((question) => selectedAnswers[question.id] === question.correctOption).length; const score = Math.round((correct / currentModule.quiz.length) * 100); persist({ ...progress, quizScores: { ...progress.quizScores, [currentModule.id]: score } }); if (currentEnrollment?.enrollment.id) submitQuizMutation.mutate({ enrollmentId: currentEnrollment.enrollment.id, moduleId: currentModule.id, answers: selectedAnswers }); toast.success(score >= COURSE_PASS_MARK ? "Quiz passed" : "Quiz submitted", { description: score >= COURSE_PASS_MARK ? "The next learning step is now available." : "Review the feedback and try again." }); setQuizOpen(false); setSelectedAnswers({}); };

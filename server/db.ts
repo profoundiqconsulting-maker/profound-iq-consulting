@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { and, desc, eq, gte, inArray, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -63,11 +63,16 @@ export async function getLoginSecurityAnalytics(input: { from?: Date; to?: Date;
   if (!db) throw new Error("Database is not available");
   const loginConditions = [input.from ? gte(loginEvents.createdAt, input.from) : undefined, input.to ? lte(loginEvents.createdAt, input.to) : undefined].filter(Boolean) as Array<ReturnType<typeof gte>>;
   const sessionConditions = [input.from ? gte(userSessions.createdAt, input.from) : undefined, input.to ? lte(userSessions.createdAt, input.to) : undefined].filter(Boolean) as Array<ReturnType<typeof gte>>;
-  const loginBucket = input.granularity === "daily" ? sql<string>`DATE_FORMAT(${loginEvents.createdAt}, '%Y-%m-%d')` : sql<string>`DATE_FORMAT(${loginEvents.createdAt}, '%Y-W%u')`;
-  const sessionBucket = input.granularity === "daily" ? sql<string>`DATE_FORMAT(${userSessions.createdAt}, '%Y-%m-%d')` : sql<string>`DATE_FORMAT(${userSessions.createdAt}, '%Y-W%u')`;
-  const loginRows = await db.select({ week: loginBucket, success: loginEvents.success, count: sql<number>`count(*)` }).from(loginEvents).where(loginConditions.length ? and(...loginConditions) : undefined).groupBy(loginBucket, loginEvents.success);
-  const deviceRows = await db.select({ week: sessionBucket, deviceType: userSessions.deviceType, count: sql<number>`count(*)` }).from(userSessions).where(sessionConditions.length ? and(...sessionConditions) : undefined).groupBy(sessionBucket, userSessions.deviceType);
-  return normalizeLoginAnalyticsRows(loginRows.map((row) => ({ ...row, count: Number(row.count) })), deviceRows.map((row) => ({ ...row, count: Number(row.count) })));
+  const bucket = (value: Date) => { if (input.granularity === "daily") return value.toISOString().slice(0, 10); const start = new Date(Date.UTC(value.getUTCFullYear(), 0, 1)); const day = Math.floor((value.getTime() - start.getTime()) / 86400000); return `${value.getUTCFullYear()}-W${String(Math.floor((day + start.getUTCDay()) / 7) + 1).padStart(2, "0")}`; };
+  const [loginSource, deviceSource] = await Promise.all([
+    db.select({ createdAt: loginEvents.createdAt, success: loginEvents.success }).from(loginEvents).where(loginConditions.length ? and(...loginConditions) : undefined),
+    db.select({ createdAt: userSessions.createdAt, deviceType: userSessions.deviceType }).from(userSessions).where(sessionConditions.length ? and(...sessionConditions) : undefined),
+  ]);
+  const loginMap = new Map<string, number>();
+  loginSource.forEach((row) => { const key = `${bucket(row.createdAt)}::${row.success}`; loginMap.set(key, (loginMap.get(key) ?? 0) + 1); });
+  const deviceMap = new Map<string, number>();
+  deviceSource.forEach((row) => { const key = `${bucket(row.createdAt)}::${row.deviceType ?? "unknown"}`; deviceMap.set(key, (deviceMap.get(key) ?? 0) + 1); });
+  return normalizeLoginAnalyticsRows(Array.from(loginMap.entries()).map(([key, count]) => { const [week, success] = key.split("::"); return { week, success: success === "true", count }; }), Array.from(deviceMap.entries()).map(([key, count]) => { const [week, deviceType] = key.split("::"); return { week, deviceType, count }; }));
 }
 
 export async function getAdminSecuritySettings(adminOpenId: string) {
@@ -752,8 +757,10 @@ export async function getAnalyticsDashboard(filters: { fromDate?: Date; toDate?:
     previousSummary = summarizeAnalyticsEvents(previousRows.map((row) => ({ eventName: row.eventName, count: Number(row.count) })));
   }
   const trendFrom = filters.fromDate ?? new Date(Date.now() - 56 * 24 * 60 * 60 * 1000);
-  const trendRows = await db.select({ week: sql<string>`DATE_FORMAT(${analyticsEvents.createdAt}, '%Y-W%u')`, eventName: analyticsEvents.eventName, count: sql<number>`count(*)` }).from(analyticsEvents).where(and(gte(analyticsEvents.createdAt, trendFrom), filters.toDate ? lte(analyticsEvents.createdAt, filters.toDate) : undefined)).groupBy(sql`DATE_FORMAT(${analyticsEvents.createdAt}, '%Y-W%u')`, analyticsEvents.eventName);
-  const weekly = aggregateWeeklyAnalytics(trendRows.map((row) => ({ week: row.week, eventName: row.eventName, count: Number(row.count) })));
+  const trendSource = await db.select({ createdAt: analyticsEvents.createdAt, eventName: analyticsEvents.eventName }).from(analyticsEvents).where(and(gte(analyticsEvents.createdAt, trendFrom), filters.toDate ? lte(analyticsEvents.createdAt, filters.toDate) : undefined));
+  const trendMap = new Map<string, number>();
+  trendSource.forEach((row) => { const start = new Date(Date.UTC(row.createdAt.getUTCFullYear(), 0, 1)); const day = Math.floor((row.createdAt.getTime() - start.getTime()) / 86400000); const week = `${row.createdAt.getUTCFullYear()}-W${String(Math.floor((day + start.getUTCDay()) / 7) + 1).padStart(2, "0")}`; const key = `${week}::${row.eventName}`; trendMap.set(key, (trendMap.get(key) ?? 0) + 1); });
+  const weekly = aggregateWeeklyAnalytics(Array.from(trendMap.entries()).map(([key, count]) => { const [week, eventName] = key.split("::"); return { week, eventName, count }; }));
   return { summary, previousSummary, weekly };
 }
 
@@ -1062,6 +1069,66 @@ export async function recordCourseQuizAttempt(input: { enrollmentId: number; mod
   const result = await db.insert(courseQuizAttempts).values(input);
   return Number(result[0].insertId);
 }
+export async function getCoursePaymentEventById(eventId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return (await db.select().from(coursePaymentEvents).where(eq(coursePaymentEvents.eventId, eventId)).limit(1))[0] ?? undefined;
+}
+
+export async function createCoursePaymentEvent(input: { eventId: string; enrollmentId?: number | null; paymentStageId?: number | null; reference?: string | null; eventType: string; transactionStatus?: string | null; amountKes?: number | null; currency?: string | null; payload?: unknown }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const existing = await getCoursePaymentEventById(input.eventId);
+  if (existing) return { event: existing, duplicate: true as const };
+  const result = await db.insert(coursePaymentEvents).values({ ...input, payload: input.payload ?? null });
+  const event = (await db.select().from(coursePaymentEvents).where(eq(coursePaymentEvents.id, Number(result[0].insertId))).limit(1))[0];
+  return { event, duplicate: false as const };
+}
+
+export async function markCoursePaymentEventProcessed(eventId: string, errorMessage?: string | null) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(coursePaymentEvents).set({ processedAt: new Date(), errorMessage: errorMessage ?? null }).where(eq(coursePaymentEvents.eventId, eventId));
+}
+
+export async function updateCoursePaymentStageStatus(id: number, input: { status: string; errorMessage?: string | null; paid?: boolean }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const now = new Date();
+  await db.update(coursePaymentStages).set({ paymentStatus: input.status, lastCheckedAt: now, lastError: input.errorMessage ?? null, paidAt: input.paid ? now : undefined }).where(eq(coursePaymentStages.id, id));
+  return (await db.select().from(coursePaymentStages).where(eq(coursePaymentStages.id, id)).limit(1))[0] ?? undefined;
+}
+
+export async function listCoursePaymentExceptions(input: { status?: "all" | "pending" | "failed" | "exception" | "paid"; search?: string; limit?: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const status = input.status ?? "all";
+  const search = input.search?.trim();
+  const conditions = [status !== "all" ? eq(coursePaymentStages.paymentStatus, status) : undefined, search ? or(like(courseLearnerEnrollments.name, `%${search}%`), like(courseLearnerEnrollments.email, `%${search}%`), like(courseLearnerEnrollments.courseSlug, `%${search}%`), like(coursePaymentStages.paystackReference, `%${search}%`)) : undefined].filter(Boolean) as Array<ReturnType<typeof eq>>;
+  const rows = await db.select({ stage: coursePaymentStages, enrollment: courseLearnerEnrollments }).from(coursePaymentStages).innerJoin(courseLearnerEnrollments, eq(courseLearnerEnrollments.id, coursePaymentStages.enrollmentId)).where(conditions.length ? and(...conditions) : undefined).orderBy(desc(coursePaymentStages.updatedAt)).limit(Math.min(250, Math.max(1, input.limit ?? 100)));
+  const summary = { total: rows.length, pending: rows.filter((row) => row.stage.paymentStatus === "pending").length, failed: rows.filter((row) => row.stage.paymentStatus === "failed").length, exception: rows.filter((row) => row.stage.paymentStatus === "exception").length, paid: rows.filter((row) => row.stage.paymentStatus === "paid").length };
+  return { rows, summary };
+}
+
+export async function getCourseActivePosition(enrollmentId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return (await db.select().from(courseActivePositions).where(eq(courseActivePositions.enrollmentId, enrollmentId)).limit(1))[0] ?? null;
+}
+
+export async function upsertCourseActivePosition(input: { enrollmentId: number; moduleIndex: number; lessonId?: string | null }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(courseActivePositions).values(input).onDuplicateKeyUpdate({ set: { moduleIndex: input.moduleIndex, lessonId: input.lessonId ?? null, updatedAt: new Date() } });
+  return getCourseActivePosition(input.enrollmentId);
+}
+
+export async function getCoursePaymentStageById(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return (await db.select().from(coursePaymentStages).where(eq(coursePaymentStages.id, id)).limit(1))[0] ?? undefined;
+}
+
 export async function getCoursePaymentStageByReference(reference: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -1137,12 +1204,15 @@ export async function listOrganizationApprovalEvents(input: { search?: string; f
   const where = conditions.length ? and(...conditions) : undefined;
   const page = Math.max(1, input.page ?? 1);
   const pageSize = Math.min(100, Math.max(1, input.pageSize ?? 20));
-  const [rows, totalRows, trendRows] = await Promise.all([
+  const [rows, totalRows, trendSource] = await Promise.all([
     db.select().from(organizationApprovalEvents).where(where).orderBy(desc(organizationApprovalEvents.createdAt)).limit(pageSize).offset((page - 1) * pageSize),
     db.select({ count: sql<number>`count(*)` }).from(organizationApprovalEvents).where(where),
-    db.select({ bucket: sql<string>`DATE_FORMAT(${organizationApprovalEvents.createdAt}, '%Y-%m-%d')`, eventType: organizationApprovalEvents.eventType, count: sql<number>`count(*)` }).from(organizationApprovalEvents).where(where).groupBy(sql`DATE_FORMAT(${organizationApprovalEvents.createdAt}, '%Y-%m-%d')`, organizationApprovalEvents.eventType).orderBy(sql`DATE_FORMAT(${organizationApprovalEvents.createdAt}, '%Y-%m-%d')`),
+    db.select({ createdAt: organizationApprovalEvents.createdAt, eventType: organizationApprovalEvents.eventType }).from(organizationApprovalEvents).where(where).orderBy(organizationApprovalEvents.createdAt),
   ]);
-  return { rows, total: Number(totalRows[0]?.count ?? 0), page, pageSize, totalPages: Math.max(1, Math.ceil(Number(totalRows[0]?.count ?? 0) / pageSize)), trends: trendRows.map((row) => ({ bucket: row.bucket, eventType: row.eventType, count: Number(row.count) })) };
+  const trendMap = new Map<string, number>();
+  trendSource.forEach((row) => { const key = `${row.createdAt.toISOString().slice(0, 10)}::${row.eventType}`; trendMap.set(key, (trendMap.get(key) ?? 0) + 1); });
+  const trends = Array.from(trendMap.entries()).sort(([left], [right]) => left.localeCompare(right)).map(([key, count]) => { const [bucket, eventType] = key.split("::"); return { bucket, eventType, count }; });
+  return { rows, total: Number(totalRows[0]?.count ?? 0), page, pageSize, totalPages: Math.max(1, Math.ceil(Number(totalRows[0]?.count ?? 0) / pageSize)), trends };
 }
 
 export async function reviewOrganizationInvitation(input: { id: number; actorOpenId: string; status: "approved" | "rejected"; note?: string }) {

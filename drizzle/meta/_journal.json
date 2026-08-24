@@ -267,6 +267,13 @@
       "when": 1787589949551,
       "tag": "0037_green_warhawk",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "5",
+      "when": 1787593761099,
+      "tag": "0038_shallow_hercules",
+      "breakpoints": true
     }
   ]
 }
