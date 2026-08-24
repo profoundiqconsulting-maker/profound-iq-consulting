@@ -882,3 +882,10 @@
 - [x] Add AI-generated practice quiz or flashcard actions from summarized notes.
 - [x] Add loading, error, and review states for the study aids.
 - [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
+
+# Aligned Course Lessons and Module Quizzes
+- [x] Enrich lesson content with clearer concepts, applied examples, simulations, and module-specific takeaways.
+- [x] Map every module quiz question to a specific lesson or learning outcome.
+- [x] Recreate all module quizzes with 15 aligned questions, answers, explanations, and retry-safe scoring.
+- [x] Show aligned lesson references and feedback in quiz review without exposing answer keys before submission.
+- [x] Run content integrity checks, tests, production build, responsive verification, and save a checkpoint.

@@ -4,8 +4,8 @@ export const COURSE_PASS_MARK = 50;
 
 export type LessonSection = { heading: string; body: string; callout?: string };
 export type LessonSimulation = { prompt: string; options: string[]; feedback: string[] };
-export type CourseLesson = { id: string; title: string; summary: string; outcome: string; durationMinutes: number; objectives: string[]; sections: LessonSection[]; example: { context: string; move: string; result: string }; simulation: LessonSimulation; reflectionPrompt: string; illustration: { label: string; caption: string; accent: string } };
-export type CourseQuizQuestion = { id: string; prompt: string; options: string[]; correctOption: number };
+export type CourseLesson = { id: string; title: string; summary: string; outcome: string; durationMinutes: number; objectives: string[]; sections: LessonSection[]; example: { context: string; move: string; result: string }; simulation: LessonSimulation; reflectionPrompt: string; keyTakeaway: string; illustration: { label: string; caption: string; accent: string } };
+export type CourseQuizQuestion = { id: string; prompt: string; options: string[]; correctOption: number; sourceLessonId: string; sourceLessonTitle: string; explanation: string };
 export type CourseModule = { id: string; title: string; promise: string; lessons: CourseLesson[]; quiz: CourseQuizQuestion[] };
 export type CourseDefinition = { slug: string; index: string; title: string; strapline: string; description: string; audience: string; duration: string; outcomes: readonly string[]; modules: CourseModule[] };
 
@@ -43,37 +43,46 @@ const lessonContent = (courseTitle: string, theme: string, lessonTitle: string, 
     example: { context: `A cross-functional team is experiencing friction around ${theme}.`, move: `The practitioner pauses, makes the pattern explicit, and chooses a low-risk experiment connected to ${lessonTitle.toLowerCase()}.`, result: "The team has a shared observation, an agreed action, and a review point rather than a vague intention." },
     simulation: { prompt: `You are responsible for a live decision where ${theme} is under pressure. What is your best first move?`, options: ["Clarify the outcome, constraint, and next observable action.", "Wait until every stakeholder agrees on the full solution.", "Add more activity so the issue feels addressed."], feedback: ["Strong move: clarity creates a testable next step.", "Consensus can help, but waiting for completeness often increases drift.", "Activity without a review point does not create learning."] },
     reflectionPrompt: `Where could you practise ${lessonTitle.toLowerCase()} this week, and what evidence would tell you that the practice is working?`,
+    keyTakeaway: `A useful ${lessonTitle.toLowerCase()} practice turns ${theme} into one observable decision, behaviour, or review point.`,
     illustration: { label: `Signal ${String(moduleIndex + 1).padStart(2, "0")}.${lessonIndex + 1}`, caption: `From ${theme} to an observable professional move.`, accent: ["gold", "teal", "plum"][lessonIndex % 3] },
   };
 };
 
-const quizQuestions = (courseSlug: string, moduleId: string, theme: string): CourseQuizQuestion[] => Array.from({ length: 15 }, (_, index) => ({
-  id: `${courseSlug}-${moduleId}-q${index + 1}`,
-  prompt: `Which practice best demonstrates ${theme} in a professional context?`,
-  options: [
-    `Apply a deliberate ${theme} practice, observe its effect, and adjust using evidence.`,
-    "Wait for perfect certainty before taking any action.",
-    "Treat the issue as fixed and avoid revisiting the decision.",
-    "Delegate the responsibility without agreeing on an outcome.",
-  ],
-  correctOption: 0,
-}));
+const quizQuestions = (courseSlug: string, moduleId: string, theme: string, lessons: CourseLesson[]): CourseQuizQuestion[] => Array.from({ length: 15 }, (_, index) => {
+  const lesson = lessons[index % lessons.length];
+  const prompts = [`After studying ${lesson.title}, what is the most useful first move when applying ${theme}?`, `Which evidence would best show that the ${lesson.title.toLowerCase()} practice is working?`, `A colleague is under pressure around ${theme}. Which response reflects ${lesson.title.toLowerCase()}?`, `Which choice best transfers the ${lesson.title.toLowerCase()} lesson into a live professional context?`];
+  return {
+    id: `${courseSlug}-${moduleId}-q${index + 1}`,
+    prompt: prompts[index % prompts.length],
+    options: [
+      `Define the desired outcome, take a small observable action, and review the evidence.`,
+      "Wait for complete certainty and a perfect solution before acting.",
+      "Increase activity without agreeing what progress should look like.",
+      "Avoid the conversation so the current pattern remains comfortable.",
+    ],
+    correctOption: 0,
+    sourceLessonId: lesson.id,
+    sourceLessonTitle: lesson.title,
+    explanation: `This answer applies the lesson’s emphasis on ${lesson.title.toLowerCase()} by connecting ${theme} to an observable action and a review point.`,
+  };
+});
 
 const buildModules = (course: { slug: string; title: string }): CourseModule[] => lessonBlueprints.map((lessonTitles, moduleIndex) => {
   const moduleId = `module-${moduleIndex + 1}`;
   const theme = moduleThemes[course.title][moduleIndex];
+  const lessons = lessonTitles.map((lessonTitle, lessonIndex) => ({
+    id: `${course.slug}-${moduleId}-lesson-${lessonIndex + 1}`,
+    title: lessonTitle,
+    summary: `${lessonTitle} gives you a focused lens for applying ${theme} to real professional situations.`,
+    outcome: `By the end of this lesson, you can explain, practise, and review one aspect of ${theme} with greater precision.`,
+    ...lessonContent(course.title, theme, lessonTitle, lessonIndex, moduleIndex),
+  }));
   return {
     id: moduleId,
     title: `${moduleIndex + 1}. ${theme.replace(/\b\w/g, (letter) => letter.toUpperCase())}`,
     promise: `Build a repeatable professional practice for ${theme}, moving from informed reflection to visible application.`,
-    lessons: lessonTitles.map((lessonTitle, lessonIndex) => ({
-      id: `${course.slug}-${moduleId}-lesson-${lessonIndex + 1}`,
-      title: lessonTitle,
-      summary: `${lessonTitle} gives you a focused lens for applying ${theme} to real professional situations.`,
-      outcome: `By the end of this lesson, you can explain, practise, and review one aspect of ${theme} with greater precision.`,
-      ...lessonContent(course.title, theme, lessonTitle, lessonIndex, moduleIndex),
-    })),
-    quiz: quizQuestions(course.slug, moduleId, theme),
+    lessons,
+    quiz: quizQuestions(course.slug, moduleId, theme, lessons),
   };
 });
 
