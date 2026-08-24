@@ -2,7 +2,9 @@ export const COURSE_PRICE_KES = 4999;
 export const COURSE_STAGE_AMOUNT_KES = 1250;
 export const COURSE_PASS_MARK = 50;
 
-export type CourseLesson = { id: string; title: string; summary: string; outcome: string };
+export type LessonSection = { heading: string; body: string; callout?: string };
+export type LessonSimulation = { prompt: string; options: string[]; feedback: string[] };
+export type CourseLesson = { id: string; title: string; summary: string; outcome: string; durationMinutes: number; objectives: string[]; sections: LessonSection[]; example: { context: string; move: string; result: string }; simulation: LessonSimulation; reflectionPrompt: string; illustration: { label: string; caption: string; accent: string } };
 export type CourseQuizQuestion = { id: string; prompt: string; options: string[]; correctOption: number };
 export type CourseModule = { id: string; title: string; promise: string; lessons: CourseLesson[]; quiz: CourseQuizQuestion[] };
 export type CourseDefinition = { slug: string; index: string; title: string; strapline: string; description: string; audience: string; duration: string; outcomes: readonly string[]; modules: CourseModule[] };
@@ -25,6 +27,24 @@ const moduleThemes: Record<string, string[]> = {
   "Strategic Growth Mindset": ["growth orientation", "context and opportunity", "learning agility", "experimentation", "execution rhythm", "resilience", "collaboration", "evidence of growth", "integration", "capstone growth plan"],
   "Professional Presence & Influence": ["professional identity", "context and reputation", "authentic presence", "message design", "visibility", "difficult moments", "influence", "credibility", "integration", "capstone presence plan"],
   "From Insight to Action": ["insight baseline", "context and priorities", "behaviour change", "action design", "execution rhythm", "obstacles", "accountability", "measurement", "integration", "capstone action system"],
+};
+
+const lessonContent = (courseTitle: string, theme: string, lessonTitle: string, lessonIndex: number, moduleIndex: number) => {
+  const practice = ["notice the signal", "frame the decision", "test a small intervention", "invite a useful response", "review the evidence", "name the trade-off", "transfer the practice"][lessonIndex];
+  return {
+    durationMinutes: 40,
+    objectives: [`Define ${lessonTitle.toLowerCase()} in the context of ${theme}.`, `Apply one ${theme} practice to a real professional situation.`, "Leave with an observable next action and a way to review it."],
+    sections: [
+      { heading: "Orient", body: `${lessonTitle} is not a theory to memorise; it is a professional lens for making better choices when the work is moving. In ${courseTitle}, this lesson connects ${theme} to the moments where judgment becomes visible.`, callout: "Use the lesson as a working session: read, test, write, and apply." },
+      { heading: "Understand the signal", body: `Look for the difference between activity and progress. A useful signal is specific enough to change a conversation, a decision, or a behaviour. Start by asking: what is happening, what matters, and what would be different if this practice were working?` },
+      { heading: "Work the example", body: `A project lead notices that meetings are full but decisions remain unclear. Instead of adding another status update, they use ${theme} to ${practice}: they name the outcome, surface the constraint, and agree on the smallest next move. The learning is made visible in the next meeting, not only in the reflection afterward.` },
+      { heading: "Transfer to your context", body: `Choose one live situation from the last seven days. Write the observable behaviour you want to change, the people affected, and the evidence you will review. Keep the experiment small enough to complete before the next working cycle.` },
+    ],
+    example: { context: `A cross-functional team is experiencing friction around ${theme}.`, move: `The practitioner pauses, makes the pattern explicit, and chooses a low-risk experiment connected to ${lessonTitle.toLowerCase()}.`, result: "The team has a shared observation, an agreed action, and a review point rather than a vague intention." },
+    simulation: { prompt: `You are responsible for a live decision where ${theme} is under pressure. What is your best first move?`, options: ["Clarify the outcome, constraint, and next observable action.", "Wait until every stakeholder agrees on the full solution.", "Add more activity so the issue feels addressed."], feedback: ["Strong move: clarity creates a testable next step.", "Consensus can help, but waiting for completeness often increases drift.", "Activity without a review point does not create learning."] },
+    reflectionPrompt: `Where could you practise ${lessonTitle.toLowerCase()} this week, and what evidence would tell you that the practice is working?`,
+    illustration: { label: `Signal ${String(moduleIndex + 1).padStart(2, "0")}.${lessonIndex + 1}`, caption: `From ${theme} to an observable professional move.`, accent: ["gold", "teal", "plum"][lessonIndex % 3] },
+  };
 };
 
 const quizQuestions = (courseSlug: string, moduleId: string, theme: string): CourseQuizQuestion[] => Array.from({ length: 15 }, (_, index) => ({
@@ -51,6 +71,7 @@ const buildModules = (course: { slug: string; title: string }): CourseModule[] =
       title: lessonTitle,
       summary: `${lessonTitle} gives you a focused lens for applying ${theme} to real professional situations.`,
       outcome: `By the end of this lesson, you can explain, practise, and review one aspect of ${theme} with greater precision.`,
+      ...lessonContent(course.title, theme, lessonTitle, lessonIndex, moduleIndex),
     })),
     quiz: quizQuestions(course.slug, moduleId, theme),
   };
