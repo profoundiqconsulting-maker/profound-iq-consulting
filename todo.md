@@ -668,3 +668,13 @@
 - [x] Add regression coverage for admin badge boundaries, cross-device module resume, and Results history previews.
 - [x] Run schema migration, type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these enhancements.
+
+# Certificate Thumbnails, Resume Conflict Choices, and LinkedIn Sharing
+- [x] Add branded certificate thumbnails to authenticated CareerPath history cards.
+- [x] Add direct certificate download actions from history cards when a certificate exists.
+- [x] Add LinkedIn sharing for the generated CareerPath report and certificate.
+- [x] Detect meaningful differences between local CareerPath draft and server active-module state.
+- [x] Prompt users to keep local progress or server progress when the versions differ.
+- [x] Add regression coverage for thumbnails, LinkedIn actions, and conflict resolution behavior.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these enhancements.
