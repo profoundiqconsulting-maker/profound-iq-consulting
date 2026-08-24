@@ -139,6 +139,20 @@ export const courseCertificates = mysqlTable("course_certificates", {
   emailedAt: timestamp("emailedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
+export const courseDeliveryEvents = mysqlTable("course_delivery_events", {
+  id: int("id").autoincrement().primaryKey(),
+  userOpenId: varchar("userOpenId", { length: 64 }).notNull(),
+  enrollmentId: int("enrollmentId").notNull(),
+  certificateId: int("certificateId"),
+  step: varchar("step", { length: 32 }).notNull(),
+  status: varchar("status", { length: 32 }).notNull(),
+  recipientEmail: varchar("recipientEmail", { length: 320 }),
+  organizationName: varchar("organizationName", { length: 180 }),
+  metadata: json("metadata"),
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
 export const analyticsEvents = mysqlTable("analytics_events", {
   id: int("id").autoincrement().primaryKey(),
   eventName: varchar("eventName", { length: 80 }).notNull(),

@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { and, desc, eq, gte, inArray, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, courseCertificates, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -63,8 +63,8 @@ export async function getLoginSecurityAnalytics(input: { from?: Date; to?: Date;
   if (!db) throw new Error("Database is not available");
   const loginConditions = [input.from ? gte(loginEvents.createdAt, input.from) : undefined, input.to ? lte(loginEvents.createdAt, input.to) : undefined].filter(Boolean) as Array<ReturnType<typeof gte>>;
   const sessionConditions = [input.from ? gte(userSessions.createdAt, input.from) : undefined, input.to ? lte(userSessions.createdAt, input.to) : undefined].filter(Boolean) as Array<ReturnType<typeof gte>>;
-  const loginBucket = input.granularity === "daily" ? sql<string>`DATE_FORMAT(${loginEvents.createdAt}, '%Y-%m-%d')` : sql<string>`DATE_FORMAT(${loginEvents.createdAt}, '%x-W%v')`;
-  const sessionBucket = input.granularity === "daily" ? sql<string>`DATE_FORMAT(${userSessions.createdAt}, '%Y-%m-%d')` : sql<string>`DATE_FORMAT(${userSessions.createdAt}, '%x-W%v')`;
+  const loginBucket = input.granularity === "daily" ? sql<string>`DATE_FORMAT(${loginEvents.createdAt}, '%Y-%m-%d')` : sql<string>`DATE_FORMAT(${loginEvents.createdAt}, '%Y-W%u')`;
+  const sessionBucket = input.granularity === "daily" ? sql<string>`DATE_FORMAT(${userSessions.createdAt}, '%Y-%m-%d')` : sql<string>`DATE_FORMAT(${userSessions.createdAt}, '%Y-W%u')`;
   const loginRows = await db.select({ week: loginBucket, success: loginEvents.success, count: sql<number>`count(*)` }).from(loginEvents).where(loginConditions.length ? and(...loginConditions) : undefined).groupBy(loginBucket, loginEvents.success);
   const deviceRows = await db.select({ week: sessionBucket, deviceType: userSessions.deviceType, count: sql<number>`count(*)` }).from(userSessions).where(sessionConditions.length ? and(...sessionConditions) : undefined).groupBy(sessionBucket, userSessions.deviceType);
   return normalizeLoginAnalyticsRows(loginRows.map((row) => ({ ...row, count: Number(row.count) })), deviceRows.map((row) => ({ ...row, count: Number(row.count) })));
@@ -752,7 +752,7 @@ export async function getAnalyticsDashboard(filters: { fromDate?: Date; toDate?:
     previousSummary = summarizeAnalyticsEvents(previousRows.map((row) => ({ eventName: row.eventName, count: Number(row.count) })));
   }
   const trendFrom = filters.fromDate ?? new Date(Date.now() - 56 * 24 * 60 * 60 * 1000);
-  const trendRows = await db.select({ week: sql<string>`DATE_FORMAT(${analyticsEvents.createdAt}, '%x-W%v')`, eventName: analyticsEvents.eventName, count: sql<number>`count(*)` }).from(analyticsEvents).where(and(gte(analyticsEvents.createdAt, trendFrom), filters.toDate ? lte(analyticsEvents.createdAt, filters.toDate) : undefined)).groupBy(sql`DATE_FORMAT(${analyticsEvents.createdAt}, '%x-W%v')`, analyticsEvents.eventName);
+  const trendRows = await db.select({ week: sql<string>`DATE_FORMAT(${analyticsEvents.createdAt}, '%Y-W%u')`, eventName: analyticsEvents.eventName, count: sql<number>`count(*)` }).from(analyticsEvents).where(and(gte(analyticsEvents.createdAt, trendFrom), filters.toDate ? lte(analyticsEvents.createdAt, filters.toDate) : undefined)).groupBy(sql`DATE_FORMAT(${analyticsEvents.createdAt}, '%Y-W%u')`, analyticsEvents.eventName);
   const weekly = aggregateWeeklyAnalytics(trendRows.map((row) => ({ week: row.week, eventName: row.eventName, count: Number(row.count) })));
   return { summary, previousSummary, weekly };
 }
@@ -1166,4 +1166,22 @@ export async function createOrganizationInvitation(input: { organizationName: st
   if (!db) throw new Error("Database is not available");
   const result = await db.insert(organizationInvitations).values({ organizationName: input.organizationName, organizationEmail: input.organizationEmail, requesterOpenId: input.requesterOpenId, reportType: input.reportType, reportId: input.reportId, tokenHash: input.tokenHash, expiresAt: input.expiresAt, status: "pending" });
   return { id: Number(result[0].insertId), expiresAt: input.expiresAt };
+}
+
+export async function recordCourseDeliveryEvent(input: { userOpenId: string; enrollmentId: number; certificateId?: number | null; step: "email" | "organization" | "social"; status: "pending" | "sent" | "delivered" | "failed" | "downloaded" | "shared"; recipientEmail?: string | null; organizationName?: string | null; metadata?: Record<string, unknown> | null; errorMessage?: string | null }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.insert(courseDeliveryEvents).values(input);
+  return (await db.select().from(courseDeliveryEvents).where(eq(courseDeliveryEvents.id, Number(result[0].insertId))).limit(1))[0];
+}
+export async function listCourseDeliveryEventsForUser(userOpenId: string, enrollmentId?: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(courseDeliveryEvents).where(enrollmentId ? and(eq(courseDeliveryEvents.userOpenId, userOpenId), eq(courseDeliveryEvents.enrollmentId, enrollmentId)) : eq(courseDeliveryEvents.userOpenId, userOpenId)).orderBy(desc(courseDeliveryEvents.createdAt)).limit(200);
+}
+export async function listCourseDeliveryEventsForAdmin(input: { status?: string; step?: string; search?: string; limit?: number; offset?: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const conditions = [input.status && input.status !== "all" ? eq(courseDeliveryEvents.status, input.status) : undefined, input.step && input.step !== "all" ? eq(courseDeliveryEvents.step, input.step) : undefined, input.search?.trim() ? or(like(courseDeliveryEvents.recipientEmail, `%${input.search.trim()}%`), like(courseDeliveryEvents.organizationName, `%${input.search.trim()}%`)) : undefined].filter(Boolean) as Array<ReturnType<typeof eq>>;
+  return db.select().from(courseDeliveryEvents).where(conditions.length ? and(...conditions) : undefined).orderBy(desc(courseDeliveryEvents.createdAt)).limit(Math.min(500, Math.max(1, input.limit ?? 100))).offset(Math.max(0, input.offset ?? 0));
 }
