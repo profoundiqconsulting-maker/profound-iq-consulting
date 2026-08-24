@@ -1229,3 +1229,13 @@
 - [x] Add regression coverage for the new display name and route compatibility.
 - [x] Run tests, TypeScript validation, production build, runtime review, and responsive verification.
 - [x] Save the Self Assessment naming checkpoint.
+
+# Self Assessment Discovery and Results
+- [x] Update Self Assessment landing-page title, meta description, canonical metadata, and Open Graph tags.
+- [x] Add a guided introductory modal and visible progress bar to the Self Assessment flow.
+- [x] Add a dedicated dashboard section for past Self Assessment scores and report access.
+- [x] Add personalized CareerPath recommendations based on the learner’s assessment results.
+- [x] Create and validate a reusable skill documenting the SEO, onboarding, results, and recommendation workflow.
+- [x] Add regression coverage for metadata, progress, results history, and recommendation logic.
+- [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
+- [x] Save the Self Assessment discovery and results checkpoint.
