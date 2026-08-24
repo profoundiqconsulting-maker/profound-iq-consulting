@@ -678,3 +678,13 @@
 - [x] Add regression coverage for thumbnails, LinkedIn actions, and conflict resolution behavior.
 - [x] Run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these enhancements.
+
+# Resume Transparency, Certificate URLs, LinkedIn Counts, and Post-Payment Access
+- [ ] Show exact timestamps, module names, and response progress for local and server resume versions in the conflict prompt.
+- [ ] Return secure certificate image URLs with authenticated history records and render the actual images on cards.
+- [ ] Persist and display each user’s LinkedIn certificate-share count.
+- [ ] Record LinkedIn shares only after the share action is initiated by the authenticated user.
+- [ ] Improve successful payment navigation with immediate report and certificate access actions.
+- [ ] Add regression coverage for conflict details, certificate URLs, share counts, and post-payment navigation.
+- [ ] Run schema migration, type checks, full tests, production build, and responsive payment-flow verification.
+- [ ] Save a checkpoint containing these enhancements.
