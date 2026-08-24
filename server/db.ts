@@ -1,6 +1,9 @@
 import { createHash, randomBytes } from "node:crypto";
 import { and, desc, eq, gte, inArray, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
+import { normalizeLeaderboardDisplayName, rankAchievementLeaderboard, type AchievementBadge, type AchievementLeaderboardRow } from "../shared/achievements";
+import { courseCatalog } from "../shared/courseCatalog";
+import { buildCourseModuleBadges } from "../shared/courseBadges";
 import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
@@ -226,7 +229,7 @@ export type NotificationPreferences = { assessmentUpdates: boolean; courseAnnoun
 export async function getUserProfile(openId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const result = await db.select({ id: users.id, openId: users.openId, name: users.name, email: users.email, role: users.role, notificationPreferences: users.notificationPreferences, avatarUrl: users.avatarUrl, timezone: users.timezone }).from(users).where(eq(users.openId, openId)).limit(1);
+  const result = await db.select({ id: users.id, openId: users.openId, name: users.name, email: users.email, role: users.role, notificationPreferences: users.notificationPreferences, avatarUrl: users.avatarUrl, timezone: users.timezone, leaderboardOptIn: users.leaderboardOptIn, leaderboardDisplayName: users.leaderboardDisplayName }).from(users).where(eq(users.openId, openId)).limit(1);
   const profile = result[0];
   if (!profile) return undefined;
   return {
@@ -234,13 +237,15 @@ export async function getUserProfile(openId: string) {
     notificationPreferences: { assessmentUpdates: true, courseAnnouncements: true, monthlyInsights: false, ...((profile.notificationPreferences as Partial<NotificationPreferences> | null) ?? {}) },
     avatarUrl: profile.avatarUrl,
     timezone: profile.timezone ?? "Africa/Nairobi",
+    leaderboardOptIn: profile.leaderboardOptIn,
+    leaderboardDisplayName: profile.leaderboardDisplayName,
   };
 }
 
-export async function updateUserProfile(openId: string, input: { name: string; timezone: string; notificationPreferences: NotificationPreferences }) {
+export async function updateUserProfile(openId: string, input: { name: string; timezone: string; notificationPreferences: NotificationPreferences; leaderboardOptIn?: boolean; leaderboardDisplayName?: string | null }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db.update(users).set({ name: input.name, timezone: input.timezone, notificationPreferences: input.notificationPreferences }).where(eq(users.openId, openId));
+  await db.update(users).set({ name: input.name, timezone: input.timezone, notificationPreferences: input.notificationPreferences, ...(input.leaderboardOptIn === undefined ? {} : { leaderboardOptIn: input.leaderboardOptIn, leaderboardDisplayName: input.leaderboardOptIn ? normalizeLeaderboardDisplayName(input.leaderboardDisplayName, normalizeLeaderboardDisplayName(input.name)) : null }) }).where(eq(users.openId, openId));
   return getUserProfile(openId);
 }
 
@@ -1295,4 +1300,35 @@ export async function updateCourseEnrollmentIdentity(userOpenId: string, enrollm
   if (!existing) return undefined;
   await db.update(courseLearnerEnrollments).set({ name: input.name.trim(), email: input.email.trim().toLowerCase(), updatedAt: new Date() }).where(eq(courseLearnerEnrollments.id, enrollmentId));
   return (await db.select().from(courseLearnerEnrollments).where(eq(courseLearnerEnrollments.id, enrollmentId)).limit(1))[0];
+}
+
+
+export async function listUserCourseAchievements(userOpenId: string) {
+  const state = await listCourseEnrollmentState(userOpenId);
+  const badges: AchievementBadge[] = [];
+  for (const record of state) {
+    const course = courseCatalog.find((item) => item.slug === record.enrollment.courseSlug);
+    if (!course) continue;
+    const moduleBadges = buildCourseModuleBadges({ modules: course.modules, completedLessonIds: record.lessons.map((lesson) => lesson.lessonId), passedQuizModuleIds: record.quizAttempts.filter((attempt) => attempt.passed).map((attempt) => attempt.moduleId) });
+    for (const badge of moduleBadges.filter((item) => item.status === "earned")) {
+      const lessonDates = record.lessons.filter((lesson) => course.modules[badge.moduleIndex]?.lessons.some((item) => item.id === lesson.lessonId)).map((lesson) => new Date(lesson.completedAt).getTime());
+      const quizDates = record.quizAttempts.filter((attempt) => attempt.moduleId === badge.moduleId && attempt.passed).map((attempt) => new Date(attempt.createdAt).getTime());
+      const earnedAt = Math.max(...lessonDates, ...quizDates, Date.now());
+      const latestQuiz = record.quizAttempts.find((attempt) => attempt.moduleId === badge.moduleId && attempt.passed);
+      badges.push({ id: `${record.enrollment.id}-${badge.moduleId}`, courseSlug: course.slug, courseTitle: course.title, moduleId: badge.moduleId, moduleIndex: badge.moduleIndex, moduleTitle: badge.title, completedLessons: badge.completedLessons, totalLessons: badge.totalLessons, quizScore: latestQuiz?.score ?? 0, earnedAt: new Date(earnedAt).toISOString(), certificateLabel: `Module ${badge.moduleIndex + 1} of ${course.modules.length}` });
+    }
+  }
+  return { badges: badges.sort((a, b) => b.earnedAt.localeCompare(a.earnedAt)), earnedBadges: badges.length, totalBadges: state.reduce((total, record) => total + (courseCatalog.find((item) => item.slug === record.enrollment.courseSlug)?.modules.length ?? 0), 0), completedCourses: state.filter((record) => record.certificates.length > 0).length };
+}
+
+export async function listOptInAchievementLeaderboard() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const participants = await db.select({ openId: users.openId, name: users.name, leaderboardDisplayName: users.leaderboardDisplayName }).from(users).where(eq(users.leaderboardOptIn, true)).limit(250);
+  const rows: Array<Omit<AchievementLeaderboardRow, "rank">> = [];
+  for (const participant of participants) {
+    const achievement = await listUserCourseAchievements(participant.openId);
+    rows.push({ displayName: normalizeLeaderboardDisplayName(participant.leaderboardDisplayName, normalizeLeaderboardDisplayName(participant.name)), earnedBadges: achievement.earnedBadges, completedCourses: achievement.completedCourses, totalBadges: achievement.totalBadges });
+  }
+  return rankAchievementLeaderboard(rows);
 }

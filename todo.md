@@ -1152,3 +1152,11 @@
 - [x] Add regression tests for badge eligibility, quiz pass requirements, and course-specific module counts.
 - [x] Run type checks, tests, production build, runtime review, and responsive desktop/mobile verification.
 - [x] Save the completed module-badge checkpoint.
+
+# Achievement Gallery and Cohort Motivation
+- [x] Add learner downloads for earned module badges as PNG images and mini-certificates.
+- [x] Add a personal achievement gallery with earned badge history to My Space.
+- [x] Add an opt-in cohort leaderboard with privacy-preserving display names and badge progress.
+- [x] Add regression tests for badge exports, achievement history, consent, and leaderboard ranking.
+- [x] Run type checks, tests, production build, runtime review, and responsive verification.
+- [x] Save the completed achievement gallery and leaderboard checkpoint.

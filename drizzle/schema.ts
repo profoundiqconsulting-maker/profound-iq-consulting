@@ -19,6 +19,8 @@ export const users = mysqlTable("users", {
   notificationPreferences: json("notificationPreferences"),
   avatarUrl: varchar("avatarUrl", { length: 512 }),
   timezone: varchar("timezone", { length: 64 }),
+  leaderboardOptIn: boolean("leaderboardOptIn").default(false).notNull(),
+  leaderboardDisplayName: varchar("leaderboardDisplayName", { length: 80 }),
 }, (table) => ({
   emailUnique: uniqueIndex("users_email_unique").on(table.email),
   phoneUnique: uniqueIndex("users_phone_unique").on(table.phone),
