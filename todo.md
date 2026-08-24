@@ -754,3 +754,14 @@
 - [x] Add regression coverage for token verification, receipt ownership, and organization approval boundaries.
 - [x] Run schema migration, type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these enhancements.
+
+# Receipt Branding, Organization Review Queue, and Verification UX
+- [x] Add the stored company logo to generated PDF receipts.
+- [x] Add a clickable QR verification link and visible verification URL to PDF receipts.
+- [x] Add a dedicated admin organization review queue with pending, approved, and rejected states.
+- [x] Add secure approve/reject actions with audit timestamps and clear status feedback.
+- [x] Improve the public credential verification page with verified, invalid, expired, and unavailable visual states.
+- [x] Add a safe public-profile view action without exposing private report data.
+- [x] Update and validate the reusable credential-delivery skill with these patterns.
+- [x] Add regression coverage and run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these enhancements.
