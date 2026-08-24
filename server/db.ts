@@ -603,14 +603,15 @@ export async function updateContactInquiryWorkload(id: number, workload: { dueDa
   return (await db.select().from(contactInquiries).where(eq(contactInquiries.id, id)).limit(1))[0] ?? null;
 }
 
-export async function getStaffPerformanceSummary() {
+export async function getStaffPerformanceSummary(input: { fromDate?: Date; toDate?: Date } = {}) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const members = await db.select({ openId: users.openId, name: users.name, email: users.email, role: users.role }).from(users).where(or(eq(users.role, "admin"), eq(users.role, "staff"))).orderBy(users.name);
   const inquiries = await db.select().from(contactInquiries).where(isNotNull(contactInquiries.assignedToOpenId));
+  const inRange = (date: Date) => (!input.fromDate || date >= input.fromDate) && (!input.toDate || date <= input.toDate);
   const audits = await db.select().from(contactInquiryAuditLogs).where(eq(contactInquiryAuditLogs.action, "status"));
   return members.map(member => {
-    const assigned = inquiries.filter(row => row.assignedToOpenId === member.openId);
+    const assigned = inquiries.filter(row => row.assignedToOpenId === member.openId && inRange(row.createdAt));
     const completed = assigned.filter(row => row.status === "closed");
     const durations = completed.map(row => { const closed = audits.find(audit => audit.inquiryId === row.id && audit.nextValue === "closed"); return closed ? Math.max(0, (closed.createdAt.getTime() - row.createdAt.getTime()) / 86400000) : null; }).filter((value): value is number => value !== null);
     return { ...member, assignedCount: assigned.length, completedCount: completed.length, openCount: assigned.length - completed.length, averageResolutionDays: durations.length ? Math.round((durations.reduce((sum, value) => sum + value, 0) / durations.length) * 10) / 10 : null };

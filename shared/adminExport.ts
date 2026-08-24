@@ -20,3 +20,10 @@ export function buildContactInquiryCsv(rows: ContactInquiryExportRow[]) {
   });
   return [header, ...lines].join("\n");
 }
+
+export type StaffPerformanceExportRow = { openId: string; name: string | null; email: string | null; role: string; assignedCount: number; completedCount: number; openCount: number; averageResolutionDays: number | null };
+export function buildStaffPerformanceCsv(rows: StaffPerformanceExportRow[]) {
+  const header = ["Open ID", "Name", "Email", "Role", "Assigned", "Completed", "Open", "Average resolution days"].map(csvCell).join(",");
+  const lines = rows.map(row => [row.openId, row.name, row.email, row.role, row.assignedCount, row.completedCount, row.openCount, row.averageResolutionDays].map(csvCell).join(","));
+  return [header, ...lines].join("\n");
+}

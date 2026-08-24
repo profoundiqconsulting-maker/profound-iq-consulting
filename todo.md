@@ -995,3 +995,11 @@
 - [x] Add admin staff performance summaries for completed assignments and resolution times.
 - [x] Add regression coverage and responsive verification for staff operations.
 - [x] Save a checkpoint for the staff operations update.
+
+# Staff Workload and Performance Export
+- [x] Add overdue assignment warning indicators and staff sorting by priority and due date.
+- [x] Add date-range filters to the admin staff performance summary.
+- [x] Add CSV export for filtered staff performance metrics.
+- [x] Create or update a reusable staff operations skill and validate it.
+- [x] Add regression coverage and responsive verification for the dashboard changes.
+- [x] Save a checkpoint for the dashboard and skill update.
