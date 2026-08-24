@@ -1222,3 +1222,10 @@
 - [x] Add regression coverage for feedback content, attempt indicators, analytics calculations, and skill validation.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
 - [x] Save the quiz learning feedback and analytics checkpoint.
+
+# Self Assessment Naming Update
+- [x] Rename learner-facing assessment labels to Self Assessment across navigation, entry pages, dashboards, metadata, and copy.
+- [x] Preserve existing assessment routes, API contracts, payment references, and stored data identifiers.
+- [x] Add regression coverage for the new display name and route compatibility.
+- [x] Run tests, TypeScript validation, production build, runtime review, and responsive verification.
+- [x] Save the Self Assessment naming checkpoint.

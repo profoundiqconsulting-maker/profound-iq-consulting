@@ -29,7 +29,7 @@ import { Button } from "./ui/button";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Overview", path: "/dashboard" },
-  { icon: ClipboardCheck, label: "Self-assessment", path: "/assessment" },
+  { icon: ClipboardCheck, label: "Self Assessment", path: "/assessment" },
   { icon: Users, label: "CareerPath", path: "/careerpath" },
   { icon: BookOpen, label: "Courses", path: "/courses" },
   { icon: BarChart3, label: "Admin observatory", path: "/admin", adminOnly: true },
