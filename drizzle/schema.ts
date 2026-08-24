@@ -39,6 +39,7 @@ export const contactInquiries = mysqlTable("contact_inquiries", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 160 }).notNull(),
   email: varchar("email", { length: 320 }).notNull(),
+  category: varchar("category", { length: 80 }).notNull(),
   message: text("message").notNull(),
   status: varchar("status", { length: 32 }).default("new").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

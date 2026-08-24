@@ -1,0 +1,1 @@
+ALTER TABLE `contact_inquiries` ADD `category` varchar(80) NOT NULL;

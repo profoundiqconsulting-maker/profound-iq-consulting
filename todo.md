@@ -935,3 +935,10 @@
 - [x] Connect Send Inquiry to the backend with validation and loading/success/error feedback.
 - [x] Add regression coverage and verify desktop/mobile inquiry submission behavior.
 - [x] Save a checkpoint for the activated inquiry flow.
+
+# Inquiry Management and Anti-Spam
+- [x] Add a subject/category selector to the public inquiry form and persist the selected category.
+- [x] Add server-validated math verification to prevent automated inquiry submissions.
+- [x] Build an admin-only inquiry dashboard with search, category/status filters, pagination, and status management.
+- [x] Add regression coverage and verify public/admin inquiry flows responsively.
+- [x] Save a checkpoint for the inquiry management enhancements.

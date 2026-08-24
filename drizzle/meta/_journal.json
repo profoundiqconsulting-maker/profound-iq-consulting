@@ -225,6 +225,13 @@
       "when": 1787571440535,
       "tag": "0031_stiff_exiles",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "5",
+      "when": 1787571786911,
+      "tag": "0032_thankful_morlocks",
+      "breakpoints": true
     }
   ]
 }

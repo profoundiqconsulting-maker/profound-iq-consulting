@@ -41,6 +41,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "wouter";
 import { BrandLogo } from "@/components/BrandLogo";
+import AdminInquiryPanel from "@/components/AdminInquiryPanel";
 import { buildFunnelComparison } from "@shared/adminAnalytics";
 import { renderEmailTemplate } from "@shared/emailTemplate";
 import { Streamdown } from "streamdown";
@@ -595,6 +596,7 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+        <AdminInquiryPanel />
         {overview.data && (
           <>
             <section className="mt-10 grid gap-4 sm:grid-cols-3">
