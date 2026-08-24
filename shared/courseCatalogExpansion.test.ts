@@ -31,6 +31,19 @@ describe("expanded professional course catalog", () => {
     }
   });
 
+  it("provides deeper concept teaching and everyday application guidance", () => {
+    const lesson = courseCatalog.find((item) => item.slug === "mastering-time-management")!.modules[4].lessons[2];
+    expect(lesson.durationMinutes).toBe(40);
+    expect(lesson.sections.length).toBeGreaterThanOrEqual(6);
+    expect(lesson.sections.map((section) => section.body).join(" ").length).toBeGreaterThan(1800);
+    expect(lesson.sections.map((section) => section.body).join(" ")).toMatch(/work|study|family|finances|health|household/i);
+    expect(lesson.example.context.length).toBeGreaterThan(70);
+    expect(lesson.example.move.length).toBeGreaterThan(90);
+    expect(lesson.simulation.prompt.length).toBeGreaterThan(50);
+    expect(lesson.reflectionPrompt).toMatch(/work|study|relationships|finances|health|household/i);
+    expect(lesson.keyTakeaway.length).toBeGreaterThan(70);
+  });
+
   it("inherits branded certificate metadata for new courses", () => {
     const svg = renderCourseCertificateSvg({ recipientName: "Amina Otieno", recipientEmail: "amina@example.com", courseTitle: "Decision-Making Skills", certificateNumber: "PIQ-2026-0001", issuedOn: "2026-08-24T00:00:00Z", verificationUrl: "https://profoundiq-vguqrhsm.manus.space/verify/certificate?certificate=PIQ-2026-0001" });
     expect(svg).toContain("Amina Otieno");

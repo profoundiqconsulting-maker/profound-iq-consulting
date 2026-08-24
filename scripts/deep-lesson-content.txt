@@ -1,0 +1,71 @@
+const lessonContent = (courseTitle: string, theme: string, lessonTitle: string, lessonIndex: number, moduleIndex: number) => {
+  const practice = ["notice the signal", "frame the decision", "test a small intervention", "invite a useful response", "review the evidence", "name the trade-off", "transfer the practice"][lessonIndex];
+  const dailyContexts = [
+    "choosing which task deserves attention before the day becomes reactive",
+    "responding to a difficult message without escalating the situation",
+    "planning a household, study, or work commitment with limited time and energy",
+    "giving or receiving feedback when the relationship matters",
+    "making a purchase, project, or career decision with incomplete information",
+    "recovering constructively after a missed commitment or unexpected change",
+    "turning an intention into a small habit that can survive a busy week",
+  ];
+  const dailyContext = dailyContexts[lessonIndex];
+  return {
+    durationMinutes: 40,
+    objectives: [
+      `Explain the core idea of ${lessonTitle.toLowerCase()} and how it connects to ${theme}.`,
+      `Apply the concept to a professional situation and an everyday decision such as ${dailyContext}.`,
+      "Practise one observable behaviour, examine the result, and define a next experiment.",
+    ],
+    sections: [
+      {
+        heading: "Build the mental model",
+        body: `${lessonTitle} is a practical way of seeing and responding, not a definition to memorise. In ${courseTitle}, it helps you interpret ${theme} with more precision: first identify the situation, then separate facts from assumptions, choose a response that fits the purpose, and review what happened. The concept becomes useful when it changes what you notice, what you say, or what you do next.`,
+        callout: "Read slowly, pause at the examples, and connect each idea to one real moment from your week.",
+      },
+      {
+        heading: "Understand the mechanism",
+        body: `Most people move through ${theme} using familiar defaults. A trigger creates a first interpretation; that interpretation shapes emotion and attention; attention influences behaviour; and behaviour produces consequences that can reinforce the original pattern. ${lessonTitle} creates a deliberate pause in that chain. Ask: What is happening? What matters here? What response would serve the intended outcome? What evidence would show that the response helped?`,
+      },
+      {
+        heading: "Apply it in daily life",
+        body: `Imagine that you are ${dailyContext}. A reactive approach might follow the loudest demand, send the first emotional reply, or abandon the plan when conditions change. A more skilful approach is to ${practice}: name the outcome, identify the constraint, choose the smallest useful move, and set a time to review it. The same pattern transfers between work, study, family conversations, personal finances, health routines, and community responsibilities because each setting rewards clear observation and intentional action.`,
+        callout: "Application test: if the idea cannot improve an ordinary Tuesday, it has not yet become a usable capability.",
+      },
+      {
+        heading: "Study the worked example",
+        body: `A project lead notices that meetings are full but decisions remain unclear. They write the desired decision at the top of the agenda, ask each person to name one relevant constraint, and close by recording the owner and review date. At home, the same learner uses the method to plan a shared errand: agree on the outcome, check the available time, choose the simplest route, and confirm what will happen if the plan changes. In both cases, ${theme} moves from an abstract aspiration to a visible practice with a consequence that can be reviewed.`,
+      },
+      {
+        heading: "Practise through a small experiment",
+        body: `Choose one live situation from the last seven days. Write the trigger, your usual response, the result it creates, and the alternative response you want to test. Keep the experiment small enough to complete before the next working cycle. For example, replace a vague intention with one sentence you will use, one calendar block you will protect, one question you will ask, or one decision rule you will follow. Afterward, record what changed, what surprised you, and what you would adjust rather than judging the attempt as simply good or bad.`,
+      },
+      {
+        heading: "Use the simulation and transfer",
+        body: `The simulation presents a realistic choice because capability develops through decisions, not passive agreement. Select the response that creates learning, protects the relationship, and keeps the next step observable. Then adapt the same move to a personal context: a difficult conversation, a study plan, a spending choice, a health commitment, or a household responsibility. Transfer is complete when you can explain what you changed, why it fit the situation, and what evidence you will review.`,
+      },
+    ],
+    example: {
+      context: `A learner is experiencing friction around ${theme} while balancing work, personal responsibilities, and limited attention.`,
+      move: `They pause before reacting, make the pattern explicit, and use ${lessonTitle.toLowerCase()} to ${practice}. They choose one low-risk experiment and tell the relevant person what they are testing.`,
+      result: "The situation becomes easier to discuss, the next action is visible, and the learner has evidence to use in the next review rather than relying on a vague intention.",
+    },
+    simulation: {
+      prompt: [`You are responsible for a live decision where ${theme} is under pressure. What is your best first move?`, `A working pattern around ${theme} is slowing progress. Which intervention creates learning without overcorrecting?`, `You have one conversation to make ${lessonTitle.toLowerCase()} visible. What should you do?`][lessonIndex % 3],
+      options: [
+        ["Clarify the outcome, constraint, and next observable action.", "Wait until every stakeholder agrees on the full solution.", "Add more activity so the issue feels addressed."],
+        ["Name the pattern, choose a low-risk experiment, and agree how to review it.", "Redesign the entire process before testing one assumption.", "Ignore the pattern until the next formal review."],
+        ["Describe the evidence, invite the relevant perspective, and confirm one next move.", "Give a long explanation without asking for a response.", "Avoid the difficult point and hope the context improves."],
+      ][lessonIndex % 3],
+      feedback: [
+        ["Strong move: clarity creates a testable next step.", "Consensus can help, but waiting for completeness often increases drift.", "Activity without a review point does not create learning."],
+        ["Strong move: a small experiment creates evidence without pretending certainty.", "Large redesigns can hide which assumption was actually tested.", "Avoidance preserves the pattern rather than helping the team learn."],
+        ["Strong move: evidence and a confirmed next move turn insight into action.", "Explanation without exchange does not create alignment.", "Avoidance leaves the underlying pattern unexamined."],
+      ][lessonIndex % 3],
+    },
+    reflectionPrompt: `Where could you practise ${lessonTitle.toLowerCase()} this week—in your work, study, relationships, finances, health, or household routines—and what specific evidence would tell you that the practice is working?`,
+    keyTakeaway: `A useful ${lessonTitle.toLowerCase()} practice turns ${theme} into one observable decision, behaviour, or review point that improves an ordinary situation.`,
+    illustration: { label: `Signal ${String(moduleIndex + 1).padStart(2, "0")}.${lessonIndex + 1}`, caption: `From ${theme} to an observable professional and everyday move.`, accent: ["gold", "teal", "plum"][lessonIndex % 3] },
+  };
+};
+
