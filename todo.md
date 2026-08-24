@@ -828,3 +828,9 @@
 - [x] Add a Recent Activity filter for completed assessments versus unlocked reports.
 - [x] Add clickable activity links to detailed assessment/report destinations.
 - [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
+
+# Profile Completion, Remember Me, and Activity Browsing
+- [x] Add a Complete Profile button and modal with missing-detail prompts.
+- [x] Add Remember Me to login and carry it through secure session creation without storing passwords client-side.
+- [x] Add Load More behavior for older activity while preserving filters and links.
+- [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
