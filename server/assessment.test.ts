@@ -199,3 +199,24 @@ describe("CareerPath bookmarkable steps", () => {
     expect(careerPathSource).toMatch(/overallCompletion/);
   });
 });
+
+describe("course quiz variation and completion delivery", () => {
+  it("uses varied answer sets while preserving one valid correct option per question", () => {
+    const questions = courseCatalog[0].modules.flatMap((module) => module.quiz);
+    expect(new Set(questions.map((question) => question.options.join("|"))).size).toBeGreaterThan(4);
+    expect(questions.every((question) => question.options.length === 4 && question.correctOption >= 0 && question.correctOption < 4)).toBe(true);
+    expect(new Set(questions.map((question) => question.correctOption)).size).toBeGreaterThan(1);
+  });
+
+  it("exposes per-attempt shuffling, celebration feedback, and paid certificate delivery actions", () => {
+    const workspaceSource = readFileSync(resolve(process.cwd(), "client/src/pages/CourseWorkspace.tsx"), "utf8");
+    expect(workspaceSource).toMatch(/const shuffle =/);
+    expect(workspaceSource).toMatch(/setQuizOrder\(shuffle\(currentModule\.quiz\)\)/);
+    expect(workspaceSource).toMatch(/Lesson complete/);
+    expect(workspaceSource).toMatch(/Quiz passed/);
+    expect(workspaceSource).toMatch(/autoCertificateRequested/);
+    expect(workspaceSource).toMatch(/Certificate ready/);
+    expect(workspaceSource).toMatch(/Share completion/);
+    expect(workspaceSource).toMatch(/linkedin\.com\/sharing\/share-offsite/);
+  });
+});

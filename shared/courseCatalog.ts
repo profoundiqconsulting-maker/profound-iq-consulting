@@ -35,13 +35,21 @@ const lessonContent = (courseTitle: string, theme: string, lessonTitle: string, 
     durationMinutes: 40,
     objectives: [`Define ${lessonTitle.toLowerCase()} in the context of ${theme}.`, `Apply one ${theme} practice to a real professional situation.`, "Leave with an observable next action and a way to review it."],
     sections: [
-      { heading: "Orient", body: `${lessonTitle} is not a theory to memorise; it is a professional lens for making better choices when the work is moving. In ${courseTitle}, this lesson connects ${theme} to the moments where judgment becomes visible.`, callout: "Use the lesson as a working session: read, test, write, and apply." },
-      { heading: "Understand the signal", body: `Look for the difference between activity and progress. A useful signal is specific enough to change a conversation, a decision, or a behaviour. Start by asking: what is happening, what matters, and what would be different if this practice were working?` },
-      { heading: "Work the example", body: `A project lead notices that meetings are full but decisions remain unclear. Instead of adding another status update, they use ${theme} to ${practice}: they name the outcome, surface the constraint, and agree on the smallest next move. The learning is made visible in the next meeting, not only in the reflection afterward.` },
-      { heading: "Transfer to your context", body: `Choose one live situation from the last seven days. Write the observable behaviour you want to change, the people affected, and the evidence you will review. Keep the experiment small enough to complete before the next working cycle.` },
+      { heading: lessonIndex % 2 === 0 ? "Orient the lens" : "Start with the moment", body: `${lessonTitle} is not a theory to memorise; it is a professional lens for making better choices when the work is moving. In ${courseTitle}, this lesson connects ${theme} to the moments where judgment becomes visible.`, callout: lessonIndex % 2 === 0 ? "Use the lesson as a working session: read, test, write, and apply." : "Begin with one real moment from your week; specificity makes the practice useful." },
+      { heading: lessonIndex % 3 === 0 ? "Notice the pattern" : "Read the signal", body: lessonIndex % 3 === 0 ? `Map what is happening before deciding what to fix. Notice the trigger, the default response, and the consequence; then ask which part of the pattern is within your influence.` : `Separate activity from progress. A useful signal is specific enough to change a conversation, decision, or behaviour. Ask what matters and what would be different if ${theme} were working.` },
+      { heading: lessonIndex % 2 === 0 ? "Study the case" : "Test the move", body: `A project lead notices that meetings are full but decisions remain unclear. Instead of adding another status update, they use ${theme} to ${practice}: they name the outcome, surface the constraint, and agree on the smallest next move. The learning is made visible in the next working cycle.` },
+      { heading: lessonIndex % 3 === 1 ? "Run a small experiment" : "Transfer to your context", body: `Choose one live situation from the last seven days. Write the observable behaviour you want to change, the people affected, and the evidence you will review. Keep the experiment small enough to complete before the next working cycle, then record what you learned.` },
     ],
     example: { context: `A cross-functional team is experiencing friction around ${theme}.`, move: `The practitioner pauses, makes the pattern explicit, and chooses a low-risk experiment connected to ${lessonTitle.toLowerCase()}.`, result: "The team has a shared observation, an agreed action, and a review point rather than a vague intention." },
-    simulation: { prompt: `You are responsible for a live decision where ${theme} is under pressure. What is your best first move?`, options: ["Clarify the outcome, constraint, and next observable action.", "Wait until every stakeholder agrees on the full solution.", "Add more activity so the issue feels addressed."], feedback: ["Strong move: clarity creates a testable next step.", "Consensus can help, but waiting for completeness often increases drift.", "Activity without a review point does not create learning."] },
+    simulation: { prompt: [`You are responsible for a live decision where ${theme} is under pressure. What is your best first move?`, `A working pattern around ${theme} is slowing the team. Which intervention creates learning without overcorrecting?`, `You have one conversation to make ${lessonTitle.toLowerCase()} visible. What should you do?`][lessonIndex % 3], options: [
+      ["Clarify the outcome, constraint, and next observable action.", "Wait until every stakeholder agrees on the full solution.", "Add more activity so the issue feels addressed."],
+      ["Name the pattern, choose a low-risk experiment, and agree how to review it.", "Redesign the entire process before testing one assumption.", "Ignore the pattern until the next formal review."],
+      ["Describe the evidence, invite the relevant perspective, and confirm one next move.", "Give a long explanation without asking for a response.", "Avoid the difficult point and hope the context improves."],
+    ][lessonIndex % 3], feedback: [
+      ["Strong move: clarity creates a testable next step.", "Consensus can help, but waiting for completeness often increases drift.", "Activity without a review point does not create learning."],
+      ["Strong move: a small experiment creates evidence without pretending certainty.", "Large redesigns can hide which assumption was actually tested.", "Avoidance preserves the pattern rather than helping the team learn."],
+      ["Strong move: evidence and a confirmed next move turn insight into action.", "Explanation without exchange does not create alignment.", "Avoidance leaves the underlying pattern unexamined."],
+    ][lessonIndex % 3] },
     reflectionPrompt: `Where could you practise ${lessonTitle.toLowerCase()} this week, and what evidence would tell you that the practice is working?`,
     keyTakeaway: `A useful ${lessonTitle.toLowerCase()} practice turns ${theme} into one observable decision, behaviour, or review point.`,
     illustration: { label: `Signal ${String(moduleIndex + 1).padStart(2, "0")}.${lessonIndex + 1}`, caption: `From ${theme} to an observable professional move.`, accent: ["gold", "teal", "plum"][lessonIndex % 3] },
@@ -51,16 +59,22 @@ const lessonContent = (courseTitle: string, theme: string, lessonTitle: string, 
 const quizQuestions = (courseSlug: string, moduleId: string, theme: string, lessons: CourseLesson[]): CourseQuizQuestion[] => Array.from({ length: 15 }, (_, index) => {
   const lesson = lessons[index % lessons.length];
   const prompts = [`After studying ${lesson.title}, what is the most useful first move when applying ${theme}?`, `Which evidence would best show that the ${lesson.title.toLowerCase()} practice is working?`, `A colleague is under pressure around ${theme}. Which response reflects ${lesson.title.toLowerCase()}?`, `Which choice best transfers the ${lesson.title.toLowerCase()} lesson into a live professional context?`];
+  const answerSets = [
+    [`Name the intended outcome, choose one observable move, and set a review point.`, "Collect more information until the decision feels completely risk-free.", "Add more meetings without changing the underlying working pattern.", "Leave the current approach untouched so no one has to adapt."],
+    ["A broad sense that the team is busy and committed.", `A visible change connected to ${lesson.title.toLowerCase()} that can be reviewed in the next work cycle.`, "A polished document that no one uses to make a decision.", "A promise to revisit the issue when the pressure has passed."],
+    ["Offer a generic motivational message and move on quickly.", "Take ownership of the entire situation so others do not need to contribute.", `Make the ${lesson.title.toLowerCase()} pattern explicit, then agree on a small next experiment.`, "Delay the conversation until every possible objection has been resolved."],
+    ["Memorise the terminology and repeat it in a presentation.", "Wait for a formal programme before applying the lesson.", "Copy another professional's solution without checking the local context.", `Apply ${lesson.title.toLowerCase()} to one live decision, behaviour, or review conversation and inspect the result.`],
+  ];
+  const correctPosition = (index * 3 + moduleId.length) % 4;
+  const base = answerSets[index % answerSets.length];
+  const options = [...base];
+  const [correctAnswer] = options.splice(index % 4, 1);
+  options.splice(correctPosition, 0, correctAnswer);
   return {
     id: `${courseSlug}-${moduleId}-q${index + 1}`,
     prompt: prompts[index % prompts.length],
-    options: [
-      `Define the desired outcome, take a small observable action, and review the evidence.`,
-      "Wait for complete certainty and a perfect solution before acting.",
-      "Increase activity without agreeing what progress should look like.",
-      "Avoid the conversation so the current pattern remains comfortable.",
-    ],
-    correctOption: 0,
+    options,
+    correctOption: correctPosition,
     sourceLessonId: lesson.id,
     sourceLessonTitle: lesson.title,
     explanation: `This answer directly revisits the lesson “${lesson.title}” by connecting ${theme} to an observable action and a review point.`,
