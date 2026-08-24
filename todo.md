@@ -688,3 +688,14 @@
 - [x] Add regression coverage for conflict details, certificate URLs, share counts, and post-payment navigation.
 - [x] Run schema migration, type checks, full tests, production build, and responsive payment-flow verification.
 - [x] Save a checkpoint containing these enhancements.
+
+# Server Share Ledger, Conflict Comparisons, and Secure Thumbnails
+- [x] Add a server-backed per-user share ledger for LinkedIn certificate shares.
+- [x] Extend the share ledger to record supported social platforms and display aggregate counts across devices.
+- [x] Add protected share-recording and share-count procedures with strict user ownership.
+- [x] Replace local-only share counting with server-backed counts and add multi-platform share controls.
+- [x] Show exact local/server timestamps, module names, and response-count comparisons in the resume conflict dialog.
+- [x] Fetch secure certificate image URLs for authenticated history records and render them as true thumbnails.
+- [x] Add regression coverage for share ledger ownership, platform counts, conflict details, and secure thumbnails.
+- [x] Run schema migration, type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these enhancements.

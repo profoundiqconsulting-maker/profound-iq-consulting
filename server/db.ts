@@ -856,3 +856,10 @@ export async function upsertCareerPathActiveModule(userOpenId: string, moduleInd
   await db.insert(careerPathActiveModules).values({ userOpenId, moduleIndex }).onDuplicateKeyUpdate({ set: { moduleIndex, updatedAt: new Date() } });
   return getCareerPathActiveModule(userOpenId);
 }
+
+export async function countUserSocialShares(userOpenId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db.select({ eventName: analyticsEvents.eventName, count: sql<number>`count(*)` }).from(analyticsEvents).where(eq(analyticsEvents.userOpenId, userOpenId)).groupBy(analyticsEvents.eventName);
+  return Object.fromEntries(rows.filter((row) => row.eventName.startsWith("careerpath_shared_")).map((row) => [row.eventName.replace("careerpath_shared_", ""), Number(row.count)]));
+}
