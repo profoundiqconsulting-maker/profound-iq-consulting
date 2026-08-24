@@ -1012,3 +1012,11 @@
 - [x] Automate paid course completion certificate generation, dashboard availability, email delivery, and social sharing.
 - [x] Add regression coverage and verify the complete course flow responsively.
 - [x] Save a checkpoint for the course learning and completion update.
+
+# Automated Course Recommendations
+- [x] Define an explainable recommendation mapping from completed self-assessment dimensions to relevant professional courses.
+- [x] Add a protected recommendation query that only returns recommendations for the signed-in user and uses their paid assessment history.
+- [x] Add a polished recommendations section to the user dashboard with rationale, fit signals, and course links.
+- [x] Add regression tests for recommendation ranking, paid-history eligibility, authorization, and empty states.
+- [x] Verify type checks, tests, production build, and responsive dashboard rendering.
+- [x] Save a checkpoint for the automated course recommendations feature.

@@ -12,6 +12,7 @@ import { TRPCError } from "@trpc/server";
 import { addEmailPreviewDelivery, checkLoginRateLimit, clearLoginFailures, countFailedLoginEvents, createContactInquiry, listContactInquiries, listAssignedContactInquiries, updateAssignedContactInquiryStatus, updateAssignedContactInquiryNotes, getContactInquiriesForExportWithAudit, getContactInquiryCategoryCounts, getAdminRevenueReport, getAdminTeamMembers, getContactInquiryAuditHistory, updateContactInquiryAssignment, updateContactInquiryNotes, updateContactInquiryStatus, bulkUpdateContactInquiryStatus, createCourseEnrollment, createDeliveryLogExportJob, createUserSession, getAdminAnalyticsSettings, getAdminNotificationRecipients, getAdminSecuritySettings, getEffectiveLoginEventRetentionDays, getLoginSecurityAnalytics, purgeExpiredLoginEvents, getAdminUsersForReview, getAnalyticsDashboard, getAssessmentAdminOverview, getCourseEnrollments, getDeliveryLogExportJob, getDeliveryLogExportJobs, getEmailPreviewDeliveries, getEmailPreviewDeliveriesForExport, getEmailPreviewDeliveriesPage, getEmailTemplates, getEffectiveLoginAlertThreshold, getFailedLoginEvents, getScheduledExport, getScheduledExportRuns, getSessionByTokenHash, getUserAssessmentHistory, getUserProfile, getUserSessions, getLoginEventsForUser, getVerificationRevocationAudits, getVerificationRevocationAuditsForExport, getVerificationRevocationAuditsPage, getCareerPathShareAnalytics, recordAnalyticsEvent, countUserSocialShares, recordFailedLogin, recordLoginEvent, revokeOtherUserSessions, revokeUserEmailVerification, revokeUserSession, saveAdminSecuritySettings, touchUserSession, updateUserAvatar, updateUserProfile, upsertAdminAnalyticsSettings, upsertEmailTemplate, updateScheduledExport, createScheduledExportIfMissing, listOrganizationInvitations, listOrganizationApprovalEvents, reviewOrganizationInvitation, markOrganizationReminderSent } from "./db";
 import { storagePut } from "./storage";
 import { z } from "zod";
+import { buildCourseRecommendations } from "../shared/courseRecommendations";
 import { renderAssessmentReportPdf, renderAssessmentScoreSummaryPdf, renderCareerPathReportPdf, renderPaymentReceiptPdf } from "./reportPdf";
 import { validateEmailTemplateBody } from "../shared/emailTemplate";
 import { buildContactInquiryCsv, buildCourseEnrollmentCsv } from "../shared/adminExport";
@@ -258,6 +259,18 @@ export const appRouter = router({
     mine: protectedProcedure.query(({ ctx }) => {
       if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
       return getUserAssessmentHistory(ctx.user.email);
+    }),
+    recommendations: protectedProcedure.query(async ({ ctx }) => {
+      if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
+      const history = await getUserAssessmentHistory(ctx.user.email);
+      const latestPaid = history.find((attempt) => attempt.paymentStatus === "paid" && attempt.report);
+      if (!latestPaid?.report) return { hasAssessment: false, basedOn: null, recommendations: [] };
+      const report = latestPaid.report as { dimensions?: Array<{ key: string; label: string; score: number }> };
+      return {
+        hasAssessment: true,
+        basedOn: { attemptId: latestPaid.id, completedAt: latestPaid.createdAt, overallScore: latestPaid.overallScore },
+        recommendations: buildCourseRecommendations(Array.isArray(report.dimensions) ? report.dimensions : []),
+      };
     }),
     compareReports: protectedProcedure.input(z.object({ currentAttemptId: z.number().int().positive(), previousAttemptId: z.number().int().positive() })).query(async ({ ctx, input }) => {
       if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
