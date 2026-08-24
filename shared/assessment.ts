@@ -97,16 +97,71 @@ export function compareReports(current: AssessmentReport, previous: AssessmentRe
   return { currentScore: current.overallScore, previousScore: previous.overallScore, scoreDelta: current.overallScore - previous.overallScore, dimensions: current.dimensions.map((dimension) => { const prior = previous.dimensions.find((item) => item.key === dimension.key); const previousScore = prior?.score ?? 0; return { key: dimension.key, label: dimension.label, currentScore: dimension.score, previousScore, delta: dimension.score - previousScore }; }) };
 }
 
-export function getDimensionReflectionPoints(dimension: Pick<AssessmentDimensionReport, "label" | "reflectionPoints">): string[] {
+const reflectionPromptLibrary: Record<string, string[]> = {
+  clarity: [
+    "Which competing priority is currently consuming attention, and what decision would create the most useful focus?",
+    "Where could you make your decision logic more visible so colleagues understand what matters, what can wait, and why?",
+    "What one outcome will you protect over the next two weeks, and what will you deliberately stop, defer, or delegate to support it?",
+  ],
+  adaptability: [
+    "What assumption about your current situation may no longer be reliable, and what evidence would help you update it?",
+    "When plans change, which part of your response is most useful to preserve and which habit would you like to interrupt?",
+    "What small experiment could help you learn faster before committing to a larger change in direction?",
+  ],
+  leadership: [
+    "Where do people need more direction, context, or permission from you in order to move with confidence?",
+    "Which recent decision shows how you balance ownership with the involvement and development of others?",
+    "What leadership behavior will you make observable in your next meeting, project, or difficult conversation?",
+  ],
+  communication: [
+    "Which message or conversation would benefit from a clearer purpose, audience, or request?",
+    "What might another person be hearing differently from what you intend, and how could you check before assuming alignment?",
+    "What listening behavior will you practice in one important conversation, and what evidence will tell you it helped?",
+  ],
+  collaboration: [
+    "Which perspective is least represented in a current decision, and how could you invite it without slowing useful progress?",
+    "What does your team reliably receive from you when collaboration is working well, and where is that contribution most valuable?",
+    "What working agreement, feedback ritual, or handoff could make shared execution easier over the next month?",
+  ],
+  execution: [
+    "Which intention has remained broad or unfinished, and what is the smallest observable next action that would move it forward?",
+    "Where does your current workflow create avoidable friction, rework, or delay?",
+    "What repeatable planning or review habit will you use to protect progress when demands compete?",
+  ],
+  resilience: [
+    "Which pressure condition most affects the quality of your judgment, and what early signal tells you it is building?",
+    "What helps you recover constructively after a setback, and where could you ask for support sooner?",
+    "What boundary, reset practice, or recovery rhythm would help you sustain performance without relying on urgency?",
+  ],
+  selfAwareness: [
+    "Which pattern in your behavior becomes clearer when you compare your intention with the impact others experience?",
+    "What feedback have you been explaining away, and what might become possible if you treated it as useful data?",
+    "Which strength can become a liability under pressure, and what cue will help you use it more deliberately?",
+  ],
+  influence: [
+    "Where are you trying to shape an outcome, and have you understood what matters to the people whose support is required?",
+    "How could you strengthen your case with clearer evidence, timing, or connection to shared priorities rather than more force?",
+    "What influence move will you test next: a better question, an earlier conversation, a clearer trade-off, or a more credible example?",
+  ],
+  growth: [
+    "What capability would create the greatest increase in your impact if you practiced it consistently this quarter?",
+    "Which feedback, stretch assignment, or learning resource would give you the most useful evidence about your next development edge?",
+    "How will you turn learning into behavior, and when will you review whether the change is visible in your work?",
+  ],
+};
+
+export function getDimensionReflectionPoints(dimension: Pick<AssessmentDimensionReport, "key" | "label" | "reflectionPoints">): string[] {
   const existing = Array.isArray(dimension.reflectionPoints) ? dimension.reflectionPoints.filter((point) => typeof point === "string" && point.trim().length > 0) : [];
   if (existing.length > 0) return existing;
+  const prompts = reflectionPromptLibrary[dimension.key];
+  if (prompts?.length) return prompts;
   const label = dimension.label.toLowerCase();
   return [`Where does ${label} already help you create a better outcome, and what observable evidence supports that view?`, `Which situation, relationship, or pressure condition makes ${label} easier or harder for you to access?`, `What small behavior related to ${label} will you practice over the next two weeks and review with someone you trust?`];
 }
 
 function buildDimensionReport(dimension: (typeof dimensions)[number], score: number): AssessmentDimensionReport {
   const band = score >= 80 ? "a reliable current strength" : score >= 60 ? "a capability with a workable foundation" : "a capability worth developing deliberately";
-  return { ...dimension, score, readout: `${dimension.label} appears as ${band}. In practice, this signal describes how your current patterns may show up when priorities are ambiguous, expectations are changing, or other people depend on your judgment. Treat it as a useful hypothesis to test against real examples rather than a fixed description of who you are.`, reflectionPoints: getDimensionReflectionPoints({ label: dimension.label, reflectionPoints: [] }) };
+  return { ...dimension, score, readout: `${dimension.label} appears as ${band}. In practice, this signal describes how your current patterns may show up when priorities are ambiguous, expectations are changing, or other people depend on your judgment. Treat it as a useful hypothesis to test against real examples rather than a fixed description of who you are.`, reflectionPoints: getDimensionReflectionPoints({ key: dimension.key, label: dimension.label, reflectionPoints: [] }) };
 }
 
 function buildReflectionPoints(ordered: AssessmentDimensionReport[]): string[] {

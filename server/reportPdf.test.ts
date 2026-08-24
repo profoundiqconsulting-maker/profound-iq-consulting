@@ -36,6 +36,8 @@ describe("renderAssessmentReportPdf", () => {
     expect(decodedText).toContain("Amina Njeri");
     expect(decodedText).toContain("Building momentum");
     expect(decodedText).toContain("Clarity of direction");
+    expect(text).toContain(Buffer.from("Reflection pr").toString("hex"));
+    expect(text).toContain(Buffer.from("Which competing pr").toString("hex"));
     expect(decodedText).toContain("LEADERSHIP LENS");
     expect(text).toContain("%%EOF");
   });

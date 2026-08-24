@@ -1,5 +1,5 @@
 import PDFDocument from "pdfkit";
-import type { AssessmentReport, RoleLensReadout } from "../shared/assessment";
+import { getDimensionReflectionPoints, type AssessmentReport, type RoleLensReadout } from "../shared/assessment";
 import type { CareerPathReport } from "../shared/careerPath";
 import { storageGetSignedUrl } from "./storage";
 
@@ -125,7 +125,7 @@ export async function renderAssessmentReportPdf(input: ReportPdfInput): Promise<
     y = writeText(doc, dimension.readout ?? dimension.description, 52, y, 491, 9.5, MUTED, 3) + 5;
     doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(9).text("Reflection prompts", 52, y);
     y += 14;
-    y = writeBullets(doc, dimension.reflectionPoints ?? [], y, 9, NAVY);
+    y = writeBullets(doc, getDimensionReflectionPoints(dimension), y, 9, NAVY);
     doc.strokeColor("#d8d1c1").lineWidth(1).moveTo(52, y + 4).lineTo(543, y + 4).stroke();
     y += 18;
   }

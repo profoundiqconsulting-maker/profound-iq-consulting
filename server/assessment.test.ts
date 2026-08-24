@@ -38,6 +38,9 @@ describe("assessment scoring", () => {
     expect(report.dimensions.every((dimension) => dimension.score === 100)).toBe(true);
     expect(report.dimensions.every((dimension) => dimension.readout.length > 120 && Array.isArray(dimension.reflectionPoints))).toBe(true);
     expect(report.dimensions.filter((dimension) => dimension.reflectionPoints.length === 3)).toHaveLength(10);
+    expect(report.dimensions.every((dimension) => dimension.reflectionPoints.every((point) => point.trim().length > 50))).toBe(true);
+    expect(report.dimensions.find((dimension) => dimension.key === "clarity")?.reflectionPoints[0]).toMatch(/competing priority|focus/i);
+    expect(report.dimensions.find((dimension) => dimension.key === "resilience")?.reflectionPoints[0]).toMatch(/pressure|judgment/i);
     expect(report.reflectionPoints).toHaveLength(4);
     expect(report.importantContext).toHaveLength(4);
     expect(report.importantContext.join(" ")).toMatch(/point-in-time|professional decisions/i);
@@ -136,6 +139,12 @@ describe("assessment scoring", () => {
     expect(navSource).toMatch(/transformation-search/);
     const appSource = readFileSync(resolve(process.cwd(), "client/src/App.tsx"), "utf8");
     expect(appSource).toMatch(/ThemeProvider defaultTheme="light" switchable/);
+  });
+
+  it("renders non-empty reflection prompts in shared report views", () => {
+    const sharedReportSource = readFileSync(resolve(process.cwd(), "client/src/pages/SharedReport.tsx"), "utf8");
+    expect(sharedReportSource).toMatch(/getDimensionReflectionPoints\(dimension\)/);
+    expect(sharedReportSource).toMatch(/Reflection prompts/);
   });
 
   it("provides adaptable role lenses and longitudinal comparison deltas", () => {

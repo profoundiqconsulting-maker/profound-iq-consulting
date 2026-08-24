@@ -1115,3 +1115,11 @@
 - [x] Add regression tests for webhook security/idempotency, payment exception authorization, and cross-device lesson resume.
 - [x] Run type checks, tests, production build, runtime verification, and responsive desktop/mobile audit.
 - [x] Save the completed reconciliation and cross-device resume checkpoint.
+
+# Self-Assessment Reflection Prompt Enhancement
+- [x] Audit the current reflection prompt source and on-screen/PDF report renderers.
+- [x] Add substantive, dimension-specific reflection prompts with practical coaching context.
+- [x] Ensure prompts appear in both the on-screen report and branded PDF output.
+- [x] Add regression tests that reject empty reflection sections and verify representative prompt content.
+- [x] Run type checks, tests, production build, runtime review, and responsive report verification.
+- [x] Save the completed reflection-prompt enhancement checkpoint.
