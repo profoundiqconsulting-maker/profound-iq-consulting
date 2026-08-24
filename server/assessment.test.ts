@@ -5,6 +5,8 @@ import { assessmentQuestions, ASSESSMENT_PRICE_KES, buildReport, buildRoleLens, 
 import { courseCatalog, COURSE_PASS_MARK, COURSE_PRICE_KES, COURSE_STAGE_AMOUNT_KES } from "../shared/courseCatalog";
 
 const assessmentPageSource = readFileSync(resolve(process.cwd(), "client/src/pages/Assessment.tsx"), "utf8");
+const coursesPageSource = readFileSync(resolve(process.cwd(), "client/src/pages/Courses.tsx"), "utf8");
+const userDashboardSource = readFileSync(resolve(process.cwd(), "client/src/pages/UserDashboard.tsx"), "utf8");
 
 describe("professional course curriculum", () => {
   it("provides ten modules, seven lessons, and fifteen quiz questions per course module", () => {
@@ -26,6 +28,25 @@ describe("professional course curriculum", () => {
     expect(icpc?.stageAmountsKes).toEqual([3750, 3750, 3750, 3749]);
     expect(icpc?.modules.map((module) => module.title)).toEqual(["1. Modern Pedagogy And Learner-Centred Practice", "2. British National Curriculum", "3. International Baccalaureate", "4. American Curriculum", "5. Cambridge And IGCSE", "6. Christian Education And Homeschooling", "7. Pearson Edexcel And Comparative Curriculum Design", "8. Early Years And Integrated Approaches", "9. Counselling, Law, Professionalism And Entrepreneurship", "10. Research, Technology And Assessment"]);
     expect(icpc?.modules.every((module) => module.quiz.every((question) => question.explanation.length > 30))).toBe(true);
+  });
+});
+
+describe("course discovery and student dashboard", () => {
+  it("exposes catalog search and category filtering with a no-match reset", () => {
+    expect(coursesPageSource).toMatch(/Search courses, topics, or outcomes/);
+    expect(coursesPageSource).toMatch(/All categories/);
+    expect(coursesPageSource).toMatch(/filteredCourses/);
+    expect(coursesPageSource).toMatch(/No courses match that search/);
+    expect(coursesPageSource).toMatch(/Clear filters/);
+  });
+
+  it("exposes progress, quiz performance, and upcoming installment schedule cards", () => {
+    expect(userDashboardSource).toMatch(/Student course dashboard/);
+    expect(userDashboardSource).toMatch(/Quiz performance/);
+    expect(userDashboardSource).toMatch(/Upcoming installment/);
+    expect(userDashboardSource).toMatch(/learningPercent/);
+    expect(userDashboardSource).toMatch(/amountKes/);
+    expect(userDashboardSource).toMatch(/Before Module 1/);
   });
 });
 

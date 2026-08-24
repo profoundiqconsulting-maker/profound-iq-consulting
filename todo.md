@@ -1170,3 +1170,12 @@
 - [x] Add regression coverage for course counts, lesson/quiz structure, pricing, scoring, and certificate metadata.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive course-catalog/workspace verification.
 - [x] Save the expanded course catalog checkpoint.
+
+# Catalog Discovery and Student Dashboard
+- [x] Add course search to the public catalog page.
+- [x] Add category filters with clear active and empty states.
+- [x] Add a student course dashboard with progress and quiz scores.
+- [x] Add upcoming installment payment schedule cards using server-backed course payment state.
+- [x] Add regression coverage for search, filters, dashboard metrics, and payment schedule rendering.
+- [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
+- [x] Save the catalog discovery and student dashboard checkpoint.
