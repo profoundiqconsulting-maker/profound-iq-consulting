@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { and, desc, eq, gte, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, courseCertificates, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, courseCertificates, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -869,4 +869,47 @@ export async function getCareerPathShareAnalytics() {
   if (!db) throw new Error("Database is not available");
   const rows = await db.select({ eventName: analyticsEvents.eventName, count: sql<number>`count(*)` }).from(analyticsEvents).where(like(analyticsEvents.eventName, "careerpath_shared_%")).groupBy(analyticsEvents.eventName);
   return rows.map((row) => ({ platform: row.eventName.replace("careerpath_shared_", ""), count: Number(row.count) })).sort((a, b) => b.count - a.count);
+}
+
+
+export async function listOrganizationInvitations(input: { status?: string; search?: string; from?: Date; to?: Date; limit?: number; offset?: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const conditions = [
+    input.status && input.status !== "all" ? eq(organizationInvitations.status, input.status) : undefined,
+    input.search?.trim() ? or(like(organizationInvitations.organizationName, `%${input.search.trim()}%`), like(organizationInvitations.organizationEmail, `%${input.search.trim()}%`)) : undefined,
+    input.from ? gte(organizationInvitations.createdAt, input.from) : undefined,
+    input.to ? lte(organizationInvitations.createdAt, input.to) : undefined,
+  ].filter(Boolean) as Array<ReturnType<typeof eq>>;
+  return db.select().from(organizationInvitations).where(conditions.length ? and(...conditions) : undefined).orderBy(desc(organizationInvitations.createdAt)).limit(Math.min(500, Math.max(1, input.limit ?? 100))).offset(Math.max(0, input.offset ?? 0));
+}
+
+export async function listOrganizationApprovalEvents(input: { status?: string; search?: string; from?: Date; to?: Date; limit?: number; offset?: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const conditions = [
+    input.search?.trim() ? or(like(organizationApprovalEvents.organizationName, `%${input.search.trim()}%`), like(organizationApprovalEvents.organizationEmail, `%${input.search.trim()}%`), like(organizationApprovalEvents.eventType, `%${input.search.trim()}%`)) : undefined,
+    input.from ? gte(organizationApprovalEvents.createdAt, input.from) : undefined,
+    input.to ? lte(organizationApprovalEvents.createdAt, input.to) : undefined,
+  ].filter(Boolean) as Array<ReturnType<typeof eq>>;
+  return db.select().from(organizationApprovalEvents).where(conditions.length ? and(...conditions) : undefined).orderBy(desc(organizationApprovalEvents.createdAt)).limit(Math.min(1000, Math.max(1, input.limit ?? 250))).offset(Math.max(0, input.offset ?? 0));
+}
+
+export async function reviewOrganizationInvitation(input: { id: number; actorOpenId: string; status: "approved" | "rejected"; note?: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const invitation = (await db.select().from(organizationInvitations).where(eq(organizationInvitations.id, input.id)).limit(1))[0];
+  if (!invitation) return undefined;
+  const now = new Date();
+  await db.update(organizationInvitations).set({ status: input.status, reviewedAt: now, reviewedByOpenId: input.actorOpenId, reviewNote: input.note?.trim() || null }).where(and(eq(organizationInvitations.id, input.id), eq(organizationInvitations.status, "pending")));
+  await db.insert(organizationApprovalEvents).values({ invitationId: invitation.id, organizationName: invitation.organizationName, organizationEmail: invitation.organizationEmail, requesterOpenId: invitation.requesterOpenId, actorOpenId: input.actorOpenId, eventType: input.status, note: input.note?.trim() || null, createdAt: now });
+  return { ...invitation, status: input.status, reviewedAt: now };
+}
+
+export async function markOrganizationReminderSent(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const now = new Date();
+  await db.update(organizationInvitations).set({ reminderSentAt: now }).where(and(eq(organizationInvitations.id, id), eq(organizationInvitations.status, "pending"), isNull(organizationInvitations.reminderSentAt), gte(organizationInvitations.expiresAt, now)));
+  return now;
 }

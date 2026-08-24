@@ -212,3 +212,34 @@ export async function renderAssessmentScoreSummaryPdf(input: { participantName: 
   doc.end();
   return finished;
 }
+
+
+export async function renderPaymentReceiptPdf(input: { attemptId: number; participantName: string; email: string; reference: string; amountKes: number; paidAt?: Date | string; verificationUrl: string }): Promise<Buffer> {
+  const doc = new PDFDocument({ size: "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: "Profound IQ Consulting Payment Receipt", Author: "Profound IQ Consulting", Subject: "Verified payment receipt" } });
+  const chunks: Buffer[] = [];
+  doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+  const finished = new Promise<Buffer>((resolve, reject) => { doc.on("end", () => resolve(Buffer.concat(chunks))); doc.on("error", reject); });
+  const brandLogo = await loadBrandLogo();
+  doc.fillColor(NAVY).rect(0, 0, doc.page.width, 100).fill();
+  if (brandLogo) { try { doc.image(brandLogo, 52, 14, { fit: [120, 72] }); } catch { /* fall back to text */ } }
+  doc.fillColor("#f7f3e8").font("Helvetica-Bold").fontSize(11).text("PROFOUND IQ / CONSULTING", brandLogo ? 190 : 52, 36, { characterSpacing: 1.3 });
+  doc.fillColor(GOLD).font("Helvetica").fontSize(9).text("TRANSFORMATION SERVICES", brandLogo ? 190 : 52, 57, { characterSpacing: 1.1 });
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(25).text("Payment receipt", 52, 145);
+  doc.fillColor(MUTED).font("Helvetica").fontSize(10).text(`Receipt #${input.attemptId} · ${formatDate(input.paidAt ?? new Date())}`, 52, 179);
+  doc.strokeColor(GOLD).lineWidth(2).moveTo(52, 207).lineTo(543, 207).stroke();
+  doc.fillColor(MUTED).font("Helvetica-Bold").fontSize(9).text("PAID BY", 52, 242, { characterSpacing: 1.1 });
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(14).text(input.participantName, 52, 260);
+  doc.fillColor(MUTED).font("Helvetica").fontSize(10).text(input.email, 52, 282);
+  doc.fillColor(MUTED).font("Helvetica-Bold").fontSize(9).text("AMOUNT", 52, 330, { characterSpacing: 1.1 });
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(23).text(`KES ${input.amountKes.toLocaleString("en-KE")}`, 52, 348);
+  doc.fillColor(MUTED).font("Helvetica-Bold").fontSize(9).text("PAYSTACK REFERENCE", 52, 404, { characterSpacing: 1.1 });
+  doc.fillColor(NAVY).font("Helvetica").fontSize(10).text(input.reference, 52, 422);
+  doc.fillColor(MUTED).font("Helvetica").fontSize(9).text("This receipt confirms a successful Paystack transaction for Profound IQ Consulting transformation services.", 52, 485, { width: 490, lineGap: 4 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(9).text("VERIFY ONLINE", 52, 555, { characterSpacing: 1.1 });
+  doc.fillColor(NAVY).font("Helvetica").fontSize(9).fillColor(NAVY).text(input.verificationUrl, 52, 575, { link: input.verificationUrl, underline: true, width: 490 });
+  doc.fillColor(MUTED).font("Helvetica").fontSize(8).text("Scan the QR code on your credential or open the verification link above to confirm authenticity.", 52, 610, { width: 490 });
+  doc.fillColor(NAVY).rect(0, 760, doc.page.width, 82).fill();
+  doc.fillColor("#f7f3e8").font("Helvetica").fontSize(8).text("profoundiqconsulting.com  ·  admin@profoundiqconsulting.com  ·  +254 727 374 055", 52, 796, { width: 490, align: "center" });
+  doc.end();
+  return finished;
+}

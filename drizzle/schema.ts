@@ -295,6 +295,34 @@ export const careerPathAttempts = mysqlTable("career_path_attempts", {
   consentedAt: timestamp("consentedAt").notNull(),
 });
 
+export const organizationInvitations = mysqlTable("organization_invitations", {
+  id: int("id").autoincrement().primaryKey(),
+  tokenHash: varchar("tokenHash", { length: 128 }).notNull().unique(),
+  organizationName: varchar("organizationName", { length: 180 }).notNull(),
+  organizationEmail: varchar("organizationEmail", { length: 320 }).notNull(),
+  requesterOpenId: varchar("requesterOpenId", { length: 64 }).notNull(),
+  reportType: varchar("reportType", { length: 40 }).notNull(),
+  reportId: int("reportId").notNull(),
+  status: varchar("status", { length: 24 }).default("pending").notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  reminderSentAt: timestamp("reminderSentAt"),
+  reviewedAt: timestamp("reviewedAt"),
+  reviewedByOpenId: varchar("reviewedByOpenId", { length: 64 }),
+  reviewNote: text("reviewNote"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export const organizationApprovalEvents = mysqlTable("organization_approval_events", {
+  id: int("id").autoincrement().primaryKey(),
+  invitationId: int("invitationId").notNull(),
+  organizationName: varchar("organizationName", { length: 180 }).notNull(),
+  organizationEmail: varchar("organizationEmail", { length: 320 }).notNull(),
+  requesterOpenId: varchar("requesterOpenId", { length: 64 }).notNull(),
+  actorOpenId: varchar("actorOpenId", { length: 64 }).notNull(),
+  eventType: varchar("eventType", { length: 24 }).notNull(),
+  note: text("note"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type AssessmentAttempt = typeof assessmentAttempts.$inferSelect;

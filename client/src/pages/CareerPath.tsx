@@ -58,6 +58,21 @@ export default function CareerPath() {
   const [verificationError, setVerificationError] = useState("");
   const [paymentState, setPaymentState] = useState<PaystackCheckoutState>("idle");
   const initializePayment = trpc.careerPath.initializePayment.useMutation();
+  const receiptDownload = trpc.careerPath.downloadReceipt.useMutation();
+  const downloadCareerPathReceipt = async (referenceValue: string) => {
+    try {
+      const result = await receiptDownload.mutateAsync({ reference: referenceValue, origin: window.location.origin });
+      const anchor = document.createElement("a");
+      anchor.href = `data:${result.contentType};base64,${result.data}`;
+      anchor.download = result.filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      toast.success("Receipt downloaded");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to download receipt.");
+    }
+  };
   const verifyPayment = trpc.careerPath.verifyPayment.useMutation({
     onSuccess: (result) => { setPaymentState(paystackStateAfter("success")); setReport(result.report); toast.success("Payment verified", { description: "Your CareerPath report is now unlocked." }); },
     onError: (error) => { setPaymentState(paystackStateAfter("failure")); setVerificationError(error.message); toast.error("Payment verification needs attention", { description: error.message }); },

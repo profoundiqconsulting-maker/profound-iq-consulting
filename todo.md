@@ -765,3 +765,22 @@
 - [x] Update and validate the reusable credential-delivery skill with these patterns.
 - [x] Add regression coverage and run type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these enhancements.
+
+# Receipt Presentation Download and Organization Invitation Monitoring
+- [ ] Add a branded PDF receipt download button directly to the presentation page.
+- [ ] Add admin filters for organization approval history by status, date range, and organization/requester.
+- [ ] Add a secure CSV export for filtered organization approval history.
+- [ ] Add visual expiry countdowns for pending organization invitations.
+- [ ] Add reminder alerts and reminder action feedback for invitations nearing expiry.
+- [ ] Add regression coverage for receipt ownership, filtered exports, and invitation expiry boundaries.
+- [ ] Run type checks, full tests, production build, and responsive verification.
+- [ ] Save a checkpoint containing these enhancements.
+
+# Organization Invitation Backend Foundation
+- [ ] Add organization invitation and approval-history schema with UTC expiry and reminder timestamps.
+- [ ] Generate and apply the schema migration safely.
+- [ ] Add database helpers for filtered approval history, CSV rows, pending invitations, and reminder updates.
+- [ ] Add admin-secured tRPC procedures for approval review, filtering, export, and reminders.
+- [ ] Add a presentation/results receipt download route scoped to successful transactions.
+- [ ] Wire dashboard UI controls and countdowns to the new procedures.
+- [ ] Add regression tests and complete build/responsive verification.
