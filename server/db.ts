@@ -1056,7 +1056,7 @@ export async function getAssessmentAdminOverview() {
   };
 }
 
-export async function getOrCreateCourseEnrollment(input: { userOpenId: string; courseSlug: string; name: string; email: string; amountKes: number }) {
+export async function getOrCreateCourseEnrollment(input: { userOpenId: string; courseSlug: string; name: string; email: string; amountKes: number; stageAmountsKes?: readonly number[] }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const existing = (await db.select().from(courseLearnerEnrollments).where(and(eq(courseLearnerEnrollments.userOpenId, input.userOpenId), eq(courseLearnerEnrollments.courseSlug, input.courseSlug))).limit(1))[0];
@@ -1066,7 +1066,8 @@ export async function getOrCreateCourseEnrollment(input: { userOpenId: string; c
   }
   const result = await db.insert(courseLearnerEnrollments).values({ userOpenId: input.userOpenId, courseSlug: input.courseSlug, name: input.name, email: input.email });
   const enrollmentId = Number(result[0].insertId);
-  await db.insert(coursePaymentStages).values([1, 2, 3, 4].map((stage) => ({ enrollmentId, stage, amountKes: input.amountKes })));
+  const stageAmounts = input.stageAmountsKes?.length === 4 ? input.stageAmountsKes : [input.amountKes, input.amountKes, input.amountKes, input.amountKes];
+  await db.insert(coursePaymentStages).values([1, 2, 3, 4].map((stage) => ({ enrollmentId, stage, amountKes: stageAmounts[stage - 1] })));
   return (await db.select().from(courseLearnerEnrollments).where(eq(courseLearnerEnrollments.id, enrollmentId)).limit(1))[0];
 }
 export async function getCourseEnrollment(userOpenId: string, courseSlug: string) {
@@ -1173,6 +1174,12 @@ export async function createCourseCertificate(input: { enrollmentId: number; rec
   if (existing) return existing;
   const result = await db.insert(courseCertificates).values(input);
   return (await db.select().from(courseCertificates).where(eq(courseCertificates.id, Number(result[0].insertId))).limit(1))[0];
+}
+
+export async function findPublicCourseCertificate(certificateNumber: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return (await db.select({ certificateNumber: courseCertificates.certificateNumber, recipientName: courseCertificates.recipientName, courseTitle: courseCertificates.courseTitle, status: courseCertificates.status, createdAt: courseCertificates.createdAt }).from(courseCertificates).where(and(eq(courseCertificates.certificateNumber, certificateNumber), eq(courseCertificates.status, "issued"))).limit(1))[0] ?? null;
 }
 
 export async function getCareerPathActiveModule(userOpenId: string) {

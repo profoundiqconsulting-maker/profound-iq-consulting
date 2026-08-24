@@ -42,6 +42,23 @@ describe("course payment experience contracts", () => {
     expect(result.learningPercent).toBe(100);
   });
 
+  it("calculates the ICPC custom installment plan exactly", () => {
+    const result = summarizeCourseEnrollment({
+      stages: [
+        { stage: 1, paymentStatus: "paid" },
+        { stage: 2, paymentStatus: "pending" },
+        { stage: 3, paymentStatus: "pending" },
+        { stage: 4, paymentStatus: "pending" },
+      ],
+      stageAmountsKes: [3750, 3750, 3750, 3749],
+      totalAmountKes: 14999,
+    });
+
+    expect(result.stageAmountsKes).toEqual([3750, 3750, 3750, 3749]);
+    expect(result.paidAmountKes).toBe(3750);
+    expect(result.remainingAmountKes).toBe(11249);
+  });
+
   it("encodes the course and reference in the dedicated success path", () => {
     expect(buildCoursePaymentSuccessPath("leadership & clarity", "piq-course/ref"))
       .toBe("/courses/payment-success?course=leadership%20%26%20clarity&reference=piq-course%2Fref");

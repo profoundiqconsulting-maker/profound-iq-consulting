@@ -16,7 +16,7 @@ export type CourseLearningProgressLike = {
   moduleCount: number;
 };
 
-export function summarizeCourseEnrollment(input: { stages: CoursePaymentStageLike[]; lessonsCompleted?: number; moduleCount?: number }) {
+export function summarizeCourseEnrollment(input: { stages: CoursePaymentStageLike[]; lessonsCompleted?: number; moduleCount?: number; stageAmountsKes?: readonly number[]; totalAmountKes?: number }) {
   const paidStages = input.stages.filter((stage) => stage.paymentStatus === "paid").length;
   const lessonsCompleted = Math.max(0, input.lessonsCompleted ?? 0);
   const moduleCount = Math.max(1, input.moduleCount ?? 10);
@@ -24,11 +24,17 @@ export function summarizeCourseEnrollment(input: { stages: CoursePaymentStageLik
   const totalLessons = moduleCount * lessonsPerModule;
   const completedModules = Math.min(moduleCount, Math.floor(lessonsCompleted / lessonsPerModule));
   const learningPercent = Math.min(100, Math.round((lessonsCompleted / totalLessons) * 100));
+  const hasCustomStageAmounts = input.stageAmountsKes?.length === COURSE_PAYMENT_STAGE_COUNT;
+  const stageAmounts = hasCustomStageAmounts ? input.stageAmountsKes! : Array.from({ length: COURSE_PAYMENT_STAGE_COUNT }, () => COURSE_PAYMENT_STAGE_KES);
+  const totalAmountKes = input.totalAmountKes ?? (hasCustomStageAmounts ? stageAmounts.reduce((total, amount) => total + amount, 0) : COURSE_PAYMENT_TOTAL_KES);
+  const paidAmountKes = input.stages.reduce((total, stage) => total + (stage.paymentStatus === "paid" ? stageAmounts[Math.max(0, Math.min(stageAmounts.length - 1, stage.stage - 1))] : 0), 0);
   return {
     paidStages,
     totalStages: COURSE_PAYMENT_STAGE_COUNT,
-    paidAmountKes: paidStages * COURSE_PAYMENT_STAGE_KES,
-    remainingAmountKes: Math.max(0, COURSE_PAYMENT_TOTAL_KES - paidStages * COURSE_PAYMENT_STAGE_KES),
+    stageAmountsKes: [...stageAmounts],
+    totalAmountKes,
+    paidAmountKes,
+    remainingAmountKes: Math.max(0, totalAmountKes - paidAmountKes),
     paymentPercent: Math.min(100, Math.round((paidStages / COURSE_PAYMENT_STAGE_COUNT) * 100)),
     nextStage: paidStages < COURSE_PAYMENT_STAGE_COUNT ? paidStages + 1 : null,
     completedModules,

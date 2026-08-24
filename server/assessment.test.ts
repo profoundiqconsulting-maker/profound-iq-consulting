@@ -8,7 +8,7 @@ const assessmentPageSource = readFileSync(resolve(process.cwd(), "client/src/pag
 
 describe("professional course curriculum", () => {
   it("provides ten modules, seven lessons, and fifteen quiz questions per course module", () => {
-    expect(courseCatalog).toHaveLength(4);
+    expect(courseCatalog).toHaveLength(5);
     expect(COURSE_PRICE_KES).toBe(4999);
     expect(COURSE_STAGE_AMOUNT_KES).toBe(1250);
     expect(COURSE_PASS_MARK).toBe(50);
@@ -20,6 +20,12 @@ describe("professional course curriculum", () => {
       expect(course.modules.every((module) => module.quiz.length === 15)).toBe(true);
       expect(course.modules.every((module) => module.lessons.every((lesson) => lesson.summary.length > 30))).toBe(true);
     }
+    const icpc = courseCatalog.find((course) => course.slug === "professional-certificate-international-curriculum-pedagogy");
+    expect(icpc).toBeDefined();
+    expect(icpc?.priceKes).toBe(14999);
+    expect(icpc?.stageAmountsKes).toEqual([3750, 3750, 3750, 3749]);
+    expect(icpc?.modules.map((module) => module.title)).toEqual(["1. Modern Pedagogy And Learner-Centred Practice", "2. British National Curriculum", "3. International Baccalaureate", "4. American Curriculum", "5. Cambridge And IGCSE", "6. Christian Education And Homeschooling", "7. Pearson Edexcel And Comparative Curriculum Design", "8. Early Years And Integrated Approaches", "9. Counselling, Law, Professionalism And Entrepreneurship", "10. Research, Technology And Assessment"]);
+    expect(icpc?.modules.every((module) => module.quiz.every((question) => question.explanation.length > 30))).toBe(true);
   });
 });
 

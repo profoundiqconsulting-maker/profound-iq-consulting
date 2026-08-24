@@ -1132,3 +1132,14 @@
 - [x] Add regression tests for persistence, ownership, selection validation, export content, and authorization.
 - [x] Run schema migration, type checks, tests, production build, runtime review, and responsive audit.
 - [x] Save the completed reflection workflow checkpoint.
+
+# Professional Certificate in International Curriculum Pedagogy
+- [x] Add the document-grounded course catalog entry and KES 14,999 pricing contract.
+- [x] Add 10 curriculum-aligned modules covering international curricula, pedagogy, professionalism, counselling, research, and education technology.
+- [x] Add 7 interactive 40-minute lessons and practical learning experiences to every module.
+- [x] Add 15 aligned, automatically marked quiz questions per module with a 50% pass mark and aggregated final result.
+- [x] Integrate the new course into staged four-installment Paystack enrollment and access progression.
+- [x] Generate and deliver branded completion certificates with learner name, course title, certificate number, logo, and QR verification.
+- [x] Add regression tests for course structure, quiz alignment/scoring, staged pricing, and certificate output.
+- [x] Run full tests, TypeScript, production build, runtime review, and desktop/mobile course-flow verification.
+- [x] Save the completed International Curriculum Pedagogy course checkpoint.
