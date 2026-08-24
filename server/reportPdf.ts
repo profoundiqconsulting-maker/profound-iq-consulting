@@ -3,7 +3,7 @@ import type { AssessmentReport, RoleLensReadout } from "../shared/assessment";
 import type { CareerPathReport } from "../shared/careerPath";
 import { storageGetSignedUrl } from "./storage";
 
-type ReportPdfInput = { attemptId: number; participantName: string; createdAt: Date | string; report: AssessmentReport; lens?: RoleLensReadout };
+type ReportPdfInput = { attemptId: number; participantName: string; email?: string; createdAt: Date | string; report: AssessmentReport; lens?: RoleLensReadout };
 const NAVY = "#16243d";
 const GOLD = "#a27e2e";
 const MUTED = "#5f6a7b";
@@ -16,7 +16,7 @@ async function loadBrandLogo(): Promise<Buffer | null> {
   return logoBufferPromise;
 }
 
-type CareerPathPdfInput = { attemptId: number; participantName: string; createdAt: Date | string; report: CareerPathReport };
+type CareerPathPdfInput = { attemptId: number; participantName: string; email?: string; createdAt: Date | string; report: CareerPathReport };
 
 export async function renderCareerPathReportPdf(input: CareerPathPdfInput): Promise<Buffer> {
   const doc = new PDFDocument({ size: "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: "Profound IQ CareerPath Report", Author: "Profound IQ Consulting" } });
@@ -32,7 +32,8 @@ export async function renderCareerPathReportPdf(input: CareerPathPdfInput): Prom
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(24).text("CareerPath report", 52, 128);
   doc.fillColor(GOLD).font("Helvetica").fontSize(10).text(`REPORT #${input.attemptId}  ·  ${formatDate(input.createdAt)}`, 52, 163, { characterSpacing: 0.7 });
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(13).text(input.participantName, 52, 198);
-  doc.strokeColor(GOLD).lineWidth(2).moveTo(52, 230).lineTo(543, 230).stroke();
+  if (input.email) doc.fillColor(MUTED).font("Helvetica").fontSize(9.5).text(input.email, 52, 217);
+  doc.strokeColor(GOLD).lineWidth(2).moveTo(52, 244).lineTo(543, 244).stroke();
   doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("PATHWAY SIGNAL", 52, 258, { characterSpacing: 1.5 });
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(23).text(input.report.primary.label, 52, 280);
   doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(34).text(`${input.report.primary.score}`, 52, 316);
@@ -91,7 +92,8 @@ export async function renderAssessmentReportPdf(input: ReportPdfInput): Promise<
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(25).text("Assessment report", 52, 128);
   doc.fillColor(GOLD).font("Helvetica").fontSize(10).text(`REPORT #${input.attemptId}  ·  ${formatDate(input.createdAt)}`, 52, 163, { characterSpacing: 0.7 });
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(13).text(input.participantName, 52, 198);
-  doc.strokeColor(GOLD).lineWidth(2).moveTo(52, 230).lineTo(543, 230).stroke();
+  if (input.email) doc.fillColor(MUTED).font("Helvetica").fontSize(9.5).text(input.email, 52, 217);
+  doc.strokeColor(GOLD).lineWidth(2).moveTo(52, 244).lineTo(543, 244).stroke();
   doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("THE SIGNAL", 52, 258, { characterSpacing: 1.5 });
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(44).text(`${input.report.overallScore}`, 52, 278);
   doc.fillColor(MUTED).font("Helvetica").fontSize(12).text("overall score / 100", 122, 302);
@@ -174,7 +176,7 @@ function addFooter(doc: PDFKit.PDFDocument): void {
 
 function formatDate(value: Date | string): string { return new Date(value).toLocaleDateString("en-KE", { year: "numeric", month: "short", day: "numeric" }); }
 
-export async function renderAssessmentScoreSummaryPdf(input: { participantName: string; createdAt: Date | string; reports: Array<{ version?: string | null; createdAt: Date | string; overallScore?: number | null; overallBand?: string | null; dimensionScores?: Array<{ label: string; score: number }> }> }): Promise<Buffer> {
+export async function renderAssessmentScoreSummaryPdf(input: { participantName: string; email?: string; createdAt: Date | string; reports: Array<{ version?: string | null; createdAt: Date | string; overallScore?: number | null; overallBand?: string | null; dimensionScores?: Array<{ label: string; score: number }> }> }): Promise<Buffer> {
   const doc = new PDFDocument({ size: "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: "Profound IQ Score Summary", Author: "Profound IQ Consulting" } });
   const chunks: Buffer[] = [];
   doc.on("data", (chunk: Buffer) => chunks.push(chunk));
@@ -188,8 +190,9 @@ export async function renderAssessmentScoreSummaryPdf(input: { participantName: 
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(25).text("Assessment score summary", 52, 128);
   doc.fillColor(GOLD).font("Helvetica").fontSize(10).text(`GENERATED ${formatDate(input.createdAt)}`, 52, 163, { characterSpacing: 0.7 });
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(13).text(input.participantName, 52, 198);
-  doc.strokeColor(GOLD).lineWidth(2).moveTo(52, 230).lineTo(543, 230).stroke();
-  let y = 264;
+  if (input.email) doc.fillColor(MUTED).font("Helvetica").fontSize(9.5).text(input.email, 52, 217);
+  doc.strokeColor(GOLD).lineWidth(2).moveTo(52, 244).lineTo(543, 244).stroke();
+  let y = 278;
   doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("REPORT HISTORY", 52, y, { characterSpacing: 1.2 });
   y += 24;
   for (const report of input.reports) {

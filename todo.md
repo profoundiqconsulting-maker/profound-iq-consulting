@@ -1045,3 +1045,12 @@
 - [x] Add regression tests for public, unpaid, partially paid, and authorized lesson access.
 - [x] Verify type checks, tests, production build, and responsive course-workspace rendering.
 - [x] Save a checkpoint for paid course lesson access.
+
+# Personalized Reports and Certificates
+- [x] Define a safe full-name and email identity contract for paid authenticated outputs.
+- [x] Add the user’s full name and email to the Personal Score Summary and authenticated report views.
+- [x] Propagate identity into assessment, CareerPath, course, certificate, receipt, email, PDF, SVG, and shared-report outputs.
+- [x] Preserve payment gates and prevent identity leakage in public or unauthorized views.
+- [x] Add regression tests for identity propagation, fallback names, authorization, and output text.
+- [x] Verify type checks, tests, production build, and representative desktop/mobile report surfaces.
+- [x] Save a checkpoint for personalized reporting.

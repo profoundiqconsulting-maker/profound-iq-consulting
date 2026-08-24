@@ -122,7 +122,7 @@ export async function emailCareerPathReportIfNeeded(input: { attemptId: number; 
 
 export async function sendCareerPathReportEmail(input: { attemptId: number; participantName: string; email: string; createdAt: Date | string; report: CareerPathReport; personalNotes?: string | null; receiptTitle?: string | null }): Promise<void> {
   const config = getSmtpConfig();
-  const pdf = await renderCareerPathReportPdf({ attemptId: input.attemptId, participantName: input.participantName, createdAt: input.createdAt, report: input.report });
+  const pdf = await renderCareerPathReportPdf({ attemptId: input.attemptId, participantName: input.participantName, email: input.email, createdAt: input.createdAt, report: input.report });
   const coachingVisual = Buffer.from(buildSubPathwayComparisonSvg({ rows: input.report.subPathways.map((item) => ({ label: item.label, score: item.score })), generatedAt: new Date(input.createdAt).toLocaleDateString("en-KE") }));
   const topStrengths = getTopCareerPathStrengths(input.report).map((item) => `${item.label} (${item.score}/100)`);
   const strengthsSummary = topStrengths.length ? `Your top strengths signals are ${topStrengths.join(", ")}. Use these as starting points for reflection and conversation, not as fixed labels.` : "Your report contains a coaching visual to support reflection and conversation.";
@@ -140,7 +140,7 @@ export async function sendCareerPathReportEmail(input: { attemptId: number; part
 
 export async function sendAssessmentReportEmail(input: { attemptId: number; participantName: string; email: string; createdAt: Date | string; report: AssessmentReport }): Promise<void> {
   const config = getSmtpConfig();
-  const pdf = await renderAssessmentReportPdf({ attemptId: input.attemptId, participantName: input.participantName, createdAt: input.createdAt, report: input.report });
+  const pdf = await renderAssessmentReportPdf({ attemptId: input.attemptId, participantName: input.participantName, email: input.email, createdAt: input.createdAt, report: input.report });
   await getTransporter().sendMail({
     from: { name: config.fromName, address: config.from },
     to: input.email,
