@@ -1143,3 +1143,12 @@
 - [x] Add regression tests for course structure, quiz alignment/scoring, staged pricing, and certificate output.
 - [x] Run full tests, TypeScript, production build, runtime review, and desktop/mobile course-flow verification.
 - [x] Save the completed International Curriculum Pedagogy course checkpoint.
+
+# Module-Level Completion Badges
+- [x] Define a shared module badge contract based on seven completed lessons and a passed 15-question quiz.
+- [x] Add module completion badge presentation to the course workspace with earned, in-progress, and locked states.
+- [x] Add module badge visibility to the learner dashboard course progress cards.
+- [x] Add completion celebration feedback when a module badge is earned without fabricating learner achievements.
+- [x] Add regression tests for badge eligibility, quiz pass requirements, and course-specific module counts.
+- [x] Run type checks, tests, production build, runtime review, and responsive desktop/mobile verification.
+- [x] Save the completed module-badge checkpoint.
