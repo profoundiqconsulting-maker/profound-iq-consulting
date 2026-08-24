@@ -840,3 +840,9 @@
 - [x] Add secure PDF export buttons to completed-assessment activity items.
 - [x] Add profile-driven personalized self-assessment recommendations.
 - [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
+
+# Export Feedback, Recommendation Explanations, and Result Sharing
+- [x] Add loading spinner and success toast feedback to completed-assessment PDF export.
+- [x] Add View Details explanations for profile-driven recommendations.
+- [x] Add a secure email Share action beside completed-assessment PDF export.
+- [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
