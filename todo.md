@@ -662,9 +662,9 @@
 - [x] Add a visible Quality Control Mode badge only for profoundiqconsulting@gmail.com when the bypass is active.
 - [x] Add database storage for each authenticated learner’s last active CareerPath module.
 - [x] Add protected procedures to read and update the active module without exposing another user’s progress.
-- [ ] Synchronize CareerPath module navigation and resume state with the server-side active module.
-- [ ] Show authenticated past assessment report previews directly on the CareerPath Results page.
-- [ ] Show authenticated certificate previews and download links directly on the CareerPath Results page.
-- [ ] Add regression coverage for admin badge boundaries, cross-device module resume, and Results history previews.
+- [x] Synchronize CareerPath module navigation and resume state with the server-side active module.
+- [x] Show authenticated past assessment report previews directly on the CareerPath Results page.
+- [x] Show authenticated certificate previews and download links directly on the CareerPath Results page.
+- [x] Add regression coverage for admin badge boundaries, cross-device module resume, and Results history previews.
 - [x] Run schema migration, type checks, full tests, production build, and responsive verification.
-- [ ] Save a checkpoint containing these enhancements.
+- [x] Save a checkpoint containing these enhancements.
