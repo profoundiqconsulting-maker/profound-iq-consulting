@@ -911,3 +911,9 @@
 - [x] Audit lesson-player and quiz performance, bundle/runtime behavior, and network activity.
 - [x] Generate a comprehensive PDF summary report of verification results.
 - [x] Run final validation; checkpoint remains subject to the documented stale historical console entry.
+
+# Sitewide Profound IQ Logo and Favicon
+- [x] Upload the provided Profound IQ logo through the project asset pipeline.
+- [x] Replace sitewide header, dashboard, course, assessment, and output logo references.
+- [x] Configure the new mark as the browser favicon and application metadata image.
+- [x] Verify logo rendering and generated-output references, then run tests/build and save a checkpoint.

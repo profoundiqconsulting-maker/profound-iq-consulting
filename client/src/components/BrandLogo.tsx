@@ -1,4 +1,4 @@
-const LOGO_URL = "/manus-storage/ProfoundIQLogo3-cropped_15edcfe0.png";
+const LOGO_URL = "/manus-storage/ProfoundIQLogo2_1f7aaba4.png";
 
 type BrandLogoProps = {
   context?: string;
