@@ -646,3 +646,14 @@
 - [x] Add regression coverage for direct step links and result routing.
 - [x] Run type checks, full tests, production build, and responsive route verification.
 - [x] Save a checkpoint containing the CareerPath step navigation enhancements.
+
+# Admin Quality Control, Resume URLs, Results History, and Mobile Status
+- [x] Allow only profoundiqconsulting@gmail.com to bypass learner checkout gates for quality and content control, with server-side authorization.
+- [x] Preserve normal checkout and module-payment gates for all other learners.
+- [x] Add a CareerPath URL parameter for the active module and restore it from the URL and saved draft.
+- [x] Keep active-module URL state synchronized during module navigation and resume actions.
+- [x] Connect CareerPath Results to authenticated past assessment reports and certificate history.
+- [x] Add a collapsible mobile progress/payment status panel that remains accessible while scrolling.
+- [x] Add regression coverage for admin bypass boundaries, resume URLs, Results history, and mobile status controls.
+- [x] Run type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these enhancements.
