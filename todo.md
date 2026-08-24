@@ -875,3 +875,10 @@
 - [x] Add review and export controls for the aggregated notes.
 - [x] Add built-in AI note summarization with safe limits, loading, and error states.
 - [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
+
+# My Notes Exports and AI Study Aids
+- [x] Add Markdown and formatted PDF export for AI-generated note summaries.
+- [x] Add clickable course and lesson links to aggregated My Notes entries.
+- [x] Add AI-generated practice quiz or flashcard actions from summarized notes.
+- [x] Add loading, error, and review states for the study aids.
+- [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
