@@ -733,12 +733,12 @@
 - [x] Save a checkpoint containing these enhancements.
 
 # Branded Outputs, Receipt History, Share Comparisons, and Payment Recovery
-- [ ] Add the Profound IQ logo, verification QR code, and website address to certificate SVG outputs.
-- [ ] Add logo, QR verification, website address, and verification metadata to all report PDFs and score summaries.
-- [ ] Support secure learner email delivery and an explicitly authorized requesting-organization forwarding flow.
-- [ ] Add payment receipt and transaction history panels beside reports and certificates in user history.
-- [ ] Add date-range comparison overlays to historical Share Observatory charts.
-- [ ] Add a Retry Payment action with clear failure/cancellation messaging and safe Paystack re-initialization.
-- [ ] Create and validate a reusable skill describing the branded output, payment, receipt, sharing, and delivery workflow.
-- [ ] Add regression coverage and run schema, type, tests, build, and responsive verification.
-- [ ] Save a checkpoint containing these enhancements and deliver the reusable skill.
+- [x] Add the Profound IQ logo, verification QR code, and website address to certificate SVG outputs.
+- [x] Add logo, QR verification, website address, and verification metadata to all report PDFs and score summaries.
+- [x] Support secure learner email delivery and an explicitly authorized requesting-organization forwarding flow.
+- [x] Add payment receipt and transaction history panels beside reports and certificates in user history.
+- [x] Add date-range comparison overlays to historical Share Observatory charts.
+- [x] Add a Retry Payment action with clear failure/cancellation messaging and safe Paystack re-initialization.
+- [x] Create and validate a reusable skill describing the branded output, payment, receipt, sharing, and delivery workflow.
+- [x] Add regression coverage and run schema, type, tests, build, and responsive verification.
+- [x] Save a checkpoint containing these enhancements and deliver the reusable skill.
