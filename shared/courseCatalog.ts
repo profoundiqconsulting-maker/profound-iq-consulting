@@ -63,7 +63,7 @@ const quizQuestions = (courseSlug: string, moduleId: string, theme: string, less
     correctOption: 0,
     sourceLessonId: lesson.id,
     sourceLessonTitle: lesson.title,
-    explanation: `This answer applies the lesson’s emphasis on ${lesson.title.toLowerCase()} by connecting ${theme} to an observable action and a review point.`,
+    explanation: `This answer directly revisits the lesson “${lesson.title}” by connecting ${theme} to an observable action and a review point.`,
   };
 });
 

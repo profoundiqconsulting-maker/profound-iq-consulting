@@ -889,3 +889,25 @@
 - [x] Recreate all module quizzes with 15 aligned questions, answers, explanations, and retry-safe scoring.
 - [x] Show aligned lesson references and feedback in quiz review without exposing answer keys before submission.
 - [x] Run content integrity checks, tests, production build, responsive verification, and save a checkpoint.
+
+# OAuth Configuration and Build Warning
+- [ ] Restore or securely configure OAUTH_SERVER_URL for the backend OAuth flow.
+- [ ] Verify the corresponding frontend OAuth portal configuration and authenticated session behavior.
+- [ ] Adjust the production chunk-size warning threshold or splitting configuration without masking build failures.
+- [ ] Run tests and production build, then save a recoverable checkpoint.
+
+# Course Quality Verification
+- [x] Verify every module quiz question references an existing lesson and aligned module content.
+- [x] Verify answer indexes, option counts, and 15-question module totals.
+- [x] Test lesson-player navigation, simulation, notes, bookmarks, and completion controls; quiz submit/retry remains payment-gated for a future QA session.
+- [x] Review build output and runtime logs for compile, browser-console, and network errors.
+- [x] Record verification results; checkpoint deferred because the payment-gated quiz submit/retry path was not fully exercised.
+
+# Complete Course QA and Accessibility Audit
+- [x] Prepare a non-charging QA enrollment with all seven module lessons unlocked.
+- [x] Submit a deliberate failing quiz attempt and verify retry remains available.
+- [x] Submit a passing retry and verify module progression updates correctly.
+- [x] Audit lesson-player and quiz accessibility, keyboard navigation, focus, labels, contrast, and reduced motion.
+- [x] Audit lesson-player and quiz performance, bundle/runtime behavior, and network activity.
+- [x] Generate a comprehensive PDF summary report of verification results.
+- [x] Run final validation; checkpoint remains subject to the documented stale historical console entry.
