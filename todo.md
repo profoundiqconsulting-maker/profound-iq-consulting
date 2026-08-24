@@ -854,3 +854,10 @@
 - [x] Preserve existing quiz, staged payment, progress persistence, and certification flows.
 - [x] Run type checks, tests, production build, and validate the course workspace implementation.
 - [x] Save a checkpoint containing the complete course lesson library and player.
+
+# Lesson Player Progress, Bookmarks, and Notes
+- [x] Add a current-lesson progress indicator for the 40-minute player.
+- [x] Add Save for Later bookmarks for lesson sections and simulations.
+- [x] Add persistent note-taking with export controls inside the lesson player.
+- [x] Preserve course completion, payment, and quiz behavior.
+- [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
