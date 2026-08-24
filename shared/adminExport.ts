@@ -9,3 +9,10 @@ export function buildCourseEnrollmentCsv(rows: CourseEnrollmentExportRow[]) {
   const lines = rows.map((row) => [row.id, row.courseTitle, row.name, row.email, row.status, row.createdAt.toISOString(), row.consentedAt.toISOString()].map(csvCell).join(","));
   return [header, ...lines].join("\n");
 }
+
+export type ContactInquiryExportRow = { id: number; name: string; email: string; category: string; message: string; status: string; createdAt: Date };
+export function buildContactInquiryCsv(rows: ContactInquiryExportRow[]) {
+  const header = ["ID", "Name", "Email", "Category", "Message", "Status", "Received at"].map(csvCell).join(",");
+  const lines = rows.map((row) => [row.id, row.name, row.email, row.category, row.message, row.status, row.createdAt.toISOString()].map(csvCell).join(","));
+  return [header, ...lines].join("\n");
+}

@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { and, desc, eq, gte, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, courseCertificates, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
@@ -502,11 +502,40 @@ export async function listContactInquiries(input: { search?: string; category?: 
   return { rows, total, page: input.page, pageSize: input.pageSize, totalPages: Math.max(1, Math.ceil(total / input.pageSize)) };
 }
 
+export type ContactInquiryFilters = { search?: string; category?: string; status?: string; fromDate?: Date; toDate?: Date };
+
+function contactInquiryConditions(filters: ContactInquiryFilters) {
+  return [filters.search ? or(like(contactInquiries.name, `%${filters.search}%`), like(contactInquiries.email, `%${filters.search}%`), like(contactInquiries.message, `%${filters.search}%`)) : undefined, filters.category && filters.category !== "all" ? eq(contactInquiries.category, filters.category) : undefined, filters.status && filters.status !== "all" ? eq(contactInquiries.status, filters.status) : undefined, filters.fromDate ? gte(contactInquiries.createdAt, filters.fromDate) : undefined, filters.toDate ? lte(contactInquiries.createdAt, filters.toDate) : undefined].filter(Boolean) as Array<ReturnType<typeof eq>>;
+}
+
+export async function getContactInquiriesForExport(filters: ContactInquiryFilters = {}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const conditions = contactInquiryConditions(filters);
+  return db.select().from(contactInquiries).where(conditions.length ? and(...conditions) : undefined).orderBy(desc(contactInquiries.createdAt)).limit(5000);
+}
+
+export async function getContactInquiryCategoryCounts(days = 30) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const fromDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  const rows = await db.select({ category: contactInquiries.category, count: sql<number>`count(*)` }).from(contactInquiries).where(gte(contactInquiries.createdAt, fromDate)).groupBy(contactInquiries.category).orderBy(desc(sql`count(*)`));
+  return rows.map(row => ({ category: row.category, count: Number(row.count) }));
+}
+
 export async function updateContactInquiryStatus(id: number, status: "new" | "contacted" | "closed") {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   await db.update(contactInquiries).set({ status }).where(eq(contactInquiries.id, id));
   return (await db.select().from(contactInquiries).where(eq(contactInquiries.id, id)).limit(1))[0] ?? null;
+}
+
+export async function bulkUpdateContactInquiryStatus(ids: number[], status: "new" | "contacted" | "closed") {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  if (!ids.length) return 0;
+  await db.update(contactInquiries).set({ status }).where(inArray(contactInquiries.id, ids));
+  return ids.length;
 }
 
 export async function createCourseEnrollment(input: { courseTitle: string; name: string; email: string }) {

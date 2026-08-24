@@ -942,3 +942,11 @@
 - [x] Build an admin-only inquiry dashboard with search, category/status filters, pagination, and status management.
 - [x] Add regression coverage and verify public/admin inquiry flows responsively.
 - [x] Save a checkpoint for the inquiry management enhancements.
+
+# Inquiry Operations Update
+- [x] Trace and fix the public inquiry submission JSON/HTML response error.
+- [x] Add admin CSV export for the currently filtered contact inquiries.
+- [x] Add bulk status updates for selected inquiries.
+- [x] Add a 30-day per-category inquiry chart.
+- [x] Add regression coverage and verify public/admin flows responsively.
+- [x] Save a checkpoint for the inquiry operations update.

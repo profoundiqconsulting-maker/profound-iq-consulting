@@ -50,6 +50,11 @@ async function startServer() {
       createContext,
     })
   );
+  // Keep API failures JSON-shaped even when a path is mistyped or a deployment
+  // proxy forwards an unmatched API request to the SPA fallback.
+  app.use("/api/trpc", (_req, res) => {
+    res.status(404).json({ error: { message: "API procedure not found" } });
+  });
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);

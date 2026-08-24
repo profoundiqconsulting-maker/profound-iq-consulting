@@ -5,6 +5,9 @@ const mocks = vi.hoisted(() => ({
   createContactInquiry: vi.fn().mockResolvedValue(27),
   listContactInquiries: vi.fn().mockResolvedValue({ rows: [], total: 0, page: 1, pageSize: 8, totalPages: 1 }),
   updateContactInquiryStatus: vi.fn().mockResolvedValue({ id: 12, status: "contacted" }),
+  getContactInquiriesForExport: vi.fn().mockResolvedValue([{ id: 12, name: "Amina", email: "amina@example.com", category: "general", message: "Hello", status: "new", createdAt: new Date("2026-08-24T00:00:00Z") }]),
+  getContactInquiryCategoryCounts: vi.fn().mockResolvedValue([{ category: "general", count: 3 }]),
+  bulkUpdateContactInquiryStatus: vi.fn().mockResolvedValue(2),
   recordAnalyticsEvent: vi.fn().mockResolvedValue(undefined),
 }));
 
@@ -21,7 +24,7 @@ function adminContext(): TrpcContext {
 }
 
 describe("inquiry.create", () => {
-  beforeEach(() => { mocks.createContactInquiry.mockClear(); mocks.listContactInquiries.mockClear(); mocks.updateContactInquiryStatus.mockClear(); mocks.recordAnalyticsEvent.mockClear(); });
+  beforeEach(() => { mocks.createContactInquiry.mockClear(); mocks.listContactInquiries.mockClear(); mocks.updateContactInquiryStatus.mockClear(); mocks.getContactInquiriesForExport.mockClear(); mocks.getContactInquiryCategoryCounts.mockClear(); mocks.bulkUpdateContactInquiryStatus.mockClear(); mocks.recordAnalyticsEvent.mockClear(); });
   it("persists the inquiry and records analytics", async () => {
     const result = await appRouter.createCaller(publicContext()).inquiry.create({ name: "Amina Njeri", email: "amina@example.com", category: "organizational-development", message: "I would like to discuss leadership training for our team.", mathA: 7, mathB: 5, mathAnswer: 12 });
     expect(result).toEqual({ id: 27 });
@@ -39,6 +42,13 @@ describe("inquiry.create", () => {
     await caller.admin.updateContactInquiryStatus({ id: 12, status: "contacted" });
     expect(mocks.listContactInquiries).toHaveBeenCalledWith({ page: 1, pageSize: 8, search: "amina", category: "general", status: "new" });
     expect(mocks.updateContactInquiryStatus).toHaveBeenCalledWith(12, "contacted");
+    const exported = await caller.admin.exportContactInquiries({ search: "amina", category: "general", status: "new" });
+    expect(exported.data).toContain("Name");
+    expect(mocks.getContactInquiriesForExport).toHaveBeenCalledWith({ search: "amina", category: "general", status: "new" });
+    await caller.admin.bulkUpdateContactInquiryStatus({ ids: [12, 13], status: "closed" });
+    await caller.admin.contactInquiryCategoryCounts();
+    expect(mocks.bulkUpdateContactInquiryStatus).toHaveBeenCalledWith([12, 13], "closed");
+    expect(mocks.getContactInquiryCategoryCounts).toHaveBeenCalledWith(30);
   });
 
   it("rejects an incorrect math answer before persistence", async () => {
