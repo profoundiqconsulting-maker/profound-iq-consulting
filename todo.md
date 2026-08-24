@@ -861,3 +861,10 @@
 - [x] Add persistent note-taking with export controls inside the lesson player.
 - [x] Preserve course completion, payment, and quiz behavior.
 - [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
+
+# Rich Lesson Notes and My Bookmarks
+- [x] Add bold, italic, and bullet-point controls to lesson notes.
+- [x] Preserve formatted note content in local persistence and exports.
+- [x] Add a My Bookmarks dashboard section for saved lesson sections and simulations.
+- [x] Add bookmark navigation and removal controls without affecting course progress.
+- [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
