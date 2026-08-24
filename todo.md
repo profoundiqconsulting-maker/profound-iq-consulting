@@ -806,3 +806,10 @@
 - [x] Organize report history, certificate access, receipt access, and resume actions into scannable sections.
 - [x] Improve empty, loading, and error states while preserving payment and privacy boundaries.
 - [x] Verify responsive accessibility, tests, production build, and save a checkpoint.
+
+# Dashboard Quick Actions and Theme Controls
+- [x] Add a floating quick-action button to start a new self-assessment.
+- [x] Add a personalized greeting and dynamic progress summary widget to the Overview tab.
+- [x] Add a dark-mode toggle switch to the Settings tab.
+- [x] Remove the JSON progress-file drop prompt from the dashboard.
+- [x] Run tests, production build, responsive verification, and save a checkpoint.
