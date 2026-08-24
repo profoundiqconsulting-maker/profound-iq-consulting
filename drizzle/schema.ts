@@ -35,6 +35,15 @@ export const courseEnrollments = mysqlTable("course_enrollments", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+export const contactInquiries = mysqlTable("contact_inquiries", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 160 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  message: text("message").notNull(),
+  status: varchar("status", { length: 32 }).default("new").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
 export const courseLearnerEnrollments = mysqlTable("course_learner_enrollments", {
   id: int("id").autoincrement().primaryKey(),
   userOpenId: varchar("userOpenId", { length: 64 }).notNull(),
@@ -332,6 +341,7 @@ export type ReportShare = typeof reportShares.$inferSelect;
 export type ReportShareAuditEvent = typeof reportShareAuditEvents.$inferSelect;
 export type InsertAssessmentAttempt = typeof assessmentAttempts.$inferInsert;
 export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
+export type ContactInquiry = typeof contactInquiries.$inferSelect;
 export type CourseLearnerEnrollment = typeof courseLearnerEnrollments.$inferSelect;
 export type CourseLessonProgress = typeof courseLessonProgress.$inferSelect;
 export type CourseQuizAttempt = typeof courseQuizAttempts.$inferSelect;

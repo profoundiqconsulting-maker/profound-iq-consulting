@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { and, desc, eq, gte, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, courseCertificates, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, courseCertificates, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -482,6 +482,13 @@ export async function recordAnalyticsEvent(input: { eventName: string; attemptId
   const db = await getDb();
   if (!db) return;
   await db.insert(analyticsEvents).values({ eventName: input.eventName, attemptId: input.attemptId, userOpenId: input.userOpenId, metadata: input.metadata ?? null });
+}
+
+export async function createContactInquiry(input: { name: string; email: string; message: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.insert(contactInquiries).values(input);
+  return Number(result[0].insertId);
 }
 
 export async function createCourseEnrollment(input: { courseTitle: string; name: string; email: string }) {

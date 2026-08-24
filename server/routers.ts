@@ -9,7 +9,7 @@ import { sdk } from "./_core/sdk";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
-import { addEmailPreviewDelivery, checkLoginRateLimit, clearLoginFailures, countFailedLoginEvents, createCourseEnrollment, createDeliveryLogExportJob, createUserSession, getAdminAnalyticsSettings, getAdminNotificationRecipients, getAdminSecuritySettings, getEffectiveLoginEventRetentionDays, getLoginSecurityAnalytics, purgeExpiredLoginEvents, getAdminUsersForReview, getAnalyticsDashboard, getAssessmentAdminOverview, getCourseEnrollments, getDeliveryLogExportJob, getDeliveryLogExportJobs, getEmailPreviewDeliveries, getEmailPreviewDeliveriesForExport, getEmailPreviewDeliveriesPage, getEmailTemplates, getEffectiveLoginAlertThreshold, getFailedLoginEvents, getScheduledExport, getScheduledExportRuns, getSessionByTokenHash, getUserAssessmentHistory, getUserProfile, getUserSessions, getLoginEventsForUser, getVerificationRevocationAudits, getVerificationRevocationAuditsForExport, getVerificationRevocationAuditsPage, getCareerPathShareAnalytics, recordAnalyticsEvent, countUserSocialShares, recordFailedLogin, recordLoginEvent, revokeOtherUserSessions, revokeUserEmailVerification, revokeUserSession, saveAdminSecuritySettings, touchUserSession, updateUserAvatar, updateUserProfile, upsertAdminAnalyticsSettings, upsertEmailTemplate, updateScheduledExport, createScheduledExportIfMissing, listOrganizationInvitations, listOrganizationApprovalEvents, reviewOrganizationInvitation, markOrganizationReminderSent } from "./db";
+import { addEmailPreviewDelivery, checkLoginRateLimit, clearLoginFailures, countFailedLoginEvents, createContactInquiry, createCourseEnrollment, createDeliveryLogExportJob, createUserSession, getAdminAnalyticsSettings, getAdminNotificationRecipients, getAdminSecuritySettings, getEffectiveLoginEventRetentionDays, getLoginSecurityAnalytics, purgeExpiredLoginEvents, getAdminUsersForReview, getAnalyticsDashboard, getAssessmentAdminOverview, getCourseEnrollments, getDeliveryLogExportJob, getDeliveryLogExportJobs, getEmailPreviewDeliveries, getEmailPreviewDeliveriesForExport, getEmailPreviewDeliveriesPage, getEmailTemplates, getEffectiveLoginAlertThreshold, getFailedLoginEvents, getScheduledExport, getScheduledExportRuns, getSessionByTokenHash, getUserAssessmentHistory, getUserProfile, getUserSessions, getLoginEventsForUser, getVerificationRevocationAudits, getVerificationRevocationAuditsForExport, getVerificationRevocationAuditsPage, getCareerPathShareAnalytics, recordAnalyticsEvent, countUserSocialShares, recordFailedLogin, recordLoginEvent, revokeOtherUserSessions, revokeUserEmailVerification, revokeUserSession, saveAdminSecuritySettings, touchUserSession, updateUserAvatar, updateUserProfile, upsertAdminAnalyticsSettings, upsertEmailTemplate, updateScheduledExport, createScheduledExportIfMissing, listOrganizationInvitations, listOrganizationApprovalEvents, reviewOrganizationInvitation, markOrganizationReminderSent } from "./db";
 import { storagePut } from "./storage";
 import { z } from "zod";
 import { renderAssessmentReportPdf, renderAssessmentScoreSummaryPdf, renderCareerPathReportPdf, renderPaymentReceiptPdf } from "./reportPdf";
@@ -164,6 +164,13 @@ export const appRouter = router({
     track: publicProcedure.input(analyticsEventSchema).mutation(async ({ ctx, input }) => {
       await recordAnalyticsEvent({ ...input, userOpenId: ctx.user?.openId });
       return { tracked: true as const };
+    }),
+  }),
+  inquiry: router({
+    create: publicProcedure.input(z.object({ name: z.string().trim().min(2).max(160), email: z.string().email(), message: z.string().trim().min(10).max(4000) })).mutation(async ({ ctx, input }) => {
+      const id = await createContactInquiry(input);
+      await recordAnalyticsEvent({ eventName: "contact_inquiry_submitted", userOpenId: ctx.user?.openId, metadata: { inquiryId: id } });
+      return { id };
     }),
   }),
   enrollment: router({

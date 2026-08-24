@@ -929,3 +929,9 @@
 - [x] Restore or enable the managed backend OAUTH_SERVER_URL without changing VITE_OAUTH_PORTAL_URL.
 - [x] Verify production backend initialization and OAuth API base URL resolution for ExchangeToken and GetUserInfo.
 - [x] Run authentication regression checks and save a recoverable checkpoint if restored.
+
+# Inquiry Button Activation
+- [x] Inspect the existing frontend inquiry UI and backend inquiry procedure.
+- [x] Connect Send Inquiry to the backend with validation and loading/success/error feedback.
+- [x] Add regression coverage and verify desktop/mobile inquiry submission behavior.
+- [x] Save a checkpoint for the activated inquiry flow.
