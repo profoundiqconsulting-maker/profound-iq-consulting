@@ -791,3 +791,11 @@
 - [x] Add receipt-download spinner and success toast behavior.
 - [x] Add regression coverage and run type checks, tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these enhancements.
+
+# Dashboard Navigation and Approval History Insights
+- [x] Add clear dashboard/my-workspace menu items for key learner and admin destinations.
+- [x] Add organization approval-history date range filters and organization/email search behavior.
+- [x] Add a real-data 30-day approval trend aggregation for the analytics line chart.
+- [x] Add a responsive line chart to the compact organization approval analytics summary.
+- [x] Add regression coverage and run type checks, tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these enhancements.
