@@ -820,3 +820,11 @@
 - [x] Add a first-use onboarding tooltip for the floating New self-assessment button.
 - [x] Create or update and validate the reusable dashboard-enhancement skill.
 - [x] Run tests, production build, responsive verification, and save a checkpoint.
+
+# Frontend Authentication and Dashboard Guidance
+- [x] Add frontend registration, login, and logout controls connected to database-backed session behavior.
+- [x] Preserve protected-route redirects and authenticated/unauthenticated loading states.
+- [x] Add a profile-completion progress bar based on saved account details and preferences.
+- [x] Add a Recent Activity filter for completed assessments versus unlocked reports.
+- [x] Add clickable activity links to detailed assessment/report destinations.
+- [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
