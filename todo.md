@@ -710,3 +710,14 @@
 - [x] Add regression coverage for conflict dialog choices, secure thumbnails, analytics authorization, and trends.
 - [x] Run schema migration if required, type checks, full tests, production build, and responsive verification.
 - [x] Save a checkpoint containing these enhancements.
+
+# Actionable History, Paystack Error Fix, Share Filters, Thumbnails, and Alerts
+- [x] Add clear actions to prior CareerPath records for payment, report generation, certificate download, and social sharing.
+- [x] Fix Paystack checkout handling when the server returns HTML or another non-JSON response.
+- [x] Add safe user-facing checkout error messages and preserve the raw response only in diagnostics.
+- [x] Add a date-range filter to the admin Share Observatory and query filtered platform totals.
+- [x] Display secure per-certificate thumbnail URLs in authenticated assessment history records.
+- [x] Add configurable share-rate benchmarks and visible admin alerts when engagement falls below target.
+- [x] Add regression coverage for history actions, Paystack non-JSON responses, filtered analytics, thumbnails, and alerts.
+- [x] Run schema migration if required, type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these enhancements.
