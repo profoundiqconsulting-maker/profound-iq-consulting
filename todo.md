@@ -704,9 +704,9 @@
 - [x] Replace the browser confirmation with a branded resume conflict comparison dialog.
 - [x] Show exact local/server timestamps, active module names, and response totals in the comparison dialog.
 - [x] Add explicit keep-local and keep-server actions with accessible focus and cancellation behavior.
-- [ ] Return stored certificate image URLs from authenticated history data and render authentic thumbnails.
+- [x] Return stored certificate image URLs from authenticated history data and render authentic thumbnails.
 - [x] Add an admin-only share analytics procedure for platform totals and trend data.
 - [x] Add a simple admin dashboard view for certificate and report shares by social platform.
-- [ ] Add regression coverage for conflict dialog choices, secure thumbnails, analytics authorization, and trends.
-- [ ] Run schema migration if required, type checks, full tests, production build, and responsive verification.
-- [ ] Save a checkpoint containing these enhancements.
+- [x] Add regression coverage for conflict dialog choices, secure thumbnails, analytics authorization, and trends.
+- [x] Run schema migration if required, type checks, full tests, production build, and responsive verification.
+- [x] Save a checkpoint containing these enhancements.
