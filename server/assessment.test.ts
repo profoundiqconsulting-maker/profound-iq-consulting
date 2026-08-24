@@ -66,7 +66,7 @@ describe("timed course lessons", () => {
 
 describe("assessment scoring", () => {
   it("exposes 100 questions across ten capability dimensions", () => {
-    expect(ASSESSMENT_PRICE_KES).toBe(20);
+    expect(ASSESSMENT_PRICE_KES).toBe(399);
     expect(assessmentQuestions).toHaveLength(100);
     expect(new Set(assessmentQuestions.map((question) => question.dimension)).size).toBe(10);
     expect(Math.ceil(assessmentQuestions.length / 10)).toBe(10);

@@ -1,4 +1,4 @@
-export const CAREER_PATH_PRICE_KES = 20;
+export const CAREER_PATH_PRICE_KES = 399;
 
 export type CareerPathwayKey = "stem" | "socialSciences" | "artsSports";
 export type CareerSubPathwayKey = "pureSciences" | "appliedSciences" | "technicalStudies" | "languages" | "humanities" | "arts" | "sports";

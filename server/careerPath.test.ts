@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { buildCareerPathReport, CAREER_PATH_PRICE_KES, careerPathQuestions } from "../shared/careerPath";
 
 describe("CareerPath assessment", () => {
-  it("uses the requested KES 20 price", () => {
-    expect(CAREER_PATH_PRICE_KES).toBe(20);
+  it("uses the requested KES 399 price", () => {
+    expect(CAREER_PATH_PRICE_KES).toBe(399);
   });
 
   it("exposes the documented 180-item architecture", () => {

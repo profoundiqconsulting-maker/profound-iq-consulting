@@ -1188,3 +1188,10 @@
 - [x] Add regression coverage for timer duration, gate behavior, and lesson navigation.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
 - [x] Save the timed lesson progression checkpoint.
+
+# Assessment Pricing Update
+- [x] Update Self Assessment price to KES 399 across shared contract, checkout, webhook verification, revenue attribution, and UI.
+- [x] Update CareerPath price to KES 399 across shared contract, checkout, and UI.
+- [x] Update regression fixtures and expectations for KES 399 payment verification.
+- [x] Run focused and full tests, TypeScript validation, production build, runtime review, and desktop/mobile pricing verification.
+- [x] Save the KES 399 pricing checkpoint.
