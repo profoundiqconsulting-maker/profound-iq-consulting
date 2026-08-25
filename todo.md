@@ -1346,3 +1346,11 @@
 - [x] Add regression coverage for Google sign-in/session behavior, reset-link UX, audit export, and password toggles.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
 - [x] Save the validated authentication release checkpoint.
+
+# Reset Revocation, Export Download Audit, and Google Profile Picture
+- [x] Add admin reset-link revocation with audit-safe invalidation.
+- [x] Track administrator downloads of filtered unlock-audit CSV exports.
+- [x] Display synchronized Google profile pictures in authenticated navigation.
+- [x] Add regression coverage for revocation, export-download auditing, and profile-picture synchronization.
+- [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
+- [x] Save the validated security and navigation checkpoint.

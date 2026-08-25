@@ -477,6 +477,14 @@ export const organizationInvitations = mysqlTable("organization_invitations", {
   reviewNote: text("reviewNote"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
+export const unlockAuditExportDownloads = mysqlTable("unlock_audit_export_downloads", {
+  id: int("id").autoincrement().primaryKey(),
+  adminOpenId: varchar("adminOpenId", { length: 64 }).notNull(),
+  adminName: varchar("adminName", { length: 160 }),
+  filename: varchar("filename", { length: 220 }).notNull(),
+  filterSummary: varchar("filterSummary", { length: 500 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
 export const organizationApprovalEvents = mysqlTable("organization_approval_events", {
   id: int("id").autoincrement().primaryKey(),
   invitationId: int("invitationId").notNull(),
@@ -518,3 +526,4 @@ export type AuthLoginAttempt = typeof authLoginAttempts.$inferSelect;
 export type VerificationRevocationAudit = typeof verificationRevocationAudits.$inferSelect;
 export type DeliveryLogExportJob = typeof deliveryLogExportJobs.$inferSelect;
 export type AdminAnalyticsSettings = typeof adminAnalyticsSettings.$inferSelect;
+export type UnlockAuditExportDownload = typeof unlockAuditExportDownloads.$inferSelect;

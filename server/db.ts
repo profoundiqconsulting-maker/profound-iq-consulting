@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { normalizeLeaderboardDisplayName, rankAchievementLeaderboard, type AchievementBadge, type AchievementLeaderboardRow } from "../shared/achievements";
 import { courseCatalog } from "../shared/courseCatalog";
 import { buildCourseModuleBadges } from "../shared/courseBadges";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -238,6 +238,18 @@ export async function unlockUserLoginFailures(input: { targetOpenId: string; act
   return { clearedAttemptCount, targetEmail: user.email };
 }
 
+export async function recordUnlockAuditExportDownload(input: { adminOpenId: string; adminName?: string | null; filename: string; filterSummary?: string | null }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(unlockAuditExportDownloads).values(input);
+}
+export async function getUnlockAuditExportDownloads(input: { page?: number; pageSize?: number } = {}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const page = Math.max(1, input.page ?? 1); const pageSize = Math.min(50, Math.max(5, input.pageSize ?? 10));
+  const [rows, totalRows] = await Promise.all([db.select().from(unlockAuditExportDownloads).orderBy(desc(unlockAuditExportDownloads.createdAt)).limit(pageSize).offset((page - 1) * pageSize), db.select({ count: sql<number>`count(*)` }).from(unlockAuditExportDownloads)]);
+  const total = Number(totalRows[0]?.count ?? 0); return { rows, total, page, pageSize, pageCount: Math.max(1, Math.ceil(total / pageSize)) };
+}
 export async function getLoginUnlockAudits(input: { page?: number; pageSize?: number; targetSearch?: string; from?: Date; to?: Date } = {}) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -273,7 +285,7 @@ export async function createLocalUser(input: { openId: string; name: string; ema
   return getUserByOpenId(input.openId);
 }
 
-export async function setPasswordResetToken(openId: string, tokenHash: string, expiresAt: Date) {
+export async function setPasswordResetToken(openId: string, tokenHash: string | null, expiresAt: Date | null) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   await db.update(users).set({ passwordResetTokenHash: tokenHash, passwordResetExpiresAt: expiresAt }).where(eq(users.openId, openId));
@@ -294,7 +306,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   if (!db) { console.warn("[Database] Cannot upsert user: database not available"); return; }
   const values: InsertUser = { openId: user.openId };
   const updateSet: Record<string, unknown> = {};
-  const textFields = ["name", "email", "loginMethod"] as const;
+  const textFields = ["name", "email", "loginMethod", "avatarUrl"] as const;
   for (const field of textFields) { if (user[field] !== undefined) { values[field] = user[field] ?? null; updateSet[field] = user[field] ?? null; } }
   if (user.lastSignedIn !== undefined) { values.lastSignedIn = user.lastSignedIn; updateSet.lastSignedIn = user.lastSignedIn; }
   if (user.email?.trim()) { values.emailVerifiedAt = new Date(); updateSet.emailVerifiedAt = new Date(); }

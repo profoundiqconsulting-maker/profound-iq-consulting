@@ -40,11 +40,13 @@ export function registerOAuthRoutes(app: Express) {
         return;
       }
 
+      const profilePicture = (userInfo as typeof userInfo & { avatarUrl?: string; picture?: string }).avatarUrl ?? (userInfo as typeof userInfo & { picture?: string }).picture ?? null;
       await db.upsertUser({
         openId: userInfo.openId,
         name: userInfo.name || null,
         email: userInfo.email ?? null,
         loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
+        avatarUrl: profilePicture,
         lastSignedIn: new Date(),
       });
 
