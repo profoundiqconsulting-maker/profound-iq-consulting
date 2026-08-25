@@ -1385,3 +1385,9 @@
 - [x] Add regression coverage for OAuth state validation, account linking, provider failures, and session creation.
 - [x] Run full authentication tests, TypeScript validation, production build, runtime review, and responsive verification.
 - [x] Save the validated social sign-in checkpoint.
+
+# Footer Social Icons and WhatsApp Support
+- [x] Replace footer social text links with recognizable official-style social media icons and accessible labels.
+- [x] Add a WhatsApp quick-support button linking to +254727374055.
+- [x] Verify social destinations, WhatsApp URL formatting, keyboard access, responsive layout, tests, and production build.
+- [x] Save the validated footer update checkpoint.
