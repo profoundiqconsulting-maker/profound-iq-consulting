@@ -647,12 +647,13 @@ export async function compareUserAssessmentReports(email: string, currentAttempt
   return { current: { id: current.id, createdAt: current.createdAt }, previous: { id: previous.id, createdAt: previous.createdAt }, comparison: compareReports(current.report as AssessmentReport, previous.report as AssessmentReport) };
 }
 
-export async function getCourseShareAnalytics(input: { from?: Date; to?: Date } = {}) {
+export async function getCourseShareAnalytics(input: { from?: Date; to?: Date; excludeAdminShares?: boolean } = {}) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const readRows = async (from?: Date, to?: Date) => {
     const conditions = [eq(analyticsEvents.eventName, "course_shared"), from ? gte(analyticsEvents.createdAt, from) : undefined, to ? lte(analyticsEvents.createdAt, to) : undefined].filter(Boolean) as Array<ReturnType<typeof eq>>;
-    return db.select({ metadata: analyticsEvents.metadata, createdAt: analyticsEvents.createdAt }).from(analyticsEvents).where(and(...conditions));
+    const rows = await db.select({ metadata: analyticsEvents.metadata, createdAt: analyticsEvents.createdAt }).from(analyticsEvents).where(and(...conditions));
+    return input.excludeAdminShares ? rows.filter((row) => { const metadata = row.metadata && typeof row.metadata === "object" && !Array.isArray(row.metadata) ? row.metadata as Record<string, unknown> : {}; return metadata.source !== "admin-preview"; }) : rows;
   };
   const rows = await readRows(input.from, input.to);
   const byCourse = new Map<string, number>(); const byPlatform = new Map<string, number>(); const matrix = new Map<string, number>(); const trend = new Map<string, number>();
@@ -664,15 +665,15 @@ export async function getCourseShareAnalytics(input: { from?: Date; to?: Date } 
     const key = `${course}::${platform}`; matrix.set(key, (matrix.get(key) ?? 0) + 1);
     const day = new Date(row.createdAt).toISOString().slice(0, 10); trend.set(day, (trend.get(day) ?? 0) + 1);
   }
-  let comparisonTrend: Array<{ date: string; shares: number }> = [];
+  let comparisonTrend: Array<{ date: string; shares: number }> = []; let comparisonTotal = 0;
   if (input.from && input.to) {
     const durationMs = Math.max(86_400_000, input.to.getTime() - input.from.getTime() + 1);
     const previousTo = new Date(input.from.getTime() - 1); const previousFrom = new Date(previousTo.getTime() - durationMs + 1);
-    const previousRows = await readRows(previousFrom, previousTo); const previous = new Map<string, number>();
+    const previousRows = await readRows(previousFrom, previousTo); comparisonTotal = previousRows.length; const previous = new Map<string, number>();
     for (const row of previousRows) { const day = new Date(row.createdAt).toISOString().slice(0, 10); previous.set(day, (previous.get(day) ?? 0) + 1); }
     comparisonTrend = Array.from(previous, ([date, shares]) => ({ date, shares })).sort((a, b) => a.date.localeCompare(b.date));
   }
-  return { total: rows.length, byCourse: Array.from(byCourse, ([courseSlug, shares]) => ({ courseSlug, shares })).sort((a, b) => b.shares - a.shares), byPlatform: Array.from(byPlatform, ([platform, shares]) => ({ platform, shares })).sort((a, b) => b.shares - a.shares), matrix: Array.from(matrix, ([key, shares]) => { const [courseSlug, platform] = key.split("::"); return { courseSlug, platform, shares }; }).sort((a, b) => b.shares - a.shares), trend: Array.from(trend, ([date, shares]) => ({ date, shares })).sort((a, b) => a.date.localeCompare(b.date)), comparisonTrend };
+  return { total: rows.length, comparisonTotal, byCourse: Array.from(byCourse, ([courseSlug, shares]) => ({ courseSlug, shares })).sort((a, b) => b.shares - a.shares), byPlatform: Array.from(byPlatform, ([platform, shares]) => ({ platform, shares })).sort((a, b) => b.shares - a.shares), matrix: Array.from(matrix, ([key, shares]) => { const [courseSlug, platform] = key.split("::"); return { courseSlug, platform, shares }; }).sort((a, b) => b.shares - a.shares), trend: Array.from(trend, ([date, shares]) => ({ date, shares })).sort((a, b) => a.date.localeCompare(b.date)), comparisonTrend };
 }
 
 export async function recordAnalyticsEvent(input: { eventName: string; attemptId?: number; userOpenId?: string; metadata?: Record<string, unknown> }) {

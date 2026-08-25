@@ -1493,3 +1493,10 @@
 - [x] Add admin quick-share actions for generated Open Graph cards with tracked platform events.
 - [x] Add regression coverage and verify filters, overlay behavior, quick sharing, accessibility, tests, and responsive UI.
 - [x] Save the validated admin social preview interaction checkpoint.
+
+# Social Analytics Control Refinement
+- [x] Add drag and resize controls for the AI-detected subject bounding box.
+- [x] Add quick-share success toasts and a public-only analytics filter excluding admin shares.
+- [x] Add green/red period-over-period trend indicators to the analytics summary.
+- [x] Add regression coverage and verify crop editing, filtered analytics, trend indicators, share feedback, tests, and responsive UI.
+- [x] Save the validated social analytics control refinement checkpoint.
