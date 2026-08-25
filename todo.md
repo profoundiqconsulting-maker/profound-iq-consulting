@@ -1297,4 +1297,4 @@
 - [x] Update and validate the reusable psychometric operations skill with the new workflows.
 - [x] Add authorization and behavior regression coverage for schedule controls, audit exports, feedback, and recommendation ranking.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
-- [ ] Save the validated schedule-controls and recommendation-feedback checkpoint.
+- [x] Save the validated schedule-controls and recommendation-feedback checkpoint.
