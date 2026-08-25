@@ -90,6 +90,16 @@ export const appRouter = router({
       const items = await listCatalogItemsForAdmin();
       return items.map(normalizeCatalogItem);
     }),
+    suggestCoverFocalPoint: adminProcedure.input(z.object({ contentType: z.enum(["image/png", "image/jpeg", "image/webp"]), dataBase64: z.string().min(100).max(12_000_000) })).mutation(async ({ input }) => {
+      const raw = input.dataBase64.replace(/^data:[^;]+;base64,/, "");
+      if (Buffer.from(raw, "base64").length > 8 * 1024 * 1024) throw new TRPCError({ code: "BAD_REQUEST", message: "Cover image must be 8 MB or smaller." });
+      try {
+        const response = await invokeLLM({ messages: [{ role: "system", content: "You are a careful image-composition assistant. Find the main human, object, or visual subject for a 1200x630 professional social card. Return only the requested JSON coordinates. Use the center when no clear subject exists." }, { role: "user", content: [{ type: "image_url", image_url: { url: input.dataBase64, detail: "low" } }, { type: "text", text: "Return the best focal point as percentages from the left and top, plus a crop zoom from 1 to 2.5." }] }], response_format: { type: "json_schema", json_schema: { name: "cover_focal_point", strict: true, schema: { type: "object", properties: { focalX: { type: "number", minimum: 0, maximum: 100 }, focalY: { type: "number", minimum: 0, maximum: 100 }, zoom: { type: "number", minimum: 1, maximum: 2.5 } }, required: ["focalX", "focalY", "zoom"], additionalProperties: false } } } });
+        const content = response.choices?.[0]?.message?.content;
+        const parsed = typeof content === "string" ? JSON.parse(content) as { focalX?: number; focalY?: number; zoom?: number } : {};
+        return { focalX: Math.max(0, Math.min(100, Number(parsed.focalX ?? 50))), focalY: Math.max(0, Math.min(100, Number(parsed.focalY ?? 50))), zoom: Math.max(1, Math.min(2.5, Number(parsed.zoom ?? 1))), source: "ai" as const };
+      } catch { return { focalX: 50, focalY: 50, zoom: 1, source: "center-fallback" as const }; }
+    }),
     uploadCoverImage: adminProcedure.input(z.object({ catalogItemId: z.number().int().positive(), filename: z.string().trim().min(1).max(160), contentType: z.enum(["image/png", "image/jpeg", "image/webp"]), dataBase64: z.string().min(100).max(12_000_000) })).mutation(async ({ input }) => {
       const raw = input.dataBase64.replace(/^data:[^;]+;base64,/, "");
       const bytes = Buffer.from(raw, "base64");

@@ -1479,3 +1479,10 @@
 - [x] Add live Twitter and Facebook card previews using the generated course preview image.
 - [x] Add regression coverage and verify crop output, exports, preview fidelity, accessibility, tests, and responsive admin behavior.
 - [x] Save the validated social-card editing and reporting checkpoint.
+
+# Social Analytics and Auto-Crop Enhancement
+- [x] Add comparison date ranges and trend charts to social-sharing analytics.
+- [x] Add protected admin downloads for generated Open Graph preview cards.
+- [x] Add subject-aware automatic crop suggestion before manual crop adjustment.
+- [x] Add regression coverage and verify analytics comparisons, downloads, auto-crop output, permissions, tests, and responsive UI.
+- [x] Save the validated social analytics and auto-cropping checkpoint.
