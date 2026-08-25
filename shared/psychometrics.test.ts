@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { PSYCHOMETRIC_PRICE_KES, psychometricTests, scorePsychometricTest } from "./psychometrics";
+import { getPsychometricCourseRecommendations } from "./psychometricRecommendations";
+import { courseCatalog } from "./courseCatalog";
 
 describe("psychometric assessment suite", () => {
   it("defines six document-grounded assessments with 120 questions each", () => {
@@ -22,6 +24,15 @@ describe("psychometric assessment suite", () => {
     expect(report.domains).toHaveLength(10);
     expect(report.strengths).toHaveLength(3);
     expect(report.strengths.every((label) => test.domains.some((domain) => domain.label === label))).toBe(true);
+  });
+
+  it("maps every psychometric profile to real actionable courses", () => {
+    for (const test of psychometricTests) {
+      const recommendations = getPsychometricCourseRecommendations({ testSlug: test.slug });
+      expect(recommendations.length).toBeGreaterThanOrEqual(2);
+      expect(recommendations.every((item) => courseCatalog.some((course) => course.slug === item.slug))).toBe(true);
+      expect(recommendations.every((item) => item.reason.length > 20 && item.action.length > 20)).toBe(true);
+    }
   });
 
   it("retains keyed cognitive items for performance scoring", () => {

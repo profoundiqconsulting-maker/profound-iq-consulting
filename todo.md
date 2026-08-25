@@ -1262,3 +1262,11 @@
 - [x] Add admin visibility and operational filters for psychometric attempts.
 - [x] Run full tests, production build, runtime checks, and responsive screenshots.
 - [x] Save the Psychometrics Assessment Suite checkpoint.
+
+# Psychometric Analytics and Recommendations Expansion
+- [x] Add admin psychometric conversion funnel and email-delivery analytics with date filters and trend summaries.
+- [x] Add authenticated learner report resend controls in My Space with loading, success, and failure states.
+- [x] Add profile-specific recommended Profound IQ courses to paid psychometric results and learner history.
+- [x] Add server contracts, authorization, delivery retry safety, and recommendation regression tests.
+- [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
+- [ ] Save the validated psychometric analytics and recommendations checkpoint.

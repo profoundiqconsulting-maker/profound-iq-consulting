@@ -1390,3 +1390,25 @@ export async function listPsychometricAttemptsForAdmin(input: { paymentStatus?: 
   const conditions = [input.paymentStatus && input.paymentStatus !== "all" ? eq(psychometricAttempts.paymentStatus, input.paymentStatus) : undefined, input.from ? gte(psychometricAttempts.createdAt, input.from) : undefined, input.to ? lte(psychometricAttempts.createdAt, input.to) : undefined].filter(Boolean) as Array<ReturnType<typeof eq>>;
   return db.select({ id: psychometricAttempts.id, testSlug: psychometricAttempts.testSlug, name: psychometricAttempts.name, email: psychometricAttempts.email, paystackReference: psychometricAttempts.paystackReference, paymentStatus: psychometricAttempts.paymentStatus, reportEmailStatus: psychometricAttempts.reportEmailStatus, reportEmailSentAt: psychometricAttempts.reportEmailSentAt, createdAt: psychometricAttempts.createdAt, paidAt: psychometricAttempts.paidAt, overallScore: sql<number | null>`JSON_EXTRACT(${psychometricAttempts.report}, '$.overallScore')` }).from(psychometricAttempts).where(conditions.length ? and(...conditions) : undefined).orderBy(desc(psychometricAttempts.createdAt)).limit(Math.min(100, Math.max(1, input.limit ?? 50))).offset(Math.max(0, input.offset ?? 0));
 }
+
+export async function resetPsychometricReportEmail(id: number, email: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.update(psychometricAttempts).set({ reportEmailStatus: "pending", reportEmailSentAt: null }).where(and(eq(psychometricAttempts.id, id), eq(psychometricAttempts.email, email), eq(psychometricAttempts.paymentStatus, "paid"), isNotNull(psychometricAttempts.report)));
+  return Number(result[0].affectedRows ?? 0) > 0;
+}
+
+export async function getPsychometricAdminAnalytics(input: { from?: Date; to?: Date } = {}) {
+  const db = await getDb();
+  if (!db) return { totals: { started: 0, paid: 0, pending: 0, sent: 0, sending: 0, failed: 0, conversionRate: 0, emailRate: 0 }, byProfile: [], trend: [] };
+  const conditions = [input.from ? gte(psychometricAttempts.createdAt, input.from) : undefined, input.to ? lte(psychometricAttempts.createdAt, input.to) : undefined].filter(Boolean) as Array<ReturnType<typeof gte>>;
+  const rows = await db.select({ testSlug: psychometricAttempts.testSlug, paymentStatus: psychometricAttempts.paymentStatus, reportEmailStatus: psychometricAttempts.reportEmailStatus, createdAt: psychometricAttempts.createdAt }).from(psychometricAttempts).where(conditions.length ? and(...conditions) : undefined);
+  const profiles = new Map<string, { started: number; paid: number; sent: number; pending: number }>();
+  const trend = new Map<string, { started: number; paid: number; sent: number }>();
+  let paid = 0, sent = 0, sending = 0, failed = 0;
+  for (const row of rows) {
+    const profile = profiles.get(row.testSlug) ?? { started: 0, paid: 0, sent: 0, pending: 0 }; profile.started += 1; if (row.paymentStatus === "paid") { paid += 1; profile.paid += 1; } else profile.pending += 1; if (row.reportEmailStatus === "sent") { sent += 1; profile.sent += 1; } if (row.reportEmailStatus === "sending") sending += 1; if (row.reportEmailStatus === "failed") failed += 1; profiles.set(row.testSlug, profile);
+    const day = new Date(row.createdAt).toISOString().slice(0, 10); const point = trend.get(day) ?? { started: 0, paid: 0, sent: 0 }; point.started += 1; if (row.paymentStatus === "paid") point.paid += 1; if (row.reportEmailStatus === "sent") point.sent += 1; trend.set(day, point);
+  }
+  const started = rows.length; return { totals: { started, paid, pending: started - paid, sent, sending, failed, conversionRate: started ? Math.round((paid / started) * 100) : 0, emailRate: paid ? Math.round((sent / paid) * 100) : 0 }, byProfile: Array.from(profiles.entries()).map(([testSlug, value]) => ({ testSlug, ...value, conversionRate: value.started ? Math.round((value.paid / value.started) * 100) : 0, emailRate: value.paid ? Math.round((value.sent / value.paid) * 100) : 0 })), trend: Array.from(trend.entries()).sort(([a], [b]) => a.localeCompare(b)).map(([date, value]) => ({ date, ...value })) };
+}
