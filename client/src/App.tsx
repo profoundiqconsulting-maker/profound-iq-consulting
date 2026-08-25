@@ -22,6 +22,7 @@ import CertificateVerification from "./pages/CertificateVerification";
 import Psychometrics from "./pages/Psychometrics";
 import PsychometricVerification from "./pages/PsychometricVerification";
 import { WhatsAppSupportWidget } from "./components/WhatsAppSupportWidget";
+import { SeoHead } from "./components/SeoHead";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -29,5 +30,5 @@ function Router() {
 }
 
 export default function App() {
-  return <ErrorBoundary><ThemeProvider defaultTheme="light" switchable><TooltipProvider><Toaster /><Router /><WhatsAppSupportWidget /></TooltipProvider></ThemeProvider></ErrorBoundary>;
+  return <ErrorBoundary><ThemeProvider defaultTheme="light" switchable><TooltipProvider><Toaster /><SeoHead /><Router /><WhatsAppSupportWidget /></TooltipProvider></ThemeProvider></ErrorBoundary>;
 }

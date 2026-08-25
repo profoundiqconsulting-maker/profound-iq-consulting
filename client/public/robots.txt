@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /staff
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /auth
+Disallow: /reset-password
+Disallow: /shared-report
+Disallow: /courses/payment-success
+Disallow: /careerpath/results
+Sitemap: https://profoundiqconsulting.com/sitemap.xml

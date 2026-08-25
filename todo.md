@@ -1427,3 +1427,11 @@
 - [x] Update PDF branding and metadata to use the optimized assets.
 - [x] Verify deployed asset responses, branding render, tests, and production build.
 - [x] Save the validated branding repair checkpoint.
+
+# Website SEO Implementation
+- [x] Inventory and classify public and authenticated routes for SEO treatment.
+- [x] Add route-aware titles, descriptions, canonical URLs, Open Graph, and Twitter metadata.
+- [x] Add structured data and crawl-supporting robots/sitemap files for public content.
+- [x] Add SEO regression coverage and verify metadata across key public routes.
+- [x] Run type checks, tests, production build, and runtime verification.
+- [x] Save the validated SEO checkpoint.
