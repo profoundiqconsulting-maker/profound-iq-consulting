@@ -1320,3 +1320,12 @@
 - [x] Add authorization, behavior, and UI regression coverage for the security changes.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
 - [x] Save the validated admin unlock and password-recovery checkpoint.
+
+# SMTP Retry, Unlock Audit, Regional Trends, and Auth CTAs
+- [x] Verify configured SMTP connectivity and retry the administrator password-reset email.
+- [x] Add a protected unlock-audit history query and table view in the Admin Security Observatory.
+- [x] Add regional failed-login aggregation and a location trend visualization.
+- [x] Activate public Sign in and Create account navigation actions.
+- [x] Add regression coverage for SMTP/reset handling, unlock audits, regional analytics, and CTA navigation.
+- [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
+- [x] Save the validated release checkpoint.

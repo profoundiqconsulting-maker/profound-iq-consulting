@@ -224,6 +224,8 @@ export default function AdminDashboard() {
   const [securityIpSearch, setSecurityIpSearch] = useState("");
   const [securityLocationSearch, setSecurityLocationSearch] = useState("");
   const [securityPage, setSecurityPage] = useState(1);
+  const [unlockAuditPage, setUnlockAuditPage] = useState(1);
+  const [unlockAuditSearch, setUnlockAuditSearch] = useState("");
   const securitySettings = trpc.admin.securitySettings.useQuery(undefined, {
     enabled: Boolean(user?.role === "admin"),
     retry: false,
@@ -243,12 +245,21 @@ export default function AdminDashboard() {
     loginAnalyticsInput,
     { enabled: Boolean(user?.role === "admin"), retry: false }
   );
+  const failedLoginRegions = trpc.admin.failedLoginRegions.useQuery(
+    { fromDate: securityFromDate || undefined, toDate: securityToDate || undefined },
+    { enabled: Boolean(user?.role === "admin"), retry: false }
+  );
+  const unlockAuditHistory = trpc.admin.unlockAuditHistory.useQuery(
+    { page: unlockAuditPage, pageSize: 8, targetSearch: unlockAuditSearch || undefined },
+    { enabled: Boolean(user?.role === "admin"), retry: false }
+  );
   const saveSecuritySettings = trpc.admin.saveSecuritySettings.useMutation({
     onSuccess: () => securitySettings.refetch(),
   });
   const unlockUserLogin = trpc.admin.unlockUserLogin.useMutation({
     onSuccess: result => {
       failedLoginEvents.refetch();
+      unlockAuditHistory.refetch();
       toast.success(result.clearedAttemptCount ? "User account unlocked" : "No active lockout found", { description: result.clearedAttemptCount ? `${result.clearedAttemptCount} active rate-limit record(s) cleared.` : "The account is already clear." });
     },
     onError: error => toast.error("Could not unlock account", { description: error.message }),
@@ -2309,6 +2320,20 @@ export default function AdminDashboard() {
               retention applied.
             </p>
           )}
+          <div className="mt-6 grid gap-5 lg:grid-cols-2">
+            <div className="border border-[#16243d]/10 bg-[#16243d] p-5 text-[#f7f3e8]">
+              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e]">Regional threat signal</p>
+              <p className="mt-1 text-xs text-[#c1cad7]">Failed-login events grouped by estimated region.</p>
+              <div className="mt-4 h-52">
+                {(failedLoginRegions.data?.length ?? 0) === 0 ? <div className="grid h-full place-items-center text-sm text-[#c1cad7]">No regional events in this range.</div> : <ResponsiveContainer width="100%" height="100%"><BarChart data={failedLoginRegions.data?.slice(0, 8)} layout="vertical" margin={{ left: 8, right: 12 }}><CartesianGrid stroke="#c1cad7" strokeOpacity={0.12} horizontal={false} /><XAxis type="number" allowDecimals={false} stroke="#c1cad7" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} /><YAxis type="category" dataKey="location" width={58} stroke="#c1cad7" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ background: "#f7f3e8", border: "0", color: "#16243d" }} /><Bar dataKey="count" name="Failed attempts" fill="#c9a34e" radius={[0, 2, 2, 0]} /></BarChart></ResponsiveContainer>}
+              </div>
+            </div>
+            <div className="border border-[#16243d]/10 bg-white/60 p-5">
+              <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start"><div><p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">Unlock audit history</p><p className="mt-1 text-xs text-[#657084]">Manual unlock actions recorded with actor and cleared attempts.</p></div><input type="search" value={unlockAuditSearch} onChange={event => { setUnlockAuditSearch(event.target.value); setUnlockAuditPage(1); }} placeholder="Search user or admin" className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs text-[#16243d]" /></div>
+              <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[520px] text-left text-xs"><thead><tr className="border-b border-[#16243d]/10 text-[9px] font-black uppercase tracking-[.12em] text-[#657084]"><th className="py-2 pr-3">When</th><th className="py-2 pr-3">Account</th><th className="py-2 pr-3">Admin</th><th className="py-2">Cleared</th></tr></thead><tbody>{unlockAuditHistory.data?.rows.map(audit => <tr key={audit.id} className="border-b border-[#16243d]/10"><td className="py-2 pr-3">{new Date(audit.createdAt).toLocaleString()}</td><td className="py-2 pr-3">{audit.targetEmail ?? audit.targetOpenId}</td><td className="py-2 pr-3">{audit.actorName ?? audit.actorOpenId}</td><td className="py-2">{audit.clearedAttemptCount}</td></tr>)}</tbody></table>{!(unlockAuditHistory.data?.rows.length) && <p className="py-5 text-sm text-[#657084]">No unlock actions recorded.</p>}</div>
+              <div className="mt-3 flex items-center justify-between text-[10px] uppercase tracking-[.1em] text-[#657084]"><span>Page {unlockAuditHistory.data?.page ?? 1} of {unlockAuditHistory.data?.pageCount ?? 1}</span><div className="flex gap-2"><button type="button" disabled={unlockAuditPage <= 1} onClick={() => setUnlockAuditPage(page => page - 1)} className="border border-[#16243d]/20 px-2 py-1 disabled:opacity-40">Previous</button><button type="button" disabled={unlockAuditPage >= (unlockAuditHistory.data?.pageCount ?? 1)} onClick={() => setUnlockAuditPage(page => page + 1)} className="border border-[#16243d]/20 px-2 py-1 disabled:opacity-40">Next</button></div></div>
+            </div>
+          </div>
           {failedLoginEvents.data?.rows.length ? (
             <div className="mt-5 overflow-x-auto border-t border-[#16243d]/10">
               <table className="w-full min-w-[620px] text-left text-sm">

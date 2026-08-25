@@ -238,6 +238,27 @@ export async function unlockUserLoginFailures(input: { targetOpenId: string; act
   return { clearedAttemptCount, targetEmail: user.email };
 }
 
+export async function getLoginUnlockAudits(input: { page?: number; pageSize?: number; targetSearch?: string } = {}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const page = Math.max(1, input.page ?? 1);
+  const pageSize = Math.min(50, Math.max(5, input.pageSize ?? 10));
+  const search = input.targetSearch?.trim();
+  const where = search ? or(like(loginUnlockAudits.targetEmail, `%${search}%`), like(loginUnlockAudits.targetOpenId, `%${search}%`), like(loginUnlockAudits.actorName, `%${search}%`)) : undefined;
+  const [rows, totalRows] = await Promise.all([
+    db.select().from(loginUnlockAudits).where(where).orderBy(desc(loginUnlockAudits.createdAt)).limit(pageSize).offset((page - 1) * pageSize),
+    db.select({ count: sql<number>`count(*)` }).from(loginUnlockAudits).where(where),
+  ]);
+  const total = Number(totalRows[0]?.count ?? 0);
+  return { rows, total, page, pageSize, pageCount: Math.max(1, Math.ceil(total / pageSize)) };
+}
+export async function getFailedLoginRegions(input: { from?: Date; to?: Date } = {}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const conditions = [eq(loginEvents.success, false), input.from ? gte(loginEvents.createdAt, input.from) : undefined, input.to ? lte(loginEvents.createdAt, input.to) : undefined].filter(Boolean) as Array<ReturnType<typeof eq>>;
+  const rows = await db.select({ location: loginEvents.estimatedLocation, count: sql<number>`count(*)` }).from(loginEvents).where(and(...conditions)).groupBy(loginEvents.estimatedLocation).orderBy(desc(sql<number>`count(*)`));
+  return rows.map(row => ({ location: row.location ?? "Unknown", count: Number(row.count) }));
+}
 export async function findUserByLocalIdentifier(identifier: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");

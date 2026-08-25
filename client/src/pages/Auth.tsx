@@ -13,7 +13,7 @@ type Mode = "login" | "register" | "forgot";
 export default function Auth() {
   const { user, loading } = useAuth();
   const [, navigate] = useLocation();
-  const [mode, setMode] = useState<Mode>("login");
+  const [mode, setMode] = useState<Mode>(() => { const requested = new URLSearchParams(window.location.search).get("mode"); return requested === "register" || requested === "forgot" ? requested : "login"; });
   const [identifier, setIdentifier] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
