@@ -27,3 +27,9 @@ export function buildStaffPerformanceCsv(rows: StaffPerformanceExportRow[]) {
   const lines = rows.map(row => [row.openId, row.name, row.email, row.role, row.assignedCount, row.completedCount, row.openCount, row.averageResolutionDays].map(csvCell).join(","));
   return [header, ...lines].join("\n");
 }
+
+export type CourseShareAnalyticsExportRow = { courseSlug: string; platform: string; shares: number };
+export function buildCourseShareAnalyticsCsv(rows: CourseShareAnalyticsExportRow[]) {
+  const header = ["Course slug", "Platform", "Shares"].map(csvCell).join(",");
+  return [header, ...rows.map((row) => [row.courseSlug, row.platform, row.shares].map(csvCell).join(","))].join("\n");
+}

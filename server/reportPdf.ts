@@ -336,3 +336,22 @@ export async function renderPsychometricAnalyticsPdf(input: PsychometricAnalytic
   doc.end();
   return finished;
 }
+
+export async function renderCourseShareAnalyticsPdf(input: { total: number; byCourse: Array<{ courseSlug: string; shares: number }>; byPlatform: Array<{ platform: string; shares: number }>; matrix: Array<{ courseSlug: string; platform: string; shares: number }>; fromDate?: string; toDate?: string }): Promise<Buffer> {
+  const doc = new PDFDocument({ size: "A4", margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: "Profound IQ Course Share Analytics", Author: "Profound IQ Consulting" } });
+  const chunks: Buffer[] = [];
+  doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+  const finished = new Promise<Buffer>((resolve, reject) => { doc.on("end", () => resolve(Buffer.concat(chunks))); doc.on("error", reject); });
+  doc.fillColor(NAVY).rect(0, 0, doc.page.width, 88).fill();
+  doc.fillColor("#f7f3e8").font("Helvetica-Bold").fontSize(10).text("PROFOUND IQ / CONSULTING", 52, 30, { characterSpacing: 1.2 });
+  doc.fillColor(GOLD).font("Helvetica").fontSize(9).text("SOCIAL SHARING OBSERVATORY", 52, 50, { characterSpacing: 1 });
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(24).text("Course share analytics", 52, 124);
+  doc.fillColor(MUTED).font("Helvetica").fontSize(10).text(`Period: ${input.fromDate || "All time"} — ${input.toDate || "Present"}`, 52, 158);
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(12).text(`TOTAL SHARES  ${input.total}`, 52, 200);
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(13).text("By platform", 52, 248);
+  input.byPlatform.slice(0, 8).forEach((row, index) => { const y = 274 + index * 22; doc.fillColor(NAVY).font("Helvetica").fontSize(10).text(row.platform, 52, y); doc.text(String(row.shares), 360, y, { width: 100, align: "right" }); });
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(13).text("Top courses", 52, 474);
+  input.byCourse.slice(0, 10).forEach((row, index) => { const y = 500 + index * 20; doc.fillColor(NAVY).font("Helvetica").fontSize(9.5).text(row.courseSlug, 52, y, { width: 300 }); doc.text(String(row.shares), 360, y, { width: 100, align: "right" }); });
+  doc.end();
+  return finished;
+}

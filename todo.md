@@ -1472,3 +1472,10 @@
 - [x] Add social-card version controls and cache-busting to metadata and image routes.
 - [x] Verify uploads, generated images, cache behavior, analytics, admin permissions, tests, and responsive UI.
 - [x] Save the validated course social-card operations checkpoint.
+
+# Social Card Editing and Reporting
+- [x] Add a browser-side crop and focal-point editor before course cover upload.
+- [x] Add CSV and PDF exports for course/platform social-sharing analytics.
+- [x] Add live Twitter and Facebook card previews using the generated course preview image.
+- [x] Add regression coverage and verify crop output, exports, preview fidelity, accessibility, tests, and responsive admin behavior.
+- [x] Save the validated social-card editing and reporting checkpoint.
