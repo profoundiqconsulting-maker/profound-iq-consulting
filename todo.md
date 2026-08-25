@@ -1302,4 +1302,4 @@
 # Login Rate-Limit Window Adjustment
 - [x] Reduce excessive-login-attempt lockout duration to one minute.
 - [x] Update countdown copy and related login security tests.
-- [ ] Run validation and publish the rate-limit adjustment checkpoint.
+- [x] Run validation and publish the rate-limit adjustment checkpoint.
