@@ -249,6 +249,7 @@ export const loginEvents = mysqlTable("login_events", {
   success: boolean("success").notNull(),
   failureCode: varchar("failureCode", { length: 32 }),
   networkHash: varchar("networkHash", { length: 64 }).notNull(),
+  networkAddress: varchar("networkAddress", { length: 64 }),
   userAgent: varchar("userAgent", { length: 512 }),
   deviceType: varchar("deviceType", { length: 32 }),
   estimatedLocation: varchar("estimatedLocation", { length: 120 }),
@@ -297,6 +298,15 @@ export const authLoginAttempts = mysqlTable("auth_login_attempts", {
   identifierNetworkUnique: uniqueIndex("auth_login_attempts_identifier_network_unique").on(table.identifierHash, table.networkHash),
 }));
 
+export const loginUnlockAudits = mysqlTable("login_unlock_audits", {
+  id: int("id").autoincrement().primaryKey(),
+  targetOpenId: varchar("targetOpenId", { length: 64 }).notNull(),
+  targetEmail: varchar("targetEmail", { length: 320 }),
+  actorOpenId: varchar("actorOpenId", { length: 64 }).notNull(),
+  actorName: varchar("actorName", { length: 160 }),
+  clearedAttemptCount: int("clearedAttemptCount").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
 export const verificationRevocationAudits = mysqlTable("verification_revocation_audits", {
   id: int("id").autoincrement().primaryKey(),
   targetOpenId: varchar("targetOpenId", { length: 64 }).notNull(),

@@ -1311,3 +1311,12 @@
 - [x] Add authorization and behavior regression coverage for settings, lockout calculations, messaging, and analytics.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
 - [x] Save the validated configurable security analytics checkpoint.
+
+# Admin Unlock, Login Filters, and Password Recovery Guidance
+- [x] Initiate the secure administrator password-reset email for the confirmed admin address without exposing a password.
+- [x] Add an admin-only manual unlock action that clears a user’s active login lockout state.
+- [x] Add IP-address and geographic-location filters to failed-login events and security analytics.
+- [x] Add a Forgot Password link directly below the lockout countdown message on the login page.
+- [x] Add authorization, behavior, and UI regression coverage for the security changes.
+- [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
+- [x] Save the validated admin unlock and password-recovery checkpoint.

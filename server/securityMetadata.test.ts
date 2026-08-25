@@ -19,15 +19,16 @@ describe("security metadata", () => {
     const metadata = getRequestSecurityMetadata({ headers: { "x-forwarded-for": "198.51.100.10", "user-agent": "Browser/1.0", "cf-ipcountry": "KE" }, ip: "127.0.0.1", socket: {} as never });
     expect(metadata.networkHash).toHaveLength(64);
     expect(metadata.networkHash).not.toContain("198.51.100.10");
+    expect(metadata.networkAddress).toBe("198.51.100.10");
     expect(metadata.deviceType).toBe("desktop");
     expect(metadata.estimatedLocation).toBe("KE");
     expect(metadata.userAgent).toBe("Browser/1.0");
   });
 
   it("serializes security logs with safe CSV escaping", () => {
-    const csv = buildSecurityLogCsv([{ id: 1, openId: "local_1", identifierType: "email", success: false, failureCode: "invalid_credentials", networkHash: "hash", userAgent: 'Browser, "test"', createdAt: new Date("2026-08-22T00:00:00.000Z") }]);
-    expect(csv).toContain("event_id,user_open_id,identifier_type,success,failure_code,network_hash,user_agent,created_at");
+    const csv = buildSecurityLogCsv([{ id: 1, openId: "local_1", identifierType: "email", success: false, failureCode: "invalid_credentials", networkAddress: "198.51.100.10", networkHash: "hash", userAgent: 'Browser, "test"', createdAt: new Date("2026-08-22T00:00:00.000Z") }]);
+    expect(csv).toContain("event_id,user_open_id,identifier_type,success,failure_code,network_address,network_hash,user_agent,created_at");
     expect(csv).toContain('"Browser, ""test"""');
-    expect(csv).not.toContain("198.51.100.10");
+    expect(csv).toContain("198.51.100.10");
   });
 });

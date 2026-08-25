@@ -26,6 +26,7 @@ export function getRequestSecurityMetadata(req: Pick<Request, "headers" | "ip" |
   const userAgent = typeof req.headers["user-agent"] === "string" ? req.headers["user-agent"].slice(0, MAX_USER_AGENT_LENGTH) : null;
   return {
     networkHash: hashRateLimitKey(networkAddress || "unknown"),
+    networkAddress: networkAddress || null,
     userAgent,
     deviceType: classifyDevice(userAgent),
     estimatedLocation: getEstimatedLocation(req),
@@ -39,6 +40,7 @@ type LoginEventForExport = {
   success: boolean;
   failureCode: string | null;
   networkHash: string;
+  networkAddress: string | null;
   userAgent: string | null;
   createdAt: Date;
 };
@@ -49,8 +51,8 @@ function escapeCsv(value: unknown) {
 }
 
 export function buildSecurityLogCsv(rows: LoginEventForExport[]) {
-  const header = ["event_id", "user_open_id", "identifier_type", "success", "failure_code", "network_hash", "user_agent", "created_at"];
-  const lines = rows.map((row) => [row.id, row.openId, row.identifierType, row.success ? "success" : "failed", row.failureCode, row.networkHash, row.userAgent, row.createdAt].map(escapeCsv).join(","));
+  const header = ["event_id", "user_open_id", "identifier_type", "success", "failure_code", "network_address", "network_hash", "user_agent", "created_at"];
+  const lines = rows.map((row) => [row.id, row.openId, row.identifierType, row.success ? "success" : "failed", row.failureCode, row.networkAddress, row.networkHash, row.userAgent, row.createdAt].map(escapeCsv).join(","));
   return [header.join(","), ...lines].join("\n") + "\n";
 }
 

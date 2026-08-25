@@ -31,6 +31,7 @@ describe("admin feature boundaries", () => {
     await expect(caller.admin.securitySettings()).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(caller.admin.saveSecuritySettings({ alertThreshold: 5, reviewWindowDays: 7, loginEventRetentionDays: 90, lockoutWindowSeconds: 60 })).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(caller.admin.failedLoginEvents()).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(caller.admin.unlockUserLogin({ targetOpenId: "someone" })).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(caller.admin.loginSecurityAnalytics()).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(caller.admin.exportSecurityLoginEvents()).rejects.toMatchObject({ code: "FORBIDDEN" });
   });

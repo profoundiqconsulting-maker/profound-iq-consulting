@@ -82,6 +82,13 @@ describe("local credential auth procedures", () => {
     expect(sendPasswordResetEmail).not.toHaveBeenCalled();
   });
 
+  it("sends a reset link for an OAuth-backed account without a local password yet", async () => {
+    findUserByLocalIdentifier.mockResolvedValue({ ...localUser, passwordHash: null, loginMethod: "google", role: "admin" });
+    await appRouter.createCaller(context().ctx).auth.requestPasswordReset({ email: "amina@example.com", origin: "https://example.com" });
+    expect(setPasswordResetToken).toHaveBeenCalledWith(localUser.openId, expect.any(String), expect.any(Date));
+    expect(sendPasswordResetEmail).toHaveBeenCalledWith(expect.objectContaining({ to: "amina@example.com", resetUrl: expect.stringContaining("/reset-password?token=") }));
+  });
+
   it("rejects an expired or already-consumed reset token", async () => {
     consumePasswordResetToken.mockResolvedValue(undefined);
     await expect(appRouter.createCaller(context().ctx).auth.resetPassword({ token: "a".repeat(64), password: "newSecurePassword123" })).rejects.toMatchObject({ code: "BAD_REQUEST" });

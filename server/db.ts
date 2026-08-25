@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { normalizeLeaderboardDisplayName, rankAchievementLeaderboard, type AchievementBadge, type AchievementLeaderboardRow } from "../shared/achievements";
 import { courseCatalog } from "../shared/courseCatalog";
 import { buildCourseModuleBadges } from "../shared/courseBadges";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -61,7 +61,7 @@ export async function getAdminNotificationRecipients(): Promise<string[]> {
   return selectAdminNotificationRecipients(rows);
 }
 
-export async function recordLoginEvent(input: { openId?: string | null; identifierType: string; success: boolean; failureCode?: string | null; networkHash: string; userAgent?: string | null; deviceType?: string | null; estimatedLocation?: string | null; createdAt?: Date }) {
+export async function recordLoginEvent(input: { openId?: string | null; identifierType: string; success: boolean; failureCode?: string | null; networkHash: string; networkAddress?: string | null; userAgent?: string | null; deviceType?: string | null; estimatedLocation?: string | null; createdAt?: Date }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   await db.insert(loginEvents).values({ ...input, createdAt: input.createdAt ?? new Date() });
@@ -74,21 +74,25 @@ export async function getLoginEventsForUser(input: { openId: string; limit?: num
   return db.select({ id: loginEvents.id, identifierType: loginEvents.identifierType, success: loginEvents.success, failureCode: loginEvents.failureCode, userAgent: loginEvents.userAgent, deviceType: loginEvents.deviceType, estimatedLocation: loginEvents.estimatedLocation, createdAt: loginEvents.createdAt }).from(loginEvents).where(and(...conditions)).orderBy(desc(loginEvents.createdAt)).limit(Math.min(25, Math.max(1, input.limit ?? 10)));
 }
 
-export async function getFailedLoginEvents(input: { from?: Date; to?: Date; limit: number; offset: number }) {
+export async function getFailedLoginEvents(input: { from?: Date; to?: Date; ipSearch?: string; locationSearch?: string; limit: number; offset: number }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const conditions = [eq(loginEvents.success, false)];
   if (input.from) conditions.push(gte(loginEvents.createdAt, input.from));
   if (input.to) conditions.push(lte(loginEvents.createdAt, input.to));
+  if (input.ipSearch) conditions.push(like(loginEvents.networkAddress, `%${input.ipSearch.trim()}%`));
+  if (input.locationSearch) conditions.push(like(loginEvents.estimatedLocation, `%${input.locationSearch.trim().toUpperCase()}%`));
   return db.select().from(loginEvents).where(and(...conditions)).orderBy(desc(loginEvents.createdAt)).limit(input.limit).offset(input.offset);
 }
 
-export async function countFailedLoginEvents(input: { from?: Date; to?: Date }) {
+export async function countFailedLoginEvents(input: { from?: Date; to?: Date; ipSearch?: string; locationSearch?: string }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const conditions = [eq(loginEvents.success, false)];
   if (input.from) conditions.push(gte(loginEvents.createdAt, input.from));
   if (input.to) conditions.push(lte(loginEvents.createdAt, input.to));
+  if (input.ipSearch) conditions.push(like(loginEvents.networkAddress, `%${input.ipSearch.trim()}%`));
+  if (input.locationSearch) conditions.push(like(loginEvents.estimatedLocation, `%${input.locationSearch.trim().toUpperCase()}%`));
   const row = (await db.select({ count: sql<number>`count(*)` }).from(loginEvents).where(and(...conditions)))[0];
   return Number(row?.count ?? 0);
 }
@@ -220,6 +224,18 @@ export async function clearLoginFailures(identifierHash: string, networkHash: st
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   await db.delete(authLoginAttempts).where(and(eq(authLoginAttempts.identifierHash, identifierHash), eq(authLoginAttempts.networkHash, networkHash)));
+}
+export async function unlockUserLoginFailures(input: { targetOpenId: string; actorOpenId: string; actorName?: string | null }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const user = (await db.select({ openId: users.openId, email: users.email, phone: users.phone, username: users.username }).from(users).where(eq(users.openId, input.targetOpenId)).limit(1))[0];
+  if (!user) return { clearedAttemptCount: 0, targetEmail: null };
+  const identifiers = [user.email, user.phone, user.username].filter((value): value is string => Boolean(value)).map((value) => createHash("sha256").update(value.trim().includes("@") ? value.trim().toLowerCase() : value.trim().replace(/[\s().-]/g, "").toLowerCase()).digest("hex"));
+  if (!identifiers.length) return { clearedAttemptCount: 0, targetEmail: user.email };
+  const result = await db.delete(authLoginAttempts).where(inArray(authLoginAttempts.identifierHash, identifiers));
+  const clearedAttemptCount = Number(result[0].affectedRows ?? 0);
+  await db.insert(loginUnlockAudits).values({ targetOpenId: input.targetOpenId, targetEmail: user.email, actorOpenId: input.actorOpenId, actorName: input.actorName ?? null, clearedAttemptCount });
+  return { clearedAttemptCount, targetEmail: user.email };
 }
 
 export async function findUserByLocalIdentifier(identifier: string) {

@@ -221,6 +221,8 @@ export default function AdminDashboard() {
   );
   const [securityFromDate, setSecurityFromDate] = useState("");
   const [securityToDate, setSecurityToDate] = useState("");
+  const [securityIpSearch, setSecurityIpSearch] = useState("");
+  const [securityLocationSearch, setSecurityLocationSearch] = useState("");
   const [securityPage, setSecurityPage] = useState(1);
   const securitySettings = trpc.admin.securitySettings.useQuery(undefined, {
     enabled: Boolean(user?.role === "admin"),
@@ -232,6 +234,8 @@ export default function AdminDashboard() {
       pageSize: 10,
       fromDate: securityFromDate || undefined,
       toDate: securityToDate || undefined,
+      ipSearch: securityIpSearch || undefined,
+      locationSearch: securityLocationSearch || undefined,
     },
     { enabled: Boolean(user?.role === "admin"), retry: false }
   );
@@ -242,10 +246,19 @@ export default function AdminDashboard() {
   const saveSecuritySettings = trpc.admin.saveSecuritySettings.useMutation({
     onSuccess: () => securitySettings.refetch(),
   });
+  const unlockUserLogin = trpc.admin.unlockUserLogin.useMutation({
+    onSuccess: result => {
+      failedLoginEvents.refetch();
+      toast.success(result.clearedAttemptCount ? "User account unlocked" : "No active lockout found", { description: result.clearedAttemptCount ? `${result.clearedAttemptCount} active rate-limit record(s) cleared.` : "The account is already clear." });
+    },
+    onError: error => toast.error("Could not unlock account", { description: error.message }),
+  });
   const exportSecurityLogs = trpc.admin.exportSecurityLoginEvents.useQuery(
     {
       fromDate: securityFromDate || undefined,
       toDate: securityToDate || undefined,
+      ipSearch: securityIpSearch || undefined,
+      locationSearch: securityLocationSearch || undefined,
     },
     { enabled: false, retry: false }
   );
@@ -2138,7 +2151,33 @@ export default function AdminDashboard() {
               </p>
             </div>
           </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto]">
+            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+              IP address
+              <input
+                type="search"
+                value={securityIpSearch}
+                onChange={event => {
+                  setSecurityIpSearch(event.target.value);
+                  setSecurityPage(1);
+                }}
+                placeholder="Search network address"
+                className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
+              />
+            </label>
+            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+              Geographic location
+              <input
+                type="search"
+                value={securityLocationSearch}
+                onChange={event => {
+                  setSecurityLocationSearch(event.target.value);
+                  setSecurityPage(1);
+                }}
+                placeholder="Country code, e.g. KE"
+                className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
+              />
+            </label>
             <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
               From
               <input
@@ -2168,6 +2207,8 @@ export default function AdminDashboard() {
               onClick={() => {
                 setSecurityFromDate("");
                 setSecurityToDate("");
+                setSecurityIpSearch("");
+                setSecurityLocationSearch("");
                 setSecurityPage(1);
               }}
               className="self-end border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em]"
@@ -2276,7 +2317,8 @@ export default function AdminDashboard() {
                     <th className="py-3 pr-4">When</th>
                     <th className="py-3 pr-4">Identifier type</th>
                     <th className="py-3 pr-4">Reason</th>
-                    <th className="py-3">Device</th>
+                    <th className="py-3 pr-4">Network / location</th>
+                    <th className="py-3">Device / action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -2289,8 +2331,23 @@ export default function AdminDashboard() {
                       <td className="py-3 pr-4">
                         {event.failureCode?.replaceAll("_", " ")}
                       </td>
-                      <td className="max-w-[260px] truncate py-3 text-xs text-[#657084]">
-                        {event.userAgent ?? "Unknown device"}
+                      <td className="py-3 pr-4 text-xs text-[#657084]">
+                        <span className="block">{event.networkAddress ?? "Unknown network"}</span>
+                        <span className="block text-[10px] uppercase tracking-[.08em]">{event.estimatedLocation ?? "Location unavailable"}</span>
+                      </td>
+                      <td className="max-w-[260px] py-3 text-xs text-[#657084]">
+                        <span className="block truncate">{event.userAgent ?? "Unknown device"}</span>
+                        {event.openId && (
+                          <button
+                            type="button"
+                            onClick={() => unlockUserLogin.mutate({ targetOpenId: event.openId! })}
+                            disabled={unlockUserLogin.isPending}
+                            className="mt-2 inline-flex items-center gap-1 border border-[#16243d]/20 px-2 py-1 text-[9px] font-black uppercase tracking-[.1em] text-[#16243d] disabled:opacity-50"
+                          >
+                            {unlockUserLogin.isPending && <RefreshCw size={10} className="animate-spin" />}
+                            Unlock account
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
