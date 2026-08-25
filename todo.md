@@ -1398,3 +1398,10 @@
 - [x] Add a WhatsApp quick-support tooltip showing Monday to Saturday office hours.
 - [x] Verify accessibility, external links, responsive behavior, tests, and production build.
 - [x] Save the validated sitewide support checkpoint.
+
+# WhatsApp Widget Attention and Availability
+- [x] Add a subtle pulse animation to the floating WhatsApp widget.
+- [x] Add minimize and restore controls so users can hide or reopen the widget.
+- [x] Add automatic online/offline status based on Monday–Saturday office hours.
+- [x] Verify accessibility, local-time behavior, responsive interaction, tests, and production build.
+- [x] Save the validated WhatsApp widget checkpoint.
