@@ -89,6 +89,6 @@ describe("profile settings", () => {
     await caller.profile.get();
     await caller.profile.update({ name: "Updated User", timezone: "Africa/Nairobi", notificationPreferences: { assessmentUpdates: false, courseAnnouncements: true, monthlyInsights: true } });
     expect(getUserProfile).toHaveBeenCalledWith("owner-1");
-    expect(updateUserProfile).toHaveBeenCalledWith("owner-1", { name: "Updated User", timezone: "Africa/Nairobi", notificationPreferences: { assessmentUpdates: false, courseAnnouncements: true, monthlyInsights: true } });
+    expect(updateUserProfile).toHaveBeenCalledWith("owner-1", { name: "Updated User", timezone: "Africa/Nairobi", learningGoals: [], notificationPreferences: { assessmentUpdates: false, courseAnnouncements: true, monthlyInsights: true } });
   });
 });

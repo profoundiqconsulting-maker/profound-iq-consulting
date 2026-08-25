@@ -1278,3 +1278,13 @@
 - [x] Add authorization, format, alert, and recommendation regression coverage.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
 - [x] Save the validated analytics export and personalization checkpoint.
+
+# Weekly Analytics Delivery and Recommendation Refinement
+- [x] Add a weekly scheduled psychometric analytics export job that emails administrators a branded report.
+- [x] Add schedule status, recipient visibility, idempotency, and failure handling for weekly delivery.
+- [x] Add administrator acknowledgement persistence for individual psychometric report delivery failures.
+- [x] Add admin UI controls showing acknowledgement status and handling administrator.
+- [x] Refine psychometric recommendations using course difficulty levels and learner learning goals.
+- [x] Add schedule, acknowledgement, authorization, delivery, and recommendation regression coverage.
+- [x] Run full tests, TypeScript validation, production build, scheduled-handler checks, runtime review, and responsive verification.
+- [ ] Save the validated weekly delivery and recommendation refinement checkpoint.

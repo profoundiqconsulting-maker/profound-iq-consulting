@@ -19,6 +19,7 @@ export const users = mysqlTable("users", {
   notificationPreferences: json("notificationPreferences"),
   avatarUrl: varchar("avatarUrl", { length: 512 }),
   timezone: varchar("timezone", { length: 64 }),
+  learningGoals: json("learningGoals"),
   leaderboardOptIn: boolean("leaderboardOptIn").default(false).notNull(),
   leaderboardDisplayName: varchar("leaderboardDisplayName", { length: 80 }),
 }, (table) => ({
@@ -418,6 +419,10 @@ export const psychometricAttempts = mysqlTable("psychometric_attempts", {
   report: json("report"),
   reportEmailStatus: varchar("reportEmailStatus", { length: 16 }).default("pending").notNull(),
   reportEmailSentAt: timestamp("reportEmailSentAt"),
+  deliveryAcknowledgedAt: timestamp("deliveryAcknowledgedAt"),
+  deliveryAcknowledgedByOpenId: varchar("deliveryAcknowledgedByOpenId", { length: 64 }),
+  deliveryAcknowledgedByName: varchar("deliveryAcknowledgedByName", { length: 160 }),
+  deliveryAcknowledgementNote: varchar("deliveryAcknowledgementNote", { length: 500 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   paidAt: timestamp("paidAt"),
   consentedAt: timestamp("consentedAt").notNull(),

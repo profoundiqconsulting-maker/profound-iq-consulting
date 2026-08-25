@@ -1,0 +1,42 @@
+import type { Express, Request, Response } from "express";
+import { sdk } from "./_core/sdk";
+import { getAdminNotificationRecipients, getPsychometricAdminAnalytics, getScheduledExport, getScheduledExportRuns, addScheduledExportRun, deleteExpiredScheduledExportRuns, updateScheduledExport } from "./db";
+import { renderPsychometricAnalyticsPdf } from "./reportPdf";
+import { sendWeeklyPsychometricAnalyticsEmail } from "./email";
+import { storagePut } from "./storage";
+
+export const PSYCHOMETRIC_WEEKLY_EXPORT_KEY = "weekly_psychometric_analytics";
+
+export function sameUtcWeek(a: Date, b: Date) {
+  const monday = (value: Date) => { const date = new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate())); const day = date.getUTCDay() || 7; date.setUTCDate(date.getUTCDate() - day + 1); return date.toISOString().slice(0, 10); };
+  return monday(a) === monday(b);
+}
+
+export async function weeklyPsychometricAnalyticsHandler(req: Request, res: Response) {
+  const timestamp = new Date();
+  try {
+    const user = await sdk.authenticateRequest(req);
+    if (!user.isCron || !user.taskUid) return res.status(403).json({ error: "cron-only" });
+    const record = await getScheduledExport(PSYCHOMETRIC_WEEKLY_EXPORT_KEY);
+    if (!record || record.scheduleTaskUid !== user.taskUid) return res.json({ ok: true, skipped: "orphan" });
+    if (record.lastRunAt && sameUtcWeek(new Date(record.lastRunAt), timestamp)) return res.json({ ok: true, skipped: "already-generated" });
+    const from = new Date(timestamp.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const fromDate = from.toISOString().slice(0, 10);
+    const toDate = timestamp.toISOString().slice(0, 10);
+    const analytics = await getPsychometricAdminAnalytics({ from, to: timestamp });
+    const pdf = await renderPsychometricAnalyticsPdf({ fromDate, toDate, analytics });
+    await sendWeeklyPsychometricAnalyticsEmail({ recipients: await getAdminNotificationRecipients(), reportPdf: pdf, fromDate, toDate, attemptCount: analytics.totals.started });
+    const uploaded = await storagePut(`scheduled-exports/psychometric-analytics-${toDate}.pdf`, pdf, "application/pdf");
+    await addScheduledExportRun({ exportKey: PSYCHOMETRIC_WEEKLY_EXPORT_KEY, fileKey: uploaded.key, fileUrl: uploaded.url, rowCount: analytics.totals.started });
+    await deleteExpiredScheduledExportRuns(PSYCHOMETRIC_WEEKLY_EXPORT_KEY, new Date(timestamp.getTime() - (record.retentionDays ?? 30) * 24 * 60 * 60 * 1000));
+    await updateScheduledExport(PSYCHOMETRIC_WEEKLY_EXPORT_KEY, { lastRunAt: timestamp, lastFileKey: uploaded.key, lastFileUrl: uploaded.url });
+    return res.json({ ok: true, attempts: analytics.totals.started, fromDate, toDate });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return res.status(500).json({ error: errorMessage, context: { url: req.originalUrl, taskUid: (error as { taskUid?: string })?.taskUid ?? null }, timestamp: timestamp.toISOString() });
+  }
+}
+
+export function registerWeeklyPsychometricAnalytics(app: Express) {
+  app.post("/api/scheduled/weeklyPsychometricAnalytics", weeklyPsychometricAnalyticsHandler);
+}

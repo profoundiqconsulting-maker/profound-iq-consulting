@@ -261,7 +261,7 @@ export type NotificationPreferences = { assessmentUpdates: boolean; courseAnnoun
 export async function getUserProfile(openId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const result = await db.select({ id: users.id, openId: users.openId, name: users.name, email: users.email, role: users.role, notificationPreferences: users.notificationPreferences, avatarUrl: users.avatarUrl, timezone: users.timezone, leaderboardOptIn: users.leaderboardOptIn, leaderboardDisplayName: users.leaderboardDisplayName }).from(users).where(eq(users.openId, openId)).limit(1);
+  const result = await db.select({ id: users.id, openId: users.openId, name: users.name, email: users.email, role: users.role, notificationPreferences: users.notificationPreferences, avatarUrl: users.avatarUrl, timezone: users.timezone, learningGoals: users.learningGoals, leaderboardOptIn: users.leaderboardOptIn, leaderboardDisplayName: users.leaderboardDisplayName }).from(users).where(eq(users.openId, openId)).limit(1);
   const profile = result[0];
   if (!profile) return undefined;
   return {
@@ -274,10 +274,10 @@ export async function getUserProfile(openId: string) {
   };
 }
 
-export async function updateUserProfile(openId: string, input: { name: string; timezone: string; notificationPreferences: NotificationPreferences; leaderboardOptIn?: boolean; leaderboardDisplayName?: string | null }) {
+export async function updateUserProfile(openId: string, input: { name: string; timezone: string; learningGoals?: string[]; notificationPreferences: NotificationPreferences; leaderboardOptIn?: boolean; leaderboardDisplayName?: string | null }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db.update(users).set({ name: input.name, timezone: input.timezone, notificationPreferences: input.notificationPreferences, ...(input.leaderboardOptIn === undefined ? {} : { leaderboardOptIn: input.leaderboardOptIn, leaderboardDisplayName: input.leaderboardOptIn ? normalizeLeaderboardDisplayName(input.leaderboardDisplayName, normalizeLeaderboardDisplayName(input.name)) : null }) }).where(eq(users.openId, openId));
+  await db.update(users).set({ name: input.name, timezone: input.timezone, learningGoals: input.learningGoals ?? [], notificationPreferences: input.notificationPreferences, ...(input.leaderboardOptIn === undefined ? {} : { leaderboardOptIn: input.leaderboardOptIn, leaderboardDisplayName: input.leaderboardOptIn ? normalizeLeaderboardDisplayName(input.leaderboardDisplayName, normalizeLeaderboardDisplayName(input.name)) : null }) }).where(eq(users.openId, openId));
   return getUserProfile(openId);
 }
 
@@ -1417,4 +1417,27 @@ export async function getPsychometricAdminAnalytics(input: { from?: Date; to?: D
     const day = new Date(row.createdAt).toISOString().slice(0, 10); const point = trend.get(day) ?? { started: 0, paid: 0, sent: 0 }; point.started += 1; if (row.paymentStatus === "paid") point.paid += 1; if (row.reportEmailStatus === "sent") point.sent += 1; trend.set(day, point);
   }
   const started = rows.length; return { totals: { started, paid, pending: started - paid, sent, sending, failed, conversionRate: started ? Math.round((paid / started) * 100) : 0, emailRate: paid ? Math.round((sent / paid) * 100) : 0 }, byProfile: Array.from(profiles.entries()).map(([testSlug, value]) => ({ testSlug, ...value, conversionRate: value.started ? Math.round((value.paid / value.started) * 100) : 0, emailRate: value.paid ? Math.round((value.sent / value.paid) * 100) : 0 })), trend: Array.from(trend.entries()).sort(([a], [b]) => a.localeCompare(b)).map(([date, value]) => ({ date, ...value })) };
+}
+
+export async function acknowledgePsychometricDeliveryFailure(input: { attemptId: number; adminOpenId: string; adminName: string; note?: string | null }): Promise<boolean> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.update(psychometricAttempts).set({ deliveryAcknowledgedAt: new Date(), deliveryAcknowledgedByOpenId: input.adminOpenId, deliveryAcknowledgedByName: input.adminName, deliveryAcknowledgementNote: input.note?.trim() || null }).where(and(eq(psychometricAttempts.id, input.attemptId), eq(psychometricAttempts.reportEmailStatus, "failed")));
+  return Number(result[0].affectedRows ?? 0) > 0;
+}
+
+export async function clearPsychometricDeliveryAcknowledgement(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(psychometricAttempts).set({ deliveryAcknowledgedAt: null, deliveryAcknowledgedByOpenId: null, deliveryAcknowledgedByName: null, deliveryAcknowledgementNote: null }).where(eq(psychometricAttempts.id, id));
+}
+
+export async function listPsychometricFailedDeliveries(input: { limit?: number } = {}) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select({ id: psychometricAttempts.id, testSlug: psychometricAttempts.testSlug, name: psychometricAttempts.name, email: psychometricAttempts.email, reportEmailStatus: psychometricAttempts.reportEmailStatus, createdAt: psychometricAttempts.createdAt, deliveryAcknowledgedAt: psychometricAttempts.deliveryAcknowledgedAt, deliveryAcknowledgedByOpenId: psychometricAttempts.deliveryAcknowledgedByOpenId, deliveryAcknowledgedByName: psychometricAttempts.deliveryAcknowledgedByName, deliveryAcknowledgementNote: psychometricAttempts.deliveryAcknowledgementNote }).from(psychometricAttempts).where(eq(psychometricAttempts.reportEmailStatus, "failed")).orderBy(desc(psychometricAttempts.createdAt)).limit(Math.min(100, Math.max(1, input.limit ?? 50)));
+}
+
+export async function getPsychometricWeeklySchedule() {
+  return getScheduledExport("weekly_psychometric_analytics");
 }
