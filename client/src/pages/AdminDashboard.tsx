@@ -53,6 +53,7 @@ import AdminCatalogPanel from "@/components/AdminCatalogPanel";
 import AdminCourseDeliveryPanel from "@/components/AdminCourseDeliveryPanel";
 import AdminPaymentExceptionsPanel from "@/components/AdminPaymentExceptionsPanel";
 import AdminSocialPreviewSettings from "@/components/AdminSocialPreviewSettings";
+import AdminCourseShareAnalytics from "@/components/AdminCourseShareAnalytics";
 import { buildFunnelComparison } from "@shared/adminAnalytics";
 import { renderEmailTemplate } from "@shared/emailTemplate";
 import { Streamdown } from "streamdown";
@@ -659,6 +660,7 @@ export default function AdminDashboard() {
           </div>
         </div>
         <AdminSocialPreviewSettings />
+        <AdminCourseShareAnalytics />
         {overview.isLoading && (
           <div className="mt-10 flex items-center gap-3 border-l-2 border-[#c9a34e] bg-white/50 px-5 py-4 text-sm">
             <RefreshCw size={16} className="animate-spin text-[#a27e2e]" />{" "}

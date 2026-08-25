@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Loader2, Plus, RefreshCw } from "lucide-react";
+import { Image as ImageIcon, Loader2, Plus, RefreshCw, Upload } from "lucide-react";
 
 const initialForm = { slug: "", itemType: "course" as const, title: "", strapline: "", description: "", audience: "", duration: "", outcomes: "", priceKes: "4999", published: false };
 
@@ -18,7 +18,20 @@ export default function AdminCatalogPanel() {
     },
     onError: (error) => toast.error("Could not create catalog item", { description: error.message }),
   });
+  const uploadCover = trpc.catalog.uploadCoverImage.useMutation({
+    onSuccess: async () => { toast.success("Course cover uploaded", { description: "New social cards will include the artwork." }); await Promise.all([utils.catalog.adminList.invalidate(), utils.catalog.listPublished.invalidate()]); },
+    onError: (error) => toast.error("Could not upload course cover", { description: error.message }),
+  });
   const update = (key: keyof typeof form, value: string | boolean) => setForm((current) => ({ ...current, [key]: value }));
+  const handleCoverUpload = (catalogItemId: number, file: File | undefined) => {
+    if (!file) return;
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) { toast.error("Use PNG, JPEG, or WebP artwork."); return; }
+    if (file.size > 8 * 1024 * 1024) { toast.error("Cover image must be 8 MB or smaller."); return; }
+    const reader = new FileReader();
+    reader.onload = () => { if (typeof reader.result === "string") uploadCover.mutate({ catalogItemId, filename: file.name, contentType: file.type as "image/png" | "image/jpeg" | "image/webp", dataBase64: reader.result }); };
+    reader.onerror = () => toast.error("Could not read the selected image.");
+    reader.readAsDataURL(file);
+  };
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     create.mutate({ ...form, priceKes: Number(form.priceKes), outcomes: form.outcomes.split("\n").map((item) => item.trim()).filter(Boolean) });
@@ -38,7 +51,7 @@ export default function AdminCatalogPanel() {
       <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#c1cad7] sm:col-span-2 lg:col-span-4">Outcomes <span className="font-normal normal-case tracking-normal">(one per line)</span><textarea value={form.outcomes} onChange={(event) => update("outcomes", event.target.value)} placeholder={"Frame the next decision.\nBuild a practical capability."} required rows={3} className="mt-2 w-full border border-white/20 bg-[#16243d] px-3 py-3 text-sm font-normal normal-case tracking-normal text-[#f7f3e8] placeholder:text-[#8f9db3]" /></label>
       <button type="submit" disabled={create.isPending} className="inline-flex items-center justify-center gap-2 bg-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] disabled:cursor-wait disabled:opacity-60 sm:col-span-2 lg:col-span-4">{create.isPending ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} {create.isPending ? "Creating…" : "Create catalog item"}</button>
     </form>
-    <div className="mt-6 border-t border-white/15 pt-5"><p className="text-[10px] font-black uppercase tracking-[.12em] text-[#c9a34e]">Database overlays</p>{items.isLoading ? <p className="mt-3 text-sm text-[#c1cad7]">Loading catalog items…</p> : items.data?.length ? <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{items.data.map((item) => <article key={item.id} className="border border-white/15 bg-[#1b3152] p-4"><div className="flex items-start justify-between gap-3"><p className="text-sm font-bold">{item.title}</p><span className={`text-[10px] font-black uppercase tracking-[.1em] ${item.published ? "text-emerald-300" : "text-[#c9a34e]"}`}>{item.published ? "Published" : "Draft"}</span></div><p className="mt-2 text-xs text-[#c1cad7]">/{item.slug} · KES {item.priceKes.toLocaleString()}</p><p className="mt-2 text-xs leading-5 text-[#8f9db3]">Updated {new Date(item.updatedAt).toLocaleDateString()}</p></article>)}</div> : <p className="mt-3 text-sm text-[#c1cad7]">No database overlays yet. The four code-defined courses remain live.</p>}</div>
+    <div className="mt-6 border-t border-white/15 pt-5"><p className="text-[10px] font-black uppercase tracking-[.12em] text-[#c9a34e]">Database overlays</p>{items.isLoading ? <p className="mt-3 text-sm text-[#c1cad7]">Loading catalog items…</p> : items.data?.length ? <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{items.data.map((item) => <article key={item.id} className="border border-white/15 bg-[#1b3152] p-4"><div className="flex items-start justify-between gap-3"><p className="text-sm font-bold">{item.title}</p><span className={`text-[10px] font-black uppercase tracking-[.1em] ${item.published ? "text-emerald-300" : "text-[#c9a34e]"}`}>{item.published ? "Published" : "Draft"}</span></div><p className="mt-2 text-xs text-[#c1cad7]">/{item.slug} · KES {item.priceKes.toLocaleString()}</p><div className="mt-4 overflow-hidden border border-white/10 bg-[#16243d]"><div className="aspect-[16/8] bg-[#101d35]">{item.coverImageUrl ? <img src={item.coverImageUrl} alt={`${item.title} course cover`} className="size-full object-cover" /> : <div className="grid size-full place-items-center text-[#8f9db3]"><ImageIcon size={22} /></div>}</div><label className="flex cursor-pointer items-center justify-center gap-2 border-t border-white/10 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#c9a34e] hover:bg-white/5"><Upload size={13} /> {uploadCover.isPending ? "Uploading…" : item.coverImageUrl ? "Replace cover" : "Upload cover"}<input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(event) => handleCoverUpload(item.id, event.target.files?.[0])} disabled={uploadCover.isPending} /></label></div><p className="mt-2 text-xs leading-5 text-[#8f9db3]">Updated {new Date(item.updatedAt).toLocaleDateString()}</p></article>)}</div> : <p className="mt-3 text-sm text-[#c1cad7]">No database overlays yet. The four code-defined courses remain live.</p>}</div>
   </section>;
 }
 function Field({ label, value, onChange, placeholder, type = "text", required = false }: { label: string; value: string; onChange: (value: string) => void; placeholder: string; type?: string; required?: boolean }) { return <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#c1cad7]">{label}<input required={required} type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="mt-2 w-full border border-white/20 bg-[#16243d] px-3 py-3 text-sm font-normal normal-case tracking-normal text-[#f7f3e8] placeholder:text-[#8f9db3]" /></label>; }

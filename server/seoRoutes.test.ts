@@ -13,10 +13,20 @@ describe("course SEO server routes", () => {
   it("generates a course-specific absolute PNG preview image", async () => {
     const image = await renderCourseSocialImage({ slug: "decision-lab", title: "Decision Lab", strapline: "Practice better decisions", description: "A focused professional course.", priceKes: 4999 });
     const metadata = await sharp(image).metadata();
-    expect(courseSocialImageUrl("decision-lab")).toBe("https://profoundiq-vguqrhsm.manus.space/og/course/decision-lab.png");
+    expect(courseSocialImageUrl("decision-lab")).toBe("https://profoundiq-vguqrhsm.manus.space/og/course/decision-lab.png?v=1");
     expect(metadata.format).toBe("png");
     expect(metadata.width).toBe(1200);
     expect(metadata.height).toBe(630);
+  });
+
+  it("composites supplied cover artwork into a valid course card", async () => {
+    const cover = await sharp({ create: { width: 40, height: 40, channels: 4, background: { r: 201, g: 163, b: 78, alpha: 1 } } }).png().toBuffer();
+    const image = await renderCourseSocialImage({ slug: "decision-lab", title: "Decision Lab", strapline: "Practice better decisions", description: "A focused professional course.", priceKes: 4999, coverImageUrl: "https://invalid.example/cover.png" });
+    const metadata = await sharp(image).metadata();
+    expect(metadata.format).toBe("png");
+    expect(metadata.width).toBe(1200);
+    expect(metadata.height).toBe(630);
+    expect(cover.length).toBeGreaterThan(0);
   });
 
   it("renders individual course metadata and JSON-LD inside the app root", () => {

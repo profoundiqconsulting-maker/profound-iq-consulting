@@ -13,21 +13,31 @@ function escapeHtml(value: unknown) {
   return String(value ?? "").replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character] ?? character);
 }
 
-type PublicCourse = { slug: string; title: string; strapline?: string; description: string; audience?: string; duration?: string; priceKes: number; outcomes?: readonly string[] };
-export const courseSocialImageUrl = (slug: string) => `${PUBLIC_IMAGE_ORIGIN}/og/course/${encodeURIComponent(slug)}.png`;
+type PublicCourse = { slug: string; title: string; strapline?: string; description: string; audience?: string; duration?: string; priceKes: number; outcomes?: readonly string[]; coverImageUrl?: string | null };
+export const courseSocialImageUrl = (slug: string, version = "1") => `${PUBLIC_IMAGE_ORIGIN}/og/course/${encodeURIComponent(slug)}.png?v=${encodeURIComponent(version)}`;
 
 export async function renderCourseSocialImage(course: PublicCourse) {
   const title = escapeHtml(course.title).replace(/&amp;/g, "&").replace(/&quot;/g, '"');
   const subtitle = escapeHtml(course.strapline || "Applied professional learning").replace(/&amp;/g, "&").replace(/&quot;/g, '"');
   const svg = `<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#101d35"/><stop offset="1" stop-color="#1e3152"/></linearGradient></defs><rect width="1200" height="630" fill="url(#bg)"/><rect width="18" height="630" fill="#c9a34e"/><path d="M70 520 L1080 95" stroke="#c9a34e" stroke-width="5" opacity=".9"/><text x="86" y="92" fill="#c9a34e" font-family="Arial,sans-serif" font-size="19" font-weight="700" letter-spacing="4">PROFOUND IQ CONSULTING</text><text x="86" y="225" fill="#f7f3e8" font-family="Georgia,serif" font-size="70" font-weight="500">${title}</text><text x="86" y="310" fill="#d4dbe5" font-family="Arial,sans-serif" font-size="28">${subtitle}</text><text x="86" y="560" fill="#f7f3e8" font-family="Arial,sans-serif" font-size="20">Professional learning · profoundiqconsulting.com</text></svg>`;
-  return sharp(Buffer.from(svg)).png().toBuffer();
+  const baseCard = sharp(Buffer.from(svg));
+  if (!course.coverImageUrl) return baseCard.png().toBuffer();
+  try {
+    const coverUrl = course.coverImageUrl.startsWith("http") ? course.coverImageUrl : `${PUBLIC_IMAGE_ORIGIN}${course.coverImageUrl}`;
+    const response = await fetch(coverUrl);
+    if (!response.ok) return baseCard.png().toBuffer();
+    const cover = await sharp(Buffer.from(await response.arrayBuffer())).resize({ width: 360, height: 360, fit: "cover" }).png().toBuffer();
+    return baseCard.composite([{ input: cover, left: 760, top: 135 }]).png().toBuffer();
+  } catch {
+    return baseCard.png().toBuffer();
+  }
 }
 
 async function getPublicCourses(): Promise<PublicCourse[]> {
-  const base = courseCatalog.map((course) => ({ slug: course.slug, title: course.title, strapline: course.strapline, description: course.description, audience: course.audience, duration: course.duration, priceKes: course.priceKes, outcomes: course.outcomes }));
+  const base = courseCatalog.map((course) => ({ slug: course.slug, title: course.title, strapline: course.strapline, description: course.description, audience: course.audience, duration: course.duration, priceKes: course.priceKes, outcomes: course.outcomes, coverImageUrl: null }));
   try {
     const published = await listPublishedCatalogItems();
-    const overlays = published.filter((item) => item.itemType === "course" || item.itemType === "program").map((item) => ({ slug: item.slug, title: item.title, strapline: item.strapline, description: item.description, audience: item.audience, duration: item.duration, priceKes: item.priceKes, outcomes: Array.isArray(item.outcomes) ? item.outcomes.filter((value): value is string => typeof value === "string") : [] }));
+    const overlays = published.filter((item) => item.itemType === "course" || item.itemType === "program").map((item) => ({ slug: item.slug, title: item.title, strapline: item.strapline, description: item.description, audience: item.audience, duration: item.duration, priceKes: item.priceKes, outcomes: Array.isArray(item.outcomes) ? item.outcomes.filter((value): value is string => typeof value === "string") : [], coverImageUrl: item.coverImageUrl ?? null }));
     const bySlug = new Map(overlays.map((course) => [course.slug, course]));
     const merged = base.map((course) => { const overlay = bySlug.get(course.slug); if (!overlay) return course; bySlug.delete(course.slug); return { ...course, ...overlay }; });
     return [...merged, ...Array.from(bySlug.values())];
@@ -59,7 +69,7 @@ export function renderCourseCatalogPage(courses: PublicCourse[], clientScript: s
 
 export function renderCourseDetailPage(course: PublicCourse, clientScript: string | null, socialImageUrl = DEFAULT_SOCIAL_IMAGE_URL) {
   const url = `${SITE_ORIGIN}/courses/${encodeURIComponent(course.slug)}`;
-  const courseImageUrl = courseSocialImageUrl(course.slug);
+  const courseImageUrl = socialImageUrl;
   const description = `Build practical capability through ${course.title}, with structured modules, interactive lessons, quizzes, and a professional certificate of completion.`;
   const script = clientScript ? `<script type="module" src="${escapeHtml(clientScript)}"></script>` : "";
   const outcomes = (course.outcomes ?? []).slice(0, 4).map((outcome) => `<li>${escapeHtml(outcome)}</li>`).join("");
@@ -69,10 +79,15 @@ export function renderCourseDetailPage(course: PublicCourse, clientScript: strin
   return `<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>${escapeHtml(course.title)} | Profound IQ Consulting</title><meta name="description" content="${escapeHtml(description)}"/><link rel="canonical" href="${url}"/><meta property="og:title" content="${escapeHtml(course.title)} | Profound IQ Consulting"/><meta property="og:description" content="${escapeHtml(description)}"/><meta property="og:type" content="website"/><meta property="og:url" content="${url}"/><meta property="og:image" content="${courseImageUrl}"/><meta property="og:image:secure_url" content="${courseImageUrl}"/><meta property="og:image:type" content="image/png"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image:alt" content="Profound IQ Consulting branded social preview"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="${escapeHtml(course.title)} | Profound IQ Consulting"/><meta name="twitter:description" content="${escapeHtml(description)}"/><meta name="twitter:image" content="${courseImageUrl}"/><meta name="twitter:image:alt" content="Profound IQ Consulting branded social preview"/><link rel="icon" href="/favicon.ico"/><script type="application/ld+json">${jsonLd}</script><style>body{margin:0;background:#101d35;color:#f7f3e8;font-family:Arial,sans-serif}.shell{max-width:980px;margin:auto;padding:72px 24px}.eyebrow{color:#c9a34e;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}.hero{border-bottom:1px solid #ffffff22;padding-bottom:38px}.hero h1{max-width:800px;margin:16px 0;font:500 clamp(3rem,8vw,6.8rem)/.92 Georgia,serif;letter-spacing:-.05em}.hero p{max-width:680px;color:#c9d1df;font-size:18px;line-height:1.8}.panel{margin-top:36px;display:grid;grid-template-columns:1.2fr .8fr;gap:20px}.card{background:#f7f3e8;color:#16243d;padding:28px}.card h2{font:500 32px/1.05 Georgia,serif;margin-top:0}.card li{margin-top:12px;line-height:1.6}.card a{display:inline-block;margin-top:22px;background:#c9a34e;color:#16243d;padding:14px 18px;font-weight:700;text-decoration:none}.muted{color:#657084;font-size:14px;line-height:1.6}.share{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:24px;color:#c9a34e;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.share a{color:#f7f3e8;border:1px solid #ffffff44;padding:9px 12px;text-decoration:none;letter-spacing:.03em;text-transform:none}.share a:hover{border-color:#c9a34e;color:#c9a34e}@media(max-width:700px){.shell{padding:38px 18px}.panel{grid-template-columns:1fr}}</style></head><body><div id="root"><main class="shell"><a href="/courses" style="color:#c9a34e;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase">← Course catalog</a><section class="hero"><p class="eyebrow" style="margin-top:42px">Professional course · KES ${escapeHtml(course.priceKes.toLocaleString())}</p><h1>${escapeHtml(course.title)}</h1><p>${escapeHtml(course.description)}</p>${shareLinks}</section><section class="panel"><article class="card"><h2>Build capability through applied practice.</h2><p>${escapeHtml(course.strapline || "A structured learning pathway for purposeful professional growth.")}</p><p class="muted">${escapeHtml(course.duration || "Online learning")} · Designed for ${escapeHtml(course.audience || "professionals and learners")}</p><a href="${url}">Open course details</a></article><aside class="card"><h2>Learning outcomes</h2><ul>${outcomes || "<li>Structured lessons and applied practice</li><li>Module quizzes with feedback</li><li>Professional completion certificate</li>"}</ul></aside></section></main></div>${script}</body></html>`;
 }
 
+async function getSocialPreviewSettings() {
+  const fallbackImageUrl = await getSiteSeoSetting("fallback_social_image_url");
+  const version = await getSiteSeoSetting("social_card_version") ?? "1";
+  return { fallbackImageUrl: fallbackImageUrl?.startsWith("https://") ? fallbackImageUrl : DEFAULT_SOCIAL_IMAGE_URL, version };
+}
+
 async function getSocialImageUrl() {
   try {
-    const configured = await getSiteSeoSetting("fallback_social_image_url");
-    return configured?.startsWith("https://") ? configured : DEFAULT_SOCIAL_IMAGE_URL;
+    return (await getSocialPreviewSettings()).fallbackImageUrl;
   } catch {
     return DEFAULT_SOCIAL_IMAGE_URL;
   }
@@ -81,7 +96,7 @@ async function getSocialImageUrl() {
 export function registerSeoRoutes(app: Express) {
   app.get("/og/course/:slug.png", async (req: Request, res: Response, next: NextFunction) => { const courses = await getPublicCourses(); const course = courses.find((item) => item.slug === req.params.slug); if (!course) return next(); const image = await renderCourseSocialImage(course); res.type("png").set("Cache-Control", "public, max-age=86400, immutable").send(image); });
   app.get("/sitemap.xml", async (_req: Request, res: Response) => { const courses = await getPublicCourses(); res.type("application/xml").set("Cache-Control", "public, max-age=300").send(buildSitemapXml(courses)); });
-  app.get("/courses", async (_req: Request, res: Response) => { const [courses, socialImageUrl] = await Promise.all([getPublicCourses(), getSocialImageUrl()]); res.type("html").set("Cache-Control", "no-cache").send(renderCourseCatalogPage(courses, findClientScript(), socialImageUrl)); });
+  app.get("/courses", async (_req: Request, res: Response) => { const [courses, socialSettings] = await Promise.all([getPublicCourses(), getSocialPreviewSettings()]); res.type("html").set("Cache-Control", "no-cache").send(renderCourseCatalogPage(courses, findClientScript(), socialSettings.fallbackImageUrl)); });
   app.get("/courses/payment-success", (_req: Request, _res: Response, next: NextFunction) => next());
-  app.get("/courses/:slug", async (req: Request, res: Response, next: NextFunction) => { const [courses, socialImageUrl] = await Promise.all([getPublicCourses(), getSocialImageUrl()]); const course = courses.find((item) => item.slug === req.params.slug); if (!course) return next(); res.type("html").set("Cache-Control", "no-cache").send(renderCourseDetailPage(course, findClientScript(), socialImageUrl)); });
+  app.get("/courses/:slug", async (req: Request, res: Response, next: NextFunction) => { const [courses, socialSettings] = await Promise.all([getPublicCourses(), getSocialPreviewSettings()]); const course = courses.find((item) => item.slug === req.params.slug); if (!course) return next(); res.type("html").set("Cache-Control", "no-cache").send(renderCourseDetailPage(course, findClientScript(), `${courseSocialImageUrl(course.slug, socialSettings.version)}`)); });
 }

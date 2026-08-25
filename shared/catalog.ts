@@ -10,6 +10,7 @@ export type CatalogItem = {
   audience: string;
   duration: string;
   outcomes: string[];
+  coverImageUrl?: string | null;
   priceKes: number;
   published: boolean;
   createdByOpenId: string;

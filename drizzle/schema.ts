@@ -60,6 +60,7 @@ export const catalogItems = mysqlTable("catalog_items", {
   audience: varchar("audience", { length: 300 }).notNull(),
   duration: varchar("duration", { length: 120 }).notNull(),
   outcomes: json("outcomes").notNull(),
+  coverImageUrl: varchar("coverImageUrl", { length: 600 }),
   priceKes: int("priceKes").default(4999).notNull(),
   published: boolean("published").default(false).notNull(),
   createdByOpenId: varchar("createdByOpenId", { length: 64 }).notNull(),

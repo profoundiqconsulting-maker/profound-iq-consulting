@@ -557,6 +557,7 @@ export type CatalogItemInput = {
   audience: string;
   duration: string;
   outcomes: string[];
+  coverImageUrl?: string | null;
   priceKes: number;
   published: boolean;
   createdByOpenId: string;
@@ -572,6 +573,13 @@ export async function listCatalogItemsForAdmin() {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   return db.select().from(catalogItems).orderBy(desc(catalogItems.createdAt));
+}
+
+export async function updateCatalogItemCoverImage(id: number, coverImageUrl: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(catalogItems).set({ coverImageUrl }).where(eq(catalogItems.id, id));
+  return (await db.select().from(catalogItems).where(eq(catalogItems.id, id)).limit(1))[0] ?? null;
 }
 
 export async function createCatalogItem(input: CatalogItemInput) {
@@ -637,6 +645,26 @@ export async function compareUserAssessmentReports(email: string, currentAttempt
   const previous = rows.find((row) => row.id === previousAttemptId);
   if (!current || !previous || current.paymentStatus !== "paid" || previous.paymentStatus !== "paid" || !current.report || !previous.report) return undefined;
   return { current: { id: current.id, createdAt: current.createdAt }, previous: { id: previous.id, createdAt: previous.createdAt }, comparison: compareReports(current.report as AssessmentReport, previous.report as AssessmentReport) };
+}
+
+export async function getCourseShareAnalytics(input: { from?: Date; to?: Date } = {}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const conditions = [eq(analyticsEvents.eventName, "course_shared"), input.from ? gte(analyticsEvents.createdAt, input.from) : undefined, input.to ? lte(analyticsEvents.createdAt, input.to) : undefined].filter(Boolean) as Array<ReturnType<typeof eq>>;
+  const rows = await db.select({ metadata: analyticsEvents.metadata, createdAt: analyticsEvents.createdAt }).from(analyticsEvents).where(and(...conditions));
+  const byCourse = new Map<string, number>();
+  const byPlatform = new Map<string, number>();
+  const matrix = new Map<string, number>();
+  for (const row of rows) {
+    const metadata = row.metadata && typeof row.metadata === "object" && !Array.isArray(row.metadata) ? row.metadata as Record<string, unknown> : {};
+    const course = typeof metadata.courseSlug === "string" && metadata.courseSlug.trim() ? metadata.courseSlug : "unknown-course";
+    const platform = typeof metadata.platform === "string" && metadata.platform.trim() ? metadata.platform : "unknown";
+    byCourse.set(course, (byCourse.get(course) ?? 0) + 1);
+    byPlatform.set(platform, (byPlatform.get(platform) ?? 0) + 1);
+    const key = `${course}::${platform}`;
+    matrix.set(key, (matrix.get(key) ?? 0) + 1);
+  }
+  return { total: rows.length, byCourse: Array.from(byCourse, ([courseSlug, shares]) => ({ courseSlug, shares })).sort((a, b) => b.shares - a.shares), byPlatform: Array.from(byPlatform, ([platform, shares]) => ({ platform, shares })).sort((a, b) => b.shares - a.shares), matrix: Array.from(matrix, ([key, shares]) => { const [courseSlug, platform] = key.split("::"); return { courseSlug, platform, shares }; }).sort((a, b) => b.shares - a.shares) };
 }
 
 export async function recordAnalyticsEvent(input: { eventName: string; attemptId?: number; userOpenId?: string; metadata?: Record<string, unknown> }) {

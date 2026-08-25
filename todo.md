@@ -1464,3 +1464,11 @@
 - [x] Add an admin interface to update and persist the default fallback social image.
 - [x] Add regression coverage and verify image responses, metadata, share tracking, admin permissions, responsiveness, tests, and build.
 - [x] Save the validated dynamic course social preview checkpoint.
+
+# Course Social Card Operations
+- [x] Add admin-authorized course cover-image upload and persistence through managed storage.
+- [x] Include uploaded cover artwork in generated course Open Graph cards.
+- [x] Add course/platform social sharing analytics aggregation and admin chart.
+- [x] Add social-card version controls and cache-busting to metadata and image routes.
+- [x] Verify uploads, generated images, cache behavior, analytics, admin permissions, tests, and responsive UI.
+- [x] Save the validated course social-card operations checkpoint.
