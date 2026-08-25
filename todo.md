@@ -1370,3 +1370,10 @@
 - [x] Add regression coverage for export CSV authorization, revocation audit details, and avatar visibility persistence.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
 - [x] Save the validated audit and privacy update checkpoint.
+
+# Avatar Privacy Notice and Revocation Admin Quick-filter
+- [x] Add a privacy notice or tooltip explaining Google avatar storage, display, hiding, and removal behavior.
+- [x] Add a quick-filter for reset-link revocations performed by a selected administrator.
+- [x] Add regression coverage for administrator filtering and privacy-copy presence.
+- [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
+- [x] Save the validated privacy and audit filter checkpoint.
