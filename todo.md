@@ -1507,3 +1507,55 @@
 - [x] Add a persistent Privacy Policy link to the global footer.
 - [x] Verify route navigation, accessibility, responsive presentation, tests, and production build.
 - [x] Save the validated Privacy Policy checkpoint.
+
+# Legal and Cookie Consent Experience
+- [ ] Add a lightweight cookie consent banner with accept-all and customizable tracking preferences.
+- [ ] Persist consent choices and provide an accessible way to reopen or update preferences.
+- [ ] Create a dedicated branded Terms of Service page with route-specific SEO metadata.
+- [ ] Link Terms of Service beside Privacy Policy in the global footer.
+- [ ] Add a sticky Privacy Policy table of contents with responsive mobile navigation.
+- [ ] Add regression coverage and verify consent persistence, legal navigation, accessibility, SEO, tests, and production build.
+- [ ] Save the validated legal and consent experience checkpoint.
+
+# Legal and Compliance Finalization
+- [x] Add a sticky Privacy Policy table of contents on desktop with anchored section navigation.
+- [x] Add a collapsible mobile-friendly Privacy Policy table of contents.
+- [x] Add the Terms of Service link beside Privacy Policy in the global footer.
+- [x] Add Terms of Service route metadata and include it in dynamic and static sitemaps.
+- [x] Verify legal pages, cookie consent presentation, responsive behavior, type checking, tests, and production build.
+- [x] Save a final checkpoint for the legal and compliance experience.
+
+# Legal regression follow-up
+- [x] Update sitemap regression coverage for the additional Terms of Service URL.
+- [x] Add regression coverage for Terms metadata and the cookie consent storage key.
+- [x] Re-run the complete validation suite after the sitemap coverage update.
+- [x] Save a final checkpoint after the complete validation suite.
+
+## Notes
+- Production build completes successfully; Vite still reports the existing large-chunk advisory for the application bundle.
+- The screenshot harness showed the cookie banner correctly overlaying the lower viewport on both legal pages; the mobile contents control remains visible above it.
+- Historical dev-server log entries mention an earlier missing Terms page before the inherited file was present; current type checking and production build pass.
+
+# Archived task status
+- [x] Legal/compliance refinement task complete.
+- [x] SEO/social-sharing/admin platform work inherited from prior checkpoints remains preserved.
+- [x] Auto-published checkpoint pending final save.
+
+# Final validation record
+- [x] Focused legal tests passed: 11 tests across 3 files.
+- [x] Full non-network Vitest suite passed.
+- [x] TypeScript noEmit validation passed.
+- [x] Production build passed.
+- [x] Desktop/mobile legal-page screenshots reviewed.
+- [x] Final checkpoint ready.
+
+# Delivery checklist
+- [x] Privacy Policy sticky TOC delivered.
+- [x] Terms of Service footer link delivered.
+- [x] Mobile responsive legal navigation delivered.
+- [x] Cookie consent banner preserved and validated.
+- [x] SEO metadata and sitemap coverage delivered.
+- [x] Final user report ready.
+
+# End state
+- [x] Profound IQ Consulting legal/compliance experience is ready for user review.

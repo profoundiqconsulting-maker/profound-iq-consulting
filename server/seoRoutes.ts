@@ -48,7 +48,7 @@ async function getPublicCourses(): Promise<PublicCourse[]> {
 }
 
 export function buildSitemapXml(courses: Array<{ slug: string }>) {
-  const staticPaths = ["/", "/courses", "/assessment", "/careerpath", "/psychometrics", "/verify/certificate", "/verify/psychometric", "/privacy-policy"];
+  const staticPaths = ["/", "/courses", "/assessment", "/careerpath", "/psychometrics", "/verify/certificate", "/verify/psychometric", "/privacy-policy", "/terms-of-service"];
   const paths = [...staticPaths, ...courses.map((course) => `/courses/${course.slug}`)];
   const uniquePaths = Array.from(new Set(paths));
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${uniquePaths.map((url) => `  <url><loc>${SITE_ORIGIN}${escapeHtml(url)}</loc></url>`).join("\n")}\n</urlset>\n`;

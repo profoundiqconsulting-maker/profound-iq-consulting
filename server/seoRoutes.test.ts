@@ -7,7 +7,7 @@ describe("course SEO server routes", () => {
     const xml = buildSitemapXml([{ slug: "leadership-development" }, { slug: "leadership-development" }, { slug: "new-course" }]);
     expect(xml).toContain("https://profoundiqconsulting.com/courses/leadership-development");
     expect(xml).toContain("https://profoundiqconsulting.com/courses/new-course");
-    expect(xml.match(/<url>/g)?.length).toBe(10);
+    expect(xml.match(/<url>/g)?.length).toBe(11);
   });
 
   it("generates a course-specific absolute PNG preview image", async () => {
