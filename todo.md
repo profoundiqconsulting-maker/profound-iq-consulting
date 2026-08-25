@@ -1391,3 +1391,10 @@
 - [x] Add a WhatsApp quick-support button linking to +254727374055.
 - [x] Verify social destinations, WhatsApp URL formatting, keyboard access, responsive layout, tests, and production build.
 - [x] Save the validated footer update checkpoint.
+
+# Sitewide WhatsApp Support and Footer Motion
+- [x] Add a floating WhatsApp chat widget to the bottom-right corner across all routes.
+- [x] Add smooth brand-specific hover color transitions and motion to footer social icons.
+- [x] Add a WhatsApp quick-support tooltip showing Monday to Saturday office hours.
+- [x] Verify accessibility, external links, responsive behavior, tests, and production build.
+- [x] Save the validated sitewide support checkpoint.

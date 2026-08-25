@@ -21,6 +21,7 @@ import SharedReport from "./pages/SharedReport";
 import CertificateVerification from "./pages/CertificateVerification";
 import Psychometrics from "./pages/Psychometrics";
 import PsychometricVerification from "./pages/PsychometricVerification";
+import { WhatsAppSupportWidget } from "./components/WhatsAppSupportWidget";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -28,5 +29,5 @@ function Router() {
 }
 
 export default function App() {
-  return <ErrorBoundary><ThemeProvider defaultTheme="light" switchable><TooltipProvider><Toaster /><Router /></TooltipProvider></ThemeProvider></ErrorBoundary>;
+  return <ErrorBoundary><ThemeProvider defaultTheme="light" switchable><TooltipProvider><Toaster /><Router /><WhatsAppSupportWidget /></TooltipProvider></ThemeProvider></ErrorBoundary>;
 }
