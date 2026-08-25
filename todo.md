@@ -1377,3 +1377,11 @@
 - [x] Add regression coverage for administrator filtering and privacy-copy presence.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
 - [x] Save the validated privacy and audit filter checkpoint.
+
+# Google and LinkedIn Social Sign-in
+- [x] Add secure Google OAuth sign-in with database-backed user upsert and session creation.
+- [x] Add secure LinkedIn OAuth sign-in with database-backed user upsert and session creation.
+- [x] Add provider buttons and callback error/loading states to the authentication UI.
+- [x] Add regression coverage for OAuth state validation, account linking, provider failures, and session creation.
+- [x] Run full authentication tests, TypeScript validation, production build, runtime review, and responsive verification.
+- [x] Save the validated social sign-in checkpoint.
