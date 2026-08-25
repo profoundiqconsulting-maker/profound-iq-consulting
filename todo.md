@@ -1486,3 +1486,10 @@
 - [x] Add subject-aware automatic crop suggestion before manual crop adjustment.
 - [x] Add regression coverage and verify analytics comparisons, downloads, auto-crop output, permissions, tests, and responsive UI.
 - [x] Save the validated social analytics and auto-cropping checkpoint.
+
+# Admin Social Preview Interaction Enhancement
+- [x] Add Last 7 Days, Last 30 Days, and custom date-range presets to sharing analytics.
+- [x] Visualize the AI-detected subject region with a bounding overlay or heatmap in the crop editor.
+- [x] Add admin quick-share actions for generated Open Graph cards with tracked platform events.
+- [x] Add regression coverage and verify filters, overlay behavior, quick sharing, accessibility, tests, and responsive UI.
+- [x] Save the validated admin social preview interaction checkpoint.
