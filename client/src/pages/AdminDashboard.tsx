@@ -226,6 +226,10 @@ export default function AdminDashboard() {
   const [securityPage, setSecurityPage] = useState(1);
   const [unlockAuditPage, setUnlockAuditPage] = useState(1);
   const [unlockAuditSearch, setUnlockAuditSearch] = useState("");
+  const [unlockAuditFrom, setUnlockAuditFrom] = useState("");
+  const [unlockAuditTo, setUnlockAuditTo] = useState("");
+  const [adminResetEmail, setAdminResetEmail] = useState("");
+  const [adminResetLink, setAdminResetLink] = useState<string | null>(null);
   const securitySettings = trpc.admin.securitySettings.useQuery(undefined, {
     enabled: Boolean(user?.role === "admin"),
     retry: false,
@@ -250,9 +254,10 @@ export default function AdminDashboard() {
     { enabled: Boolean(user?.role === "admin"), retry: false }
   );
   const unlockAuditHistory = trpc.admin.unlockAuditHistory.useQuery(
-    { page: unlockAuditPage, pageSize: 8, targetSearch: unlockAuditSearch || undefined },
+    { page: unlockAuditPage, pageSize: 8, targetSearch: unlockAuditSearch || undefined, fromDate: unlockAuditFrom || undefined, toDate: unlockAuditTo || undefined },
     { enabled: Boolean(user?.role === "admin"), retry: false }
   );
+  const generateAdminResetLink = trpc.admin.generateAdminResetLink.useMutation({ onSuccess: result => { setAdminResetLink(result.resetUrl); toast.success("One-time reset link generated", { description: "Copy it now; it expires in 10 minutes and is not stored in the console." }); }, onError: error => toast.error("Could not generate reset link", { description: error.message }) });
   const saveSecuritySettings = trpc.admin.saveSecuritySettings.useMutation({
     onSuccess: () => securitySettings.refetch(),
   });
@@ -2162,6 +2167,12 @@ export default function AdminDashboard() {
               </p>
             </div>
           </div>
+          <div className="mt-5 border border-[#a27e2e]/30 bg-[#f7f3e8] p-4">
+            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">SMTP fallback</p>
+            <p className="mt-1 text-xs leading-5 text-[#657084]">Generate a single-use reset link for an administrator when SMTP delivery is unavailable. The link expires in 10 minutes.</p>
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row"><input type="email" value={adminResetEmail || user?.email || ""} onChange={event => setAdminResetEmail(event.target.value)} placeholder="Administrator email" className="min-w-0 flex-1 border border-[#16243d]/20 bg-white px-3 py-2 text-sm text-[#16243d]" /><button type="button" disabled={generateAdminResetLink.isPending} onClick={() => generateAdminResetLink.mutate({ email: adminResetEmail || user?.email || "", origin: window.location.origin })} className="inline-flex items-center justify-center gap-2 bg-[#16243d] px-4 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8] disabled:opacity-60">{generateAdminResetLink.isPending && <RefreshCw size={12} className="animate-spin" />} Generate one-time link</button></div>
+            {adminResetLink && <div className="mt-3 break-all border-l-2 border-[#a27e2e] bg-white p-3 text-xs text-[#16243d]"><strong>Copy now:</strong> {adminResetLink}</div>}
+          </div>
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto]">
             <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
               IP address
@@ -2329,7 +2340,7 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div className="border border-[#16243d]/10 bg-white/60 p-5">
-              <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start"><div><p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">Unlock audit history</p><p className="mt-1 text-xs text-[#657084]">Manual unlock actions recorded with actor and cleared attempts.</p></div><input type="search" value={unlockAuditSearch} onChange={event => { setUnlockAuditSearch(event.target.value); setUnlockAuditPage(1); }} placeholder="Search user or admin" className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs text-[#16243d]" /></div>
+              <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start"><div><p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">Unlock audit history</p><p className="mt-1 text-xs text-[#657084]">Manual unlock actions recorded with actor and cleared attempts.</p></div><div className="grid gap-2 sm:grid-cols-3"><input type="search" value={unlockAuditSearch} onChange={event => { setUnlockAuditSearch(event.target.value); setUnlockAuditPage(1); }} placeholder="Search user or admin" className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs text-[#16243d]" /><input type="date" value={unlockAuditFrom} onChange={event => { setUnlockAuditFrom(event.target.value); setUnlockAuditPage(1); }} className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs text-[#16243d]" /><input type="date" value={unlockAuditTo} onChange={event => { setUnlockAuditTo(event.target.value); setUnlockAuditPage(1); }} className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs text-[#16243d]" /></div></div>
               <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[520px] text-left text-xs"><thead><tr className="border-b border-[#16243d]/10 text-[9px] font-black uppercase tracking-[.12em] text-[#657084]"><th className="py-2 pr-3">When</th><th className="py-2 pr-3">Account</th><th className="py-2 pr-3">Admin</th><th className="py-2">Cleared</th></tr></thead><tbody>{unlockAuditHistory.data?.rows.map(audit => <tr key={audit.id} className="border-b border-[#16243d]/10"><td className="py-2 pr-3">{new Date(audit.createdAt).toLocaleString()}</td><td className="py-2 pr-3">{audit.targetEmail ?? audit.targetOpenId}</td><td className="py-2 pr-3">{audit.actorName ?? audit.actorOpenId}</td><td className="py-2">{audit.clearedAttemptCount}</td></tr>)}</tbody></table>{!(unlockAuditHistory.data?.rows.length) && <p className="py-5 text-sm text-[#657084]">No unlock actions recorded.</p>}</div>
               <div className="mt-3 flex items-center justify-between text-[10px] uppercase tracking-[.1em] text-[#657084]"><span>Page {unlockAuditHistory.data?.page ?? 1} of {unlockAuditHistory.data?.pageCount ?? 1}</span><div className="flex gap-2"><button type="button" disabled={unlockAuditPage <= 1} onClick={() => setUnlockAuditPage(page => page - 1)} className="border border-[#16243d]/20 px-2 py-1 disabled:opacity-40">Previous</button><button type="button" disabled={unlockAuditPage >= (unlockAuditHistory.data?.pageCount ?? 1)} onClick={() => setUnlockAuditPage(page => page + 1)} className="border border-[#16243d]/20 px-2 py-1 disabled:opacity-40">Next</button></div></div>
             </div>

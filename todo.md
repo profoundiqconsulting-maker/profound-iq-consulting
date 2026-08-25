@@ -1329,3 +1329,11 @@
 - [x] Add regression coverage for SMTP/reset handling, unlock audits, regional analytics, and CTA navigation.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
 - [x] Save the validated release checkpoint.
+
+# Admin Reset-Link Fallback, Audit Filters, and Auth Feedback
+- [x] Add an admin-only secure one-time password-reset link generator with a non-persistent console response.
+- [x] Add unlock-audit search and date-range filters across the protected API and Observatory table.
+- [x] Add loading spinners and clear invalid-input errors to Sign in and Create account forms.
+- [x] Add regression coverage for reset-link authorization/expiry, audit filters, and auth feedback behavior.
+- [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
+- [x] Save the validated authentication update checkpoint.

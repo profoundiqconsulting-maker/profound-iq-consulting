@@ -238,13 +238,14 @@ export async function unlockUserLoginFailures(input: { targetOpenId: string; act
   return { clearedAttemptCount, targetEmail: user.email };
 }
 
-export async function getLoginUnlockAudits(input: { page?: number; pageSize?: number; targetSearch?: string } = {}) {
+export async function getLoginUnlockAudits(input: { page?: number; pageSize?: number; targetSearch?: string; from?: Date; to?: Date } = {}) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const page = Math.max(1, input.page ?? 1);
   const pageSize = Math.min(50, Math.max(5, input.pageSize ?? 10));
   const search = input.targetSearch?.trim();
-  const where = search ? or(like(loginUnlockAudits.targetEmail, `%${search}%`), like(loginUnlockAudits.targetOpenId, `%${search}%`), like(loginUnlockAudits.actorName, `%${search}%`)) : undefined;
+  const conditions = [search ? or(like(loginUnlockAudits.targetEmail, `%${search}%`), like(loginUnlockAudits.targetOpenId, `%${search}%`), like(loginUnlockAudits.actorName, `%${search}%`)) : undefined, input.from ? gte(loginUnlockAudits.createdAt, input.from) : undefined, input.to ? lte(loginUnlockAudits.createdAt, input.to) : undefined].filter(Boolean) as Array<ReturnType<typeof eq>>;
+  const where = conditions.length ? and(...conditions) : undefined;
   const [rows, totalRows] = await Promise.all([
     db.select().from(loginUnlockAudits).where(where).orderBy(desc(loginUnlockAudits.createdAt)).limit(pageSize).offset((page - 1) * pageSize),
     db.select({ count: sql<number>`count(*)` }).from(loginUnlockAudits).where(where),
