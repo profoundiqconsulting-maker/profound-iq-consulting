@@ -1500,3 +1500,10 @@
 - [x] Add green/red period-over-period trend indicators to the analytics summary.
 - [x] Add regression coverage and verify crop editing, filtered analytics, trend indicators, share feedback, tests, and responsive UI.
 - [x] Save the validated social analytics control refinement checkpoint.
+
+# Privacy Policy Page
+- [x] Create a dedicated branded Privacy Policy page with clear sections for data use, payments, assessments, communications, sharing, retention, and contact.
+- [x] Register the Privacy Policy route with page-specific SEO metadata and canonical URL.
+- [x] Add a persistent Privacy Policy link to the global footer.
+- [x] Verify route navigation, accessibility, responsive presentation, tests, and production build.
+- [x] Save the validated Privacy Policy checkpoint.
