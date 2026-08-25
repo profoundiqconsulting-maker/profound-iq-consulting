@@ -1298,3 +1298,8 @@
 - [x] Add authorization and behavior regression coverage for schedule controls, audit exports, feedback, and recommendation ranking.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
 - [x] Save the validated schedule-controls and recommendation-feedback checkpoint.
+
+# Login Rate-Limit Window Adjustment
+- [x] Reduce excessive-login-attempt lockout duration to one minute.
+- [x] Update countdown copy and related login security tests.
+- [ ] Run validation and publish the rate-limit adjustment checkpoint.

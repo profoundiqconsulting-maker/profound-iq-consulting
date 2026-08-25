@@ -15,6 +15,8 @@ export function passwordStrength(password: string) {
   return Math.min(5, score);
 }
 
+export const LOGIN_LOCKOUT_WINDOW_MS = 60_000;
+
 export function getRateLimitCountdownSeconds(lockedUntil: number, now = Date.now()) {
   return Math.max(0, Math.ceil((lockedUntil - now) / 1000));
 }

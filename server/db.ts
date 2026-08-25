@@ -12,6 +12,7 @@ import { selectAdminNotificationRecipients } from "../shared/adminRecipients";
 import type { DeliveryLogFilters, DeliveryLogRow } from "../shared/adminDeliveryLog";
 import { clampAuditPagination, type AuditHistoryFilters, type AuditHistoryPage, type AuditHistoryQuery } from "../shared/adminAudit";
 import { ENV } from "./_core/env";
+import { LOGIN_LOCKOUT_WINDOW_MS } from "../shared/localAuth";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -186,7 +187,7 @@ export async function checkLoginRateLimit(identifierHash: string, networkHash: s
   const row = (await db.select().from(authLoginAttempts).where(and(eq(authLoginAttempts.identifierHash, identifierHash), eq(authLoginAttempts.networkHash, networkHash))).limit(1))[0];
   if (!row) return { blocked: false, failedCount: 0 };
   const windowAge = now.getTime() - row.windowStartedAt.getTime();
-  if (windowAge >= 15 * 60 * 1000) { await db.delete(authLoginAttempts).where(eq(authLoginAttempts.id, row.id)); return { blocked: false, failedCount: 0 }; }
+  if (windowAge >= LOGIN_LOCKOUT_WINDOW_MS) { await db.delete(authLoginAttempts).where(eq(authLoginAttempts.id, row.id)); return { blocked: false, failedCount: 0 }; }
   return { blocked: row.failedCount >= 5, failedCount: row.failedCount };
 }
 
@@ -194,7 +195,7 @@ export async function recordFailedLogin(identifierHash: string, networkHash: str
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const existing = (await db.select().from(authLoginAttempts).where(and(eq(authLoginAttempts.identifierHash, identifierHash), eq(authLoginAttempts.networkHash, networkHash))).limit(1))[0];
-  if (!existing || now.getTime() - existing.windowStartedAt.getTime() >= 15 * 60 * 1000) {
+  if (!existing || now.getTime() - existing.windowStartedAt.getTime() >= LOGIN_LOCKOUT_WINDOW_MS) {
     if (existing) await db.delete(authLoginAttempts).where(eq(authLoginAttempts.id, existing.id));
     await db.insert(authLoginAttempts).values({ identifierHash, networkHash, failedCount: 1, windowStartedAt: now, lastFailedAt: now });
     return { failedCount: 1, shouldAlert: false };

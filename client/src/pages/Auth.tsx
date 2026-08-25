@@ -6,7 +6,7 @@ import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { getRateLimitCountdownSeconds, passwordStrength } from "../../../shared/localAuth";
+import { getRateLimitCountdownSeconds, LOGIN_LOCKOUT_WINDOW_MS, passwordStrength } from "../../../shared/localAuth";
 
 type Mode = "login" | "register" | "forgot";
 
@@ -25,7 +25,7 @@ export default function Auth() {
   const [inviteToken] = useState(() => new URLSearchParams(window.location.search).get("invite") ?? "");
   const [lockedUntil, setLockedUntil] = useState<number | null>(null);
   const [remainingSeconds, setRemainingSeconds] = useState(0);
-  const login = trpc.auth.login.useMutation({ onSuccess: () => navigate("/dashboard"), onError: (error) => { if (error.data?.code === "TOO_MANY_REQUESTS") { setLockedUntil(Date.now() + 15 * 60 * 1000); toast.error("Too many failed attempts. Sign-in is temporarily paused."); } else toast.error(error.message); } });
+  const login = trpc.auth.login.useMutation({ onSuccess: () => navigate("/dashboard"), onError: (error) => { if (error.data?.code === "TOO_MANY_REQUESTS") { setLockedUntil(Date.now() + LOGIN_LOCKOUT_WINDOW_MS); toast.error("Too many failed attempts. Sign-in is temporarily paused."); } else toast.error(error.message); } });
   const register = trpc.auth.register.useMutation({ onSuccess: () => navigate("/dashboard"), onError: (error) => toast.error(error.message) });
   const reset = trpc.auth.requestPasswordReset.useMutation({ onSuccess: (result) => toast.success(result.message), onError: (error) => toast.error(error.message) });
 

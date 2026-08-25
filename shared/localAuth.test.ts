@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getRateLimitCountdownSeconds, normalizeIdentifier, passwordStrength, validatePassword } from "./localAuth";
+import { getRateLimitCountdownSeconds, LOGIN_LOCKOUT_WINDOW_MS, normalizeIdentifier, passwordStrength, validatePassword } from "./localAuth";
 import { createResetToken, hashPassword, hashRateLimitKey, hashResetToken, verifyPassword } from "../server/localAuthCrypto";
 
 describe("local credential authentication", () => {
@@ -7,6 +7,11 @@ describe("local credential authentication", () => {
     expect(normalizeIdentifier(" User.Name@Example.COM ")).toBe("user.name@example.com");
     expect(normalizeIdentifier("+254 727-374-055")).toBe("+254727374055");
     expect(normalizeIdentifier("  Amina_User ")).toBe("amina_user");
+  });
+
+  it("uses a one-minute login lockout window", () => {
+    expect(LOGIN_LOCKOUT_WINDOW_MS).toBe(60_000);
+    expect(getRateLimitCountdownSeconds(LOGIN_LOCKOUT_WINDOW_MS, 0)).toBe(60);
   });
 
   it("rounds the rate-limit countdown up and reaches zero at expiry", () => {
