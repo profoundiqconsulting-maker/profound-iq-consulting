@@ -309,6 +309,13 @@
       "when": 1787656919176,
       "tag": "0043_wild_magik",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "5",
+      "when": 1787658746465,
+      "tag": "0044_luxuriant_firebrand",
+      "breakpoints": true
     }
   ]
 }

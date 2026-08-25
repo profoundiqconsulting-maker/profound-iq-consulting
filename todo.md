@@ -1303,3 +1303,11 @@
 - [x] Reduce excessive-login-attempt lockout duration to one minute.
 - [x] Update countdown copy and related login security tests.
 - [x] Run validation and publish the rate-limit adjustment checkpoint.
+
+# Configurable Login Security Analytics
+- [x] Add an admin-configurable login lockout duration with safe bounds and persistence.
+- [x] Show the exact unlock time when a user is temporarily locked out.
+- [x] Add admin security analytics for rate-limit events and failed login attempts with visual trends.
+- [x] Add authorization and behavior regression coverage for settings, lockout calculations, messaging, and analytics.
+- [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
+- [ ] Save the validated configurable security analytics checkpoint.

@@ -12,7 +12,6 @@ import { selectAdminNotificationRecipients } from "../shared/adminRecipients";
 import type { DeliveryLogFilters, DeliveryLogRow } from "../shared/adminDeliveryLog";
 import { clampAuditPagination, type AuditHistoryFilters, type AuditHistoryPage, type AuditHistoryQuery } from "../shared/adminAudit";
 import { ENV } from "./_core/env";
-import { LOGIN_LOCKOUT_WINDOW_MS } from "../shared/localAuth";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -101,20 +100,20 @@ export async function getLoginSecurityAnalytics(input: { from?: Date; to?: Date;
   const sessionConditions = [input.from ? gte(userSessions.createdAt, input.from) : undefined, input.to ? lte(userSessions.createdAt, input.to) : undefined].filter(Boolean) as Array<ReturnType<typeof gte>>;
   const bucket = (value: Date) => { if (input.granularity === "daily") return value.toISOString().slice(0, 10); const start = new Date(Date.UTC(value.getUTCFullYear(), 0, 1)); const day = Math.floor((value.getTime() - start.getTime()) / 86400000); return `${value.getUTCFullYear()}-W${String(Math.floor((day + start.getUTCDay()) / 7) + 1).padStart(2, "0")}`; };
   const [loginSource, deviceSource] = await Promise.all([
-    db.select({ createdAt: loginEvents.createdAt, success: loginEvents.success }).from(loginEvents).where(loginConditions.length ? and(...loginConditions) : undefined),
+    db.select({ createdAt: loginEvents.createdAt, success: loginEvents.success, failureCode: loginEvents.failureCode }).from(loginEvents).where(loginConditions.length ? and(...loginConditions) : undefined),
     db.select({ createdAt: userSessions.createdAt, deviceType: userSessions.deviceType }).from(userSessions).where(sessionConditions.length ? and(...sessionConditions) : undefined),
   ]);
   const loginMap = new Map<string, number>();
-  loginSource.forEach((row) => { const key = `${bucket(row.createdAt)}::${row.success}`; loginMap.set(key, (loginMap.get(key) ?? 0) + 1); });
+  loginSource.forEach((row) => { const key = `${bucket(row.createdAt)}::${row.success}::${row.failureCode ?? ""}`; loginMap.set(key, (loginMap.get(key) ?? 0) + 1); });
   const deviceMap = new Map<string, number>();
   deviceSource.forEach((row) => { const key = `${bucket(row.createdAt)}::${row.deviceType ?? "unknown"}`; deviceMap.set(key, (deviceMap.get(key) ?? 0) + 1); });
-  return normalizeLoginAnalyticsRows(Array.from(loginMap.entries()).map(([key, count]) => { const [week, success] = key.split("::"); return { week, success: success === "true", count }; }), Array.from(deviceMap.entries()).map(([key, count]) => { const [week, deviceType] = key.split("::"); return { week, deviceType, count }; }));
+  return normalizeLoginAnalyticsRows(Array.from(loginMap.entries()).map(([key, count]) => { const [week, success, failureCode] = key.split("::"); return { week, success: success === "true", failureCode: failureCode || null, count }; }), Array.from(deviceMap.entries()).map(([key, count]) => { const [week, deviceType] = key.split("::"); return { week, deviceType, count }; }));
 }
 
 export async function getAdminSecuritySettings(adminOpenId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  return (await db.select().from(adminSecuritySettings).where(eq(adminSecuritySettings.adminOpenId, adminOpenId)).limit(1))[0] ?? { id: 0, adminOpenId, alertThreshold: 5, reviewWindowDays: 7, loginEventRetentionDays: 90, updatedAt: new Date(0) };
+  return (await db.select().from(adminSecuritySettings).where(eq(adminSecuritySettings.adminOpenId, adminOpenId)).limit(1))[0] ?? { id: 0, adminOpenId, alertThreshold: 5, reviewWindowDays: 7, loginEventRetentionDays: 90, lockoutWindowSeconds: 60, updatedAt: new Date(0) };
 }
 
 export async function getEffectiveLoginAlertThreshold() {
@@ -122,6 +121,13 @@ export async function getEffectiveLoginAlertThreshold() {
   if (!db) throw new Error("Database is not available");
   const row = (await db.select({ threshold: sql<number>`min(${adminSecuritySettings.alertThreshold})` }).from(adminSecuritySettings))[0];
   return Math.max(3, Math.min(20, Number(row?.threshold ?? 5)));
+}
+
+export async function getEffectiveLoginLockoutWindowSeconds() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const row = (await db.select({ window: sql<number>`min(${adminSecuritySettings.lockoutWindowSeconds})` }).from(adminSecuritySettings))[0];
+  return Math.max(60, Math.min(86400, Number(row?.window ?? 60)));
 }
 
 export async function getEffectiveLoginEventRetentionDays(adminOpenId: string) {
@@ -137,7 +143,7 @@ export async function purgeExpiredLoginEvents(retentionDays: number, now = new D
   return cutoff;
 }
 
-export async function saveAdminSecuritySettings(adminOpenId: string, input: { alertThreshold: number; reviewWindowDays: number; loginEventRetentionDays: number }) {
+export async function saveAdminSecuritySettings(adminOpenId: string, input: { alertThreshold: number; reviewWindowDays: number; loginEventRetentionDays: number; lockoutWindowSeconds: number }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   await db.insert(adminSecuritySettings).values({ adminOpenId, ...input }).onDuplicateKeyUpdate({ set: input });
@@ -184,18 +190,22 @@ export async function revokeOtherUserSessions(openId: string, currentTokenHash: 
 export async function checkLoginRateLimit(identifierHash: string, networkHash: string, now = new Date()) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
+  const windowSeconds = await getEffectiveLoginLockoutWindowSeconds();
+  const windowMs = windowSeconds * 1000;
   const row = (await db.select().from(authLoginAttempts).where(and(eq(authLoginAttempts.identifierHash, identifierHash), eq(authLoginAttempts.networkHash, networkHash))).limit(1))[0];
-  if (!row) return { blocked: false, failedCount: 0 };
+  if (!row) return { blocked: false, failedCount: 0, unlockAt: null as Date | null, windowSeconds };
   const windowAge = now.getTime() - row.windowStartedAt.getTime();
-  if (windowAge >= LOGIN_LOCKOUT_WINDOW_MS) { await db.delete(authLoginAttempts).where(eq(authLoginAttempts.id, row.id)); return { blocked: false, failedCount: 0 }; }
-  return { blocked: row.failedCount >= 5, failedCount: row.failedCount };
+  if (windowAge >= windowMs) { await db.delete(authLoginAttempts).where(eq(authLoginAttempts.id, row.id)); return { blocked: false, failedCount: 0, unlockAt: null as Date | null, windowSeconds }; }
+  const blocked = row.failedCount >= 5;
+  return { blocked, failedCount: row.failedCount, unlockAt: blocked ? new Date(row.windowStartedAt.getTime() + windowMs) : null, windowSeconds };
 }
 
 export async function recordFailedLogin(identifierHash: string, networkHash: string, now = new Date(), alertThreshold = 5) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
+  const windowMs = (await getEffectiveLoginLockoutWindowSeconds()) * 1000;
   const existing = (await db.select().from(authLoginAttempts).where(and(eq(authLoginAttempts.identifierHash, identifierHash), eq(authLoginAttempts.networkHash, networkHash))).limit(1))[0];
-  if (!existing || now.getTime() - existing.windowStartedAt.getTime() >= LOGIN_LOCKOUT_WINDOW_MS) {
+  if (!existing || now.getTime() - existing.windowStartedAt.getTime() >= windowMs) {
     if (existing) await db.delete(authLoginAttempts).where(eq(authLoginAttempts.id, existing.id));
     await db.insert(authLoginAttempts).values({ identifierHash, networkHash, failedCount: 1, windowStartedAt: now, lastFailedAt: now });
     return { failedCount: 1, shouldAlert: false };

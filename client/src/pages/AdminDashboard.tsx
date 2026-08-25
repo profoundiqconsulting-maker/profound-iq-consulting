@@ -252,6 +252,7 @@ export default function AdminDashboard() {
   const [alertThreshold, setAlertThreshold] = useState(5);
   const [reviewWindowDays, setReviewWindowDays] = useState(7);
   const [loginEventRetentionDays, setLoginEventRetentionDays] = useState(90);
+  const [lockoutWindowSeconds, setLockoutWindowSeconds] = useState(60);
   const saveTemplate = trpc.admin.saveEmailTemplate.useMutation();
   const sendTemplateTest = trpc.admin.sendTemplateTestEmail.useMutation();
   const enableWeeklyExport = trpc.admin.enableWeeklyExport.useMutation();
@@ -320,6 +321,7 @@ export default function AdminDashboard() {
     setLoginEventRetentionDays(
       securitySettings.data.loginEventRetentionDays ?? 90
     );
+    setLockoutWindowSeconds(securitySettings.data.lockoutWindowSeconds ?? 60);
   }, [securitySettings.data]);
 
   useEffect(() => {
@@ -1029,8 +1031,16 @@ export default function AdminDashboard() {
                           />
                           <Line
                             type="monotone"
+                            dataKey="failed"
+                            name="Failed attempts"
+                            stroke="#f59e0b"
+                            strokeWidth={2}
+                            dot={{ r: 3, fill: "#f59e0b" }}
+                          />
+                          <Line
+                            type="monotone"
                             dataKey="blocked"
-                            name="Blocked"
+                            name="Rate limited"
                             stroke="#fca5a5"
                             strokeWidth={2}
                             dot={{ r: 3, fill: "#fca5a5" }}
@@ -2193,6 +2203,18 @@ export default function AdminDashboard() {
               />
             </label>
             <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+              Lockout duration (seconds)
+              <input
+                type="number"
+                min="60"
+                max="86400"
+                value={lockoutWindowSeconds}
+                onChange={event => setLockoutWindowSeconds(Number(event.target.value))}
+                className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm font-bold normal-case tracking-normal text-[#16243d]"
+              />
+              <span className="mt-1 block text-[10px] font-normal normal-case tracking-normal text-[#657084]">Allowed range: 1 minute to 24 hours.</span>
+            </label>
+            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
               Log retention (days)
               <input
                 type="number"
@@ -2212,6 +2234,7 @@ export default function AdminDashboard() {
                   alertThreshold,
                   reviewWindowDays,
                   loginEventRetentionDays,
+                  lockoutWindowSeconds,
                 })
               }
               disabled={saveSecuritySettings.isPending}

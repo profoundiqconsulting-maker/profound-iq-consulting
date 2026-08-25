@@ -279,6 +279,7 @@ export const adminSecuritySettings = mysqlTable("admin_security_settings", {
   alertThreshold: int("alertThreshold").default(5).notNull(),
   reviewWindowDays: int("reviewWindowDays").default(7).notNull(),
   loginEventRetentionDays: int("loginEventRetentionDays").default(90).notNull(),
+  lockoutWindowSeconds: int("lockoutWindowSeconds").default(60).notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
   adminUnique: uniqueIndex("admin_security_settings_admin_unique").on(table.adminOpenId),

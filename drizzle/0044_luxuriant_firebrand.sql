@@ -1,0 +1,1 @@
+ALTER TABLE `admin_security_settings` ADD `lockoutWindowSeconds` int DEFAULT 60 NOT NULL;
