@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { normalizeLeaderboardDisplayName, rankAchievementLeaderboard, type AchievementBadge, type AchievementLeaderboardRow } from "../shared/achievements";
 import { courseCatalog } from "../shared/courseCatalog";
 import { buildCourseModuleBadges } from "../shared/courseBadges";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -841,7 +841,7 @@ export async function createScheduledExportIfMissing(exportKey: string) {
   await db.insert(scheduledExports).values({ exportKey });
   return getScheduledExport(exportKey);
 }
-export async function updateScheduledExport(exportKey: string, input: { scheduleTaskUid?: string; lastRunAt?: Date; lastFileKey?: string; lastFileUrl?: string; retentionDays?: number }) {
+export async function updateScheduledExport(exportKey: string, input: { scheduleTaskUid?: string; lastRunAt?: Date; lastFileKey?: string; lastFileUrl?: string; retentionDays?: number; pausedAt?: Date | null; pausedByOpenId?: string | null; pausedByName?: string | null }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   await db.update(scheduledExports).set(input).where(eq(scheduledExports.exportKey, exportKey));
@@ -1440,4 +1440,27 @@ export async function listPsychometricFailedDeliveries(input: { limit?: number }
 
 export async function getPsychometricWeeklySchedule() {
   return getScheduledExport("weekly_psychometric_analytics");
+}
+
+export async function setPsychometricWeeklySchedulePaused(input: { paused: boolean; adminOpenId: string; adminName: string }) {
+  return updateScheduledExport("weekly_psychometric_analytics", input.paused ? { pausedAt: new Date(), pausedByOpenId: input.adminOpenId, pausedByName: input.adminName } : { pausedAt: null, pausedByOpenId: null, pausedByName: null });
+}
+
+export async function addPsychometricAcknowledgementLog(input: { attemptId: number; actorOpenId: string; actorName: string; note: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(psychometricDeliveryAcknowledgementLogs).values(input);
+}
+
+export async function listPsychometricAcknowledgementLogs(limit = 250) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(psychometricDeliveryAcknowledgementLogs).orderBy(desc(psychometricDeliveryAcknowledgementLogs.createdAt)).limit(Math.min(500, Math.max(1, limit)));
+}
+
+export async function savePsychometricRecommendationFeedback(input: { userOpenId: string; testSlug: string; courseSlug: string; rating: number; goal?: string | null }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(psychometricRecommendationFeedback).values(input).onDuplicateKeyUpdate({ set: { rating: input.rating, goal: input.goal ?? null, createdAt: new Date() } });
+  return true;
 }

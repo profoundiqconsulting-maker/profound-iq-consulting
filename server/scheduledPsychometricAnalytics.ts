@@ -19,6 +19,7 @@ export async function weeklyPsychometricAnalyticsHandler(req: Request, res: Resp
     if (!user.isCron || !user.taskUid) return res.status(403).json({ error: "cron-only" });
     const record = await getScheduledExport(PSYCHOMETRIC_WEEKLY_EXPORT_KEY);
     if (!record || record.scheduleTaskUid !== user.taskUid) return res.json({ ok: true, skipped: "orphan" });
+    if (record.pausedAt) return res.json({ ok: true, skipped: "paused", pausedAt: new Date(record.pausedAt).toISOString() });
     if (record.lastRunAt && sameUtcWeek(new Date(record.lastRunAt), timestamp)) return res.json({ ok: true, skipped: "already-generated" });
     const from = new Date(timestamp.getTime() - 7 * 24 * 60 * 60 * 1000);
     const fromDate = from.toISOString().slice(0, 10);

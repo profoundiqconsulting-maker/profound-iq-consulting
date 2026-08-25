@@ -142,7 +142,7 @@ export default function Home() {
 
       <main id="top">
         <section className="grain relative min-h-[720px] border-b border-white/10 bg-[#101d35]">
-          <div className="absolute inset-0 bg-[url('/manus-storage/profound-hero_f95a7f36.jpg')] bg-cover bg-center opacity-85" />
+          <div className="absolute inset-0 bg-[url('/manus-storage/profound-hero_112264bd.jpg')] bg-cover bg-center opacity-85" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#101d35] via-[#101d35]/88 to-[#101d35]/20" />
           <div className="container relative flex min-h-[720px] flex-col justify-end pb-16 pt-36 lg:pb-24">
             <div className="grid max-w-6xl grid-cols-1 gap-12 lg:grid-cols-[1fr_270px] lg:items-end">

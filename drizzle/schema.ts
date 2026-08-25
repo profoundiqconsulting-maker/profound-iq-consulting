@@ -209,7 +209,29 @@ export const scheduledExports = mysqlTable("scheduled_exports", {
   lastFileUrl: varchar("lastFileUrl", { length: 512 }),
   retentionDays: int("retentionDays").default(30).notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  pausedAt: timestamp("pausedAt"),
+  pausedByOpenId: varchar("pausedByOpenId", { length: 64 }),
+  pausedByName: varchar("pausedByName", { length: 160 }),
 });
+
+export const psychometricDeliveryAcknowledgementLogs = mysqlTable("psychometric_delivery_acknowledgement_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  attemptId: int("attemptId").notNull(),
+  actorOpenId: varchar("actorOpenId", { length: 64 }).notNull(),
+  actorName: varchar("actorName", { length: 160 }),
+  note: text("note").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const psychometricRecommendationFeedback = mysqlTable("psychometric_recommendation_feedback", {
+  id: int("id").autoincrement().primaryKey(),
+  userOpenId: varchar("userOpenId", { length: 64 }).notNull(),
+  testSlug: varchar("testSlug", { length: 120 }).notNull(),
+  courseSlug: varchar("courseSlug", { length: 120 }).notNull(),
+  rating: int("rating").notNull(),
+  goal: varchar("goal", { length: 64 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({ recommendationFeedbackUnique: uniqueIndex("psychometric_recommendation_feedback_unique").on(table.userOpenId, table.testSlug, table.courseSlug) }));
 
 export const scheduledExportRuns = mysqlTable("scheduled_export_runs", {
   id: int("id").autoincrement().primaryKey(),

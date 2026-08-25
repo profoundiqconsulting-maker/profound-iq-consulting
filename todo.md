@@ -1288,3 +1288,13 @@
 - [x] Add schedule, acknowledgement, authorization, delivery, and recommendation regression coverage.
 - [x] Run full tests, TypeScript validation, production build, scheduled-handler checks, runtime review, and responsive verification.
 - [x] Save the validated weekly delivery and recommendation refinement checkpoint.
+
+# Schedule Controls, Acknowledgement Audit, and Recommendation Feedback
+- [x] Add pause and resume controls for the automated weekly psychometric analytics schedule.
+- [x] Add acknowledgement notes and an auditable export for handled delivery failures.
+- [x] Add learner feedback capture for psychometric course recommendations and use it in future ranking.
+- [x] Resolve the hero image asset warning using a deployment-safe managed asset reference.
+- [x] Update and validate the reusable psychometric operations skill with the new workflows.
+- [x] Add authorization and behavior regression coverage for schedule controls, audit exports, feedback, and recommendation ranking.
+- [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
+- [ ] Save the validated schedule-controls and recommendation-feedback checkpoint.
