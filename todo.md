@@ -1354,3 +1354,11 @@
 - [x] Add regression coverage for revocation, export-download auditing, and profile-picture synchronization.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
 - [x] Save the validated security and navigation checkpoint.
+
+# Security Observatory Privacy and Audit UX
+- [x] Add an administrator confirmation dialog before reset-link revocation.
+- [x] Add search, UTC date-range filters, and pagination to export-download history.
+- [x] Add a protected profile setting to remove the stored Google profile picture and restore initials in navigation.
+- [x] Create and validate the reusable profound-iq-security-observatory skill.
+- [x] Run TypeScript validation, full tests, production build, runtime review, and responsive verification.
+- [x] Save the validated privacy and audit UX checkpoint.

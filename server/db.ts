@@ -243,11 +243,12 @@ export async function recordUnlockAuditExportDownload(input: { adminOpenId: stri
   if (!db) throw new Error("Database is not available");
   await db.insert(unlockAuditExportDownloads).values(input);
 }
-export async function getUnlockAuditExportDownloads(input: { page?: number; pageSize?: number } = {}) {
+export async function getUnlockAuditExportDownloads(input: { page?: number; pageSize?: number; search?: string; from?: Date; to?: Date } = {}) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const page = Math.max(1, input.page ?? 1); const pageSize = Math.min(50, Math.max(5, input.pageSize ?? 10));
-  const [rows, totalRows] = await Promise.all([db.select().from(unlockAuditExportDownloads).orderBy(desc(unlockAuditExportDownloads.createdAt)).limit(pageSize).offset((page - 1) * pageSize), db.select({ count: sql<number>`count(*)` }).from(unlockAuditExportDownloads)]);
+  const filters = []; if (input.search?.trim()) { const q = `%${input.search.trim()}%`; filters.push(or(like(unlockAuditExportDownloads.adminName, q), like(unlockAuditExportDownloads.adminOpenId, q), like(unlockAuditExportDownloads.filename, q))); } if (input.from) filters.push(gte(unlockAuditExportDownloads.createdAt, input.from)); if (input.to) filters.push(lte(unlockAuditExportDownloads.createdAt, input.to)); const where = filters.length ? and(...filters) : undefined;
+  const [rows, totalRows] = await Promise.all([db.select().from(unlockAuditExportDownloads).where(where).orderBy(desc(unlockAuditExportDownloads.createdAt)).limit(pageSize).offset((page - 1) * pageSize), db.select({ count: sql<number>`count(*)` }).from(unlockAuditExportDownloads).where(where)]);
   const total = Number(totalRows[0]?.count ?? 0); return { rows, total, page, pageSize, pageCount: Math.max(1, Math.ceil(total / pageSize)) };
 }
 export async function getLoginUnlockAudits(input: { page?: number; pageSize?: number; targetSearch?: string; from?: Date; to?: Date } = {}) {
