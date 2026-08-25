@@ -1509,13 +1509,13 @@
 - [x] Save the validated Privacy Policy checkpoint.
 
 # Legal and Cookie Consent Experience
-- [ ] Add a lightweight cookie consent banner with accept-all and customizable tracking preferences.
-- [ ] Persist consent choices and provide an accessible way to reopen or update preferences.
-- [ ] Create a dedicated branded Terms of Service page with route-specific SEO metadata.
-- [ ] Link Terms of Service beside Privacy Policy in the global footer.
-- [ ] Add a sticky Privacy Policy table of contents with responsive mobile navigation.
-- [ ] Add regression coverage and verify consent persistence, legal navigation, accessibility, SEO, tests, and production build.
-- [ ] Save the validated legal and consent experience checkpoint.
+- [x] Add a lightweight cookie consent banner with accept-all and customizable tracking preferences.
+- [x] Persist consent choices and provide an accessible way to reopen or update preferences.
+- [x] Create a dedicated branded Terms of Service page with route-specific SEO metadata.
+- [x] Link Terms of Service beside Privacy Policy in the global footer.
+- [x] Add a sticky Privacy Policy table of contents with responsive mobile navigation.
+- [x] Add regression coverage and verify consent persistence, legal navigation, accessibility, SEO, tests, and production build.
+- [x] Save the validated legal and consent experience checkpoint.
 
 # Legal and Compliance Finalization
 - [x] Add a sticky Privacy Policy table of contents on desktop with anchored section navigation.
