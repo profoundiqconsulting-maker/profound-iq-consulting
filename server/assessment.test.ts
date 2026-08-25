@@ -34,11 +34,11 @@ describe("professional course curriculum", () => {
 
 describe("course discovery and student dashboard", () => {
   it("exposes catalog search and category filtering with a no-match reset", () => {
-    expect(coursesPageSource).toMatch(/Search courses, topics, or outcomes/);
-    expect(coursesPageSource).toMatch(/All categories/);
+    expect(coursesPageSource).toMatch(/searchCourses|Search courses, topics, or outcomes/);
+    expect(coursesPageSource).toMatch(/allCategories|All categories/);
     expect(coursesPageSource).toMatch(/filteredCourses/);
-    expect(coursesPageSource).toMatch(/No courses match that search/);
-    expect(coursesPageSource).toMatch(/Clear filters/);
+    expect(coursesPageSource).toMatch(/noCourseMatch|No courses match that search/);
+    expect(coursesPageSource).toMatch(/clearFilters|Clear filters/);
   });
 
   it("exposes progress, quiz performance, and upcoming installment schedule cards", () => {

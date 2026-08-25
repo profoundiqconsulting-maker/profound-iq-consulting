@@ -25,6 +25,7 @@ import { BarChart3, BookOpen, ClipboardCheck, LayoutDashboard, LogOut, PanelLeft
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
+import { useLocale } from "@/contexts/LocaleContext";
 import { Button } from "./ui/button";
 
 const menuItems = [
@@ -52,6 +53,7 @@ export default function DashboardLayout({
     return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
   });
   const { loading, user } = useAuth();
+  const { t } = useLocale();
 
   useEffect(() => {
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
@@ -67,7 +69,7 @@ export default function DashboardLayout({
         <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
           <div className="flex flex-col items-center gap-6">
             <h1 className="text-2xl font-semibold tracking-tight text-center">
-              Sign in to continue
+              {t("signInToContinue")}
             </h1>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
               Access to this dashboard requires authentication. Continue to launch the login flow.
@@ -78,7 +80,7 @@ export default function DashboardLayout({
             size="lg"
             className="w-full shadow-lg hover:shadow-xl transition-all"
           >
-            Sign in
+            {t("signIn")}
           </Button>
         </div>
       </div>
@@ -110,12 +112,14 @@ function DashboardLayoutContent({
   setSidebarWidth,
 }: DashboardLayoutContentProps) {
   const { user, logout } = useAuth();
+  const { t } = useLocale();
   const [location, setLocation] = useLocation();
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const activeMenuItem = menuItems.find(item => item.path === location);
+  const localizedMenuItems = menuItems.map((item) => ({ ...item, label: item.label === "Overview" ? t("overview") : item.label === "Self Assessment" ? t("selfAssessment") : item.label === "CareerPath" ? t("careerPath") : item.label === "Courses" ? t("courses") : item.label === "Admin observatory" ? t("adminObservatory") : item.label === "Staff workspace" ? t("staffWorkspace") : t("settings") }));
+  const activeMenuItem = localizedMenuItems.find(item => item.path === location);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -174,7 +178,7 @@ function DashboardLayoutContent({
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="font-semibold tracking-tight truncate">
-                    Navigation
+                    {t("navigation")}
                   </span>
                 </div>
               ) : null}
@@ -183,7 +187,7 @@ function DashboardLayoutContent({
 
           <SidebarContent className="gap-0">
             <SidebarMenu className="px-2 py-1">
-              {menuItems.filter((item) => (!item.adminOnly || user?.role === "admin") && (!item.staffOnly || user?.role === "admin" || user?.role === "staff")).map((item) => {
+              {localizedMenuItems.filter((item) => (!item.adminOnly || user?.role === "admin") && (!item.staffOnly || user?.role === "admin" || user?.role === "staff")).map((item) => {
                 const isActive = location === item.path;
                 return (
                   <SidebarMenuItem key={item.path}>
@@ -230,7 +234,7 @@ function DashboardLayoutContent({
                   className="cursor-pointer text-destructive focus:text-destructive"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sign out</span>
+                  <span>{t("signOut")}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

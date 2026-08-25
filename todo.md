@@ -1559,3 +1559,12 @@
 
 # End state
 - [x] Profound IQ Consulting legal/compliance experience is ready for user review.
+
+# Sitewide Localization
+- [x] Define supported major-language locales and a translation key contract with English fallback.
+- [x] Add a persistent, accessible language selector to the shared public experience.
+- [x] Translate shared navigation, homepage, footer, cookie consent, WhatsApp support, Privacy Policy, Terms of Service, and public catalog labels.
+- [x] Add locale-aware document language, SEO metadata, Open Graph locale, and canonical/hreflang behavior.
+- [x] Ensure authenticated and assessment surfaces use the localization provider for shared labels and actions, preserving dynamic user/course data.
+- [x] Add localization regression tests and verify responsive language switching, type checking, tests, and production build.
+- [x] Save a checkpoint for the multilingual experience.
