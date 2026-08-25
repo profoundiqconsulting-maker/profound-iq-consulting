@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { normalizeLeaderboardDisplayName, rankAchievementLeaderboard, type AchievementBadge, type AchievementLeaderboardRow } from "../shared/achievements";
 import { courseCatalog } from "../shared/courseCatalog";
 import { buildCourseModuleBadges } from "../shared/courseBadges";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, siteSeoSettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -939,6 +939,19 @@ export async function upsertAdminAnalyticsSettings(adminOpenId: string, input: {
   if ("id" in existing) await db.update(adminAnalyticsSettings).set(input).where(eq(adminAnalyticsSettings.adminOpenId, adminOpenId));
   else await db.insert(adminAnalyticsSettings).values({ adminOpenId, ...input });
   return getAdminAnalyticsSettings(adminOpenId);
+}
+
+export async function getSiteSeoSetting(settingKey: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return (await db.select({ settingValue: siteSeoSettings.settingValue }).from(siteSeoSettings).where(eq(siteSeoSettings.settingKey, settingKey)).limit(1))[0]?.settingValue ?? null;
+}
+
+export async function upsertSiteSeoSetting(settingKey: string, settingValue: string, updatedByOpenId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(siteSeoSettings).values({ settingKey, settingValue, updatedByOpenId }).onDuplicateKeyUpdate({ set: { settingValue, updatedByOpenId } });
+  return getSiteSeoSetting(settingKey);
 }
 
 export async function addEmailPreviewDelivery(input: { templateKey: string; recipientEmail: string; subject: string; body?: string | null; status: "sent" | "failed"; errorMessage?: string | null }) {

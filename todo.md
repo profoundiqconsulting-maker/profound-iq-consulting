@@ -1456,3 +1456,11 @@
 - [x] Add image dimensions and image metadata where needed for social crawlers.
 - [x] Add regression coverage and verify share-preview HTML, image responses, tests, and production build.
 - [x] Save the validated social preview image repair checkpoint.
+
+# Dynamic Course Social Preview Enhancement
+- [x] Generate deployment-safe course-specific Open Graph images using each course title and cover treatment.
+- [x] Resolve each course detail page to its specific social preview image with a fallback.
+- [x] Add a floating course share bar with per-platform analytics tracking.
+- [x] Add an admin interface to update and persist the default fallback social image.
+- [x] Add regression coverage and verify image responses, metadata, share tracking, admin permissions, responsiveness, tests, and build.
+- [x] Save the validated dynamic course social preview checkpoint.

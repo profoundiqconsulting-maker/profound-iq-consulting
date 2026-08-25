@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildSitemapXml, renderCourseCatalogPage, renderCourseDetailPage } from "./seoRoutes";
+import { buildSitemapXml, courseSocialImageUrl, renderCourseCatalogPage, renderCourseDetailPage, renderCourseSocialImage } from "./seoRoutes";
+import sharp from "sharp";
 
 describe("course SEO server routes", () => {
   it("includes every published course slug in the sitemap without duplicates", () => {
@@ -7,6 +8,15 @@ describe("course SEO server routes", () => {
     expect(xml).toContain("https://profoundiqconsulting.com/courses/leadership-development");
     expect(xml).toContain("https://profoundiqconsulting.com/courses/new-course");
     expect(xml.match(/<url>/g)?.length).toBe(9);
+  });
+
+  it("generates a course-specific absolute PNG preview image", async () => {
+    const image = await renderCourseSocialImage({ slug: "decision-lab", title: "Decision Lab", strapline: "Practice better decisions", description: "A focused professional course.", priceKes: 4999 });
+    const metadata = await sharp(image).metadata();
+    expect(courseSocialImageUrl("decision-lab")).toBe("https://profoundiq-vguqrhsm.manus.space/og/course/decision-lab.png");
+    expect(metadata.format).toBe("png");
+    expect(metadata.width).toBe(1200);
+    expect(metadata.height).toBe(630);
   });
 
   it("renders individual course metadata and JSON-LD inside the app root", () => {

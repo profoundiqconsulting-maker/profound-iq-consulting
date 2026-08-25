@@ -52,6 +52,7 @@ import AdminStaffPanel from "@/components/AdminStaffPanel";
 import AdminCatalogPanel from "@/components/AdminCatalogPanel";
 import AdminCourseDeliveryPanel from "@/components/AdminCourseDeliveryPanel";
 import AdminPaymentExceptionsPanel from "@/components/AdminPaymentExceptionsPanel";
+import AdminSocialPreviewSettings from "@/components/AdminSocialPreviewSettings";
 import { buildFunnelComparison } from "@shared/adminAnalytics";
 import { renderEmailTemplate } from "@shared/emailTemplate";
 import { Streamdown } from "streamdown";
@@ -657,6 +658,7 @@ export default function AdminDashboard() {
             <LockKeyhole size={15} className="text-[#a27e2e]" /> Admin only
           </div>
         </div>
+        <AdminSocialPreviewSettings />
         {overview.isLoading && (
           <div className="mt-10 flex items-center gap-3 border-l-2 border-[#c9a34e] bg-white/50 px-5 py-4 text-sm">
             <RefreshCw size={16} className="animate-spin text-[#a27e2e]" />{" "}

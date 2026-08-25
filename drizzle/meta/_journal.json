@@ -337,6 +337,13 @@
       "when": 1787676202206,
       "tag": "0047_medical_surge",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "5",
+      "when": 1787683195381,
+      "tag": "0048_lush_mattie_franklin",
+      "breakpoints": true
     }
   ]
 }

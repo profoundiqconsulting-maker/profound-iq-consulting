@@ -351,6 +351,13 @@ export const adminAnalyticsSettings = mysqlTable("admin_analytics_settings", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+export const siteSeoSettings = mysqlTable("site_seo_settings", {
+  settingKey: varchar("settingKey", { length: 80 }).primaryKey(),
+  settingValue: text("settingValue").notNull(),
+  updatedByOpenId: varchar("updatedByOpenId", { length: 64 }).notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 export const reportShares = mysqlTable("report_shares", {
   id: int("id").autoincrement().primaryKey(),
   attemptId: int("attemptId").notNull(),
