@@ -307,3 +307,32 @@ export async function renderPsychometricReportPdf(input: PsychometricPdfInput): 
   doc.end();
   return finished;
 }
+
+export type PsychometricAnalyticsPdfInput = { fromDate?: string; toDate?: string; analytics: { totals: { started: number; paid: number; pending: number; sent: number; sending: number; failed: number; conversionRate: number; emailRate: number }; byProfile: Array<{ testSlug: string; started: number; paid: number; sent: number; pending: number; conversionRate: number; emailRate: number }>; trend: Array<{ date: string; started: number; paid: number; sent: number }> } };
+
+export async function renderPsychometricAnalyticsPdf(input: PsychometricAnalyticsPdfInput): Promise<Buffer> {
+  const doc = new PDFDocument({ size: "A4", margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: "Profound IQ Psychometric Analytics", Author: "Profound IQ Consulting" } });
+  const chunks: Buffer[] = [];
+  doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+  const finished = new Promise<Buffer>((resolve, reject) => { doc.on("end", () => resolve(Buffer.concat(chunks))); doc.on("error", reject); });
+  const brandLogo = await loadBrandLogo();
+  doc.fillColor(NAVY).rect(0, 0, doc.page.width, 92).fill();
+  if (brandLogo) { try { doc.image(brandLogo, 52, 10, { fit: [116, 72], valign: "center" }); } catch { /* Text lockup remains available. */ } }
+  doc.fillColor("#f7f3e8").font("Helvetica-Bold").fontSize(15).text("PSYCHOMETRIC SUITE", brandLogo ? 190 : 52, 30);
+  doc.font("Helvetica").fontSize(9).fillColor("#d7deea").text("Conversion and report-delivery observatory", brandLogo ? 190 : 52, 54);
+  doc.y = 122;
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(22).text("Analytics summary");
+  doc.font("Helvetica").fontSize(9).fillColor(MUTED).text(`Period: ${input.fromDate ?? "All time"} to ${input.toDate ?? "Present"}`);
+  doc.moveDown(1);
+  const metrics = [["Starts", input.analytics.totals.started], ["Paid", input.analytics.totals.paid], ["Conversion", `${input.analytics.totals.conversionRate}%`], ["Reports sent", input.analytics.totals.sent], ["Email rate", `${input.analytics.totals.emailRate}%`], ["Failures", input.analytics.totals.failed]];
+  metrics.forEach(([label, value], index) => { const x = 52 + (index % 3) * 170; const y = 180 + Math.floor(index / 3) * 58; doc.fillColor("#f7f3e8").roundedRect(x, y, 150, 42, 5).fill(); doc.fillColor(MUTED).fontSize(8).text(String(label).toUpperCase(), x + 10, y + 8); doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(15).text(String(value), x + 10, y + 21); });
+  doc.y = 310;
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(13).text("Profile performance");
+  doc.moveDown(.5);
+  input.analytics.byProfile.forEach((profile) => { doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(9).text(profile.testSlug); doc.fillColor(MUTED).font("Helvetica").fontSize(8).text(`${profile.started} starts · ${profile.paid} paid · ${profile.conversionRate}% conversion · ${profile.emailRate}% emailed`, { indent: 10 }); doc.moveDown(.4); });
+  doc.moveDown(1); doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(13).text("Recent trend"); doc.moveDown(.5);
+  input.analytics.trend.slice(-14).forEach((point) => { doc.fillColor(MUTED).font("Helvetica").fontSize(8).text(`${point.date}   ${point.started} starts   ${point.paid} paid   ${point.sent} sent`); });
+  doc.moveDown(2); doc.fillColor(MUTED).fontSize(8).text("Operational analytics only. This report contains aggregate counts and does not expose learner responses or report payloads.");
+  doc.end();
+  return finished;
+}

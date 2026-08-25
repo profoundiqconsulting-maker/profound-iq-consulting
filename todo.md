@@ -1270,3 +1270,11 @@
 - [x] Add server contracts, authorization, delivery retry safety, and recommendation regression tests.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
 - [x] Save the validated psychometric analytics and recommendations checkpoint.
+
+# Psychometric Analytics Export and Personalization
+- [x] Add CSV, Excel, and PDF exports for filtered psychometric conversion and email-delivery analytics.
+- [x] Add immediate admin delivery-failure alerts and unread/acknowledged operational state.
+- [x] Personalize recommendations using dimension-level scores and completed-course history.
+- [x] Add authorization, format, alert, and recommendation regression coverage.
+- [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
+- [ ] Save the validated analytics export and personalization checkpoint.

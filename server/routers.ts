@@ -19,7 +19,7 @@ import { buildCourseRecommendations } from "../shared/courseRecommendations";
 import { achievementBadgeFilename, achievementMiniCertificateFilename, buildAchievementBadgeSvg } from "../shared/achievements";
 import { resolveReportIdentity } from "../shared/reportIdentity";
 import { normalizeCatalogItem } from "../shared/catalog";
-import { renderAssessmentReportPdf, renderAssessmentScoreSummaryPdf, renderCareerPathReportPdf, renderPaymentReceiptPdf, renderPsychometricReportPdf } from "./reportPdf";
+import { renderAssessmentReportPdf, renderAssessmentScoreSummaryPdf, renderCareerPathReportPdf, renderPaymentReceiptPdf, renderPsychometricReportPdf, renderPsychometricAnalyticsPdf } from "./reportPdf";
 import { validateEmailTemplateBody } from "../shared/emailTemplate";
 import { buildContactInquiryCsv, buildCourseEnrollmentCsv } from "../shared/adminExport";
 import { buildDeliveryLogCsv, type DeliveryLogFilters } from "../shared/adminDeliveryLog";
@@ -34,6 +34,7 @@ import { identifierSchema, normalizeIdentifier, validatePassword } from "../shar
 import { createResetToken, hashPassword, hashRateLimitKey, hashResetToken, verifyPassword } from "./localAuthCrypto";
 import { sendPasswordResetEmail } from "./email";
 import { buildVerificationAuditCsv, type AuditHistoryFilters } from "../shared/adminAudit";
+import { buildPsychometricAnalyticsCsv, buildPsychometricAnalyticsExcel } from "../shared/psychometricAnalyticsExport";
 import { buildStaffPerformanceCsv } from "../shared/adminExport";
 import { getRequestSecurityMetadata, buildSecurityLogCsv } from "./securityMetadata";
 import { createOrganizationInvitation, recordCourseDeliveryEvent, listCourseDeliveryEventsForUser, listCourseDeliveryEventsForAdmin } from "./db";
@@ -250,6 +251,7 @@ export const appRouter = router({
   }),
   admin: router({
     psychometricAnalytics: adminProcedure.input(z.object({ fromDate: z.string().optional(), toDate: z.string().optional() }).optional()).query(({ input }) => getPsychometricAdminAnalytics({ from: input?.fromDate ? new Date(`${input.fromDate}T00:00:00.000Z`) : undefined, to: input?.toDate ? new Date(`${input.toDate}T23:59:59.999Z`) : undefined })),
+    exportPsychometricAnalytics: adminProcedure.input(z.object({ format: z.enum(["csv", "excel", "pdf"]), fromDate: z.string().optional(), toDate: z.string().optional() })).mutation(async ({ input }) => { const analytics = await getPsychometricAdminAnalytics({ from: input.fromDate ? new Date(`${input.fromDate}T00:00:00.000Z`) : undefined, to: input.toDate ? new Date(`${input.toDate}T23:59:59.999Z`) : undefined }); const stamp = new Date().toISOString().slice(0, 10); if (input.format === "csv") return { filename: `profound-iq-psychometric-analytics-${stamp}.csv`, contentType: "text/csv;charset=utf-8", data: buildPsychometricAnalyticsCsv(analytics) }; if (input.format === "excel") return { filename: `profound-iq-psychometric-analytics-${stamp}.xls`, contentType: "application/vnd.ms-excel", data: buildPsychometricAnalyticsExcel(analytics) }; const pdf = await renderPsychometricAnalyticsPdf({ fromDate: input.fromDate, toDate: input.toDate, analytics }); return { filename: `profound-iq-psychometric-analytics-${stamp}.pdf`, contentType: "application/pdf", data: pdf.toString("base64") }; }),
     psychometricAttempts: adminProcedure.input(z.object({ paymentStatus: z.enum(["all", "pending", "paid"]).default("all"), fromDate: z.string().optional(), toDate: z.string().optional(), limit: z.number().int().min(1).max(100).default(50), offset: z.number().int().min(0).default(0) }).optional()).query(({ input }) => listPsychometricAttemptsForAdmin({ paymentStatus: input?.paymentStatus ?? "all", from: input?.fromDate ? new Date(`${input.fromDate}T00:00:00.000Z`) : undefined, to: input?.toDate ? new Date(`${input.toDate}T23:59:59.999Z`) : undefined, limit: input?.limit ?? 50, offset: input?.offset ?? 0 })),
     contactInquiries: adminProcedure.input(z.object({ page: z.number().int().min(1).default(1), pageSize: z.number().int().min(1).max(50).default(10), search: z.string().trim().max(160).optional(), category: z.enum(["all", "professional-courses", "educational-consulting", "psychometric-testing", "research-surveys", "organizational-development", "general"]).default("all"), status: z.enum(["all", "new", "contacted", "closed"]).default("all"), assignedToOpenId: z.string().max(64).default("all"), fromDate: z.string().optional(), toDate: z.string().optional() }).optional()).query(({ input }) => listContactInquiries({ page: input?.page ?? 1, pageSize: input?.pageSize ?? 10, search: input?.search, category: input?.category ?? "all", status: input?.status ?? "all", assignedToOpenId: input?.assignedToOpenId ?? "all", fromDate: input?.fromDate ? new Date(`${input.fromDate}T00:00:00.000Z`) : undefined, toDate: input?.toDate ? new Date(`${input.toDate}T23:59:59.999Z`) : undefined })),
     teamMembers: adminProcedure.query(() => getAdminTeamMembers()),

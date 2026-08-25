@@ -1384,6 +1384,12 @@ export async function releasePsychometricReportEmailClaim(id: number): Promise<v
   await db.update(psychometricAttempts).set({ reportEmailStatus: "pending" }).where(and(eq(psychometricAttempts.id, id), eq(psychometricAttempts.reportEmailStatus, "sending")));
 }
 
+export async function markPsychometricReportEmailFailed(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(psychometricAttempts).set({ reportEmailStatus: "failed" }).where(and(eq(psychometricAttempts.id, id), eq(psychometricAttempts.reportEmailStatus, "sending")));
+}
+
 export async function listPsychometricAttemptsForAdmin(input: { paymentStatus?: string; from?: Date; to?: Date; limit?: number; offset?: number }) {
   const db = await getDb();
   if (!db) return [];

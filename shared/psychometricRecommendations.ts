@@ -1,6 +1,6 @@
 import type { PsychometricReport } from "./psychometrics";
 
-export type PsychometricCourseRecommendation = { slug: string; title: string; reason: string; action: string };
+export type PsychometricCourseRecommendation = { slug: string; title: string; reason: string; action: string; scoreSignal?: string };
 
 const courseTitles: Record<string, string> = {
   "personal-growth-self-discovery": "Personal Growth & Self-Discovery",
@@ -55,6 +55,9 @@ const profileMap: Record<string, Array<{ slug: string; reason: string; action: s
   ],
 };
 
-export function getPsychometricCourseRecommendations(report: Pick<PsychometricReport, "testSlug">): PsychometricCourseRecommendation[] {
-  return (profileMap[report.testSlug] ?? []).flatMap((item) => courseTitles[item.slug] ? [{ ...item, title: courseTitles[item.slug] }] : []);
+export function getPsychometricCourseRecommendations(report: Pick<PsychometricReport, "testSlug"> & Partial<Pick<PsychometricReport, "domains">>, completedCourseSlugs: string[] = []): PsychometricCourseRecommendation[] {
+  const completed = new Set(completedCourseSlugs);
+  const lowestDomains = [...(report.domains ?? [])].sort((a, b) => a.score - b.score).slice(0, 2);
+  const scoreSignal = lowestDomains.length ? `Prioritised because ${lowestDomains.map((domain) => `${domain.label} is ${domain.score}/100`).join(" and ")}.` : undefined;
+  return (profileMap[report.testSlug] ?? []).filter((item) => !completed.has(item.slug)).map((item, index) => ({ ...item, title: courseTitles[item.slug], ...(index === 0 && scoreSignal ? { scoreSignal } : {}) })).filter((item) => Boolean(item.title)).sort((a, b) => (a.scoreSignal ? -1 : 0) - (b.scoreSignal ? -1 : 0));
 }

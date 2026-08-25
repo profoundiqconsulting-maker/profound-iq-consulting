@@ -5,7 +5,8 @@ import { getTopCareerPathStrengths, type CareerPathReport } from "../shared/care
 import { buildSubPathwayComparisonSvg } from "../shared/reportComparisonVisual";
 import { renderEmailTemplate, renderEmailTemplateHtml } from "../shared/emailTemplate";
 import { renderAssessmentReportPdf, renderCareerPathReportPdf, renderPsychometricReportPdf } from "./reportPdf";
-import { claimAssessmentReportEmail, markAssessmentReportEmailSent, releaseAssessmentReportEmailClaim, claimCareerPathReportEmail, markCareerPathReportEmailSent, releaseCareerPathReportEmailClaim, claimPsychometricReportEmail, markPsychometricReportEmailSent, releasePsychometricReportEmailClaim } from "./db";
+import { claimAssessmentReportEmail, markAssessmentReportEmailSent, releaseAssessmentReportEmailClaim, claimCareerPathReportEmail, markCareerPathReportEmailSent, releaseCareerPathReportEmailClaim, claimPsychometricReportEmail, markPsychometricReportEmailSent, markPsychometricReportEmailFailed } from "./db";
+import { notifyOwner } from "./_core/notification";
 import type { PsychometricReport } from "../shared/psychometrics";
 
 type SmtpEnv = { SMTP_HOST?: string; SMTP_PORT?: string; SMTP_USER?: string; SMTP_PASSWORD?: string; SMTP_FROM?: string; SMTP_FROM_NAME?: string };
@@ -143,7 +144,7 @@ export async function emailPsychometricReportIfNeeded(input: { attemptId: number
   if (input.reportEmailStatus === "sent" || input.reportEmailSentAt) return false;
   const claimed = await claimPsychometricReportEmail(input.attemptId);
   if (!claimed) return false;
-  try { await sendPsychometricReportEmail(input); await markPsychometricReportEmailSent(input.attemptId); return true; } catch (error) { await releasePsychometricReportEmailClaim(input.attemptId); throw error; }
+  try { await sendPsychometricReportEmail(input); await markPsychometricReportEmailSent(input.attemptId); return true;   } catch (error) { await markPsychometricReportEmailFailed(input.attemptId); void notifyOwner({ title: "Psychometric report email failed", content: `Delivery failed for ${input.report.title} · attempt ${input.attemptId} · recipient ${input.email}. ${error instanceof Error ? error.message.slice(0, 500) : "Provider returned an unknown error."}` }).catch((notificationError) => console.warn("[PsychometricEmail] Admin alert failed:", notificationError)); throw error; }
 }
 
 export async function sendPsychometricReportEmail(input: { attemptId: number; participantName: string; email: string; createdAt: Date | string; report: PsychometricReport; verificationUrl: string }): Promise<void> {
