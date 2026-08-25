@@ -1412,3 +1412,10 @@
 - [x] Add an offline fallback contact form that captures and validates an email address.
 - [x] Verify support submission behavior, accessibility, responsive layout, tests, and production build.
 - [x] Save the validated contextual WhatsApp widget checkpoint.
+
+# WhatsApp Widget Course Context and Help Enhancements
+- [x] Add a subtle one-time bounce after more than 30 seconds on course pages.
+- [x] Add FAQ and quick-reply help actions inside the offline fallback form.
+- [x] Include the current page URL in the fallback inquiry context.
+- [x] Verify timing behavior, inquiry payload, accessibility, responsive layout, tests, and production build.
+- [x] Save the validated course-context WhatsApp widget checkpoint.

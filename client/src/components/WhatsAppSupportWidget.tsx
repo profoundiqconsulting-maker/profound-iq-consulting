@@ -6,6 +6,7 @@ import { trpc } from "@/lib/trpc";
 
 const phoneNumber = "254727374055";
 const officeHours = "Monday to Saturday, 9 AM to 5 PM";
+const quickReplies = ["I need help choosing a course.", "I have a payment question.", "I need help with an assessment.", "I need help with my certificate."];
 
 function isOfficeOpen(date: Date) {
   const day = date.getDay();
@@ -38,6 +39,7 @@ export function WhatsAppSupportWidget() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [verification, setVerification] = useState(makeVerification);
+  const [bounceAttention, setBounceAttention] = useState(false);
   const submitInquiry = trpc.inquiry.create.useMutation({
     onSuccess: () => {
       toast.success("Thanks — we’ll follow up by email during office hours.");
@@ -48,6 +50,7 @@ export function WhatsAppSupportWidget() {
 
   const greeting = useMemo(() => pageGreeting(location), [location]);
   const whatsappUrl = useMemo(() => `https://wa.me/${phoneNumber}?text=${encodeURIComponent(greeting)}`, [greeting]);
+  const isCoursePage = location.toLowerCase().includes("course");
 
   useEffect(() => {
     const updateStatus = () => setOnline(isOfficeOpen(new Date()));
@@ -56,6 +59,16 @@ export function WhatsAppSupportWidget() {
     return () => window.clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    setBounceAttention(false);
+    if (!isCoursePage) return;
+    const timer = window.setTimeout(() => {
+      setBounceAttention(true);
+      window.setTimeout(() => setBounceAttention(false), 2_000);
+    }, 30_000);
+    return () => window.clearTimeout(timer);
+  }, [isCoursePage, location]);
+
   const setMinimizedState = (value: boolean) => {
     setMinimized(value);
     try { window.localStorage.setItem("profound-whatsapp-minimized", String(value)); } catch { /* Storage can be unavailable in private browsing. */ }
@@ -63,24 +76,20 @@ export function WhatsAppSupportWidget() {
 
   const submitFallback = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    submitInquiry.mutate({
-      name: "WhatsApp follow-up",
-      email: email.trim(),
-      category: "general",
-      message: message.trim() || "Please contact me when WhatsApp support is available.",
-      mathA: verification.a,
-      mathB: verification.b,
-      mathAnswer: Number((event.currentTarget.elements.namedItem("whatsapp-math") as HTMLInputElement)?.value || 0),
-    });
+    const currentUrl = window.location.href;
+    const answer = Number((event.currentTarget.elements.namedItem("whatsapp-math") as HTMLInputElement)?.value || 0);
+    const requestMessage = message.trim() || "Please contact me when WhatsApp support is available.";
+    submitInquiry.mutate({ name: "WhatsApp follow-up", email: email.trim(), category: "general", message: `${requestMessage}\n\nPage viewed: ${currentUrl}`, mathA: verification.a, mathB: verification.b, mathAnswer: answer });
   };
 
   if (minimized) {
     return <button type="button" onClick={() => setMinimizedState(false)} aria-label="Show WhatsApp support" title="Show WhatsApp support" className="fixed bottom-5 right-5 z-40 inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#f7f3e8] bg-[#25D366] text-[#062411] shadow-[0_10px_24px_rgba(0,0,0,.25)] transition-all duration-200 hover:-translate-y-1 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101d35] active:scale-95"><MessageCircle size={20} /><span className={`absolute right-0 top-0 h-3 w-3 rounded-full border-2 border-[#f7f3e8] ${online ? "bg-[#0b8f43]" : "bg-[#697386]"}`} /><Plus className="absolute -bottom-1 -right-1 rounded-full bg-[#101d35] p-0.5 text-[#f7f3e8]" size={15} /></button>;
   }
 
-  return <div className="fixed bottom-5 right-5 z-40 w-[min(21rem,calc(100vw-2rem))]">
+  return <div className={`fixed bottom-5 right-5 z-40 w-[min(21rem,calc(100vw-2rem))] ${bounceAttention ? "motion-safe:animate-[bounce_1s_ease-in-out_2]" : ""}`}>
     {fallbackOpen && !online && <div className="mb-3 rounded-2xl border border-[#d7b45a]/40 bg-[#101d35] p-4 text-[#f7f3e8] shadow-[0_18px_40px_rgba(0,0,0,.3)]" role="dialog" aria-label="Leave an offline WhatsApp support request">
       <div className="mb-3 flex items-start justify-between gap-3"><div><p className="text-[10px] font-black uppercase tracking-[.16em] text-[#d7b45a]">Leave a message</p><p className="mt-1 text-xs leading-5 text-[#d9e0eb]">WhatsApp is offline. Leave your email and we’ll reply during {officeHours.toLowerCase()}.</p></div><button type="button" onClick={() => setFallbackOpen(false)} aria-label="Close contact form" className="rounded-full p-1 text-[#b6c1d2] hover:bg-white/10 hover:text-white"><X size={15} /></button></div>
+      <div className="mb-3"><p className="mb-1.5 text-[10px] font-bold uppercase tracking-[.12em] text-[#b6c1d2]">Quick replies</p><div className="flex flex-wrap gap-1.5">{quickReplies.map((reply) => <button type="button" key={reply} onClick={() => setMessage(reply)} className="rounded-full border border-[#d7b45a]/45 px-2.5 py-1.5 text-[10px] leading-3 text-[#f7f3e8] transition hover:border-[#d7b45a] hover:bg-[#d7b45a]/10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#d7b45a]">{reply}</button>)}</div></div>
       <form onSubmit={submitFallback} className="space-y-2.5"><label className="block text-[10px] font-bold uppercase tracking-[.12em] text-[#b6c1d2]" htmlFor="whatsapp-email">Email address</label><input id="whatsapp-email" type="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" className="w-full rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-sm text-white outline-none placeholder:text-[#9ca8b9] focus:border-[#d7b45a]" /><label className="block text-[10px] font-bold uppercase tracking-[.12em] text-[#b6c1d2]" htmlFor="whatsapp-message">What can we help with? <span className="font-normal normal-case tracking-normal">(optional)</span></label><textarea id="whatsapp-message" value={message} onChange={(event) => setMessage(event.target.value)} rows={2} placeholder="Briefly describe your request" className="w-full resize-none rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-sm text-white outline-none placeholder:text-[#9ca8b9] focus:border-[#d7b45a]" /><label className="block text-[10px] font-bold uppercase tracking-[.12em] text-[#b6c1d2]" htmlFor="whatsapp-math">Quick check: {verification.a} + {verification.b} = ?</label><input id="whatsapp-math" name="whatsapp-math" type="number" required min={2} max={40} inputMode="numeric" className="w-full rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-sm text-white outline-none focus:border-[#d7b45a]" /><button type="submit" disabled={submitInquiry.isPending} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#d7b45a] px-3 py-2.5 text-xs font-black uppercase tracking-[.12em] text-[#101d35] transition hover:bg-[#efcf7a] disabled:cursor-not-allowed disabled:opacity-60">{submitInquiry.isPending ? "Sending…" : "Send request"}<Send size={14} /></button></form>
     </div>}
     <div className="relative"><div className="group">
