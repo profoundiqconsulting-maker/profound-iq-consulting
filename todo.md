@@ -1277,4 +1277,4 @@
 - [x] Personalize recommendations using dimension-level scores and completed-course history.
 - [x] Add authorization, format, alert, and recommendation regression coverage.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
-- [ ] Save the validated analytics export and personalization checkpoint.
+- [x] Save the validated analytics export and personalization checkpoint.
