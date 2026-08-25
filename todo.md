@@ -1405,3 +1405,10 @@
 - [x] Add automatic online/offline status based on Monday–Saturday office hours.
 - [x] Verify accessibility, local-time behavior, responsive interaction, tests, and production build.
 - [x] Save the validated WhatsApp widget checkpoint.
+
+# WhatsApp Widget Contextual Support Enhancements
+- [x] Add page-aware greeting messages to the WhatsApp widget.
+- [x] Add an office-hours hover tooltip showing the expected response time.
+- [x] Add an offline fallback contact form that captures and validates an email address.
+- [x] Verify support submission behavior, accessibility, responsive layout, tests, and production build.
+- [x] Save the validated contextual WhatsApp widget checkpoint.
