@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { normalizeLeaderboardDisplayName, rankAchievementLeaderboard, type AchievementBadge, type AchievementLeaderboardRow } from "../shared/achievements";
 import { courseCatalog } from "../shared/courseCatalog";
 import { buildCourseModuleBadges } from "../shared/courseBadges";
-import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -238,6 +238,8 @@ export async function unlockUserLoginFailures(input: { targetOpenId: string; act
   return { clearedAttemptCount, targetEmail: user.email };
 }
 
+export async function recordResetLinkRevocationAudit(input: { targetOpenId: string; targetEmail: string; actorOpenId: string; actorName?: string | null }) { const db = await getDb(); if (!db) throw new Error("Database is not available"); await db.insert(resetLinkRevocationAudits).values(input); }
+export async function getResetLinkRevocationAudits(input: { page?: number; pageSize?: number; search?: string; from?: Date; to?: Date } = {}) { const db = await getDb(); if (!db) throw new Error("Database is not available"); const page = Math.max(1, input.page ?? 1); const pageSize = Math.min(50, Math.max(5, input.pageSize ?? 10)); const filters = []; if (input.search?.trim()) { const q = `%${input.search.trim()}%`; filters.push(or(like(resetLinkRevocationAudits.targetEmail, q), like(resetLinkRevocationAudits.actorName, q), like(resetLinkRevocationAudits.actorOpenId, q))); } if (input.from) filters.push(gte(resetLinkRevocationAudits.revokedAt, input.from)); if (input.to) filters.push(lte(resetLinkRevocationAudits.revokedAt, input.to)); const where = filters.length ? and(...filters) : undefined; const [rows, totalRows] = await Promise.all([db.select().from(resetLinkRevocationAudits).where(where).orderBy(desc(resetLinkRevocationAudits.revokedAt)).limit(pageSize).offset((page - 1) * pageSize), db.select({ count: sql<number>`count(*)` }).from(resetLinkRevocationAudits).where(where)]); const total = Number(totalRows[0]?.count ?? 0); return { rows, total, page, pageSize, pageCount: Math.max(1, Math.ceil(total / pageSize)) }; }
 export async function recordUnlockAuditExportDownload(input: { adminOpenId: string; adminName?: string | null; filename: string; filterSummary?: string | null }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -318,7 +320,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
 }
 
-export type NotificationPreferences = { assessmentUpdates: boolean; courseAnnouncements: boolean; monthlyInsights: boolean };
+export type NotificationPreferences = { assessmentUpdates: boolean; courseAnnouncements: boolean; monthlyInsights: boolean; showAvatar?: boolean };
 
 export async function getUserProfile(openId: string) {
   const db = await getDb();
@@ -328,7 +330,7 @@ export async function getUserProfile(openId: string) {
   if (!profile) return undefined;
   return {
     ...profile,
-    notificationPreferences: { assessmentUpdates: true, courseAnnouncements: true, monthlyInsights: false, ...((profile.notificationPreferences as Partial<NotificationPreferences> | null) ?? {}) },
+    notificationPreferences: { assessmentUpdates: true, courseAnnouncements: true, monthlyInsights: false, showAvatar: true, ...((profile.notificationPreferences as Partial<NotificationPreferences> | null) ?? {}) },
     avatarUrl: profile.avatarUrl,
     timezone: profile.timezone ?? "Africa/Nairobi",
     leaderboardOptIn: profile.leaderboardOptIn,

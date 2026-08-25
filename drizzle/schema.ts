@@ -477,6 +477,14 @@ export const organizationInvitations = mysqlTable("organization_invitations", {
   reviewNote: text("reviewNote"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
+export const resetLinkRevocationAudits = mysqlTable("reset_link_revocation_audits", {
+  id: int("id").autoincrement().primaryKey(),
+  targetOpenId: varchar("target_open_id", { length: 64 }).notNull(),
+  targetEmail: varchar("target_email", { length: 320 }).notNull(),
+  actorOpenId: varchar("actor_open_id", { length: 64 }).notNull(),
+  actorName: varchar("actor_name", { length: 160 }),
+  revokedAt: timestamp("revoked_at").defaultNow().notNull(),
+});
 export const unlockAuditExportDownloads = mysqlTable("unlock_audit_export_downloads", {
   id: int("id").autoincrement().primaryKey(),
   adminOpenId: varchar("adminOpenId", { length: 64 }).notNull(),

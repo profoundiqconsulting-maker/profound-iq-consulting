@@ -1362,3 +1362,11 @@
 - [x] Create and validate the reusable profound-iq-security-observatory skill.
 - [x] Run TypeScript validation, full tests, production build, runtime review, and responsive verification.
 - [x] Save the validated privacy and audit UX checkpoint.
+
+# Export Audit CSV, Revocation Detail, and Avatar Visibility
+- [x] Add a protected CSV export for filtered export-history records.
+- [x] Record detailed reset-link revocation audit events with acting administrator and timestamp.
+- [x] Add a reversible profile preference to hide or show the stored Google avatar in navigation.
+- [x] Add regression coverage for export CSV authorization, revocation audit details, and avatar visibility persistence.
+- [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
+- [x] Save the validated audit and privacy update checkpoint.
