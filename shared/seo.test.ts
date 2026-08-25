@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { getSeo, SITE_ORIGIN } from "../client/src/components/SeoHead";
+import { getSeo, SITE_ORIGIN, DEFAULT_IMAGE } from "../client/src/components/SeoHead";
 
 describe("route SEO metadata", () => {
   it("defines distinct public metadata and canonical paths", () => {
@@ -14,6 +14,7 @@ describe("route SEO metadata", () => {
     expect(course.title).toContain("Leadership Development");
     expect(course.jsonLd?.["@type"]).toBe("Course");
     expect(`${SITE_ORIGIN}${course.canonical}`).toBe("https://profoundiqconsulting.com/courses/leadership-development");
+    expect(DEFAULT_IMAGE).toMatch(/^https:\/\/profoundiq-vguqrhsm\.manus\.space\/manus-storage\/.*\.png$/);
   });
 
   it("marks private workspace routes as noindex", () => {

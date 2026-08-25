@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 
 const SITE_NAME = "Profound IQ Consulting";
 const SITE_ORIGIN = "https://profoundiqconsulting.com";
-const DEFAULT_IMAGE = `${SITE_ORIGIN}/manus-storage/ProfoundIQLogo-header_aad21220.jpg`;
+const DEFAULT_IMAGE = "https://profoundiq-vguqrhsm.manus.space/manus-storage/profound-iq-social-preview_9d540b32.png";
 
 type SeoConfig = { title: string; description: string; type?: "website" | "article"; canonical?: string; noIndex?: boolean; jsonLd?: Record<string, unknown> };
 
@@ -51,6 +51,11 @@ export function SeoHead() {
     setProperty("og:type", seo.type ?? "website");
     setProperty("og:url", `${SITE_ORIGIN}${seo.canonical ?? "/"}`);
     setProperty("og:image", DEFAULT_IMAGE);
+    setProperty("og:image:secure_url", DEFAULT_IMAGE);
+    setProperty("og:image:type", "image/png");
+    setProperty("og:image:width", "1200");
+    setProperty("og:image:height", "630");
+    setProperty("og:image:alt", `${seo.title} — Profound IQ Consulting`);
     setMeta("twitter:card", "summary_large_image");
     setMeta("twitter:title", seo.title);
     setMeta("twitter:description", seo.description);
@@ -65,4 +70,4 @@ export function SeoHead() {
   return null;
 }
 
-export { getSeo, SITE_ORIGIN };
+export { getSeo, SITE_ORIGIN, DEFAULT_IMAGE };

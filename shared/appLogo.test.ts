@@ -14,6 +14,8 @@ describe("shared app logo configuration", () => {
     expect(documentHead).toContain('<link rel="icon" type="image/x-icon" href="/favicon.ico" />');
     expect(documentHead).toContain('<link rel="icon" type="image/png" sizes="256x256" href="/manus-storage/ProfoundIQ-favicon_7fd69208.png" />');
     expect(documentHead).toContain('<link rel="apple-touch-icon" sizes="256x256" href="/manus-storage/ProfoundIQ-favicon_7fd69208.png" />');
-    expect(documentHead).toContain('<meta property="og:image" content="/manus-storage/ProfoundIQLogo-header_aad21220.jpg" />');
+    expect(documentHead).toContain('<meta property="og:image" content="https://profoundiq-vguqrhsm.manus.space/manus-storage/profound-iq-social-preview_9d540b32.png" />');
+    expect(documentHead).toContain('<meta property="og:image:width" content="1200" />');
+    expect(documentHead).toContain('<meta property="og:image:height" content="630" />');
   });
 });

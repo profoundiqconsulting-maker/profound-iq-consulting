@@ -1449,3 +1449,10 @@
 - [x] Confirm successful course-link copying with a visual toast notification.
 - [x] Add regression coverage and verify event payloads, detail SSR, SEO metadata, responsiveness, tests, and build.
 - [x] Save the validated course sharing and detail SSR checkpoint.
+
+# Social Preview Image Repair
+- [x] Audit all shared-page Open Graph and Twitter image URLs and verify their public responses.
+- [x] Provide a publicly resolvable branded preview image for catalog and course detail shares.
+- [x] Add image dimensions and image metadata where needed for social crawlers.
+- [x] Add regression coverage and verify share-preview HTML, image responses, tests, and production build.
+- [x] Save the validated social preview image repair checkpoint.
