@@ -1442,3 +1442,10 @@
 - [x] Add accessible social sharing controls to course detail pages.
 - [x] Verify sitemap completeness, SSR HTML, sharing behavior, tests, build, and runtime performance.
 - [x] Save the validated course SEO enhancement checkpoint.
+
+# Course Sharing and Detail SSR
+- [x] Track course share actions by platform with analytics events.
+- [x] Implement server-rendered HTML for individual public course detail routes.
+- [x] Confirm successful course-link copying with a visual toast notification.
+- [x] Add regression coverage and verify event payloads, detail SSR, SEO metadata, responsiveness, tests, and build.
+- [x] Save the validated course sharing and detail SSR checkpoint.

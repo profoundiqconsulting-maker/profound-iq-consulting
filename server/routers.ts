@@ -44,7 +44,7 @@ import { invokeLLM } from "./_core/llm";
 const answersSchema = z.array(z.object({ questionId: z.string(), value: z.number().int().min(1).max(5) })).length(assessmentQuestions.length);
 const careerPathAnswersSchema = z.array(z.object({ questionId: z.string(), value: z.number().int().min(1).max(5) })).length(careerPathQuestions.length);
 const psychometricAnswersSchema = z.array(z.object({ questionId: z.string(), value: z.number().int().min(1).max(5) })).length(120);
-const analyticsEventSchema = z.object({ eventName: z.enum(["assessment_started", "payment_completed", "report_downloaded", "course_enrollment_submitted"]), attemptId: z.number().int().positive().optional(), metadata: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional() });
+const analyticsEventSchema = z.object({ eventName: z.enum(["assessment_started", "payment_completed", "report_downloaded", "course_enrollment_submitted", "course_shared"]), attemptId: z.number().int().positive().optional(), metadata: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional() });
 
 async function paystackRequest(path: string, init?: RequestInit) {
   const secretKey = process.env.PAYSTACK_SECRET_KEY;
