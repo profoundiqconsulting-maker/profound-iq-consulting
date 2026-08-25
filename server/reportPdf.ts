@@ -7,7 +7,7 @@ type ReportPdfInput = { attemptId: number; participantName: string; email?: stri
 const NAVY = "#16243d";
 const GOLD = "#a27e2e";
 const MUTED = "#5f6a7b";
-const LOGO_KEY = "ProfoundIQLogo2_1f7aaba4.png";
+const LOGO_KEY = "ProfoundIQLogo-header_aad21220.jpg";
 let logoBufferPromise: Promise<Buffer | null> | null = null;
 
 async function loadBrandLogo(): Promise<Buffer | null> {

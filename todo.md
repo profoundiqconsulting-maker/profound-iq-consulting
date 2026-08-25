@@ -1419,3 +1419,11 @@
 - [x] Include the current page URL in the fallback inquiry context.
 - [x] Verify timing behavior, inquiry payload, accessibility, responsive layout, tests, and production build.
 - [x] Save the validated course-context WhatsApp widget checkpoint.
+
+# Deployment Branding Asset Repair
+- [x] Replace the unresolved hero CSS asset reference with an explicit managed image URL.
+- [x] Add a close-fit header logo asset so the logo is legible after deployment.
+- [x] Add a square favicon and conventional favicon.ico fallback.
+- [x] Update PDF branding and metadata to use the optimized assets.
+- [x] Verify deployed asset responses, branding render, tests, and production build.
+- [x] Save the validated branding repair checkpoint.
