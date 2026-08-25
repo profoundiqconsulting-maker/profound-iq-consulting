@@ -1435,3 +1435,10 @@
 - [x] Add SEO regression coverage and verify metadata across key public routes.
 - [x] Run type checks, tests, production build, and runtime verification.
 - [x] Save the validated SEO checkpoint.
+
+# Course SEO Expansion
+- [x] Generate sitemap course entries from the published course catalog automatically.
+- [x] Implement server-side rendering for the public course catalog route with course data and metadata.
+- [x] Add accessible social sharing controls to course detail pages.
+- [x] Verify sitemap completeness, SSR HTML, sharing behavior, tests, build, and runtime performance.
+- [x] Save the validated course SEO enhancement checkpoint.

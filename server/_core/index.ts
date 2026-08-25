@@ -13,6 +13,7 @@ import { registerWeeklyEnrollmentExport } from "../scheduledEnrollmentExport";
 import { registerDeliveryLogExportWorker } from "../deliveryLogExport";
 import { registerWeeklyPsychometricAnalytics } from "../scheduledPsychometricAnalytics";
 import { serveStatic, setupVite } from "./vite";
+import { registerSeoRoutes } from "../seoRoutes";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -59,6 +60,7 @@ async function startServer() {
   app.use("/api/trpc", (_req, res) => {
     res.status(404).json({ error: { message: "API procedure not found" } });
   });
+  registerSeoRoutes(app);
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
