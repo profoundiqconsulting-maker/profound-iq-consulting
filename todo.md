@@ -1337,3 +1337,12 @@
 - [x] Add regression coverage for reset-link authorization/expiry, audit filters, and auth feedback behavior.
 - [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
 - [x] Save the validated authentication update checkpoint.
+
+# Google Sign-in, Reset Link UX, Audit Export, and Password Visibility
+- [x] Complete Google sign-in across frontend, backend, and database-backed sessions.
+- [x] Add reset-link copy-to-clipboard control with live expiry countdown.
+- [x] Add filtered CSV export for unlock-audit history.
+- [x] Add Show Password toggles to Sign In and Create Account forms.
+- [x] Add regression coverage for Google sign-in/session behavior, reset-link UX, audit export, and password toggles.
+- [x] Run full tests, TypeScript validation, production build, runtime review, and responsive verification.
+- [x] Save the validated authentication release checkpoint.
