@@ -59,6 +59,7 @@ import { buildFunnelComparison } from "@shared/adminAnalytics";
 import { renderEmailTemplate } from "@shared/emailTemplate";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
+import { useLocale } from "@/contexts/LocaleContext";
 
 function statusLabel(status: string) {
   return status === "paid" ? "Paid" : "Pending";
@@ -87,6 +88,7 @@ const templateDefaults: Record<
 };
 
 export default function AdminDashboard() {
+  const { t } = useLocale();
   const { user, loading: authLoading } = useAuth();
   const overview = trpc.assessment.adminOverview.useQuery(undefined, {
     enabled: Boolean(user?.role === "admin"),
@@ -646,7 +648,7 @@ export default function AdminDashboard() {
         <div className="flex flex-col justify-between gap-6 border-b border-[#16243d]/20 pb-8 sm:flex-row sm:items-end">
           <div>
             <p className="eyebrow text-[#a27e2e]">
-              Private workspace / assessment intelligence
+              {t("myWorkspace")} / assessment intelligence
             </p>
             <h1 className="display mt-4 text-5xl leading-none tracking-[-.04em] sm:text-6xl">
               The <em className="font-normal text-[#a27e2e]">signal</em> room.
