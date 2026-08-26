@@ -1568,3 +1568,11 @@
 - [x] Ensure authenticated and assessment surfaces use the localization provider for shared labels and actions, preserving dynamic user/course data.
 - [x] Add localization regression tests and verify responsive language switching, type checking, tests, and production build.
 - [x] Save a checkpoint for the multilingual experience.
+
+# Localization Enhancements
+- [x] Detect the initial locale from browser language preferences while preserving an explicit saved choice.
+- [x] Animate language changes and RTL direction transitions without causing layout or hydration issues.
+- [x] Add a user-facing translation improvement suggestion form with locale, page, source text, suggested correction, and optional contact details.
+- [x] Persist translation suggestions through the existing inquiry workflow with spam protection and clear success/error feedback.
+- [x] Add regression coverage and verify accessibility, responsive behavior, type checking, tests, and production build.
+- [x] Save a checkpoint for the localization enhancements.

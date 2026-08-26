@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getLocaleDirection, getLocalizedTranslation, isSupportedLocale, SUPPORTED_LOCALES } from "../client/src/contexts/LocaleContext";
+import { detectLocaleFromPreferences, getLocaleDirection, getLocalizedTranslation, isSupportedLocale, SUPPORTED_LOCALES } from "../client/src/contexts/LocaleContext";
 
 describe("sitewide localization", () => {
   it("supports a broad major-language locale set", () => {
@@ -11,6 +11,12 @@ describe("sitewide localization", () => {
   it("marks Arabic as right-to-left and keeps other supported locales left-to-right", () => {
     expect(getLocaleDirection("ar")).toBe("rtl");
     expect(getLocaleDirection("fr")).toBe("ltr");
+  });
+
+  it("detects the first supported browser preference, including regional variants", () => {
+    expect(detectLocaleFromPreferences(["pt-BR", "fr-FR"])).toBe("pt");
+    expect(detectLocaleFromPreferences(["xx-ZZ", "ar-EG"])).toBe("ar");
+    expect(detectLocaleFromPreferences(["xx-ZZ"])).toBe("en");
   });
 
   it("returns translated copy with English fallback for shared keys", () => {

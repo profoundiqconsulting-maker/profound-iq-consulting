@@ -27,6 +27,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import { CookieConsent } from "./components/CookieConsent";
 import { WhatsAppSupportWidget } from "./components/WhatsAppSupportWidget";
+import { TranslationFeedback } from "./components/TranslationFeedback";
 import { SeoHead } from "./components/SeoHead";
 
 function Router() {
@@ -35,5 +36,5 @@ function Router() {
 }
 
 export default function App() {
-  return <ErrorBoundary><ThemeProvider defaultTheme="light" switchable><LocaleProvider><TooltipProvider><Toaster /><SeoHead /><Router /><WhatsAppSupportWidget /><CookieConsent /><div className="fixed right-4 top-4 z-[70] text-[#f7f3e8] shadow-lg"><LanguageSelector compact /></div></TooltipProvider></LocaleProvider></ThemeProvider></ErrorBoundary>;
+  return <ErrorBoundary><ThemeProvider defaultTheme="light" switchable><LocaleProvider><TooltipProvider><Toaster /><SeoHead /><Router /><WhatsAppSupportWidget /><TranslationFeedback /><CookieConsent /><div className="fixed right-4 top-4 z-[70] text-[#f7f3e8] shadow-lg"><LanguageSelector compact /></div></TooltipProvider></LocaleProvider></ThemeProvider></ErrorBoundary>;
 }

@@ -135,3 +135,17 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 @media (prefers-reduced-motion: reduce) {
   .careerpath-drawer-handle { animation: none; }
 }
+
+/* Locale changes: brief opacity/transform settle, while direction-aware layout changes remain accessible. */
+@media (prefers-reduced-motion: no-preference) {
+  html.locale-transitioning body {
+    animation: localeSettle 260ms cubic-bezier(.23, 1, .32, 1);
+  }
+}
+@keyframes localeSettle {
+  from { opacity: .72; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.locale-transitioning body { animation: none; }
+}

@@ -92,6 +92,24 @@ const english = {
   signInToContinue: "Sign in to continue",
   signIn: "Sign in",
   signOut: "Sign out",
+  suggestTranslation: "Suggest a translation improvement",
+  suggestTranslationShort: "Suggest a fix",
+  translationFeedbackEyebrow: "Help us improve",
+  translationFeedbackTitle: "Suggest a better translation.",
+  translationFeedbackDescription: "Tell us which wording could be clearer. We’ll review your suggestion and use it to improve the experience.",
+  currentLanguage: "Current language",
+  pageContext: "Page",
+  sourceText: "Source text",
+  sourceTextPlaceholder: "Paste the wording you would like us to review",
+  suggestedCorrection: "Suggested correction",
+  suggestedCorrectionPlaceholder: "Write the clearer translation you recommend",
+  quickCheck: "Quick check:",
+  translationFeedbackPrivacy: "Your suggestion is sent to our team with the current page and language so we can review it in context.",
+  sendSuggestion: "Send suggestion",
+  sending: "Sending…",
+  translationFeedbackThanks: "Thank you — your translation suggestion was sent.",
+  translationFeedbackError: "We could not send that suggestion. Please try again.",
+  translationFeedbackCheckError: "Please solve the quick check correctly.",
 } as const;
 
 type TranslationKey = keyof typeof english;
@@ -125,11 +143,18 @@ export function getLocalizedTranslation(locale: LocaleCode, key: TranslationKey)
   return translations[locale][key] ?? english[key];
 }
 
+export function detectLocaleFromPreferences(preferences: readonly string[]): LocaleCode {
+  for (const preference of preferences) {
+    const language = preference.toLowerCase();
+    const match = SUPPORTED_LOCALES.find(({ code }) => language === code || language.startsWith(`${code}-`));
+    if (match) return match.code;
+  }
+  return "en";
+}
+
 function detectLocale(): LocaleCode {
   if (typeof navigator === "undefined") return "en";
-  const language = navigator.language.toLowerCase();
-    const match = SUPPORTED_LOCALES.find(({ code }) => language === code || language.startsWith(`${code}-`));
-    return match?.code ?? "en";
+  return detectLocaleFromPreferences(navigator.languages?.length ? navigator.languages : [navigator.language]);
 }
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
@@ -142,7 +167,10 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     const info = SUPPORTED_LOCALES.find((item) => item.code === locale) ?? SUPPORTED_LOCALES[0];
     document.documentElement.lang = info.code;
     document.documentElement.dir = info.dir;
+    document.documentElement.classList.add("locale-transitioning");
+    const timer = window.setTimeout(() => document.documentElement.classList.remove("locale-transitioning"), 260);
     window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+    return () => window.clearTimeout(timer);
   }, [locale]);
   const value = useMemo(() => ({ locale, setLocale: (next: LocaleCode) => setLocaleState(next), t: (key: TranslationKey) => translations[locale][key] ?? english[key], localeInfo: SUPPORTED_LOCALES.find((item) => item.code === locale) ?? SUPPORTED_LOCALES[0] }), [locale]);
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
