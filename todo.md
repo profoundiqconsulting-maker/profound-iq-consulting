@@ -1736,3 +1736,5 @@
 - [x] Verify the lesson-player localization with focused tests, the complete Vitest suite, TypeScript, and production build.
 - [x] Expand the course-workspace lesson player with localized lesson-progress, save-for-later, and saved-state labels across all ten supported locales.
 - [x] Verify the expanded lesson-player localization with focused tests, the complete Vitest suite, TypeScript, and production build.
+- [x] Batch 3 increment: localize psychometric assessment progress, navigation, consent, and secure-checkout labels across all ten supported locales.
+- [x] Add and validate psychometric workflow localization regression coverage with safe unknown-locale fallback.
