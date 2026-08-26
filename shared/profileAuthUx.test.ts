@@ -17,7 +17,10 @@ const settingsSource = readFileSync(resolve(process.cwd(), "client/src/pages/Set
     expect(settingsSource).toContain("user.loginMethod === \"google\"");
     expect(settingsSource).toContain("t(\"connectedAccount\")");
     expect(settingsSource).toContain("SUPPORTED_LOCALES.map");
-    expect(settingsSource).toContain("setLocale(event.target.value as LocaleCode)");
+    expect(settingsSource).toContain("handleLocaleChange(event.target.value as LocaleCode)");
+    expect(settingsSource).toContain("toast.success(t(\"languageUpdated\")");
+    expect(settingsSource).toContain("trpc.course.state.useQuery");
+    expect(settingsSource).toContain("paymentHistoryDescription");
     expect(settingsSource).toContain("preferredLanguageDescription");
   });
 });

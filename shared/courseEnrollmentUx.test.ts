@@ -20,4 +20,10 @@ describe("course enrollment access flow", () => {
     expect(workspaceSource).toContain("payment.authorizationUrl");
     expect(workspaceSource).toContain("Lesson access opens only after payment verification");
   });
+
+  it("exposes a development-only mock checkout without weakening production payment verification", () => {
+    expect(workspaceSource).toContain("trpc.course.mockFirstStagePayment.useMutation");
+    expect(workspaceSource).toContain("import.meta.env.DEV");
+    expect(workspaceSource).toContain("t(\"mockCheckoutDescription\")");
+  });
 });

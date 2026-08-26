@@ -118,6 +118,19 @@ const english = {
   currentSignInMethodDescription: "Your current sign-in method is shown here for account clarity.",
   preferredLanguage: "Preferred language",
   preferredLanguageDescription: "Saved on this device and applied across your workspace, including Arabic right-to-left layout.",
+  languageUpdated: "Preferred language updated",
+  languageUpdatedDescription: "Your language preference is now active across the workspace.",
+  enrollmentStatus: "Course enrollment status",
+  recentPayments: "Recent staged payments",
+  noEnrollments: "No course enrollments yet.",
+  paymentPending: "Payment pending",
+  paymentPaid: "Paid",
+  paymentStage: "Stage",
+  paymentHistoryDescription: "Review your active courses and the staged payments attached to each enrollment.",
+  mockCheckout: "Mock checkout",
+  mockCheckoutDescription: "Development-only QA mode. This simulates a successful first installment without charging Paystack.",
+  simulatePayment: "Simulate first payment",
+  mockPaymentSuccess: "Mock first payment completed",
 } as const;
 
 type TranslationKey = keyof typeof english;

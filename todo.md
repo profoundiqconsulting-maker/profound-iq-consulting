@@ -1615,3 +1615,11 @@
 - [x] Add regression coverage for registered, unregistered, pending-payment, and first-payment-success paths.
 - [x] Run type checking, tests, production build, and responsive enrollment verification.
 - [x] Save a checkpoint for the corrected course access workflow.
+
+# Profile Payment Visibility and Checkout QA
+- [x] Display current course enrollment status and recent staged-payment history in Profile Settings.
+- [x] Add a localized success toast when the preferred language is updated.
+- [x] Add a clearly labeled mock checkout interface for the staged first payment, isolated from production Paystack charging.
+- [x] Add regression coverage for profile payment data, language update feedback, and mock checkout completion.
+- [x] Validate registration-to-enrollment flow, payment gating, responsive settings UX, TypeScript, tests, and production build.
+- [x] Save a checkpoint for the profile payment and checkout QA enhancements.
