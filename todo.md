@@ -1729,3 +1729,4 @@
 - [x] Verify the localized first-installment checkout with focused tests, the complete Vitest suite, TypeScript, and production build.
 - [x] Batch 2 increment: localize the unlocked course workspace checkout-identity dialog’s step, learner fields, close action, and Paystack continuation across all ten locales.
 - [x] Verify the unlocked checkout-identity localization with focused tests, the complete Vitest suite, TypeScript, and production build.
+- [x] Add and validate the localized certificate label used by the unlocked course workspace across all ten supported locales.
