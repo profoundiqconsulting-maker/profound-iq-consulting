@@ -1704,3 +1704,4 @@
 - [x] Batch 3 increment: connect the course workspace access gate dashboard link to the shared locale provider while preserving staged-payment gating.
 - [x] Batch 2 increment: connect password-reset secure-access and sign-in labels to the shared authentication locale map without changing token validation or reset behavior.
 - [x] Batch 2 increment: localize the main dashboard Overview navigation labels while preserving payment-history tab routing and authenticated dashboard behavior.
+- [x] Batch 4 increment: connect the public psychometric verification return action to the selected locale while preserving authenticity and payment-status verification.
