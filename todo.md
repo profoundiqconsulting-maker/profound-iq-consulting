@@ -1734,3 +1734,5 @@
 - [x] Verify the course-workspace assessment-copy increment with focused tests, the complete Vitest suite, TypeScript, and production build.
 - [x] Batch 3 increment: localize the interactive lesson-player close control and study-timer descriptor through the shared ten-locale enrollment copy map.
 - [x] Verify the lesson-player localization with focused tests, the complete Vitest suite, TypeScript, and production build.
+- [x] Expand the course-workspace lesson player with localized lesson-progress, save-for-later, and saved-state labels across all ten supported locales.
+- [x] Verify the expanded lesson-player localization with focused tests, the complete Vitest suite, TypeScript, and production build.
