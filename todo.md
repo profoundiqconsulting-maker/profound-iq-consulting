@@ -1709,3 +1709,4 @@
 - [x] Batch 4 increment: connect the admin observatory workspace heading to the shared locale provider without changing admin authorization or operational analytics.
 - [x] Batch 4 increment: add locale-aware public escape navigation to shared read-only reports while preserving secure token access and report privacy.
 - [x] Batch 2 increment: localize the Settings save action through the existing translated preference vocabulary while preserving profile, theme, language, and payment updates.
+- [x] Localization QA increment: extend all-locale regression coverage to core navigation labels and generated assessment, certificate, receipt, and verification copy with explicit non-empty assertions.
