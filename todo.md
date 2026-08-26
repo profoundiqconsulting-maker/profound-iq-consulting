@@ -1722,3 +1722,4 @@
 - [x] Add focused course-category localization regression coverage for all ten locales and unknown-locale fallback.
 - [x] Batch 2/3 increment: localize the public course enrollment modal and staged-checkout handoff labels across all ten locales.
 - [x] Validate course enrollment localization with TypeScript, focused catalog tests, the full Vitest suite, and production build.
+- [x] Add complete regression coverage for the ten-locale course-enrollment copy map and English fallback.
