@@ -269,6 +269,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     document.documentElement.classList.add("locale-transitioning");
     const timer = window.setTimeout(() => document.documentElement.classList.remove("locale-transitioning"), 260);
     window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+    document.cookie = `${LOCALE_STORAGE_KEY}=${locale}; Path=/; Max-Age=31536000; SameSite=Lax`;
     return () => window.clearTimeout(timer);
   }, [locale]);
   const value = useMemo(() => ({ locale, setLocale: (next: LocaleCode) => setLocaleState(next), t: (key: TranslationKey) => translations[locale][key] ?? english[key], localeInfo: SUPPORTED_LOCALES.find((item) => item.code === locale) ?? SUPPORTED_LOCALES[0] }), [locale]);

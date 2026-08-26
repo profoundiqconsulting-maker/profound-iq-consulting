@@ -2,8 +2,9 @@ import PDFDocument from "pdfkit";
 import { getDimensionReflectionPoints, type AssessmentReport, type RoleLensReadout } from "../shared/assessment";
 import type { CareerPathReport } from "../shared/careerPath";
 import { storageGetSignedUrl } from "./storage";
+import { getGeneratedCopy, type GeneratedLocale } from "../shared/generatedLocalization";
 
-type ReportPdfInput = { attemptId: number; participantName: string; email?: string; createdAt: Date | string; report: AssessmentReport; lens?: RoleLensReadout };
+type ReportPdfInput = { attemptId: number; participantName: string; email?: string; createdAt: Date | string; report: AssessmentReport; lens?: RoleLensReadout; locale?: GeneratedLocale };
 const NAVY = "#16243d";
 const GOLD = "#a27e2e";
 const MUTED = "#5f6a7b";
@@ -16,9 +17,10 @@ async function loadBrandLogo(): Promise<Buffer | null> {
   return logoBufferPromise;
 }
 
-type CareerPathPdfInput = { attemptId: number; participantName: string; email?: string; createdAt: Date | string; report: CareerPathReport };
+type CareerPathPdfInput = { attemptId: number; participantName: string; email?: string; createdAt: Date | string; report: CareerPathReport; locale?: GeneratedLocale };
 
 export async function renderCareerPathReportPdf(input: CareerPathPdfInput): Promise<Buffer> {
+  const copy = getGeneratedCopy(input.locale);
   const doc = new PDFDocument({ size: "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: "Profound IQ CareerPath Report", Author: "Profound IQ Consulting" } });
   const chunks: Buffer[] = [];
   doc.on("data", (chunk: Buffer) => chunks.push(chunk));
@@ -29,23 +31,23 @@ export async function renderCareerPathReportPdf(input: CareerPathPdfInput): Prom
   const headerX = brandLogo ? 190 : 52;
   doc.fillColor("#f7f3e8").font("Helvetica-Bold").fontSize(10).text("PROFOUND IQ / CONSULTING", headerX, 32, { characterSpacing: 1.4 });
   doc.fillColor(GOLD).font("Helvetica").fontSize(9).text("CAREERPATH / TALENT FIT", headerX, 52, { characterSpacing: 1.1 });
-  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(24).text("CareerPath report", 52, 128);
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(24).text(copy.careerPathReport, 52, 128);
   doc.fillColor(GOLD).font("Helvetica").fontSize(10).text(`REPORT #${input.attemptId}  ·  ${formatDate(input.createdAt)}`, 52, 163, { characterSpacing: 0.7 });
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(13).text(input.participantName, 52, 198);
   if (input.email) doc.fillColor(MUTED).font("Helvetica").fontSize(9.5).text(input.email, 52, 217);
   doc.strokeColor(GOLD).lineWidth(2).moveTo(52, 244).lineTo(543, 244).stroke();
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("PATHWAY SIGNAL", 52, 258, { characterSpacing: 1.5 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(copy.pathwaySignal.toUpperCase(), 52, 258, { characterSpacing: 1.5 });
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(23).text(input.report.primary.label, 52, 280);
   doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(34).text(`${input.report.primary.score}`, 52, 316);
-  doc.fillColor(MUTED).font("Helvetica").fontSize(11).text("primary relative fit / 100", 124, 335);
+  doc.fillColor(MUTED).font("Helvetica").fontSize(11).text(copy.primaryRelativeFit, 124, 335);
   let y = 380;
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("EXECUTIVE READOUT", 52, y, { characterSpacing: 1.2 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(copy.executiveSummary.toUpperCase(), 52, y, { characterSpacing: 1.2 });
   y += 20;
   y = writeText(doc, input.report.overallReadout, 52, y, 491, 10.5, NAVY, 4) + 10;
   y = writeBullets(doc, input.report.learnerProfile, y, 9.5, MUTED) + 8;
   doc.strokeColor("#d8d1c1").lineWidth(1).moveTo(52, y).lineTo(543, y).stroke();
   y += 18;
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("SUB-PATHWAY SCORES", 52, y, { characterSpacing: 1.2 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(copy.subPathwayScores.toUpperCase(), 52, y, { characterSpacing: 1.2 });
   y += 23;
   for (const subPathway of input.report.subPathways) {
     if (y > 680) { addFooter(doc); doc.addPage(); y = 58; }
@@ -57,7 +59,7 @@ export async function renderCareerPathReportPdf(input: CareerPathPdfInput): Prom
   addFooter(doc);
   doc.addPage();
   y = 58;
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("PATHWAY COMPARISON", 52, y, { characterSpacing: 1.2 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(copy.pathwayComparison.toUpperCase(), 52, y, { characterSpacing: 1.2 });
   y += 25;
   for (const pathway of input.report.pathways) {
     doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(14).text(pathway.label, 52, y);
@@ -65,11 +67,11 @@ export async function renderCareerPathReportPdf(input: CareerPathPdfInput): Prom
     y += 19;
     y = writeBullets(doc, pathway.evidence, y, 9.5, MUTED) + 12;
   }
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("EXPLORATION PLAN", 52, y, { characterSpacing: 1.2 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(copy.explorationPlan.toUpperCase(), 52, y, { characterSpacing: 1.2 });
   y += 21;
   y = writeBullets(doc, input.report.explorationPlan, y, 9.8, NAVY) + 18;
   if (y > 650) { addFooter(doc); doc.addPage(); y = 58; }
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("IMPORTANT CONTEXT", 52, y, { characterSpacing: 1.2 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(copy.importantContext.toUpperCase(), 52, y, { characterSpacing: 1.2 });
   y += 20;
   writeBullets(doc, input.report.importantContext, y, 9.7, MUTED);
   addFooter(doc);
@@ -78,6 +80,7 @@ export async function renderCareerPathReportPdf(input: CareerPathPdfInput): Prom
 }
 
 export async function renderAssessmentReportPdf(input: ReportPdfInput): Promise<Buffer> {
+  const copy = getGeneratedCopy(input.locale);
   const doc = new PDFDocument({ size: "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: "Profound IQ Assessment Report", Author: "Profound IQ Consulting" } });
   const chunks: Buffer[] = [];
   doc.on("data", (chunk: Buffer) => chunks.push(chunk));
@@ -89,19 +92,19 @@ export async function renderAssessmentReportPdf(input: ReportPdfInput): Promise<
   const headerX = brandLogo ? 190 : 52;
   doc.fillColor("#f7f3e8").font("Helvetica-Bold").fontSize(10).text("PROFOUND IQ / CONSULTING", headerX, 32, { characterSpacing: 1.4 });
   doc.fillColor(GOLD).font("Helvetica").fontSize(9).text("EXECUTIVE OBSERVATORY", headerX, 52, { characterSpacing: 1.1 });
-  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(25).text("Assessment report", 52, 128);
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(25).text(copy.assessmentReport, 52, 128);
   doc.fillColor(GOLD).font("Helvetica").fontSize(10).text(`REPORT #${input.attemptId}  ·  ${formatDate(input.createdAt)}`, 52, 163, { characterSpacing: 0.7 });
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(13).text(input.participantName, 52, 198);
   if (input.email) doc.fillColor(MUTED).font("Helvetica").fontSize(9.5).text(input.email, 52, 217);
   doc.strokeColor(GOLD).lineWidth(2).moveTo(52, 244).lineTo(543, 244).stroke();
   doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("THE SIGNAL", 52, 258, { characterSpacing: 1.5 });
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(44).text(`${input.report.overallScore}`, 52, 278);
-  doc.fillColor(MUTED).font("Helvetica").fontSize(12).text("overall score / 100", 122, 302);
+  doc.fillColor(MUTED).font("Helvetica").fontSize(12).text(copy.overallScore, 122, 302);
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(18).text(input.report.overallBand, 52, 342);
 
   let y = 395;
   const summary = input.report.executiveSummary;
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("EXECUTIVE SUMMARY", 52, y, { characterSpacing: 1.2 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(copy.executiveSummary.toUpperCase(), 52, y, { characterSpacing: 1.2 });
   y += 22;
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(15).text(summary?.headline ?? `${input.report.overallBand}: a practical view of your current capability pattern`, 52, y, { width: 491 });
   y += doc.heightOfString(summary?.headline ?? `${input.report.overallBand}: a practical view of your current capability pattern`, { width: 491 }) + 7;
@@ -115,7 +118,7 @@ export async function renderAssessmentReportPdf(input: ReportPdfInput): Promise<
   }
   doc.strokeColor("#d8d1c1").lineWidth(1).moveTo(52, y).lineTo(543, y).stroke();
   y += 18;
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("DIMENSION READOUT", 52, y, { characterSpacing: 1.2 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(copy.dimensionReadout.toUpperCase(), 52, y, { characterSpacing: 1.2 });
   y += 24;
   for (const dimension of input.report.dimensions) {
     if (y > 680) { addFooter(doc); doc.addPage(); y = 58; }
@@ -123,7 +126,7 @@ export async function renderAssessmentReportPdf(input: ReportPdfInput): Promise<
     doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(`${dimension.score} / 100`, 450, y, { width: 93, align: "right" });
     y += 17;
     y = writeText(doc, dimension.readout ?? dimension.description, 52, y, 491, 9.5, MUTED, 3) + 5;
-    doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(9).text("Reflection prompts", 52, y);
+    doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(9).text(copy.reflectionPrompts, 52, y);
     y += 14;
     y = writeBullets(doc, getDimensionReflectionPoints(dimension), y, 9, NAVY);
     doc.strokeColor("#d8d1c1").lineWidth(1).moveTo(52, y + 4).lineTo(543, y + 4).stroke();
@@ -133,19 +136,19 @@ export async function renderAssessmentReportPdf(input: ReportPdfInput): Promise<
 
   doc.addPage();
   y = 58;
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("REFLECTION STARTING POINTS", 52, y, { characterSpacing: 1.2 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(copy.reflectionStartingPoints.toUpperCase(), 52, y, { characterSpacing: 1.2 });
   y += 31;
-  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(16).text("Strengths to compound", 52, y);
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(16).text(copy.strengthsToCompound, 52, y);
   y += 24;
   y = writeBullets(doc, input.report.strengths.map((item) => `${item} — make the behavior behind this signal visible, repeatable, and transferable.`), y, 10.5, NAVY) + 22;
-  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(16).text("Focus areas to explore", 52, y);
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(16).text(copy.focusAreasToExplore, 52, y);
   y += 24;
   y = writeBullets(doc, input.report.focusAreas.map((item) => `${item} — choose one specific behavior to practice rather than treating the result as a fixed label.`), y, 10.5, NAVY) + 23;
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("PRACTICAL REFLECTION", 52, y, { characterSpacing: 1.2 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(copy.practicalReflection.toUpperCase(), 52, y, { characterSpacing: 1.2 });
   y += 20;
   y = writeBullets(doc, input.report.reflectionPoints ?? [], y, 10, MUTED) + 26;
   if (y > 640) { addFooter(doc); doc.addPage(); y = 58; }
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("IMPORTANT CONTEXT", 52, y, { characterSpacing: 1.2 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(copy.importantContext.toUpperCase(), 52, y, { characterSpacing: 1.2 });
   y += 20;
   y = writeBullets(doc, input.report.importantContext ?? [input.report.disclaimer], y, 9.8, MUTED) + 18;
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(10).text("A considered next step", 52, y);
@@ -176,7 +179,8 @@ function addFooter(doc: PDFKit.PDFDocument): void {
 
 function formatDate(value: Date | string): string { return new Date(value).toLocaleDateString("en-KE", { year: "numeric", month: "short", day: "numeric" }); }
 
-export async function renderAssessmentScoreSummaryPdf(input: { participantName: string; email?: string; createdAt: Date | string; reports: Array<{ version?: string | null; createdAt: Date | string; overallScore?: number | null; overallBand?: string | null; dimensionScores?: Array<{ label: string; score: number }> }> }): Promise<Buffer> {
+export async function renderAssessmentScoreSummaryPdf(input: { participantName: string; email?: string; createdAt: Date | string; locale?: GeneratedLocale; reports: Array<{ version?: string | null; createdAt: Date | string; overallScore?: number | null; overallBand?: string | null; dimensionScores?: Array<{ label: string; score: number }> }> }): Promise<Buffer> {
+  const copy = getGeneratedCopy(input.locale);
   const doc = new PDFDocument({ size: "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: "Profound IQ Score Summary", Author: "Profound IQ Consulting" } });
   const chunks: Buffer[] = [];
   doc.on("data", (chunk: Buffer) => chunks.push(chunk));
@@ -187,13 +191,13 @@ export async function renderAssessmentScoreSummaryPdf(input: { participantName: 
   const headerX = brandLogo ? 190 : 52;
   doc.fillColor("#f7f3e8").font("Helvetica-Bold").fontSize(10).text("PROFOUND IQ / CONSULTING", headerX, 32, { characterSpacing: 1.4 });
   doc.fillColor(GOLD).font("Helvetica").fontSize(9).text("PERSONAL SCORE SUMMARY", headerX, 52, { characterSpacing: 1.1 });
-  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(25).text("Assessment score summary", 52, 128);
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(25).text(copy.scoreSummary, 52, 128);
   doc.fillColor(GOLD).font("Helvetica").fontSize(10).text(`GENERATED ${formatDate(input.createdAt)}`, 52, 163, { characterSpacing: 0.7 });
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(13).text(input.participantName, 52, 198);
   if (input.email) doc.fillColor(MUTED).font("Helvetica").fontSize(9.5).text(input.email, 52, 217);
   doc.strokeColor(GOLD).lineWidth(2).moveTo(52, 244).lineTo(543, 244).stroke();
   let y = 278;
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("REPORT HISTORY", 52, y, { characterSpacing: 1.2 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(copy.report.toUpperCase(), 52, y, { characterSpacing: 1.2 });
   y += 24;
   for (const report of input.reports) {
     if (y > 690) { addFooter(doc); doc.addPage(); y = 58; }
@@ -210,14 +214,15 @@ export async function renderAssessmentScoreSummaryPdf(input: { participantName: 
     doc.strokeColor("#d8d1c1").lineWidth(1).moveTo(52, y + 4).lineTo(543, y + 4).stroke();
     y += 20;
   }
-  if (!input.reports.length) writeText(doc, "No paid assessment scores are available yet. Complete an assessment and unlock its report to see your score history here.", 52, y, 491, 10, MUTED, 4);
+  if (!input.reports.length) writeText(doc, `${copy.report}: no paid assessment scores are available yet.`, 52, y, 491, 10, MUTED, 4);
   addFooter(doc);
   doc.end();
   return finished;
 }
 
 
-export async function renderPaymentReceiptPdf(input: { attemptId: number; participantName: string; email: string; reference: string; amountKes: number; paidAt?: Date | string; verificationUrl: string }): Promise<Buffer> {
+export async function renderPaymentReceiptPdf(input: { attemptId: number; participantName: string; email: string; reference: string; amountKes: number; paidAt?: Date | string; verificationUrl: string; locale?: GeneratedLocale }): Promise<Buffer> {
+  const copy = getGeneratedCopy(input.locale);
   const doc = new PDFDocument({ size: "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: "Profound IQ Consulting Payment Receipt", Author: "Profound IQ Consulting", Subject: "Verified payment receipt" } });
   const chunks: Buffer[] = [];
   doc.on("data", (chunk: Buffer) => chunks.push(chunk));
@@ -227,18 +232,18 @@ export async function renderPaymentReceiptPdf(input: { attemptId: number; partic
   if (brandLogo) { try { doc.image(brandLogo, 52, 14, { fit: [120, 72] }); } catch { /* fall back to text */ } }
   doc.fillColor("#f7f3e8").font("Helvetica-Bold").fontSize(11).text("PROFOUND IQ / CONSULTING", brandLogo ? 190 : 52, 36, { characterSpacing: 1.3 });
   doc.fillColor(GOLD).font("Helvetica").fontSize(9).text("TRANSFORMATION SERVICES", brandLogo ? 190 : 52, 57, { characterSpacing: 1.1 });
-  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(25).text("Payment receipt", 52, 145);
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(25).text(copy.paymentReceipt, 52, 145);
   doc.fillColor(MUTED).font("Helvetica").fontSize(10).text(`Receipt #${input.attemptId} · ${formatDate(input.paidAt ?? new Date())}`, 52, 179);
   doc.strokeColor(GOLD).lineWidth(2).moveTo(52, 207).lineTo(543, 207).stroke();
-  doc.fillColor(MUTED).font("Helvetica-Bold").fontSize(9).text("PAID BY", 52, 242, { characterSpacing: 1.1 });
+  doc.fillColor(MUTED).font("Helvetica-Bold").fontSize(9).text(copy.learner.toUpperCase(), 52, 242, { characterSpacing: 1.1 });
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(14).text(input.participantName, 52, 260);
   doc.fillColor(MUTED).font("Helvetica").fontSize(10).text(input.email, 52, 282);
-  doc.fillColor(MUTED).font("Helvetica-Bold").fontSize(9).text("AMOUNT", 52, 330, { characterSpacing: 1.1 });
+  doc.fillColor(MUTED).font("Helvetica-Bold").fontSize(9).text(copy.amountPaid.toUpperCase(), 52, 330, { characterSpacing: 1.1 });
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(23).text(`KES ${input.amountKes.toLocaleString("en-KE")}`, 52, 348);
-  doc.fillColor(MUTED).font("Helvetica-Bold").fontSize(9).text("PAYSTACK REFERENCE", 52, 404, { characterSpacing: 1.1 });
+  doc.fillColor(MUTED).font("Helvetica-Bold").fontSize(9).text(copy.transactionReference.toUpperCase(), 52, 404, { characterSpacing: 1.1 });
   doc.fillColor(NAVY).font("Helvetica").fontSize(10).text(input.reference, 52, 422);
   doc.fillColor(MUTED).font("Helvetica").fontSize(9).text("This receipt confirms a successful Paystack transaction for Profound IQ Consulting transformation services.", 52, 485, { width: 490, lineGap: 4 });
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(9).text("VERIFY ONLINE", 52, 555, { characterSpacing: 1.1 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(9).text(copy.verifyCredential.toUpperCase(), 52, 555, { characterSpacing: 1.1 });
   doc.fillColor(NAVY).font("Helvetica").fontSize(9).fillColor(NAVY).text(input.verificationUrl, 52, 575, { link: input.verificationUrl, underline: true, width: 490 });
   doc.fillColor(MUTED).font("Helvetica").fontSize(8).text("Scan the QR code on your credential or open the verification link above to confirm authenticity.", 52, 610, { width: 490 });
   doc.fillColor(NAVY).rect(0, 760, doc.page.width, 82).fill();
@@ -249,9 +254,10 @@ export async function renderPaymentReceiptPdf(input: { attemptId: number; partic
 
 import type { PsychometricReport } from "../shared/psychometrics";
 
-type PsychometricPdfInput = { attemptId: number; participantName: string; email?: string; createdAt: Date | string; report: PsychometricReport; verificationUrl: string };
+type PsychometricPdfInput = { attemptId: number; participantName: string; email?: string; createdAt: Date | string; report: PsychometricReport; verificationUrl: string; locale?: GeneratedLocale };
 
 export async function renderPsychometricReportPdf(input: PsychometricPdfInput): Promise<Buffer> {
+  const copy = getGeneratedCopy(input.locale);
   const doc = new PDFDocument({ size: "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: `${input.report.title} — Profound IQ Consulting`, Author: "Profound IQ Consulting" } });
   const chunks: Buffer[] = [];
   doc.on("data", (chunk: Buffer) => chunks.push(chunk));
@@ -269,22 +275,22 @@ export async function renderPsychometricReportPdf(input: PsychometricPdfInput): 
   doc.strokeColor(GOLD).lineWidth(2).moveTo(52, 250).lineTo(543, 250).stroke();
   doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("OVERALL PROFILE", 52, 265, { characterSpacing: 1.3 });
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(42).text(`${input.report.overallScore}`, 52, 286);
-  doc.fillColor(MUTED).font("Helvetica").fontSize(11).text("overall signal / 100", 124, 310);
+  doc.fillColor(MUTED).font("Helvetica").fontSize(11).text(copy.overallScore, 124, 310);
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(16).text(input.report.overallBand, 52, 350);
   let y = 395;
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("EXECUTIVE READOUT", 52, y, { characterSpacing: 1.2 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(copy.executiveSummary.toUpperCase(), 52, y, { characterSpacing: 1.2 });
   y += 21;
   y = writeText(doc, `This report presents a structured development signal across the dimensions of the ${input.report.title}. Use it to guide reflection, learning plans, coaching, and evidence-based conversations.`, 52, y, 491, 10, MUTED, 4) + 14;
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("TOP SIGNALS", 52, y, { characterSpacing: 1.2 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(copy.pathwaySignal.toUpperCase(), 52, y, { characterSpacing: 1.2 });
   y += 20;
   y = writeBullets(doc, input.report.strengths, y, 9.8, NAVY) + 10;
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("DEVELOPMENT PRIORITIES", 52, y, { characterSpacing: 1.2 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(copy.focusAreasToExplore.toUpperCase(), 52, y, { characterSpacing: 1.2 });
   y += 20;
   y = writeBullets(doc, input.report.developmentPriorities, y, 9.8, NAVY) + 10;
   addFooter(doc);
   doc.addPage();
   y = 58;
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("DIMENSION READOUT", 52, y, { characterSpacing: 1.2 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(copy.dimensionReadout.toUpperCase(), 52, y, { characterSpacing: 1.2 });
   y += 25;
   for (const dimension of input.report.domains) {
     if (y > 690) { addFooter(doc); doc.addPage(); y = 58; }
@@ -295,13 +301,13 @@ export async function renderPsychometricReportPdf(input: PsychometricPdfInput): 
     y = writeBullets(doc, dimension.developmentActions, y, 9.1, NAVY) + 10;
   }
   if (y > 640) { addFooter(doc); doc.addPage(); y = 58; }
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("RECOMMENDATIONS", 52, y, { characterSpacing: 1.2 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(copy.explorationPlan.toUpperCase(), 52, y, { characterSpacing: 1.2 });
   y += 21;
   y = writeBullets(doc, input.report.recommendations, y, 9.6, NAVY) + 16;
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text("IMPORTANT CONTEXT", 52, y, { characterSpacing: 1.2 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(copy.importantContext.toUpperCase(), 52, y, { characterSpacing: 1.2 });
   y += 20;
   writeText(doc, input.report.disclaimer, 52, y, 491, 8.8, MUTED, 3);
-  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(8.5).text("VERIFY THIS REPORT", 52, 700, { characterSpacing: 1.1 });
+  doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(8.5).text(copy.verifyCredential.toUpperCase(), 52, 700, { characterSpacing: 1.1 });
   doc.fillColor(NAVY).font("Helvetica").fontSize(8.5).text(input.verificationUrl, 52, 716, { width: 491, link: input.verificationUrl, underline: true });
   addFooter(doc);
   doc.end();
