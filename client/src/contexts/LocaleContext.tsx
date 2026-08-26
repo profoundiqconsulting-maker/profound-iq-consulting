@@ -21,6 +21,12 @@ type Translation = Record<string, string>;
 const english = {
   language: "Language",
   selectLanguage: "Select language",
+  paymentHistoryUnavailable: "Payment history is temporarily unavailable. Please try again.",
+  paymentHistoryPagination: "Payment history pages",
+  pageOfPages: "Page {page} of {pages}",
+  previousPage: "Previous",
+  nextPage: "Next",
+  loadingPaymentHistory: "Loading payment history…",
   backToSite: "Back to site",
   approach: "Approach",
   offerings: "Offerings",
@@ -203,7 +209,19 @@ const paymentHistoryUiOverrides: Record<LocaleCode, Partial<Translation>> = {
   ja: { filterByCourse: "コースで絞り込む", filterByStage: "ステージで絞り込む", filterByStatus: "ステータスで絞り込む", allCourses: "すべてのコース", allStages: "すべてのステージ", allStatuses: "すべてのステータス", fromDate: "開始日", toDate: "終了日", sortTransactions: "取引を並べ替え", newestFirst: "新しい順", oldestFirst: "古い順", amountHighToLow: "金額：高い順", amountLowToHigh: "金額：安い順", courseAtoZ: "コース：A–Z", stageOrder: "ステージ順", statusOrder: "ステータス", showingTransactions: "{total}件中{count}件の取引を表示", filteredTransactions: "一致する取引", paidTotal: "支払済み合計", pendingTotal: "保留中合計", noPaymentMatch: "条件に一致する支払いはありません。", course: "コース", amount: "金額", status: "ステータス", transactionDate: "取引日", reference: "参照", notAvailable: "利用不可" },
 };
 
-const translations: Record<LocaleCode, Translation> = Object.fromEntries(SUPPORTED_LOCALES.map(({ code }) => [code, { ...english, ...(overrides[code] ?? {}), ...(paymentOverrides[code] ?? {}), ...(paymentHistoryUiOverrides[code] ?? {}) }])) as unknown as Record<LocaleCode, Translation>;
+const paginationUiOverrides: Record<LocaleCode, Partial<Translation>> = {
+  en: { paymentHistoryUnavailable: "Payment history is temporarily unavailable. Please try again.", paymentHistoryPagination: "Payment history pages", pageOfPages: "Page {page} of {pages}", previousPage: "Previous", nextPage: "Next" },
+  sw: { paymentHistoryUnavailable: "Historia ya malipo haipatikani kwa muda. Tafadhali jaribu tena.", paymentHistoryPagination: "Kurasa za historia ya malipo", pageOfPages: "Ukurasa {page} kati ya {pages}", previousPage: "Iliyotangulia", nextPage: "Inayofuata" },
+  fr: { paymentHistoryUnavailable: "L’historique des paiements est temporairement indisponible. Réessayez.", paymentHistoryPagination: "Pages de l’historique des paiements", pageOfPages: "Page {page} sur {pages}", previousPage: "Précédente", nextPage: "Suivante" },
+  es: { paymentHistoryUnavailable: "El historial de pagos no está disponible temporalmente. Inténtalo de nuevo.", paymentHistoryPagination: "Páginas del historial de pagos", pageOfPages: "Página {page} de {pages}", previousPage: "Anterior", nextPage: "Siguiente" },
+  pt: { paymentHistoryUnavailable: "O histórico de pagamentos está temporariamente indisponível. Tente novamente.", paymentHistoryPagination: "Páginas do histórico de pagamentos", pageOfPages: "Página {page} de {pages}", previousPage: "Anterior", nextPage: "Seguinte" },
+  ar: { paymentHistoryUnavailable: "سجل المدفوعات غير متاح مؤقتاً. يرجى المحاولة مرة أخرى.", paymentHistoryPagination: "صفحات سجل المدفوعات", pageOfPages: "الصفحة {page} من {pages}", previousPage: "السابق", nextPage: "التالي" },
+  zh: { paymentHistoryUnavailable: "付款记录暂时不可用，请稍后再试。", paymentHistoryPagination: "付款记录分页", pageOfPages: "第 {page} 页，共 {pages} 页", previousPage: "上一页", nextPage: "下一页" },
+  hi: { paymentHistoryUnavailable: "भुगतान इतिहास अस्थायी रूप से उपलब्ध नहीं है। कृपया फिर प्रयास करें।", paymentHistoryPagination: "भुगतान इतिहास पृष्ठ", pageOfPages: "पृष्ठ {page} / {pages}", previousPage: "पिछला", nextPage: "अगला" },
+  de: { paymentHistoryUnavailable: "Der Zahlungsverlauf ist vorübergehend nicht verfügbar. Bitte versuchen Sie es erneut.", paymentHistoryPagination: "Seiten des Zahlungsverlaufs", pageOfPages: "Seite {page} von {pages}", previousPage: "Zurück", nextPage: "Weiter" },
+  ja: { paymentHistoryUnavailable: "支払い履歴を一時的に利用できません。もう一度お試しください。", paymentHistoryPagination: "支払い履歴のページ", pageOfPages: "{pages}ページ中 {page}ページ", previousPage: "前へ", nextPage: "次へ" },
+};
+const translations: Record<LocaleCode, Translation> = Object.fromEntries(SUPPORTED_LOCALES.map(({ code }) => [code, { ...english, ...(overrides[code] ?? {}), ...(paymentOverrides[code] ?? {}), ...(paymentHistoryUiOverrides[code] ?? {}), ...(paginationUiOverrides[code] ?? {}) }])) as unknown as Record<LocaleCode, Translation>;
 
 const LocaleContext = createContext<{ locale: LocaleCode; setLocale: (locale: LocaleCode) => void; t: (key: TranslationKey) => string; localeInfo: (typeof SUPPORTED_LOCALES)[number] }>({ locale: "en", setLocale: () => undefined, t: (key) => english[key], localeInfo: SUPPORTED_LOCALES[0] });
 

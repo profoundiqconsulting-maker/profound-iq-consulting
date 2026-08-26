@@ -24,13 +24,25 @@ export type PaymentHistoryTransaction = PaymentHistoryStage & {
   transactionDate?: Date | string | null;
 };
 
+export type PaymentHistorySort = "date-desc" | "date-asc" | "amount-desc" | "amount-asc" | "course-asc" | "stage-asc" | "status";
+
+export type PaymentHistoryPage = {
+  rows: PaymentHistoryTransaction[];
+  total: number;
+  page: number;
+  pageSize: number;
+  pageCount: number;
+  paidTotal: number;
+  pendingTotal: number;
+};
+
 export type PaymentHistoryFilters = {
   courseSlug: string;
   stage: string;
   status: string;
   from: string;
   to: string;
-  sort: "date-desc" | "date-asc" | "amount-desc" | "amount-asc" | "course-asc" | "stage-asc" | "status";
+  sort: PaymentHistorySort;
 };
 
 const timestamp = (value?: Date | string | null) => value ? new Date(value).getTime() : 0;

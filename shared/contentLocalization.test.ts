@@ -13,6 +13,20 @@ describe("content localization", () => {
     expect(localizeAssessmentPrompt("de", "A prompt without a suffix", "clarity")).toBe("A prompt without a suffix");
   });
 
+  it("adds course-specific examples in each supported locale", () => {
+    const locales = ["en", "sw", "fr", "es", "pt", "ar", "zh", "hi", "de", "ja"] as const;
+    const leadership = courseCatalog.find((course) => course.slug === "lead-with-clarity")!;
+    const finance = courseCatalog.find((course) => course.slug === "personal-finance-management-essentials")!;
+    for (const locale of locales) {
+      const localizedLeadership = localizeCourseDefinition(locale, leadership).modules[0].lessons[0].example;
+      const localizedFinance = localizeCourseDefinition(locale, finance).modules[0].lessons[0].example;
+      expect(localizedLeadership.context).toContain(locale === "en" ? "Nairobi" : locale === "ar" ? "نيروبي" : locale === "zh" ? "内罗毕" : locale === "hi" ? "नैरोबी" : locale === "ja" ? "ナイロビ" : locale === "de" ? "Nairobi" : "Nairobi");
+      expect(localizedLeadership.context).not.toBe(localizedFinance.context);
+      expect(localizedLeadership.move.length).toBeGreaterThan(30);
+      expect(localizedLeadership.result.length).toBeGreaterThan(30);
+    }
+  });
+
   it("projects substantial lesson and quiz copy for every supported locale", () => {
     const source = courseCatalog[0];
     const sourceLesson = source.modules[0].lessons[0];

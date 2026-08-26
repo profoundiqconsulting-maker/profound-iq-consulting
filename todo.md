@@ -1649,3 +1649,12 @@
 - [x] Add regression coverage for transaction filtering/sorting, long-form lesson/quiz localization, and navigation locale switching.
 - [x] Run type checking, focused tests, full non-network tests, production build, and responsive desktop/mobile/RTL verification.
 - [x] Save a checkpoint for the payment history, full content localization, and navigation language switcher enhancements.
+
+# Server Pagination, Cultural Localization, and Browser QA
+- [x] Add protected server-side payment-history pagination with filter/sort inputs and total counts.
+- [x] Update the Payment History tab to query paginated transaction rows and expose accessible page controls.
+- [x] Add locale-native, course-specific examples and context to long-form lesson projections without changing stable course or quiz identifiers.
+- [x] Add regression coverage for paginated payment history and course-specific localized examples.
+- [x] Add automated browser coverage for language switching, persistence, and Arabic RTL rendering.
+- [x] Run TypeScript, focused tests, full non-network tests, production build, and responsive/RTL browser verification.
+- [x] Save a checkpoint for server pagination, cultural localization, and browser QA coverage.

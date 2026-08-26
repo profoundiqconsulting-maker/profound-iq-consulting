@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { and, desc, eq, gte, inArray, isNull, isNotNull, like, lt, lte, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNull, isNotNull, like, lt, lte, or, sql, type SQL } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { normalizeLeaderboardDisplayName, rankAchievementLeaderboard, type AchievementBadge, type AchievementLeaderboardRow } from "../shared/achievements";
 import { courseCatalog } from "../shared/courseCatalog";
@@ -1232,6 +1232,41 @@ export async function listCourseEnrollmentState(userOpenId: string) {
   const enrollments = await db.select().from(courseLearnerEnrollments).where(eq(courseLearnerEnrollments.userOpenId, userOpenId)).orderBy(desc(courseLearnerEnrollments.updatedAt));
   return Promise.all(enrollments.map(async (enrollment) => ({ enrollment, lessons: await db.select().from(courseLessonProgress).where(eq(courseLessonProgress.enrollmentId, enrollment.id)), quizAttempts: await db.select().from(courseQuizAttempts).where(eq(courseQuizAttempts.enrollmentId, enrollment.id)).orderBy(desc(courseQuizAttempts.createdAt)), stages: await db.select().from(coursePaymentStages).where(eq(coursePaymentStages.enrollmentId, enrollment.id)).orderBy(coursePaymentStages.stage), certificates: await db.select().from(courseCertificates).where(eq(courseCertificates.enrollmentId, enrollment.id)).orderBy(desc(courseCertificates.createdAt)) })));
 }
+export async function listCoursePaymentHistoryPage(userOpenId: string, input: { page: number; pageSize: number; courseSlug?: string; stage?: number; status?: string; from?: Date; to?: Date; sort: "date-desc" | "date-asc" | "amount-desc" | "amount-asc" | "course-asc" | "stage-asc" | "status" }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const transactionDate = sql<Date>`COALESCE(${coursePaymentStages.paidAt}, ${coursePaymentStages.initializedAt}, ${coursePaymentStages.updatedAt}, ${courseLearnerEnrollments.updatedAt})`;
+  const conditions = [
+    eq(courseLearnerEnrollments.userOpenId, userOpenId),
+    input.courseSlug ? eq(courseLearnerEnrollments.courseSlug, input.courseSlug) : undefined,
+    input.stage ? eq(coursePaymentStages.stage, input.stage) : undefined,
+    input.status ? eq(coursePaymentStages.paymentStatus, input.status) : undefined,
+    input.from ? gte(transactionDate, input.from) : undefined,
+    input.to ? lte(transactionDate, input.to) : undefined,
+  ].filter((condition): condition is SQL => Boolean(condition));
+  const where = and(...conditions);
+  const sortExpression = (() => {
+    switch (input.sort) {
+      case "date-asc": return asc(transactionDate);
+      case "amount-desc": return desc(coursePaymentStages.amountKes);
+      case "amount-asc": return asc(coursePaymentStages.amountKes);
+      case "course-asc": return asc(courseLearnerEnrollments.courseSlug);
+      case "stage-asc": return asc(coursePaymentStages.stage);
+      case "status": return asc(coursePaymentStages.paymentStatus);
+      case "date-desc":
+      default: return desc(transactionDate);
+    }
+  })();
+  const offset = (Math.max(1, input.page) - 1) * input.pageSize;
+  const [rows, totalRows, summaryRows] = await Promise.all([
+    db.select({ id: coursePaymentStages.id, enrollmentId: coursePaymentStages.enrollmentId, courseSlug: courseLearnerEnrollments.courseSlug, stage: coursePaymentStages.stage, amountKes: coursePaymentStages.amountKes, paymentStatus: coursePaymentStages.paymentStatus, paidAt: coursePaymentStages.paidAt, paystackReference: coursePaymentStages.paystackReference, transactionDate }).from(coursePaymentStages).innerJoin(courseLearnerEnrollments, eq(coursePaymentStages.enrollmentId, courseLearnerEnrollments.id)).where(where).orderBy(sortExpression, desc(coursePaymentStages.id)).limit(input.pageSize).offset(offset),
+    db.select({ count: sql<number>`count(*)` }).from(coursePaymentStages).innerJoin(courseLearnerEnrollments, eq(coursePaymentStages.enrollmentId, courseLearnerEnrollments.id)).where(where),
+    db.select({ paidTotal: sql<number>`COALESCE(SUM(CASE WHEN ${coursePaymentStages.paymentStatus} = 'paid' THEN ${coursePaymentStages.amountKes} ELSE 0 END), 0)`, pendingTotal: sql<number>`COALESCE(SUM(CASE WHEN ${coursePaymentStages.paymentStatus} <> 'paid' THEN ${coursePaymentStages.amountKes} ELSE 0 END), 0)` }).from(coursePaymentStages).innerJoin(courseLearnerEnrollments, eq(coursePaymentStages.enrollmentId, courseLearnerEnrollments.id)).where(where),
+  ]);
+  const total = Number(totalRows[0]?.count ?? 0);
+  return { rows, total, page: Math.max(1, input.page), pageSize: input.pageSize, pageCount: Math.max(1, Math.ceil(total / input.pageSize)), paidTotal: Number(summaryRows[0]?.paidTotal ?? 0), pendingTotal: Number(summaryRows[0]?.pendingTotal ?? 0) };
+}
+
 export async function markCourseLessonComplete(enrollmentId: number, lessonId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
