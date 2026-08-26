@@ -1698,3 +1698,4 @@
 - [ ] Batch 4: verify generated artifacts and delivery copy; save a batch checkpoint.
 - [ ] Run complete locale completeness tests, browser tests, TypeScript, full Vitest, production build, and responsive/RTL verification.
 - [ ] Mark the complete staged localization work finished and publish the final checkpoint.
+- [x] Batch 2 increment: localize primary authentication, workspace, settings navigation, and payment-success sign-in labels through the shared locale system.
