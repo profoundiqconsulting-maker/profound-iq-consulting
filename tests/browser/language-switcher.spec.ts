@@ -13,6 +13,14 @@ test.describe("global language navigation", () => {
     await expect(page.locator("body")).toContainText("العربية");
   });
 
+  test("keeps locale metadata coherent on representative public learning routes", async ({ page }) => {
+    for (const route of ["/assessment", "/careerpath", "/psychometrics", "/verify-certificate"]) {
+      await page.goto(route, { waitUntil: "domcontentloaded" });
+      await expect(page.locator("html")).toHaveAttribute("lang", "en");
+      await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
+    }
+  });
+
   test("persists a non-English locale after a reload", async ({ page }) => {
     await page.goto("/");
     await page.locator('select[aria-label="Select language"]').first().selectOption("sw");
