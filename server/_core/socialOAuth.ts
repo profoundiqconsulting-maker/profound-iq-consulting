@@ -16,9 +16,10 @@ const providers = {
 type Provider = keyof typeof providers;
 
 function getParam(req: Request, key: string) { const value = req.query[key]; return typeof value === "string" ? value : undefined; }
-function encodeState(value: { provider: Provider; nonce: string; origin: string }) { return Buffer.from(JSON.stringify(value), "utf8").toString("base64url"); }
-function decodeState(value: string | undefined) { try { return value ? JSON.parse(Buffer.from(value, "base64url").toString("utf8")) as { provider?: Provider; nonce?: string; origin?: string } : {}; } catch { return {}; } }
+function encodeState(value: { provider: Provider; nonce: string; origin: string; returnTo?: string }) { return Buffer.from(JSON.stringify(value), "utf8").toString("base64url"); }
+function decodeState(value: string | undefined) { try { return value ? JSON.parse(Buffer.from(value, "base64url").toString("utf8")) as { provider?: Provider; nonce?: string; origin?: string; returnTo?: string } : {}; } catch { return {}; } }
 function safeOrigin(value: string | undefined) { try { const url = new URL(value || ""); return url.protocol === "https:" || (url.protocol === "http:" && url.hostname === "localhost") ? url.origin : null; } catch { return null; } }
+function safeReturnTo(value: string | undefined) { return value && value.startsWith("/") && !value.startsWith("//") && !value.includes("\\") ? value : "/"; }
 function redirectError(res: Response, origin: string | null, message: string) { res.redirect(`${origin ?? "/"}/auth?error=${encodeURIComponent(message)}`); }
 
 export function socialOAuthRedirectUri(provider: Provider, origin: string) { return `${origin}/api/oauth/${provider}/callback`; }
@@ -40,9 +41,10 @@ export function registerSocialOAuthRoutes(app: Express) {
     app.get(`/api/oauth/${provider}/start`, (req, res) => {
       const config = providers[provider];
       const origin = safeOrigin(getParam(req, "origin"));
+      const returnTo = safeReturnTo(getParam(req, "returnTo"));
       if (!origin || !config.clientId() || !config.clientSecret()) { redirectError(res, origin, `${provider}_not_configured`); return; }
       const nonce = crypto.randomBytes(32).toString("base64url");
-      const state = encodeState({ provider, nonce, origin });
+      const state = encodeState({ provider, nonce, origin, returnTo });
       res.cookie(STATE_COOKIE, `${provider}.${nonce}`, { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 600000 });
       res.redirect(buildSocialAuthorizationUrl(provider, origin, state, nonce));
     });
@@ -69,7 +71,7 @@ export function registerSocialOAuthRoutes(app: Express) {
         await upsertUser({ openId, name: profile.name || existing?.name || `${provider} user`, email: normalizedEmail || existing?.email || null, loginMethod: provider, avatarUrl: profile.picture || existing?.avatarUrl || null, lastSignedIn: new Date() });
         const sessionToken = await sdk.createSessionToken(openId, { name: profile.name || existing?.name || `${provider} user`, expiresInMs: ONE_YEAR_MS });
         res.cookie(COOKIE_NAME, sessionToken, { ...getSessionCookieOptions(req), maxAge: ONE_YEAR_MS });
-        res.redirect(`${origin}/`);
+        res.redirect(`${origin}${safeReturnTo(state.returnTo)}`);
       } catch (error) { console.error(`[Social OAuth] ${provider} callback failed`, error); redirectError(res, origin, "social_sign_in_failed"); }
     });
   });

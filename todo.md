@@ -1598,3 +1598,20 @@
 - [x] Test authenticated dashboard language switching across supported locales.
 - [x] Test Arabic RTL direction, layout transition, and persistence on the authenticated dashboard.
 - [x] Run the full validation suite and publish the completed QA improvements.
+
+# Enrollment OAuth and Profile Settings
+- [ ] Add a loading spinner and processing status message to Google OAuth sign-in during enrollment.
+- [ ] Add connected Google account details to the user profile settings page.
+- [ ] Add preferred-language controls to profile settings using the existing locale preference contract.
+- [ ] Prepare branded consent-screen logo upload guidance and Google app verification steps.
+- [ ] Add regression coverage and verify enrollment, settings, locale persistence, type checking, tests, and production build.
+- [ ] Save a checkpoint for the enrollment OAuth and profile settings improvements.
+
+# Course Access Gate Correction
+- [x] Route registered learners from the course sign-in gate to their dashboard or course enrollment continuation.
+- [x] Route unregistered learners into registration while preserving the intended course slug and return step.
+- [x] Make the verified first staged payment the explicit unlock action for the course.
+- [x] Ensure unpaid users see course highlights only and cannot access protected lesson content.
+- [x] Add regression coverage for registered, unregistered, pending-payment, and first-payment-success paths.
+- [x] Run type checking, tests, production build, and responsive enrollment verification.
+- [x] Save a checkpoint for the corrected course access workflow.
