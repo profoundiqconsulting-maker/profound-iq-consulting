@@ -1732,3 +1732,5 @@
 - [x] Add and validate the localized certificate label used by the unlocked course workspace across all ten supported locales.
 - [x] Batch 3 increment: localize course-workspace previous/next module and quiz submission controls with the ten-locale assessment workflow copy map.
 - [x] Verify the course-workspace assessment-copy increment with focused tests, the complete Vitest suite, TypeScript, and production build.
+- [x] Batch 3 increment: localize the interactive lesson-player close control and study-timer descriptor through the shared ten-locale enrollment copy map.
+- [x] Verify the lesson-player localization with focused tests, the complete Vitest suite, TypeScript, and production build.
