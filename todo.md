@@ -1576,3 +1576,12 @@
 - [x] Persist translation suggestions through the existing inquiry workflow with spam protection and clear success/error feedback.
 - [x] Add regression coverage and verify accessibility, responsive behavior, type checking, tests, and production build.
 - [x] Save a checkpoint for the localization enhancements.
+
+# Translation Operations and International SEO
+- [x] Add an admin-only translation-suggestion review query with status/search/date filters and pagination.
+- [x] Add admin approve/reject mutations with audit-safe reviewer and timestamp fields.
+- [x] Add a dashboard section for reviewing, approving, and rejecting translation suggestions.
+- [x] Extend course lesson, module, quiz, and assessment body content through locale-aware content maps with English fallback.
+- [x] Add locale-specific sitemap URLs and hreflang alternate links for public localized routes.
+- [x] Add regression coverage and verify accessibility, responsive behavior, type checking, tests, and production build.
+- [x] Save a checkpoint for translation operations and international SEO.

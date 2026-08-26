@@ -8,6 +8,7 @@ import { getSiteSeoSetting, listPublishedCatalogItems } from "./db";
 const SITE_ORIGIN = "https://profoundiqconsulting.com";
 const PUBLIC_IMAGE_ORIGIN = "https://profoundiq-vguqrhsm.manus.space";
 const DEFAULT_SOCIAL_IMAGE_URL = `${PUBLIC_IMAGE_ORIGIN}/manus-storage/profound-iq-social-preview_9d540b32.png`;
+const SEO_LOCALES = ["en", "sw", "fr", "es", "pt", "ar", "zh", "hi", "de", "ja"] as const;
 
 function escapeHtml(value: unknown) {
   return String(value ?? "").replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character] ?? character);
@@ -49,9 +50,13 @@ async function getPublicCourses(): Promise<PublicCourse[]> {
 
 export function buildSitemapXml(courses: Array<{ slug: string }>) {
   const staticPaths = ["/", "/courses", "/assessment", "/careerpath", "/psychometrics", "/verify/certificate", "/verify/psychometric", "/privacy-policy", "/terms-of-service"];
-  const paths = [...staticPaths, ...courses.map((course) => `/courses/${course.slug}`)];
-  const uniquePaths = Array.from(new Set(paths));
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${uniquePaths.map((url) => `  <url><loc>${SITE_ORIGIN}${escapeHtml(url)}</loc></url>`).join("\n")}\n</urlset>\n`;
+  const paths = Array.from(new Set([...staticPaths, ...courses.map((course) => `/courses/${course.slug}`)]));
+  const localizedUrl = (path: string, locale: (typeof SEO_LOCALES)[number]) => `${SITE_ORIGIN}${path}${path.includes("?") ? "&" : "?"}lang=${locale}`;
+  const entries = paths.flatMap((path) => SEO_LOCALES.map((locale) => {
+    const alternates = SEO_LOCALES.map((alternate) => `<xhtml:link rel="alternate" hreflang="${alternate === "en" ? "en" : alternate}" href="${escapeHtml(localizedUrl(path, alternate))}"/>`).join("");
+    return `  <url><loc>${escapeHtml(localizedUrl(path, locale))}</loc>${alternates}</url>`;
+  }));
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${entries.join("\n")}\n</urlset>\n`;
 }
 
 function findClientScript() {

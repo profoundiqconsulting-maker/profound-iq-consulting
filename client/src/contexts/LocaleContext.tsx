@@ -160,7 +160,12 @@ function detectLocale(): LocaleCode {
 export function LocaleProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<LocaleCode>("en");
   useEffect(() => {
+    const urlLocale = new URLSearchParams(window.location.search).get("lang") as LocaleCode | null;
     const stored = window.localStorage.getItem(LOCALE_STORAGE_KEY) as LocaleCode | null;
+    if (urlLocale && SUPPORTED_LOCALES.some((item) => item.code === urlLocale)) {
+      setLocaleState(urlLocale);
+      return;
+    }
     setLocaleState(stored && SUPPORTED_LOCALES.some((item) => item.code === stored) ? stored : detectLocale());
   }, []);
   useEffect(() => {

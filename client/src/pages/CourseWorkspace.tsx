@@ -12,6 +12,8 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { buildCourseModuleBadges } from "@shared/courseBadges";
 import { ModuleCompletionBadge } from "@/components/ModuleCompletionBadge";
 import { CourseShareActions } from "@/components/CourseShareActions";
+import { useLocale } from "@/contexts/LocaleContext";
+import { localizeCourseDefinition } from "@shared/contentLocalization";
 
 const storageKey = (slug: string) => `piq-course-progress-${slug}`;
 type LessonTimerState = { startedAt: number; completedAt?: number };
@@ -26,7 +28,9 @@ const readProgress = (course: CourseDefinition): SavedProgress => {
 
 export default function CourseWorkspace() {
   const [, params] = useRoute("/courses/:slug");
-  const course = courseCatalog.find((item) => item.slug === params?.slug);
+  const { locale } = useLocale();
+  const baseCourse = courseCatalog.find((item) => item.slug === params?.slug);
+  const course = useMemo(() => baseCourse ? localizeCourseDefinition(locale, baseCourse) : undefined, [baseCourse, locale]);
   if (!course) return <div className="min-h-screen bg-[#f7f3e8] p-8 text-[#16243d]"><p className="eyebrow text-[#a27e2e]">Course not found</p><Link href="/#courses" className="mt-5 inline-flex border-b border-[#16243d] pb-1 text-sm">Return to course catalog</Link></div>;
   return <CourseWorkspaceContent course={course} />;
 }

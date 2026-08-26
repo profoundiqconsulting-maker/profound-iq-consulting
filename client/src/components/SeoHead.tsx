@@ -7,6 +7,7 @@ const SITE_ORIGIN = "https://profoundiqconsulting.com";
 const PUBLIC_IMAGE_ORIGIN = "https://profoundiq-vguqrhsm.manus.space";
 const DEFAULT_IMAGE = `${PUBLIC_IMAGE_ORIGIN}/manus-storage/profound-iq-social-preview_9d540b32.png`;
 const courseSocialImageUrl = (slug: string) => `${PUBLIC_IMAGE_ORIGIN}/og/course/${encodeURIComponent(slug)}.png`;
+const SEO_LOCALES = ["en", "sw", "fr", "es", "pt", "ar", "zh", "hi", "de", "ja"] as const;
 
 type SeoConfig = { title: string; description: string; type?: "website" | "article"; canonical?: string; noIndex?: boolean; image?: string; jsonLd?: Record<string, unknown> };
 
@@ -83,6 +84,15 @@ export function SeoHead() {
     let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.rel = "canonical"; document.head.appendChild(canonical); }
     canonical.href = `${SITE_ORIGIN}${seo.canonical ?? "/"}`;
+    document.head.querySelectorAll<HTMLLinkElement>('link[data-locale-alternate="true"]').forEach((link) => link.remove());
+    for (const alternateLocale of SEO_LOCALES) {
+      const link = document.createElement("link");
+      link.rel = "alternate";
+      link.hreflang = alternateLocale === "en" ? "en" : alternateLocale;
+      link.href = `${SITE_ORIGIN}${seo.canonical ?? "/"}${(seo.canonical ?? "/").includes("?") ? "&" : "?"}lang=${alternateLocale}`;
+      link.dataset.localeAlternate = "true";
+      document.head.appendChild(link);
+    }
     let structuredData = document.head.querySelector<HTMLScriptElement>('script[data-seo-jsonld="true"]');
     if (!structuredData) { structuredData = document.createElement("script"); structuredData.type = "application/ld+json"; structuredData.dataset.seoJsonld = "true"; document.head.appendChild(structuredData); }
     structuredData.textContent = JSON.stringify(seo.jsonLd ?? { "@context": "https://schema.org", "@type": "WebPage", name: seo.title, description: seo.description, url: `${SITE_ORIGIN}${seo.canonical ?? "/"}` });

@@ -5,9 +5,11 @@ import sharp from "sharp";
 describe("course SEO server routes", () => {
   it("includes every published course slug in the sitemap without duplicates", () => {
     const xml = buildSitemapXml([{ slug: "leadership-development" }, { slug: "leadership-development" }, { slug: "new-course" }]);
-    expect(xml).toContain("https://profoundiqconsulting.com/courses/leadership-development");
-    expect(xml).toContain("https://profoundiqconsulting.com/courses/new-course");
-    expect(xml.match(/<url>/g)?.length).toBe(11);
+    expect(xml).toContain("https://profoundiqconsulting.com/courses/leadership-development?lang=en");
+    expect(xml).toContain("https://profoundiqconsulting.com/courses/new-course?lang=ar");
+    expect(xml).toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"');
+    expect(xml).toContain('hreflang="sw"');
+    expect(xml.match(/<url>/g)?.length).toBe(110);
   });
 
   it("generates a course-specific absolute PNG preview image", async () => {

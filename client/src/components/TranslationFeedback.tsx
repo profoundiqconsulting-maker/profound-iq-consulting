@@ -49,7 +49,7 @@ export function TranslationFeedback() {
     submission.mutate({
       name: "Translation feedback",
       email: email.trim(),
-      category: "general",
+      category: "translation-feedback",
       message: [
         `Translation feedback for ${localeInfo.label} (${locale})`,
         `Page: ${currentPage}`,
