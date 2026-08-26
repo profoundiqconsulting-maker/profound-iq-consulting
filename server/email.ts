@@ -8,6 +8,7 @@ import { renderAssessmentReportPdf, renderCareerPathReportPdf, renderPsychometri
 import { claimAssessmentReportEmail, markAssessmentReportEmailSent, releaseAssessmentReportEmailClaim, claimCareerPathReportEmail, markCareerPathReportEmailSent, releaseCareerPathReportEmailClaim, claimPsychometricReportEmail, markPsychometricReportEmailSent, markPsychometricReportEmailFailed } from "./db";
 import { notifyOwner } from "./_core/notification";
 import type { PsychometricReport } from "../shared/psychometrics";
+import { getGeneratedCopy } from "../shared/generatedLocalization";
 
 type SmtpEnv = { SMTP_HOST?: string; SMTP_PORT?: string; SMTP_USER?: string; SMTP_PASSWORD?: string; SMTP_FROM?: string; SMTP_FROM_NAME?: string };
 
@@ -172,11 +173,12 @@ function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ?? character);
 }
 
-export async function sendCourseCertificateEmail(input: { recipientName: string; email: string; courseTitle: string; certificateNumber: string; certificateSvg: string }) {
+export async function sendCourseCertificateEmail(input: { recipientName: string; email: string; courseTitle: string; certificateNumber: string; certificateSvg: string; locale?: string }) {
+  const copy = getGeneratedCopy(input.locale);
   const config = getSmtpConfig();
   const safeName = escapeHtml(input.recipientName);
   const safeCourse = escapeHtml(input.courseTitle);
-  const subject = `Your Profound IQ certificate · ${input.courseTitle}`;
+  const subject = `${copy.certificateOfCompletion} · ${input.courseTitle}`;
   await getTransporter().sendMail({
     from: { name: config.fromName, address: config.from },
     to: input.email,
@@ -187,7 +189,7 @@ export async function sendCourseCertificateEmail(input: { recipientName: string;
   });
 }
 
-export async function sendOrganizationReviewRequestEmail(input: { organizationName: string; organizationEmail: string; learnerName: string; courseTitle: string; certificateNumber: string }): Promise<void> {
+export async function sendOrganizationReviewRequestEmail(input: { organizationName: string; organizationEmail: string; learnerName: string; courseTitle: string; certificateNumber: string; locale?: string }): Promise<void> {
   const config = getSmtpConfig();
   const subject = `Profound IQ certificate review request · ${input.learnerName}`;
   const safeOrganization = escapeHtml(input.organizationName);

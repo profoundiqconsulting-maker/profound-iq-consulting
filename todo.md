@@ -1678,11 +1678,11 @@
 - [x] Save a checkpoint for unified multi-method authentication.
 
 # Complete Sitewide Localization
-- [ ] Audit all user-visible strings and generated copy across public pages, menus, dashboards, account flows, admin tools, courses, lessons, quizzes, checkout, assessments, reports, certificates, emails, PDFs, QR verification, and SEO.
-- [ ] Expand the typed locale contract and translation maps so every supported locale has native copy or an explicit safe English fallback.
+- [x] Audit all user-visible strings and generated copy across public pages, menus, dashboards, account flows, admin tools, courses, lessons, quizzes, checkout, assessments, reports, certificates, emails, PDFs, QR verification, and SEO.
+- [x] Expand the typed locale contract and translation maps so every supported locale has native copy or an explicit safe English fallback.
 - [ ] Wire locale-aware rendering through all frontend pages, navigation, learning content, quizzes, payment and assessment workflows, and authenticated dashboards.
-- [ ] Localize report and certificate labels, generated PDFs/images, email templates, QR verification messaging, and organization-forwarded outputs using the selected locale.
-- [ ] Preserve locale preference precedence, Arabic RTL behavior, locale-aware metadata, hreflang, and stable IDs, routes, payment references, and quiz scoring identifiers.
+- [x] Localize report and certificate labels, generated PDFs/images, email templates, QR verification messaging, and organization-forwarded outputs using the selected locale.
+- [x] Preserve locale preference precedence, Arabic RTL behavior, locale-aware metadata, hreflang, and stable IDs, routes, payment references, and quiz scoring identifiers.
 - [ ] Add completeness and fallback regression tests plus browser coverage for representative public, dashboard, course, checkout, assessment, report, certificate, and Arabic RTL surfaces.
-- [ ] Run TypeScript, focused and full tests, production build, runtime checks, and responsive/RTL visual verification.
+- [x] Run TypeScript, focused and full tests, production build, runtime checks, and responsive/RTL visual verification.
 - [ ] Save a checkpoint for complete sitewide localization.
