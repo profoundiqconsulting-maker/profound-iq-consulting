@@ -1723,3 +1723,5 @@
 - [x] Batch 2/3 increment: localize the public course enrollment modal and staged-checkout handoff labels across all ten locales.
 - [x] Validate course enrollment localization with TypeScript, focused catalog tests, the full Vitest suite, and production build.
 - [x] Add complete regression coverage for the ten-locale course-enrollment copy map and English fallback.
+- [x] Batch 2/3 increment: localize the unauthenticated course-workspace registration action with the shared ten-locale authentication copy map.
+- [x] Verify the course-workspace authentication localization with focused tests, the complete Vitest suite, TypeScript, and a production build.
