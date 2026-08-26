@@ -21,6 +21,20 @@ function decodeState(value: string | undefined) { try { return value ? JSON.pars
 function safeOrigin(value: string | undefined) { try { const url = new URL(value || ""); return url.protocol === "https:" || (url.protocol === "http:" && url.hostname === "localhost") ? url.origin : null; } catch { return null; } }
 function redirectError(res: Response, origin: string | null, message: string) { res.redirect(`${origin ?? "/"}/auth?error=${encodeURIComponent(message)}`); }
 
+export function socialOAuthRedirectUri(provider: Provider, origin: string) { return `${origin}/api/oauth/${provider}/callback`; }
+
+export function buildSocialAuthorizationUrl(provider: Provider, origin: string, state: string, nonce: string) {
+  const config = providers[provider];
+  const url = new URL(config.authorization);
+  url.searchParams.set("response_type", "code");
+  url.searchParams.set("client_id", config.clientId());
+  url.searchParams.set("redirect_uri", socialOAuthRedirectUri(provider, origin));
+  url.searchParams.set("scope", "openid profile email");
+  url.searchParams.set("state", state);
+  url.searchParams.set("nonce", nonce);
+  return url.toString();
+}
+
 export function registerSocialOAuthRoutes(app: Express) {
   (Object.keys(providers) as Provider[]).forEach((provider) => {
     app.get(`/api/oauth/${provider}/start`, (req, res) => {
@@ -30,10 +44,7 @@ export function registerSocialOAuthRoutes(app: Express) {
       const nonce = crypto.randomBytes(32).toString("base64url");
       const state = encodeState({ provider, nonce, origin });
       res.cookie(STATE_COOKIE, `${provider}.${nonce}`, { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 600000 });
-      const redirectUri = `${origin}/api/oauth/${provider}/callback`;
-      const url = new URL(config.authorization);
-      url.searchParams.set("response_type", "code"); url.searchParams.set("client_id", config.clientId()); url.searchParams.set("redirect_uri", redirectUri); url.searchParams.set("scope", "openid profile email"); url.searchParams.set("state", state); url.searchParams.set("nonce", nonce);
-      res.redirect(url.toString());
+      res.redirect(buildSocialAuthorizationUrl(provider, origin, state, nonce));
     });
 
     app.get(`/api/oauth/${provider}/callback`, async (req, res) => {
@@ -42,7 +53,7 @@ export function registerSocialOAuthRoutes(app: Express) {
       res.clearCookie(STATE_COOKIE, { httpOnly: true, secure: true, sameSite: "lax", path: "/" });
       const config = providers[provider];
       try {
-        const redirectUri = `${origin}/api/oauth/${provider}/callback`;
+        const redirectUri = socialOAuthRedirectUri(provider, origin);
         const tokenResponse = await fetch(config.token, { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ grant_type: "authorization_code", code, client_id: config.clientId(), client_secret: config.clientSecret(), redirect_uri: redirectUri }) });
         if (!tokenResponse.ok) throw new Error(`Provider token exchange failed (${tokenResponse.status})`);
         const tokens = await tokenResponse.json() as { access_token?: string; id_token?: string };

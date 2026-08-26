@@ -1585,3 +1585,16 @@
 - [x] Add locale-specific sitemap URLs and hreflang alternate links for public localized routes.
 - [x] Add regression coverage and verify accessibility, responsive behavior, type checking, tests, and production build.
 - [x] Save a checkpoint for translation operations and international SEO.
+
+# Google OAuth Configuration Retest
+- [x] Provide step-by-step Google Cloud Console OAuth credential configuration guidance.
+- [x] Verify Google OAuth client ID and secret availability in the backend without exposing secret values.
+- [x] Retest the live Google OAuth start redirect and callback prerequisites after URI updates.
+- [x] Report any remaining browser-side consent or callback action required from the user.
+
+# Google OAuth and Authenticated Localization QA
+- [x] Add automated Google OAuth start/state/nonce and callback/session persistence coverage without real provider credentials.
+- [x] Prepare production OAuth consent-screen branding and verified legal-link configuration.
+- [x] Test authenticated dashboard language switching across supported locales.
+- [x] Test Arabic RTL direction, layout transition, and persistence on the authenticated dashboard.
+- [x] Run the full validation suite and publish the completed QA improvements.
