@@ -49,7 +49,7 @@ async function getPublicCourses(): Promise<PublicCourse[]> {
 }
 
 export function buildSitemapXml(courses: Array<{ slug: string }>) {
-  const staticPaths = ["/", "/courses", "/assessment", "/careerpath", "/psychometrics", "/verify/certificate", "/verify/psychometric", "/privacy-policy", "/terms-of-service"];
+  const staticPaths = ["/", "/about", "/services", "/school-solutions", "/courses", "/assessment", "/careerpath", "/psychometrics", "/resources", "/blog", "/contact", "/verify/certificate", "/verify/psychometric", "/privacy-policy", "/terms-of-service"];
   const paths = Array.from(new Set([...staticPaths, ...courses.map((course) => `/courses/${course.slug}`)]));
   const localizedUrl = (path: string, locale: (typeof SEO_LOCALES)[number]) => `${SITE_ORIGIN}${path}${path.includes("?") ? "&" : "?"}lang=${locale}`;
   const entries = paths.flatMap((path) => SEO_LOCALES.map((locale) => {

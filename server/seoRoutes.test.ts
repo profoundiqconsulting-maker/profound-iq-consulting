@@ -7,9 +7,12 @@ describe("course SEO server routes", () => {
     const xml = buildSitemapXml([{ slug: "leadership-development" }, { slug: "leadership-development" }, { slug: "new-course" }]);
     expect(xml).toContain("https://profoundiqconsulting.com/courses/leadership-development?lang=en");
     expect(xml).toContain("https://profoundiqconsulting.com/courses/new-course?lang=ar");
+    expect(xml).toContain("https://profoundiqconsulting.com/about?lang=en");
+    expect(xml).toContain("https://profoundiqconsulting.com/school-solutions?lang=sw");
+    expect(xml).toContain("https://profoundiqconsulting.com/contact?lang=ja");
     expect(xml).toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"');
     expect(xml).toContain('hreflang="sw"');
-    expect(xml.match(/<url>/g)?.length).toBe(110);
+    expect(xml.match(/<url>/g)?.length).toBe(170);
   });
 
   it("generates a course-specific absolute PNG preview image", async () => {

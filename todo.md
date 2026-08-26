@@ -1746,3 +1746,17 @@
 - [x] Optimize dashboard responsive layout, spacing, empty states, and mobile navigation without changing existing permissions or workflows.
 - [x] Add dashboard pagination/menu regression tests and verify desktop/mobile rendering, TypeScript, full Vitest, and production build.
 - [x] Save a checkpoint for the dashboard navigation, pagination, and UX improvements.
+
+# Public Website UX and SEO Refinement
+
+- [x] Create a reusable public-page shell with branded navigation, language access, responsive mobile menu, breadcrumbs, and footer links.
+- [x] Add an About page using the supplied positioning, audiences, approach, and credibility content without inventing proof points.
+- [x] Add a Consulting Services page with the supplied service pathways, process, audience fit, outcomes, and FAQ content.
+- [x] Add a School Solutions page for school owners, principals, teachers, and institutions with clear conversion paths.
+- [x] Add a Resources page with editorial resource categories and useful internal links.
+- [x] Add a Blog / Insights page with transparent editorial placeholders that do not fabricate published articles or authors.
+- [x] Add a dedicated Contact page with accessible inquiry form, category selection, arithmetic spam check, consent, and support channels.
+- [x] Improve public navigation and homepage pathways to expose the new pages without overcrowding the header.
+- [x] Add route-specific SEO titles, descriptions, canonical metadata, Open Graph context, and JSON-LD for the new public pages.
+- [x] Add public-page route and metadata regression tests, then verify desktop/mobile UX, TypeScript, full Vitest, and production build.
+- [x] Read the complete TODO file, mark only validated items complete, and save a checkpoint for the public UX/SEO refinement.
