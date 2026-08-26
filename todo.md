@@ -1720,3 +1720,5 @@
 - [x] Browser validation increment: confirm the localized course-category filter does not hide the catalog on non-English first render; all three locale and representative-route Playwright cases pass.
 - [x] Batch 3 increment: provide translated category labels for Business & Enterprise, Leadership & Workplace, Career & Education, Performance & Innovation, Personal Development, and the all-categories filter in all ten locales.
 - [x] Add focused course-category localization regression coverage for all ten locales and unknown-locale fallback.
+- [x] Batch 2/3 increment: localize the public course enrollment modal and staged-checkout handoff labels across all ten locales.
+- [x] Validate course enrollment localization with TypeScript, focused catalog tests, the full Vitest suite, and production build.
