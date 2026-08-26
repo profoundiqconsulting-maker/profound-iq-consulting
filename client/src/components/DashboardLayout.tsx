@@ -26,6 +26,7 @@ import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { useLocale } from "@/contexts/LocaleContext";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import { Button } from "./ui/button";
 
 const menuItems = [
@@ -208,7 +209,8 @@ function DashboardLayoutContent({
             </SidebarMenu>
           </SidebarContent>
 
-          <SidebarFooter className="p-3">
+          <SidebarFooter className="space-y-3 p-3">
+            <LanguageSelector compact className="w-full justify-center group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:px-2" />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
@@ -263,6 +265,7 @@ function DashboardLayoutContent({
                 </div>
               </div>
             </div>
+            <LanguageSelector compact className="shrink-0" />
           </div>
         )}
         <main className="flex-1 p-4">{children}</main>

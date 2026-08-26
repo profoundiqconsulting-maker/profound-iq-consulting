@@ -6,7 +6,6 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LocaleProvider } from "./contexts/LocaleContext";
-import { LanguageSelector } from "./components/LanguageSelector";
 import Home from "./pages/Home";
 import Assessment from "./pages/Assessment";
 import CareerPath from "./pages/CareerPath";
@@ -36,5 +35,5 @@ function Router() {
 }
 
 export default function App() {
-  return <ErrorBoundary><ThemeProvider defaultTheme="light" switchable><LocaleProvider><TooltipProvider><Toaster /><SeoHead /><Router /><WhatsAppSupportWidget /><TranslationFeedback /><CookieConsent /><div className="fixed right-4 top-4 z-[70] text-[#f7f3e8] shadow-lg"><LanguageSelector compact /></div></TooltipProvider></LocaleProvider></ThemeProvider></ErrorBoundary>;
+  return <ErrorBoundary><ThemeProvider defaultTheme="light" switchable><LocaleProvider><TooltipProvider><Toaster /><SeoHead /><Router /><WhatsAppSupportWidget /><TranslationFeedback /><CookieConsent /></TooltipProvider></LocaleProvider></ThemeProvider></ErrorBoundary>;
 }

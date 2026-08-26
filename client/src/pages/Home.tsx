@@ -10,6 +10,7 @@ import { courseCatalog, COURSE_PRICE_KES } from "@shared/courseCatalog";
 import { ASSESSMENT_PRICE_KES } from "@shared/assessment";
 import { CAREER_PATH_PRICE_KES } from "@shared/careerPath";
 import { useLocale } from "@/contexts/LocaleContext";
+import { LanguageSelector } from "@/components/LanguageSelector";
 
 const baseCourses = courseCatalog.map((course) => ({
   ...course,
@@ -134,13 +135,12 @@ export default function Home() {
             <a href="/assessment" className="transition-colors hover:text-[#c9a34e]">{t("selfAssessment")}</a>
             <a href="#contact" className="transition-colors hover:text-[#c9a34e]">{t("contact")}</a>
           </nav>
-          <div className="hidden items-center gap-3 md:flex">
-            <a href="#contact" className="inline-flex items-center gap-2 border border-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.16em] text-[#f7f3e8] transition-all hover:bg-[#c9a34e] hover:text-[#101d35]">{t("beginConversation")} <ArrowUpRight size={14} /></a>
+          <div className="hidden items-center gap-3 md:flex"><LanguageSelector compact /><a href="#contact" className="inline-flex items-center gap-2 border border-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.16em] text-[#f7f3e8] transition-all hover:bg-[#c9a34e] hover:text-[#101d35]">{t("beginConversation")} <ArrowUpRight size={14} /></a>
             {isAuthenticated ? <a href="/dashboard" className="border border-white/25 px-3 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#c9d1df] hover:border-[#c9a34e] hover:text-[#c9a34e]">{user?.name ? "My workspace" : "Workspace"}</a> : <><a href="/auth?mode=login" className="px-2 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#c9d1df] hover:text-[#c9a34e]">Sign in</a><a href="/auth?mode=register" className="border border-white/25 px-3 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#c9d1df] hover:border-[#c9a34e] hover:text-[#c9a34e]">Create account</a></>}
           </div>
           <button className="md:hidden" aria-label="Toggle navigation" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
         </div>
-        {menuOpen && <nav className="border-t border-white/10 bg-[#101d35] px-5 py-5 md:hidden"><div className="flex flex-col gap-5 text-xs font-extrabold uppercase tracking-[.15em]"><a href="#approach" onClick={() => setMenuOpen(false)}>{t("approach")}</a><a href="#offerings" onClick={() => setMenuOpen(false)}>{t("offerings")}</a><a href="/courses" onClick={() => setMenuOpen(false)}>{t("courses")}</a><a href="/assessment" onClick={() => setMenuOpen(false)}>{t("selfAssessment")}</a><a href="#contact" onClick={() => setMenuOpen(false)}>{t("contact")}</a>{isAuthenticated ? <a href="/dashboard" onClick={() => setMenuOpen(false)}>{t("myWorkspace")}</a> : <><a href="/auth?mode=login" className="text-left" onClick={() => setMenuOpen(false)}>Sign in</a><a href="/auth?mode=register" className="text-left text-[#c9a34e]" onClick={() => setMenuOpen(false)}>Create account</a></>}</div></nav>}
+        {menuOpen && <nav className="border-t border-white/10 bg-[#101d35] px-5 py-5 md:hidden"><div className="flex flex-col gap-5 text-xs font-extrabold uppercase tracking-[.15em]"><a href="#approach" onClick={() => setMenuOpen(false)}>{t("approach")}</a><a href="#offerings" onClick={() => setMenuOpen(false)}>{t("offerings")}</a><a href="/courses" onClick={() => setMenuOpen(false)}>{t("courses")}</a><a href="/assessment" onClick={() => setMenuOpen(false)}>{t("selfAssessment")}</a><a href="#contact" onClick={() => setMenuOpen(false)}>{t("contact")}</a><LanguageSelector compact className="mt-1 w-fit" onSelect={() => setMenuOpen(false)} />{isAuthenticated ? <a href="/dashboard" onClick={() => setMenuOpen(false)}>{t("myWorkspace")}</a> : <><a href="/auth?mode=login" className="text-left" onClick={() => setMenuOpen(false)}>Sign in</a><a href="/auth?mode=register" className="text-left text-[#c9a34e]" onClick={() => setMenuOpen(false)}>Create account</a></>}</div></nav>}
       </header>
 
       <main id="top">

@@ -133,6 +133,33 @@ const english = {
   mockPaymentSuccess: "Mock first payment completed",
   paymentHistoryShortcut: "Payment history",
   paymentHistoryShortcutDescription: "View enrollments and staged payments",
+  filterByCourse: "Filter by course",
+  filterByStage: "Filter by stage",
+  filterByStatus: "Filter by status",
+  allCourses: "All courses",
+  allStages: "All stages",
+  allStatuses: "All statuses",
+  fromDate: "From date",
+  toDate: "To date",
+  sortTransactions: "Sort transactions",
+  newestFirst: "Newest first",
+  oldestFirst: "Oldest first",
+  amountHighToLow: "Amount: high to low",
+  amountLowToHigh: "Amount: low to high",
+  courseAtoZ: "Course: A–Z",
+  stageOrder: "Stage order",
+  statusOrder: "Status",
+  showingTransactions: "Showing {count} of {total} transactions",
+  filteredTransactions: "Matching transactions",
+  paidTotal: "Paid total",
+  pendingTotal: "Pending total",
+  noPaymentMatch: "No payments match these filters.",
+  course: "Course",
+  amount: "Amount",
+  status: "Status",
+  transactionDate: "Transaction date",
+  reference: "Reference",
+  notAvailable: "Not available",
 } as const;
 
 type TranslationKey = keyof typeof english;
@@ -163,7 +190,20 @@ const paymentOverrides: Partial<Record<LocaleCode, Partial<Translation>>> = {
   ja: { enrollmentStatus: "コース登録状況", recentPayments: "最近の分割払い", noEnrollments: "コース登録はまだありません。", paymentPending: "支払い待ち", paymentPaid: "支払い済み", paymentStage: "ステージ", paymentHistoryDescription: "受講中のコースと各登録に紐づく分割払いを確認できます。", mockCheckout: "モック決済", mockCheckoutDescription: "開発用QAモードです。Paystackへの請求なしで初回支払いをシミュレーションします。", simulatePayment: "初回支払いをシミュレート", mockPaymentSuccess: "モック初回支払いが完了しました", paymentHistoryShortcut: "支払い履歴", paymentHistoryShortcutDescription: "登録と分割払いを確認" },
 };
 
-const translations: Record<LocaleCode, Translation> = Object.fromEntries(SUPPORTED_LOCALES.map(({ code }) => [code, { ...english, ...(overrides[code] ?? {}), ...(paymentOverrides[code] ?? {}) }])) as unknown as Record<LocaleCode, Translation>;
+const paymentHistoryUiOverrides: Record<LocaleCode, Partial<Translation>> = {
+  en: {},
+  sw: { filterByCourse: "Chuja kwa kozi", filterByStage: "Chuja kwa awamu", filterByStatus: "Chuja kwa hali", allCourses: "Kozi zote", allStages: "Awamu zote", allStatuses: "Hali zote", fromDate: "Kuanzia tarehe", toDate: "Hadi tarehe", sortTransactions: "Panga miamala", newestFirst: "Mpya kwanza", oldestFirst: "Za zamani kwanza", amountHighToLow: "Kiasi: kikubwa hadi kidogo", amountLowToHigh: "Kiasi: kidogo hadi kikubwa", courseAtoZ: "Kozi: A–Z", stageOrder: "Mpangilio wa awamu", statusOrder: "Hali", showingTransactions: "Inaonyesha miamala {count} kati ya {total}", filteredTransactions: "Miamala inayolingana", paidTotal: "Jumla iliyolipwa", pendingTotal: "Jumla inayosubiri", noPaymentMatch: "Hakuna malipo yanayolingana na vichujio hivi.", course: "Kozi", amount: "Kiasi", status: "Hali", transactionDate: "Tarehe ya muamala", reference: "Rejeleo", notAvailable: "Haipatikani" },
+  fr: { filterByCourse: "Filtrer par cours", filterByStage: "Filtrer par étape", filterByStatus: "Filtrer par statut", allCourses: "Tous les cours", allStages: "Toutes les étapes", allStatuses: "Tous les statuts", fromDate: "Date de début", toDate: "Date de fin", sortTransactions: "Trier les transactions", newestFirst: "Plus récent d’abord", oldestFirst: "Plus ancien d’abord", amountHighToLow: "Montant : décroissant", amountLowToHigh: "Montant : croissant", courseAtoZ: "Cours : A–Z", stageOrder: "Ordre des étapes", statusOrder: "Statut", showingTransactions: "Affichage de {count} transaction(s) sur {total}", filteredTransactions: "Transactions correspondantes", paidTotal: "Total payé", pendingTotal: "Total en attente", noPaymentMatch: "Aucun paiement ne correspond à ces filtres.", course: "Cours", amount: "Montant", status: "Statut", transactionDate: "Date de transaction", reference: "Référence", notAvailable: "Non disponible" },
+  es: { filterByCourse: "Filtrar por curso", filterByStage: "Filtrar por etapa", filterByStatus: "Filtrar por estado", allCourses: "Todos los cursos", allStages: "Todas las etapas", allStatuses: "Todos los estados", fromDate: "Desde", toDate: "Hasta", sortTransactions: "Ordenar transacciones", newestFirst: "Más recientes primero", oldestFirst: "Más antiguas primero", amountHighToLow: "Importe: mayor a menor", amountLowToHigh: "Importe: menor a mayor", courseAtoZ: "Curso: A–Z", stageOrder: "Orden de etapas", statusOrder: "Estado", showingTransactions: "Mostrando {count} de {total} transacciones", filteredTransactions: "Transacciones coincidentes", paidTotal: "Total pagado", pendingTotal: "Total pendiente", noPaymentMatch: "Ningún pago coincide con estos filtros.", course: "Curso", amount: "Importe", status: "Estado", transactionDate: "Fecha de transacción", reference: "Referencia", notAvailable: "No disponible" },
+  pt: { filterByCourse: "Filtrar por curso", filterByStage: "Filtrar por etapa", filterByStatus: "Filtrar por estado", allCourses: "Todos os cursos", allStages: "Todas as etapas", allStatuses: "Todos os estados", fromDate: "Data inicial", toDate: "Data final", sortTransactions: "Ordenar transações", newestFirst: "Mais recentes primeiro", oldestFirst: "Mais antigas primeiro", amountHighToLow: "Valor: maior para menor", amountLowToHigh: "Valor: menor para maior", courseAtoZ: "Curso: A–Z", stageOrder: "Ordem das etapas", statusOrder: "Estado", showingTransactions: "A mostrar {count} de {total} transações", filteredTransactions: "Transações correspondentes", paidTotal: "Total pago", pendingTotal: "Total pendente", noPaymentMatch: "Nenhum pagamento corresponde a estes filtros.", course: "Curso", amount: "Valor", status: "Estado", transactionDate: "Data da transação", reference: "Referência", notAvailable: "Não disponível" },
+  ar: { filterByCourse: "تصفية حسب الدورة", filterByStage: "تصفية حسب المرحلة", filterByStatus: "تصفية حسب الحالة", allCourses: "كل الدورات", allStages: "كل المراحل", allStatuses: "كل الحالات", fromDate: "من تاريخ", toDate: "إلى تاريخ", sortTransactions: "ترتيب المعاملات", newestFirst: "الأحدث أولاً", oldestFirst: "الأقدم أولاً", amountHighToLow: "المبلغ: من الأعلى إلى الأقل", amountLowToHigh: "المبلغ: من الأقل إلى الأعلى", courseAtoZ: "الدورة: أ–ي", stageOrder: "ترتيب المراحل", statusOrder: "الحالة", showingTransactions: "عرض {count} من أصل {total} معاملة", filteredTransactions: "المعاملات المطابقة", paidTotal: "إجمالي المدفوع", pendingTotal: "إجمالي المعلّق", noPaymentMatch: "لا توجد مدفوعات تطابق هذه التصفية.", course: "الدورة", amount: "المبلغ", status: "الحالة", transactionDate: "تاريخ المعاملة", reference: "المرجع", notAvailable: "غير متاح" },
+  zh: { filterByCourse: "按课程筛选", filterByStage: "按阶段筛选", filterByStatus: "按状态筛选", allCourses: "所有课程", allStages: "所有阶段", allStatuses: "所有状态", fromDate: "开始日期", toDate: "结束日期", sortTransactions: "排序交易", newestFirst: "最新优先", oldestFirst: "最早优先", amountHighToLow: "金额：从高到低", amountLowToHigh: "金额：从低到高", courseAtoZ: "课程：A–Z", stageOrder: "阶段顺序", statusOrder: "状态", showingTransactions: "显示 {total} 笔交易中的 {count} 笔", filteredTransactions: "匹配的交易", paidTotal: "已付总额", pendingTotal: "待付总额", noPaymentMatch: "没有符合这些筛选条件的付款。", course: "课程", amount: "金额", status: "状态", transactionDate: "交易日期", reference: "参考号", notAvailable: "不可用" },
+  hi: { filterByCourse: "पाठ्यक्रम के अनुसार फ़िल्टर", filterByStage: "चरण के अनुसार फ़िल्टर", filterByStatus: "स्थिति के अनुसार फ़िल्टर", allCourses: "सभी पाठ्यक्रम", allStages: "सभी चरण", allStatuses: "सभी स्थितियाँ", fromDate: "आरंभ तिथि", toDate: "समाप्ति तिथि", sortTransactions: "लेन-देन क्रमबद्ध करें", newestFirst: "नवीनतम पहले", oldestFirst: "पुराने पहले", amountHighToLow: "राशि: अधिक से कम", amountLowToHigh: "राशि: कम से अधिक", courseAtoZ: "पाठ्यक्रम: A–Z", stageOrder: "चरण क्रम", statusOrder: "स्थिति", showingTransactions: "कुल {total} में से {count} लेन-देन दिखाए जा रहे हैं", filteredTransactions: "मिलान वाले लेन-देन", paidTotal: "कुल भुगतान", pendingTotal: "लंबित कुल", noPaymentMatch: "इन फ़िल्टर से कोई भुगतान मेल नहीं खाता।", course: "पाठ्यक्रम", amount: "राशि", status: "स्थिति", transactionDate: "लेन-देन तिथि", reference: "संदर्भ", notAvailable: "उपलब्ध नहीं" },
+  de: { filterByCourse: "Nach Kurs filtern", filterByStage: "Nach Phase filtern", filterByStatus: "Nach Status filtern", allCourses: "Alle Kurse", allStages: "Alle Phasen", allStatuses: "Alle Statuswerte", fromDate: "Von Datum", toDate: "Bis Datum", sortTransactions: "Transaktionen sortieren", newestFirst: "Neueste zuerst", oldestFirst: "Älteste zuerst", amountHighToLow: "Betrag: hoch bis niedrig", amountLowToHigh: "Betrag: niedrig bis hoch", courseAtoZ: "Kurs: A–Z", stageOrder: "Phasenreihenfolge", statusOrder: "Status", showingTransactions: "{count} von {total} Transaktionen werden angezeigt", filteredTransactions: "Passende Transaktionen", paidTotal: "Bezahlt insgesamt", pendingTotal: "Ausstehend insgesamt", noPaymentMatch: "Keine Zahlungen entsprechen diesen Filtern.", course: "Kurs", amount: "Betrag", status: "Status", transactionDate: "Transaktionsdatum", reference: "Referenz", notAvailable: "Nicht verfügbar" },
+  ja: { filterByCourse: "コースで絞り込む", filterByStage: "ステージで絞り込む", filterByStatus: "ステータスで絞り込む", allCourses: "すべてのコース", allStages: "すべてのステージ", allStatuses: "すべてのステータス", fromDate: "開始日", toDate: "終了日", sortTransactions: "取引を並べ替え", newestFirst: "新しい順", oldestFirst: "古い順", amountHighToLow: "金額：高い順", amountLowToHigh: "金額：安い順", courseAtoZ: "コース：A–Z", stageOrder: "ステージ順", statusOrder: "ステータス", showingTransactions: "{total}件中{count}件の取引を表示", filteredTransactions: "一致する取引", paidTotal: "支払済み合計", pendingTotal: "保留中合計", noPaymentMatch: "条件に一致する支払いはありません。", course: "コース", amount: "金額", status: "ステータス", transactionDate: "取引日", reference: "参照", notAvailable: "利用不可" },
+};
+
+const translations: Record<LocaleCode, Translation> = Object.fromEntries(SUPPORTED_LOCALES.map(({ code }) => [code, { ...english, ...(overrides[code] ?? {}), ...(paymentOverrides[code] ?? {}), ...(paymentHistoryUiOverrides[code] ?? {}) }])) as unknown as Record<LocaleCode, Translation>;
 
 const LocaleContext = createContext<{ locale: LocaleCode; setLocale: (locale: LocaleCode) => void; t: (key: TranslationKey) => string; localeInfo: (typeof SUPPORTED_LOCALES)[number] }>({ locale: "en", setLocale: () => undefined, t: (key) => english[key], localeInfo: SUPPORTED_LOCALES[0] });
 

@@ -1639,3 +1639,13 @@
 - [x] Create and validate a reusable skill documenting the localization and enrollment QA workflow.
 - [x] Add regression coverage and verify type checking, tests, production build, responsive dashboard UX, and production safety.
 - [x] Save a checkpoint for the course localization and enrollment QA expansion.
+
+# Payment History, Full Content Localization, and Navigation Language Switcher
+- [x] Add filter controls for course, payment stage, payment status, and date range to the dashboard Payment History tab.
+- [x] Add stable sorting controls for transaction date, amount, course, stage, and status, with accessible empty states.
+- [x] Add translated long-form lesson content for supported locales with clear English fallback and no changes to course identifiers.
+- [x] Add translated quiz prompts, options, explanations, and feedback for supported locales while preserving answer correctness.
+- [x] Add or refine the global navigation language switcher dropdown for all ten locales, including native labels and RTL behavior.
+- [x] Add regression coverage for transaction filtering/sorting, long-form lesson/quiz localization, and navigation locale switching.
+- [x] Run type checking, focused tests, full non-network tests, production build, and responsive desktop/mobile/RTL verification.
+- [x] Save a checkpoint for the payment history, full content localization, and navigation language switcher enhancements.
