@@ -1658,3 +1658,12 @@
 - [x] Add automated browser coverage for language switching, persistence, and Arabic RTL rendering.
 - [x] Run TypeScript, focused tests, full non-network tests, production build, and responsive/RTL browser verification.
 - [x] Save a checkpoint for server pagination, cultural localization, and browser QA coverage.
+
+# Independent Email and Username Credential Authentication
+- [x] Audit the existing credential registration, login, logout, session, and password-reset contracts and frontend entry points.
+- [x] Ensure email and username/password registration and sign-in work without Google or LinkedIn configuration.
+- [x] Preserve secure password hashing, generic authentication errors, rate limiting, session issuance, logout, and email-only password recovery.
+- [x] Make social OAuth buttons explicitly optional alternatives rather than prerequisites for credential flows.
+- [x] Add regression coverage for credential-only registration/login and authentication when OAuth settings are absent.
+- [x] Run TypeScript, focused auth tests, full non-network tests, production build, and responsive sign-in/register verification.
+- [x] Save a checkpoint for independent email and username credential authentication.

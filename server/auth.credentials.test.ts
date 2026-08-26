@@ -42,12 +42,38 @@ describe("local credential auth procedures", () => {
     expect(cookies).toHaveLength(1);
   });
 
+  it("registers with a username and password without an email or social OAuth provider", async () => {
+    findUserByLocalIdentifier.mockResolvedValue(undefined);
+    createLocalUser.mockResolvedValue({ ...localUser, email: null, phone: null, username: "amina" });
+    const { ctx, cookies } = context();
+    const result = await appRouter.createCaller(ctx).auth.register({ name: "Amina", username: "Amina", password: "securePassword123" });
+    expect(result.user.username).toBe("amina");
+    expect(result.user.email).toBeNull();
+    expect(cookies).toHaveLength(1);
+    expect(createUserSession).toHaveBeenCalledWith(expect.objectContaining({ openId: "local_user-12", trustedDevice: false }));
+  });
+
+  it("rejects a phone-only registration while keeping phone optional for profiles", async () => {
+    const { ctx } = context();
+    await expect(appRouter.createCaller(ctx).auth.register({ name: "Amina", phone: "+254727374055", password: "securePassword123" })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect(createLocalUser).not.toHaveBeenCalled();
+  });
+
   it("accepts a normalized username or phone identifier for login", async () => {
     findUserByLocalIdentifier.mockResolvedValue({ ...localUser, passwordHash: "scrypt$2a$5a" });
     const { ctx } = context();
     await expect(appRouter.createCaller(ctx).auth.login({ identifier: "amina", password: "not-the-hash" })).rejects.toMatchObject({ code: "UNAUTHORIZED" });
     expect(findUserByLocalIdentifier).toHaveBeenCalledWith("amina");
     expect(recordFailedLogin).toHaveBeenCalledTimes(3);
+  });
+
+  it("signs in with username and password without contacting an OAuth provider", async () => {
+    findUserByLocalIdentifier.mockResolvedValue({ ...localUser, passwordHash: hashPassword("securePassword123") });
+    const { ctx, cookies } = context();
+    const result = await appRouter.createCaller(ctx).auth.login({ identifier: "Amina", password: "securePassword123" });
+    expect(result.user.username).toBe("amina");
+    expect(cookies).toHaveLength(1);
+    expect(recordLoginEvent).toHaveBeenCalledWith(expect.objectContaining({ identifierType: "username", success: true, openId: "local_user-12" }));
   });
 
   it("blocks a rate-limited login and alerts administrators at the threshold", async () => {

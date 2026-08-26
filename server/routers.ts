@@ -132,7 +132,7 @@ export const appRouter = router({
     }),
   }),
   auth: router({
-    register: publicProcedure.input(z.object({ name: z.string().trim().min(2).max(160), email: z.string().trim().email().optional(), phone: z.string().trim().min(7).max(32).optional(), username: z.string().trim().min(3).max(40).regex(/^[a-zA-Z0-9_.-]+$/).optional(), password: z.string().refine(validatePassword, "Password must be 10–128 characters and include letters and numbers."), inviteToken: z.string().min(32).max(128).optional() }).refine((input) => Boolean(input.email || input.phone || input.username), "Provide an email, phone number, or username." )).mutation(async ({ ctx, input }) => {
+    register: publicProcedure.input(z.object({ name: z.string().trim().min(2).max(160), email: z.string().trim().email().optional(), phone: z.string().trim().min(7).max(32).optional(), username: z.string().trim().min(3).max(40).regex(/^[a-zA-Z0-9_.-]+$/).optional(), password: z.string().refine(validatePassword, "Password must be 10–128 characters and include letters and numbers."), inviteToken: z.string().min(32).max(128).optional() }).refine((input) => Boolean(input.email || input.username), "Provide an email address or username." )).mutation(async ({ ctx, input }) => {
       const identifiers = [input.email ? normalizeIdentifier(input.email) : null, input.phone ? normalizeIdentifier(input.phone) : null, input.username ? normalizeIdentifier(input.username) : null].filter((value): value is string => Boolean(value));
       const existing = await Promise.all(identifiers.map((identifier) => findUserByLocalIdentifier(identifier)));
       if (existing.some(Boolean)) throw new TRPCError({ code: "CONFLICT", message: "An account already exists with one of those identifiers." });
