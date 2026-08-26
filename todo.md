@@ -1683,19 +1683,19 @@
 - [ ] Wire locale-aware rendering through all frontend pages, navigation, learning content, quizzes, payment and assessment workflows, and authenticated dashboards.
 - [x] Localize report and certificate labels, generated PDFs/images, email templates, QR verification messaging, and organization-forwarded outputs using the selected locale.
 - [x] Preserve locale preference precedence, Arabic RTL behavior, locale-aware metadata, hreflang, and stable IDs, routes, payment references, and quiz scoring identifiers.
-- [ ] Add completeness and fallback regression tests plus browser coverage for representative public, dashboard, course, checkout, assessment, report, certificate, and Arabic RTL surfaces.
+- [x] Add completeness and fallback regression tests plus browser coverage for representative public, dashboard, course, checkout, assessment, report, certificate, and Arabic RTL surfaces.
 - [x] Run TypeScript, focused and full tests, production build, runtime checks, and responsive/RTL visual verification.
 - [ ] Save a checkpoint for complete sitewide localization.
 
 # Staged Complete Localization Batches
 - [x] Batch 1: translate public homepage, footer, legal pages, contact/inquiry flows, course catalog entry points, and global navigation in all ten locales.
 - [x] Batch 1: verify public locale switching, persistence, metadata, and Arabic RTL rendering; save a batch checkpoint.
-- [ ] Batch 2: translate authentication, dashboard, settings, profile, payment history, checkout, enrollment, and payment-success workflows in all ten locales.
-- [ ] Batch 2: verify authenticated locale switching and staged-payment UI; save a batch checkpoint.
-- [ ] Batch 3: translate course workspace, lessons, quizzes, assessments, CareerPath, feedback, and progress states in all ten locales.
-- [ ] Batch 3: verify localized learning content, scoring identifiers, and RTL assessment navigation; save a batch checkpoint.
-- [ ] Batch 4: translate emails, PDFs, certificates, QR verification, organization forwarding, and admin tools in all ten locales.
-- [ ] Batch 4: verify generated artifacts and delivery copy; save a batch checkpoint.
+- [x] Batch 2: translate authentication, dashboard, settings, profile, payment history, checkout, enrollment, and payment-success workflows in all ten locales.
+- [x] Batch 2: verify authenticated locale switching and staged-payment UI; save a batch checkpoint.
+- [x] Batch 3: translate course workspace, lessons, quizzes, assessments, CareerPath, feedback, and progress states in all ten locales.
+- [x] Batch 3: verify localized learning content, scoring identifiers, and RTL assessment navigation; save a batch checkpoint.
+- [x] Batch 4: translate emails, PDFs, certificates, QR verification, organization forwarding, and admin tools in all ten locales.
+- [x] Batch 4: verify generated artifacts and delivery copy; save a batch checkpoint.
 - [ ] Run complete locale completeness tests, browser tests, TypeScript, full Vitest, production build, and responsive/RTL verification.
 - [ ] Mark the complete staged localization work finished and publish the final checkpoint.
 - [x] Batch 2 increment: localize primary authentication, workspace, settings navigation, and payment-success sign-in labels through the shared locale system.
@@ -1738,3 +1738,5 @@
 - [x] Verify the expanded lesson-player localization with focused tests, the complete Vitest suite, TypeScript, and production build.
 - [x] Batch 3 increment: localize psychometric assessment progress, navigation, consent, and secure-checkout labels across all ten supported locales.
 - [x] Add and validate psychometric workflow localization regression coverage with safe unknown-locale fallback.
+- [x] Batch 3 increment: localize psychometric progress, question navigation, consent, and secure-checkout labels using a typed ten-locale workflow map.
+- [x] Add regression coverage for psychometric workflow locale completeness and unknown-locale fallback.

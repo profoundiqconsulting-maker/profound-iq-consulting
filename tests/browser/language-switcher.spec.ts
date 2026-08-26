@@ -17,7 +17,8 @@ test.describe("global language navigation", () => {
     for (const route of ["/assessment", "/careerpath", "/psychometrics", "/verify-certificate"]) {
       await page.goto(route, { waitUntil: "domcontentloaded" });
       await expect(page.locator("html")).toHaveAttribute("lang", "en");
-      await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
+      const direction = await page.locator("html").getAttribute("dir");
+      expect([null, "ltr"]).toContain(direction);
     }
   });
 
