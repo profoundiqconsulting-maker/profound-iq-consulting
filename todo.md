@@ -1600,12 +1600,12 @@
 - [x] Run the full validation suite and publish the completed QA improvements.
 
 # Enrollment OAuth and Profile Settings
-- [ ] Add a loading spinner and processing status message to Google OAuth sign-in during enrollment.
-- [ ] Add connected Google account details to the user profile settings page.
-- [ ] Add preferred-language controls to profile settings using the existing locale preference contract.
-- [ ] Prepare branded consent-screen logo upload guidance and Google app verification steps.
-- [ ] Add regression coverage and verify enrollment, settings, locale persistence, type checking, tests, and production build.
-- [ ] Save a checkpoint for the enrollment OAuth and profile settings improvements.
+- [x] Add a loading spinner and processing status message to Google OAuth sign-in during enrollment.
+- [x] Add connected Google account details to the user profile settings page.
+- [x] Add preferred-language controls to profile settings using the existing locale preference contract.
+- [x] Prepare branded consent-screen logo upload guidance and Google app verification steps.
+- [x] Add regression coverage and verify enrollment, settings, locale persistence, type checking, tests, and production build.
+- [x] Save a checkpoint for the enrollment OAuth and profile settings improvements.
 
 # Course Access Gate Correction
 - [x] Route registered learners from the course sign-in gate to their dashboard or course enrollment continuation.
