@@ -1717,3 +1717,4 @@
 - [x] Regression maintenance: update the assessment source-level navigation assertion to accept locale-map rendering; full Vitest suite now passes with 70 files and 248 tests.
 - [x] Batch 3 increment: localize the Self Assessment Previous-module control through the ten-locale workflow copy map while preserving keyboard and disabled-state behavior.
 - [x] Batch 3 increment: localize the course catalog category default and reset labels while preserving the full catalog on first render for non-English locales.
+- [x] Browser validation increment: confirm the localized course-category filter does not hide the catalog on non-English first render; all three locale and representative-route Playwright cases pass.
