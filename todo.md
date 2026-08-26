@@ -1699,3 +1699,4 @@
 - [ ] Run complete locale completeness tests, browser tests, TypeScript, full Vitest, production build, and responsive/RTL verification.
 - [ ] Mark the complete staged localization work finished and publish the final checkpoint.
 - [x] Batch 2 increment: localize primary authentication, workspace, settings navigation, and payment-success sign-in labels through the shared locale system.
+- [x] Batch 3 increment: connect CareerPath step navigation and Self Assessment persistent footer labels to the shared ten-locale provider; preserve scoring, payment, and resume behavior.
