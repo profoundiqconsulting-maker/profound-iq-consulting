@@ -1725,3 +1725,5 @@
 - [x] Add complete regression coverage for the ten-locale course-enrollment copy map and English fallback.
 - [x] Batch 2/3 increment: localize the unauthenticated course-workspace registration action with the shared ten-locale authentication copy map.
 - [x] Verify the course-workspace authentication localization with focused tests, the complete Vitest suite, TypeScript, and a production build.
+- [x] Batch 2 increment: localize the authenticated first-installment checkout form labels and payment-loading state across all ten locales.
+- [x] Verify the localized first-installment checkout with focused tests, the complete Vitest suite, TypeScript, and production build.
