@@ -1623,3 +1623,11 @@
 - [x] Add regression coverage for profile payment data, language update feedback, and mock checkout completion.
 - [x] Validate registration-to-enrollment flow, payment gating, responsive settings UX, TypeScript, tests, and production build.
 - [x] Save a checkpoint for the profile payment and checkout QA enhancements.
+
+# Payment History QA and Localization
+- [x] Add a main-dashboard shortcut linking directly to Profile Settings payment history.
+- [x] Add a development-only mock payment reset action for repeating enrollment tests.
+- [x] Localize payment status, enrollment progress, staged-payment, and mock QA copy in every supported locale.
+- [x] Add regression coverage for dashboard navigation, reset safety, and all-locale translation keys.
+- [x] Validate dashboard, profile, course gating, multilingual rendering, TypeScript, tests, and production build.
+- [x] Save a checkpoint for the payment-history QA and localization enhancements.
