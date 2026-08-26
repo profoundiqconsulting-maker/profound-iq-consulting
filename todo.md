@@ -1686,3 +1686,15 @@
 - [ ] Add completeness and fallback regression tests plus browser coverage for representative public, dashboard, course, checkout, assessment, report, certificate, and Arabic RTL surfaces.
 - [x] Run TypeScript, focused and full tests, production build, runtime checks, and responsive/RTL visual verification.
 - [ ] Save a checkpoint for complete sitewide localization.
+
+# Staged Complete Localization Batches
+- [x] Batch 1: translate public homepage, footer, legal pages, contact/inquiry flows, course catalog entry points, and global navigation in all ten locales.
+- [x] Batch 1: verify public locale switching, persistence, metadata, and Arabic RTL rendering; save a batch checkpoint.
+- [ ] Batch 2: translate authentication, dashboard, settings, profile, payment history, checkout, enrollment, and payment-success workflows in all ten locales.
+- [ ] Batch 2: verify authenticated locale switching and staged-payment UI; save a batch checkpoint.
+- [ ] Batch 3: translate course workspace, lessons, quizzes, assessments, CareerPath, feedback, and progress states in all ten locales.
+- [ ] Batch 3: verify localized learning content, scoring identifiers, and RTL assessment navigation; save a batch checkpoint.
+- [ ] Batch 4: translate emails, PDFs, certificates, QR verification, organization forwarding, and admin tools in all ten locales.
+- [ ] Batch 4: verify generated artifacts and delivery copy; save a batch checkpoint.
+- [ ] Run complete locale completeness tests, browser tests, TypeScript, full Vitest, production build, and responsive/RTL verification.
+- [ ] Mark the complete staged localization work finished and publish the final checkpoint.
