@@ -160,7 +160,7 @@ describe("assessment scoring", () => {
     expect(navSource).toMatch(/ArrowDown/);
     expect(navSource).toMatch(/ArrowUp/);
     expect(navSource).toMatch(/aria-activedescendant/);
-    expect(assessmentSource).toMatch(/Review Section/);
+    expect(assessmentSource).toMatch(/assessmentCopy\.reviewSection|Review Section/);
     expect(assessmentSource).toMatch(/event.key.toLowerCase\(\) === "m"/);
     expect(assessmentSource).toMatch(/highPotentialOnly/);
     expect(assessmentSource).toMatch(/High potential/);
