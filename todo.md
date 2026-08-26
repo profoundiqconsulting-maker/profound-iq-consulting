@@ -1702,3 +1702,4 @@
 - [x] Batch 3 increment: connect CareerPath step navigation and Self Assessment persistent footer labels to the shared ten-locale provider; preserve scoring, payment, and resume behavior.
 - [x] Batch 3 increment: connect psychometric results workspace navigation to the shared locale provider and add ten-locale authentication localization regression coverage.
 - [x] Batch 3 increment: connect the course workspace access gate dashboard link to the shared locale provider while preserving staged-payment gating.
+- [x] Batch 2 increment: connect password-reset secure-access and sign-in labels to the shared authentication locale map without changing token validation or reset behavior.
