@@ -1712,3 +1712,4 @@
 - [x] Localization QA increment: extend all-locale regression coverage to core navigation labels and generated assessment, certificate, receipt, and verification copy with explicit non-empty assertions.
 - [x] Batch 3 increment: localize the unauthenticated course access gate sign-in action while preserving registration return paths, staged payment gating, and protected lesson access.
 - [x] Localization browser increment: verify Arabic RTL and locale metadata on representative public assessment, CareerPath, psychometric, and certificate-verification routes; all three Playwright cases pass.
+- [x] Batch 3 increment: localize course-catalog escape labels in the protected course gate through the shared course vocabulary without changing lesson access or checkout behavior.
