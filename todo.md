@@ -1740,3 +1740,9 @@
 - [x] Add and validate psychometric workflow localization regression coverage with safe unknown-locale fallback.
 - [x] Batch 3 increment: localize psychometric progress, question navigation, consent, and secure-checkout labels using a typed ten-locale workflow map.
 - [x] Add regression coverage for psychometric workflow locale completeness and unknown-locale fallback.
+- [x] Add a shared dashboard navigation menu that groups user, staff, and admin items for quick access.
+- [x] Add a scalable dashboard item registry so newly created dashboard items can be added to navigation consistently.
+- [x] Add pagination controls and compact list views for long dashboard item collections across user, staff, and admin dashboards.
+- [x] Optimize dashboard responsive layout, spacing, empty states, and mobile navigation without changing existing permissions or workflows.
+- [x] Add dashboard pagination/menu regression tests and verify desktop/mobile rendering, TypeScript, full Vitest, and production build.
+- [x] Save a checkpoint for the dashboard navigation, pagination, and UX improvements.

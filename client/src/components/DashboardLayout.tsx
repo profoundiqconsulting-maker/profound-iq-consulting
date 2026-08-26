@@ -21,23 +21,14 @@ import {
 } from "@/components/ui/sidebar";
 import { startLogin } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { BarChart3, BookOpen, ClipboardCheck, LayoutDashboard, LogOut, PanelLeft, Settings, ShieldCheck, Users, ClipboardList } from "lucide-react";
+import { LogOut, PanelLeft } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { useLocale } from "@/contexts/LocaleContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { Button } from "./ui/button";
-
-const menuItems = [
-  { icon: LayoutDashboard, label: "Overview", path: "/dashboard" },
-  { icon: ClipboardCheck, label: "Self Assessment", path: "/assessment" },
-  { icon: Users, label: "CareerPath", path: "/careerpath" },
-  { icon: BookOpen, label: "Courses", path: "/courses" },
-  { icon: BarChart3, label: "Admin observatory", path: "/admin", adminOnly: true },
-  { icon: ClipboardList, label: "Staff workspace", path: "/staff", staffOnly: true },
-  { icon: Settings, label: "Settings", path: "/settings" },
-];
+import { dashboardNavGroups, visibleDashboardNavItems } from "./dashboardNavigation";
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
 const DEFAULT_WIDTH = 280;
@@ -119,8 +110,8 @@ function DashboardLayoutContent({
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const localizedMenuItems = menuItems.map((item) => ({ ...item, label: item.label === "Overview" ? t("overview") : item.label === "Self Assessment" ? t("selfAssessment") : item.label === "CareerPath" ? t("careerPath") : item.label === "Courses" ? t("courses") : item.label === "Admin observatory" ? t("adminObservatory") : item.label === "Staff workspace" ? t("staffWorkspace") : t("settings") }));
-  const activeMenuItem = localizedMenuItems.find(item => item.path === location);
+  const localizedMenuItems = visibleDashboardNavItems(user?.role).map((item) => ({ ...item, label: t(item.labelKey) || item.fallbackLabel }));
+  const activeMenuItem = localizedMenuItems.find((item) => location === item.path || location.startsWith(`${item.path}/`));
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -187,23 +178,32 @@ function DashboardLayoutContent({
           </SidebarHeader>
 
           <SidebarContent className="gap-0">
-            <SidebarMenu className="px-2 py-1">
-              {localizedMenuItems.filter((item) => (!item.adminOnly || user?.role === "admin") && (!item.staffOnly || user?.role === "admin" || user?.role === "staff")).map((item) => {
-                const isActive = location === item.path;
+            <SidebarMenu className="gap-1 px-2 py-2">
+              {dashboardNavGroups.map((group) => {
+                const groupItems = localizedMenuItems.filter((item) => item.group === group.id);
+                if (!groupItems.length) return null;
                 return (
-                  <SidebarMenuItem key={item.path}>
-                    <SidebarMenuButton
-                      isActive={isActive}
-                      onClick={() => setLocation(item.path)}
-                      tooltip={item.label}
-                      className={`h-10 transition-all font-normal`}
-                    >
-                      <item.icon
-                        className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
-                      />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  <div key={group.id} className="mb-2 last:mb-0">
+                    <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground group-data-[collapsible=icon]:sr-only">
+                      {group.fallbackLabel}
+                    </p>
+                    {groupItems.map((item) => {
+                      const isActive = location === item.path || location.startsWith(`${item.path}/`);
+                      return (
+                        <SidebarMenuItem key={item.id}>
+                          <SidebarMenuButton
+                            isActive={isActive}
+                            onClick={() => setLocation(item.path)}
+                            tooltip={item.label}
+                            className="h-10 font-normal transition-all"
+                          >
+                            <item.icon className={`h-4 w-4 ${isActive ? "text-primary" : ""}`} />
+                            <span>{item.label}</span>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </div>
                 );
               })}
             </SidebarMenu>
@@ -268,7 +268,7 @@ function DashboardLayoutContent({
             <LanguageSelector compact className="shrink-0" />
           </div>
         )}
-        <main className="flex-1 p-4">{children}</main>
+        <main className="min-w-0 flex-1 p-3 sm:p-4 lg:p-6">{children}</main>
       </SidebarInset>
     </>
   );
