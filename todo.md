@@ -1730,3 +1730,5 @@
 - [x] Batch 2 increment: localize the unlocked course workspace checkout-identity dialog’s step, learner fields, close action, and Paystack continuation across all ten locales.
 - [x] Verify the unlocked checkout-identity localization with focused tests, the complete Vitest suite, TypeScript, and production build.
 - [x] Add and validate the localized certificate label used by the unlocked course workspace across all ten supported locales.
+- [x] Batch 3 increment: localize course-workspace previous/next module and quiz submission controls with the ten-locale assessment workflow copy map.
+- [x] Verify the course-workspace assessment-copy increment with focused tests, the complete Vitest suite, TypeScript, and production build.
