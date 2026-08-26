@@ -7,6 +7,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { trpc } from "@/lib/trpc";
 import { courseCatalog } from "@shared/courseCatalog";
 import { useLocale } from "@/contexts/LocaleContext";
+import { localizeCourseMetadata } from "@shared/courseMetadataLocalization";
 
 type ModulePreview = { id: string; title: string; promise: string };
 type CourseCard = { slug: string; index: string; title: string; strapline: string; description: string; audience: string; duration: string; outcomes: string[]; modules: ModulePreview[]; price: string; stagePlan: string; format: string; body: string; isDatabaseItem: boolean };
@@ -19,15 +20,15 @@ export default function Courses() {
   const [submitted, setSubmitted] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("All categories");
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const liveCatalog = trpc.catalog.listPublished.useQuery(undefined, { retry: false, refetchOnWindowFocus: true });
   const enrollment = trpc.enrollment.create.useMutation({ onSuccess: () => { setSubmitted(true); toast.success("Enrollment details saved", { description: "Continue to secure checkout when you are ready." }); }, onError: (error) => toast.error("Could not save enrollment details", { description: error.message }) });
   const courses = useMemo<CourseCard[]>(() => {
     const overlays = (liveCatalog.data ?? []).map((item) => ({ slug: item.slug, index: `D${String(item.id).padStart(2, "0")}`, title: item.title, strapline: item.strapline, description: item.description, audience: item.audience, duration: item.duration, outcomes: item.outcomes, modules: [], price: `KES ${item.priceKes.toLocaleString()}`, stagePlan: `KES ${Math.round(item.priceKes / 4).toLocaleString()} × 4`, format: item.duration, body: item.description, isDatabaseItem: true }));
     const bySlug = new Map(overlays.map((item) => [item.slug, item]));
     const merged = codeCourses.map((course) => { const overlay = bySlug.get(course.slug); if (!overlay) return course; bySlug.delete(course.slug); return { ...course, ...overlay, modules: course.modules, isDatabaseItem: true }; });
-    return [...merged, ...Array.from(bySlug.values())];
-  }, [liveCatalog.data]);
+    return [...merged, ...Array.from(bySlug.values())].map((course) => { const metadata = localizeCourseMetadata(locale, course.slug, course.title, course.description); return { ...course, title: metadata.title, description: metadata.description, body: metadata.description }; });
+  }, [liveCatalog.data, locale]);
   const categories = useMemo(() => ["All categories", ...Array.from(new Set(courses.map(courseCategory)))], [courses]);
   const filteredCourses = useMemo(() => { const query = searchTerm.trim().toLowerCase(); return courses.filter((course) => (!query || `${course.title} ${course.strapline} ${course.description} ${course.outcomes.join(" ")}`.toLowerCase().includes(query)) && (category === "All categories" || courseCategory(course) === category)); }, [category, courses, searchTerm]);
   useEffect(() => { const slug = new URLSearchParams(window.location.search).get("enroll"); if (!slug || !courses.length || selectedCourse) return; const course = courses.find((item) => item.slug === slug); if (course) { setSelectedCourse(course); window.history.replaceState({}, "", "/courses"); } }, [courses, selectedCourse]);

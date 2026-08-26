@@ -1631,3 +1631,11 @@
 - [x] Add regression coverage for dashboard navigation, reset safety, and all-locale translation keys.
 - [x] Validate dashboard, profile, course gating, multilingual rendering, TypeScript, tests, and production build.
 - [x] Save a checkpoint for the payment-history QA and localization enhancements.
+
+# Course Localization and Enrollment QA Expansion
+- [x] Translate all dynamic course titles and descriptions for the ten supported locales with English fallback.
+- [x] Add a development-only enrollment fixture picker for pending, stage-one-paid, stage-two-paid, stage-three-paid, and completed states.
+- [x] Add a dedicated Payment History tab to the main authenticated dashboard.
+- [x] Create and validate a reusable skill documenting the localization and enrollment QA workflow.
+- [x] Add regression coverage and verify type checking, tests, production build, responsive dashboard UX, and production safety.
+- [x] Save a checkpoint for the course localization and enrollment QA expansion.

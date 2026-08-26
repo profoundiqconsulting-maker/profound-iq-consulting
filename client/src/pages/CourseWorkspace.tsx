@@ -39,8 +39,11 @@ function CourseWorkspaceContent({ course }: { course: CourseDefinition }) {
   const { user, isAuthenticated } = useAuth();
   const courseState = trpc.course.state.useQuery(undefined, { enabled: isAuthenticated });
   const paidStages = courseState.data?.find((item) => item.enrollment.courseSlug === course.slug)?.stages.filter((stage) => stage.paymentStatus === "paid").length ?? 0;
+  const qaFixture = import.meta.env.DEV ? new URLSearchParams(window.location.search).get("qaEnrollment") : null;
+  const fixturePaidStages = qaFixture === "pending" ? 0 : qaFixture === "stage1" ? 1 : qaFixture === "stage2" ? 2 : qaFixture === "stage3" ? 3 : qaFixture === "completed" ? 4 : null;
+  const effectivePaidStages = fixturePaidStages ?? paidStages;
   const qualityControl = user?.role === "admin" || user?.email?.toLowerCase() === "profoundiqconsulting@gmail.com";
-  if (!canAccessCourseLessons({ isAuthenticated, paidStages, isQualityControlAdmin: qualityControl })) return <CourseAccessGate course={course} isAuthenticated={isAuthenticated} paidStages={paidStages} />;
+  if (!canAccessCourseLessons({ isAuthenticated, paidStages: effectivePaidStages, isQualityControlAdmin: qualityControl && !fixturePaidStages })) return <CourseAccessGate course={course} isAuthenticated={isAuthenticated} paidStages={effectivePaidStages} />;
   return <CourseWorkspaceUnlocked course={course} />;
 }
 

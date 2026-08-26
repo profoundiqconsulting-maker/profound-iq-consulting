@@ -1,4 +1,5 @@
-import type { CourseDefinition } from "./courseCatalog";
+import type { CourseDefinition } from "@shared/courseCatalog";
+import { localizeCourseMetadata } from "@shared/courseMetadataLocalization";
 export type ContentLocale = "en" | "sw" | "fr" | "es" | "pt" | "ar" | "zh" | "hi" | "de" | "ja";
 
 const recurringTranslations: Partial<Record<ContentLocale, Record<string, string>>> = {
@@ -37,9 +38,13 @@ export function localizeAssessmentPrompt(locale: ContentLocale, prompt: string, 
 }
 
 export function localizeCourseDefinition(locale: ContentLocale, course: CourseDefinition): CourseDefinition {
+  const metadata = localizeCourseMetadata(locale, course.slug, course.title, course.description);
   if (locale === "en") return course;
   return {
     ...course,
+    title: metadata.title,
+    description: metadata.description,
+
     modules: course.modules.map((module) => ({
       ...module,
       title: localizeContentText(locale, module.title),
