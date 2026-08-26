@@ -64,6 +64,23 @@ describe("Google social OAuth flow", () => {
     expect(callbackRedirect).toHaveBeenCalledWith(`${origin}/`);
   });
 
+  it("reuses an existing credential account when Google returns the same verified email", async () => {
+    mocks.findUserByLocalIdentifier.mockResolvedValue({ openId: "local-person", name: "Local Person", email: "person@example.com", username: "person", passwordHash: "preserved-hash", avatarUrl: null });
+    const routes = registeredRoutes();
+    const startRedirect = vi.fn();
+    await routes.get("/api/oauth/google/start")?.({ query: { origin, returnTo: "/dashboard" } }, { cookie: vi.fn(), redirect: startRedirect });
+    const authUrl = new URL(startRedirect.mock.calls[0][0]);
+    const state = authUrl.searchParams.get("state")!;
+    const nonce = authUrl.searchParams.get("nonce")!;
+    mocks.jwtVerify.mockResolvedValue({ payload: { nonce } });
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce(response({ access_token: "access-token", id_token: "id-token" })).mockResolvedValueOnce(response({ sub: "google-sub", email: "PERSON@example.com", name: "Provider Person", email_verified: true })));
+    const redirect = vi.fn();
+    await routes.get("/api/oauth/google/callback")?.({ query: { code: "google-code", state }, headers: { cookie: `__Host-social_oauth_state=google.${nonce}` } }, { clearCookie: vi.fn(), cookie: vi.fn(), redirect });
+    expect(mocks.upsertUser).toHaveBeenCalledWith(expect.objectContaining({ openId: "local-person", email: "person@example.com", loginMethod: "google" }));
+    expect(mocks.createSessionToken).toHaveBeenCalledWith("local-person", expect.objectContaining({ name: "Provider Person" }));
+    expect(redirect).toHaveBeenCalledWith(`${origin}/dashboard`);
+  });
+
   it("rejects a callback with a mismatched state cookie before token exchange", async () => {
     const routes = registeredRoutes();
     const redirect = vi.fn();

@@ -1667,3 +1667,12 @@
 - [x] Add regression coverage for credential-only registration/login and authentication when OAuth settings are absent.
 - [x] Run TypeScript, focused auth tests, full non-network tests, production build, and responsive sign-in/register verification.
 - [x] Save a checkpoint for independent email and username credential authentication.
+
+# Unified Multi-Method Authentication
+- [x] Audit credential identifiers, OAuth callbacks, provider matching, and session persistence for cross-method sign-in.
+- [x] Allow users to choose email/password, username/password, Google, LinkedIn, or Manus OAuth without requiring a single preferred method.
+- [x] Add safe account matching/linking rules that prevent duplicate or cross-account takeover while preserving existing profile data.
+- [x] Unify auth-page copy and controls so all available methods are clearly optional alternatives with consistent return-to behavior.
+- [x] Add regression coverage for provider linking, existing-account matching, credential fallback, session continuity, and collision rejection.
+- [x] Run TypeScript, focused authentication tests, full non-network tests, production build, and responsive sign-in/register verification.
+- [x] Save a checkpoint for unified multi-method authentication.

@@ -65,7 +65,7 @@ export function registerSocialOAuthRoutes(app: Express) {
         if (!profileResponse.ok) throw new Error(`Provider profile request failed (${profileResponse.status})`);
         const profile = await profileResponse.json() as { sub?: string; name?: string; email?: string; email_verified?: boolean; picture?: string };
         if (!profile.sub) throw new Error("Provider profile is missing a stable subject");
-        const normalizedEmail = profile.email?.trim().toLowerCase();
+        const normalizedEmail = profile.email_verified === true && profile.email ? profile.email.trim().toLowerCase() : undefined;
         const existing = normalizedEmail ? await findUserByLocalIdentifier(normalizedEmail) : undefined;
         const openId = existing?.openId ?? `social:${provider}:${profile.sub}`;
         await upsertUser({ openId, name: profile.name || existing?.name || `${provider} user`, email: normalizedEmail || existing?.email || null, loginMethod: provider, avatarUrl: profile.picture || existing?.avatarUrl || null, lastSignedIn: new Date() });
