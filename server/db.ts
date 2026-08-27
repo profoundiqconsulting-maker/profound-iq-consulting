@@ -1150,11 +1150,11 @@ export async function getAdminCertificateSettings(adminOpenId: string) {
   return (await db.select().from(adminCertificateSettings).where(eq(adminCertificateSettings.adminOpenId, adminOpenId)).limit(1))[0] ?? { adminOpenId, trainerName: "Stephen Mwihaki", trainerTitle: "Managing Director", signatureDataUri: CERTIFICATE_SIGNATURE_DATA_URI };
 }
 
-export async function upsertAdminCertificateSettings(adminOpenId: string, input: { trainerName: string; trainerTitle: string; signatureDataUri?: string; fieldLayout?: CertificateFieldLayout }) {
+export async function upsertAdminCertificateSettings(adminOpenId: string, input: { trainerName: string; trainerTitle: string; signatureDataUri?: string; fieldLayout?: CertificateFieldLayout; customElements?: Record<string, string> }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const existing = await getAdminCertificateSettings(adminOpenId);
-  const values = { trainerName: input.trainerName.trim(), trainerTitle: input.trainerTitle.trim(), signatureDataUri: input.signatureDataUri?.trim() || existing.signatureDataUri, fieldLayout: input.fieldLayout ?? existing.fieldLayout ?? null };
+  const values = { trainerName: input.trainerName.trim(), trainerTitle: input.trainerTitle.trim(), signatureDataUri: input.signatureDataUri?.trim() || existing.signatureDataUri, fieldLayout: input.fieldLayout ?? existing.fieldLayout ?? null, customElements: input.customElements ?? (existing as typeof existing & { customElements?: Record<string, string> }).customElements ?? null };
   if ("id" in existing) await db.update(adminCertificateSettings).set(values).where(eq(adminCertificateSettings.adminOpenId, adminOpenId));
   else await db.insert(adminCertificateSettings).values({ adminOpenId, ...values });
   return getAdminCertificateSettings(adminOpenId);

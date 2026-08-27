@@ -1,0 +1,1 @@
+ALTER TABLE `admin_certificate_settings` ADD `customElements` json;

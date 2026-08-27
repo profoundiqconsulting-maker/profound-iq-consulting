@@ -486,6 +486,7 @@ export const adminCertificateSettings = mysqlTable("admin_certificate_settings",
   trainerTitle: varchar("trainerTitle", { length: 160 }).default("Managing Director").notNull(),
   signatureDataUri: text("signatureDataUri").notNull(),
   fieldLayout: json("fieldLayout"),
+  customElements: json("customElements"),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
