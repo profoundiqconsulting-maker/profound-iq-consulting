@@ -2033,3 +2033,10 @@
 - [x] Add an admin visual trend chart for course-comparison shares over time.
 - [x] Add authorization, regression tests, build checks, and responsive validation for the new layout and analytics flows.
 - [x] Save and auto-publish a checkpoint for the completed PDF layout and comparison trend features.
+
+# Localized PDF Controls, Preview Zoom, and Analytics CSV
+- [x] Localize summary and detailed PDF layout labels across all supported locales.
+- [x] Add zoom controls to the My Space saved-pathways PDF preview modal.
+- [x] Add an admin CSV export for course-comparison share analytics.
+- [x] Add authorization, regression tests, build checks, and responsive validation for the new controls and export.
+- [x] Save and auto-publish a checkpoint for the completed localized controls, preview zoom, and analytics CSV features.

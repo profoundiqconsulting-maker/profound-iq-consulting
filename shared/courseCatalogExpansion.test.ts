@@ -190,4 +190,16 @@ describe("comparison SSR and personalized revisit upgrades", () => {
     expect(analytics).toContain("Comparison shares over time");
     expect(analytics).toContain("comparisonShareTrendData");
   });
+
+  it("exposes localized PDF controls, preview zoom, and CSV sections", () => {
+    const dashboard = readFileSync("client/src/pages/UserDashboard.tsx", "utf8");
+    const csv = readFileSync("shared/adminExport.ts", "utf8");
+    const router = readFileSync("server/routers.ts", "utf8");
+    expect(dashboard).toContain("pdfLayoutCopy");
+    expect(dashboard).toContain("savedPathwaysZoom");
+    expect(dashboard).toContain("zoomIn");
+    expect(csv).toContain("COMPARISON RANKINGS");
+    expect(csv).toContain("DAILY SHARE TREND");
+    expect(router).toContain("buildCourseShareAnalyticsCsv({ matrix: data.matrix");
+  });
 });
