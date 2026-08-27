@@ -831,6 +831,18 @@ export async function unsubscribeNewsletter(tokenHash: string) {
   return { id: row.id, email: row.email, status: "unsubscribed" as const };
 }
 
+export async function listConfirmedNewsletterRecipients() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select({ id: newsletterSubscribers.id, email: newsletterSubscribers.email }).from(newsletterSubscribers).where(or(eq(newsletterSubscribers.status, "confirmed"), eq(newsletterSubscribers.status, "subscribed")));
+}
+
+export async function rotateNewsletterUnsubscribeToken(id: number, tokenHash: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(newsletterSubscribers).set({ unsubscribeTokenHash: tokenHash }).where(eq(newsletterSubscribers.id, id));
+}
+
 export async function updateNewsletterSubscriberStatus(id: number, status: "pending" | "confirmed" | "subscribed" | "unsubscribed") {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");

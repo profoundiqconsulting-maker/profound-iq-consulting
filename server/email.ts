@@ -80,6 +80,14 @@ export async function sendFailedLoginAlert(input: { recipients: string[]; identi
   await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to: recipients, subject, text: message, html: `<div style="font-family:Arial,sans-serif;color:#16243d"><h2>${escapeHtml(subject)}</h2><p>${escapeHtml(message)}</p><p>This alert does not reveal the source network or password details.</p></div>` });
 }
 
+export async function sendNewsletterDigestEmail(input: { to: string; articles: Array<{ title: string; excerpt: string; category: string; slug: string }>; unsubscribeUrl: string }): Promise<void> {
+  const config = getSmtpConfig();
+  const safeUnsubscribeUrl = escapeHtml(input.unsubscribeUrl);
+  const items = input.articles.map((article) => `<article style="border-top:1px solid #d8cfba;padding:18px 0"><div style="color:#a27e2e;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">${escapeHtml(article.category)}</div><h2 style="margin:8px 0;font-size:22px">${escapeHtml(article.title)}</h2><p style="line-height:1.6;color:#4a566a">${escapeHtml(article.excerpt)}</p><a href="https://profoundiqconsulting.com/blog/${encodeURIComponent(article.slug)}" style="color:#7d5e1e;font-weight:700">Read the insight →</a></article>`).join("");
+  const subject = "Profound IQ Insights: ideas for purposeful progress";
+  await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to: input.to, subject, text: `New Profound IQ Insights\n\n${input.articles.map((article) => `${article.title}\n${article.excerpt}\nhttps://profoundiqconsulting.com/blog/${article.slug}`).join("\n\n")}\n\nUnsubscribe: ${input.unsubscribeUrl}`, html: `<div style="margin:0 auto;max-width:680px;background:#f7f3e8;color:#16243d;font-family:Arial,sans-serif"><div style="background:#101d35;color:#f7f3e8;padding:24px 28px;border-top:6px solid #c9a34e"><div style="font-size:12px;letter-spacing:3px;font-weight:700">PROFOUND IQ CONSULTING</div><div style="margin-top:8px;color:#c9a34e;font-size:11px;letter-spacing:2px">INSIGHTS / BI-WEEKLY EDITION</div></div><div style="padding:28px"><p>Useful ideas about education, leadership, learning design, and professional growth.</p>${items}<p style="font-size:13px;color:#657084;border-top:1px solid #d8cfba;padding-top:18px">You are receiving this because you confirmed your Profound IQ Insights subscription. <a href="${safeUnsubscribeUrl}" style="color:#7d5e1e">Unsubscribe</a>.</p></div><div style="background:#16243d;color:#c1cad7;padding:18px 28px;font-size:12px">Profound IQ Consulting · Transformational learning</div></div>` });
+}
+
 export async function sendNewsletterConfirmationEmail(input: { to: string; confirmationUrl: string; unsubscribeUrl: string }): Promise<void> {
   const config = getSmtpConfig();
   const safeConfirmationUrl = escapeHtml(input.confirmationUrl);

@@ -1817,3 +1817,10 @@
 - [x] Refactor Insights search and article detail rendering to use server-backed procedures
 - [x] Update the reusable Profound IQ site workflow skill with consent and publishing patterns
 - [x] Validate newsletter lifecycle, publishing workflow, server search, and responsive UI
+
+# Bi-weekly Newsletter Automation
+- [x] Add a durable bi-weekly newsletter delivery handler for confirmed subscribers only.
+- [x] Add idempotent delivery gating, unsubscribe-token rotation, and delivery summaries.
+- [x] Add admin controls to enable and inspect the bi-weekly newsletter schedule.
+- [x] Add tests for cadence, consent filtering, idempotency, token rotation, and authorization.
+- [ ] Validate, checkpoint, deploy, and create the production schedule.

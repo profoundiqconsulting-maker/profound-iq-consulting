@@ -10,6 +10,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { registerPaystackWebhook } from "../paystackWebhook";
 import { registerWeeklyEnrollmentExport } from "../scheduledEnrollmentExport";
+import { registerBiweeklyNewsletter } from "../scheduledNewsletter";
 import { registerDeliveryLogExportWorker } from "../deliveryLogExport";
 import { registerWeeklyPsychometricAnalytics } from "../scheduledPsychometricAnalytics";
 import { serveStatic, setupVite } from "./vite";
@@ -39,6 +40,7 @@ async function startServer() {
   const server = createServer(app);
   registerPaystackWebhook(app);
   registerWeeklyEnrollmentExport(app);
+  registerBiweeklyNewsletter(app);
   registerDeliveryLogExportWorker(app);
   registerWeeklyPsychometricAnalytics(app);
   // Configure body parser with larger size limit for file uploads
