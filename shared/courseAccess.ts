@@ -1,5 +1,14 @@
 export type CourseAccessInput = { isAuthenticated: boolean; paidStages: number; isQualityControlAdmin: boolean };
 
+/** Returns the installment required before a module's lessons may be opened. Modules are 1-indexed in the learner-facing copy. */
+export function requiredPaymentStageForModule(moduleIndex: number) {
+  return moduleIndex >= 6 ? 3 : moduleIndex >= 3 ? 2 : 1;
+}
+
+export function canAccessModuleLessons({ moduleIndex, paidStages, isQualityControlAdmin }: { moduleIndex: number; paidStages: number; isQualityControlAdmin: boolean }) {
+  return isQualityControlAdmin || paidStages >= requiredPaymentStageForModule(moduleIndex);
+}
+
 export function canAccessCourseLessons({ isAuthenticated, paidStages, isQualityControlAdmin }: CourseAccessInput) {
   return isAuthenticated && (isQualityControlAdmin || paidStages >= 1);
 }

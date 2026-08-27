@@ -1823,4 +1823,12 @@
 - [x] Add idempotent delivery gating, unsubscribe-token rotation, and delivery summaries.
 - [x] Add admin controls to enable and inspect the bi-weekly newsletter schedule.
 - [x] Add tests for cadence, consent filtering, idempotency, token rotation, and authorization.
-- [ ] Validate, checkpoint, deploy, and create the production schedule.
+- [x] Validate, checkpoint, deploy, and create the production schedule.
+
+- [x] Activate the production newsletter schedule every other Monday at 09:00 EAT (06:00 UTC) and verify its callback.
+
+# Strict Staged Payment Access
+- [x] Audit and harden lesson access so every lesson requires its staged payment.
+- [x] Redirect unpaid lesson clicks to the matching installment checkout without revealing lesson content.
+- [x] Add regression coverage for payment-gated lesson navigation and quality-control admin access.
+- [x] Validate responsive payment-gate UX and checkpoint the release.
