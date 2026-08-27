@@ -1,0 +1,52 @@
+import React, { useState } from "react";
+import { AlertCircle, Download, Mail, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
+import { trpc } from "@/lib/trpc";
+import { DashboardPagination } from "@/components/DashboardPagination";
+
+const PAGE_SIZE = 10;
+
+export default function AdminNewsletterPanel() {
+  const [page, setPage] = useState(1);
+  const subscribers = trpc.newsletter.subscribers.useQuery({ page, pageSize: PAGE_SIZE });
+  const exportCsv = trpc.newsletter.exportCsv.useQuery(undefined, { enabled: false });
+
+  const downloadCsv = async () => {
+    const result = await exportCsv.refetch();
+    if (!result.data) {
+      toast.error(result.error?.message || "Unable to prepare the subscriber export.");
+      return;
+    }
+    const blob = new Blob([result.data.csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = result.data.filename;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+    toast.success("Newsletter subscriber CSV downloaded.");
+  };
+
+  return (
+    <section id="newsletter-subscribers" className="mt-10 scroll-mt-8 border border-[#c9a34e]/45 bg-[#fffaf0] p-5 sm:p-6">
+      <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
+        <div>
+          <p className="eyebrow text-[#a27e2e]">Audience / newsletter</p>
+          <h2 className="display mt-2 text-2xl">Keep the conversation permission-based.</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">Review consented Insights subscribers and export the current list for approved communication workflows.</p>
+        </div>
+        <button type="button" onClick={downloadCsv} disabled={exportCsv.isFetching} className="inline-flex min-h-10 items-center justify-center gap-2 border border-[#16243d]/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] transition-colors hover:border-[#c9a34e] hover:bg-white disabled:cursor-wait disabled:opacity-50">
+          {exportCsv.isFetching ? <RefreshCw size={14} className="animate-spin" /> : <Download size={14} />} {exportCsv.isFetching ? "Preparing…" : "Export CSV"}
+        </button>
+      </div>
+      {subscribers.isLoading ? <div className="mt-6 flex items-center gap-3 text-sm text-[#657084]"><RefreshCw size={16} className="animate-spin text-[#a27e2e]" /> Loading subscribers…</div> : subscribers.isError ? <div className="mt-6 flex items-start gap-3 border-l-2 border-red-700 bg-red-50 p-4 text-sm text-red-900" role="alert"><AlertCircle size={18} className="mt-0.5 shrink-0" /><span>Unable to load newsletter subscribers. Please refresh and try again.</span></div> : <>
+        <div className="mt-5 flex items-center gap-3 text-xs font-bold uppercase tracking-[.1em] text-[#657084]"><Mail size={15} className="text-[#a27e2e]" /> {subscribers.data?.total ?? 0} subscribed address{(subscribers.data?.total ?? 0) === 1 ? "" : "es"}</div>
+        {(subscribers.data?.rows.length ?? 0) === 0 ? <div className="mt-5 border border-dashed border-[#16243d]/20 bg-white/60 p-5 text-sm text-[#657084]">No newsletter subscribers have been recorded yet.</div> : <div className="mt-5 overflow-x-auto"><table className="w-full min-w-[650px] text-left text-sm"><thead className="border-b border-[#16243d]/15 text-[10px] uppercase tracking-[.12em] text-[#657084]"><tr><th className="py-3 pr-4">Email</th><th className="py-3 pr-4">Source</th><th className="py-3 pr-4">Status</th><th className="py-3">Consented</th></tr></thead><tbody>{subscribers.data?.rows.map((subscriber) => <tr key={subscriber.id} className="border-b border-[#16243d]/10"><td className="py-3 pr-4 font-semibold">{subscriber.email}</td><td className="py-3 pr-4 text-xs text-[#657084]">{subscriber.source}</td><td className="py-3 pr-4"><span className="font-bold text-emerald-800">{subscriber.status}</span></td><td className="py-3 text-xs text-[#657084]">{new Date(subscriber.consentedAt).toLocaleString()}</td></tr>)}</tbody></table></div>}
+        <DashboardPagination page={subscribers.data?.page ?? page} pageCount={subscribers.data?.pageCount ?? 1} totalItems={subscribers.data?.total ?? 0} pageSize={PAGE_SIZE} onPageChange={setPage} itemLabel="newsletter subscribers" />
+      </>}
+    </section>
+  );
+}
+

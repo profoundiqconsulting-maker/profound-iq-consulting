@@ -33,3 +33,10 @@ export function buildCourseShareAnalyticsCsv(rows: CourseShareAnalyticsExportRow
   const header = ["Course slug", "Platform", "Shares"].map(csvCell).join(",");
   return [header, ...rows.map((row) => [row.courseSlug, row.platform, row.shares].map(csvCell).join(","))].join("\n");
 }
+
+export type NewsletterSubscriberExportRow = { id: number; email: string; source: string; status: string; consentedAt: Date; createdAt: Date; updatedAt: Date };
+export function buildNewsletterSubscriberCsv(rows: NewsletterSubscriberExportRow[]) {
+  const header = ["ID", "Email", "Source", "Status", "Consented at", "Subscribed at", "Updated at"].map(csvCell).join(",");
+  const lines = rows.map((row) => [row.id, row.email, row.source, row.status, row.consentedAt.toISOString(), row.createdAt.toISOString(), row.updatedAt.toISOString()].map(csvCell).join(","));
+  return [header, ...lines].join("\n");
+}

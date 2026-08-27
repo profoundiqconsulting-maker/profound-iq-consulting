@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { articlePreviews, contributors, filterInsightsPreviews } from "@/pages/Blog";
+import { articlePreviews, contributors, filterInsightsPreviews, getVisibleInsightsPreviews } from "@/pages/Blog";
 
 describe("Insights preview content", () => {
   it("provides a useful preview grid without presenting drafts as published articles", () => {
@@ -13,6 +13,8 @@ describe("Insights preview content", () => {
     expect(filterInsightsPreviews(articlePreviews, "", "Education leadership")).toHaveLength(1);
     expect(filterInsightsPreviews(articlePreviews, "unmatched", "All topics")).toHaveLength(0);
     expect(articlePreviews).toHaveLength(3);
+    expect(getVisibleInsightsPreviews([1, 2, 3, 4, 5], 3)).toEqual([1, 2, 3]);
+    expect(getVisibleInsightsPreviews([1, 2], 0)).toEqual([1]);
   });
 
   it("keeps contributor cards explicitly placeholder-only until profiles are approved", () => {

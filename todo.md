@@ -1776,3 +1776,14 @@
 - [x] Add newsletter subscription capture at the bottom of Insights using an appropriate server-backed procedure and consent copy.
 - [x] Add regression coverage for Insights filtering and newsletter validation, then verify responsive UX, TypeScript, full Vitest, and production build.
 - [x] Read the complete TODO file, mark validated items complete, and save a checkpoint for the public interaction extension.
+
+# Newsletter Administration and Insights Scalability
+
+- [x] Add protected admin queries and CSV export helpers for newsletter subscribers with pagination and safe CSV escaping.
+- [x] Add an admin newsletter subscribers panel with loading, empty, error, pagination, and CSV download states.
+- [x] Add the newsletter management item to the role-aware admin navigation registry.
+- [x] Add Load More pagination to the Insights preview cards while preserving search and category filters.
+- [x] Add real-time inline email validation and an accessible animated newsletter success state with reduced-motion support.
+- [x] Add regression coverage for admin authorization, subscriber pagination/export, Insights Load More behavior, and newsletter validation.
+- [x] Verify responsive UX, TypeScript, full Vitest, production build, runtime logs, and desktop/mobile screenshots.
+- [x] Read the complete TODO file, mark validated items complete, and save a checkpoint for the newsletter administration and Insights scalability work.

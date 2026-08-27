@@ -756,6 +756,25 @@ export async function getAdminRevenueReport(filters: AdminRevenueFilters = {}) {
 
 export type ContactInquiryActor = { openId: string; name?: string | null; email?: string | null };
 
+export async function listNewsletterSubscribers(input: { page?: number; pageSize?: number } = {}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const page = Math.max(1, input.page ?? 1);
+  const pageSize = Math.min(100, Math.max(5, input.pageSize ?? 25));
+  const [rows, totalRows] = await Promise.all([
+    db.select().from(newsletterSubscribers).orderBy(desc(newsletterSubscribers.createdAt)).limit(pageSize).offset((page - 1) * pageSize),
+    db.select({ count: sql<number>`count(*)` }).from(newsletterSubscribers),
+  ]);
+  const total = Number(totalRows[0]?.count ?? 0);
+  return { rows, total, page, pageSize, pageCount: Math.max(1, Math.ceil(total / pageSize)) };
+}
+
+export async function getNewsletterSubscribersForExport() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(newsletterSubscribers).orderBy(desc(newsletterSubscribers.createdAt));
+}
+
 export async function subscribeToNewsletter(input: { email: string; source?: string }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");

@@ -34,6 +34,8 @@ describe("admin feature boundaries", () => {
     await expect(caller.admin.unlockUserLogin({ targetOpenId: "someone" })).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(caller.admin.loginSecurityAnalytics()).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(caller.admin.exportSecurityLoginEvents()).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(caller.newsletter.subscribers({ page: 1, pageSize: 10 })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(caller.newsletter.exportCsv()).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
   it("rejects analytics events outside the supported event contract", async () => {
