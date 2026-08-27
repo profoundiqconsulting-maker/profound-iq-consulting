@@ -1851,3 +1851,9 @@
 - [x] Add persisted configurable drop-off threshold and admin alert state.
 - [x] Update and validate the reusable payment-access observatory skill.
 - [x] Add tests, responsive checks, production build, and checkpoint the release.
+
+# Conversion Segmentation and Period Comparison
+- [x] Add cohort and device segmentation filters to conversion trend analytics.
+- [x] Add Last 7 Days and Last 30 Days presets shared by charts and CSV exports.
+- [x] Add current-versus-previous-period comparison metrics and visual treatment.
+- [x] Update reusable skill, add tests, verify responsive behavior, and checkpoint the release.
