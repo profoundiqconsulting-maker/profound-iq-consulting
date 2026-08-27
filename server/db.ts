@@ -326,7 +326,7 @@ export type NotificationPreferences = { assessmentUpdates: boolean; courseAnnoun
 export async function getUserProfile(openId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const result = await db.select({ id: users.id, openId: users.openId, name: users.name, email: users.email, role: users.role, notificationPreferences: users.notificationPreferences, avatarUrl: users.avatarUrl, timezone: users.timezone, learningGoals: users.learningGoals, recommendationAnswers: users.recommendationAnswers, leaderboardOptIn: users.leaderboardOptIn, leaderboardDisplayName: users.leaderboardDisplayName, exportPreferences: users.exportPreferences }).from(users).where(eq(users.openId, openId)).limit(1);
+  const result = await db.select({ id: users.id, openId: users.openId, name: users.name, email: users.email, role: users.role, notificationPreferences: users.notificationPreferences, avatarUrl: users.avatarUrl, timezone: users.timezone, learningGoals: users.learningGoals, recommendationAnswers: users.recommendationAnswers, leaderboardOptIn: users.leaderboardOptIn, leaderboardDisplayName: users.leaderboardDisplayName, exportPreferences: users.exportPreferences, exportLogoUrl: users.exportLogoUrl }).from(users).where(eq(users.openId, openId)).limit(1);
   const profile = result[0];
   if (!profile) return undefined;
   return {
@@ -336,11 +336,12 @@ export async function getUserProfile(openId: string) {
     timezone: profile.timezone ?? "Africa/Nairobi",
     leaderboardOptIn: profile.leaderboardOptIn,
     leaderboardDisplayName: profile.leaderboardDisplayName,
-    exportPreferences: { pageSize: "A4", watermark: true, coverPage: false, ...((profile.exportPreferences as Partial<{ pageSize: "A4" | "LETTER"; watermark: boolean; coverPage: boolean }> | null) ?? {}) },
+    exportPreferences: { pageSize: "A4", watermark: true, coverPage: false, coverTemplate: "classic", ...((profile.exportPreferences as Partial<{ pageSize: "A4" | "LETTER"; watermark: boolean; coverPage: boolean; coverTemplate: "classic" | "editorial" | "signal" }> | null) ?? {}) },
+    exportLogoUrl: profile.exportLogoUrl ?? null,
   };
 }
 
-export async function updateUserProfile(openId: string, input: { name: string; timezone: string; learningGoals?: string[]; notificationPreferences: NotificationPreferences; leaderboardOptIn?: boolean; leaderboardDisplayName?: string | null; exportPreferences?: { pageSize: "A4" | "LETTER"; watermark: boolean; coverPage: boolean } }) {
+export async function updateUserProfile(openId: string, input: { name: string; timezone: string; learningGoals?: string[]; notificationPreferences: NotificationPreferences; leaderboardOptIn?: boolean; leaderboardDisplayName?: string | null; exportPreferences?: { pageSize: "A4" | "LETTER"; watermark: boolean; coverPage: boolean; coverTemplate?: "classic" | "editorial" | "signal" } }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   await db.update(users).set({ name: input.name, timezone: input.timezone, learningGoals: input.learningGoals ?? [], notificationPreferences: input.notificationPreferences, ...(input.exportPreferences ? { exportPreferences: input.exportPreferences } : {}), ...(input.leaderboardOptIn === undefined ? {} : { leaderboardOptIn: input.leaderboardOptIn, leaderboardDisplayName: input.leaderboardOptIn ? normalizeLeaderboardDisplayName(input.leaderboardDisplayName, normalizeLeaderboardDisplayName(input.name)) : null }) }).where(eq(users.openId, openId));
@@ -2096,9 +2097,16 @@ export async function savePsychometricRecommendationFeedback(input: { userOpenId
   return true;
 }
 
-export async function updateUserExportPreferences(openId: string, preferences: { pageSize: "A4" | "LETTER"; watermark: boolean; coverPage: boolean }) {
+export async function updateUserExportPreferences(openId: string, preferences: { pageSize: "A4" | "LETTER"; watermark: boolean; coverPage: boolean; coverTemplate: "classic" | "editorial" | "signal" }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   await db.update(users).set({ exportPreferences: preferences }).where(eq(users.openId, openId));
+  return getUserProfile(openId);
+}
+
+export async function updateUserExportLogo(openId: string, exportLogoUrl: string | null) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(users).set({ exportLogoUrl }).where(eq(users.openId, openId));
   return getUserProfile(openId);
 }

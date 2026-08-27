@@ -2068,3 +2068,10 @@
 - [x] Add an optional branded cover page with learner name and pathway title for detailed PDFs.
 - [x] Add schema migration, authorization, regression tests, PDF rendering checks, build checks, and responsive print validation.
 - [x] Save and auto-publish a checkpoint for the page-size, preference, and cover-page features.
+
+# Custom Cover Branding, Templates, and Live Preview
+- [x] Add protected custom logo upload and profile-scoped logo persistence.
+- [x] Add multiple cover-page template choices to export preferences and PDF rendering.
+- [x] Add a live cover-page preview in the PDF export modal using current branding settings.
+- [x] Add storage authorization, migration, regression tests, PDF rendering checks, build checks, and responsive QA.
+- [x] Save and auto-publish a checkpoint for the custom branding, templates, and live-preview features.

@@ -25,6 +25,7 @@ export const users = mysqlTable("users", {
   leaderboardOptIn: boolean("leaderboardOptIn").default(false).notNull(),
   leaderboardDisplayName: varchar("leaderboardDisplayName", { length: 80 }),
   exportPreferences: json("exportPreferences"),
+  exportLogoUrl: varchar("exportLogoUrl", { length: 512 }),
 }, (table) => ({
   emailUnique: uniqueIndex("users_email_unique").on(table.email),
   phoneUnique: uniqueIndex("users_phone_unique").on(table.phone),
