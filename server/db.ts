@@ -1430,7 +1430,11 @@ export async function listCourseEnrollmentState(userOpenId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const enrollments = await db.select().from(courseLearnerEnrollments).where(eq(courseLearnerEnrollments.userOpenId, userOpenId)).orderBy(desc(courseLearnerEnrollments.updatedAt));
-  return Promise.all(enrollments.map(async (enrollment) => ({ enrollment, lessons: await db.select().from(courseLessonProgress).where(eq(courseLessonProgress.enrollmentId, enrollment.id)), responses: await db.select().from(courseLessonResponses).where(eq(courseLessonResponses.enrollmentId, enrollment.id)), quizAttempts: await db.select().from(courseQuizAttempts).where(eq(courseQuizAttempts.enrollmentId, enrollment.id)).orderBy(desc(courseQuizAttempts.createdAt)), stages: await db.select().from(coursePaymentStages).where(eq(coursePaymentStages.enrollmentId, enrollment.id)).orderBy(coursePaymentStages.stage), certificates: await db.select().from(courseCertificates).where(eq(courseCertificates.enrollmentId, enrollment.id)).orderBy(desc(courseCertificates.createdAt)) })));
+  return Promise.all(enrollments.map(async (enrollment) => {
+    const responses = await db.select().from(courseLessonResponses).where(eq(courseLessonResponses.enrollmentId, enrollment.id));
+    const reviews = responses.length ? await db.select().from(courseLessonResponseReviews).where(inArray(courseLessonResponseReviews.responseId, responses.map((response) => response.id))).orderBy(desc(courseLessonResponseReviews.updatedAt)) : [];
+    return { enrollment, lessons: await db.select().from(courseLessonProgress).where(eq(courseLessonProgress.enrollmentId, enrollment.id)), responses, reviews, quizAttempts: await db.select().from(courseQuizAttempts).where(eq(courseQuizAttempts.enrollmentId, enrollment.id)).orderBy(desc(courseQuizAttempts.createdAt)), stages: await db.select().from(coursePaymentStages).where(eq(coursePaymentStages.enrollmentId, enrollment.id)).orderBy(coursePaymentStages.stage), certificates: await db.select().from(courseCertificates).where(eq(courseCertificates.enrollmentId, enrollment.id)).orderBy(desc(courseCertificates.createdAt)) };
+  }));
 }
 export async function listCoursePaymentHistoryPage(userOpenId: string, input: { page: number; pageSize: number; courseSlug?: string; stage?: number; status?: string; from?: Date; to?: Date; sort: "date-desc" | "date-asc" | "amount-desc" | "amount-asc" | "course-asc" | "stage-asc" | "status" }) {
   const db = await getDb();
@@ -1482,19 +1486,55 @@ export async function upsertCourseLessonResponse(input: { enrollmentId: number; 
   return { saved: true as const };
 }
 
-export async function listCourseLessonResponsesForStaff(input: { page: number; pageSize: number; search?: string; courseSlug?: string; reviewStatus?: "all" | "reviewed" | "needs-review" }) {
+export async function listCourseLessonResponsesForStaff(input: { page: number; pageSize: number; search?: string; courseSlug?: string; reviewStatus?: "all" | "reviewed" | "needs-review"; fromDate?: Date; toDate?: Date }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const enrollments = await db.select().from(courseLearnerEnrollments).orderBy(desc(courseLearnerEnrollments.updatedAt));
   const enrollmentIds = enrollments.map((enrollment) => enrollment.id);
   if (!enrollmentIds.length) return { rows: [], total: 0, page: input.page, pageSize: input.pageSize, totalPages: 1 };
   const responses = await db.select().from(courseLessonResponses).where(inArray(courseLessonResponses.enrollmentId, enrollmentIds)).orderBy(desc(courseLessonResponses.updatedAt));
+  if (!responses.length) return { rows: [], total: 0, page: input.page, pageSize: input.pageSize, totalPages: 1 };
   const reviews = await db.select().from(courseLessonResponseReviews).where(inArray(courseLessonResponseReviews.responseId, responses.map((response) => response.id)));
   const enrollmentMap = new Map(enrollments.map((enrollment) => [enrollment.id, enrollment]));
   const reviewMap = new Map(reviews.map((review) => [review.responseId, review]));
-  const rows = responses.map((response) => ({ response, enrollment: enrollmentMap.get(response.enrollmentId), review: reviewMap.get(response.id) })).filter((row) => row.enrollment && (!input.courseSlug || row.enrollment.courseSlug === input.courseSlug) && (!input.reviewStatus || input.reviewStatus === "all" || (input.reviewStatus === "reviewed" ? Boolean(row.review) : !row.review)) && (!input.search || `${row.enrollment.userOpenId} ${row.response.lessonId} ${row.response.taskId} ${row.response.responseHtml}`.toLowerCase().includes(input.search.toLowerCase())));
+  const search = input.search?.toLowerCase();
+  const rows = responses.map((response) => ({ response, enrollment: enrollmentMap.get(response.enrollmentId), review: reviewMap.get(response.id) })).filter((row) => {
+    const updatedAt = row.response.updatedAt;
+    return row.enrollment && (!input.courseSlug || row.enrollment.courseSlug === input.courseSlug) && (!input.fromDate || updatedAt >= input.fromDate) && (!input.toDate || updatedAt <= input.toDate) && (!input.reviewStatus || input.reviewStatus === "all" || (input.reviewStatus === "reviewed" ? Boolean(row.review) : !row.review)) && (!search || `${row.enrollment.name} ${row.enrollment.email} ${row.enrollment.courseSlug} ${row.response.lessonId} ${row.response.taskId} ${row.response.responseHtml}`.toLowerCase().includes(search));
+  });
   const start = Math.max(0, (input.page - 1) * input.pageSize);
   return { rows: rows.slice(start, start + input.pageSize), total: rows.length, page: input.page, pageSize: input.pageSize, totalPages: Math.max(1, Math.ceil(rows.length / input.pageSize)) };
+}
+
+export async function getCourseLessonReviewAnalytics(input: { courseSlug?: string; fromDate?: Date; toDate?: Date }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const enrollments = await db.select().from(courseLearnerEnrollments);
+  const enrollmentMap = new Map(enrollments.map((enrollment) => [enrollment.id, enrollment]));
+  const enrollmentIds = enrollments.map((enrollment) => enrollment.id);
+  if (!enrollmentIds.length) return { totalResponses: 0, reviewedResponses: 0, needsReviewResponses: 0, reviewRate: 0, byCourse: [], byModule: [] };
+  const responses = await db.select().from(courseLessonResponses).where(inArray(courseLessonResponses.enrollmentId, enrollmentIds));
+  const reviews = responses.length ? await db.select().from(courseLessonResponseReviews).where(inArray(courseLessonResponseReviews.responseId, responses.map((response) => response.id))) : [];
+  const reviewMap = new Map(reviews.map((review) => [review.responseId, review]));
+  const filtered = responses.filter((response) => {
+    const enrollment = enrollmentMap.get(response.enrollmentId);
+    return enrollment && (!input.courseSlug || enrollment.courseSlug === input.courseSlug) && (!input.fromDate || response.updatedAt >= input.fromDate) && (!input.toDate || response.updatedAt <= input.toDate);
+  });
+  const byCourse = new Map<string, { courseSlug: string; totalResponses: number; reviewedResponses: number; needsReviewResponses: number }>();
+  const byModule = new Map<string, { courseSlug: string; moduleIndex: number; totalResponses: number; reviewedResponses: number; needsReviewResponses: number }>();
+  for (const response of filtered) {
+    const courseSlug = enrollmentMap.get(response.enrollmentId)!.courseSlug;
+    const moduleIndex = Math.max(0, Number(response.lessonId.match(/module-(\\d+)/)?.[1] ?? 1) - 1);
+    const reviewed = Boolean(reviewMap.get(response.id));
+    const course = byCourse.get(courseSlug) ?? { courseSlug, totalResponses: 0, reviewedResponses: 0, needsReviewResponses: 0 };
+    course.totalResponses += 1; reviewed ? course.reviewedResponses += 1 : course.needsReviewResponses += 1; byCourse.set(courseSlug, course);
+    const moduleKey = `${courseSlug}:${moduleIndex}`;
+    const module = byModule.get(moduleKey) ?? { courseSlug, moduleIndex, totalResponses: 0, reviewedResponses: 0, needsReviewResponses: 0 };
+    module.totalResponses += 1; reviewed ? module.reviewedResponses += 1 : module.needsReviewResponses += 1; byModule.set(moduleKey, module);
+  }
+  const totalResponses = filtered.length;
+  const reviewedResponses = filtered.filter((response) => reviewMap.has(response.id)).length;
+  return { totalResponses, reviewedResponses, needsReviewResponses: totalResponses - reviewedResponses, reviewRate: totalResponses ? Math.round((reviewedResponses / totalResponses) * 100) : 0, byCourse: Array.from(byCourse.values()).map((row) => ({ ...row, reviewRate: row.totalResponses ? Math.round((row.reviewedResponses / row.totalResponses) * 100) : 0 })).sort((a, b) => b.totalResponses - a.totalResponses), byModule: Array.from(byModule.values()).map((row) => ({ ...row, reviewRate: row.totalResponses ? Math.round((row.reviewedResponses / row.totalResponses) * 100) : 0 })).sort((a, b) => a.courseSlug.localeCompare(b.courseSlug) || a.moduleIndex - b.moduleIndex) };
 }
 
 export async function upsertCourseLessonResponseReview(input: { responseId: number; enrollmentId: number; lessonId: string; taskId: string; reviewerOpenId: string; reviewerName?: string | null; feedback: string; status: string }) {

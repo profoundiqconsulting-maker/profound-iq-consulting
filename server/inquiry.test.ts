@@ -18,6 +18,7 @@ const mocks = vi.hoisted(() => ({
   updateContactInquiryAssignment: vi.fn().mockResolvedValue({ id: 12, assignedToOpenId: "admin-2", assignedToName: "Team Member" }),
   recordAnalyticsEvent: vi.fn().mockResolvedValue(undefined),
   listCourseLessonResponsesForStaff: vi.fn().mockResolvedValue({ rows: [], total: 0, page: 1, pageSize: 8, totalPages: 1 }),
+  getCourseLessonReviewAnalytics: vi.fn().mockResolvedValue({ totalResponses: 0, reviewedResponses: 0, needsReviewResponses: 0, reviewRate: 0, byCourse: [], byModule: [] }),
   upsertCourseLessonResponseReview: vi.fn().mockResolvedValue({ saved: true }),
 }));
 
@@ -39,7 +40,7 @@ function adminContext(): TrpcContext {
 }
 
 describe("inquiry.create", () => {
-  beforeEach(() => { mocks.createContactInquiry.mockClear(); mocks.listAssignedContactInquiries.mockClear(); mocks.updateAssignedContactInquiryStatus.mockClear(); mocks.updateAssignedContactInquiryNotes.mockClear(); mocks.listContactInquiries.mockClear(); mocks.updateContactInquiryStatus.mockClear(); mocks.getAdminTeamMembers.mockClear(); mocks.getContactInquiryAuditHistory.mockClear(); mocks.updateContactInquiryAssignment.mockClear(); mocks.getContactInquiriesForExport.mockClear(); mocks.getContactInquiriesForExportWithAudit.mockClear(); mocks.getContactInquiryCategoryCounts.mockClear(); mocks.bulkUpdateContactInquiryStatus.mockClear(); mocks.updateContactInquiryNotes.mockClear(); mocks.recordAnalyticsEvent.mockClear(); mocks.listCourseLessonResponsesForStaff.mockClear(); mocks.upsertCourseLessonResponseReview.mockClear(); });
+  beforeEach(() => { mocks.createContactInquiry.mockClear(); mocks.listAssignedContactInquiries.mockClear(); mocks.updateAssignedContactInquiryStatus.mockClear(); mocks.updateAssignedContactInquiryNotes.mockClear(); mocks.listContactInquiries.mockClear(); mocks.updateContactInquiryStatus.mockClear(); mocks.getAdminTeamMembers.mockClear(); mocks.getContactInquiryAuditHistory.mockClear(); mocks.updateContactInquiryAssignment.mockClear(); mocks.getContactInquiriesForExport.mockClear(); mocks.getContactInquiriesForExportWithAudit.mockClear(); mocks.getContactInquiryCategoryCounts.mockClear(); mocks.bulkUpdateContactInquiryStatus.mockClear(); mocks.updateContactInquiryNotes.mockClear(); mocks.recordAnalyticsEvent.mockClear(); mocks.listCourseLessonResponsesForStaff.mockClear(); mocks.getCourseLessonReviewAnalytics.mockClear(); mocks.upsertCourseLessonResponseReview.mockClear(); });
   it("persists the inquiry and records analytics", async () => {
     const result = await appRouter.createCaller(publicContext()).inquiry.create({ name: "Amina Njeri", email: "amina@example.com", category: "organizational-development", message: "I would like to discuss leadership training for our team.", mathA: 7, mathB: 5, mathAnswer: 12 });
     expect(result).toEqual({ id: 27 });
@@ -86,9 +87,11 @@ describe("inquiry.create", () => {
 
   it("allows staff to review learner responses and forwards reviewer identity", async () => {
     const caller = appRouter.createCaller(staffContext());
-    await caller.staff.lessonResponses({ page: 1, pageSize: 8, reviewStatus: "needs-review" });
+    await caller.staff.lessonResponses({ page: 1, pageSize: 8, reviewStatus: "needs-review", courseSlug: "leadership", fromDate: "2026-08-01", toDate: "2026-08-24" });
+    await caller.staff.reviewAnalytics({ courseSlug: "leadership", fromDate: "2026-08-01", toDate: "2026-08-24" });
     await caller.staff.reviewLessonResponse({ responseId: 21, enrollmentId: 9, lessonId: "module-1-lesson-1", taskId: "notice", feedback: "Connect this observation to one measurable next step.", status: "reviewed" });
-    expect(mocks.listCourseLessonResponsesForStaff).toHaveBeenCalledWith({ page: 1, pageSize: 8, reviewStatus: "needs-review" });
+    expect(mocks.listCourseLessonResponsesForStaff).toHaveBeenCalledWith({ page: 1, pageSize: 8, reviewStatus: "needs-review", courseSlug: "leadership", fromDate: new Date("2026-08-01T00:00:00.000Z"), toDate: new Date("2026-08-24T23:59:59.999Z") });
+    expect(mocks.getCourseLessonReviewAnalytics).toHaveBeenCalledWith({ courseSlug: "leadership", fromDate: new Date("2026-08-01T00:00:00.000Z"), toDate: new Date("2026-08-24T23:59:59.999Z") });
     expect(mocks.upsertCourseLessonResponseReview).toHaveBeenCalledWith({ responseId: 21, enrollmentId: 9, lessonId: "module-1-lesson-1", taskId: "notice", feedback: "Connect this observation to one measurable next step.", status: "reviewed", reviewerOpenId: "staff-test", reviewerName: "Staff Test" });
   });
 

@@ -63,6 +63,18 @@ describe("timed course lessons", () => {
     expect(courseWorkspaceSource).toMatch(/lessonResponsesComplete/);
     expect(courseWorkspaceSource).toMatch(/quizOpen/);
     expect(courseWorkspaceSource).toMatch(/disabled=\{!progress\.lessons\.includes/);
+    expect(courseWorkspaceSource).toMatch(/learnerReviewMap/);
+    expect(courseWorkspaceSource).toMatch(/Instructor feedback/);
+    expect(courseWorkspaceSource).toMatch(/review\?\.status === "reviewed"/);
+  });
+
+  it("exposes staff review analytics and intuitive course/date filters", () => {
+    const staffDashboardSource = readFileSync(resolve(process.cwd(), "client/src/pages/StaffDashboard.tsx"), "utf8");
+    expect(staffDashboardSource).toMatch(/reviewAnalytics/);
+    expect(staffDashboardSource).toMatch(/Filter response review by course/);
+    expect(staffDashboardSource).toMatch(/type="date"/);
+    expect(staffDashboardSource).toMatch(/By course/);
+    expect(staffDashboardSource).toMatch(/By module/);
   });
 });
 
