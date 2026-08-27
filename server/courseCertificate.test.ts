@@ -13,12 +13,16 @@ describe("course certificate renderer", () => {
     });
     expect(svg).toContain('data:image/jpeg;base64,');
     expect(svg).toContain("Amina Njeri");
-    expect(svg).toContain("amina@example.com");
+    expect(svg).not.toContain("amina@example.com");
+    expect(svg).toContain("proudly awarded to");
+    expect(svg).toContain("for successfully completing the course");
     expect(svg).toContain("Professional Certificate in International Curriculum Pedagogy");
     expect(svg).toContain("PIQ-2026-ABC123");
     expect(svg).toContain("https://profoundiq-vguqrhsm.manus.space/verify/certificate");
     expect(svg).toContain("CERTIFICATE ISSUED ON:");
     expect(svg).toContain("CERTIFICATE ID:");
+    expect(svg).toContain('data:image/png;base64,');
+    expect(svg).toContain("Managing Director");
   });
 
   it("escapes learner-controlled fields while keeping the QR verification payload", () => {

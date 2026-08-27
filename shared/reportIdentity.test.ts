@@ -11,11 +11,13 @@ describe("report identity personalization", () => {
     expect(resolveReportIdentity({ email: "learner@example.com" })).toEqual({ fullName: "Profound IQ learner", email: "learner@example.com" });
   });
 
-  it("escapes and renders the learner email on a course certificate", () => {
+  it("omits learner email and renders the requested course certificate identity", () => {
     const svg = renderCourseCertificateSvg({ recipientName: "Amina Njeri", recipientEmail: "amina&team@example.com", courseTitle: "Professional Certificate in International Curriculum Pedagogy", certificateNumber: "PIQ-2026-ABC123", issuedOn: new Date("2026-08-24T00:00:00Z"), verificationUrl: "https://example.com/verify/certificate?certificate=PIQ-2026-ABC123" });
     expect(svg).toContain("Amina Njeri");
-    expect(svg).toContain("amina&amp;team@example.com");
+    expect(svg).not.toContain("amina&amp;team@example.com");
     expect(svg).not.toContain("amina&team@example.com");
+    expect(svg).toContain("proudly awarded to");
+    expect(svg).toContain("for successfully completing the course");
     expect(svg).toContain("Professional Certificate in International Curriculum Pedagogy");
     expect(svg).toContain("PIQ-2026-ABC123");
     expect(svg).toContain("SCAN TO VERIFY");

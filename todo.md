@@ -2107,3 +2107,12 @@
 - [x] Add regression tests for PNG conversion contracts, embedded logo output, dynamic-field escaping, and admin preview authorization.
 - [x] Run full tests, TypeScript, production build, and responsive certificate QA.
 - [x] Save and auto-publish a checkpoint for the certificate PNG, offline logo, and admin preview features.
+
+# Certificate Signature, Copy, Logo, and Layout Refinement
+- [x] Embed the exact supplied signature image above the Managing Director title.
+- [x] Remove the learner email from the course certificate and use the managed site logo without a generated replacement mark.
+- [x] Replace the certificate wording with “proudly awarded to”, learner name, “for successfully completing the course”, and course title.
+- [x] Reduce the lower navy/gold banner height so issue date, certificate ID, signature, QR, and website content remain visible.
+- [x] Add regression tests and verify SVG/PNG preview and generated certificate output.
+- [x] Run full tests, TypeScript, production build, and responsive certificate QA.
+- [x] Save and auto-publish a checkpoint for the certificate refinement.
