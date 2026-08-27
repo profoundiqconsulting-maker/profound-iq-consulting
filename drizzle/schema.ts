@@ -144,6 +144,14 @@ export const courseLessonProgress = mysqlTable("course_lesson_progress", {
   lessonId: varchar("lessonId", { length: 180 }).notNull(),
   completedAt: timestamp("completedAt").defaultNow().notNull(),
 }, (table) => ({ enrollmentLessonUnique: uniqueIndex("course_enrollment_lesson_unique").on(table.enrollmentId, table.lessonId) }));
+export const courseLessonResponses = mysqlTable("course_lesson_responses", {
+  id: int("id").autoincrement().primaryKey(),
+  enrollmentId: int("enrollmentId").notNull(),
+  lessonId: varchar("lessonId", { length: 180 }).notNull(),
+  taskId: varchar("taskId", { length: 120 }).notNull(),
+  responseHtml: text("responseHtml").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({ enrollmentLessonTaskUnique: uniqueIndex("course_enrollment_lesson_task_unique").on(table.enrollmentId, table.lessonId, table.taskId) }));
 export const courseQuizAttempts = mysqlTable("course_quiz_attempts", {
   id: int("id").autoincrement().primaryKey(),
   enrollmentId: int("enrollmentId").notNull(),

@@ -19,7 +19,7 @@ describe("expanded professional course catalog", () => {
       expect(course.modules).toHaveLength(10);
       expect(course.modules.length).toBe(10);
       expect(course.modules.every((module) => module.lessons.length === 7 && module.quiz.length === 15)).toBe(true);
-      expect(course.modules.flatMap((module) => module.lessons).every((lesson) => lesson.durationMinutes === 40 && lesson.sections.length >= 4 && lesson.simulation.options.length >= 3 && lesson.reflectionPrompt.length > 30)).toBe(true);
+      expect(course.modules.flatMap((module) => module.lessons).every((lesson) => lesson.durationMinutes === 30 && lesson.sections.length >= 4 && lesson.simulation.options.length >= 3 && lesson.reflectionPrompt.length > 30)).toBe(true);
     }
     expect(COURSE_PASS_MARK).toBe(50);
   });
@@ -34,7 +34,7 @@ describe("expanded professional course catalog", () => {
 
   it("provides deeper concept teaching and everyday application guidance", () => {
     const lesson = courseCatalog.find((item) => item.slug === "mastering-time-management")!.modules[4].lessons[2];
-    expect(lesson.durationMinutes).toBe(40);
+    expect(lesson.durationMinutes).toBe(30);
     expect(lesson.sections.length).toBeGreaterThanOrEqual(6);
     expect(lesson.sections.map((section) => section.body).join(" ").length).toBeGreaterThan(1800);
     expect(lesson.sections.map((section) => section.body).join(" ")).toMatch(/work|study|family|finances|health|household/i);
@@ -43,6 +43,9 @@ describe("expanded professional course catalog", () => {
     expect(lesson.simulation.prompt.length).toBeGreaterThan(50);
     expect(lesson.reflectionPrompt).toMatch(/work|study|relationships|finances|health|household/i);
     expect(lesson.keyTakeaway.length).toBeGreaterThan(70);
+    expect(lesson.deepDive.length).toBeGreaterThan(120);
+    expect(lesson.responseTasks.length).toBeGreaterThanOrEqual(3);
+    expect(lesson.responseTasks.every((task) => task.required && task.prompt.length > 30)).toBe(true);
   });
 
   it("inherits branded certificate metadata for new courses", () => {

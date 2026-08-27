@@ -6,7 +6,8 @@ export const COURSE_PASS_MARK = 50;
 
 export type LessonSection = { heading: string; body: string; callout?: string };
 export type LessonSimulation = { prompt: string; options: string[]; feedback: string[] };
-export type CourseLesson = { id: string; title: string; summary: string; outcome: string; durationMinutes: number; objectives: string[]; sections: LessonSection[]; example: { context: string; move: string; result: string }; simulation: LessonSimulation; reflectionPrompt: string; keyTakeaway: string; illustration: { label: string; caption: string; accent: string } };
+export type LessonResponseTask = { id: string; prompt: string; placeholder: string; required: boolean };
+export type CourseLesson = { id: string; title: string; summary: string; outcome: string; durationMinutes: number; objectives: string[]; sections: LessonSection[]; example: { context: string; move: string; result: string }; simulation: LessonSimulation; responseTasks: LessonResponseTask[]; deepDive: string; reflectionPrompt: string; keyTakeaway: string; illustration: { label: string; caption: string; accent: string } };
 export type CourseQuizQuestion = { id: string; prompt: string; options: string[]; correctOption: number; sourceLessonId: string; sourceLessonTitle: string; explanation: string; optionExplanations: string[] };
 export type CourseModule = { id: string; title: string; promise: string; lessons: CourseLesson[]; quiz: CourseQuizQuestion[] };
 export type CourseDefinition = { slug: string; index: string; title: string; strapline: string; description: string; audience: string; duration: string; outcomes: readonly string[]; priceKes: number; stageAmountsKes: readonly number[]; modules: CourseModule[] };
@@ -45,7 +46,7 @@ const lessonContent = (courseTitle: string, theme: string, lessonTitle: string, 
   ];
   const dailyContext = dailyContexts[lessonIndex];
   return {
-    durationMinutes: 40,
+    durationMinutes: 30,
     objectives: [
       `Explain the core idea of ${lessonTitle.toLowerCase()} and how it connects to ${theme}.`,
       `Apply the concept to a professional situation and an everyday decision such as ${dailyContext}.`,
@@ -97,6 +98,12 @@ const lessonContent = (courseTitle: string, theme: string, lessonTitle: string, 
         ["Strong move: evidence and a confirmed next move turn insight into action.", "Explanation without exchange does not create alignment.", "Avoidance leaves the underlying pattern unexamined."],
       ][lessonIndex % 3],
     },
+    responseTasks: [
+      { id: "notice", prompt: `Name one real situation where ${lessonTitle.toLowerCase()} matters for you. What happened, and what did you notice?`, placeholder: "Describe the situation and the signal you noticed…", required: true },
+      { id: "apply", prompt: `Write the specific action you will take to apply ${lessonTitle.toLowerCase()} within the next seven days.`, placeholder: "Write one observable action, including when or where you will do it…", required: true },
+      { id: "evidence", prompt: "Define the evidence you will review and the question you will ask yourself after the experiment.", placeholder: "Describe the result you will look for and how you will review it…", required: true },
+    ],
+    deepDive: `Deep-dive practice: connect ${lessonTitle.toLowerCase()} to ${dailyContext}. First describe the current pattern without judging it. Then identify the smallest decision you can make, the support or constraint that may affect it, and the moment you will review the result. Strong application is not about producing a perfect answer; it is about making your reasoning visible, testing it responsibly, and improving the next attempt with evidence.`,
     reflectionPrompt: `Where could you practise ${lessonTitle.toLowerCase()} this week—in your work, study, relationships, finances, health, or household routines—and what specific evidence would tell you that the practice is working?`,
     keyTakeaway: `A useful ${lessonTitle.toLowerCase()} practice turns ${theme} into one observable decision, behaviour, or review point that improves an ordinary situation.`,
     illustration: { label: `Signal ${String(moduleIndex + 1).padStart(2, "0")}.${lessonIndex + 1}`, caption: `From ${theme} to an observable professional and everyday move.`, accent: ["gold", "teal", "plum"][lessonIndex % 3] },

@@ -10,7 +10,7 @@ const userDashboardSource = readFileSync(resolve(process.cwd(), "client/src/page
 const courseWorkspaceSource = readFileSync(resolve(process.cwd(), "client/src/pages/CourseWorkspace.tsx"), "utf8");
 
 describe("professional course curriculum", () => {
-  it("provides ten modules, seven lessons, and fifteen quiz questions per course module", () => {
+  it("provides ten modules, seven lessons, required response tasks, and fifteen quiz questions per course module", () => {
     expect(courseCatalog).toHaveLength(33);
     expect(COURSE_PRICE_KES).toBe(4999);
     expect(COURSE_STAGE_AMOUNT_KES).toBe(1250);
@@ -21,7 +21,7 @@ describe("professional course curriculum", () => {
       expect(course.modules.every((module) => module.lessons.length === 7)).toBe(true);
       expect(course.modules.every((module) => Array.isArray(module.quiz))).toBe(true);
       expect(course.modules.every((module) => module.quiz.length === 15)).toBe(true);
-      expect(course.modules.every((module) => module.lessons.every((lesson) => lesson.summary.length > 30))).toBe(true);
+      expect(course.modules.every((module) => module.lessons.every((lesson) => lesson.summary.length > 30 && lesson.durationMinutes === 30 && lesson.deepDive.length > 120 && lesson.responseTasks.length >= 3 && lesson.responseTasks.every((task) => task.required)))).toBe(true);
     }
     const icpc = courseCatalog.find((course) => course.slug === "professional-certificate-international-curriculum-pedagogy");
     expect(icpc).toBeDefined();
@@ -52,14 +52,16 @@ describe("course discovery and student dashboard", () => {
 });
 
 describe("timed course lessons", () => {
-  it("exposes a 40-minute countdown and sequential next-lesson gate", () => {
-    expect(courseWorkspaceSource).toMatch(/2400/);
-    expect(courseWorkspaceSource).toMatch(/40-minute study timer/);
+  it("exposes a 30-minute countdown, required responses, quiz locking, and sequential next-lesson gate", () => {
+    expect(courseWorkspaceSource).toMatch(/1800/);
+    expect(courseWorkspaceSource).toMatch(/30-minute study timer/);
     expect(courseWorkspaceSource).toMatch(/role="timer"/);
     expect(courseWorkspaceSource).toMatch(/lessonTimers/);
     expect(courseWorkspaceSource).toMatch(/Finish the previous lesson first/);
     expect(courseWorkspaceSource).toMatch(/disabled=\{!activeLessonTimerComplete/);
-    expect(courseWorkspaceSource).toMatch(/The next lesson unlocks when the 40-minute timer reaches zero/);
+    expect(courseWorkspaceSource).toMatch(/The next lesson unlocks when the 30-minute timer reaches zero/);
+    expect(courseWorkspaceSource).toMatch(/lessonResponsesComplete/);
+    expect(courseWorkspaceSource).toMatch(/quizOpen/);
     expect(courseWorkspaceSource).toMatch(/disabled=\{!progress\.lessons\.includes/);
   });
 });

@@ -1875,3 +1875,11 @@
 - [x] Add validated CSV upload and bulk cohort assignment to cohort management.
 - [x] Add an admin email-sharing action for branded server-generated PDF reports.
 - [x] Add authorization/tests, responsive checks, and checkpoint the release.
+
+# Interactive Course Lesson Hardening
+- [x] Lock all course lessons and lesson navigation while a quiz is open or being submitted.
+- [x] Reduce the lesson countdown to 30 minutes before the next lesson can unlock.
+- [x] Expand the lesson content with deeper explanations, examples, and practical activities.
+- [x] Add required, saved, formatted response fields for every lesson feedback task.
+- [x] Add motivational completion motion and clear validation for incomplete responses.
+- [x] Add tests, responsive checks, and checkpoint the release.

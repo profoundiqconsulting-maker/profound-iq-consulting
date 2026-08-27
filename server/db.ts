@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { normalizeLeaderboardDisplayName, rankAchievementLeaderboard, type AchievementBadge, type AchievementLeaderboardRow } from "../shared/achievements";
 import { courseCatalog } from "../shared/courseCatalog";
 import { buildCourseModuleBadges } from "../shared/courseBadges";
-import { adminAnalyticsSettings, adminSecuritySettings, siteSeoSettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits, newsletterSubscribers, insightArticles as insightArticlesTable } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, siteSeoSettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseLessonResponses, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits, newsletterSubscribers, insightArticles as insightArticlesTable } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -1430,7 +1430,7 @@ export async function listCourseEnrollmentState(userOpenId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const enrollments = await db.select().from(courseLearnerEnrollments).where(eq(courseLearnerEnrollments.userOpenId, userOpenId)).orderBy(desc(courseLearnerEnrollments.updatedAt));
-  return Promise.all(enrollments.map(async (enrollment) => ({ enrollment, lessons: await db.select().from(courseLessonProgress).where(eq(courseLessonProgress.enrollmentId, enrollment.id)), quizAttempts: await db.select().from(courseQuizAttempts).where(eq(courseQuizAttempts.enrollmentId, enrollment.id)).orderBy(desc(courseQuizAttempts.createdAt)), stages: await db.select().from(coursePaymentStages).where(eq(coursePaymentStages.enrollmentId, enrollment.id)).orderBy(coursePaymentStages.stage), certificates: await db.select().from(courseCertificates).where(eq(courseCertificates.enrollmentId, enrollment.id)).orderBy(desc(courseCertificates.createdAt)) })));
+  return Promise.all(enrollments.map(async (enrollment) => ({ enrollment, lessons: await db.select().from(courseLessonProgress).where(eq(courseLessonProgress.enrollmentId, enrollment.id)), responses: await db.select().from(courseLessonResponses).where(eq(courseLessonResponses.enrollmentId, enrollment.id)), quizAttempts: await db.select().from(courseQuizAttempts).where(eq(courseQuizAttempts.enrollmentId, enrollment.id)).orderBy(desc(courseQuizAttempts.createdAt)), stages: await db.select().from(coursePaymentStages).where(eq(coursePaymentStages.enrollmentId, enrollment.id)).orderBy(coursePaymentStages.stage), certificates: await db.select().from(courseCertificates).where(eq(courseCertificates.enrollmentId, enrollment.id)).orderBy(desc(courseCertificates.createdAt)) })));
 }
 export async function listCoursePaymentHistoryPage(userOpenId: string, input: { page: number; pageSize: number; courseSlug?: string; stage?: number; status?: string; from?: Date; to?: Date; sort: "date-desc" | "date-asc" | "amount-desc" | "amount-asc" | "course-asc" | "stage-asc" | "status" }) {
   const db = await getDb();
@@ -1465,6 +1465,21 @@ export async function listCoursePaymentHistoryPage(userOpenId: string, input: { 
   ]);
   const total = Number(totalRows[0]?.count ?? 0);
   return { rows, total, page: Math.max(1, input.page), pageSize: input.pageSize, pageCount: Math.max(1, Math.ceil(total / input.pageSize)), paidTotal: Number(summaryRows[0]?.paidTotal ?? 0), pendingTotal: Number(summaryRows[0]?.pendingTotal ?? 0) };
+}
+
+export async function listCourseLessonResponses(enrollmentId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(courseLessonResponses).where(eq(courseLessonResponses.enrollmentId, enrollmentId));
+}
+
+export async function upsertCourseLessonResponse(input: { enrollmentId: number; lessonId: string; taskId: string; responseHtml: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const responseHtml = input.responseHtml.trim();
+  if (!responseHtml.replace(/<[^>]*>/g, "").replace(/&nbsp;/gi, " ").trim()) throw new Error("Lesson responses cannot be blank.");
+  await db.insert(courseLessonResponses).values({ ...input, responseHtml }).onDuplicateKeyUpdate({ set: { responseHtml, updatedAt: new Date() } });
+  return { saved: true as const };
 }
 
 export async function markCourseLessonComplete(enrollmentId: number, lessonId: string) {
