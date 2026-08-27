@@ -2047,3 +2047,10 @@
 - [x] Apply admin date-range filters to course-share analytics and CSV export data.
 - [x] Add authorization, regression tests, build checks, and responsive validation for the print, localization, and filtering flows.
 - [x] Save and auto-publish a checkpoint for the completed printable PDF, localized content, and date-range export features.
+
+# Arabic-CJK PDF Typography, Date Presets, and Print Layout
+- [x] Add locale-aware Arabic and CJK font selection and localized PDF metadata.
+- [x] Add quick analytics date presets including Last 7 Days and This Month to CSV export controls.
+- [x] Create a dedicated print-friendly learning-pathways page and route.
+- [x] Add authorization, regression tests, PDF rendering checks, build checks, and responsive/print validation.
+- [x] Save and auto-publish a checkpoint for the typography, date presets, and print-layout features.

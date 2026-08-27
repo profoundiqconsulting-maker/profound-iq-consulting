@@ -1,4 +1,5 @@
 import PDFDocument from "pdfkit";
+import { existsSync } from "node:fs";
 import { getDimensionReflectionPoints, type AssessmentReport, type RoleLensReadout } from "../shared/assessment";
 import type { CareerPathReport } from "../shared/careerPath";
 import { storageGetSignedUrl } from "./storage";
@@ -9,6 +10,15 @@ const NAVY = "#16243d";
 const GOLD = "#a27e2e";
 const MUTED = "#5f6a7b";
 const LOGO_KEY = "ProfoundIQLogo-header_aad21220.jpg";
+const PDF_FONT_DIR = "/usr/share/fonts";
+function pdfFont(locale: GeneratedLocale, bold = false): string {
+  const code = String(locale ?? "en").split("-")[0];
+  const candidates = code === "ar" ? [`${PDF_FONT_DIR}/truetype/noto/NotoNaskhArabic-${bold ? "Bold" : "Regular"}.ttf`] : code === "hi" ? [`${PDF_FONT_DIR}/truetype/noto/NotoSansDevanagari-${bold ? "Bold" : "Regular"}.ttf`] : [
+    `${PDF_FONT_DIR}/opentype/noto/NotoSansCJKsc-${bold ? "Bold" : "Regular"}.otf`,
+    `${PDF_FONT_DIR}/truetype/noto/NotoSans-${bold ? "Bold" : "Regular"}.ttf`,
+  ];
+  return candidates.find((candidate) => existsSync(candidate)) ?? (bold ? "Helvetica-Bold" : "Helvetica");
+}
 let logoBufferPromise: Promise<Buffer | null> | null = null;
 
 async function loadBrandLogo(): Promise<Buffer | null> {
@@ -185,7 +195,9 @@ export async function renderSavedCoursePathwaysPdf(input: SavedCoursePathwayPdfI
   const copy = getGeneratedCopy(input.locale);
   const labels = { savedPathways: { en: "Your saved learning pathways", sw: "Njia zako za kujifunza zilizohifadhiwa", fr: "Vos parcours d’apprentissage enregistrés", es: "Tus rutas de aprendizaje guardadas", pt: "Os seus percursos de aprendizagem guardados", ar: "مسارات التعلم المحفوظة", zh: "您保存的学习路径", hi: "आपके सहेजे गए सीखने के पथ", de: "Ihre gespeicherten Lernpfade", ja: "保存した学習パス" }, preparedFor: { en: "Prepared for", sw: "Imeandaliwa kwa", fr: "Préparé pour", es: "Preparado para", pt: "Preparado para", ar: "أُعدّ لـ", zh: "准备给", hi: "के लिए तैयार", de: "Vorbereitet für", ja: "作成者" }, generated: copy.generated, pathway: { en: "PATHWAY", sw: "NJIA", fr: "PARCOURS", es: "RUTA", pt: "PERCURSO", ar: "المسار", zh: "路径", hi: "पथ", de: "PFAD", ja: "パス" }, outcomes: { en: "OUTCOMES", sw: "MATOKEO", fr: "RÉSULTATS", es: "RESULTADOS", pt: "RESULTADOS", ar: "النتائج", zh: "成果", hi: "परिणाम", de: "ERGEBNISSE", ja: "成果" }, noSaved: { en: "No saved pathways yet.", sw: "Bado hakuna njia zilizohifadhiwa.", fr: "Aucun parcours enregistré pour le moment.", es: "Aún no hay rutas guardadas.", pt: "Ainda não há percursos guardados.", ar: "لا توجد مسارات محفوظة بعد.", zh: "尚无保存的学习路径。", hi: "अभी कोई सहेजे गए पथ नहीं हैं।", de: "Noch keine Lernpfade gespeichert.", ja: "保存された学習パスはまだありません。" }, returnToCatalog: { en: "Return to the course catalog to save a pathway for later reference.", sw: "Rudi kwenye katalogi ya kozi kuhifadhi njia kwa marejeo ya baadaye.", fr: "Retournez au catalogue pour enregistrer un parcours.", es: "Vuelve al catálogo para guardar una ruta.", pt: "Volte ao catálogo para guardar um percurso.", ar: "ارجع إلى كتالوج الدورات لحفظ مسار للرجوع إليه لاحقًا.", zh: "返回课程目录以保存学习路径。", hi: "बाद में संदर्भ के लिए पथ सहेजने हेतु पाठ्यक्रम कैटलॉग पर लौटें।", de: "Kehren Sie zum Kurskatalog zurück, um einen Lernpfad zu speichern.", ja: "後で参照できるようコースカタログに戻ってパスを保存してください。" } };
   const localeKey = (input.locale && ["en", "sw", "fr", "es", "pt", "ar", "zh", "hi", "de", "ja"].includes(input.locale) ? input.locale : "en") as keyof typeof labels.savedPathways;
-  const doc = new PDFDocument({ size: "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: "Profound IQ Saved Learning Pathways", Author: "Profound IQ Consulting", Subject: "Saved course pathways" } });
+  const regularFont = pdfFont(input.locale);
+  const boldFont = pdfFont(input.locale, true);
+  const doc = new PDFDocument({ size: "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: `Profound IQ Saved Learning Pathways — ${labels.savedPathways[localeKey]}`, Author: "Profound IQ Consulting", Subject: `Saved course pathways · ${labels.savedPathways[localeKey]}` } });
   const chunks: Buffer[] = [];
   doc.on("data", (chunk: Buffer) => chunks.push(chunk));
   const finished = new Promise<Buffer>((resolve, reject) => { doc.on("end", () => resolve(Buffer.concat(chunks))); doc.on("error", reject); });
@@ -193,25 +205,25 @@ export async function renderSavedCoursePathwaysPdf(input: SavedCoursePathwayPdfI
   doc.fillColor(NAVY).rect(0, 0, doc.page.width, 108).fill();
   if (brandLogo) { try { doc.image(brandLogo, 52, 14, { fit: [116, 78], valign: "center" }); } catch { /* Text lockup remains available. */ } }
   const headerX = brandLogo ? 190 : 52;
-  doc.fillColor("#f7f3e8").font("Helvetica-Bold").fontSize(10).text("PROFOUND IQ / CONSULTING", headerX, 36, { characterSpacing: 1.4 });
-  doc.fillColor(GOLD).font("Helvetica").fontSize(9).text("MY SPACE / SAVED PATHWAYS", headerX, 58, { characterSpacing: 1.1 });
-  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(25).text(labels.savedPathways[localeKey], 52, 145);
-  doc.fillColor(MUTED).font("Helvetica").fontSize(10).text(`${labels.preparedFor[localeKey]} ${input.participantName}${input.email ? ` · ${input.email}` : ""}`, 52, 180);
-  doc.text(`Generated ${formatDate(new Date())}`, 52, 196);
+  doc.fillColor("#f7f3e8").font(boldFont).fontSize(10).text("PROFOUND IQ / CONSULTING", headerX, 36, { characterSpacing: 1.4 });
+  doc.fillColor(GOLD).font(regularFont).fontSize(9).text("MY SPACE / SAVED PATHWAYS", headerX, 58, { characterSpacing: 1.1 });
+  doc.fillColor(NAVY).font(boldFont).fontSize(25).text(labels.savedPathways[localeKey], 52, 145);
+  doc.fillColor(MUTED).font(regularFont).fontSize(10).text(`${labels.preparedFor[localeKey]} ${input.participantName}${input.email ? ` · ${input.email}` : ""}`, 52, 180);
+  doc.font(regularFont).text(`${copy.generated} ${formatDate(new Date())}`, 52, 196);
   doc.strokeColor(GOLD).lineWidth(2).moveTo(52, 224).lineTo(543, 224).stroke();
   let y = 252;
   if (!input.courses.length) {
-    doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(14).text(labels.noSaved[localeKey], 52, y);
-    doc.fillColor(MUTED).font("Helvetica").fontSize(10).text(labels.returnToCatalog[localeKey], 52, y + 24, { width: 490 });
+    doc.fillColor(NAVY).font(boldFont).fontSize(14).text(labels.noSaved[localeKey], 52, y);
+    doc.fillColor(MUTED).font(regularFont).fontSize(10).text(labels.returnToCatalog[localeKey], 52, y + 24, { width: 490 });
   }
   input.courses.forEach((course, index) => {
     if (y > 690) { addFooter(doc); doc.addPage(); y = 58; }
-    doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(9).text(`${labels.pathway[localeKey]} ${String(index + 1).padStart(2, "0")}`, 52, y, { characterSpacing: 1.2 });
-    doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(17).text(course.title, 52, y + 18, { width: 390 });
-    doc.fillColor(MUTED).font("Helvetica").fontSize(9.5).text(`${course.category} · ${course.skillLevel} · ${course.duration} · KES ${course.priceKes.toLocaleString()}`, 52, y + 43, { width: 490 });
+    doc.fillColor(GOLD).font(boldFont).fontSize(9).text(`${labels.pathway[localeKey]} ${String(index + 1).padStart(2, "0")}`, 52, y, { characterSpacing: 1.2 });
+    doc.fillColor(NAVY).font(boldFont).fontSize(17).text(course.title, 52, y + 18, { width: 390 });
+    doc.fillColor(MUTED).font(regularFont).fontSize(9.5).text(`${course.category} · ${course.skillLevel} · ${course.duration} · KES ${course.priceKes.toLocaleString()}`, 52, y + 43, { width: 490 });
     y += 65;
     if (input.layout !== "summary") {
-      doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(8).text(labels.outcomes[localeKey], 52, y, { characterSpacing: 1.1 });
+      doc.fillColor(GOLD).font(boldFont).fontSize(8).text(labels.outcomes[localeKey], 52, y, { characterSpacing: 1.1 });
       y += 16;
       y = writeBullets(doc, course.outcomes.slice(0, 5), y, 9.5, MUTED) + 16;
     } else {

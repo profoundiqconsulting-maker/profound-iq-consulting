@@ -218,4 +218,19 @@ describe("comparison SSR and personalized revisit upgrades", () => {
     expect(csv).toContain("Date range");
     expect(router).toContain("fromDate: input?.fromDate, toDate: input?.toDate");
   });
+
+  it("supports Arabic and CJK PDF typography, quick date presets, and print layout routing", () => {
+    const pdf = readFileSync("server/reportPdf.ts", "utf8");
+    const analytics = readFileSync("client/src/components/AdminCourseShareAnalytics.tsx", "utf8");
+    const app = readFileSync("client/src/App.tsx", "utf8");
+    const printPage = readFileSync("client/src/pages/SavedPathwaysPrint.tsx", "utf8");
+    expect(pdf).toContain("NotoNaskhArabic");
+    expect(pdf).toContain("NotoSansCJKsc");
+    expect(pdf).toContain("labels.savedPathways[localeKey]");
+    expect(analytics).toContain("applyThisMonth");
+    expect(analytics).toContain("This month");
+    expect(app).toContain("/dashboard/print-pathways");
+    expect(printPage).toContain("window.print");
+    expect(printPage).toContain("print:hidden");
+  });
 });

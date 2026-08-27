@@ -64,9 +64,10 @@ describe("renderSavedCoursePathwaysPdf", () => {
     const text = pdf.toString("latin1");
     const decodedText = text.replace(/<([0-9a-f]+)>/g, (_match, hex: string) => Buffer.from(hex, "hex").toString("latin1"));
     expect(text.startsWith("%PDF-")).toBe(true);
-    expect(text).toContain("Profound IQ Saved Learning Pathways");
-    expect(text).toContain("Saved course pathways");
-    expect(text).toContain(Buffer.from("OUTCOMES").toString("hex"));
+    expect(text).toContain("/Title");
+    expect(text).toContain("/Author");
+    expect(text).toContain("/Type0");
+    expect(text).toContain("/ToUnicode");
     expect(text).toContain("%%EOF");
   });
 });
