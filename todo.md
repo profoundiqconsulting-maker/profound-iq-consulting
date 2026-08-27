@@ -2231,3 +2231,10 @@
 - [x] Continue authenticated course enrollment directly into the existing staged checkout without a duplicate sign-in step.
 - [x] Keep course lessons, modules, quizzes, and lesson responses protected until the matching staged payment is verified, while preserving the designated admin bypass.
 - [x] Add auth-resolution and enrollment-flow regression coverage, run TypeScript/tests/build, and complete desktop/mobile course QA.
+
+- [x] Add the managed site logo to assessment completion certificates and preserve authenticated participant details in generated outputs.
+- [x] Autofill assessment participant name and email from the signed-in user while retaining safe editing and validation behavior.
+- [x] Improve assessment module pagination, trigger the first question on next-module navigation, and add positive completion feedback.
+- [x] Expose protected report access, download, and share actions in the previous-session section.
+- [x] Arrange assessment actions into a compact, attractive single-line responsive button group.
+- [x] Add assessment regression tests, responsive QA, TypeScript/build validation, and a live checkpoint.
