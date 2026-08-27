@@ -1955,3 +1955,11 @@
 - [x] Add searchable custom folder/tag controls.
 - [x] Add accessible keyboard and screen-reader guidance for bulk and reorder actions.
 - [x] Add regression tests, run full validation, and save a live checkpoint.
+
+# My Illustrations Selection and Folder Management
+
+- [x] Add select-all for the current filtered search results and bulk deselection.
+- [x] Add safe custom-folder rename with validation and persisted updates.
+- [x] Add safe custom-folder deletion with reassignment safeguards.
+- [x] Add accessible success animation after illustrations are moved into folders.
+- [x] Add regression tests, run full validation, and save a live checkpoint.

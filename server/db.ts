@@ -1516,6 +1516,20 @@ export async function listCourseIllustrationBookmarksPage(input: { userOpenId: s
   return { rows, folders: folderRows.map((row) => row.folder), total, page, pageSize, pageCount: Math.max(1, Math.ceil(total / pageSize)) };
 }
 
+export async function listCourseIllustrationBookmarkIds(input: { userOpenId: string; search?: string; illustrationMode?: "all" | "explanatory" | "applicational" | "experiential"; folder?: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const conditions = [eq(courseLessonIllustrationBookmarks.userOpenId, input.userOpenId)];
+  if (input.illustrationMode && input.illustrationMode !== "all") conditions.push(eq(courseLessonIllustrationBookmarks.illustrationMode, input.illustrationMode));
+  if (input.folder && input.folder !== "all") conditions.push(eq(courseLessonIllustrationBookmarks.folder, input.folder));
+  if (input.search?.trim()) {
+    const query = `%${input.search.trim()}%`;
+    conditions.push(or(like(courseLessonIllustrationBookmarks.courseSlug, query), like(courseLessonIllustrationBookmarks.lessonId, query), like(courseLessonIllustrationBookmarks.label, query), like(courseLessonIllustrationBookmarks.title, query), like(courseLessonIllustrationBookmarks.content, query)) as typeof conditions[number]);
+  }
+  const rows = await db.select({ id: courseLessonIllustrationBookmarks.id }).from(courseLessonIllustrationBookmarks).where(and(...conditions)).orderBy(asc(courseLessonIllustrationBookmarks.folder), asc(courseLessonIllustrationBookmarks.sortOrder), desc(courseLessonIllustrationBookmarks.updatedAt));
+  return rows.map((row) => row.id);
+}
+
 export async function upsertCourseIllustrationBookmark(input: { userOpenId: string; courseSlug: string; lessonId: string; illustrationMode: "explanatory" | "applicational" | "experiential"; label: string; title: string; content: string; folder?: string }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -1533,13 +1547,39 @@ export async function updateCourseIllustrationBookmarkFolder(input: { userOpenId
   return (await db.select().from(courseLessonIllustrationBookmarks).where(and(eq(courseLessonIllustrationBookmarks.id, input.bookmarkId), eq(courseLessonIllustrationBookmarks.userOpenId, input.userOpenId))).limit(1))[0] ?? null;
 }
 
+export async function renameCourseIllustrationFolder(input: { userOpenId: string; fromFolder: string; toFolder: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const fromFolder = input.fromFolder.trim();
+  const toFolder = input.toFolder.trim();
+  if (!fromFolder || !toFolder) throw new Error("Folder names cannot be blank.");
+  if (fromFolder === "Unsorted") throw new Error("The Unsorted folder cannot be renamed.");
+  if (toFolder === "Unsorted") throw new Error("Use delete to move a custom folder back to Unsorted.");
+  if (fromFolder === toFolder) return { renamed: 0, fromFolder, toFolder };
+  const rows = await db.select({ id: courseLessonIllustrationBookmarks.id }).from(courseLessonIllustrationBookmarks).where(and(eq(courseLessonIllustrationBookmarks.userOpenId, input.userOpenId), eq(courseLessonIllustrationBookmarks.folder, fromFolder)));
+  if (!rows.length) throw new Error("That folder is empty or no longer available.");
+  await db.update(courseLessonIllustrationBookmarks).set({ folder: toFolder, updatedAt: new Date() }).where(and(eq(courseLessonIllustrationBookmarks.userOpenId, input.userOpenId), eq(courseLessonIllustrationBookmarks.folder, fromFolder)));
+  return { renamed: rows.length, fromFolder, toFolder };
+}
+
+export async function deleteCourseIllustrationFolder(input: { userOpenId: string; folder: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const folder = input.folder.trim();
+  if (!folder || folder === "Unsorted") throw new Error("The Unsorted folder cannot be deleted.");
+  const rows = await db.select({ id: courseLessonIllustrationBookmarks.id }).from(courseLessonIllustrationBookmarks).where(and(eq(courseLessonIllustrationBookmarks.userOpenId, input.userOpenId), eq(courseLessonIllustrationBookmarks.folder, folder)));
+  if (!rows.length) throw new Error("That folder is empty or no longer available.");
+  await db.update(courseLessonIllustrationBookmarks).set({ folder: "Unsorted", updatedAt: new Date() }).where(and(eq(courseLessonIllustrationBookmarks.userOpenId, input.userOpenId), eq(courseLessonIllustrationBookmarks.folder, folder)));
+  return { deleted: true as const, reassigned: rows.length, folder };
+}
+
 export async function bulkMoveCourseIllustrationBookmarks(input: { userOpenId: string; bookmarkIds: number[]; folder: string }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const folder = input.folder.trim();
   const bookmarkIds = Array.from(new Set(input.bookmarkIds));
   if (!folder) throw new Error("Folder name cannot be blank.");
-  if (!bookmarkIds.length || bookmarkIds.length > 100) throw new Error("Select between 1 and 100 illustrations.");
+  if (!bookmarkIds.length || bookmarkIds.length > 500) throw new Error("Select between 1 and 500 illustrations.");
   await db.update(courseLessonIllustrationBookmarks).set({ folder, updatedAt: new Date() }).where(and(eq(courseLessonIllustrationBookmarks.userOpenId, input.userOpenId), inArray(courseLessonIllustrationBookmarks.id, bookmarkIds)));
   return { moved: bookmarkIds.length, folder };
 }

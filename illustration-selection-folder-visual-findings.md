@@ -1,0 +1,3 @@
+# Illustration Selection and Folder Management Visual QA
+
+The authenticated `/my-illustrations` route renders the current search and folder filters with a clean desktop empty state. The mobile layout wraps the mode filters and folder selector within the content column without visible horizontal overflow; the existing dashboard navigation remains horizontally scrollable by design. The selection toolbar and folder-management panel are conditionally rendered when saved cards and a custom folder are present, so their card-populated interaction states require seeded QA bookmarks for manual verification.
