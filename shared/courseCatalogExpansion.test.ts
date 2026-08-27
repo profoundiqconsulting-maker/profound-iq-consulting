@@ -210,13 +210,30 @@ describe("comparison SSR and personalized revisit upgrades", () => {
     const csv = readFileSync("shared/adminExport.ts", "utf8");
     expect(dashboard).toContain("printSavedPathways");
     expect(dashboard).toContain("printWindow.print");
-    expect(dashboard).toContain("locale })");
+    expect(dashboard).toContain("locale, watermark: savedPathwaysWatermark");
     expect(pdf).toContain("labels.savedPathways");
     expect(pdf).toContain("labels.outcomes");
     expect(router).toContain("locale: z.enum([\"en\", \"sw\"");
     expect(router).toContain("localizeCourseMetadata(locale");
     expect(csv).toContain("Date range");
     expect(router).toContain("fromDate: input?.fromDate, toDate: input?.toDate");
+  });
+
+  it("supports paginated print layouts, localized timestamps, and configurable branding", () => {
+    const pdf = readFileSync("server/reportPdf.ts", "utf8");
+    const printPage = readFileSync("client/src/pages/SavedPathwaysPrint.tsx", "utf8");
+    const router = readFileSync("server/routers.ts", "utf8");
+    const dashboard = readFileSync("client/src/pages/UserDashboard.tsx", "utf8");
+    expect(pdf).toContain("Page ${pageNumber}");
+    expect(pdf).toContain("formatDate(new Date(), input.locale)");
+    expect(pdf).toContain("watermark?: boolean");
+    expect(router).toContain("watermark: z.boolean().default(true)");
+    expect(printPage).toContain("const pageSize = 2");
+    expect(printPage).toContain("formattedDate");
+    expect(printPage).toContain("printPage");
+    expect(printPage).toContain("showWatermark");
+    expect(printPage).toContain("Page");
+    expect(dashboard).toContain("savedPathwaysWatermark");
   });
 
   it("supports Arabic and CJK PDF typography, quick date presets, and print layout routing", () => {

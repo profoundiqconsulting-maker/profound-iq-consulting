@@ -184,12 +184,17 @@ function writeText(doc: PDFKit.PDFDocument, value: string, x: number, y: number,
 }
 
 function addFooter(doc: PDFKit.PDFDocument): void {
+  const pageNumber = doc.bufferedPageRange().count;
   doc.fillColor(GOLD).font("Helvetica").fontSize(8.5).text("profoundiqconsulting.com", 52, 746, { characterSpacing: 0.8 });
+  doc.fillColor(MUTED).font("Helvetica").fontSize(8).text(`Page ${pageNumber}`, 450, 746, { width: 93, align: "right" });
+}
+function formatDate(value: Date | string, locale?: GeneratedLocale): string {
+  const code = String(locale ?? "en-KE").split("-")[0];
+  const language = code === "sw" ? "sw-KE" : code;
+  try { return new Date(value).toLocaleDateString(language, { year: "numeric", month: "short", day: "numeric" }); } catch { return new Date(value).toLocaleDateString("en-KE", { year: "numeric", month: "short", day: "numeric" }); }
 }
 
-function formatDate(value: Date | string): string { return new Date(value).toLocaleDateString("en-KE", { year: "numeric", month: "short", day: "numeric" }); }
-
-type SavedCoursePathwayPdfInput = { participantName: string; email?: string; locale?: GeneratedLocale; layout?: "summary" | "detailed"; courses: Array<{ title: string; category: string; skillLevel: string; duration: string; priceKes: number; outcomes: readonly string[] }> };
+type SavedCoursePathwayPdfInput = { participantName: string; email?: string; locale?: GeneratedLocale; layout?: "summary" | "detailed"; watermark?: boolean; courses: Array<{ title: string; category: string; skillLevel: string; duration: string; priceKes: number; outcomes: readonly string[] }> };
 
 export async function renderSavedCoursePathwaysPdf(input: SavedCoursePathwayPdfInput): Promise<Buffer> {
   const copy = getGeneratedCopy(input.locale);
@@ -202,6 +207,19 @@ export async function renderSavedCoursePathwaysPdf(input: SavedCoursePathwayPdfI
   doc.on("data", (chunk: Buffer) => chunks.push(chunk));
   const finished = new Promise<Buffer>((resolve, reject) => { doc.on("end", () => resolve(Buffer.concat(chunks))); doc.on("error", reject); });
   const brandLogo = await loadBrandLogo();
+  if (input.watermark) {
+    doc.opacity(0.04).fillColor(NAVY);
+    for (let i = 0; i < 5; i++) {
+      for (let j = 0; j < 8; j++) {
+        const watermarkX = 50 + i * 180;
+        const watermarkY = 50 + j * 120;
+        doc.save();
+        doc.rotate(35, { origin: [watermarkX, watermarkY] });
+        doc.font(boldFont).fontSize(40).text("PROFOUND IQ", watermarkX, watermarkY);
+        doc.restore();
+      }
+    }
+  }
   doc.fillColor(NAVY).rect(0, 0, doc.page.width, 108).fill();
   if (brandLogo) { try { doc.image(brandLogo, 52, 14, { fit: [116, 78], valign: "center" }); } catch { /* Text lockup remains available. */ } }
   const headerX = brandLogo ? 190 : 52;
@@ -209,7 +227,7 @@ export async function renderSavedCoursePathwaysPdf(input: SavedCoursePathwayPdfI
   doc.fillColor(GOLD).font(regularFont).fontSize(9).text("MY SPACE / SAVED PATHWAYS", headerX, 58, { characterSpacing: 1.1 });
   doc.fillColor(NAVY).font(boldFont).fontSize(25).text(labels.savedPathways[localeKey], 52, 145);
   doc.fillColor(MUTED).font(regularFont).fontSize(10).text(`${labels.preparedFor[localeKey]} ${input.participantName}${input.email ? ` · ${input.email}` : ""}`, 52, 180);
-  doc.font(regularFont).text(`${copy.generated} ${formatDate(new Date())}`, 52, 196);
+  doc.font(regularFont).text(`${copy.generated} ${formatDate(new Date(), input.locale)}`, 52, 196);
   doc.strokeColor(GOLD).lineWidth(2).moveTo(52, 224).lineTo(543, 224).stroke();
   let y = 252;
   if (!input.courses.length) {
