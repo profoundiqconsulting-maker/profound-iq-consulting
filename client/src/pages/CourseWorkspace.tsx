@@ -52,9 +52,10 @@ export default function CourseWorkspace() {
 }
 
 function CourseWorkspaceContent({ course }: { course: CourseDefinition }) {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { t } = useLocale();
   const courseState = trpc.course.state.useQuery({ courseSlug: course.slug }, { enabled: isAuthenticated });
+  if (authLoading) return <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]"><TransformationNav active="assessment" /><main className="container grid min-h-[70vh] place-items-center py-16"><div className="text-center"><Loader2 className="mx-auto animate-spin text-[#a27e2e]" size={32} /><p className="eyebrow mt-5 text-[#a27e2e]">Secure course access</p><h1 className="display mt-3 text-4xl">Checking your workspace.</h1><p className="mt-3 text-sm text-[#657084]">Your lessons remain protected while we confirm your signed-in session.</p></div></main></div>;
   const paidStages = courseState.data?.find((item) => item.enrollment.courseSlug === course.slug)?.stages.filter((stage) => stage.paymentStatus === "paid").length ?? 0;
   const qaFixture = import.meta.env.DEV ? new URLSearchParams(window.location.search).get("qaEnrollment") : null;
   const fixturePaidStages = qaFixture === "pending" ? 0 : qaFixture === "stage1" ? 1 : qaFixture === "stage2" ? 2 : qaFixture === "stage3" ? 3 : qaFixture === "completed" ? 4 : null;

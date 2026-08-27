@@ -3,6 +3,9 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const workspaceSource = readFileSync(resolve(process.cwd(), "client/src/pages/CourseWorkspace.tsx"), "utf8");
+const coursesSource = readFileSync(resolve(process.cwd(), "client/src/pages/Courses.tsx"), "utf8");
+const accessSource = readFileSync(resolve(process.cwd(), "shared/courseAccess.ts"), "utf8");
+const routerSource = readFileSync(resolve(process.cwd(), "server/routers.ts"), "utf8");
 const authSource = readFileSync(resolve(process.cwd(), "client/src/pages/Auth.tsx"), "utf8");
 const dashboardSource = readFileSync(resolve(process.cwd(), "client/src/pages/UserDashboard.tsx"), "utf8");
 const localeSource = readFileSync(resolve(process.cwd(), "client/src/contexts/LocaleContext.tsx"), "utf8");
@@ -15,12 +18,33 @@ describe("course enrollment access flow", () => {
     expect(authSource).toContain("navigate(returnTo)");
   });
 
+  it("continues signed-in catalog enrollment directly into stage-one checkout", () => {
+    expect(coursesSource).toContain("const { user, isAuthenticated } = useAuth();");
+    expect(coursesSource).toContain("trpc.course.enroll.useMutation");
+    expect(coursesSource).toContain("stageCheckout.mutate({ enrollmentId: result.enrollmentId, stage: 1 }");
+    expect(coursesSource).toContain("window.location.href = `/auth?mode=login&returnTo=");
+  });
+
   it("creates an authenticated enrollment and initializes stage one before redirecting to Paystack", () => {
     expect(workspaceSource).toContain("function FirstStageCheckout");
     expect(workspaceSource).toContain("trpc.course.enroll.useMutation");
     expect(workspaceSource).toContain("stage: 1");
     expect(workspaceSource).toContain("payment.authorizationUrl");
     expect(workspaceSource).toContain("Lesson access opens only after payment verification");
+  });
+
+  it("keeps lesson content behind auth-session resolution and staged payment gates", () => {
+    expect(workspaceSource).toContain("loading: authLoading");
+    expect(workspaceSource).toContain("Your lessons remain protected while we confirm your signed-in session.");
+    expect(workspaceSource).toContain("canAccessCourseLessons");
+    expect(accessSource).toContain("Complete the first 25% enrollment payment");
+  });
+
+  it("keeps server lesson mutations behind the same staged-payment policy", () => {
+    expect(routerSource).toContain("const requiredStage = moduleNumber >= 7 ? 3 : moduleNumber >= 4 ? 2 : 1");
+    expect(routerSource).toContain("Verify payment stage ${requiredStage}");
+    expect(routerSource).toContain("canBypassCoursePayment");
+    expect(routerSource).toContain("isQualityControlAdmin(ctx.user)");
   });
 
   it("exposes a development-only mock checkout without weakening production payment verification", () => {

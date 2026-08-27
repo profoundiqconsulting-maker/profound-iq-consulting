@@ -2227,3 +2227,7 @@
 - [x] Reorganize My Space quick navigation into grouped role-aware menu clusters for users, staff, and admins.
 - [x] Surface the shared quick menu in the staff workspace and preserve reusable dashboard pagination patterns.
 - [x] Add navigation and pagination regression coverage, responsive QA, validation, and a live checkpoint.
+
+- [x] Continue authenticated course enrollment directly into the existing staged checkout without a duplicate sign-in step.
+- [x] Keep course lessons, modules, quizzes, and lesson responses protected until the matching staged payment is verified, while preserving the designated admin bypass.
+- [x] Add auth-resolution and enrollment-flow regression coverage, run TypeScript/tests/build, and complete desktop/mobile course QA.
