@@ -657,12 +657,13 @@ export async function getCourseShareAnalytics(input: { from?: Date; to?: Date; e
     return input.excludeAdminShares ? rows.filter((row) => { const metadata = row.metadata && typeof row.metadata === "object" && !Array.isArray(row.metadata) ? row.metadata as Record<string, unknown> : {}; return metadata.source !== "admin-preview"; }) : rows;
   };
   const rows = await readRows(input.from, input.to);
-  const byCourse = new Map<string, number>(); const byPlatform = new Map<string, number>(); const matrix = new Map<string, number>(); const trend = new Map<string, number>();
+  const byCourse = new Map<string, number>(); const byPlatform = new Map<string, number>(); const matrix = new Map<string, number>(); const trend = new Map<string, number>(); const byComparison = new Map<string, number>();
   for (const row of rows) {
     const metadata = row.metadata && typeof row.metadata === "object" && !Array.isArray(row.metadata) ? row.metadata as Record<string, unknown> : {};
     const course = typeof metadata.courseSlug === "string" && metadata.courseSlug.trim() ? metadata.courseSlug : "unknown-course";
     const platform = typeof metadata.platform === "string" && metadata.platform.trim() ? metadata.platform : "unknown";
-    byCourse.set(course, (byCourse.get(course) ?? 0) + 1); byPlatform.set(platform, (byPlatform.get(platform) ?? 0) + 1);
+    const comparison = typeof metadata.comparisonSlugs === "string" ? metadata.comparisonSlugs.split(",").map((slug) => { try { return decodeURIComponent(slug); } catch { return slug; } }).map((slug) => slug.trim()).filter(Boolean).sort().join(" vs ") : "";
+    byCourse.set(course, (byCourse.get(course) ?? 0) + 1); byPlatform.set(platform, (byPlatform.get(platform) ?? 0) + 1); if (comparison) byComparison.set(comparison, (byComparison.get(comparison) ?? 0) + 1);
     const key = `${course}::${platform}`; matrix.set(key, (matrix.get(key) ?? 0) + 1);
     const day = new Date(row.createdAt).toISOString().slice(0, 10); trend.set(day, (trend.get(day) ?? 0) + 1);
   }
@@ -674,7 +675,7 @@ export async function getCourseShareAnalytics(input: { from?: Date; to?: Date; e
     for (const row of previousRows) { const day = new Date(row.createdAt).toISOString().slice(0, 10); previous.set(day, (previous.get(day) ?? 0) + 1); }
     comparisonTrend = Array.from(previous, ([date, shares]) => ({ date, shares })).sort((a, b) => a.date.localeCompare(b.date));
   }
-  return { total: rows.length, comparisonTotal, byCourse: Array.from(byCourse, ([courseSlug, shares]) => ({ courseSlug, shares })).sort((a, b) => b.shares - a.shares), byPlatform: Array.from(byPlatform, ([platform, shares]) => ({ platform, shares })).sort((a, b) => b.shares - a.shares), matrix: Array.from(matrix, ([key, shares]) => { const [courseSlug, platform] = key.split("::"); return { courseSlug, platform, shares }; }).sort((a, b) => b.shares - a.shares), trend: Array.from(trend, ([date, shares]) => ({ date, shares })).sort((a, b) => a.date.localeCompare(b.date)), comparisonTrend };
+  return { total: rows.length, comparisonTotal, byCourse: Array.from(byCourse, ([courseSlug, shares]) => ({ courseSlug, shares })).sort((a, b) => b.shares - a.shares), byPlatform: Array.from(byPlatform, ([platform, shares]) => ({ platform, shares })).sort((a, b) => b.shares - a.shares), byComparison: Array.from(byComparison, ([comparison, shares]) => ({ comparison, shares })).sort((a, b) => b.shares - a.shares), matrix: Array.from(matrix, ([key, shares]) => { const [courseSlug, platform] = key.split("::"); return { courseSlug, platform, shares }; }).sort((a, b) => b.shares - a.shares), trend: Array.from(trend, ([date, shares]) => ({ date, shares })).sort((a, b) => a.date.localeCompare(b.date)), comparisonTrend };
 }
 
 export async function getCourseAccessDeniedAnalytics(filters: { fromDate?: Date; toDate?: Date; cohort?: string; deviceType?: string } = {}) {

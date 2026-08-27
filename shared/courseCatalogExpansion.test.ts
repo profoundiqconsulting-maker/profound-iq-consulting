@@ -156,4 +156,21 @@ describe("comparison SSR and personalized revisit upgrades", () => {
     expect(dashboard).toContain("Course finder history");
     expect(dashboard).toContain("Retake finder");
   });
+
+  it("covers localized share copy and comparison analytics presentation", () => {
+    const share = readFileSync("client/src/components/CourseShareActions.tsx", "utf8");
+    const analytics = readFileSync("client/src/components/AdminCourseShareAnalytics.tsx", "utf8");
+    expect(share).toContain('eventName: "course_shared"');
+    expect(share).toContain("comparisonSlugs");
+    for (const locale of ["en", "sw", "fr", "es", "pt", "ar", "zh", "hi", "de", "ja"]) expect(share).toContain(`${locale}:`);
+    expect(analytics).toContain("byComparison");
+    expect(analytics).toContain("Most shared comparisons.");
+  });
+
+  it("exposes the saved-pathways PDF preview contract", () => {
+    const dashboard = readFileSync("client/src/pages/UserDashboard.tsx", "utf8");
+    expect(dashboard).toContain("Saved learning pathways PDF preview");
+    expect(dashboard).toContain("Download PDF");
+    expect(dashboard).toContain("savedPathwaysPreview");
+  });
 });
