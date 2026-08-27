@@ -1,5 +1,11 @@
 # Current Certificate Workflow
 
+- [ ] Update the reusable profound-iq-credential-delivery skill with the latest certificate governance workflow.
+- [ ] Add a pass/fail comparison between persisted issued hash and live preview hash.
+- [ ] Add versioned layout snapshots with multi-step rollback in the admin editor.
+- [ ] Allow secure admin upload and preview of custom SVG/image certificate elements.
+- [ ] Run regression tests, build, responsive QA, validate the skill, and checkpoint the release.
+
 - [x] Expose decorative wave paths and all remaining certificate labels in the admin editor.
 - [x] Add a visible canonical artifact hash comparison result to the admin preview.
 - [x] Add undo and redo history controls for certificate layout edits.
