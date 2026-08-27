@@ -1,5 +1,10 @@
 # Current Certificate Workflow
 
+- [ ] Sanitize, store, and render uploaded custom SVG/image certificate assets through managed storage.
+- [ ] Add drag-and-drop positioning and resizing controls for uploaded custom assets.
+- [ ] Add visual snapshot previews with rollback confirmation in the admin editor.
+- [ ] Add security/regression tests, production build, responsive QA, and checkpoint validation.
+
 - [x] Update the reusable profound-iq-credential-delivery skill with the latest certificate governance workflow.
 - [x] Add a pass/fail comparison between persisted issued hash and live preview hash.
 - [x] Add versioned layout snapshots with multi-step rollback in the admin editor.
