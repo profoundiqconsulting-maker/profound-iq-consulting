@@ -1869,3 +1869,9 @@
 - [x] Replace browser print with a branded server-generated conversion PDF report.
 - [x] Add persisted shared filter presets with role-based visibility controls.
 - [x] Add authorization/tests, responsive checks, skill update, and checkpoint the release.
+
+# Persistent Presets, Cohort CSV Import, and Report Email Sharing
+- [x] Persist dashboard filter presets through the server across admin sessions.
+- [x] Add validated CSV upload and bulk cohort assignment to cohort management.
+- [x] Add an admin email-sharing action for branded server-generated PDF reports.
+- [x] Add authorization/tests, responsive checks, and checkpoint the release.

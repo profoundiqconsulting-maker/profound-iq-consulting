@@ -236,3 +236,12 @@ export async function sendWeeklyPsychometricAnalyticsEmail(input: { recipients: 
     attachments: [{ filename: `psychometric-analytics-${input.toDate}.pdf`, content: input.reportPdf, contentType: "application/pdf" }],
   });
 }
+
+export async function sendCourseAccessAnalyticsReportEmail(input: { recipient: string; pdf: Buffer; filename: string; fromDate?: string; toDate?: string }): Promise<void> {
+  const config = getSmtpConfig();
+  const recipient = input.recipient.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)) throw new Error("A valid stakeholder email address is required.");
+  const subject = `Profound IQ learning access report${input.fromDate || input.toDate ? ` · ${input.fromDate ?? "All time"}–${input.toDate ?? "Today"}` : ""}`;
+  const message = "Attached is the branded Profound IQ Learning Access Observatory report for stakeholder review.";
+  await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to: [recipient], subject, text: message, html: `<div style="font-family:Arial,sans-serif;color:#16243d"><h2>${escapeHtml(subject)}</h2><p>${escapeHtml(message)}</p><p>Generated from persisted access and payment records.</p></div>`, attachments: [{ filename: input.filename, content: input.pdf, contentType: "application/pdf" }] });
+}

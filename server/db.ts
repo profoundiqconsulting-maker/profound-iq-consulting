@@ -1236,6 +1236,18 @@ export async function getAdminUsersForReview(input: { page: number; pageSize: nu
   return { rows, total: totalCount, totalPages, page, pageSize: safePageSize };
 }
 
+export async function importUserCohorts(rows: Array<{ identifier: string; cohort: string | null }>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const normalized = rows.map((row) => ({ identifier: row.identifier.trim(), cohort: row.cohort?.trim() || null })).filter((row) => row.identifier).slice(0, 1000);
+  const identifiers = normalized.map((row) => row.identifier);
+  const matched = identifiers.length ? await db.select({ openId: users.openId, email: users.email }).from(users).where(or(inArray(users.openId, identifiers), inArray(users.email, identifiers))) : [];
+  const byIdentifier = new Map<string, string>(); matched.forEach((user) => { byIdentifier.set(user.openId, user.openId); if (user.email) byIdentifier.set(user.email, user.openId); });
+  const unmatched: string[] = []; let updated = 0;
+  for (const row of normalized) { const openId = byIdentifier.get(row.identifier); if (!openId) { unmatched.push(row.identifier); continue; } await db.update(users).set({ cohort: row.cohort }).where(eq(users.openId, openId)); updated += 1; }
+  return { updated, unmatched: Array.from(new Set(unmatched)), processed: normalized.length };
+}
+
 export async function updateUsersCohort(openIds: string[], cohort: string | null) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
