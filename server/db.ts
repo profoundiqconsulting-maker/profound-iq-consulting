@@ -1431,10 +1431,13 @@ export async function listCourseEnrollmentState(userOpenId: string) {
   if (!db) throw new Error("Database is not available");
   const enrollments = await db.select().from(courseLearnerEnrollments).where(eq(courseLearnerEnrollments.userOpenId, userOpenId)).orderBy(desc(courseLearnerEnrollments.updatedAt));
   const notifications = await db.select().from(courseLessonResponseNotifications).where(eq(courseLessonResponseNotifications.userOpenId, userOpenId)).orderBy(desc(courseLessonResponseNotifications.createdAt));
+  const profile = (await db.select({ notificationPreferences: users.notificationPreferences }).from(users).where(eq(users.openId, userOpenId)).limit(1))[0];
+  const preferences = (profile?.notificationPreferences ?? {}) as { instructorFeedbackInApp?: boolean };
+  const visibleNotifications = preferences.instructorFeedbackInApp === false ? [] : notifications;
   return Promise.all(enrollments.map(async (enrollment) => {
     const responses = await db.select().from(courseLessonResponses).where(eq(courseLessonResponses.enrollmentId, enrollment.id));
     const reviews = responses.length ? await db.select().from(courseLessonResponseReviews).where(inArray(courseLessonResponseReviews.responseId, responses.map((response) => response.id))).orderBy(desc(courseLessonResponseReviews.updatedAt)) : [];
-    return { enrollment, lessons: await db.select().from(courseLessonProgress).where(eq(courseLessonProgress.enrollmentId, enrollment.id)), responses, reviews, notifications: notifications.filter((notification) => notification.enrollmentId === enrollment.id), quizAttempts: await db.select().from(courseQuizAttempts).where(eq(courseQuizAttempts.enrollmentId, enrollment.id)).orderBy(desc(courseQuizAttempts.createdAt)), stages: await db.select().from(coursePaymentStages).where(eq(coursePaymentStages.enrollmentId, enrollment.id)).orderBy(coursePaymentStages.stage), certificates: await db.select().from(courseCertificates).where(eq(courseCertificates.enrollmentId, enrollment.id)).orderBy(desc(courseCertificates.createdAt)) };
+    return { enrollment, lessons: await db.select().from(courseLessonProgress).where(eq(courseLessonProgress.enrollmentId, enrollment.id)), responses, reviews, notifications: visibleNotifications.filter((notification) => notification.enrollmentId === enrollment.id), quizAttempts: await db.select().from(courseQuizAttempts).where(eq(courseQuizAttempts.enrollmentId, enrollment.id)).orderBy(desc(courseQuizAttempts.createdAt)), stages: await db.select().from(coursePaymentStages).where(eq(coursePaymentStages.enrollmentId, enrollment.id)).orderBy(coursePaymentStages.stage), certificates: await db.select().from(courseCertificates).where(eq(courseCertificates.enrollmentId, enrollment.id)).orderBy(desc(courseCertificates.createdAt)) };
   }));
 }
 export async function listCoursePaymentHistoryPage(userOpenId: string, input: { page: number; pageSize: number; courseSlug?: string; stage?: number; status?: string; from?: Date; to?: Date; sort: "date-desc" | "date-asc" | "amount-desc" | "amount-asc" | "course-asc" | "stage-asc" | "status" }) {
@@ -1520,7 +1523,7 @@ export async function getCourseLessonReviewAnalytics(input: { courseSlug?: strin
   const enrollments = await db.select().from(courseLearnerEnrollments);
   const enrollmentMap = new Map(enrollments.map((enrollment) => [enrollment.id, enrollment]));
   const enrollmentIds = enrollments.map((enrollment) => enrollment.id);
-  if (!enrollmentIds.length) return { totalResponses: 0, reviewedResponses: 0, needsReviewResponses: 0, reviewRate: 0, aging: { averageAgeHours: 0, oldestAgeHours: 0, under24Hours: 0, oneToThreeDays: 0, overThreeDays: 0 }, reviewerWorkload: [], byCourse: [], byModule: [] };
+  if (!enrollmentIds.length) return { totalResponses: 0, reviewedResponses: 0, needsReviewResponses: 0, reviewRate: 0, aging: { averageAgeHours: 0, oldestAgeHours: 0, under24Hours: 0, oneToThreeDays: 0, overThreeDays: 0 }, reviewerWorkload: [], reviewerWorkloadTrend: [], byCourse: [], byModule: [] };
   const responses = await db.select().from(courseLessonResponses).where(inArray(courseLessonResponses.enrollmentId, enrollmentIds));
   const reviews = responses.length ? await db.select().from(courseLessonResponseReviews).where(inArray(courseLessonResponseReviews.responseId, responses.map((response) => response.id))) : [];
   const reviewMap = new Map(reviews.map((review) => [review.responseId, review]));
@@ -1545,6 +1548,7 @@ export async function getCourseLessonReviewAnalytics(input: { courseSlug?: strin
   const openResponses = filtered.filter((response) => !reviewMap.has(response.id));
   const ages = openResponses.map((response) => Math.max(0, (Date.now() - response.updatedAt.getTime()) / 3600000));
   const reviewerMap = new Map<string, { reviewerOpenId: string; reviewerName: string; reviewedResponses: number; latestReviewedAt: Date | null }>();
+  const workloadTrendMap = new Map<string, { date: string; reviewedResponses: number; reviewers: number }>();
   for (const response of filtered) {
     const review = reviewMap.get(response.id);
     if (!review) continue;
@@ -1553,8 +1557,13 @@ export async function getCourseLessonReviewAnalytics(input: { courseSlug?: strin
     current.reviewedResponses += 1;
     if (!current.latestReviewedAt || review.updatedAt > current.latestReviewedAt) current.latestReviewedAt = review.updatedAt;
     reviewerMap.set(reviewerOpenId, current);
+    const date = review.updatedAt.toISOString().slice(0, 10);
+    const trend = workloadTrendMap.get(date) ?? { date, reviewedResponses: 0, reviewers: 0 };
+    trend.reviewedResponses += 1;
+    trend.reviewers = new Set(filtered.filter((item) => { const itemReview = reviewMap.get(item.id); return itemReview && itemReview.updatedAt.toISOString().slice(0, 10) === date; }).map((item) => reviewMap.get(item.id)!.reviewerOpenId)).size;
+    workloadTrendMap.set(date, trend);
   }
-  return { totalResponses, reviewedResponses, needsReviewResponses: totalResponses - reviewedResponses, reviewRate: totalResponses ? Math.round((reviewedResponses / totalResponses) * 100) : 0, aging: { averageAgeHours: ages.length ? Math.round((ages.reduce((sum, age) => sum + age, 0) / ages.length) * 10) / 10 : 0, oldestAgeHours: ages.length ? Math.round(Math.max(...ages) * 10) / 10 : 0, under24Hours: ages.filter((age) => age < 24).length, oneToThreeDays: ages.filter((age) => age >= 24 && age < 72).length, overThreeDays: ages.filter((age) => age >= 72).length }, reviewerWorkload: Array.from(reviewerMap.values()).sort((a, b) => b.reviewedResponses - a.reviewedResponses), byCourse: Array.from(byCourse.values()).map((row) => ({ ...row, reviewRate: row.totalResponses ? Math.round((row.reviewedResponses / row.totalResponses) * 100) : 0 })).sort((a, b) => b.totalResponses - a.totalResponses), byModule: Array.from(byModule.values()).map((row) => ({ ...row, reviewRate: row.totalResponses ? Math.round((row.reviewedResponses / row.totalResponses) * 100) : 0 })).sort((a, b) => a.courseSlug.localeCompare(b.courseSlug) || a.moduleIndex - b.moduleIndex) };
+  return { totalResponses, reviewedResponses, needsReviewResponses: totalResponses - reviewedResponses, reviewRate: totalResponses ? Math.round((reviewedResponses / totalResponses) * 100) : 0, aging: { averageAgeHours: ages.length ? Math.round((ages.reduce((sum, age) => sum + age, 0) / ages.length) * 10) / 10 : 0, oldestAgeHours: ages.length ? Math.round(Math.max(...ages) * 10) / 10 : 0, under24Hours: ages.filter((age) => age < 24).length, oneToThreeDays: ages.filter((age) => age >= 24 && age < 72).length, overThreeDays: ages.filter((age) => age >= 72).length }, reviewerWorkload: Array.from(reviewerMap.values()).sort((a, b) => b.reviewedResponses - a.reviewedResponses), reviewerWorkloadTrend: Array.from(workloadTrendMap.values()).sort((a, b) => a.date.localeCompare(b.date)), byCourse: Array.from(byCourse.values()).map((row) => ({ ...row, reviewRate: row.totalResponses ? Math.round((row.reviewedResponses / row.totalResponses) * 100) : 0 })).sort((a, b) => b.totalResponses - a.totalResponses), byModule: Array.from(byModule.values()).map((row) => ({ ...row, reviewRate: row.totalResponses ? Math.round((row.reviewedResponses / row.totalResponses) * 100) : 0 })).sort((a, b) => a.courseSlug.localeCompare(b.courseSlug) || a.moduleIndex - b.moduleIndex) };
 }
 
 export async function upsertCourseLessonResponseReview(input: { responseId: number; enrollmentId: number; lessonId: string; taskId: string; reviewerOpenId: string; reviewerName?: string | null; feedback: string; status: string }) {
@@ -1569,10 +1578,12 @@ export async function upsertCourseLessonResponseReview(input: { responseId: numb
   const previousReview = (await db.select().from(courseLessonResponseReviews).where(eq(courseLessonResponseReviews.responseId, input.responseId)).limit(1))[0];
   const reviewResult = await db.insert(courseLessonResponseReviews).values({ ...input, feedback }).onDuplicateKeyUpdate({ set: { reviewerName: input.reviewerName ?? null, feedback, status: input.status, updatedAt: new Date() } });
   const reviewId = previousReview?.id ?? Number(reviewResult[0].insertId);
+  let notificationCreated = false;
   if (input.status === "reviewed" && (!previousReview || previousReview.feedback !== feedback || previousReview.status !== "reviewed")) {
     await db.insert(courseLessonResponseNotifications).values({ userOpenId: enrollment.userOpenId, enrollmentId: input.enrollmentId, responseId: input.responseId, reviewId, courseSlug: enrollment.courseSlug, lessonId: input.lessonId, taskId: input.taskId, title: "New instructor feedback", body: feedback });
+    notificationCreated = true;
   }
-  return { saved: true as const };
+  return { saved: true as const, notificationCreated, learnerOpenId: enrollment.userOpenId, learnerEmail: enrollment.email, learnerName: enrollment.name, courseSlug: enrollment.courseSlug };
 }
 
 export async function markCourseLessonComplete(enrollmentId: number, lessonId: string) {

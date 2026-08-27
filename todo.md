@@ -1903,3 +1903,10 @@
 - [x] Add protected CSV and PDF exports for staff review analytics.
 - [x] Add focused tests, responsive verification, production build, and publish checkpoint.
 
+
+# Notification Preferences and Scheduled Review Analytics
+- [x] Add learner settings for email and in-app instructor-feedback notification preferences.
+- [x] Add reviewer workload trend data and a staff-facing chart over time.
+- [x] Add staff-managed automated review analytics email scheduling with pause/resume controls.
+- [x] Add scheduled delivery tests, responsive verification, production build, deployment, and checkpoint.
+

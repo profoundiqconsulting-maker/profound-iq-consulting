@@ -245,3 +245,26 @@ export async function sendCourseAccessAnalyticsReportEmail(input: { recipient: s
   const message = "Attached is the branded Profound IQ Learning Access Observatory report for stakeholder review.";
   await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to: [recipient], subject, text: message, html: `<div style="font-family:Arial,sans-serif;color:#16243d"><h2>${escapeHtml(subject)}</h2><p>${escapeHtml(message)}</p><p>Generated from persisted access and payment records.</p></div>`, attachments: [{ filename: input.filename, content: input.pdf, contentType: "application/pdf" }] });
 }
+
+
+export async function sendInstructorFeedbackEmail(input: { recipient: string; learnerName?: string | null; courseSlug: string; lessonId: string; feedback: string }): Promise<void> {
+  const config = getSmtpConfig();
+  const recipient = input.recipient.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)) throw new Error("A valid learner email address is required.");
+  const safeName = escapeHtml(input.learnerName || "Learner");
+  const safeCourse = escapeHtml(input.courseSlug);
+  const safeLesson = escapeHtml(input.lessonId);
+  const safeFeedback = escapeHtml(input.feedback);
+  const subject = "New instructor feedback is ready in your Profound IQ workspace";
+  await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to: [recipient], subject, text: `Hello ${input.learnerName || "Learner"},\n\nAn instructor has posted new feedback on your saved response in ${input.courseSlug}, ${input.lessonId}.\n\nFeedback:\n${input.feedback}\n\nOpen your workspace to continue learning.`, html: `<div style="max-width:680px;margin:0 auto;background:#f7f3e8;color:#16243d;font-family:Arial,sans-serif"><div style="background:#101d35;color:#f7f3e8;padding:24px 28px;border-top:6px solid #c9a34e"><div style="font-size:12px;letter-spacing:3px;font-weight:700">PROFOUND IQ CONSULTING</div><div style="margin-top:8px;color:#c9a34e;font-size:11px;letter-spacing:2px">INSTRUCTOR FEEDBACK</div></div><div style="padding:28px"><p>Hello ${safeName},</p><p>Your instructor has posted new feedback on a saved lesson response.</p><p style="border-left:3px solid #c9a34e;padding:12px 16px;background:#fff"><strong>${safeCourse}</strong><br>${safeLesson}</p><p style="border-left:3px solid #2f6f78;padding:12px 16px;background:#edf4ee">${safeFeedback}</p><p>Open your Profound IQ workspace to review the guidance and continue learning.</p></div><div style="background:#16243d;color:#c1cad7;padding:18px 28px;font-size:12px">Profound IQ Consulting · Transformational learning · Online / global reach</div></div>` });
+}
+
+
+export async function sendWeeklyCourseLessonReviewAnalyticsEmail(input: { recipients: string[]; reportPdf: Buffer; fromDate: string; toDate: string; reviewedResponses: number; needsReviewResponses: number }): Promise<void> {
+  const config = getSmtpConfig();
+  const recipients = input.recipients.filter(Boolean);
+  if (!recipients.length) return;
+  const subject = `Profound IQ weekly instructor review analytics · ${input.toDate}`;
+  const message = `Attached is the review analytics report for ${input.fromDate} to ${input.toDate}. It covers ${input.reviewedResponses} reviewed response(s) and ${input.needsReviewResponses} response(s) still needing review.`;
+  await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to: recipients, subject, text: message, html: `<div style="font-family:Arial,sans-serif;color:#16243d"><h2>${escapeHtml(subject)}</h2><p>${escapeHtml(message)}</p><p>The report includes response aging, reviewer workload, course summaries, module summaries, and daily activity.</p></div>`, attachments: [{ filename: `review-analytics-${input.toDate}.pdf`, content: input.reportPdf, contentType: "application/pdf" }] });
+}
