@@ -2040,3 +2040,10 @@
 - [x] Add an admin CSV export for course-comparison share analytics.
 - [x] Add authorization, regression tests, build checks, and responsive validation for the new controls and export.
 - [x] Save and auto-publish a checkpoint for the completed localized controls, preview zoom, and analytics CSV features.
+
+# Printable, Localized PDF Content, and Date-Range Analytics Export
+- [x] Add a direct Print action to the My Space saved-pathways PDF preview modal.
+- [x] Localize generated PDF headings, labels, and course metadata using the learner’s selected locale.
+- [x] Apply admin date-range filters to course-share analytics and CSV export data.
+- [x] Add authorization, regression tests, build checks, and responsive validation for the print, localization, and filtering flows.
+- [x] Save and auto-publish a checkpoint for the completed printable PDF, localized content, and date-range export features.

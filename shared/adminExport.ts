@@ -29,7 +29,7 @@ export function buildStaffPerformanceCsv(rows: StaffPerformanceExportRow[]) {
 }
 
 export type CourseShareAnalyticsExportRow = { courseSlug: string; platform: string; shares: number };
-export type CourseShareAnalyticsCsvInput = { matrix: CourseShareAnalyticsExportRow[]; byComparison: Array<{ comparison: string; shares: number }>; trend: Array<{ date: string; shares: number }> };
+export type CourseShareAnalyticsCsvInput = { matrix: CourseShareAnalyticsExportRow[]; byComparison: Array<{ comparison: string; shares: number }>; trend: Array<{ date: string; shares: number }>; fromDate?: string; toDate?: string };
 export function buildCourseShareAnalyticsCsv(input: CourseShareAnalyticsCsvInput) {
   const matrixHeader = ["MATRIX: COURSE BY PLATFORM"].map(csvCell).join(",");
   const matrixSubHeader = ["Course slug", "Platform", "Shares"].map(csvCell).join(",");
@@ -40,7 +40,8 @@ export function buildCourseShareAnalyticsCsv(input: CourseShareAnalyticsCsvInput
   const trendHeader = ["", "DAILY SHARE TREND"].map(csvCell).join(",");
   const trendSubHeader = ["Date", "Total shares"].map(csvCell).join(",");
   const trendLines = input.trend.map((row) => [row.date, row.shares].map(csvCell).join(","));
-  return [matrixHeader, matrixSubHeader, ...matrixLines, comparisonHeader, comparisonSubHeader, ...comparisonLines, trendHeader, trendSubHeader, ...trendLines].join("\n");
+  const rangeLine = ["Date range", input.fromDate || "All time", input.toDate || ""].map(csvCell).join(",");
+  return [rangeLine, matrixHeader, matrixSubHeader, ...matrixLines, comparisonHeader, comparisonSubHeader, ...comparisonLines, trendHeader, trendSubHeader, ...trendLines].join("\n");
 }
 
 export type NewsletterSubscriberExportRow = { id: number; email: string; source: string; status: string; consentedAt: Date; createdAt: Date; updatedAt: Date };

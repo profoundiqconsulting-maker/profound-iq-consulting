@@ -202,4 +202,20 @@ describe("comparison SSR and personalized revisit upgrades", () => {
     expect(csv).toContain("DAILY SHARE TREND");
     expect(router).toContain("buildCourseShareAnalyticsCsv({ matrix: data.matrix");
   });
+
+  it("exposes printable localized PDFs and date-scoped analytics CSVs", () => {
+    const dashboard = readFileSync("client/src/pages/UserDashboard.tsx", "utf8");
+    const pdf = readFileSync("server/reportPdf.ts", "utf8");
+    const router = readFileSync("server/routers.ts", "utf8");
+    const csv = readFileSync("shared/adminExport.ts", "utf8");
+    expect(dashboard).toContain("printSavedPathways");
+    expect(dashboard).toContain("printWindow.print");
+    expect(dashboard).toContain("locale })");
+    expect(pdf).toContain("labels.savedPathways");
+    expect(pdf).toContain("labels.outcomes");
+    expect(router).toContain("locale: z.enum([\"en\", \"sw\"");
+    expect(router).toContain("localizeCourseMetadata(locale");
+    expect(csv).toContain("Date range");
+    expect(router).toContain("fromDate: input?.fromDate, toDate: input?.toDate");
+  });
 });
