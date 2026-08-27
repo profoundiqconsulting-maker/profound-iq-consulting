@@ -2223,3 +2223,7 @@
 - [x] Implement true pointer-based drag-and-drop positioning and resize handles for uploaded custom certificate assets, then add regression coverage.
 - [x] Add visual thumbnail previews for layout snapshots and a confirmation step before rollback or restore.
 - [x] Run focused security/regression tests for custom asset upload and snapshot restore flows, capture responsive admin-editor QA, run a production build, and save a new checkpoint.
+
+- [x] Reorganize My Space quick navigation into grouped role-aware menu clusters for users, staff, and admins.
+- [x] Surface the shared quick menu in the staff workspace and preserve reusable dashboard pagination patterns.
+- [x] Add navigation and pagination regression coverage, responsive QA, validation, and a live checkpoint.
