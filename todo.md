@@ -1832,3 +1832,9 @@
 - [x] Redirect unpaid lesson clicks to the matching installment checkout without revealing lesson content.
 - [x] Add regression coverage for payment-gated lesson navigation and quality-control admin access.
 - [x] Validate responsive payment-gate UX and checkpoint the release.
+
+# Payment Required UX and Access Audit
+- [x] Add a dedicated payment-required modal with matching installment details and checkout action.
+- [x] Refresh course enrollment state immediately after verified Paystack payment webhooks.
+- [x] Persist denied lesson-access events and expose admin drop-off analytics.
+- [x] Add regression tests, responsive checks, and checkpoint the release.

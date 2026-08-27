@@ -677,6 +677,26 @@ export async function getCourseShareAnalytics(input: { from?: Date; to?: Date; e
   return { total: rows.length, comparisonTotal, byCourse: Array.from(byCourse, ([courseSlug, shares]) => ({ courseSlug, shares })).sort((a, b) => b.shares - a.shares), byPlatform: Array.from(byPlatform, ([platform, shares]) => ({ platform, shares })).sort((a, b) => b.shares - a.shares), matrix: Array.from(matrix, ([key, shares]) => { const [courseSlug, platform] = key.split("::"); return { courseSlug, platform, shares }; }).sort((a, b) => b.shares - a.shares), trend: Array.from(trend, ([date, shares]) => ({ date, shares })).sort((a, b) => a.date.localeCompare(b.date)), comparisonTrend };
 }
 
+export async function getCourseAccessDeniedAnalytics(filters: { fromDate?: Date; toDate?: Date } = {}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const conditions = [eq(analyticsEvents.eventName, "course_lesson_access_denied"), filters.fromDate ? gte(analyticsEvents.createdAt, filters.fromDate) : undefined, filters.toDate ? lte(analyticsEvents.createdAt, filters.toDate) : undefined].filter(Boolean) as Array<ReturnType<typeof eq>>;
+  const rows = await db.select({ id: analyticsEvents.id, userOpenId: analyticsEvents.userOpenId, metadata: analyticsEvents.metadata, createdAt: analyticsEvents.createdAt }).from(analyticsEvents).where(and(...conditions)).orderBy(desc(analyticsEvents.createdAt)).limit(1000);
+  const summary = new Map<string, { courseSlug: string; moduleIndex: number; requiredStage: number; deniedCount: number; uniqueUsers: Set<string> }>();
+  for (const row of rows) {
+    const metadata = (row.metadata && typeof row.metadata === "object" ? row.metadata : {}) as { courseSlug?: string; moduleIndex?: number; requiredStage?: number };
+    const courseSlug = metadata.courseSlug ?? "unknown";
+    const moduleIndex = Number(metadata.moduleIndex ?? -1);
+    const requiredStage = Number(metadata.requiredStage ?? 0);
+    const key = `${courseSlug}:${moduleIndex}:${requiredStage}`;
+    const current = summary.get(key) ?? { courseSlug, moduleIndex, requiredStage, deniedCount: 0, uniqueUsers: new Set<string>() };
+    current.deniedCount += 1;
+    if (row.userOpenId) current.uniqueUsers.add(row.userOpenId);
+    summary.set(key, current);
+  }
+  return { totalDenied: rows.length, rows: rows.map((row) => ({ ...row, metadata: row.metadata ?? {} })), summary: Array.from(summary.values()).map((item) => ({ courseSlug: item.courseSlug, moduleIndex: item.moduleIndex, requiredStage: item.requiredStage, deniedCount: item.deniedCount, uniqueUsers: item.uniqueUsers.size })).sort((a, b) => b.deniedCount - a.deniedCount) };
+}
+
 export async function recordAnalyticsEvent(input: { eventName: string; attemptId?: number; userOpenId?: string; metadata?: Record<string, unknown> }) {
   const db = await getDb();
   if (!db) return;
