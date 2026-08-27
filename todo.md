@@ -2215,3 +2215,7 @@
 - [x] Add PDF download spinner and success notification states.
 - [x] Add authorization and regression tests, run migration, full tests, TypeScript, production build, and responsive QA.
 - [x] Save and auto-publish a checkpoint for the certificate layout and analytics release.
+
+- [x] Trace every course certificate-generation path and verify the persisted admin design, branding, signature, QR, editable layout, and custom assets are applied without altering learner-specific certificate data.
+- [x] Add regression coverage for cross-course settings propagation and canonical artifact identity.
+- [x] Run type checks, tests, production build, and save a verified checkpoint for the cross-course certificate consistency pass.

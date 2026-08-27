@@ -65,6 +65,43 @@ describe("expanded professional course catalog", () => {
     expect(svg).toContain("https://profoundiq-vguqrhsm.manus.space/verify/certificate");
     expect(svg).toContain("Issued");
   });
+
+  it("applies one persisted admin design consistently across every catalog course", () => {
+    const sharedDesign = {
+      trainerName: "Dr. Grace Wambui",
+      trainerTitle: "Lead Facilitator",
+      signatureDataUri: "data:image/png;base64,QUJD",
+      fieldLayout: { recipient: { x: 1111, y: 777 }, course: { x: 1000, y: 985 }, trainerTitle: { visible: false } },
+      customElements: { partnerMark: "https://example.com/partner-mark.svg" },
+    };
+
+    for (const [index, course] of courseCatalog.entries()) {
+      const learnerName = `Learner ${index + 1}`;
+      const certificateNumber = `PIQ-2026-${String(index + 1).padStart(4, "0")}`;
+      const svg = renderCourseCertificateSvg({
+        recipientName: learnerName,
+        recipientEmail: `${course.slug}@example.com`,
+        courseTitle: course.title,
+        certificateNumber,
+        issuedOn: "2026-08-24T00:00:00Z",
+        verificationUrl: `https://profoundiq-vguqrhsm.manus.space/verify/certificate?certificate=${certificateNumber}`,
+        ...sharedDesign,
+      });
+
+      expect(svg).toContain(learnerName);
+      const escapedCourseTitle = course.title.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" })[character] ?? character);
+      expect(svg).toContain(escapedCourseTitle);
+      expect(svg).toContain(certificateNumber);
+      expect(svg).toContain('data-field="recipient" x="1111" y="777"');
+      expect(svg).toContain('data-field="course" x="1000" y="985"');
+      expect(svg).toContain('<text display="none" data-field="trainerTitle"');
+      expect(svg).toContain("Dr. Grace Wambui");
+      expect(svg).toContain("Lead Facilitator");
+      expect(svg).toContain("data:image/png;base64,QUJD");
+      expect(svg).toContain('data-field="custom:partnerMark"');
+      expect(svg).not.toContain(`${course.slug}@example.com`);
+    }
+  });
 });
 
 describe("quiz learning feedback and analytics", () => {
