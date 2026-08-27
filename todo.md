@@ -1947,3 +1947,11 @@
 - [x] Add persistent custom tags or folders for saved illustrations.
 - [x] Add localized UI copy and accessible organization controls.
 - [x] Add regression tests, run full validation, and save a live checkpoint.
+
+# My Illustrations Bulk Organization and Ordering
+
+- [x] Add bulk selection with multi-bookmark folder moves.
+- [x] Add persisted drag-and-drop ordering within custom folders.
+- [x] Add searchable custom folder/tag controls.
+- [x] Add accessible keyboard and screen-reader guidance for bulk and reorder actions.
+- [x] Add regression tests, run full validation, and save a live checkpoint.

@@ -414,6 +414,13 @@
       "when": 1787834956550,
       "tag": "0058_freezing_patriot",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "5",
+      "when": 1787836001321,
+      "tag": "0059_wide_legion",
+      "breakpoints": true
     }
   ]
 }

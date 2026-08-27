@@ -1,0 +1,1 @@
+ALTER TABLE `course_lesson_illustration_bookmarks` ADD `sortOrder` int DEFAULT 0 NOT NULL;
