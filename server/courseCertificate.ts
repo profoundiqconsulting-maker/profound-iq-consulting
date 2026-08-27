@@ -37,6 +37,7 @@ function applyFieldLayout(svg: string, layout?: CertificateFieldLayout) {
     if (config.visible === false) tag = tag.replace(/^<([a-z]+)/, '<$1 display="none"');
     if (typeof config.x === "number") tag = tag.replace(/\sx="[^\"]*"/, ` x="${config.x}"`);
     if (typeof config.y === "number") tag = tag.replace(/\sy="[^\"]*"/, ` y="${config.y}"`);
+    if ((typeof config.x === "number" || typeof config.y === "number") && !/\sx="/.test(tag) && !/\sy="/.test(tag)) { const x = config.x ?? 0; const y = config.y ?? 0; if (/\stransform="/.test(tag)) tag = tag.replace(/\stransform="[^"]*"/, ` transform="translate(${x} ${y})"`); else if (tag.endsWith("/>") ) tag = tag.replace(/\/>$/, ` transform="translate(${x} ${y})"/>`); else tag = tag.replace(/>$/, ` transform="translate(${x} ${y})">`); }
     if (typeof config.width === "number") tag = tag.replace(/\swidth="[^\"]*"/, ` width="${config.width}"`);
     if (typeof config.height === "number") tag = tag.replace(/\sheight="[^\"]*"/, ` height="${config.height}"`);
     let result = output.slice(0, tagStart) + tag + output.slice(tagEnd + 1);
