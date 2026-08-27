@@ -1838,3 +1838,9 @@
 - [x] Refresh course enrollment state immediately after verified Paystack payment webhooks.
 - [x] Persist denied lesson-access events and expose admin drop-off analytics.
 - [x] Add regression tests, responsive checks, and checkpoint the release.
+
+# Access Funnel and Unlock Progress
+- [x] Add denied-to-paid access conversion metrics to the admin observatory.
+- [x] Add filtered CSV export for access-audit reports.
+- [x] Add a visual lesson-unlock progress bar to the payment-required modal.
+- [x] Add tests, responsive verification, and checkpoint the release.
