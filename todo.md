@@ -1799,3 +1799,21 @@
 - [x] Create a reusable Profound IQ consulting website workflow skill using skill-creator, validate it, and prepare the SKILL.md deliverable.
 - [x] Run full TypeScript, Vitest, production build, responsive/route verification, mark validated items complete, and save a website checkpoint.
 - [x] Fix the existing Admin Inquiry maximum-update-depth runtime error observed during admin route verification, then rerun runtime and dashboard checks.
+
+# Newsletter Lifecycle and Insights Publishing
+
+- [x] Add double opt-in subscriber confirmation tokens with expiry, resend-safe behavior, and confirmation email delivery.
+- [x] Add one-click unsubscribe handling with signed/expiring token verification and clear public status pages.
+- [x] Add admin subscriber lifecycle controls for pending, confirmed, unsubscribed, and resubscribe states.
+- [x] Add protected Insights publishing controls for draft and published statuses without fabricating editorial identities.
+- [x] Add server-side Insights article search with pagination, category/status filters, and stable slug handling.
+- [ ] Add rich social preview image generation for published Insights articles with safe fallback behavior.
+- [x] Update the reusable Profound IQ workflow skill with consent lifecycle, publishing, search, and social-preview patterns, then validate it.
+- [ ] Add regression coverage for token security, unsubscribe behavior, publishing visibility, search boundaries, social previews, and admin authorization.
+- [x] Verify runtime, accessibility, responsive routes, TypeScript, full Vitest, production build, and save a publishable checkpoint.
+
+- [x] Add newsletter confirmation and unsubscribe landing routes for double opt-in links
+- [x] Add admin-controlled Insights draft/published workflow with social preview URL controls
+- [x] Refactor Insights search and article detail rendering to use server-backed procedures
+- [x] Update the reusable Profound IQ site workflow skill with consent and publishing patterns
+- [x] Validate newsletter lifecycle, publishing workflow, server search, and responsive UI

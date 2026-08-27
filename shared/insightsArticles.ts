@@ -6,7 +6,8 @@ export type InsightArticle = {
   excerpt: string;
   readTime: string;
   accent: string;
-  status: "Draft preview";
+  status: "Draft preview" | "Published";
+  socialImageUrl?: string | null;
   sections: Array<{ heading: string; paragraphs: string[] }>;
 };
 

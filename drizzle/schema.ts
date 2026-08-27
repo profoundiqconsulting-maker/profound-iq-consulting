@@ -87,11 +87,33 @@ export const newsletterSubscribers = mysqlTable("newsletter_subscribers", {
   id: int("id").autoincrement().primaryKey(),
   email: varchar("email", { length: 320 }).notNull(),
   source: varchar("source", { length: 80 }).default("insights").notNull(),
-  status: varchar("status", { length: 24 }).default("subscribed").notNull(),
+  status: varchar("status", { length: 24 }).default("pending").notNull(),
   consentedAt: timestamp("consentedAt").notNull(),
+  confirmedAt: timestamp("confirmedAt"),
+  confirmationTokenHash: varchar("confirmationTokenHash", { length: 64 }),
+  confirmationExpiresAt: timestamp("confirmationExpiresAt"),
+  confirmationSentAt: timestamp("confirmationSentAt"),
+  unsubscribeTokenHash: varchar("unsubscribeTokenHash", { length: 64 }),
+  unsubscribedAt: timestamp("unsubscribedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({ emailUnique: uniqueIndex("newsletter_subscribers_email_unique").on(table.email) }));
+
+export const insightArticles = mysqlTable("insight_articles", {
+  id: int("id").autoincrement().primaryKey(),
+  slug: varchar("slug", { length: 160 }).notNull(),
+  category: varchar("category", { length: 120 }).notNull(),
+  title: varchar("title", { length: 240 }).notNull(),
+  excerpt: text("excerpt").notNull(),
+  readTime: varchar("readTime", { length: 40 }).notNull(),
+  accent: varchar("accent", { length: 180 }).notNull(),
+  sectionsJson: text("sectionsJson").notNull(),
+  status: varchar("status", { length: 24 }).default("draft").notNull(),
+  socialImageUrl: varchar("socialImageUrl", { length: 512 }),
+  publishedAt: timestamp("publishedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({ slugUnique: uniqueIndex("insight_articles_slug_unique").on(table.slug) }));
 
 export const contactInquiryAuditLogs = mysqlTable("contact_inquiry_audit_logs", {
   id: int("id").autoincrement().primaryKey(),

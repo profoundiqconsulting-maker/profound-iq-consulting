@@ -80,6 +80,14 @@ export async function sendFailedLoginAlert(input: { recipients: string[]; identi
   await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to: recipients, subject, text: message, html: `<div style="font-family:Arial,sans-serif;color:#16243d"><h2>${escapeHtml(subject)}</h2><p>${escapeHtml(message)}</p><p>This alert does not reveal the source network or password details.</p></div>` });
 }
 
+export async function sendNewsletterConfirmationEmail(input: { to: string; confirmationUrl: string; unsubscribeUrl: string }): Promise<void> {
+  const config = getSmtpConfig();
+  const safeConfirmationUrl = escapeHtml(input.confirmationUrl);
+  const safeUnsubscribeUrl = escapeHtml(input.unsubscribeUrl);
+  const subject = "Confirm your Profound IQ Insights subscription";
+  await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to: input.to, subject, text: `You requested Profound IQ Consulting Insights. Confirm your subscription here:\n${input.confirmationUrl}\n\nIf you did not request this, ignore this email. You can unsubscribe here: ${input.unsubscribeUrl}`, html: `<div style="margin:0 auto;max-width:680px;background:#f7f3e8;color:#16243d;font-family:Arial,sans-serif"><div style="background:#101d35;color:#f7f3e8;padding:24px 28px;border-top:6px solid #c9a34e"><div style="font-size:12px;letter-spacing:3px;font-weight:700">PROFOUND IQ CONSULTING</div><div style="margin-top:8px;color:#c9a34e;font-size:11px;letter-spacing:2px">INSIGHTS / CONFIRMATION</div></div><div style="padding:28px"><p>You requested useful ideas from Profound IQ Consulting.</p><p>Confirm your email address to receive Insights updates.</p><p><a href="${safeConfirmationUrl}" style="display:inline-block;background:#c9a34e;color:#16243d;padding:13px 18px;text-decoration:none;font-weight:700">Confirm subscription</a></p><p style="font-size:13px;color:#657084">This confirmation link expires in 48 hours. If you did not request this, ignore this message. You can also <a href="${safeUnsubscribeUrl}" style="color:#7d5e1e">unsubscribe</a>.</p></div><div style="background:#16243d;color:#c1cad7;padding:18px 28px;font-size:12px">Profound IQ Consulting · Transformational learning</div></div>` });
+}
+
 export async function sendPasswordResetEmail(input: { to: string; name: string; resetUrl: string }): Promise<void> {
   const config = getSmtpConfig();
   const subject = "Reset your Profound IQ password";

@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { normalizeLeaderboardDisplayName, rankAchievementLeaderboard, type AchievementBadge, type AchievementLeaderboardRow } from "../shared/achievements";
 import { courseCatalog } from "../shared/courseCatalog";
 import { buildCourseModuleBadges } from "../shared/courseBadges";
-import { adminAnalyticsSettings, adminSecuritySettings, siteSeoSettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits, newsletterSubscribers } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, siteSeoSettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits, newsletterSubscribers, insightArticles as insightArticlesTable } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -12,6 +12,7 @@ import { selectAdminNotificationRecipients } from "../shared/adminRecipients";
 import type { DeliveryLogFilters, DeliveryLogRow } from "../shared/adminDeliveryLog";
 import { clampAuditPagination, type AuditHistoryFilters, type AuditHistoryPage, type AuditHistoryQuery } from "../shared/adminAudit";
 import { ENV } from "./_core/env";
+import { insightArticles as bundledInsightArticles, type InsightArticle } from "../shared/insightsArticles";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -796,18 +797,88 @@ export async function getNewsletterSubscribersForExport(filters: NewsletterSubsc
   return db.select().from(newsletterSubscribers).where(newsletterSubscriberConditions(filters)).orderBy(desc(newsletterSubscribers.createdAt));
 }
 
-export async function subscribeToNewsletter(input: { email: string; source?: string }) {
+export async function subscribeToNewsletter(input: { email: string; source?: string; confirmationTokenHash: string; confirmationExpiresAt: Date; confirmationSentAt: Date; unsubscribeTokenHash: string }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const email = input.email.trim().toLowerCase();
-  const existing = (await db.select({ id: newsletterSubscribers.id }).from(newsletterSubscribers).where(eq(newsletterSubscribers.email, email)).limit(1))[0];
+  const existing = (await db.select({ id: newsletterSubscribers.id, status: newsletterSubscribers.status, confirmedAt: newsletterSubscribers.confirmedAt }).from(newsletterSubscribers).where(eq(newsletterSubscribers.email, email)).limit(1))[0];
   const now = new Date();
   if (existing) {
-    await db.update(newsletterSubscribers).set({ status: "subscribed", consentedAt: now, source: input.source ?? "insights" }).where(eq(newsletterSubscribers.id, existing.id));
-    return { id: existing.id, status: "subscribed" as const, alreadySubscribed: true };
+    const isConfirmed = existing.status === "confirmed" || existing.status === "subscribed";
+    await db.update(newsletterSubscribers).set({ status: isConfirmed ? existing.status : "pending", consentedAt: now, source: input.source ?? "insights", confirmationTokenHash: isConfirmed ? null : input.confirmationTokenHash, confirmationExpiresAt: isConfirmed ? null : input.confirmationExpiresAt, confirmationSentAt: isConfirmed ? null : input.confirmationSentAt, confirmedAt: existing.confirmedAt, unsubscribeTokenHash: input.unsubscribeTokenHash, unsubscribedAt: isConfirmed ? null : null }).where(eq(newsletterSubscribers.id, existing.id));
+    return { id: existing.id, status: isConfirmed ? "confirmed" as const : "pending" as const, alreadySubscribed: isConfirmed, confirmationRequired: !isConfirmed };
   }
-  const result = await db.insert(newsletterSubscribers).values({ email, source: input.source ?? "insights", status: "subscribed", consentedAt: now });
-  return { id: Number(result[0].insertId), status: "subscribed" as const, alreadySubscribed: false };
+  const result = await db.insert(newsletterSubscribers).values({ email, source: input.source ?? "insights", status: "pending", consentedAt: now, confirmationTokenHash: input.confirmationTokenHash, confirmationExpiresAt: input.confirmationExpiresAt, confirmationSentAt: input.confirmationSentAt, unsubscribeTokenHash: input.unsubscribeTokenHash });
+  return { id: Number(result[0].insertId), status: "pending" as const, alreadySubscribed: false, confirmationRequired: true };
+}
+
+export async function confirmNewsletterSubscription(tokenHash: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const now = new Date();
+  const row = (await db.select().from(newsletterSubscribers).where(and(eq(newsletterSubscribers.confirmationTokenHash, tokenHash), gte(newsletterSubscribers.confirmationExpiresAt, now))).limit(1))[0];
+  if (!row) return null;
+  await db.update(newsletterSubscribers).set({ status: "confirmed", confirmedAt: now, confirmationTokenHash: null, confirmationExpiresAt: null }).where(eq(newsletterSubscribers.id, row.id));
+  return { id: row.id, email: row.email, status: "confirmed" as const };
+}
+
+export async function unsubscribeNewsletter(tokenHash: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const row = (await db.select({ id: newsletterSubscribers.id, email: newsletterSubscribers.email }).from(newsletterSubscribers).where(eq(newsletterSubscribers.unsubscribeTokenHash, tokenHash)).limit(1))[0];
+  if (!row) return null;
+  await db.update(newsletterSubscribers).set({ status: "unsubscribed", unsubscribedAt: new Date(), confirmationTokenHash: null, confirmationExpiresAt: null }).where(eq(newsletterSubscribers.id, row.id));
+  return { id: row.id, email: row.email, status: "unsubscribed" as const };
+}
+
+export async function updateNewsletterSubscriberStatus(id: number, status: "pending" | "confirmed" | "subscribed" | "unsubscribed") {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(newsletterSubscribers).set({ status, confirmedAt: status === "confirmed" || status === "subscribed" ? new Date() : undefined, unsubscribedAt: status === "unsubscribed" ? new Date() : undefined }).where(eq(newsletterSubscribers.id, id));
+  return { id, status };
+}
+
+function mapInsightRow(row: typeof insightArticlesTable.$inferSelect): InsightArticle & { status: "Draft preview" | "Published"; socialImageUrl?: string | null; publishedAt?: Date | null } {
+  const source = bundledInsightArticles.find((article) => article.slug === row.slug);
+  return { slug: row.slug, index: source?.index ?? "", category: row.category, title: row.title, excerpt: row.excerpt, readTime: row.readTime, accent: row.accent, status: row.status === "published" ? "Published" : "Draft preview", sections: source?.sections ?? JSON.parse(row.sectionsJson) as Array<{ heading: string; paragraphs: string[] }>, socialImageUrl: row.socialImageUrl, publishedAt: row.publishedAt };
+}
+
+export async function listInsightArticles(input: { search?: string; category?: string; page?: number; pageSize?: number; includeDrafts?: boolean } = {}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const page = Math.max(1, input.page ?? 1);
+  const pageSize = Math.min(50, Math.max(1, input.pageSize ?? 9));
+  const search = input.search?.trim().toLowerCase();
+  const rows = await db.select().from(insightArticlesTable).orderBy(desc(insightArticlesTable.updatedAt));
+  const sourceRows = rows.length ? rows.map(mapInsightRow) : bundledInsightArticles.map((article) => ({ ...article, socialImageUrl: null, publishedAt: null }));
+  const filtered = sourceRows.filter((article) => (input.includeDrafts || article.status === "Published" || !rows.length) && (!input.category || input.category === "all" || article.category === input.category) && (!search || `${article.title} ${article.excerpt} ${article.category} ${article.accent}`.toLowerCase().includes(search)));
+  const total = filtered.length;
+  return { rows: filtered.slice((page - 1) * pageSize, page * pageSize), total, page, pageSize, pageCount: Math.max(1, Math.ceil(total / pageSize)) };
+}
+
+export async function getInsightArticleBySlug(slug: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const row = (await db.select().from(insightArticlesTable).where(eq(insightArticlesTable.slug, slug)).limit(1))[0];
+  if (row) return mapInsightRow(row);
+  const anyManagedRecord = (await db.select({ id: insightArticlesTable.id }).from(insightArticlesTable).limit(1))[0];
+  return anyManagedRecord ? null : bundledInsightArticles.find((article) => article.slug === slug) ?? null;
+}
+
+export async function listInsightArticlesForAdmin() {
+  return listInsightArticles({ includeDrafts: true, page: 1, pageSize: 50 });
+}
+
+export async function setInsightArticleStatus(input: { slug: string; status: "draft" | "published"; socialImageUrl?: string | null }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const bundled = bundledInsightArticles.find((article) => article.slug === input.slug);
+  if (!bundled) throw new Error("Insight article not found");
+  const existing = (await db.select({ id: insightArticlesTable.id }).from(insightArticlesTable).where(eq(insightArticlesTable.slug, input.slug)).limit(1))[0];
+  const publishedAt = input.status === "published" ? new Date() : null;
+  if (existing) await db.update(insightArticlesTable).set({ status: input.status, socialImageUrl: input.socialImageUrl ?? null, publishedAt }).where(eq(insightArticlesTable.id, existing.id));
+  else await db.insert(insightArticlesTable).values({ slug: bundled.slug, category: bundled.category, title: bundled.title, excerpt: bundled.excerpt, readTime: bundled.readTime, accent: bundled.accent, sectionsJson: JSON.stringify(bundled.sections), status: input.status, socialImageUrl: input.socialImageUrl ?? null, publishedAt });
+  return { slug: input.slug, status: input.status };
 }
 
 async function recordContactInquiryAudit(db: Awaited<ReturnType<typeof getDb>>, input: { inquiryId: number; actor: ContactInquiryActor; action: "status" | "notes" | "assignment" | "workload"; previousValue?: string | null; nextValue?: string | null }) {
