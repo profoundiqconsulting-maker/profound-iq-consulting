@@ -11,7 +11,11 @@ export type LessonIllustration = { label: string; caption: string; accent: strin
 export type CourseLesson = { id: string; title: string; summary: string; outcome: string; durationMinutes: number; objectives: string[]; sections: LessonSection[]; example: { context: string; move: string; result: string }; simulation: LessonSimulation; responseTasks: LessonResponseTask[]; deepDive: string; reflectionPrompt: string; keyTakeaway: string; illustration: LessonIllustration };
 export type CourseQuizQuestion = { id: string; prompt: string; options: string[]; correctOption: number; sourceLessonId: string; sourceLessonTitle: string; explanation: string; optionExplanations: string[] };
 export type CourseModule = { id: string; title: string; promise: string; lessons: CourseLesson[]; quiz: CourseQuizQuestion[] };
-export type CourseDefinition = { slug: string; index: string; title: string; strapline: string; description: string; audience: string; duration: string; outcomes: readonly string[]; priceKes: number; stageAmountsKes: readonly number[]; modules: CourseModule[] };
+export type CourseCategory = "AI & Digital" | "Business & Analytics" | "Education & Research" | "Communication & Career" | "Leadership & Workplace" | "Personal Development";
+export type CourseSkillLevel = "Foundation" | "Practitioner" | "Advanced";
+export const COURSE_CATEGORIES: readonly CourseCategory[] = ["AI & Digital", "Business & Analytics", "Education & Research", "Communication & Career", "Leadership & Workplace", "Personal Development"] as const;
+export const COURSE_SKILL_LEVELS: readonly CourseSkillLevel[] = ["Foundation", "Practitioner", "Advanced"] as const;
+export type CourseDefinition = { slug: string; index: string; title: string; strapline: string; description: string; audience: string; duration: string; outcomes: readonly string[]; priceKes: number; stageAmountsKes: readonly number[]; modules: CourseModule[]; category: CourseCategory; skillLevel: CourseSkillLevel; coverImage: string };
 
 const explanatoryVisuals = [
   { url: "/manus-storage/piq-explainer-journey_6b36511b.png", alt: "A rising pathway connecting insight to purposeful action." },
@@ -430,5 +434,40 @@ const additionalCourseSeeds = [
   },
 ].map((course) => ({ ...course, duration: "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes", priceKes: STANDARD_COURSE_PRICE_KES, stageAmountsKes: STANDARD_COURSE_STAGE_AMOUNTS_KES }));
 
-export const courseCatalog: CourseDefinition[] = [...courseSeeds, ...additionalCourseSeeds].map((course) => ({ ...course, modules: course.slug === "professional-certificate-international-curriculum-pedagogy" ? buildIcpcModules(course) : buildModules(course) }));
+const courseCoverByCategory: Record<CourseCategory, string> = {
+  "AI & Digital": "/manus-storage/cover-ai-learning_e7060957.jpg",
+  "Business & Analytics": "/manus-storage/cover-insight-analytics_3177ed26.jpg",
+  "Education & Research": "/manus-storage/cover-people-practice_342ff6e3.jpg",
+  "Communication & Career": "/manus-storage/cover-digital-growth_c45a2cd5.jpg",
+  "Leadership & Workplace": "/manus-storage/cover-customer-value_969a689e.jpg",
+  "Personal Development": "/manus-storage/cover-people-practice_342ff6e3.jpg",
+};
+
+const skillLevelOverrides: Record<string, CourseSkillLevel> = {
+  "artificial-intelligence-for-educators": "Practitioner", "artificial-intelligence-generative-ai": "Foundation", "generative-ai-prompt-engineering": "Practitioner", "ai-business-organization-transformation": "Advanced", "ai-powered-productivity-automation": "Foundation", "responsible-ai-ethics-governance": "Advanced", "social-media-management": "Practitioner", "digital-marketing": "Practitioner", "research-methods": "Practitioner", "business-analytics": "Practitioner", "business-intelligence": "Advanced", "competency-based-education-assessments": "Advanced", "communication-presentation-skills": "Foundation", "report-writing-presentation-skills": "Practitioner", "career-guidance-coaching": "Foundation", "customer-experience-management": "Practitioner", "search-engine-optimization": "Practitioner", "data-analytics": "Practitioner",
+};
+
+const courseCategoryFor = (course: { slug: string; title: string }): CourseCategory => {
+  const value = `${course.slug} ${course.title}`.toLowerCase();
+  if (/artificial-intelligence|generative-ai|prompt-engineering|social-media|digital-marketing|search-engine-optimization|digital-literacy/.test(value)) return "AI & Digital";
+  if (/research-methods|curriculum|pedagogy|competency-based-education/.test(value)) return "Education & Research";
+  if (/business-analytics|business-intelligence|data-analytics|personal-finance|business-empires|entrepreneurial/.test(value)) return "Business & Analytics";
+  if (/communication|presentation|report-writing|career-|customer-experience/.test(value)) return "Communication & Career";
+  if (/leadership|teamwork|conflict|professionalism|emotional-intelligence|negotiation/.test(value)) return "Leadership & Workplace";
+  if (/decision|creativity|adaptability|time-management|self-discipline/.test(value)) return "Personal Development";
+  return "Personal Development";
+};
+
+const courseSkillLevelFor = (course: { slug: string; title: string }): CourseSkillLevel => {
+  if (skillLevelOverrides[course.slug]) return skillLevelOverrides[course.slug];
+  const value = `${course.slug} ${course.title}`.toLowerCase();
+  if (/professional-certificate|mastering|lead|strategic|advanced|emotional-intelligence|negotiation/.test(value)) return "Advanced";
+  if (/essentials|personal-growth|self-discovery|growth-mindset|communication|confidence/.test(value)) return "Foundation";
+  return "Practitioner";
+};
+
+export const courseCatalog: CourseDefinition[] = [...courseSeeds, ...additionalCourseSeeds].map((course) => {
+  const category = courseCategoryFor(course);
+  return { ...course, modules: course.slug === "professional-certificate-international-curriculum-pedagogy" ? buildIcpcModules(course) : buildModules(course), category, skillLevel: courseSkillLevelFor(course), coverImage: courseCoverByCategory[category] };
+});
 export const getCourseBySlug = (slug: string) => courseCatalog.find((course) => course.slug === slug);

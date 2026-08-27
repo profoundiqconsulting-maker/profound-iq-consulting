@@ -1974,3 +1974,13 @@
 - [x] Update catalog and localization regression tests for all new courses.
 - [x] Run TypeScript, full Vitest, production build, and representative catalog/course screenshots.
 - [x] Save and auto-publish a checkpoint for the expanded professional course catalog.
+
+# Course Catalog Artwork, Comparison, and Discovery Upgrade
+
+- [x] Add course categories and skill-level metadata for the 18 new and existing catalog courses.
+- [x] Add course-specific cover artwork assets using the branded visual system and managed storage.
+- [x] Render course cover artwork and category/level labels in catalog cards and detail views.
+- [x] Create a learner course comparison view for outcomes, duration, pricing, and skill level.
+- [x] Add catalog filtering and sorting by topic, category, skill level, and course title.
+- [x] Create and validate a reusable catalog-expansion workflow skill.
+- [x] Add regression tests, run full validation, and save a live checkpoint.

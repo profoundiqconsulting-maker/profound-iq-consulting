@@ -48,6 +48,14 @@ describe("expanded professional course catalog", () => {
     expect(lesson.responseTasks.every((task) => task.required && task.prompt.length > 30)).toBe(true);
   });
 
+  it("assigns discoverable taxonomy and managed cover artwork to every course", () => {
+    expect(courseCatalog.every((course) => course.category && ["Foundation", "Practitioner", "Advanced"].includes(course.skillLevel) && course.coverImage.startsWith("/manus-storage/"))).toBe(true);
+    expect(new Set(courseCatalog.map((course) => course.category)).size).toBeGreaterThanOrEqual(5);
+    expect(courseCatalog.find((course) => course.slug === "artificial-intelligence-for-educators")?.category).toBe("AI & Digital");
+    expect(courseCatalog.find((course) => course.slug === "business-analytics")?.category).toBe("Business & Analytics");
+    expect(courseCatalog.find((course) => course.slug === "research-methods")?.category).toBe("Education & Research");
+  });
+
   it("inherits branded certificate metadata for new courses", () => {
     const svg = renderCourseCertificateSvg({ recipientName: "Amina Otieno", recipientEmail: "amina@example.com", courseTitle: "Decision-Making Skills", certificateNumber: "PIQ-2026-0001", issuedOn: "2026-08-24T00:00:00Z", verificationUrl: "https://profoundiq-vguqrhsm.manus.space/verify/certificate?certificate=PIQ-2026-0001" });
     expect(svg).toContain("Amina Otieno");
@@ -71,6 +79,14 @@ describe("quiz learning feedback and analytics", () => {
         }
       }
     }
+  });
+
+  it("exposes catalog comparison and discovery controls", () => {
+    const source = readFileSync("client/src/pages/Courses.tsx", "utf8");
+    expect(source).toContain("comparisonSlugs");
+    expect(source).toContain("Compare up to three pathways");
+    expect(source).toContain("Filter by skill level");
+    expect(source).toContain("Price: low to high");
   });
 
   it("exposes the randomized-attempt and feedback contract in the workspace", async () => {
