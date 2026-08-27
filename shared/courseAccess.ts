@@ -1,3 +1,17 @@
+export const QUALITY_CONTROL_ADMIN_EMAIL = "profoundiqconsulting@gmail.com";
+
+export function isQualityControlAdmin(user: { email?: string | null } | null | undefined) {
+  return user?.email?.trim().toLowerCase() === QUALITY_CONTROL_ADMIN_EMAIL;
+}
+
+export function canBypassCoursePayment(input: { isQualityControlAdmin: boolean; hasAccessGrant: boolean }) {
+  return input.isQualityControlAdmin || input.hasAccessGrant;
+}
+
+export function qualityControlQuizScore(input: { rawScore: number; isQualityControlAdmin: boolean }) {
+  return input.isQualityControlAdmin ? 100 : input.rawScore;
+}
+
 export type CourseAccessInput = { isAuthenticated: boolean; paidStages: number; isQualityControlAdmin: boolean };
 
 /** Returns the installment required before a module's lessons may be opened. Modules are 1-indexed in the learner-facing copy. */

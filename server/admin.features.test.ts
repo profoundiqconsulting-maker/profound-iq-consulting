@@ -13,6 +13,9 @@ describe("admin feature boundaries", () => {
     const caller = appRouter.createCaller(contextWithRole("user"));
     await expect(caller.admin.emailTemplates()).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(caller.admin.exportCourseEnrollments()).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(caller.admin.courseAccessGrants()).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(caller.admin.courseAccessGrantAudits()).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(caller.admin.setCourseAccessGrant({ userOpenId: "someone", courseSlug: courseCatalog[0].slug, enabled: true })).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(caller.admin.sendTemplateTestEmail({ templateKey: "assessment_report", subject: "Preview", body: "Hello {{name}}" })).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(caller.admin.scheduledExportStatus()).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(caller.admin.emailPreviewHistory()).rejects.toMatchObject({ code: "FORBIDDEN" });

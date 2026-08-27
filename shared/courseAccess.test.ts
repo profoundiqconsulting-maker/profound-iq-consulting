@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canAccessCourseLessons, canAccessModuleLessons, courseAccessReason, requiredPaymentStageForModule } from "./courseAccess";
+import { canAccessCourseLessons, canAccessModuleLessons, canBypassCoursePayment, courseAccessReason, isQualityControlAdmin, qualityControlQuizScore, requiredPaymentStageForModule } from "./courseAccess";
 
 describe("course lesson access", () => {
   it("blocks unregistered visitors while keeping a sign-in reason", () => {
@@ -37,5 +37,25 @@ describe("module payment boundaries", () => {
 
   it("allows quality-control admins to inspect all modules without payment", () => {
     expect(canAccessModuleLessons({ moduleIndex: 9, paidStages: 0, isQualityControlAdmin: true })).toBe(true);
+  });
+});
+
+describe("quality-control access policy", () => {
+  it("recognizes only the designated admin email", () => {
+    expect(isQualityControlAdmin({ email: "profoundiqconsulting@gmail.com" })).toBe(true);
+    expect(isQualityControlAdmin({ email: "PROFOUNDIQCONSULTING@GMAIL.COM" })).toBe(true);
+    expect(isQualityControlAdmin({ email: "other@example.com" })).toBe(false);
+    expect(isQualityControlAdmin({ email: null })).toBe(false);
+  });
+
+  it("allows either the designated admin or an active learner grant to bypass payment", () => {
+    expect(canBypassCoursePayment({ isQualityControlAdmin: true, hasAccessGrant: false })).toBe(true);
+    expect(canBypassCoursePayment({ isQualityControlAdmin: false, hasAccessGrant: true })).toBe(true);
+    expect(canBypassCoursePayment({ isQualityControlAdmin: false, hasAccessGrant: false })).toBe(false);
+  });
+
+  it("normalizes only quality-control admin quiz submissions to 100%", () => {
+    expect(qualityControlQuizScore({ rawScore: 40, isQualityControlAdmin: true })).toBe(100);
+    expect(qualityControlQuizScore({ rawScore: 40, isQualityControlAdmin: false })).toBe(40);
   });
 });

@@ -2075,3 +2075,11 @@
 - [x] Add a live cover-page preview in the PDF export modal using current branding settings.
 - [x] Add storage authorization, migration, regression tests, PDF rendering checks, build checks, and responsive QA.
 - [x] Save and auto-publish a checkpoint for the custom branding, templates, and live-preview features.
+
+# Admin Quality-Control Access and Learner Grants
+- [x] Add server-side quality-control bypass for profoundiqconsulting@gmail.com across course payment gates, lesson timers, quizzes, and certificate generation.
+- [x] Ensure the designated admin receives automatic full quiz access and 100% completion eligibility without weakening ordinary learner rules.
+- [x] Add an admin-only workflow to grant or revoke course-content access for individual learners with audit records.
+- [x] Display a clear Quality Control Mode indicator and access-grant status in admin/course workspaces.
+- [x] Add authorization and regression tests, run full tests/build, and verify course, quiz, payment, and certificate flows.
+- [x] Save and auto-publish a checkpoint for the admin quality-control and learner-access grant features.

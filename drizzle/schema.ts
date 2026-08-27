@@ -159,6 +159,28 @@ export const courseLearnerEnrollments = mysqlTable("course_learner_enrollments",
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({ learnerCourseUnique: uniqueIndex("course_learner_course_unique").on(table.userOpenId, table.courseSlug) }));
+export const courseAccessGrants = mysqlTable("course_access_grants", {
+  id: int("id").autoincrement().primaryKey(),
+  userOpenId: varchar("userOpenId", { length: 64 }).notNull(),
+  courseSlug: varchar("courseSlug", { length: 120 }).notNull(),
+  grantedByOpenId: varchar("grantedByOpenId", { length: 64 }).notNull(),
+  grantedByName: varchar("grantedByName", { length: 160 }),
+  grantedAt: timestamp("grantedAt").defaultNow().notNull(),
+  revokedAt: timestamp("revokedAt"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({ learnerCourseUnique: uniqueIndex("course_access_grant_user_course_unique").on(table.userOpenId, table.courseSlug), learnerIdx: index("course_access_grant_user_idx").on(table.userOpenId), courseIdx: index("course_access_grant_course_idx").on(table.courseSlug) }));
+
+export const courseAccessGrantAudits = mysqlTable("course_access_grant_audits", {
+  id: int("id").autoincrement().primaryKey(),
+  userOpenId: varchar("userOpenId", { length: 64 }).notNull(),
+  courseSlug: varchar("courseSlug", { length: 120 }).notNull(),
+  action: varchar("action", { length: 16 }).notNull(),
+  actorOpenId: varchar("actorOpenId", { length: 64 }).notNull(),
+  actorName: varchar("actorName", { length: 160 }),
+  actorEmail: varchar("actorEmail", { length: 320 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({ userIdx: index("course_access_grant_audit_user_idx").on(table.userOpenId), createdIdx: index("course_access_grant_audit_created_idx").on(table.createdAt) }));
+
 export const courseLessonProgress = mysqlTable("course_lesson_progress", {
   id: int("id").autoincrement().primaryKey(),
   enrollmentId: int("enrollmentId").notNull(),

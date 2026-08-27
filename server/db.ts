@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { normalizeLeaderboardDisplayName, rankAchievementLeaderboard, type AchievementBadge, type AchievementLeaderboardRow } from "../shared/achievements";
 import { courseCatalog } from "../shared/courseCatalog";
 import { buildCourseModuleBadges } from "../shared/courseBadges";
-import { adminAnalyticsSettings, adminSecuritySettings, siteSeoSettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseLessonResponses, courseLessonResponseReviews, courseLessonResponseNotifications, courseLessonIllustrationBookmarks, courseSavedCourses, courseRecommendationHistory, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits, newsletterSubscribers, insightArticles as insightArticlesTable } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, siteSeoSettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseAccessGrants, courseAccessGrantAudits, courseLessonProgress, courseLessonResponses, courseLessonResponseReviews, courseLessonResponseNotifications, courseLessonIllustrationBookmarks, courseSavedCourses, courseRecommendationHistory, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits, newsletterSubscribers, insightArticles as insightArticlesTable } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -1429,6 +1429,38 @@ export async function getCourseEnrollment(userOpenId: string, courseSlug: string
   if (!db) throw new Error("Database is not available");
   return (await db.select().from(courseLearnerEnrollments).where(and(eq(courseLearnerEnrollments.userOpenId, userOpenId), eq(courseLearnerEnrollments.courseSlug, courseSlug))).limit(1))[0] ?? undefined;
 }
+export async function hasCourseAccessGrant(userOpenId: string, courseSlug: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const row = (await db.select({ id: courseAccessGrants.id }).from(courseAccessGrants).where(and(eq(courseAccessGrants.userOpenId, userOpenId), eq(courseAccessGrants.courseSlug, courseSlug), isNull(courseAccessGrants.revokedAt))).limit(1))[0];
+  return Boolean(row);
+}
+
+export async function listCourseAccessGrants() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select({ grant: courseAccessGrants, userName: users.name, userEmail: users.email }).from(courseAccessGrants).leftJoin(users, eq(users.openId, courseAccessGrants.userOpenId)).orderBy(desc(courseAccessGrants.updatedAt)).limit(500);
+}
+
+export async function listCourseAccessGrantAudits() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(courseAccessGrantAudits).orderBy(desc(courseAccessGrantAudits.createdAt)).limit(500);
+}
+
+export async function setCourseAccessGrant(input: { userOpenId: string; courseSlug: string; enabled: boolean; actorOpenId: string; actorName?: string | null; actorEmail?: string | null }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const existing = (await db.select().from(courseAccessGrants).where(and(eq(courseAccessGrants.userOpenId, input.userOpenId), eq(courseAccessGrants.courseSlug, input.courseSlug))).limit(1))[0];
+  if (existing) {
+    await db.update(courseAccessGrants).set({ grantedByOpenId: input.actorOpenId, grantedByName: input.actorName ?? null, grantedAt: input.enabled ? new Date() : existing.grantedAt, revokedAt: input.enabled ? null : new Date(), updatedAt: new Date() }).where(eq(courseAccessGrants.id, existing.id));
+  } else if (input.enabled) {
+    await db.insert(courseAccessGrants).values({ userOpenId: input.userOpenId, courseSlug: input.courseSlug, grantedByOpenId: input.actorOpenId, grantedByName: input.actorName ?? null });
+  }
+  await db.insert(courseAccessGrantAudits).values({ userOpenId: input.userOpenId, courseSlug: input.courseSlug, action: input.enabled ? "grant" : "revoke", actorOpenId: input.actorOpenId, actorName: input.actorName ?? null, actorEmail: input.actorEmail ?? null });
+  return (await db.select().from(courseAccessGrants).where(and(eq(courseAccessGrants.userOpenId, input.userOpenId), eq(courseAccessGrants.courseSlug, input.courseSlug))).limit(1))[0] ?? null;
+}
+
 export async function listCourseEnrollmentState(userOpenId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -1440,7 +1472,7 @@ export async function listCourseEnrollmentState(userOpenId: string) {
   return Promise.all(enrollments.map(async (enrollment) => {
     const responses = await db.select().from(courseLessonResponses).where(eq(courseLessonResponses.enrollmentId, enrollment.id));
     const reviews = responses.length ? await db.select().from(courseLessonResponseReviews).where(inArray(courseLessonResponseReviews.responseId, responses.map((response) => response.id))).orderBy(desc(courseLessonResponseReviews.updatedAt)) : [];
-    return { enrollment, lessons: await db.select().from(courseLessonProgress).where(eq(courseLessonProgress.enrollmentId, enrollment.id)), responses, reviews, notifications: visibleNotifications.filter((notification) => notification.enrollmentId === enrollment.id), quizAttempts: await db.select().from(courseQuizAttempts).where(eq(courseQuizAttempts.enrollmentId, enrollment.id)).orderBy(desc(courseQuizAttempts.createdAt)), stages: await db.select().from(coursePaymentStages).where(eq(coursePaymentStages.enrollmentId, enrollment.id)).orderBy(coursePaymentStages.stage), certificates: await db.select().from(courseCertificates).where(eq(courseCertificates.enrollmentId, enrollment.id)).orderBy(desc(courseCertificates.createdAt)) };
+    return { enrollment, lessons: await db.select().from(courseLessonProgress).where(eq(courseLessonProgress.enrollmentId, enrollment.id)), responses, reviews, notifications: visibleNotifications.filter((notification) => notification.enrollmentId === enrollment.id), quizAttempts: await db.select().from(courseQuizAttempts).where(eq(courseQuizAttempts.enrollmentId, enrollment.id)).orderBy(desc(courseQuizAttempts.createdAt)), stages: await db.select().from(coursePaymentStages).where(eq(coursePaymentStages.enrollmentId, enrollment.id)).orderBy(coursePaymentStages.stage), certificates: await db.select().from(courseCertificates).where(eq(courseCertificates.enrollmentId, enrollment.id)).orderBy(desc(courseCertificates.createdAt)), accessGrant: await hasCourseAccessGrant(userOpenId, enrollment.courseSlug) };
   }));
 }
 export async function listCoursePaymentHistoryPage(userOpenId: string, input: { page: number; pageSize: number; courseSlug?: string; stage?: number; status?: string; from?: Date; to?: Date; sort: "date-desc" | "date-asc" | "amount-desc" | "amount-asc" | "course-asc" | "stage-asc" | "status" }) {
