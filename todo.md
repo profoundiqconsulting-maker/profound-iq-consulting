@@ -2124,3 +2124,11 @@
 - [x] Add a Share to LinkedIn action on the completed certificate surface with certificate URL metadata.
 - [x] Add authorization and renderer/UI regression tests, run full validation, and verify responsive behavior.
 - [x] Save and auto-publish a checkpoint for the certificate controls release.
+
+# Certificate Print, LinkedIn Copy, Live Preview, and Reusable Skill
+- [x] Add dedicated certificate print styling with selectable A4 and Letter landscape page sizes and safe margins.
+- [x] Enhance LinkedIn sharing with pre-filled course-specific post text and relevant hashtags.
+- [x] Make the admin certificate preview update live from unsaved trainer and signature edits before saving.
+- [x] Create and validate a reusable skill documenting the certificate branding, renderer, preview, print, PNG, QR, and sharing workflow.
+- [x] Add regression tests, run full tests, TypeScript, production build, and responsive print/preview QA.
+- [x] Save and auto-publish a checkpoint for the certificate controls and reusable skill release.
