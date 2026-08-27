@@ -1,3 +1,14 @@
+# Current Certificate Workflow
+
+- [x] Wire learner certificate share/download events into certificate usage analytics.
+- [x] Add certificate print preview access to learner course history cards.
+- [x] Display certificate usage analytics in the admin dashboard.
+- [x] Validate PDF download loading and success feedback, tests, and production build.
+- [x] Finalize reusable profound-iq-credential-delivery skill documentation.
+- [x] Track PNG certificate downloads from every learner entry point.
+- [x] Record native-share analytics only after a successful share completes.
+- [ ] Manually verify the learner PDF download spinner and success toast in the browser (not exercised because the persisted browser session had no issued certificate available).
+
 # Avatar Upload Feedback
 
 - [x] Review the existing avatar upload mutation and toast setup.
@@ -2140,3 +2151,13 @@
 - [x] Update and validate the reusable credential-delivery skill with PDF, copy-link, and learner preview patterns.
 - [x] Add regression tests, run full tests, TypeScript, production build, and responsive certificate QA.
 - [x] Save and auto-publish a checkpoint for the certificate delivery enhancements.
+
+# Certificate Layout Editor, History Preview, and Usage Analytics
+- [ ] Add persisted admin certificate field layout settings for moving, editing, hiding, and deleting supported fields.
+- [ ] Apply saved certificate field layout settings to every subsequent SVG, PNG, PDF, email, and preview generation.
+- [ ] Add admin drag/drop or keyboard-movable field controls with reset and save feedback.
+- [ ] Add certificate print preview directly to learner course-history cards.
+- [ ] Track certificate share and download events and show counts in the admin dashboard.
+- [ ] Add PDF download spinner and success notification states.
+- [ ] Add authorization and regression tests, run migration, full tests, TypeScript, production build, and responsive QA.
+- [ ] Save and auto-publish a checkpoint for the certificate layout and analytics release.

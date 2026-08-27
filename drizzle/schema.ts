@@ -484,7 +484,18 @@ export const adminCertificateSettings = mysqlTable("admin_certificate_settings",
   trainerName: varchar("trainerName", { length: 160 }).default("Stephen Mwihaki").notNull(),
   trainerTitle: varchar("trainerTitle", { length: 160 }).default("Managing Director").notNull(),
   signatureDataUri: text("signatureDataUri").notNull(),
+  fieldLayout: json("fieldLayout"),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const certificateUsageEvents = mysqlTable("certificate_usage_events", {
+  id: int("id").autoincrement().primaryKey(),
+  certificateNumber: varchar("certificateNumber", { length: 80 }).notNull(),
+  enrollmentId: int("enrollmentId").notNull(),
+  userOpenId: varchar("userOpenId", { length: 64 }).notNull(),
+  eventType: varchar("eventType", { length: 24 }).notNull(),
+  platform: varchar("platform", { length: 32 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
 export const siteSeoSettings = mysqlTable("site_seo_settings", {

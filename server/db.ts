@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { normalizeLeaderboardDisplayName, rankAchievementLeaderboard, type AchievementBadge, type AchievementLeaderboardRow } from "../shared/achievements";
 import { courseCatalog } from "../shared/courseCatalog";
 import { buildCourseModuleBadges } from "../shared/courseBadges";
-import { adminAnalyticsSettings, adminCertificateSettings, adminSecuritySettings, siteSeoSettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseAccessGrants, courseAccessGrantAudits, courseLessonProgress, courseLessonResponses, courseLessonResponseReviews, courseLessonResponseNotifications, courseLessonIllustrationBookmarks, courseSavedCourses, courseRecommendationHistory, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits, newsletterSubscribers, insightArticles as insightArticlesTable } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminCertificateSettings, certificateUsageEvents, adminSecuritySettings, siteSeoSettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseAccessGrants, courseAccessGrantAudits, courseLessonProgress, courseLessonResponses, courseLessonResponseReviews, courseLessonResponseNotifications, courseLessonIllustrationBookmarks, courseSavedCourses, courseRecommendationHistory, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits, newsletterSubscribers, insightArticles as insightArticlesTable } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -1141,20 +1141,36 @@ export async function deleteExpiredScheduledExportRuns(exportKey: string, cutoff
   if (!db) throw new Error("Database is not available");
   await db.delete(scheduledExportRuns).where(and(eq(scheduledExportRuns.exportKey, exportKey), lt(scheduledExportRuns.createdAt, cutoff)));
 }
+export type CertificateFieldLayout = Record<string, { x?: number; y?: number; width?: number; height?: number; visible?: boolean; text?: string }>;
+
 export async function getAdminCertificateSettings(adminOpenId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   return (await db.select().from(adminCertificateSettings).where(eq(adminCertificateSettings.adminOpenId, adminOpenId)).limit(1))[0] ?? { adminOpenId, trainerName: "Stephen Mwihaki", trainerTitle: "Managing Director", signatureDataUri: CERTIFICATE_SIGNATURE_DATA_URI };
 }
 
-export async function upsertAdminCertificateSettings(adminOpenId: string, input: { trainerName: string; trainerTitle: string; signatureDataUri?: string }) {
+export async function upsertAdminCertificateSettings(adminOpenId: string, input: { trainerName: string; trainerTitle: string; signatureDataUri?: string; fieldLayout?: CertificateFieldLayout }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const existing = await getAdminCertificateSettings(adminOpenId);
-  const values = { trainerName: input.trainerName.trim(), trainerTitle: input.trainerTitle.trim(), signatureDataUri: input.signatureDataUri?.trim() || existing.signatureDataUri };
+  const values = { trainerName: input.trainerName.trim(), trainerTitle: input.trainerTitle.trim(), signatureDataUri: input.signatureDataUri?.trim() || existing.signatureDataUri, fieldLayout: input.fieldLayout ?? existing.fieldLayout ?? null };
   if ("id" in existing) await db.update(adminCertificateSettings).set(values).where(eq(adminCertificateSettings.adminOpenId, adminOpenId));
   else await db.insert(adminCertificateSettings).values({ adminOpenId, ...values });
   return getAdminCertificateSettings(adminOpenId);
+}
+
+export async function recordCertificateUsageEvent(input: { certificateNumber: string; enrollmentId: number; userOpenId: string; eventType: "share" | "download"; platform?: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(certificateUsageEvents).values(input);
+}
+
+export async function getCertificateUsageAnalytics() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db.select({ eventType: certificateUsageEvents.eventType, platform: certificateUsageEvents.platform, count: sql<number>`count(*)` }).from(certificateUsageEvents).groupBy(certificateUsageEvents.eventType, certificateUsageEvents.platform);
+  const totals = rows.reduce((acc, row) => { const key = row.eventType === "share" ? "shares" : "downloads"; acc[key] += Number(row.count ?? 0); return acc; }, { shares: 0, downloads: 0 });
+  return { totals, byPlatform: rows.map((row) => ({ eventType: row.eventType, platform: row.platform ?? "unknown", count: Number(row.count ?? 0) })) };
 }
 
 export async function getAdminAnalyticsSettings(adminOpenId: string) {

@@ -1,64 +1,76 @@
 import { useEffect, useMemo, useState } from "react";
-import { Download, Eye, ImageDown, Minus, Plus, Printer, Save, Upload } from "lucide-react";
+import { Download, Eye, ImageDown, Minus, Plus, Printer, RotateCcw, Save, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { downloadCertificatePng } from "@/lib/certificatePng";
 import { courseCatalog } from "@shared/courseCatalog";
 import "@/certificate-print.css";
 
+type FieldConfig = { x?: number; y?: number; width?: number; height?: number; visible?: boolean; text?: string };
+type FieldLayout = Record<string, FieldConfig>;
+const defaultLayout: FieldLayout = { logo: { x: 735, y: 24, width: 530, height: 265, visible: true }, recipient: { x: 1000, y: 795, visible: true }, course: { x: 1000, y: 965, visible: true }, issuedDate: { x: 210, y: 1195, visible: true }, certificateId: { x: 1450, y: 1195, visible: true }, signature: { x: 865, y: 1080, width: 270, height: 125, visible: true }, trainerName: { x: 1000, y: 1260, visible: true }, trainerTitle: { x: 1000, y: 1298, visible: true } };
+const fieldLabels: Record<string, string> = { logo: "Site logo", recipient: "Learner name", course: "Course title", issuedDate: "Issue date", certificateId: "Certificate ID", signature: "Signature", trainerName: "Trainer name", trainerTitle: "Trainer title" };
+
+function applyLiveLayout(svg: string, layout: FieldLayout) {
+  return Object.entries(layout).reduce((output, [field, config]) => {
+    const marker = `data-field="${field}"`;
+    const markerIndex = output.indexOf(marker);
+    if (markerIndex < 0) return output;
+    const tagStart = output.lastIndexOf("<", markerIndex);
+    const tagEnd = output.indexOf(">", markerIndex);
+    if (tagStart < 0 || tagEnd < 0) return output;
+    let tag = output.slice(tagStart, tagEnd + 1);
+    if (config.visible === false) tag = tag.replace(/^<([a-z]+)/, '<$1 display="none"');
+    if (typeof config.x === "number") tag = tag.replace(/\sx="[^\"]*"/, ` x="${config.x}"`);
+    if (typeof config.y === "number") tag = tag.replace(/\sy="[^\"]*"/, ` y="${config.y}"`);
+    if (typeof config.width === "number") tag = tag.replace(/\swidth="[^\"]*"/, ` width="${config.width}"`);
+    if (typeof config.height === "number") tag = tag.replace(/\sheight="[^\"]*"/, ` height="${config.height}"`);
+    let next = output.slice(0, tagStart) + tag + output.slice(tagEnd + 1);
+    if (typeof config.text === "string" && tag.startsWith("<text")) {
+      const contentStart = next.indexOf(">", tagStart) + 1;
+      const contentEnd = next.indexOf("</text>", contentStart);
+      if (contentStart > 0 && contentEnd > contentStart) next = next.slice(0, contentStart) + config.text.replace(/[&<>\"']/g, (value) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" })[value] ?? value) + next.slice(contentEnd);
+    }
+    return next;
+  }, svg);
+}
+
 export function AdminCertificatePreview() {
   const [courseTitle, setCourseTitle] = useState(courseCatalog[0]?.title ?? "Leadership and Strategic Growth");
   const [trainerName, setTrainerName] = useState("Stephen Mwihaki");
   const [trainerTitle, setTrainerTitle] = useState("Managing Director");
   const [signatureDataUri, setSignatureDataUri] = useState("");
+  const [fieldLayout, setFieldLayout] = useState<FieldLayout>(defaultLayout);
+  const [selectedField, setSelectedField] = useState("recipient");
   const [downloading, setDownloading] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [pageSize, setPageSize] = useState<"a4" | "letter">("a4");
   const settings = trpc.admin.certificateSettings.useQuery();
-  const saveSettings = trpc.admin.saveCertificateSettings.useMutation({
-    onSuccess: (value) => { setTrainerName(value.trainerName); setTrainerTitle(value.trainerTitle); setSignatureDataUri(value.signatureDataUri); void preview.refetch(); toast.success("Certificate settings saved"); },
-    onError: (error) => toast.error("Could not save certificate settings", { description: error.message }),
-  });
+  const usage = trpc.admin.certificateUsageAnalytics.useQuery();
+  const saveSettings = trpc.admin.saveCertificateSettings.useMutation({ onSuccess: (value) => { setTrainerName(value.trainerName); setTrainerTitle(value.trainerTitle); setSignatureDataUri(value.signatureDataUri); setFieldLayout((value.fieldLayout as FieldLayout | null) ?? defaultLayout); void preview.refetch(); toast.success("Certificate settings saved"); }, onError: (error) => toast.error("Could not save certificate settings", { description: error.message }) });
   const preview = trpc.admin.certificatePreview.useQuery({ courseTitle }, { staleTime: 30_000 });
   const svgData = preview.data?.data ?? "";
-  const escapeXml = (value: string) => value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" })[character] ?? character);
-  const replaceSvgText = (svg: string, y: string, value: string) => {
-    const start = svg.indexOf(`<text x="1000" y="${y}"`);
-    if (start < 0) return svg;
-    const openEnd = svg.indexOf(">", start);
-    const closeEnd = svg.indexOf("</text>", openEnd);
-    if (openEnd < 0 || closeEnd < 0) return svg;
-    return `${svg.slice(0, openEnd + 1)}${escapeXml(value)}${svg.slice(closeEnd)}`;
-  };
-  const liveSvgData = useMemo(() => {
-    if (!svgData) return "";
-    const signature = signatureDataUri || settings.data?.signatureDataUri || "";
-    const signatureStart = svgData.indexOf(`<image href="`);
-    const signatureMarker = svgData.indexOf(`" x="865" y="1080"`, signatureStart);
-    let next = signatureStart >= 0 && signatureMarker > signatureStart ? `${svgData.slice(0, signatureStart + 13)}${escapeXml(signature)}${svgData.slice(signatureMarker)}` : svgData;
-    next = replaceSvgText(next, "1260", trainerName);
-    return replaceSvgText(next, "1298", trainerTitle);
-  }, [settings.data?.signatureDataUri, signatureDataUri, svgData, trainerName, trainerTitle]);
+  const liveSvgData = useMemo(() => svgData ? applyLiveLayout(svgData, fieldLayout) : "", [fieldLayout, svgData]);
   const svgSrc = useMemo(() => liveSvgData ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(liveSvgData)}` : "", [liveSvgData]);
+  const selected = fieldLayout[selectedField] ?? {};
 
-  useEffect(() => {
-    if (!settings.data) return;
-    setTrainerName(settings.data.trainerName);
-    setTrainerTitle(settings.data.trainerTitle);
-    setSignatureDataUri(settings.data.signatureDataUri);
-  }, [settings.data]);
-
+  useEffect(() => { if (!settings.data) return; setTrainerName(settings.data.trainerName); setTrainerTitle(settings.data.trainerTitle); setSignatureDataUri(settings.data.signatureDataUri); setFieldLayout((settings.data.fieldLayout as FieldLayout | null) ?? defaultLayout); }, [settings.data]);
+  const updateField = (patch: FieldConfig) => setFieldLayout((current) => ({ ...current, [selectedField]: { ...current[selectedField], ...patch } }));
+  const resetLayout = () => setFieldLayout(defaultLayout);
+  const removeField = () => updateField({ visible: false });
   const downloadSvg = () => { if (!liveSvgData) return; const link = document.createElement("a"); link.href = svgSrc; link.download = "profound-iq-certificate-qa-preview.svg"; link.click(); toast.success("Certificate SVG preview downloaded"); };
   const downloadPng = async () => { if (!liveSvgData) return; setDownloading(true); try { await downloadCertificatePng(liveSvgData, "profound-iq-certificate-qa-preview.png", 2); toast.success("High-resolution PNG preview downloaded"); } catch (error) { toast.error("Could not create PNG preview", { description: error instanceof Error ? error.message : "Please retry." }); } finally { setDownloading(false); } };
   const printPreview = () => { if (!liveSvgData) return; const popup = window.open("", "_blank", "noopener,noreferrer"); if (!popup) { toast.error("Allow pop-ups to print the certificate preview"); return; } popup.document.write(`<html><head><title>Profound IQ certificate preview</title><style>@page{size:${pageSize === "letter" ? "Letter" : "A4"} landscape;margin:0}html,body{margin:0;background:#fff}img{display:block;width:100vw;height:100vh;object-fit:contain;print-color-adjust:exact;-webkit-print-color-adjust:exact}</style></head><body><img alt="Certificate preview" src="${svgSrc}" /></body></html>`); popup.document.close(); popup.focus(); popup.print(); };
   const readSignature = (file: File) => { if (!file.type.startsWith("image/")) { toast.error("Choose a PNG, JPEG, or WebP signature image"); return; } const reader = new FileReader(); reader.onload = () => setSignatureDataUri(String(reader.result)); reader.readAsDataURL(file); };
 
   return <section className="border border-[#c9a34e]/70 bg-[#fffaf0] p-5 text-[#16243d] shadow-sm sm:p-6" aria-labelledby="admin-certificate-preview-title">
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="eyebrow text-[#a27e2e]">Quality control</p><h2 id="admin-certificate-preview-title" className="display mt-2 text-3xl">Certificate preview & settings</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-[#4a566a]">Edit the trainer identity and signature used on newly generated certificates, then review the production layout with safe sample data.</p></div><div className="flex items-center gap-2 text-xs font-bold text-[#7d5e1e]"><Eye size={16} /> Sample data only</div></div>
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="eyebrow text-[#a27e2e]">Quality control</p><h2 id="admin-certificate-preview-title" className="display mt-2 text-3xl">Certificate preview & settings</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-[#4a566a]">Move, hide, restore, or edit supported fields. Changes apply to future certificate generations after saving.</p></div><div className="flex items-center gap-2 text-xs font-bold text-[#7d5e1e]"><Eye size={16} /> Sample data only</div></div>
     <div className="mt-5 grid gap-4 md:grid-cols-2"><label className="block text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">Trainer name<input value={trainerName} onChange={(event) => setTrainerName(event.target.value)} className="mt-2 block w-full border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal tracking-normal outline-none focus:border-[#c9a34e]" maxLength={160} /></label><label className="block text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">Trainer title<input value={trainerTitle} onChange={(event) => setTrainerTitle(event.target.value)} className="mt-2 block w-full border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal tracking-normal outline-none focus:border-[#c9a34e]" maxLength={160} /></label></div>
-    <div className="mt-4 flex flex-wrap items-center gap-3"><label className="inline-flex cursor-pointer items-center gap-2 border border-[#16243d]/25 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-[.12em]"><Upload size={14} /> Replace signature<input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) readSignature(file); }} /></label><span className="text-xs text-[#657084]">{signatureDataUri ? "A signature image is ready to save." : "Using the default signature until you save a replacement."}</span><button type="button" onClick={() => saveSettings.mutate({ trainerName, trainerTitle, signatureDataUri: signatureDataUri || settings.data?.signatureDataUri || "" })} disabled={saveSettings.isPending || !trainerName.trim() || !trainerTitle.trim() || !(signatureDataUri || settings.data?.signatureDataUri)} className="inline-flex items-center gap-2 bg-[#16243d] px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8] disabled:opacity-50"><Save size={14} /> {saveSettings.isPending ? "Saving…" : "Save settings"}</button></div>
+    <div className="mt-4 flex flex-wrap items-center gap-3"><label className="inline-flex cursor-pointer items-center gap-2 border border-[#16243d]/25 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-[.12em]"><Upload size={14} /> Replace signature<input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) readSignature(file); }} /></label><span className="text-xs text-[#657084]">{signatureDataUri ? "A signature image is ready to save." : "Using the default signature until you save a replacement."}</span><button type="button" onClick={() => saveSettings.mutate({ trainerName, trainerTitle, signatureDataUri: signatureDataUri || settings.data?.signatureDataUri || "", fieldLayout })} disabled={saveSettings.isPending || !trainerName.trim() || !trainerTitle.trim() || !(signatureDataUri || settings.data?.signatureDataUri)} className="inline-flex items-center gap-2 bg-[#16243d] px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8] disabled:opacity-50"><Save size={14} /> {saveSettings.isPending ? "Saving…" : "Save settings"}</button></div>
+    <div className="mt-5 grid gap-4 lg:grid-cols-[210px_1fr]"><div className="border border-[#16243d]/15 bg-white p-3"><p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Certificate fields</p><div className="mt-3 space-y-2">{Object.keys(defaultLayout).map((field) => <button key={field} type="button" draggable onDragStart={() => setSelectedField(field)} onClick={() => setSelectedField(field)} className={`flex w-full items-center justify-between border px-3 py-2 text-left text-xs ${selectedField === field ? "border-[#c9a34e] bg-[#fff5cf]" : "border-[#16243d]/10 bg-[#f7f3e8]"}`}><span>{fieldLabels[field]}</span><span className="text-[10px] text-[#657084]">{fieldLayout[field]?.visible === false ? "Hidden" : "Visible"}</span></button>)}</div></div><div className="border border-[#16243d]/15 bg-[#f7f3e8] p-4"><div className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Edit selected field</p><h3 className="mt-1 text-lg font-bold">{fieldLabels[selectedField]}</h3></div><div className="flex gap-2"><button type="button" onClick={resetLayout} className="inline-flex items-center gap-1 border border-[#16243d]/20 bg-white px-3 py-2 text-[10px] font-black uppercase tracking-[.1em]"><RotateCcw size={13} /> Reset layout</button><button type="button" onClick={removeField} className="inline-flex items-center gap-1 border border-red-200 bg-white px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-red-700"><Trash2 size={13} /> Hide field</button></div></div><div className="mt-4 grid gap-3 sm:grid-cols-2"><label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">Horizontal position<input type="range" min="0" max="2000" value={selected.x ?? 0} onChange={(event) => updateField({ x: Number(event.target.value), visible: true })} className="mt-2 w-full accent-[#c9a34e]" /><span className="text-xs font-bold text-[#16243d]">{selected.x ?? 0}</span></label><label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">Vertical position<input type="range" min="0" max="1414" value={selected.y ?? 0} onChange={(event) => updateField({ y: Number(event.target.value), visible: true })} className="mt-2 w-full accent-[#c9a34e]" /><span className="text-xs font-bold text-[#16243d]">{selected.y ?? 0}</span></label></div><label className="mt-3 flex items-center gap-2 text-xs font-bold"><input type="checkbox" checked={selected.visible !== false} onChange={(event) => updateField({ visible: event.target.checked })} className="accent-[#a27e2e]" /> Show field in future certificates</label>{!["recipient", "course", "issuedDate", "certificateId", "logo", "signature"].includes(selectedField) && <label className="mt-3 block text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">Custom display text<input value={selected.text ?? ""} onChange={(event) => updateField({ text: event.target.value })} placeholder="Leave blank to use automatic value" className="mt-2 block w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal tracking-normal" maxLength={240} /></label>}</div></div>
     <div className="mt-5 grid gap-4 md:grid-cols-2"><label className="block text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">Course title<select value={courseTitle} onChange={(event) => setCourseTitle(event.target.value)} className="mt-2 block w-full border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal tracking-normal outline-none focus:border-[#c9a34e] sm:max-w-md">{courseCatalog.slice(0, 30).map((course) => <option key={course.slug} value={course.title}>{course.title}</option>)}</select></label><label className="block text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">Print paper size<select value={pageSize} onChange={(event) => setPageSize(event.target.value as "a4" | "letter")} className="mt-2 block w-full border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal tracking-normal outline-none focus:border-[#c9a34e]"><option value="a4">A4 · landscape</option><option value="letter">Letter · landscape</option></select></label></div>
     <div className="mt-5 overflow-auto border border-[#16243d]/15 bg-[#d7dbe2] p-2"><iframe title="Admin sample certificate preview" src={svgSrc} className="aspect-[2000/1414] h-auto min-h-[260px] origin-top-left bg-white transition-transform duration-200" style={{ transform: `scale(${zoom})`, width: `${100 / zoom}%` }} /></div>
     <div className="mt-4 flex flex-wrap items-center justify-between gap-3"><div className="inline-flex items-center gap-1 border border-[#16243d]/20 bg-white px-2 py-1"><span className="px-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">Preview {Math.round(zoom * 100)}%</span><button type="button" aria-label="Zoom out" onClick={() => setZoom((value) => Math.max(0.75, Number((value - 0.25).toFixed(2))))} disabled={zoom <= 0.75} className="p-2 disabled:opacity-40"><Minus size={14} /></button><button type="button" aria-label="Reset zoom" onClick={() => setZoom(1)} className="px-2 text-[10px] font-black uppercase tracking-[.1em]">Reset</button><button type="button" aria-label="Zoom in" onClick={() => setZoom((value) => Math.min(1.75, Number((value + 0.25).toFixed(2))))} disabled={zoom >= 1.75} className="p-2 disabled:opacity-40"><Plus size={14} /></button></div><div className="flex flex-wrap justify-end gap-3"><button type="button" disabled={!liveSvgData} onClick={downloadSvg} className="inline-flex items-center gap-2 border border-[#16243d]/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] disabled:opacity-50"><Download size={14} /> Download SVG</button><button type="button" disabled={!liveSvgData || downloading} onClick={() => void downloadPng()} className="inline-flex items-center gap-2 bg-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] disabled:opacity-50"><ImageDown size={14} /> {downloading ? "Rendering PNG…" : "Download PNG"}</button><button type="button" disabled={!liveSvgData} onClick={printPreview} className="inline-flex items-center gap-2 border border-[#16243d]/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] disabled:opacity-50"><Printer size={14} /> Print</button></div></div>
+    <div className="mt-5 grid gap-3 sm:grid-cols-2"><div className="border border-[#16243d]/15 bg-white p-4"><p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Certificate shares</p><p className="mt-2 text-3xl font-bold">{usage.data?.totals.shares ?? 0}</p></div><div className="border border-[#16243d]/15 bg-white p-4"><p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Certificate downloads</p><p className="mt-2 text-3xl font-bold">{usage.data?.totals.downloads ?? 0}</p></div></div>
   </section>;
 }

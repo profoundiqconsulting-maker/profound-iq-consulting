@@ -32,6 +32,13 @@ describe("course certificate renderer", () => {
     expect(svg).toContain("data:image/png;base64,QUJD");
   });
 
+  it("applies the saved field layout to future certificate generations", () => {
+    const svg = renderCourseCertificateSvg({ recipientName: "Amina Njeri", courseTitle: "Leadership Essentials", certificateNumber: "PIQ-2026-LAYOUT", issuedOn: "2026-08-27T08:00:00.000Z", fieldLayout: { recipient: { x: 1111, y: 777, text: "Amina Njeri · revised" }, trainerTitle: { visible: false } } });
+    expect(svg).toContain('data-field="recipient" x="1111" y="777"');
+    expect(svg).toContain("Amina Njeri · revised");
+    expect(svg).toContain('<text display="none" data-field="trainerTitle"');
+  });
+
   it("escapes learner-controlled fields while keeping the QR verification payload", () => {
     const svg = renderCourseCertificateSvg({
       recipientName: "Ada <Admin>",

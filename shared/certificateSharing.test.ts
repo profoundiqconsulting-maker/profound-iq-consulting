@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildCertificateLinkedInPost, buildLinkedInShareUrl } from "./certificateSharing";
+import { buildCertificateLinkedInPost, buildLinkedInShareUrl, CERTIFICATE_DOWNLOAD_PLATFORMS } from "./certificateSharing";
 
 describe("certificate sharing", () => {
   it("builds course-aware LinkedIn copy with the certificate URL and hashtags", () => {
@@ -8,6 +8,10 @@ describe("certificate sharing", () => {
     expect(text).toContain("https://example.com/verify/PIQ-123");
     expect(text).toContain("#ProfessionalDevelopment");
     expect(text).toContain("#ContinuousLearning");
+  });
+
+  it("keeps PDF and PNG download analytics platforms explicit", () => {
+    expect(CERTIFICATE_DOWNLOAD_PLATFORMS).toEqual({ pdf: "pdf", png: "png" });
   });
 
   it("encodes the certificate URL for LinkedIn sharing", () => {
