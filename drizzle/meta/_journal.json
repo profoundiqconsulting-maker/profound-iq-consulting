@@ -470,6 +470,13 @@
       "when": 1787859748756,
       "tag": "0066_marvelous_red_wolf",
       "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "5",
+      "when": 1787863220110,
+      "tag": "0067_faithful_hellcat",
+      "breakpoints": true
     }
   ]
 }

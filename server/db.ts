@@ -1160,7 +1160,7 @@ export async function upsertAdminCertificateSettings(adminOpenId: string, input:
   return getAdminCertificateSettings(adminOpenId);
 }
 
-export async function recordCertificateUsageEvent(input: { certificateNumber: string; enrollmentId: number; userOpenId: string; eventType: "share" | "download"; platform?: string }) {
+export async function recordCertificateUsageEvent(input: { certificateNumber: string; enrollmentId: number; userOpenId: string; eventType: "share" | "download"; platform?: string; artifactHash?: string }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   await db.insert(certificateUsageEvents).values(input);
@@ -1925,7 +1925,7 @@ export async function markCoursePaymentStagePaid(id: number) {
   if (!db) throw new Error("Database is not available");
   await db.update(coursePaymentStages).set({ paymentStatus: "paid", paidAt: new Date() }).where(and(eq(coursePaymentStages.id, id), eq(coursePaymentStages.paymentStatus, "pending")));
 }
-export async function createCourseCertificate(input: { enrollmentId: number; recipientName: string; courseTitle: string; certificateNumber: string; fileKey?: string; fileUrl?: string }) {
+export async function createCourseCertificate(input: { enrollmentId: number; recipientName: string; courseTitle: string; certificateNumber: string; fileKey?: string; fileUrl?: string; artifactHash?: string }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const existing = (await db.select().from(courseCertificates).where(eq(courseCertificates.enrollmentId, input.enrollmentId)).limit(1))[0];

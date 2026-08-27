@@ -1,5 +1,13 @@
 # Current Certificate Workflow
 
+- [x] Move the QR code above the Certificate ID, remove the website address, and remove the top line near the signature.
+- [x] Make all social platforms share the actual generated certificate PNG plus its verification link.
+- [x] Remove text override labels from copy, download, and print-preview controls and bind them to the canonical certificate.
+- [x] Add a certificate comparison hash to the issued artifact and all generated formats.
+- [x] Add a learner certificate preview modal before download or sharing.
+- [x] Add downloadable filtered admin analytics exports for certificate generation data.
+- [x] Add regression coverage, responsive QA, production build, and checkpoint validation.
+
 - [x] Define one canonical issued certificate artifact and metadata contract for all learner actions.
 - [x] Align generation, PDF, PNG, print preview, copy-link, and social sharing actions to the canonical certificate.
 - [x] Add regression coverage proving all certificate actions use the same certificate identity and URL.

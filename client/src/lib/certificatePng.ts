@@ -1,4 +1,4 @@
-export async function downloadCertificatePng(svg: string, filename: string, scale = 2) {
+export async function certificatePngBlob(svg: string, scale = 2): Promise<Blob> {
   const svgBlob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
   const objectUrl = URL.createObjectURL(svgBlob);
   try {
@@ -21,13 +21,18 @@ export async function downloadCertificatePng(svg: string, filename: string, scal
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
     const pngBlob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png", 1));
     if (!pngBlob) throw new Error("The certificate PNG could not be created.");
-    const downloadUrl = URL.createObjectURL(pngBlob);
-    const link = document.createElement("a");
-    link.href = downloadUrl;
-    link.download = filename.endsWith(".png") ? filename : `${filename}.png`;
-    link.click();
-    window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+    return pngBlob;
   } finally {
     URL.revokeObjectURL(objectUrl);
   }
+}
+
+export async function downloadCertificatePng(svg: string, filename: string, scale = 2) {
+  const pngBlob = await certificatePngBlob(svg, scale);
+  const downloadUrl = URL.createObjectURL(pngBlob);
+  const link = document.createElement("a");
+  link.href = downloadUrl;
+  link.download = filename.endsWith(".png") ? filename : `${filename}.png`;
+  link.click();
+  window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
 }

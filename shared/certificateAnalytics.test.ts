@@ -17,7 +17,8 @@ describe("certificate analytics", () => {
 
   it("keeps learner social sharing disabled until an issued certificate URL exists", () => {
     const source = readFileSync("client/src/pages/CourseWorkspace.tsx", "utf8");
-    expect(source).toContain("disabled={!hasIssuedCertificate(certificateRecord?.fileUrl)}");
+    expect(source).toContain("disabled={!canonicalCertificate}");
+    expect(source).toContain("getCanonicalCertificateArtifact(certificateRecord)");
   });
 
   it("filters by inclusive date range and aggregates downloads by platform and day", () => {

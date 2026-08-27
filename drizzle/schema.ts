@@ -290,6 +290,7 @@ export const courseCertificates = mysqlTable("course_certificates", {
   status: varchar("status", { length: 32 }).default("issued").notNull(),
   fileKey: varchar("fileKey", { length: 512 }),
   fileUrl: varchar("fileUrl", { length: 512 }),
+  artifactHash: varchar("artifactHash", { length: 64 }),
   emailStatus: varchar("emailStatus", { length: 32 }).default("pending").notNull(),
   emailedAt: timestamp("emailedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -495,6 +496,7 @@ export const certificateUsageEvents = mysqlTable("certificate_usage_events", {
   userOpenId: varchar("userOpenId", { length: 64 }).notNull(),
   eventType: varchar("eventType", { length: 24 }).notNull(),
   platform: varchar("platform", { length: 32 }),
+  artifactHash: varchar("artifactHash", { length: 64 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
