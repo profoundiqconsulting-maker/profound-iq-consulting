@@ -1923,3 +1923,19 @@
 - [x] Add persistent learner bookmarks for explanatory, applicational, and experiential illustration cards.
 - [x] Add experiential-story quiz and reflection interactions with localized copy and persistence.
 - [x] Add focused tests, responsive verification, production build, and publish checkpoint.
+
+# Localized My Illustrations Gallery
+- [x] Localize experiential activity questions, options, feedback, and reflection prompts across all ten supported locales.
+- [x] Create a protected cross-course My Illustrations gallery from durable learner bookmarks.
+- [x] Add explanatory artwork zoom and visual study-sheet download actions.
+- [x] Add focused tests, responsive verification, production build, and publish checkpoint.
+
+# Localized My Illustrations Gallery and Artwork Study Tools
+
+- [x] Complete ten-locale labels and learner-facing copy for My Illustrations and study-sheet actions.
+- [x] Build the protected cross-course My Illustrations gallery with search, mode filters, and bookmark removal.
+- [x] Add artwork zoom preview and branded visual study-sheet downloads in the gallery and lesson player.
+- [x] Add the gallery route and shared dashboard navigation entry.
+- [x] Add regression tests for the gallery contracts and study-sheet helper.
+- [x] Run type checks, full Vitest suite, production build, and responsive browser verification.
+- [x] Save a checkpoint with the completed localized illustration experience.

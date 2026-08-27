@@ -1,9 +1,9 @@
-import { BarChart3, BookOpen, ClipboardCheck, ClipboardList, LayoutDashboard, Settings, Users } from "lucide-react";
+import { BarChart3, BookOpen, Bookmark, ClipboardCheck, ClipboardList, LayoutDashboard, Settings, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export type DashboardNavItem = {
   id: string;
-  labelKey: "overview" | "settings" | "selfAssessment" | "careerPath" | "courses" | "adminObservatory" | "staffWorkspace";
+  labelKey: "overview" | "settings" | "selfAssessment" | "careerPath" | "courses" | "myIllustrations" | "adminObservatory" | "staffWorkspace";
   fallbackLabel: string;
   path: string;
   icon: LucideIcon;
@@ -18,6 +18,7 @@ export const dashboardNavItems: DashboardNavItem[] = [
   { id: "self-assessment", labelKey: "selfAssessment", fallbackLabel: "Self Assessment", path: "/assessment", icon: ClipboardCheck, group: "growth" },
   { id: "careerpath", labelKey: "careerPath", fallbackLabel: "CareerPath", path: "/careerpath", icon: Users, group: "growth" },
   { id: "courses", labelKey: "courses", fallbackLabel: "Courses", path: "/courses", icon: BookOpen, group: "growth" },
+  { id: "my-illustrations", labelKey: "myIllustrations", fallbackLabel: "My Illustrations", path: "/my-illustrations", icon: Bookmark, group: "growth" },
   { id: "admin", labelKey: "adminObservatory", fallbackLabel: "Admin observatory", path: "/admin", icon: BarChart3, group: "operations", adminOnly: true },
   { id: "staff", labelKey: "staffWorkspace", fallbackLabel: "Staff workspace", path: "/staff", icon: ClipboardList, group: "operations", staffOnly: true },
 ];
