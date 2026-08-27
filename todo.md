@@ -1844,3 +1844,10 @@
 - [x] Add filtered CSV export for access-audit reports.
 - [x] Add a visual lesson-unlock progress bar to the payment-required modal.
 - [x] Add tests, responsive verification, and checkpoint the release.
+
+# Access Observatory Trends, Exports, and Alerts
+- [x] Add daily conversion trend data and chart to the admin access observatory.
+- [x] Include individual denied-access events in the filtered CSV export.
+- [x] Add persisted configurable drop-off threshold and admin alert state.
+- [x] Update and validate the reusable payment-access observatory skill.
+- [x] Add tests, responsive checks, production build, and checkpoint the release.
