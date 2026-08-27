@@ -2132,3 +2132,11 @@
 - [x] Create and validate a reusable skill documenting the certificate branding, renderer, preview, print, PNG, QR, and sharing workflow.
 - [x] Add regression tests, run full tests, TypeScript, production build, and responsive print/preview QA.
 - [x] Save and auto-publish a checkpoint for the certificate controls and reusable skill release.
+
+# Certificate PDF Download, Copy Link, Learner Print Preview, and Skill Update
+- [x] Add a secure PDF certificate download alongside SVG and PNG certificate actions.
+- [x] Add a copy-to-clipboard action for the certificate verification/link URL beside LinkedIn sharing.
+- [x] Add a learner-dashboard certificate print preview modal with layout verification before printing.
+- [x] Update and validate the reusable credential-delivery skill with PDF, copy-link, and learner preview patterns.
+- [x] Add regression tests, run full tests, TypeScript, production build, and responsive certificate QA.
+- [x] Save and auto-publish a checkpoint for the certificate delivery enhancements.
