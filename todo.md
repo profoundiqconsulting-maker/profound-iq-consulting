@@ -1,5 +1,16 @@
 # Current Certificate Workflow
 
+- [x] Add loading animation and success toast for certificate PDF generation.
+- [x] Add direct LinkedIn, Facebook, WhatsApp, and X/Twitter certificate sharing.
+- [x] Add richer admin certificate download charts with platform and date-range filters.
+- [x] Add regression tests, responsive verification, and production build for the new certificate features.
+- [x] Require an issued certificate before enabling direct certificate sharing and pass its specific URL to every platform.
+- [x] Add regression coverage for analytics date ranges/platforms and share availability without a certificate.
+- [x] Capture responsive QA for the authenticated learner certificate and admin analytics surfaces, then rerun the build.
+- [x] Add server/router regression coverage for certificate usage date filtering and platform counts.
+- [x] Add a UI-level regression for certificate share controls when no issued certificate URL exists.
+- [x] Document the authenticated-surface QA limitation and preserve the successful build/test evidence.
+
 - [x] Wire learner certificate share/download events into certificate usage analytics.
 - [x] Add certificate print preview access to learner course history cards.
 - [x] Display certificate usage analytics in the admin dashboard.

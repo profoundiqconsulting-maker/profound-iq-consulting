@@ -1,4 +1,12 @@
 export const CERTIFICATE_DOWNLOAD_PLATFORMS = { pdf: "pdf", png: "png" } as const;
+export type CertificateSharePlatform = "linkedin" | "facebook" | "whatsapp" | "twitter";
+
+export function buildCertificateShareUrl(platform: CertificateSharePlatform, certificateUrl: string, courseTitle: string) {
+  if (platform === "linkedin") return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(certificateUrl)}`;
+  if (platform === "facebook") return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(certificateUrl)}`;
+  if (platform === "whatsapp") return `https://wa.me/?text=${encodeURIComponent(`${courseTitle} · ${certificateUrl}`)}`;
+  return `https://twitter.com/intent/tweet?text=${encodeURIComponent(`I completed ${courseTitle} with Profound IQ Consulting.`)}&url=${encodeURIComponent(certificateUrl)}`;
+}
 
 export function buildCertificateLinkedInPost(courseTitle: string, certificateUrl: string) {
   const cleanTitle = courseTitle.trim().replace(/\s+/g, " ");

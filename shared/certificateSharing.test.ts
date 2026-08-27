@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildCertificateLinkedInPost, buildLinkedInShareUrl, CERTIFICATE_DOWNLOAD_PLATFORMS } from "./certificateSharing";
+import { buildCertificateLinkedInPost, buildCertificateShareUrl, buildLinkedInShareUrl, CERTIFICATE_DOWNLOAD_PLATFORMS } from "./certificateSharing";
 
 describe("certificate sharing", () => {
   it("builds course-aware LinkedIn copy with the certificate URL and hashtags", () => {
@@ -12,6 +12,14 @@ describe("certificate sharing", () => {
 
   it("keeps PDF and PNG download analytics platforms explicit", () => {
     expect(CERTIFICATE_DOWNLOAD_PLATFORMS).toEqual({ pdf: "pdf", png: "png" });
+  });
+
+  it("builds direct share URLs for every supported social platform", () => {
+    const url = "https://example.com/verify/PIQ-123";
+    expect(buildCertificateShareUrl("linkedin", url, "AI for Educators")).toContain(encodeURIComponent(url));
+    expect(buildCertificateShareUrl("facebook", url, "AI for Educators")).toContain(encodeURIComponent(url));
+    expect(buildCertificateShareUrl("whatsapp", url, "AI for Educators")).toContain(encodeURIComponent(url));
+    expect(buildCertificateShareUrl("twitter", url, "AI for Educators")).toContain(encodeURIComponent(url));
   });
 
   it("encodes the certificate URL for LinkedIn sharing", () => {

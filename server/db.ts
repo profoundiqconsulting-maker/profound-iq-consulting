@@ -8,6 +8,7 @@ import { adminAnalyticsSettings, adminCertificateSettings, certificateUsageEvent
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
+import { summarizeCertificateUsageRows } from "../shared/certificateAnalytics";
 import { selectAdminNotificationRecipients } from "../shared/adminRecipients";
 import type { DeliveryLogFilters, DeliveryLogRow } from "../shared/adminDeliveryLog";
 import { clampAuditPagination, type AuditHistoryFilters, type AuditHistoryPage, type AuditHistoryQuery } from "../shared/adminAudit";
@@ -1165,12 +1166,17 @@ export async function recordCertificateUsageEvent(input: { certificateNumber: st
   await db.insert(certificateUsageEvents).values(input);
 }
 
-export async function getCertificateUsageAnalytics() {
+export async function getCertificateUsageAnalytics(filters?: { fromDate?: Date; toDate?: Date }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const rows = await db.select({ eventType: certificateUsageEvents.eventType, platform: certificateUsageEvents.platform, count: sql<number>`count(*)` }).from(certificateUsageEvents).groupBy(certificateUsageEvents.eventType, certificateUsageEvents.platform);
-  const totals = rows.reduce((acc, row) => { const key = row.eventType === "share" ? "shares" : "downloads"; acc[key] += Number(row.count ?? 0); return acc; }, { shares: 0, downloads: 0 });
-  return { totals, byPlatform: rows.map((row) => ({ eventType: row.eventType, platform: row.platform ?? "unknown", count: Number(row.count ?? 0) })) };
+  const conditions: SQL[] = [];
+  if (filters?.fromDate) conditions.push(gte(certificateUsageEvents.createdAt, filters.fromDate));
+  if (filters?.toDate) conditions.push(lte(certificateUsageEvents.createdAt, filters.toDate));
+  const where = conditions.length ? and(...conditions) : undefined;
+  const rows = await db.select({ eventType: certificateUsageEvents.eventType, platform: certificateUsageEvents.platform, count: sql<number>`count(*)` }).from(certificateUsageEvents).where(where).groupBy(certificateUsageEvents.eventType, certificateUsageEvents.platform);
+  const dailyRows = await db.select({ day: sql<string>`DATE_FORMAT(${certificateUsageEvents.createdAt}, '%Y-%m-%d')`, eventType: certificateUsageEvents.eventType, platform: certificateUsageEvents.platform, count: sql<number>`count(*)` }).from(certificateUsageEvents).where(where).groupBy(sql`DATE_FORMAT(${certificateUsageEvents.createdAt}, '%Y-%m-%d')`, certificateUsageEvents.eventType, certificateUsageEvents.platform).orderBy(sql`DATE_FORMAT(${certificateUsageEvents.createdAt}, '%Y-%m-%d')`);
+  const summary = summarizeCertificateUsageRows(rows.map((row) => ({ eventType: row.eventType, platform: row.platform, count: Number(row.count ?? 0) })));
+  return { totals: summary.totals, byPlatform: summary.byPlatform, daily: dailyRows.map((row) => ({ day: row.day, eventType: row.eventType, platform: row.platform ?? "unknown", count: Number(row.count ?? 0) })) };
 }
 
 export async function getAdminAnalyticsSettings(adminOpenId: string) {
