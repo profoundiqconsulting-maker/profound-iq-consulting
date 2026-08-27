@@ -228,12 +228,21 @@ describe("comparison SSR and personalized revisit upgrades", () => {
     expect(pdf).toContain("formatDate(new Date(), input.locale)");
     expect(pdf).toContain("watermark?: boolean");
     expect(router).toContain("watermark: z.boolean().default(true)");
-    expect(printPage).toContain("const pageSize = 2");
+    expect(printPage).toContain("const chunkSize = 2");
     expect(printPage).toContain("formattedDate");
     expect(printPage).toContain("printPage");
     expect(printPage).toContain("showWatermark");
     expect(printPage).toContain("Page");
     expect(dashboard).toContain("savedPathwaysWatermark");
+    expect(dashboard).toContain("savedPathwaysPageSize");
+    expect(dashboard).toContain("savedPathwaysCoverPage");
+    expect(dashboard).toContain("updateExportPreferences");
+    expect(router).toContain("updateExportPreferences: protectedProcedure");
+    expect(pdf).toContain("pageSize?: \"A4\" | \"LETTER\"");
+    expect(pdf).toContain("coverPage?: boolean");
+    expect(pdf).toContain("input.coverPage && input.layout === \"detailed\"");
+    expect(printPage).toContain("@page { size: ${pageSize}");
+    expect(printPage).toContain("print-cover");
   });
 
   it("supports Arabic and CJK PDF typography, quick date presets, and print layout routing", () => {

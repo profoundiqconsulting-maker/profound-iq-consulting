@@ -70,4 +70,16 @@ describe("renderSavedCoursePathwaysPdf", () => {
     expect(text).toContain("/ToUnicode");
     expect(text).toContain("%%EOF");
   });
+
+  it("supports Letter sizing and a detailed branded cover page", async () => {
+    const { renderSavedCoursePathwaysPdf } = await import("./reportPdf");
+    const pdf = await renderSavedCoursePathwaysPdf({ participantName: "Amina Njeri", locale: "fr", layout: "detailed", pageSize: "LETTER", coverPage: true, watermark: true, courses: [{ title: "Parcours de leadership", category: "Leadership", skillLevel: "Practitioner", duration: "10 modules · 70 lessons", priceKes: 4999, outcomes: ["Développer une pratique de leadership responsable"] }] });
+    const text = pdf.toString("latin1");
+    expect(text.startsWith("%PDF-")).toBe(true);
+    expect(text).toContain("/MediaBox [0 0 612 792]");
+    expect(text).toContain("/Title");
+    expect(text).toContain("/Subject");
+    expect(pdf.length).toBeGreaterThan(3_000);
+    expect(text).toContain("%%EOF");
+  });
 });

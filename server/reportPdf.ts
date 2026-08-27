@@ -194,7 +194,7 @@ function formatDate(value: Date | string, locale?: GeneratedLocale): string {
   try { return new Date(value).toLocaleDateString(language, { year: "numeric", month: "short", day: "numeric" }); } catch { return new Date(value).toLocaleDateString("en-KE", { year: "numeric", month: "short", day: "numeric" }); }
 }
 
-type SavedCoursePathwayPdfInput = { participantName: string; email?: string; locale?: GeneratedLocale; layout?: "summary" | "detailed"; watermark?: boolean; courses: Array<{ title: string; category: string; skillLevel: string; duration: string; priceKes: number; outcomes: readonly string[] }> };
+type SavedCoursePathwayPdfInput = { participantName: string; email?: string; locale?: GeneratedLocale; layout?: "summary" | "detailed"; pageSize?: "A4" | "LETTER"; watermark?: boolean; coverPage?: boolean; courses: Array<{ title: string; category: string; skillLevel: string; duration: string; priceKes: number; outcomes: readonly string[] }> };
 
 export async function renderSavedCoursePathwaysPdf(input: SavedCoursePathwayPdfInput): Promise<Buffer> {
   const copy = getGeneratedCopy(input.locale);
@@ -202,11 +202,21 @@ export async function renderSavedCoursePathwaysPdf(input: SavedCoursePathwayPdfI
   const localeKey = (input.locale && ["en", "sw", "fr", "es", "pt", "ar", "zh", "hi", "de", "ja"].includes(input.locale) ? input.locale : "en") as keyof typeof labels.savedPathways;
   const regularFont = pdfFont(input.locale);
   const boldFont = pdfFont(input.locale, true);
-  const doc = new PDFDocument({ size: "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: `Profound IQ Saved Learning Pathways — ${labels.savedPathways[localeKey]}`, Author: "Profound IQ Consulting", Subject: `Saved course pathways · ${labels.savedPathways[localeKey]}` } });
+  const doc = new PDFDocument({ size: input.pageSize ?? "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: `Profound IQ Saved Learning Pathways — ${labels.savedPathways[localeKey]}`, Author: "Profound IQ Consulting", Subject: `Saved course pathways · ${labels.savedPathways[localeKey]}` } });
   const chunks: Buffer[] = [];
   doc.on("data", (chunk: Buffer) => chunks.push(chunk));
   const finished = new Promise<Buffer>((resolve, reject) => { doc.on("end", () => resolve(Buffer.concat(chunks))); doc.on("error", reject); });
   const brandLogo = await loadBrandLogo();
+  if (input.coverPage && input.layout === "detailed") {
+    doc.fillColor(NAVY).rect(0, 0, doc.page.width, doc.page.height).fill();
+    if (brandLogo) { try { doc.image(brandLogo, (doc.page.width - 150) / 2, 92, { fit: [150, 96], valign: "center" }); } catch { /* Text lockup remains available. */ } }
+    doc.fillColor(GOLD).font(boldFont).fontSize(10).text("PROFOUND IQ / CONSULTING", 52, 230, { width: doc.page.width - 104, align: "center", characterSpacing: 1.4 });
+    doc.fillColor("#f7f3e8").font(boldFont).fontSize(28).text(labels.savedPathways[localeKey], 52, 280, { width: doc.page.width - 104, align: "center" });
+    doc.fillColor("#c1cad7").font(regularFont).fontSize(13).text(`${labels.preparedFor[localeKey]} ${input.participantName}`, 52, 355, { width: doc.page.width - 104, align: "center" });
+    doc.fillColor("#c1cad7").font(regularFont).fontSize(10).text(`${copy.generated} ${formatDate(new Date(), input.locale)}`, 52, 382, { width: doc.page.width - 104, align: "center" });
+    doc.fillColor(GOLD).font(regularFont).fontSize(9).text(`${input.courses.length} ${labels.pathway[localeKey].toLowerCase()}`, 52, 430, { width: doc.page.width - 104, align: "center" });
+    doc.addPage();
+  }
   if (input.watermark) {
     doc.opacity(0.04).fillColor(NAVY);
     for (let i = 0; i < 5; i++) {

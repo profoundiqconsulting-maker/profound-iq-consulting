@@ -2061,3 +2061,10 @@
 - [x] Add customizable watermark or branding-logo options to PDF export and print layouts.
 - [x] Add authorization, regression tests, PDF rendering checks, build checks, and multi-page print validation.
 - [x] Save and auto-publish a checkpoint for the pagination, localized date, and branding features.
+
+# Export Page Sizes, Persisted Branding, and Cover Pages
+- [x] Add A4 and Letter page-size options to PDF export and print layouts.
+- [x] Persist watermark and branding preferences in the authenticated learner profile.
+- [x] Add an optional branded cover page with learner name and pathway title for detailed PDFs.
+- [x] Add schema migration, authorization, regression tests, PDF rendering checks, build checks, and responsive print validation.
+- [x] Save and auto-publish a checkpoint for the page-size, preference, and cover-page features.
