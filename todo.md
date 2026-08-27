@@ -1,5 +1,11 @@
 # Current Certificate Workflow
 
+- [ ] Expose decorative wave paths and all remaining certificate labels in the admin editor.
+- [ ] Add a visible canonical artifact hash comparison result to the admin preview.
+- [ ] Add undo and redo history controls for certificate layout edits.
+- [ ] Preserve and verify reset-to-default certificate layout behavior.
+- [ ] Add regression tests, responsive QA, production build, and checkpoint validation.
+
 - [x] Allow admins to edit, delete/hide, and drag all certificate objects, text fields, lines, and the QR object.
 - [x] Display the persisted certificate artifact hash on public verification pages.
 - [x] Add filtered certificate issuance/generation-record exports beside usage exports.
