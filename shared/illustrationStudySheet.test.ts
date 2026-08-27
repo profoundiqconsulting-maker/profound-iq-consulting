@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { buildIllustrationStudySheetSvg } from "@/lib/illustrationStudySheet";
+import { buildIllustrationStudySheetSvg, studySheetPngFilename } from "@/lib/illustrationStudySheet";
 
 describe("illustration study sheets", () => {
+  it("converts the SVG download name to a compatible PNG name", () => {
+    expect(studySheetPngFilename("leadership-study-sheet.svg")).toBe("leadership-study-sheet.png");
+    expect(studySheetPngFilename("already.png")).toBe("already.png");
+  });
   it("builds a branded, self-contained SVG with the artwork and lesson context", () => {
     const svg = buildIllustrationStudySheetSvg({
       imageUrl: "/manus-storage/lesson-art.png",

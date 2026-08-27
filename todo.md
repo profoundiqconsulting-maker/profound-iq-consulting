@@ -1939,3 +1939,11 @@
 - [x] Add regression tests for the gallery contracts and study-sheet helper.
 - [x] Run type checks, full Vitest suite, production build, and responsive browser verification.
 - [x] Save a checkpoint with the completed localized illustration experience.
+
+# My Illustrations PNG Export, Scaling, and Organization
+
+- [x] Add PNG export alongside SVG study-sheet downloads.
+- [x] Add server-backed pagination or virtualization for large illustration collections.
+- [x] Add persistent custom tags or folders for saved illustrations.
+- [x] Add localized UI copy and accessible organization controls.
+- [x] Add regression tests, run full validation, and save a live checkpoint.

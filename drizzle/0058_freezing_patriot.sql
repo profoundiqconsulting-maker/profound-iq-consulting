@@ -1,0 +1,1 @@
+ALTER TABLE `course_lesson_illustration_bookmarks` ADD `folder` varchar(80) DEFAULT 'Unsorted' NOT NULL;

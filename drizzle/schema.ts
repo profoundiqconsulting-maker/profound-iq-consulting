@@ -179,6 +179,7 @@ export const courseLessonIllustrationBookmarks = mysqlTable("course_lesson_illus
   label: varchar("label", { length: 180 }).notNull(),
   title: varchar("title", { length: 240 }).notNull(),
   content: text("content").notNull(),
+  folder: varchar("folder", { length: 80 }).default("Unsorted").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({ learnerIllustrationUnique: uniqueIndex("course_illustration_bookmark_unique").on(table.userOpenId, table.courseSlug, table.lessonId, table.illustrationMode), learnerCourseIdx: index("course_illustration_bookmark_learner_course_idx").on(table.userOpenId, table.courseSlug) }));

@@ -1494,11 +1494,43 @@ export async function listCourseIllustrationBookmarks(userOpenId: string, course
   return db.select().from(courseLessonIllustrationBookmarks).where(courseSlug ? and(eq(courseLessonIllustrationBookmarks.userOpenId, userOpenId), eq(courseLessonIllustrationBookmarks.courseSlug, courseSlug)) : eq(courseLessonIllustrationBookmarks.userOpenId, userOpenId)).orderBy(desc(courseLessonIllustrationBookmarks.updatedAt));
 }
 
-export async function upsertCourseIllustrationBookmark(input: { userOpenId: string; courseSlug: string; lessonId: string; illustrationMode: "explanatory" | "applicational" | "experiential"; label: string; title: string; content: string }) {
+export async function listCourseIllustrationBookmarksPage(input: { userOpenId: string; page?: number; pageSize?: number; search?: string; illustrationMode?: "all" | "explanatory" | "applicational" | "experiential"; folder?: string }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db.insert(courseLessonIllustrationBookmarks).values(input).onDuplicateKeyUpdate({ set: { label: input.label, title: input.title, content: input.content, updatedAt: new Date() } });
+  const page = Math.max(1, input.page ?? 1);
+  const pageSize = Math.min(48, Math.max(6, input.pageSize ?? 24));
+  const conditions = [eq(courseLessonIllustrationBookmarks.userOpenId, input.userOpenId)];
+  if (input.illustrationMode && input.illustrationMode !== "all") conditions.push(eq(courseLessonIllustrationBookmarks.illustrationMode, input.illustrationMode));
+  if (input.folder && input.folder !== "all") conditions.push(eq(courseLessonIllustrationBookmarks.folder, input.folder));
+  if (input.search?.trim()) {
+    const query = `%${input.search.trim()}%`;
+    conditions.push(or(like(courseLessonIllustrationBookmarks.courseSlug, query), like(courseLessonIllustrationBookmarks.lessonId, query), like(courseLessonIllustrationBookmarks.label, query), like(courseLessonIllustrationBookmarks.title, query), like(courseLessonIllustrationBookmarks.content, query)) as typeof conditions[number]);
+  }
+  const where = and(...conditions);
+  const [rows, totalRows, folderRows] = await Promise.all([
+    db.select().from(courseLessonIllustrationBookmarks).where(where).orderBy(desc(courseLessonIllustrationBookmarks.updatedAt)).limit(pageSize).offset((page - 1) * pageSize),
+    db.select({ count: sql<number>`count(*)` }).from(courseLessonIllustrationBookmarks).where(where),
+    db.select({ folder: courseLessonIllustrationBookmarks.folder }).from(courseLessonIllustrationBookmarks).where(eq(courseLessonIllustrationBookmarks.userOpenId, input.userOpenId)).groupBy(courseLessonIllustrationBookmarks.folder).orderBy(asc(courseLessonIllustrationBookmarks.folder)),
+  ]);
+  const total = Number(totalRows[0]?.count ?? 0);
+  return { rows, folders: folderRows.map((row) => row.folder), total, page, pageSize, pageCount: Math.max(1, Math.ceil(total / pageSize)) };
+}
+
+export async function upsertCourseIllustrationBookmark(input: { userOpenId: string; courseSlug: string; lessonId: string; illustrationMode: "explanatory" | "applicational" | "experiential"; label: string; title: string; content: string; folder?: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const folder = input.folder?.trim() || "Unsorted";
+  await db.insert(courseLessonIllustrationBookmarks).values({ ...input, folder }).onDuplicateKeyUpdate({ set: { label: input.label, title: input.title, content: input.content, folder, updatedAt: new Date() } });
   return (await db.select().from(courseLessonIllustrationBookmarks).where(and(eq(courseLessonIllustrationBookmarks.userOpenId, input.userOpenId), eq(courseLessonIllustrationBookmarks.courseSlug, input.courseSlug), eq(courseLessonIllustrationBookmarks.lessonId, input.lessonId), eq(courseLessonIllustrationBookmarks.illustrationMode, input.illustrationMode))).limit(1))[0];
+}
+
+export async function updateCourseIllustrationBookmarkFolder(input: { userOpenId: string; bookmarkId: number; folder: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const folder = input.folder.trim();
+  if (!folder) throw new Error("Folder name cannot be blank.");
+  await db.update(courseLessonIllustrationBookmarks).set({ folder, updatedAt: new Date() }).where(and(eq(courseLessonIllustrationBookmarks.id, input.bookmarkId), eq(courseLessonIllustrationBookmarks.userOpenId, input.userOpenId)));
+  return (await db.select().from(courseLessonIllustrationBookmarks).where(and(eq(courseLessonIllustrationBookmarks.id, input.bookmarkId), eq(courseLessonIllustrationBookmarks.userOpenId, input.userOpenId))).limit(1))[0] ?? null;
 }
 
 export async function deleteCourseIllustrationBookmark(input: { userOpenId: string; courseSlug: string; lessonId: string; illustrationMode: string }) {

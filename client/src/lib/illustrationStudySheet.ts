@@ -26,3 +26,76 @@ export function downloadIllustrationStudySheet(input: IllustrationStudySheetInpu
   anchor.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
+export const studySheetPngFilename = (filename: string) => filename.replace(/\.svg$/i, ".png");
+
+const wrapCanvasText = (context: CanvasRenderingContext2D, text: string, maxWidth: number) => {
+  const words = text.split(/\s+/);
+  const lines: string[] = [];
+  let line = "";
+  for (const word of words) {
+    const next = line ? `${line} ${word}` : word;
+    if (context.measureText(next).width > maxWidth && line) { lines.push(line); line = word; } else line = next;
+  }
+  if (line) lines.push(line);
+  return lines;
+};
+
+export async function downloadIllustrationStudySheetPng(input: IllustrationStudySheetInput) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1200;
+  canvas.height = 820;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("PNG export is not supported in this browser.");
+  context.fillStyle = "#f7f3e8";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = "#16243d";
+  context.fillRect(48, 48, 1104, 724);
+  context.fillStyle = "#c9a34e";
+  context.fillRect(48, 48, 1104, 12);
+  context.fillStyle = "#d7b762";
+  context.font = "700 18px Arial, sans-serif";
+  context.fillText(`PROFOUND IQ CONSULTING · ${input.modeLabel.toUpperCase()}`, 88, 112);
+  context.fillStyle = "#f7f3e8";
+  context.font = "700 38px Georgia, serif";
+  context.fillText(input.courseTitle.slice(0, 42), 88, 164);
+  context.font = "30px Georgia, serif";
+  context.fillText(input.lessonTitle.slice(0, 52), 88, 210);
+  const image = new Image();
+  image.crossOrigin = "anonymous";
+  image.src = new URL(input.imageUrl, window.location.origin).toString();
+  await new Promise<void>((resolve, reject) => { image.onload = () => resolve(); image.onerror = () => reject(new Error("The artwork could not be loaded for PNG export.")); });
+  const scale = Math.max(500 / image.naturalWidth, 350 / image.naturalHeight);
+  const sourceWidth = 500 / scale;
+  const sourceHeight = 350 / scale;
+  const sourceX = (image.naturalWidth - sourceWidth) / 2;
+  const sourceY = (image.naturalHeight - sourceHeight) / 2;
+  context.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, 88, 246, 500, 350);
+  context.fillStyle = "#243654";
+  context.fillRect(620, 246, 444, 350);
+  context.fillStyle = "#d7b762";
+  context.font = "700 16px Arial, sans-serif";
+  context.fillText("STUDY NOTE", 660, 300);
+  context.fillStyle = "#f7f3e8";
+  context.font = "22px Arial, sans-serif";
+  const noteLines = wrapCanvasText(context, input.content, 360).slice(0, 7);
+  for (let index = 0; index < noteLines.length; index += 1) context.fillText(noteLines[index], 660, 342 + index * 34);
+  context.strokeStyle = "#c9a34e";
+  context.lineWidth = 2;
+  context.beginPath(); context.moveTo(88, 656); context.lineTo(1064, 656); context.stroke();
+  context.fillStyle = "#b9c4d3";
+  context.font = "16px Arial, sans-serif";
+  context.fillText("A visual study sheet for reflection, discussion, and practical transfer.", 88, 708);
+  context.font = "14px Arial, sans-serif";
+  context.fillText("profoundiqconsulting.com", 88, 742);
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+  if (!blob) throw new Error("PNG export could not be created.");
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = studySheetPngFilename(input.filename);
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
