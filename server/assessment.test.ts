@@ -66,6 +66,8 @@ describe("timed course lessons", () => {
     expect(courseWorkspaceSource).toMatch(/learnerReviewMap/);
     expect(courseWorkspaceSource).toMatch(/Instructor feedback/);
     expect(courseWorkspaceSource).toMatch(/review\?\.status === "reviewed"/);
+    expect(courseWorkspaceSource).toMatch(/unreadFeedbackNotifications/);
+    expect(courseWorkspaceSource).toMatch(/markFeedbackNotificationRead/);
   });
 
   it("exposes staff review analytics and intuitive course/date filters", () => {
@@ -75,6 +77,12 @@ describe("timed course lessons", () => {
     expect(staffDashboardSource).toMatch(/type="date"/);
     expect(staffDashboardSource).toMatch(/By course/);
     expect(staffDashboardSource).toMatch(/By module/);
+    expect(staffDashboardSource).toMatch(/Response aging/);
+    expect(staffDashboardSource).toMatch(/Reviewer workload/);
+    expect(staffDashboardSource).toMatch(/exportCsv/);
+    expect(staffDashboardSource).toMatch(/exportPdf/);
+    expect(staffDashboardSource).toMatch(/CSV/);
+    expect(staffDashboardSource).toMatch(/PDF/);
   });
 });
 

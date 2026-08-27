@@ -1896,3 +1896,10 @@
 - [x] Add intuitive course and date filters to the staff response-review workspace.
 - [x] Add focused tests, responsive verification, production build, and publish checkpoint.
 
+
+# Feedback Notifications and Review Analytics Exports
+- [x] Notify learners when new instructor feedback is posted and support read-state handling.
+- [x] Add response-aging metrics and reviewer workload metrics to review analytics.
+- [x] Add protected CSV and PDF exports for staff review analytics.
+- [x] Add focused tests, responsive verification, production build, and publish checkpoint.
+

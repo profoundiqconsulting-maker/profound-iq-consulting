@@ -373,3 +373,52 @@ export async function renderCourseAccessAnalyticsPdf(input: { totalDenied: numbe
   doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(13).text("Daily conversion trend", 52, 390); doc.fillColor(MUTED).font("Helvetica").fontSize(9).text("Navy = denied attempts · Gold = paid learners", 52, 409); const points = input.trend.slice(-30); const max = Math.max(1, ...points.map((point) => Math.max(point.denied, point.paid))); points.forEach((point, index) => { const x = 54 + index * 16; const base = 650; doc.fillColor(NAVY).rect(x, base - (point.denied / max) * 190, 6, (point.denied / max) * 190).fill(); doc.fillColor(GOLD).rect(x + 7, base - (point.paid / max) * 190, 6, (point.paid / max) * 190).fill(); }); doc.fillColor(MUTED).font("Helvetica").fontSize(8).text(points[0]?.date ?? "", 52, 665); doc.text(points.at(-1)?.date ?? "", 480, 665); doc.fillColor(MUTED).fontSize(8).text("Generated from persisted access and payment records. Internal administrative use only.", 52, 760);
   doc.end(); return finished;
 }
+
+
+type CourseLessonReviewAnalyticsPdfInput = {
+  totalResponses: number;
+  reviewedResponses: number;
+  needsReviewResponses: number;
+  reviewRate: number;
+  aging: { averageAgeHours: number; oldestAgeHours: number; under24Hours: number; oneToThreeDays: number; overThreeDays: number };
+  reviewerWorkload: Array<{ reviewerName: string; reviewedResponses: number; latestReviewedAt: Date | null }>;
+  byCourse: Array<{ courseSlug: string; totalResponses: number; reviewedResponses: number; needsReviewResponses: number; reviewRate: number }>;
+  byModule: Array<{ courseSlug: string; moduleIndex: number; totalResponses: number; reviewedResponses: number; needsReviewResponses: number; reviewRate: number }>;
+  fromDate?: Date;
+  toDate?: Date;
+};
+
+export async function renderCourseLessonReviewAnalyticsPdf(input: CourseLessonReviewAnalyticsPdfInput): Promise<Buffer> {
+  const doc = new PDFDocument({ size: "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: "Profound IQ Instructor Review Analytics", Author: "Profound IQ Consulting" } });
+  const chunks: Buffer[] = [];
+  doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+  const finished = new Promise<Buffer>((resolve, reject) => { doc.on("end", () => resolve(Buffer.concat(chunks))); doc.on("error", reject); });
+  const brandLogo = await loadBrandLogo();
+  doc.fillColor(NAVY).rect(0, 0, doc.page.width, 92).fill();
+  if (brandLogo) { try { doc.image(brandLogo, 52, 10, { fit: [116, 72], valign: "center" }); } catch { /* Text lockup remains available. */ } }
+  const headerX = brandLogo ? 190 : 52;
+  doc.fillColor("#f7f3e8").font("Helvetica-Bold").fontSize(10).text("PROFOUND IQ / CONSULTING", headerX, 32, { characterSpacing: 1.4 });
+  doc.fillColor(GOLD).font("Helvetica").fontSize(9).text("INSTRUCTOR REVIEW / ANALYTICS", headerX, 52, { characterSpacing: 1.1 });
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(23).text("Instructor review analytics", 52, 128);
+  doc.fillColor(MUTED).font("Helvetica").fontSize(9.5).text(`Generated ${formatDate(new Date())}${input.fromDate || input.toDate ? ` · ${input.fromDate ? formatDate(input.fromDate) : "Start"} to ${input.toDate ? formatDate(input.toDate) : "Present"}` : ""}`, 52, 162);
+  let y = 205;
+  const metric = (label: string, value: string) => { doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(8).text(label.toUpperCase(), 52, y, { characterSpacing: 1 }); doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(20).text(value, 52, y + 15); y += 56; };
+  metric("Total responses", String(input.totalResponses)); metric("Reviewed", String(input.reviewedResponses)); metric("Needs review", String(input.needsReviewResponses)); metric("Review rate", `${input.reviewRate}%`);
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(13).text("Response aging", 290, 205);
+  doc.fillColor(MUTED).font("Helvetica").fontSize(10).text(`Average open response age: ${input.aging.averageAgeHours} hours`, 290, 230);
+  doc.text(`Oldest open response: ${input.aging.oldestAgeHours} hours`, 290, 248);
+  doc.text(`Under 24 hours: ${input.aging.under24Hours}`, 290, 266);
+  doc.text(`1–3 days: ${input.aging.oneToThreeDays}`, 290, 284);
+  doc.text(`Over 3 days: ${input.aging.overThreeDays}`, 290, 302);
+  y = 360;
+  const section = (title: string) => { if (y > 730) { doc.addPage(); y = 55; } doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(10).text(title.toUpperCase(), 52, y, { characterSpacing: 1.2 }); y += 20; };
+  section("Reviewer workload");
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(9).text("Reviewer", 52, y); doc.text("Reviewed", 330, y); doc.text("Latest", 420, y); y += 16;
+  for (const row of input.reviewerWorkload.slice(0, 15)) { if (y > 760) { doc.addPage(); y = 55; } doc.fillColor(MUTED).font("Helvetica").fontSize(9).text(row.reviewerName, 52, y, { width: 250 }); doc.text(String(row.reviewedResponses), 330, y); doc.text(row.latestReviewedAt ? formatDate(row.latestReviewedAt) : "—", 420, y); y += 15; }
+  y += 18; section("Course summary");
+  for (const row of input.byCourse.slice(0, 15)) { if (y > 760) { doc.addPage(); y = 55; } doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(9).text(row.courseSlug, 52, y, { width: 260 }); doc.fillColor(MUTED).font("Helvetica").fontSize(9).text(`${row.reviewedResponses}/${row.totalResponses} reviewed · ${row.reviewRate}%`, 330, y); y += 15; }
+  y += 18; section("Module summary");
+  for (const row of input.byModule.slice(0, 30)) { if (y > 760) { doc.addPage(); y = 55; } doc.fillColor(MUTED).font("Helvetica").fontSize(9).text(`${row.courseSlug} · Module ${row.moduleIndex + 1}`, 52, y, { width: 260 }); doc.text(`${row.reviewedResponses}/${row.totalResponses} reviewed · ${row.reviewRate}%`, 330, y); y += 15; }
+  doc.end();
+  return finished;
+}

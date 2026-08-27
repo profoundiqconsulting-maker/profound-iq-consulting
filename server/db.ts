@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { normalizeLeaderboardDisplayName, rankAchievementLeaderboard, type AchievementBadge, type AchievementLeaderboardRow } from "../shared/achievements";
 import { courseCatalog } from "../shared/courseCatalog";
 import { buildCourseModuleBadges } from "../shared/courseBadges";
-import { adminAnalyticsSettings, adminSecuritySettings, siteSeoSettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseLessonResponses, courseLessonResponseReviews, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits, newsletterSubscribers, insightArticles as insightArticlesTable } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, siteSeoSettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseLessonResponses, courseLessonResponseReviews, courseLessonResponseNotifications, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits, newsletterSubscribers, insightArticles as insightArticlesTable } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -1430,10 +1430,11 @@ export async function listCourseEnrollmentState(userOpenId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const enrollments = await db.select().from(courseLearnerEnrollments).where(eq(courseLearnerEnrollments.userOpenId, userOpenId)).orderBy(desc(courseLearnerEnrollments.updatedAt));
+  const notifications = await db.select().from(courseLessonResponseNotifications).where(eq(courseLessonResponseNotifications.userOpenId, userOpenId)).orderBy(desc(courseLessonResponseNotifications.createdAt));
   return Promise.all(enrollments.map(async (enrollment) => {
     const responses = await db.select().from(courseLessonResponses).where(eq(courseLessonResponses.enrollmentId, enrollment.id));
     const reviews = responses.length ? await db.select().from(courseLessonResponseReviews).where(inArray(courseLessonResponseReviews.responseId, responses.map((response) => response.id))).orderBy(desc(courseLessonResponseReviews.updatedAt)) : [];
-    return { enrollment, lessons: await db.select().from(courseLessonProgress).where(eq(courseLessonProgress.enrollmentId, enrollment.id)), responses, reviews, quizAttempts: await db.select().from(courseQuizAttempts).where(eq(courseQuizAttempts.enrollmentId, enrollment.id)).orderBy(desc(courseQuizAttempts.createdAt)), stages: await db.select().from(coursePaymentStages).where(eq(coursePaymentStages.enrollmentId, enrollment.id)).orderBy(coursePaymentStages.stage), certificates: await db.select().from(courseCertificates).where(eq(courseCertificates.enrollmentId, enrollment.id)).orderBy(desc(courseCertificates.createdAt)) };
+    return { enrollment, lessons: await db.select().from(courseLessonProgress).where(eq(courseLessonProgress.enrollmentId, enrollment.id)), responses, reviews, notifications: notifications.filter((notification) => notification.enrollmentId === enrollment.id), quizAttempts: await db.select().from(courseQuizAttempts).where(eq(courseQuizAttempts.enrollmentId, enrollment.id)).orderBy(desc(courseQuizAttempts.createdAt)), stages: await db.select().from(coursePaymentStages).where(eq(coursePaymentStages.enrollmentId, enrollment.id)).orderBy(coursePaymentStages.stage), certificates: await db.select().from(courseCertificates).where(eq(courseCertificates.enrollmentId, enrollment.id)).orderBy(desc(courseCertificates.createdAt)) };
   }));
 }
 export async function listCoursePaymentHistoryPage(userOpenId: string, input: { page: number; pageSize: number; courseSlug?: string; stage?: number; status?: string; from?: Date; to?: Date; sort: "date-desc" | "date-asc" | "amount-desc" | "amount-asc" | "course-asc" | "stage-asc" | "status" }) {
@@ -1469,6 +1470,13 @@ export async function listCoursePaymentHistoryPage(userOpenId: string, input: { 
   ]);
   const total = Number(totalRows[0]?.count ?? 0);
   return { rows, total, page: Math.max(1, input.page), pageSize: input.pageSize, pageCount: Math.max(1, Math.ceil(total / input.pageSize)), paidTotal: Number(summaryRows[0]?.paidTotal ?? 0), pendingTotal: Number(summaryRows[0]?.pendingTotal ?? 0) };
+}
+
+export async function markCourseFeedbackNotificationRead(userOpenId: string, notificationId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(courseLessonResponseNotifications).set({ readAt: new Date() }).where(and(eq(courseLessonResponseNotifications.id, notificationId), eq(courseLessonResponseNotifications.userOpenId, userOpenId), isNull(courseLessonResponseNotifications.readAt)));
+  return { saved: true as const };
 }
 
 export async function listCourseLessonResponses(enrollmentId: number) {
@@ -1512,7 +1520,7 @@ export async function getCourseLessonReviewAnalytics(input: { courseSlug?: strin
   const enrollments = await db.select().from(courseLearnerEnrollments);
   const enrollmentMap = new Map(enrollments.map((enrollment) => [enrollment.id, enrollment]));
   const enrollmentIds = enrollments.map((enrollment) => enrollment.id);
-  if (!enrollmentIds.length) return { totalResponses: 0, reviewedResponses: 0, needsReviewResponses: 0, reviewRate: 0, byCourse: [], byModule: [] };
+  if (!enrollmentIds.length) return { totalResponses: 0, reviewedResponses: 0, needsReviewResponses: 0, reviewRate: 0, aging: { averageAgeHours: 0, oldestAgeHours: 0, under24Hours: 0, oneToThreeDays: 0, overThreeDays: 0 }, reviewerWorkload: [], byCourse: [], byModule: [] };
   const responses = await db.select().from(courseLessonResponses).where(inArray(courseLessonResponses.enrollmentId, enrollmentIds));
   const reviews = responses.length ? await db.select().from(courseLessonResponseReviews).where(inArray(courseLessonResponseReviews.responseId, responses.map((response) => response.id))) : [];
   const reviewMap = new Map(reviews.map((review) => [review.responseId, review]));
@@ -1534,7 +1542,19 @@ export async function getCourseLessonReviewAnalytics(input: { courseSlug?: strin
   }
   const totalResponses = filtered.length;
   const reviewedResponses = filtered.filter((response) => reviewMap.has(response.id)).length;
-  return { totalResponses, reviewedResponses, needsReviewResponses: totalResponses - reviewedResponses, reviewRate: totalResponses ? Math.round((reviewedResponses / totalResponses) * 100) : 0, byCourse: Array.from(byCourse.values()).map((row) => ({ ...row, reviewRate: row.totalResponses ? Math.round((row.reviewedResponses / row.totalResponses) * 100) : 0 })).sort((a, b) => b.totalResponses - a.totalResponses), byModule: Array.from(byModule.values()).map((row) => ({ ...row, reviewRate: row.totalResponses ? Math.round((row.reviewedResponses / row.totalResponses) * 100) : 0 })).sort((a, b) => a.courseSlug.localeCompare(b.courseSlug) || a.moduleIndex - b.moduleIndex) };
+  const openResponses = filtered.filter((response) => !reviewMap.has(response.id));
+  const ages = openResponses.map((response) => Math.max(0, (Date.now() - response.updatedAt.getTime()) / 3600000));
+  const reviewerMap = new Map<string, { reviewerOpenId: string; reviewerName: string; reviewedResponses: number; latestReviewedAt: Date | null }>();
+  for (const response of filtered) {
+    const review = reviewMap.get(response.id);
+    if (!review) continue;
+    const reviewerOpenId = review.reviewerOpenId;
+    const current = reviewerMap.get(reviewerOpenId) ?? { reviewerOpenId, reviewerName: review.reviewerName ?? reviewerOpenId, reviewedResponses: 0, latestReviewedAt: null };
+    current.reviewedResponses += 1;
+    if (!current.latestReviewedAt || review.updatedAt > current.latestReviewedAt) current.latestReviewedAt = review.updatedAt;
+    reviewerMap.set(reviewerOpenId, current);
+  }
+  return { totalResponses, reviewedResponses, needsReviewResponses: totalResponses - reviewedResponses, reviewRate: totalResponses ? Math.round((reviewedResponses / totalResponses) * 100) : 0, aging: { averageAgeHours: ages.length ? Math.round((ages.reduce((sum, age) => sum + age, 0) / ages.length) * 10) / 10 : 0, oldestAgeHours: ages.length ? Math.round(Math.max(...ages) * 10) / 10 : 0, under24Hours: ages.filter((age) => age < 24).length, oneToThreeDays: ages.filter((age) => age >= 24 && age < 72).length, overThreeDays: ages.filter((age) => age >= 72).length }, reviewerWorkload: Array.from(reviewerMap.values()).sort((a, b) => b.reviewedResponses - a.reviewedResponses), byCourse: Array.from(byCourse.values()).map((row) => ({ ...row, reviewRate: row.totalResponses ? Math.round((row.reviewedResponses / row.totalResponses) * 100) : 0 })).sort((a, b) => b.totalResponses - a.totalResponses), byModule: Array.from(byModule.values()).map((row) => ({ ...row, reviewRate: row.totalResponses ? Math.round((row.reviewedResponses / row.totalResponses) * 100) : 0 })).sort((a, b) => a.courseSlug.localeCompare(b.courseSlug) || a.moduleIndex - b.moduleIndex) };
 }
 
 export async function upsertCourseLessonResponseReview(input: { responseId: number; enrollmentId: number; lessonId: string; taskId: string; reviewerOpenId: string; reviewerName?: string | null; feedback: string; status: string }) {
@@ -1544,7 +1564,14 @@ export async function upsertCourseLessonResponseReview(input: { responseId: numb
   if (!feedback) throw new Error("Instructor feedback cannot be blank.");
   const response = (await db.select().from(courseLessonResponses).where(eq(courseLessonResponses.id, input.responseId)).limit(1))[0];
   if (!response || response.enrollmentId !== input.enrollmentId || response.lessonId !== input.lessonId || response.taskId !== input.taskId) throw new Error("Learner response could not be verified.");
-  await db.insert(courseLessonResponseReviews).values({ ...input, feedback }).onDuplicateKeyUpdate({ set: { reviewerName: input.reviewerName ?? null, feedback, status: input.status, updatedAt: new Date() } });
+  const enrollment = (await db.select().from(courseLearnerEnrollments).where(eq(courseLearnerEnrollments.id, input.enrollmentId)).limit(1))[0];
+  if (!enrollment) throw new Error("Learner enrollment could not be verified.");
+  const previousReview = (await db.select().from(courseLessonResponseReviews).where(eq(courseLessonResponseReviews.responseId, input.responseId)).limit(1))[0];
+  const reviewResult = await db.insert(courseLessonResponseReviews).values({ ...input, feedback }).onDuplicateKeyUpdate({ set: { reviewerName: input.reviewerName ?? null, feedback, status: input.status, updatedAt: new Date() } });
+  const reviewId = previousReview?.id ?? Number(reviewResult[0].insertId);
+  if (input.status === "reviewed" && (!previousReview || previousReview.feedback !== feedback || previousReview.status !== "reviewed")) {
+    await db.insert(courseLessonResponseNotifications).values({ userOpenId: enrollment.userOpenId, enrollmentId: input.enrollmentId, responseId: input.responseId, reviewId, courseSlug: enrollment.courseSlug, lessonId: input.lessonId, taskId: input.taskId, title: "New instructor feedback", body: feedback });
+  }
   return { saved: true as const };
 }
 

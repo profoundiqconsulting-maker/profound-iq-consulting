@@ -29,6 +29,24 @@ export const users = mysqlTable("users", {
   usernameUnique: uniqueIndex("users_username_unique").on(table.username),
 }));
 
+export const courseLessonResponseNotifications = mysqlTable("course_lesson_response_notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userOpenId: varchar("user_open_id", { length: 64 }).notNull(),
+  enrollmentId: int("enrollment_id").notNull(),
+  responseId: int("response_id").notNull(),
+  reviewId: int("review_id").notNull(),
+  courseSlug: varchar("course_slug", { length: 160 }).notNull(),
+  lessonId: varchar("lesson_id", { length: 180 }).notNull(),
+  taskId: varchar("task_id", { length: 120 }).notNull(),
+  title: varchar("title", { length: 180 }).notNull(),
+  body: text("body").notNull(),
+  readAt: timestamp("read_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userUnreadIdx: index("course_feedback_notifications_user_unread_idx").on(table.userOpenId, table.readAt),
+  reviewIdx: index("course_feedback_notifications_review_idx").on(table.reviewId),
+}));
+
 export const staffInvitations = mysqlTable("staff_invitations", {
   id: int("id").autoincrement().primaryKey(),
   email: varchar("email", { length: 320 }).notNull(),

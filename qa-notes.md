@@ -15,3 +15,8 @@ The 390px staff view collapsed into the mobile DashboardLayout header and retain
 
 Desktop verification showed the staff workspace retaining the established sidebar and editorial styling, with the Instructor Review section visible below the inquiry desk. The course highlights route retained its protected-learning presentation and shared action row. Mobile verification showed the staff header collapsing cleanly, the inquiry metrics stacking vertically, and the page remaining readable without horizontal overflow. The cookie-consent overlay is visible in the captures by design and can cover lower content until dismissed.
 
+
+## Feedback notifications and analytics exports
+
+Desktop visual QA confirms the staff workspace preserves the shared navigation and editorial dashboard styling, while the course surface retains its protected-learning presentation. The cookie-consent overlay is visible in the captures by design and may cover lower content until dismissed. The new notification and analytics panels are located below the initial staff viewport and require scrolling for direct visual inspection.
+
