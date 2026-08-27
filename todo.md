@@ -1807,9 +1807,9 @@
 - [x] Add admin subscriber lifecycle controls for pending, confirmed, unsubscribed, and resubscribe states.
 - [x] Add protected Insights publishing controls for draft and published statuses without fabricating editorial identities.
 - [x] Add server-side Insights article search with pagination, category/status filters, and stable slug handling.
-- [ ] Add rich social preview image generation for published Insights articles with safe fallback behavior.
+- [x] Add rich social preview image generation for published Insights articles with safe fallback behavior.
 - [x] Update the reusable Profound IQ workflow skill with consent lifecycle, publishing, search, and social-preview patterns, then validate it.
-- [ ] Add regression coverage for token security, unsubscribe behavior, publishing visibility, search boundaries, social previews, and admin authorization.
+- [x] Add regression coverage for token security, unsubscribe behavior, publishing visibility, search boundaries, social previews, and admin authorization.
 - [x] Verify runtime, accessibility, responsive routes, TypeScript, full Vitest, production build, and save a publishable checkpoint.
 
 - [x] Add newsletter confirmation and unsubscribe landing routes for double opt-in links
