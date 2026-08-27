@@ -2091,3 +2091,11 @@
 - [x] Add an admin-only CSV export for course-access grant audit history with filters and safe escaping.
 - [x] Add regression tests, run type checks/tests/build, and verify desktop/mobile admin and course views.
 - [x] Save and auto-publish a checkpoint for the grant-management and QA checklist enhancements.
+
+# Reference Certificate Redesign and Automatic Field Population
+- [x] Inspect the current certificate renderer, data contract, logo asset, QR verification, and generation/download flows.
+- [x] Redesign the certificate with the supplied reference hierarchy, Profound IQ branding, wave motif, seal treatment, and signature block.
+- [x] Populate learner name, course title, completion date, certificate ID, logo, QR verification URL, and site address from verified records.
+- [x] Add or update certificate preview and generation regression coverage.
+- [x] Run full tests, TypeScript, production build, and responsive certificate QA.
+- [x] Save and auto-publish a checkpoint for the certificate redesign.
