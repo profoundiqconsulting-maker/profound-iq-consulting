@@ -179,7 +179,7 @@ function addFooter(doc: PDFKit.PDFDocument): void {
 
 function formatDate(value: Date | string): string { return new Date(value).toLocaleDateString("en-KE", { year: "numeric", month: "short", day: "numeric" }); }
 
-type SavedCoursePathwayPdfInput = { participantName: string; email?: string; courses: Array<{ title: string; category: string; skillLevel: string; duration: string; priceKes: number; outcomes: readonly string[] }> };
+type SavedCoursePathwayPdfInput = { participantName: string; email?: string; layout?: "summary" | "detailed"; courses: Array<{ title: string; category: string; skillLevel: string; duration: string; priceKes: number; outcomes: readonly string[] }> };
 
 export async function renderSavedCoursePathwaysPdf(input: SavedCoursePathwayPdfInput): Promise<Buffer> {
   const doc = new PDFDocument({ size: "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: "Profound IQ Saved Learning Pathways", Author: "Profound IQ Consulting", Subject: "Saved course pathways" } });
@@ -207,9 +207,13 @@ export async function renderSavedCoursePathwaysPdf(input: SavedCoursePathwayPdfI
     doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(17).text(course.title, 52, y + 18, { width: 390 });
     doc.fillColor(MUTED).font("Helvetica").fontSize(9.5).text(`${course.category} · ${course.skillLevel} · ${course.duration} · KES ${course.priceKes.toLocaleString()}`, 52, y + 43, { width: 490 });
     y += 65;
-    doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(8).text("OUTCOMES", 52, y, { characterSpacing: 1.1 });
-    y += 16;
-    y = writeBullets(doc, course.outcomes.slice(0, 5), y, 9.5, MUTED) + 16;
+    if (input.layout !== "summary") {
+      doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(8).text("OUTCOMES", 52, y, { characterSpacing: 1.1 });
+      y += 16;
+      y = writeBullets(doc, course.outcomes.slice(0, 5), y, 9.5, MUTED) + 16;
+    } else {
+      y = writeText(doc, course.outcomes[0] ?? "A structured professional learning pathway.", 52, y, 490, 9.5, MUTED, 3) + 16;
+    }
     doc.strokeColor("#d8d1c1").lineWidth(1).moveTo(52, y).lineTo(543, y).stroke();
     y += 20;
   });

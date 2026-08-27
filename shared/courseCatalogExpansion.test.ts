@@ -173,4 +173,21 @@ describe("comparison SSR and personalized revisit upgrades", () => {
     expect(dashboard).toContain("Download PDF");
     expect(dashboard).toContain("savedPathwaysPreview");
   });
+
+  it("exposes summary and detailed PDF layout controls and comparison trends", () => {
+    const dashboard = readFileSync("client/src/pages/UserDashboard.tsx", "utf8");
+    const pdf = readFileSync("server/reportPdf.ts", "utf8");
+    const router = readFileSync("server/routers.ts", "utf8");
+    const analytics = readFileSync("client/src/components/AdminCourseShareAnalytics.tsx", "utf8");
+    const db = readFileSync("server/db.ts", "utf8");
+    expect(dashboard).toContain("savedPathwaysLayout");
+    expect(dashboard).toContain('setSavedPathwaysLayout("summary")');
+    expect(dashboard).toContain('setSavedPathwaysLayout("detailed")');
+    expect(pdf).toContain('layout?: "summary" | "detailed"');
+    expect(pdf).toContain('input.layout !== "summary"');
+    expect(router).toContain('z.enum(["summary", "detailed"])');
+    expect(db).toContain("comparisonShareTrend");
+    expect(analytics).toContain("Comparison shares over time");
+    expect(analytics).toContain("comparisonShareTrendData");
+  });
 });

@@ -2026,3 +2026,10 @@
 - [x] Aggregate and display the most frequently shared course comparisons in analytics.
 - [x] Add authorization, localization, regression tests, and responsive validation for the new preview and analytics flows.
 - [x] Save and auto-publish a checkpoint for the completed PDF preview, localized sharing, and comparison analytics features.
+
+# PDF Layout Options and Comparison Share Trends
+- [x] Add summary and detailed layout options to the saved-pathway PDF export and preview flow.
+- [x] Pass the selected PDF layout through the protected export procedure and renderer.
+- [x] Add an admin visual trend chart for course-comparison shares over time.
+- [x] Add authorization, regression tests, build checks, and responsive validation for the new layout and analytics flows.
+- [x] Save and auto-publish a checkpoint for the completed PDF layout and comparison trend features.
