@@ -46,6 +46,39 @@ const interactiveCopy: Record<ContentLocale, LessonInteractiveCopy> = {
 
 export function getLessonInteractiveCopy(locale: ContentLocale): LessonInteractiveCopy { return interactiveCopy[locale] ?? interactiveCopy.en; }
 
+export type LessonIllustrationCopy = { explanatory: string; applicational: string; experiential: string };
+const illustrationCopy: Record<ContentLocale, LessonIllustrationCopy> = {
+  en: { explanatory: "Explanatory lens", applicational: "Everyday application", experiential: "Experiential moment" },
+  sw: { explanatory: "Maelezo ya dhana", applicational: "Matumizi ya kila siku", experiential: "Tukio la uzoefu" },
+  fr: { explanatory: "Repère explicatif", applicational: "Application quotidienne", experiential: "Moment vécu" },
+  es: { explanatory: "Lente explicativa", applicational: "Aplicación cotidiana", experiential: "Momento experiencial" },
+  pt: { explanatory: "Lente explicativa", applicational: "Aplicação quotidiana", experiential: "Momento experiencial" },
+  ar: { explanatory: "منظور توضيحي", applicational: "تطبيق يومي", experiential: "لحظة تجريبية" },
+  zh: { explanatory: "解释视角", applicational: "日常应用", experiential: "体验时刻" },
+  hi: { explanatory: "व्याख्यात्मक दृष्टि", applicational: "दैनिक जीवन में प्रयोग", experiential: "अनुभव का क्षण" },
+  de: { explanatory: "Erklärende Perspektive", applicational: "Anwendung im Alltag", experiential: "Erfahrungsmoment" },
+  ja: { explanatory: "説明の視点", applicational: "日常での応用", experiential: "体験のひととき" },
+};
+
+export function getLessonIllustrationCopy(locale: ContentLocale): LessonIllustrationCopy { return illustrationCopy[locale] ?? illustrationCopy.en; }
+
+function localizeIllustrationNarratives(locale: ContentLocale, lessonTitle: string, base: CourseLesson["illustration"]): CourseLesson["illustration"] {
+  const title = lessonTitle.toLowerCase();
+  const templates: Record<ContentLocale, LessonIllustrationCopy> = {
+    en: { explanatory: `Use ${title} as a route map: the situation is the starting point, the next decision is the turn, and the review point shows whether the route is working.`, applicational: `In an ordinary week, use ${title} when a real decision, conversation, or commitment needs a small observable next step.`, experiential: `Recall a moment when ${title} carried real weight. Notice the pressure, the first story in your mind, and what becomes possible when you respond with intention.` },
+    sw: { explanatory: `Tumia ${title} kama ramani ya njia: hali ni mwanzo, uamuzi unaofuata ni mgeuko, na sehemu ya mapitio huonyesha kama njia inafanya kazi.`, applicational: `Katika wiki ya kawaida, tumia ${title} wakati uamuzi, mazungumzo, au ahadi halisi inahitaji hatua ndogo inayoonekana.`, experiential: `Kumbuka wakati ambapo ${title} ilikuwa na uzito kwako. Tambua shinikizo na simulizi la kwanza akilini, kisha fikiria kinachowezekana unapojibu kwa makusudi.` },
+    fr: { explanatory: `Utilisez ${title} comme une carte : la situation est le départ, la prochaine décision est le virage et le point de revue indique si le chemin fonctionne.`, applicational: `Dans une semaine ordinaire, utilisez ${title} lorsqu’une décision, une conversation ou un engagement réel a besoin d’une prochaine étape observable.`, experiential: `Repensez à un moment où ${title} avait un vrai poids. Remarquez la pression, la première histoire dans votre esprit et ce qui devient possible avec une réponse intentionnelle.` },
+    es: { explanatory: `Usa ${title} como un mapa: la situación es el punto de partida, la siguiente decisión es el giro y la revisión muestra si el camino funciona.`, applicational: `En una semana normal, usa ${title} cuando una decisión, conversación o compromiso real necesite un siguiente paso observable.`, experiential: `Recuerda un momento en que ${title} tuvo un peso real. Observa la presión, la primera historia de tu mente y lo que es posible al responder con intención.` },
+    pt: { explanatory: `Use ${title} como um mapa: a situação é o ponto de partida, a próxima decisão é a curva e a revisão mostra se o caminho funciona.`, applicational: `Numa semana normal, use ${title} quando uma decisão, conversa ou compromisso real precisar de um próximo passo observável.`, experiential: `Recorde um momento em que ${title} teve verdadeiro peso. Observe a pressão, a primeira história na sua mente e o que se torna possível ao responder com intenção.` },
+    ar: { explanatory: `استخدم ${title} كخريطة طريق: الموقف هو نقطة البداية، والقرار التالي هو المنعطف، ونقطة المراجعة توضح ما إذا كان المسار ناجحًا.`, applicational: `في أسبوع عادي، استخدم ${title} عندما يحتاج قرار أو حوار أو التزام حقيقي إلى خطوة تالية قابلة للملاحظة.`, experiential: `تذكر لحظة كان فيها ${title} ذا أثر عميق. لاحظ الضغط والقصة الأولى في ذهنك، ثم تخيل ما يصبح ممكنًا عندما تستجيب بقصد.` },
+    zh: { explanatory: `把${title}看作一张路线图：情境是起点，下一个决定是转弯，复盘点则显示这条路是否有效。`, applicational: `在普通的一周里，当一个真实决定、对话或承诺需要一个可观察的下一步时，运用${title}。`, experiential: `回想${title}真正重要的时刻。感受压力，留意脑海中的第一个故事，并想象带着意图回应后会出现什么可能。` },
+    hi: { explanatory: `${title} को एक मार्ग-मानचित्र की तरह देखें: स्थिति आरंभ है, अगला निर्णय मोड़ है, और समीक्षा-बिंदु बताता है कि मार्ग काम कर रहा है या नहीं।`, applicational: `सामान्य सप्ताह में ${title} का उपयोग तब करें जब किसी वास्तविक निर्णय, बातचीत या प्रतिबद्धता को दिखने वाले अगले कदम की आवश्यकता हो।`, experiential: `उस क्षण को याद करें जब ${title} का आपके लिए वास्तविक महत्व था। दबाव और मन में आई पहली कहानी को देखें, फिर सोचें कि उद्देश्यपूर्ण उत्तर से क्या संभव हो सकता है।` },
+    de: { explanatory: `Betrachten Sie ${title} als Wegweiser: Die Situation ist der Start, die nächste Entscheidung die Abzweigung und der Prüfpunkt zeigt, ob der Weg funktioniert.`, applicational: `Wenden Sie ${title} in einer gewöhnlichen Woche an, wenn eine echte Entscheidung, ein Gespräch oder eine Verpflichtung einen beobachtbaren nächsten Schritt braucht.`, experiential: `Erinnern Sie sich an einen Moment, in dem ${title} wirklich schwer wog. Achten Sie auf den Druck und die erste Geschichte im Kopf und stellen Sie sich eine absichtsvolle Antwort vor.` },
+    ja: { explanatory: `${title}を道しるべとして捉えます。状況が出発点、次の判断が曲がり角、振り返りが道の有効性を確かめる地点です。`, applicational: `普段の一週間で、現実の判断や会話、約束に観察できる次の一歩が必要なときに${title}を使います。`, experiential: `${title}が自分にとって重みを持った瞬間を思い出してください。圧力と最初に浮かんだ物語に気づき、意図をもって応答したときの可能性を想像します。` },
+  };
+  return { ...base, ...templates[locale] };
+}
+
 const recurringTranslations: Partial<Record<ContentLocale, Record<string, string>>> = {
   sw: { "Build the mental model": "Jenga mtazamo wa kiakili", "Understand the mechanism": "Elewa utaratibu", "Apply it in daily life": "Tumia katika maisha ya kila siku", "Study the worked example": "Jifunze mfano uliofanyiwa kazi", "Practise through a small experiment": "Jizoeze kupitia jaribio dogo", "Use the simulation and transfer": "Tumia simulizi na hamishia ujuzi", "Learning outcomes": "Matokeo ya kujifunza", "Reflection prompt": "Swali la tafakari" },
   fr: { "Build the mental model": "Construire le modèle mental", "Understand the mechanism": "Comprendre le mécanisme", "Apply it in daily life": "L’appliquer au quotidien", "Study the worked example": "Étudier l’exemple guidé", "Practise through a small experiment": "Pratiquer par une petite expérience", "Use the simulation and transfer": "Utiliser la simulation et transférer", "Learning outcomes": "Résultats d’apprentissage", "Reflection prompt": "Question de réflexion" },
@@ -221,7 +254,7 @@ function localizedLesson(locale: ContentLocale, lesson: CourseLesson, moduleInde
     reflectionPrompt: copy.reflection,
     keyTakeaway: copy.takeaway,
     responseTasks: lesson.responseTasks.map((task, taskIndex) => ({ ...task, prompt: interactiveCopy[locale].responsePrompts[taskIndex] ?? task.prompt, placeholder: interactiveCopy[locale].responsePlaceholders[taskIndex] ?? task.placeholder })),
-    illustration: { ...lesson.illustration, label: `${copy.signal} ${String(moduleIndex + 1).padStart(2, "0")}.${lessonIndex + 1}`, caption: copy.caption },
+    illustration: localizeIllustrationNarratives(locale, title, { ...lesson.illustration, label: `${copy.signal} ${String(moduleIndex + 1).padStart(2, "0")}.${lessonIndex + 1}`, caption: copy.caption }),
   };
 }
 

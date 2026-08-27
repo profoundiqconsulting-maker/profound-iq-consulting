@@ -28,3 +28,7 @@ Desktop verification passed for `/staff`: the Instructor Review workspace shows 
 
 At 390px, `/settings` preserves readable heading hierarchy and profile layout; the sitewide privacy banner covers lower content until dismissed, so the notification section should be reached after accepting or customizing consent. `/staff` collapses into the mobile dashboard header and retains the inquiry metrics without horizontal overflow. The review analytics panel is below the initial viewport and remains reachable by scrolling; its stacked controls and delivery card are designed for narrow widths.
 
+## Course lesson illustration enrichment QA
+
+Desktop and mobile course surfaces preserved the established navy/ivory/gold visual system, readable course hierarchy, sharing controls, and responsive stacking without horizontal overflow. The new explanatory, applicational, and experiential cards are rendered inside the unlocked interactive lesson modal rather than the protected highlights view; the protected surface continues to reveal only course highlights before payment, as intended. Regression coverage confirms every catalog lesson contains all three illustration narratives and all ten locales provide localized illustration labels and narratives.
+

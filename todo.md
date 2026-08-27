@@ -1910,3 +1910,10 @@
 - [x] Add staff-managed automated review analytics email scheduling with pause/resume controls.
 - [x] Add scheduled delivery tests, responsive verification, production build, deployment, and checkpoint.
 
+
+# Course Lesson Illustration Enrichment
+- [x] Define reusable explanatory, applicational, and experiential illustration content fields for lessons.
+- [x] Enrich all course lessons with scenario-appropriate illustrations and render them in the interactive player.
+- [x] Localize illustration labels and add regression coverage for lesson illustration completeness.
+- [x] Run tests, responsive verification, production build, and publish checkpoint.
+

@@ -7,7 +7,8 @@ export const COURSE_PASS_MARK = 50;
 export type LessonSection = { heading: string; body: string; callout?: string };
 export type LessonSimulation = { prompt: string; options: string[]; feedback: string[] };
 export type LessonResponseTask = { id: string; prompt: string; placeholder: string; required: boolean };
-export type CourseLesson = { id: string; title: string; summary: string; outcome: string; durationMinutes: number; objectives: string[]; sections: LessonSection[]; example: { context: string; move: string; result: string }; simulation: LessonSimulation; responseTasks: LessonResponseTask[]; deepDive: string; reflectionPrompt: string; keyTakeaway: string; illustration: { label: string; caption: string; accent: string } };
+export type LessonIllustration = { label: string; caption: string; accent: string; explanatory: string; applicational: string; experiential: string };
+export type CourseLesson = { id: string; title: string; summary: string; outcome: string; durationMinutes: number; objectives: string[]; sections: LessonSection[]; example: { context: string; move: string; result: string }; simulation: LessonSimulation; responseTasks: LessonResponseTask[]; deepDive: string; reflectionPrompt: string; keyTakeaway: string; illustration: LessonIllustration };
 export type CourseQuizQuestion = { id: string; prompt: string; options: string[]; correctOption: number; sourceLessonId: string; sourceLessonTitle: string; explanation: string; optionExplanations: string[] };
 export type CourseModule = { id: string; title: string; promise: string; lessons: CourseLesson[]; quiz: CourseQuizQuestion[] };
 export type CourseDefinition = { slug: string; index: string; title: string; strapline: string; description: string; audience: string; duration: string; outcomes: readonly string[]; priceKes: number; stageAmountsKes: readonly number[]; modules: CourseModule[] };
@@ -106,7 +107,14 @@ const lessonContent = (courseTitle: string, theme: string, lessonTitle: string, 
     deepDive: `Deep-dive practice: connect ${lessonTitle.toLowerCase()} to ${dailyContext}. First describe the current pattern without judging it. Then identify the smallest decision you can make, the support or constraint that may affect it, and the moment you will review the result. Strong application is not about producing a perfect answer; it is about making your reasoning visible, testing it responsibly, and improving the next attempt with evidence.`,
     reflectionPrompt: `Where could you practise ${lessonTitle.toLowerCase()} this week—in your work, study, relationships, finances, health, or household routines—and what specific evidence would tell you that the practice is working?`,
     keyTakeaway: `A useful ${lessonTitle.toLowerCase()} practice turns ${theme} into one observable decision, behaviour, or review point that improves an ordinary situation.`,
-    illustration: { label: `Signal ${String(moduleIndex + 1).padStart(2, "0")}.${lessonIndex + 1}`, caption: `From ${theme} to an observable professional and everyday move.`, accent: ["gold", "teal", "plum"][lessonIndex % 3] },
+    illustration: {
+      label: `Signal ${String(moduleIndex + 1).padStart(2, "0")}.${lessonIndex + 1}`,
+      caption: `From ${theme} to an observable professional and everyday move.`,
+      accent: ["gold", "teal", "plum"][lessonIndex % 3],
+      explanatory: `Think of ${lessonTitle.toLowerCase()} as a route map: the situation is the starting point, ${practice} is the next turn, and the review point tells you whether the route is taking you toward the intended outcome.`,
+      applicational: `In an ordinary week, use this lens when you are ${dailyContext}. Pause long enough to name the outcome, the constraint, and one small move you can observe before the day ends.`,
+      experiential: `Recall a moment when ${theme} carried real weight for you. Notice the tone of the room, the pressure in your body, and the first story your mind told. Now imagine choosing ${practice} with enough calm to leave the situation clearer than you found it.`,
+    },
   };
 };
 
@@ -234,7 +242,14 @@ const buildIcpcModules = (course: { slug: string; title: string }): CourseModule
     simulation: { prompt: `You are designing a learning experience for ${theme}. Which move best protects learner agency while keeping the intended outcome clear?`, options: ["Make the outcome explicit, offer meaningful choices, and use evidence to adjust the next step.", "Give learners unlimited choice without a shared outcome or review point.", "Follow a fixed script even when learner evidence shows the design is not working."], feedback: ["Strong move: agency and intentional design can coexist when evidence guides adaptation.", "Choice without direction can create activity without learning.", "Consistency matters, but a fixed script is not the same as responsive teaching."] },
     reflectionPrompt: `Which learner, curriculum, or assessment decision could you improve using ${lessonTitle.toLowerCase()}, and what evidence will you review?`,
     keyTakeaway: `${lessonTitle} becomes valuable when it changes one observable teaching decision and creates evidence for the next adjustment.`,
-    illustration: { label: `ICPC ${String(moduleIndex + 1).padStart(2, "0")}.${lessonIndex + 1}`, caption: `A practical signal for ${theme}.`, accent: ["gold", "teal", "plum"][lessonIndex % 3] },
+    illustration: {
+      label: `ICPC ${String(moduleIndex + 1).padStart(2, "0")}.${lessonIndex + 1}`,
+      caption: `A practical signal for ${theme}.`,
+      accent: ["gold", "teal", "plum"][lessonIndex % 3],
+      explanatory: `Use a curriculum map: the intended learner outcome is the destination, ${lessonTitle.toLowerCase()} is the design choice, and the evidence check shows whether the route is working.`,
+      applicational: `In a class, tutoring session, or home-learning routine, apply this practice by making one learner decision visible and reviewing the response before the next teaching move.`,
+      experiential: `Picture the room after a learner finally sees the connection: attention settles, questions become more precise, and the teacher can feel the difference between activity and meaningful learning.`,
+    },
   }));
   return { id: `module-${moduleIndex + 1}`, title: `${moduleIndex + 1}. ${theme.replace(/\b\w/g, (letter) => letter.toUpperCase())}`, promise: `Translate ${theme} into a globally aware, learner-centred professional practice.`, lessons, quiz: icpcQuizQuestions(course.slug, `module-${moduleIndex + 1}`, theme, lessons) };
 });
