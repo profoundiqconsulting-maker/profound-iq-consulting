@@ -55,3 +55,18 @@ describe("renderCareerPathReportPdf", () => {
     expect(text).toContain("%%EOF");
   });
 });
+
+
+describe("renderSavedCoursePathwaysPdf", () => {
+  it("renders a personalized PDF with saved pathway details", async () => {
+    const { renderSavedCoursePathwaysPdf } = await import("./reportPdf");
+    const pdf = await renderSavedCoursePathwaysPdf({ participantName: "Amina Njeri", email: "amina@example.com", courses: [{ title: "Artificial Intelligence for Educators", category: "AI & Digital", skillLevel: "Practitioner", duration: "10 modules · 70 lessons", priceKes: 4999, outcomes: ["Design responsible AI-supported learning experiences", "Evaluate practical classroom use cases"] }] });
+    const text = pdf.toString("latin1");
+    const decodedText = text.replace(/<([0-9a-f]+)>/g, (_match, hex: string) => Buffer.from(hex, "hex").toString("latin1"));
+    expect(text.startsWith("%PDF-")).toBe(true);
+    expect(text).toContain("Profound IQ Saved Learning Pathways");
+    expect(text).toContain("Saved course pathways");
+    expect(text).toContain(Buffer.from("OUTCOMES").toString("hex"));
+    expect(text).toContain("%%EOF");
+  });
+});

@@ -2011,3 +2011,11 @@
 - [x] Add a retake quiz flow that updates the learner’s recommendation preferences.
 - [x] Add localization, authorization, regression tests, crawler checks, and responsive validation.
 - [x] Save and auto-publish a checkpoint for the completed comparison and personalization upgrades.
+
+# Course Sharing, Discovery Transitions, and Saved Pathway Export
+- [x] Add share buttons for specific comparisons on the dedicated comparison page.
+- [x] Add share buttons for individual course detail pages with course-specific URLs and metadata.
+- [x] Add smooth, reduced-motion-friendly transitions and loading skeletons between the recommendation quiz and saved pathways surfaces.
+- [x] Add a protected My Space PDF export for saved learning pathways with branded course details.
+- [x] Add localization, authorization, regression tests, and responsive validation for the new discovery/export flows.
+- [x] Save and auto-publish a checkpoint for the completed sharing, transition, and saved-pathway export features.

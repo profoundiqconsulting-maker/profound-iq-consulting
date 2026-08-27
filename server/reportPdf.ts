@@ -179,6 +179,45 @@ function addFooter(doc: PDFKit.PDFDocument): void {
 
 function formatDate(value: Date | string): string { return new Date(value).toLocaleDateString("en-KE", { year: "numeric", month: "short", day: "numeric" }); }
 
+type SavedCoursePathwayPdfInput = { participantName: string; email?: string; courses: Array<{ title: string; category: string; skillLevel: string; duration: string; priceKes: number; outcomes: readonly string[] }> };
+
+export async function renderSavedCoursePathwaysPdf(input: SavedCoursePathwayPdfInput): Promise<Buffer> {
+  const doc = new PDFDocument({ size: "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: "Profound IQ Saved Learning Pathways", Author: "Profound IQ Consulting", Subject: "Saved course pathways" } });
+  const chunks: Buffer[] = [];
+  doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+  const finished = new Promise<Buffer>((resolve, reject) => { doc.on("end", () => resolve(Buffer.concat(chunks))); doc.on("error", reject); });
+  const brandLogo = await loadBrandLogo();
+  doc.fillColor(NAVY).rect(0, 0, doc.page.width, 108).fill();
+  if (brandLogo) { try { doc.image(brandLogo, 52, 14, { fit: [116, 78], valign: "center" }); } catch { /* Text lockup remains available. */ } }
+  const headerX = brandLogo ? 190 : 52;
+  doc.fillColor("#f7f3e8").font("Helvetica-Bold").fontSize(10).text("PROFOUND IQ / CONSULTING", headerX, 36, { characterSpacing: 1.4 });
+  doc.fillColor(GOLD).font("Helvetica").fontSize(9).text("MY SPACE / SAVED PATHWAYS", headerX, 58, { characterSpacing: 1.1 });
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(25).text("Your saved learning pathways", 52, 145);
+  doc.fillColor(MUTED).font("Helvetica").fontSize(10).text(`Prepared for ${input.participantName}${input.email ? ` · ${input.email}` : ""}`, 52, 180);
+  doc.text(`Generated ${formatDate(new Date())}`, 52, 196);
+  doc.strokeColor(GOLD).lineWidth(2).moveTo(52, 224).lineTo(543, 224).stroke();
+  let y = 252;
+  if (!input.courses.length) {
+    doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(14).text("No saved pathways yet.", 52, y);
+    doc.fillColor(MUTED).font("Helvetica").fontSize(10).text("Return to the course catalog to save a pathway for later reference.", 52, y + 24, { width: 490 });
+  }
+  input.courses.forEach((course, index) => {
+    if (y > 690) { addFooter(doc); doc.addPage(); y = 58; }
+    doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(9).text(`PATHWAY ${String(index + 1).padStart(2, "0")}`, 52, y, { characterSpacing: 1.2 });
+    doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(17).text(course.title, 52, y + 18, { width: 390 });
+    doc.fillColor(MUTED).font("Helvetica").fontSize(9.5).text(`${course.category} · ${course.skillLevel} · ${course.duration} · KES ${course.priceKes.toLocaleString()}`, 52, y + 43, { width: 490 });
+    y += 65;
+    doc.fillColor(GOLD).font("Helvetica-Bold").fontSize(8).text("OUTCOMES", 52, y, { characterSpacing: 1.1 });
+    y += 16;
+    y = writeBullets(doc, course.outcomes.slice(0, 5), y, 9.5, MUTED) + 16;
+    doc.strokeColor("#d8d1c1").lineWidth(1).moveTo(52, y).lineTo(543, y).stroke();
+    y += 20;
+  });
+  addFooter(doc);
+  doc.end();
+  return finished;
+}
+
 export async function renderAssessmentScoreSummaryPdf(input: { participantName: string; email?: string; createdAt: Date | string; locale?: GeneratedLocale; reports: Array<{ version?: string | null; createdAt: Date | string; overallScore?: number | null; overallBand?: string | null; dimensionScores?: Array<{ label: string; score: number }> }> }): Promise<Buffer> {
   const copy = getGeneratedCopy(input.locale);
   const doc = new PDFDocument({ size: "A4", compress: false, margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: "Profound IQ Score Summary", Author: "Profound IQ Consulting" } });
