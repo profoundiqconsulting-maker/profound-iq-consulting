@@ -361,3 +361,15 @@ export async function renderCourseShareAnalyticsPdf(input: { total: number; byCo
   doc.end();
   return finished;
 }
+
+export async function renderCourseAccessAnalyticsPdf(input: { totalDenied: number; conversion: { deniedUsers: number; convertedUsers: number; conversionRate: number }; trend: Array<{ date: string; denied: number; paid: number; conversionRate: number }>; fromDate?: string; toDate?: string }): Promise<Buffer> {
+  const doc = new PDFDocument({ size: "A4", margins: { top: 52, right: 52, bottom: 52, left: 52 }, info: { Title: "Profound IQ Learning Access Observatory", Author: "Profound IQ Consulting" } });
+  const chunks: Buffer[] = []; doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+  const finished = new Promise<Buffer>((resolve, reject) => { doc.on("end", () => resolve(Buffer.concat(chunks))); doc.on("error", reject); });
+  const logo = await loadBrandLogo(); doc.fillColor(NAVY).rect(0, 0, doc.page.width, 92).fill(); if (logo) { try { doc.image(logo, 52, 12, { fit: [116, 68] }); } catch {} }
+  doc.fillColor("#f7f3e8").font("Helvetica-Bold").fontSize(10).text("PROFOUND IQ / CONSULTING", logo ? 190 : 52, 34, { characterSpacing: 1.2 });
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(23).text("Learning Access Observatory", 52, 128); doc.fillColor(GOLD).font("Helvetica").fontSize(10).text(`${input.fromDate ?? "All time"} — ${input.toDate ?? "Today"}`, 52, 164);
+  const cards = [["DENIED ATTEMPTS", input.totalDenied], ["DENIED LEARNERS", input.conversion.deniedUsers], ["CONVERTED LEARNERS", input.conversion.convertedUsers], ["CONVERSION RATE", `${input.conversion.conversionRate}%`]]; cards.forEach(([label, value], index) => { const x = 52 + (index % 2) * 250; const y = 205 + Math.floor(index / 2) * 82; doc.fillColor("#fffaf0").rect(x, y, 220, 62).fill(); doc.fillColor(MUTED).font("Helvetica-Bold").fontSize(8).text(String(label), x + 12, y + 12); doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(20).text(String(value), x + 12, y + 29); });
+  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(13).text("Daily conversion trend", 52, 390); doc.fillColor(MUTED).font("Helvetica").fontSize(9).text("Navy = denied attempts · Gold = paid learners", 52, 409); const points = input.trend.slice(-30); const max = Math.max(1, ...points.map((point) => Math.max(point.denied, point.paid))); points.forEach((point, index) => { const x = 54 + index * 16; const base = 650; doc.fillColor(NAVY).rect(x, base - (point.denied / max) * 190, 6, (point.denied / max) * 190).fill(); doc.fillColor(GOLD).rect(x + 7, base - (point.paid / max) * 190, 6, (point.paid / max) * 190).fill(); }); doc.fillColor(MUTED).font("Helvetica").fontSize(8).text(points[0]?.date ?? "", 52, 665); doc.text(points.at(-1)?.date ?? "", 480, 665); doc.fillColor(MUTED).fontSize(8).text("Generated from persisted access and payment records. Internal administrative use only.", 52, 760);
+  doc.end(); return finished;
+}

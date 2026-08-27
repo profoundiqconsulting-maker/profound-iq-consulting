@@ -1236,6 +1236,14 @@ export async function getAdminUsersForReview(input: { page: number; pageSize: nu
   return { rows, total: totalCount, totalPages, page, pageSize: safePageSize };
 }
 
+export async function updateUsersCohort(openIds: string[], cohort: string | null) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const ids = Array.from(new Set(openIds.map((id) => id.trim()).filter(Boolean))).slice(0, 500);
+  if (ids.length) await db.update(users).set({ cohort: cohort?.trim() || null }).where(inArray(users.openId, ids));
+  return { updated: ids.length, cohort: cohort?.trim() || null };
+}
+
 export async function updateUserCohort(openId: string, cohort: string | null) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");

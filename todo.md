@@ -1863,3 +1863,9 @@
 - [x] Add admin controls to manually assign users to named cohorts for segmentation.
 - [x] Add PNG and PDF exports for conversion trend charts.
 - [x] Add tests, responsive verification, skill update, and checkpoint the release.
+
+# Cohort Management, Branded Reports, and Shared Presets
+- [x] Add a dedicated admin cohort-management route with bulk user assignment.
+- [x] Replace browser print with a branded server-generated conversion PDF report.
+- [x] Add persisted shared filter presets with role-based visibility controls.
+- [x] Add authorization/tests, responsive checks, skill update, and checkpoint the release.
