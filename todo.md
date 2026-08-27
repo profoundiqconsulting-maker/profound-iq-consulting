@@ -1917,3 +1917,9 @@
 - [x] Localize illustration labels and add regression coverage for lesson illustration completeness.
 - [x] Run tests, responsive verification, production build, and publish checkpoint.
 
+
+# AI Lesson Visuals and Experiential Activities
+- [x] Generate and integrate branded explanatory visual assets for all course lessons.
+- [x] Add persistent learner bookmarks for explanatory, applicational, and experiential illustration cards.
+- [x] Add experiential-story quiz and reflection interactions with localized copy and persistence.
+- [x] Add focused tests, responsive verification, production build, and publish checkpoint.

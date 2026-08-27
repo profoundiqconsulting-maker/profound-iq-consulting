@@ -7,11 +7,19 @@ export const COURSE_PASS_MARK = 50;
 export type LessonSection = { heading: string; body: string; callout?: string };
 export type LessonSimulation = { prompt: string; options: string[]; feedback: string[] };
 export type LessonResponseTask = { id: string; prompt: string; placeholder: string; required: boolean };
-export type LessonIllustration = { label: string; caption: string; accent: string; explanatory: string; applicational: string; experiential: string };
+export type LessonIllustration = { label: string; caption: string; accent: string; explanatory: string; applicational: string; experiential: string; visualUrl: string; visualAlt: string; experientialQuestion: string; experientialOptions: string[]; experientialFeedback: string[]; experientialReflectionPrompt: string };
 export type CourseLesson = { id: string; title: string; summary: string; outcome: string; durationMinutes: number; objectives: string[]; sections: LessonSection[]; example: { context: string; move: string; result: string }; simulation: LessonSimulation; responseTasks: LessonResponseTask[]; deepDive: string; reflectionPrompt: string; keyTakeaway: string; illustration: LessonIllustration };
 export type CourseQuizQuestion = { id: string; prompt: string; options: string[]; correctOption: number; sourceLessonId: string; sourceLessonTitle: string; explanation: string; optionExplanations: string[] };
 export type CourseModule = { id: string; title: string; promise: string; lessons: CourseLesson[]; quiz: CourseQuizQuestion[] };
 export type CourseDefinition = { slug: string; index: string; title: string; strapline: string; description: string; audience: string; duration: string; outcomes: readonly string[]; priceKes: number; stageAmountsKes: readonly number[]; modules: CourseModule[] };
+
+const explanatoryVisuals = [
+  { url: "/manus-storage/piq-explainer-journey_6b36511b.png", alt: "A rising pathway connecting insight to purposeful action." },
+  { url: "/manus-storage/piq-explainer-feedback-loop_8245cc4d.png", alt: "A circular feedback loop connecting observation, interpretation, action, and learning." },
+  { url: "/manus-storage/piq-explainer-decision-matrix_22a2f148.png", alt: "A decision matrix with a marker moving toward a high-value quadrant." },
+  { url: "/manus-storage/piq-explainer-iceberg_dcd03685.png", alt: "An iceberg showing visible behaviour above deeper assumptions and systems." },
+  { url: "/manus-storage/piq-explainer-bridge_916cd9ec.png", alt: "A bridge connecting theory to everyday practice." },
+] as const;
 
 const lessonBlueprints = [
   ["Orientation and baseline", "Language of the discipline", "Signals in everyday work", "A practical diagnostic", "Case study: from friction to focus", "Guided reflection", "Applied field note"],
@@ -103,6 +111,8 @@ const lessonContent = (courseTitle: string, theme: string, lessonTitle: string, 
       { id: "notice", prompt: `Name one real situation where ${lessonTitle.toLowerCase()} matters for you. What happened, and what did you notice?`, placeholder: "Describe the situation and the signal you noticed…", required: true },
       { id: "apply", prompt: `Write the specific action you will take to apply ${lessonTitle.toLowerCase()} within the next seven days.`, placeholder: "Write one observable action, including when or where you will do it…", required: true },
       { id: "evidence", prompt: "Define the evidence you will review and the question you will ask yourself after the experiment.", placeholder: "Describe the result you will look for and how you will review it…", required: true },
+      { id: "experience-choice", prompt: "Choose the response that best honours the experiential story and creates a useful next move.", placeholder: "Select the response that best fits the story…", required: true },
+      { id: "experience-reflection", prompt: "Write what the experiential story brings to mind and how you will carry its lesson into one real situation.", placeholder: "Describe the moment, feeling, or insight you want to carry forward…", required: true },
     ],
     deepDive: `Deep-dive practice: connect ${lessonTitle.toLowerCase()} to ${dailyContext}. First describe the current pattern without judging it. Then identify the smallest decision you can make, the support or constraint that may affect it, and the moment you will review the result. Strong application is not about producing a perfect answer; it is about making your reasoning visible, testing it responsibly, and improving the next attempt with evidence.`,
     reflectionPrompt: `Where could you practise ${lessonTitle.toLowerCase()} this week—in your work, study, relationships, finances, health, or household routines—and what specific evidence would tell you that the practice is working?`,
@@ -114,6 +124,12 @@ const lessonContent = (courseTitle: string, theme: string, lessonTitle: string, 
       explanatory: `Think of ${lessonTitle.toLowerCase()} as a route map: the situation is the starting point, ${practice} is the next turn, and the review point tells you whether the route is taking you toward the intended outcome.`,
       applicational: `In an ordinary week, use this lens when you are ${dailyContext}. Pause long enough to name the outcome, the constraint, and one small move you can observe before the day ends.`,
       experiential: `Recall a moment when ${theme} carried real weight for you. Notice the tone of the room, the pressure in your body, and the first story your mind told. Now imagine choosing ${practice} with enough calm to leave the situation clearer than you found it.`,
+      visualUrl: explanatoryVisuals[(moduleIndex * 7 + lessonIndex) % explanatoryVisuals.length].url,
+      visualAlt: explanatoryVisuals[(moduleIndex * 7 + lessonIndex) % explanatoryVisuals.length].alt,
+      experientialQuestion: `The story asks you to pause inside the pressure of ${theme}. Which response best turns that felt insight into a responsible next move?`,
+      experientialOptions: [`Name what you noticed, choose one small action, and return later to review what changed.`, `Wait until the situation feels completely comfortable before deciding what it means.`, `Keep the feeling private and move on without testing a different response.`],
+      experientialFeedback: [`That response respects the experience and converts it into observable learning.`, `Comfort may come later; waiting can leave the original pattern unchanged.`, `Private insight becomes useful when it informs a responsible action or conversation.`],
+      experientialReflectionPrompt: `What detail from this story—its atmosphere, pressure, or moment of possibility—connects with your own life, and what will you do differently because of it?`,
     },
   };
 };
@@ -249,6 +265,12 @@ const buildIcpcModules = (course: { slug: string; title: string }): CourseModule
       explanatory: `Use a curriculum map: the intended learner outcome is the destination, ${lessonTitle.toLowerCase()} is the design choice, and the evidence check shows whether the route is working.`,
       applicational: `In a class, tutoring session, or home-learning routine, apply this practice by making one learner decision visible and reviewing the response before the next teaching move.`,
       experiential: `Picture the room after a learner finally sees the connection: attention settles, questions become more precise, and the teacher can feel the difference between activity and meaningful learning.`,
+      visualUrl: explanatoryVisuals[(moduleIndex * 7 + lessonIndex) % explanatoryVisuals.length].url,
+      visualAlt: explanatoryVisuals[(moduleIndex * 7 + lessonIndex) % explanatoryVisuals.length].alt,
+      experientialQuestion: `The story asks you to pause inside the pressure of ${theme}. Which response best turns that felt insight into a responsible next move?`,
+      experientialOptions: [`Name what you noticed, choose one small action, and return later to review what changed.`, `Wait until the situation feels completely comfortable before deciding what it means.`, `Keep the feeling private and move on without testing a different response.`],
+      experientialFeedback: [`That response respects the experience and converts it into observable learning.`, `Comfort may come later; waiting can leave the original pattern unchanged.`, `Private insight becomes useful when it informs a responsible action or conversation.`],
+      experientialReflectionPrompt: `What detail from this story—its atmosphere, pressure, or moment of possibility—connects with your own life, and what will you do differently because of it?`,
     },
   }));
   return { id: `module-${moduleIndex + 1}`, title: `${moduleIndex + 1}. ${theme.replace(/\b\w/g, (letter) => letter.toUpperCase())}`, promise: `Translate ${theme} into a globally aware, learner-centred professional practice.`, lessons, quiz: icpcQuizQuestions(course.slug, `module-${moduleIndex + 1}`, theme, lessons) };

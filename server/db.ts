@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { normalizeLeaderboardDisplayName, rankAchievementLeaderboard, type AchievementBadge, type AchievementLeaderboardRow } from "../shared/achievements";
 import { courseCatalog } from "../shared/courseCatalog";
 import { buildCourseModuleBadges } from "../shared/courseBadges";
-import { adminAnalyticsSettings, adminSecuritySettings, siteSeoSettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseLessonResponses, courseLessonResponseReviews, courseLessonResponseNotifications, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits, newsletterSubscribers, insightArticles as insightArticlesTable } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, siteSeoSettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseLessonResponses, courseLessonResponseReviews, courseLessonResponseNotifications, courseLessonIllustrationBookmarks, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits, newsletterSubscribers, insightArticles as insightArticlesTable } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -1486,6 +1486,26 @@ export async function listCourseLessonResponses(enrollmentId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   return db.select().from(courseLessonResponses).where(eq(courseLessonResponses.enrollmentId, enrollmentId));
+}
+
+export async function listCourseIllustrationBookmarks(userOpenId: string, courseSlug?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(courseLessonIllustrationBookmarks).where(courseSlug ? and(eq(courseLessonIllustrationBookmarks.userOpenId, userOpenId), eq(courseLessonIllustrationBookmarks.courseSlug, courseSlug)) : eq(courseLessonIllustrationBookmarks.userOpenId, userOpenId)).orderBy(desc(courseLessonIllustrationBookmarks.updatedAt));
+}
+
+export async function upsertCourseIllustrationBookmark(input: { userOpenId: string; courseSlug: string; lessonId: string; illustrationMode: "explanatory" | "applicational" | "experiential"; label: string; title: string; content: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(courseLessonIllustrationBookmarks).values(input).onDuplicateKeyUpdate({ set: { label: input.label, title: input.title, content: input.content, updatedAt: new Date() } });
+  return (await db.select().from(courseLessonIllustrationBookmarks).where(and(eq(courseLessonIllustrationBookmarks.userOpenId, input.userOpenId), eq(courseLessonIllustrationBookmarks.courseSlug, input.courseSlug), eq(courseLessonIllustrationBookmarks.lessonId, input.lessonId), eq(courseLessonIllustrationBookmarks.illustrationMode, input.illustrationMode))).limit(1))[0];
+}
+
+export async function deleteCourseIllustrationBookmark(input: { userOpenId: string; courseSlug: string; lessonId: string; illustrationMode: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.delete(courseLessonIllustrationBookmarks).where(and(eq(courseLessonIllustrationBookmarks.userOpenId, input.userOpenId), eq(courseLessonIllustrationBookmarks.courseSlug, input.courseSlug), eq(courseLessonIllustrationBookmarks.lessonId, input.lessonId), eq(courseLessonIllustrationBookmarks.illustrationMode, input.illustrationMode)));
+  return { deleted: true as const };
 }
 
 export async function upsertCourseLessonResponse(input: { enrollmentId: number; lessonId: string; taskId: string; responseHtml: string }) {

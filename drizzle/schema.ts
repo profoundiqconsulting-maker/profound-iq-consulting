@@ -170,6 +170,18 @@ export const courseLessonResponses = mysqlTable("course_lesson_responses", {
   responseHtml: text("responseHtml").notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({ enrollmentLessonTaskUnique: uniqueIndex("course_enrollment_lesson_task_unique").on(table.enrollmentId, table.lessonId, table.taskId) }));
+export const courseLessonIllustrationBookmarks = mysqlTable("course_lesson_illustration_bookmarks", {
+  id: int("id").autoincrement().primaryKey(),
+  userOpenId: varchar("userOpenId", { length: 64 }).notNull(),
+  courseSlug: varchar("courseSlug", { length: 120 }).notNull(),
+  lessonId: varchar("lessonId", { length: 180 }).notNull(),
+  illustrationMode: varchar("illustrationMode", { length: 24 }).notNull(),
+  label: varchar("label", { length: 180 }).notNull(),
+  title: varchar("title", { length: 240 }).notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({ learnerIllustrationUnique: uniqueIndex("course_illustration_bookmark_unique").on(table.userOpenId, table.courseSlug, table.lessonId, table.illustrationMode), learnerCourseIdx: index("course_illustration_bookmark_learner_course_idx").on(table.userOpenId, table.courseSlug) }));
 export const courseLessonResponseReviews = mysqlTable("course_lesson_response_reviews", {
   id: int("id").autoincrement().primaryKey(),
   responseId: int("responseId").notNull(),
