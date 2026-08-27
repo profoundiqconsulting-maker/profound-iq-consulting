@@ -152,6 +152,19 @@ export const courseLessonResponses = mysqlTable("course_lesson_responses", {
   responseHtml: text("responseHtml").notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({ enrollmentLessonTaskUnique: uniqueIndex("course_enrollment_lesson_task_unique").on(table.enrollmentId, table.lessonId, table.taskId) }));
+export const courseLessonResponseReviews = mysqlTable("course_lesson_response_reviews", {
+  id: int("id").autoincrement().primaryKey(),
+  responseId: int("responseId").notNull(),
+  enrollmentId: int("enrollmentId").notNull(),
+  lessonId: varchar("lessonId", { length: 180 }).notNull(),
+  taskId: varchar("taskId", { length: 120 }).notNull(),
+  reviewerOpenId: varchar("reviewerOpenId", { length: 64 }).notNull(),
+  reviewerName: varchar("reviewerName", { length: 160 }),
+  feedback: text("feedback").notNull(),
+  status: varchar("status", { length: 24 }).default("reviewed").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({ responseReviewerUnique: uniqueIndex("course_response_reviewer_unique").on(table.responseId, table.reviewerOpenId) }));
 export const courseQuizAttempts = mysqlTable("course_quiz_attempts", {
   id: int("id").autoincrement().primaryKey(),
   enrollmentId: int("enrollmentId").notNull(),

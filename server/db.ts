@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { normalizeLeaderboardDisplayName, rankAchievementLeaderboard, type AchievementBadge, type AchievementLeaderboardRow } from "../shared/achievements";
 import { courseCatalog } from "../shared/courseCatalog";
 import { buildCourseModuleBadges } from "../shared/courseBadges";
-import { adminAnalyticsSettings, adminSecuritySettings, siteSeoSettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseLessonResponses, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits, newsletterSubscribers, insightArticles as insightArticlesTable } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, siteSeoSettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseLessonResponses, courseLessonResponseReviews, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits, newsletterSubscribers, insightArticles as insightArticlesTable } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -1479,6 +1479,32 @@ export async function upsertCourseLessonResponse(input: { enrollmentId: number; 
   const responseHtml = input.responseHtml.trim();
   if (!responseHtml.replace(/<[^>]*>/g, "").replace(/&nbsp;/gi, " ").trim()) throw new Error("Lesson responses cannot be blank.");
   await db.insert(courseLessonResponses).values({ ...input, responseHtml }).onDuplicateKeyUpdate({ set: { responseHtml, updatedAt: new Date() } });
+  return { saved: true as const };
+}
+
+export async function listCourseLessonResponsesForStaff(input: { page: number; pageSize: number; search?: string; courseSlug?: string; reviewStatus?: "all" | "reviewed" | "needs-review" }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const enrollments = await db.select().from(courseLearnerEnrollments).orderBy(desc(courseLearnerEnrollments.updatedAt));
+  const enrollmentIds = enrollments.map((enrollment) => enrollment.id);
+  if (!enrollmentIds.length) return { rows: [], total: 0, page: input.page, pageSize: input.pageSize, totalPages: 1 };
+  const responses = await db.select().from(courseLessonResponses).where(inArray(courseLessonResponses.enrollmentId, enrollmentIds)).orderBy(desc(courseLessonResponses.updatedAt));
+  const reviews = await db.select().from(courseLessonResponseReviews).where(inArray(courseLessonResponseReviews.responseId, responses.map((response) => response.id)));
+  const enrollmentMap = new Map(enrollments.map((enrollment) => [enrollment.id, enrollment]));
+  const reviewMap = new Map(reviews.map((review) => [review.responseId, review]));
+  const rows = responses.map((response) => ({ response, enrollment: enrollmentMap.get(response.enrollmentId), review: reviewMap.get(response.id) })).filter((row) => row.enrollment && (!input.courseSlug || row.enrollment.courseSlug === input.courseSlug) && (!input.reviewStatus || input.reviewStatus === "all" || (input.reviewStatus === "reviewed" ? Boolean(row.review) : !row.review)) && (!input.search || `${row.enrollment.userOpenId} ${row.response.lessonId} ${row.response.taskId} ${row.response.responseHtml}`.toLowerCase().includes(input.search.toLowerCase())));
+  const start = Math.max(0, (input.page - 1) * input.pageSize);
+  return { rows: rows.slice(start, start + input.pageSize), total: rows.length, page: input.page, pageSize: input.pageSize, totalPages: Math.max(1, Math.ceil(rows.length / input.pageSize)) };
+}
+
+export async function upsertCourseLessonResponseReview(input: { responseId: number; enrollmentId: number; lessonId: string; taskId: string; reviewerOpenId: string; reviewerName?: string | null; feedback: string; status: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const feedback = input.feedback.trim();
+  if (!feedback) throw new Error("Instructor feedback cannot be blank.");
+  const response = (await db.select().from(courseLessonResponses).where(eq(courseLessonResponses.id, input.responseId)).limit(1))[0];
+  if (!response || response.enrollmentId !== input.enrollmentId || response.lessonId !== input.lessonId || response.taskId !== input.taskId) throw new Error("Learner response could not be verified.");
+  await db.insert(courseLessonResponseReviews).values({ ...input, feedback }).onDuplicateKeyUpdate({ set: { reviewerName: input.reviewerName ?? null, feedback, status: input.status, updatedAt: new Date() } });
   return { saved: true as const };
 }
 

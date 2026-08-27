@@ -17,6 +17,8 @@ const mocks = vi.hoisted(() => ({
   getContactInquiryAuditHistory: vi.fn().mockResolvedValue([]),
   updateContactInquiryAssignment: vi.fn().mockResolvedValue({ id: 12, assignedToOpenId: "admin-2", assignedToName: "Team Member" }),
   recordAnalyticsEvent: vi.fn().mockResolvedValue(undefined),
+  listCourseLessonResponsesForStaff: vi.fn().mockResolvedValue({ rows: [], total: 0, page: 1, pageSize: 8, totalPages: 1 }),
+  upsertCourseLessonResponseReview: vi.fn().mockResolvedValue({ saved: true }),
 }));
 
 vi.mock("./db", async (importOriginal) => ({ ...(await importOriginal<typeof import("./db")>()), ...mocks }));
@@ -37,7 +39,7 @@ function adminContext(): TrpcContext {
 }
 
 describe("inquiry.create", () => {
-  beforeEach(() => { mocks.createContactInquiry.mockClear(); mocks.listAssignedContactInquiries.mockClear(); mocks.updateAssignedContactInquiryStatus.mockClear(); mocks.updateAssignedContactInquiryNotes.mockClear(); mocks.listContactInquiries.mockClear(); mocks.updateContactInquiryStatus.mockClear(); mocks.getAdminTeamMembers.mockClear(); mocks.getContactInquiryAuditHistory.mockClear(); mocks.updateContactInquiryAssignment.mockClear(); mocks.getContactInquiriesForExport.mockClear(); mocks.getContactInquiriesForExportWithAudit.mockClear(); mocks.getContactInquiryCategoryCounts.mockClear(); mocks.bulkUpdateContactInquiryStatus.mockClear(); mocks.updateContactInquiryNotes.mockClear(); mocks.recordAnalyticsEvent.mockClear(); });
+  beforeEach(() => { mocks.createContactInquiry.mockClear(); mocks.listAssignedContactInquiries.mockClear(); mocks.updateAssignedContactInquiryStatus.mockClear(); mocks.updateAssignedContactInquiryNotes.mockClear(); mocks.listContactInquiries.mockClear(); mocks.updateContactInquiryStatus.mockClear(); mocks.getAdminTeamMembers.mockClear(); mocks.getContactInquiryAuditHistory.mockClear(); mocks.updateContactInquiryAssignment.mockClear(); mocks.getContactInquiriesForExport.mockClear(); mocks.getContactInquiriesForExportWithAudit.mockClear(); mocks.getContactInquiryCategoryCounts.mockClear(); mocks.bulkUpdateContactInquiryStatus.mockClear(); mocks.updateContactInquiryNotes.mockClear(); mocks.recordAnalyticsEvent.mockClear(); mocks.listCourseLessonResponsesForStaff.mockClear(); mocks.upsertCourseLessonResponseReview.mockClear(); });
   it("persists the inquiry and records analytics", async () => {
     const result = await appRouter.createCaller(publicContext()).inquiry.create({ name: "Amina Njeri", email: "amina@example.com", category: "organizational-development", message: "I would like to discuss leadership training for our team.", mathA: 7, mathB: 5, mathAnswer: 12 });
     expect(result).toEqual({ id: 27 });
@@ -82,10 +84,20 @@ describe("inquiry.create", () => {
     expect(mocks.updateAssignedContactInquiryNotes).toHaveBeenCalledWith(12, "staff-test", "Follow up", expect.objectContaining({ openId: "staff-test" }));
   });
 
+  it("allows staff to review learner responses and forwards reviewer identity", async () => {
+    const caller = appRouter.createCaller(staffContext());
+    await caller.staff.lessonResponses({ page: 1, pageSize: 8, reviewStatus: "needs-review" });
+    await caller.staff.reviewLessonResponse({ responseId: 21, enrollmentId: 9, lessonId: "module-1-lesson-1", taskId: "notice", feedback: "Connect this observation to one measurable next step.", status: "reviewed" });
+    expect(mocks.listCourseLessonResponsesForStaff).toHaveBeenCalledWith({ page: 1, pageSize: 8, reviewStatus: "needs-review" });
+    expect(mocks.upsertCourseLessonResponseReview).toHaveBeenCalledWith({ responseId: 21, enrollmentId: 9, lessonId: "module-1-lesson-1", taskId: "notice", feedback: "Connect this observation to one measurable next step.", status: "reviewed", reviewerOpenId: "staff-test", reviewerName: "Staff Test" });
+  });
+
   it("rejects regular users from the staff workspace", async () => {
     const now = new Date();
     const userContext = { user: { id: 3, openId: "user-test", name: "User Test", email: "user@example.com", loginMethod: "test", role: "user", createdAt: now, updatedAt: now, lastSignedIn: now }, req: { protocol: "https", headers: {} } as TrpcContext["req"], res: {} as TrpcContext["res"] };
     await expect(appRouter.createCaller(userContext).staff.assignedInquiries()).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(appRouter.createCaller(userContext).staff.lessonResponses()).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(appRouter.createCaller(userContext).staff.reviewLessonResponse({ responseId: 21, enrollmentId: 9, lessonId: "module-1-lesson-1", taskId: "notice", feedback: "Feedback", status: "reviewed" })).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
   it("rejects an incorrect math answer before persistence", async () => {
