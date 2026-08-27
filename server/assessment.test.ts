@@ -11,7 +11,7 @@ const courseWorkspaceSource = readFileSync(resolve(process.cwd(), "client/src/pa
 
 describe("professional course curriculum", () => {
   it("provides ten modules, seven lessons, required response tasks, and fifteen quiz questions per course module", () => {
-    expect(courseCatalog).toHaveLength(33);
+    expect(courseCatalog).toHaveLength(51);
     expect(COURSE_PRICE_KES).toBe(4999);
     expect(COURSE_STAGE_AMOUNT_KES).toBe(1250);
     expect(COURSE_PASS_MARK).toBe(50);

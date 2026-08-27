@@ -1963,3 +1963,14 @@
 - [x] Add safe custom-folder deletion with reassignment safeguards.
 - [x] Add accessible success animation after illustrations are moved into folders.
 - [x] Add regression tests, run full validation, and save a live checkpoint.
+
+# 18-Course Professional Applied Learning Catalog Expansion
+
+- [x] Add 18 new professional course seeds with unique slugs, titles, descriptions, audiences, outcomes, and catalog metadata.
+- [x] Add course-specific module themes and practical progression for all 18 courses.
+- [x] Ensure every new course generates 10 modules, 7 lessons per module, and 15 aligned quiz questions per module.
+- [x] Add course-specific applied examples, simulations, response tasks, and competency-based capstone framing.
+- [x] Add ten-locale course title and description coverage plus course-specific localization themes.
+- [x] Update catalog and localization regression tests for all new courses.
+- [x] Run TypeScript, full Vitest, production build, and representative catalog/course screenshots.
+- [x] Save and auto-publish a checkpoint for the expanded professional course catalog.
