@@ -7,10 +7,10 @@
 - [x] Preserve course-specific recipient, course title, issue date, certificate ID, and verification data while using the saved design.
 - [x] Add all-course generation regression coverage and validate the production build.
 
-- [ ] Sanitize, store, and render uploaded custom SVG/image certificate assets through managed storage.
-- [ ] Add drag-and-drop positioning and resizing controls for uploaded custom assets.
-- [ ] Add visual snapshot previews with rollback confirmation in the admin editor.
-- [ ] Add security/regression tests, production build, responsive QA, and checkpoint validation.
+- [x] Sanitize, store, and render uploaded custom SVG/image certificate assets through managed storage.
+- [x] Add drag-and-drop positioning and resizing controls for uploaded custom assets.
+- [x] Add visual snapshot previews with rollback confirmation in the admin editor.
+- [x] Add security/regression tests, production build, responsive QA, and checkpoint validation.
 
 - [x] Update the reusable profound-iq-credential-delivery skill with the latest certificate governance workflow.
 - [x] Add a pass/fail comparison between persisted issued hash and live preview hash.
@@ -2219,3 +2219,7 @@
 - [x] Trace every course certificate-generation path and verify the persisted admin design, branding, signature, QR, editable layout, and custom assets are applied without altering learner-specific certificate data.
 - [x] Add regression coverage for cross-course settings propagation and canonical artifact identity.
 - [x] Run type checks, tests, production build, and save a verified checkpoint for the cross-course certificate consistency pass.
+
+- [x] Implement true pointer-based drag-and-drop positioning and resize handles for uploaded custom certificate assets, then add regression coverage.
+- [x] Add visual thumbnail previews for layout snapshots and a confirmation step before rollback or restore.
+- [x] Run focused security/regression tests for custom asset upload and snapshot restore flows, capture responsive admin-editor QA, run a production build, and save a new checkpoint.

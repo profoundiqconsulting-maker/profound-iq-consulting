@@ -146,6 +146,18 @@ describe("quiz learning feedback and analytics", () => {
     expect(source).toContain("Learning review");
     expect(source).toContain("optionExplanations");
   });
+
+  it("exposes pointer editing and confirmed visual snapshot restore in the certificate editor", () => {
+    const source = readFileSync("client/src/components/AdminCertificatePreview.tsx", "utf8");
+    expect(source).toContain("beginAssetPointer");
+    expect(source).toContain('mode: "move" | "resize"');
+    expect(source).toContain('drag.mode === "resize"');
+    expect(source).toContain("setPointerCapture");
+    expect(source).toContain("Resize custom asset");
+    expect(source).toContain("Saved certificate layout thumbnail");
+    expect(source).toContain("window.confirm");
+    expect(source).toContain("Unsaved layout changes will be replaced");
+  });
 });
 
 describe("shareable comparison and personalized course revisit", () => {
