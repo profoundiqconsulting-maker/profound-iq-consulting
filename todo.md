@@ -2083,3 +2083,11 @@
 - [x] Display a clear Quality Control Mode indicator and access-grant status in admin/course workspaces.
 - [x] Add authorization and regression tests, run full tests/build, and verify course, quiz, payment, and certificate flows.
 - [x] Save and auto-publish a checkpoint for the admin quality-control and learner-access grant features.
+
+# Grant Search, Bulk Assignment, QA Checklist, and Audit Export
+- [x] Add admin-side grant search with learner name, email, and course filters.
+- [x] Add safe bulk grant and bulk revoke operations with per-user audit records.
+- [x] Add a dedicated admin QA checklist inside the course workspace with persistent local progress and clear quality-control status.
+- [x] Add an admin-only CSV export for course-access grant audit history with filters and safe escaping.
+- [x] Add regression tests, run type checks/tests/build, and verify desktop/mobile admin and course views.
+- [x] Save and auto-publish a checkpoint for the grant-management and QA checklist enhancements.

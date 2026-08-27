@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildCourseEnrollmentCsv, filterCourseEnrollmentRows } from "./adminExport";
+import { buildCourseEnrollmentCsv, buildCourseAccessGrantAuditCsv, filterCourseEnrollmentRows } from "./adminExport";
 import { aggregateWeeklyAnalytics, buildAssessmentFunnel, buildFunnelComparison, summarizeAnalyticsEvents } from "./adminAnalytics";
 import { renderEmailTemplate, renderEmailTemplateHtml, validateEmailTemplateBody } from "./emailTemplate";
 import { selectAdminNotificationRecipients } from "./adminRecipients";
@@ -58,5 +58,13 @@ describe("admin communication and export helpers", () => {
     const csv = buildCourseEnrollmentCsv([{ id: 7, courseTitle: 'Lead with "Clarity"', name: "Amina Otieno", email: "amina@example.com", status: "new", createdAt, consentedAt: createdAt }]);
     expect(csv.split("\n")[0]).toBe('"ID","Course","Name","Email","Status","Submitted at","Consent recorded at"');
     expect(csv).toContain('"7","Lead with ""Clarity""","Amina Otieno","amina@example.com","new","2026-08-22T08:00:00.000Z","2026-08-22T08:00:00.000Z"');
+  });
+
+  it("creates an escaped grant access audit CSV", () => {
+    const createdAt = new Date("2026-08-27T08:00:00.000Z");
+    const csv = buildCourseAccessGrantAuditCsv([{ id: 4, userOpenId: "learner-1", userName: 'Amina, "QA"', userEmail: "amina@example.com", courseSlug: "lead-with-clarity", action: "grant", actorOpenId: "admin-1", actorName: "Admin", actorEmail: "profoundiqconsulting@gmail.com", createdAt }]);
+    expect(csv.split("\n")[0]).toContain('"Audit ID","Learner Open ID","Learner name"');
+    expect(csv).toContain('"4","learner-1","Amina, ""QA""","amina@example.com","lead-with-clarity","grant"');
+    expect(csv).toContain('"2026-08-27T08:00:00.000Z"');
   });
 });

@@ -1436,16 +1436,34 @@ export async function hasCourseAccessGrant(userOpenId: string, courseSlug: strin
   return Boolean(row);
 }
 
-export async function listCourseAccessGrants() {
+export async function listCourseAccessGrants(filters: { search?: string; courseSlug?: string; activeOnly?: boolean } = {}) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  return db.select({ grant: courseAccessGrants, userName: users.name, userEmail: users.email }).from(courseAccessGrants).leftJoin(users, eq(users.openId, courseAccessGrants.userOpenId)).orderBy(desc(courseAccessGrants.updatedAt)).limit(500);
+  const rows = await db.select({ grant: courseAccessGrants, userName: users.name, userEmail: users.email }).from(courseAccessGrants).leftJoin(users, eq(users.openId, courseAccessGrants.userOpenId)).orderBy(desc(courseAccessGrants.updatedAt)).limit(500);
+  const search = filters.search?.trim().toLowerCase();
+  return rows.filter((row) => (!filters.courseSlug || row.grant.courseSlug === filters.courseSlug) && (!filters.activeOnly || !row.grant.revokedAt) && (!search || `${row.grant.userOpenId} ${row.userName ?? ""} ${row.userEmail ?? ""} ${row.grant.courseSlug}`.toLowerCase().includes(search)));
 }
 
 export async function listCourseAccessGrantAudits() {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   return db.select().from(courseAccessGrantAudits).orderBy(desc(courseAccessGrantAudits.createdAt)).limit(500);
+}
+
+export async function listCourseAccessGrantAuditExportRows(filters: { search?: string; courseSlug?: string; action?: "all" | "grant" | "revoke"; fromDate?: Date; toDate?: Date } = {}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db.select({ id: courseAccessGrantAudits.id, userOpenId: courseAccessGrantAudits.userOpenId, userName: users.name, userEmail: users.email, courseSlug: courseAccessGrantAudits.courseSlug, action: courseAccessGrantAudits.action, actorOpenId: courseAccessGrantAudits.actorOpenId, actorName: courseAccessGrantAudits.actorName, actorEmail: courseAccessGrantAudits.actorEmail, createdAt: courseAccessGrantAudits.createdAt }).from(courseAccessGrantAudits).leftJoin(users, eq(users.openId, courseAccessGrantAudits.userOpenId)).orderBy(desc(courseAccessGrantAudits.createdAt)).limit(5000);
+  const search = filters.search?.trim().toLowerCase();
+  return rows.filter((row) => (!filters.courseSlug || row.courseSlug === filters.courseSlug) && (!filters.action || filters.action === "all" || row.action === filters.action) && (!filters.fromDate || row.createdAt >= filters.fromDate) && (!filters.toDate || row.createdAt <= filters.toDate) && (!search || `${row.userOpenId} ${row.userName ?? ""} ${row.userEmail ?? ""} ${row.courseSlug} ${row.action} ${row.actorName ?? ""} ${row.actorEmail ?? ""}`.toLowerCase().includes(search)));
+}
+
+export async function bulkSetCourseAccessGrants(input: { grants: Array<{ userOpenId: string; courseSlug: string; enabled: boolean }>; actorOpenId: string; actorName?: string | null; actorEmail?: string | null }) {
+  const unique = Array.from(new Map(input.grants.map((item) => [`${item.userOpenId}:${item.courseSlug}`, item])).values());
+  if (!unique.length || unique.length > 100) throw new Error("Select between 1 and 100 learner-course access changes.");
+  const results = [];
+  for (const grant of unique) results.push(await setCourseAccessGrant({ ...grant, actorOpenId: input.actorOpenId, actorName: input.actorName, actorEmail: input.actorEmail }));
+  return { updated: results.length, results };
 }
 
 export async function setCourseAccessGrant(input: { userOpenId: string; courseSlug: string; enabled: boolean; actorOpenId: string; actorName?: string | null; actorEmail?: string | null }) {

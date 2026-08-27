@@ -50,3 +50,10 @@ export function buildNewsletterSubscriberCsv(rows: NewsletterSubscriberExportRow
   const lines = rows.map((row) => [row.id, row.email, row.source, row.status, row.consentedAt.toISOString(), row.createdAt.toISOString(), row.updatedAt.toISOString()].map(csvCell).join(","));
   return [header, ...lines].join("\n");
 }
+
+export type CourseAccessGrantAuditExportRow = { id: number; userOpenId: string; userName?: string | null; userEmail?: string | null; courseSlug: string; action: string; actorOpenId: string; actorName?: string | null; actorEmail?: string | null; createdAt: Date };
+export function buildCourseAccessGrantAuditCsv(rows: CourseAccessGrantAuditExportRow[]) {
+  const header = ["Audit ID", "Learner Open ID", "Learner name", "Learner email", "Course slug", "Action", "Admin Open ID", "Admin name", "Admin email", "Created at"].map(csvCell).join(",");
+  const lines = rows.map((row) => [row.id, row.userOpenId, row.userName, row.userEmail, row.courseSlug, row.action, row.actorOpenId, row.actorName, row.actorEmail, row.createdAt.toISOString()].map(csvCell).join(","));
+  return [header, ...lines].join("\n");
+}
