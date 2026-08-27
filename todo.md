@@ -1760,3 +1760,10 @@
 - [x] Add route-specific SEO titles, descriptions, canonical metadata, Open Graph context, and JSON-LD for the new public pages.
 - [x] Add public-page route and metadata regression tests, then verify desktop/mobile UX, TypeScript, full Vitest, and production build.
 - [x] Read the complete TODO file, mark only validated items complete, and save a checkpoint for the public UX/SEO refinement.
+
+# Insights Preview and Service Motion
+
+- [x] Populate Insights with clearly labeled placeholder article cards and non-fabricated contributor profile placeholders for layout review.
+- [x] Add hover states and scroll-reveal animations to the new service pages with reduced-motion support and accessible focus behavior.
+- [x] Add regression coverage for placeholder labeling and motion accessibility contracts, then verify responsive screenshots, TypeScript, full Vitest, and production build.
+- [x] Read the complete TODO file, mark validated items complete, and save a checkpoint for the Insights and service interaction refinement.

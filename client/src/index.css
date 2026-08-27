@@ -149,3 +149,22 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 @media (prefers-reduced-motion: reduce) {
   html.locale-transitioning body { animation: none; }
 }
+
+/* Executive Observatory public-page motion: reveal structure, not essential information. */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 520ms cubic-bezier(.23,1,.32,1), transform 520ms cubic-bezier(.23,1,.32,1);
+}
+.scroll-reveal.is-visible { opacity: 1; transform: translateY(0); }
+.scroll-reveal-group > * { transition: transform 220ms cubic-bezier(.23,1,.32,1), box-shadow 220ms cubic-bezier(.23,1,.32,1), border-color 220ms ease, background-color 220ms ease; }
+.scroll-reveal-group > *:hover { transform: translateY(-4px); box-shadow: 0 16px 34px rgba(16,29,53,.10); }
+.public-card-link { position: relative; overflow: hidden; }
+.public-card-link::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; transform: scaleX(0); transform-origin: left; background: #c9a34e; transition: transform 220ms cubic-bezier(.23,1,.32,1); }
+.public-card-link:hover::after, .public-card-link:focus-visible::after { transform: scaleX(1); }
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal { opacity: 1; transform: none; transition: none; }
+  .scroll-reveal-group > * { transition: none; }
+  .scroll-reveal-group > *:hover { transform: none; box-shadow: none; }
+  .public-card-link::after { transition: none; }
+}
