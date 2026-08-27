@@ -178,6 +178,14 @@ export const courseSavedCourses = mysqlTable("course_saved_courses", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, (table) => ({ learnerCourseUnique: uniqueIndex("course_saved_course_unique").on(table.userOpenId, table.courseSlug), learnerIdx: index("course_saved_course_learner_idx").on(table.userOpenId) }));
 
+export const courseRecommendationHistory = mysqlTable("course_recommendation_history", {
+  id: int("id").autoincrement().primaryKey(),
+  userOpenId: varchar("userOpenId", { length: 64 }).notNull(),
+  careerGoal: varchar("careerGoal", { length: 80 }).notNull(),
+  skillLevel: varchar("skillLevel", { length: 24 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({ learnerIdx: index("course_recommendation_history_learner_idx").on(table.userOpenId), createdIdx: index("course_recommendation_history_created_idx").on(table.userOpenId, table.createdAt) }));
+
 export const courseLessonIllustrationBookmarks = mysqlTable("course_lesson_illustration_bookmarks", {
   id: int("id").autoincrement().primaryKey(),
   userOpenId: varchar("userOpenId", { length: 64 }).notNull(),

@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { normalizeLeaderboardDisplayName, rankAchievementLeaderboard, type AchievementBadge, type AchievementLeaderboardRow } from "../shared/achievements";
 import { courseCatalog } from "../shared/courseCatalog";
 import { buildCourseModuleBadges } from "../shared/courseBadges";
-import { adminAnalyticsSettings, adminSecuritySettings, siteSeoSettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseLessonResponses, courseLessonResponseReviews, courseLessonResponseNotifications, courseLessonIllustrationBookmarks, courseSavedCourses, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits, newsletterSubscribers, insightArticles as insightArticlesTable } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, siteSeoSettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseLessonResponses, courseLessonResponseReviews, courseLessonResponseNotifications, courseLessonIllustrationBookmarks, courseSavedCourses, courseRecommendationHistory, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits, newsletterSubscribers, insightArticles as insightArticlesTable } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -1533,14 +1533,36 @@ export async function listCourseIllustrationBookmarkIds(input: { userOpenId: str
 export async function saveCourseRecommendationAnswers(userOpenId: string, answers: { careerGoal: string; skillLevel: string }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db.update(users).set({ recommendationAnswers: { ...answers, savedAt: new Date().toISOString() } }).where(eq(users.openId, userOpenId));
-  return { saved: true as const, answers };
+  const savedAt = new Date();
+  await db.update(users).set({ recommendationAnswers: { ...answers, savedAt: savedAt.toISOString() } }).where(eq(users.openId, userOpenId));
+  await db.insert(courseRecommendationHistory).values({ userOpenId, careerGoal: answers.careerGoal, skillLevel: answers.skillLevel, createdAt: savedAt });
+  return { saved: true as const, answers, savedAt: savedAt.toISOString() };
 }
 
 export async function listSavedCourses(userOpenId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   return db.select().from(courseSavedCourses).where(eq(courseSavedCourses.userOpenId, userOpenId)).orderBy(desc(courseSavedCourses.createdAt));
+}
+
+export async function listSavedCoursesPage(input: { userOpenId: string; page: number; pageSize: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const safePage = Math.max(1, Math.floor(input.page));
+  const safePageSize = Math.min(24, Math.max(1, Math.floor(input.pageSize)));
+  const where = eq(courseSavedCourses.userOpenId, input.userOpenId);
+  const [rows, totals] = await Promise.all([
+    db.select().from(courseSavedCourses).where(where).orderBy(desc(courseSavedCourses.createdAt)).limit(safePageSize).offset((safePage - 1) * safePageSize),
+    db.select({ count: sql<number>`count(*)` }).from(courseSavedCourses).where(where),
+  ]);
+  const total = Number(totals[0]?.count ?? 0);
+  return { rows, page: safePage, pageSize: safePageSize, total, pageCount: Math.max(1, Math.ceil(total / safePageSize)) };
+}
+
+export async function listCourseRecommendationHistory(userOpenId: string, limit = 12) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(courseRecommendationHistory).where(eq(courseRecommendationHistory.userOpenId, userOpenId)).orderBy(desc(courseRecommendationHistory.createdAt)).limit(Math.min(30, Math.max(1, limit)));
 }
 
 export async function toggleSavedCourse(userOpenId: string, courseSlug: string, saved: boolean) {

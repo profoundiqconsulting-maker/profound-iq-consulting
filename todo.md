@@ -2002,3 +2002,12 @@
 - [x] Add dashboard surfaces for saved courses and personalized follow-up suggestions.
 - [x] Add localization, authorization, migration, regression tests, and responsive validation.
 - [x] Save and auto-publish a checkpoint for the completed discovery persistence features.
+
+# Server-Rendered Comparisons and Personalized Course Revisit
+- [x] Add server-rendered comparison-page metadata for crawler and social previews.
+- [x] Add dynamic Open Graph image generation for selected course comparisons.
+- [x] Add paginated saved-course listing and protected unsave controls in My Space.
+- [x] Add recommendation history persistence and dashboard history presentation.
+- [x] Add a retake quiz flow that updates the learner’s recommendation preferences.
+- [x] Add localization, authorization, regression tests, crawler checks, and responsive validation.
+- [x] Save and auto-publish a checkpoint for the completed comparison and personalization upgrades.

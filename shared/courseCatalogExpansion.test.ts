@@ -133,3 +133,27 @@ describe("shareable comparison and personalized course revisit", () => {
     expect(dashboard).toContain("Suggested follow-up");
   });
 });
+
+describe("comparison SSR and personalized revisit upgrades", () => {
+  it("exposes server-rendered comparison metadata and Open Graph image generation", () => {
+    const seoRoutes = readFileSync("server/seoRoutes.ts", "utf8");
+    expect(seoRoutes).toContain("courses/compare");
+    expect(seoRoutes).toContain("og:title");
+    expect(seoRoutes).toContain("image/png");
+    expect(seoRoutes).toContain("comparison");
+  });
+
+  it("exposes paginated saved-course management and recommendation history", () => {
+    const router = readFileSync("server/routers.ts", "utf8");
+    const db = readFileSync("server/db.ts", "utf8");
+    const dashboard = readFileSync("client/src/pages/UserDashboard.tsx", "utf8");
+    expect(router).toContain("savedCoursesPage");
+    expect(router).toContain("recommendationHistory");
+    expect(db).toContain("listSavedCoursesPage");
+    expect(db).toContain("listCourseRecommendationHistory");
+    expect(dashboard).toContain("savedCoursePage");
+    expect(dashboard).toContain("Remove");
+    expect(dashboard).toContain("Course finder history");
+    expect(dashboard).toContain("Retake finder");
+  });
+});
