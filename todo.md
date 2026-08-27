@@ -2099,3 +2099,11 @@
 - [x] Add or update certificate preview and generation regression coverage.
 - [x] Run full tests, TypeScript, production build, and responsive certificate QA.
 - [x] Save and auto-publish a checkpoint for the certificate redesign.
+
+# Certificate PNG Download, Offline Logo, and Admin Preview
+- [x] Add a high-resolution PNG download action for generated certificates.
+- [x] Embed the managed site logo as a base64 data URI in generated certificate SVGs for offline email viewing.
+- [x] Add an admin-only certificate preview interface using safe sample data and the production certificate renderer.
+- [x] Add regression tests for PNG conversion contracts, embedded logo output, dynamic-field escaping, and admin preview authorization.
+- [x] Run full tests, TypeScript, production build, and responsive certificate QA.
+- [x] Save and auto-publish a checkpoint for the certificate PNG, offline logo, and admin preview features.

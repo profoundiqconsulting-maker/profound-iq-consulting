@@ -1,5 +1,6 @@
 import QRCode from "qrcode";
 import { getGeneratedCopy, type GeneratedLocale } from "../shared/generatedLocalization";
+import { CERTIFICATE_LOGO_DATA_URI } from "./certificateLogo";
 
 const SITE_ORIGIN = "https://profoundiq-vguqrhsm.manus.space";
 const SITE_LOGO_URL = `${SITE_ORIGIN}/manus-storage/ProfoundIQLogo-header_aad21220.jpg`;
@@ -42,7 +43,7 @@ export function renderCourseCertificateSvg(input: { recipientName: string; recip
   const issuedOn = escapeXml(issuedDate.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" }));
   const number = escapeXml(input.certificateNumber.trim());
   const verificationUrl = input.verificationUrl ?? `${SITE_ORIGIN}/verify/certificate?certificate=${encodeURIComponent(input.certificateNumber.trim())}`;
-  const logoUrl = escapeXml(input.logoUrl ?? SITE_LOGO_URL);
+  const logoUrl = escapeXml(input.logoUrl ?? CERTIFICATE_LOGO_DATA_URI);
   const courseLines = wrapText(input.courseTitle.trim(), 55);
   const courseText = courseLines.map((line, index) => `<tspan x="1000" dy="${index === 0 ? 0 : 52}">${escapeXml(line)}</tspan>`).join("");
   const qrCode = renderQrCode(verificationUrl, input.locale ? copy.verifyCredential.toUpperCase() : "SCAN TO VERIFY");
