@@ -1,5 +1,10 @@
 # Current Certificate Workflow
 
+- [x] Define one canonical issued certificate artifact and metadata contract for all learner actions.
+- [x] Align generation, PDF, PNG, print preview, copy-link, and social sharing actions to the canonical certificate.
+- [x] Add regression coverage proving all certificate actions use the same certificate identity and URL.
+- [x] Run type checks, tests, production build, responsive QA, and save the harmonization checkpoint.
+
 - [x] Add loading animation and success toast for certificate PDF generation.
 - [x] Add direct LinkedIn, Facebook, WhatsApp, and X/Twitter certificate sharing.
 - [x] Add richer admin certificate download charts with platform and date-range filters.
