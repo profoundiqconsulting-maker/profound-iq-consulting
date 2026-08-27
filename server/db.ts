@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { normalizeLeaderboardDisplayName, rankAchievementLeaderboard, type AchievementBadge, type AchievementLeaderboardRow } from "../shared/achievements";
 import { courseCatalog } from "../shared/courseCatalog";
 import { buildCourseModuleBadges } from "../shared/courseBadges";
-import { adminAnalyticsSettings, adminSecuritySettings, siteSeoSettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits } from "../drizzle/schema";
+import { adminAnalyticsSettings, adminSecuritySettings, siteSeoSettings, analyticsEvents, assessmentAttempts, assessmentDrafts, assessmentReflectionResponses, careerPathAttempts, careerPathActiveModules, reportShares, reportShareAuditEvents, authLoginAttempts, courseEnrollments, contactInquiries, contactInquiryAuditLogs, courseLearnerEnrollments, courseLessonProgress, courseQuizAttempts, coursePaymentStages, coursePaymentEvents, courseActivePositions, courseCertificates, courseDeliveryEvents, catalogItems, deliveryLogExportJobs, emailPreviewDeliveries, emailTemplates, InsertAssessmentAttempt, InsertUser, loginEvents, loginUnlockAudits, scheduledExportRuns, scheduledExports, userSessions, users, verificationRevocationAudits, organizationInvitations, organizationApprovalEvents, staffInvitations, psychometricAttempts, psychometricDeliveryAcknowledgementLogs, psychometricRecommendationFeedback, unlockAuditExportDownloads, resetLinkRevocationAudits, newsletterSubscribers } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import { aggregateWeeklyAnalytics, summarizeAnalyticsEvents } from "../shared/adminAnalytics";
 import { normalizeLoginAnalyticsRows } from "../shared/loginAnalytics";
@@ -755,6 +755,20 @@ export async function getAdminRevenueReport(filters: AdminRevenueFilters = {}) {
 }
 
 export type ContactInquiryActor = { openId: string; name?: string | null; email?: string | null };
+
+export async function subscribeToNewsletter(input: { email: string; source?: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const email = input.email.trim().toLowerCase();
+  const existing = (await db.select({ id: newsletterSubscribers.id }).from(newsletterSubscribers).where(eq(newsletterSubscribers.email, email)).limit(1))[0];
+  const now = new Date();
+  if (existing) {
+    await db.update(newsletterSubscribers).set({ status: "subscribed", consentedAt: now, source: input.source ?? "insights" }).where(eq(newsletterSubscribers.id, existing.id));
+    return { id: existing.id, status: "subscribed" as const, alreadySubscribed: true };
+  }
+  const result = await db.insert(newsletterSubscribers).values({ email, source: input.source ?? "insights", status: "subscribed", consentedAt: now });
+  return { id: Number(result[0].insertId), status: "subscribed" as const, alreadySubscribed: false };
+}
 
 async function recordContactInquiryAudit(db: Awaited<ReturnType<typeof getDb>>, input: { inquiryId: number; actor: ContactInquiryActor; action: "status" | "notes" | "assignment" | "workload"; previousValue?: string | null; nextValue?: string | null }) {
   if (!db) throw new Error("Database is not available");

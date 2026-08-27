@@ -1,11 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { articlePreviews, contributors } from "@/pages/Blog";
+import { articlePreviews, contributors, filterInsightsPreviews } from "@/pages/Blog";
 
 describe("Insights preview content", () => {
   it("provides a useful preview grid without presenting drafts as published articles", () => {
     expect(articlePreviews).toHaveLength(3);
     expect(articlePreviews.every((article) => article.excerpt.includes("preview") || article.excerpt.includes("planned"))).toBe(true);
     expect(articlePreviews.every((article) => article.readTime.endsWith("min read"))).toBe(true);
+  });
+
+  it("filters preview cards by keyword and category without mutating the source list", () => {
+    expect(filterInsightsPreviews(articlePreviews, "CURRICULUM", "All topics")).toHaveLength(1);
+    expect(filterInsightsPreviews(articlePreviews, "", "Education leadership")).toHaveLength(1);
+    expect(filterInsightsPreviews(articlePreviews, "unmatched", "All topics")).toHaveLength(0);
+    expect(articlePreviews).toHaveLength(3);
   });
 
   it("keeps contributor cards explicitly placeholder-only until profiles are approved", () => {

@@ -1767,3 +1767,12 @@
 - [x] Add hover states and scroll-reveal animations to the new service pages with reduced-motion support and accessible focus behavior.
 - [x] Add regression coverage for placeholder labeling and motion accessibility contracts, then verify responsive screenshots, TypeScript, full Vitest, and production build.
 - [x] Read the complete TODO file, mark validated items complete, and save a checkpoint for the Insights and service interaction refinement.
+
+# Insights Discovery and Public Interaction Extension
+
+- [x] Apply reusable scroll reveals and hover states to the About page.
+- [x] Apply reusable scroll reveals and hover states to the Resources page.
+- [x] Add category filtering and keyword search to the Insights preview cards with an accessible no-match state.
+- [x] Add newsletter subscription capture at the bottom of Insights using an appropriate server-backed procedure and consent copy.
+- [x] Add regression coverage for Insights filtering and newsletter validation, then verify responsive UX, TypeScript, full Vitest, and production build.
+- [x] Read the complete TODO file, mark validated items complete, and save a checkpoint for the public interaction extension.

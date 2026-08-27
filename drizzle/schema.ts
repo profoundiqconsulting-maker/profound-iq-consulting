@@ -83,6 +83,16 @@ export const contactInquiries = mysqlTable("contact_inquiries", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+export const newsletterSubscribers = mysqlTable("newsletter_subscribers", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull(),
+  source: varchar("source", { length: 80 }).default("insights").notNull(),
+  status: varchar("status", { length: 24 }).default("subscribed").notNull(),
+  consentedAt: timestamp("consentedAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({ emailUnique: uniqueIndex("newsletter_subscribers_email_unique").on(table.email) }));
+
 export const contactInquiryAuditLogs = mysqlTable("contact_inquiry_audit_logs", {
   id: int("id").autoincrement().primaryKey(),
   inquiryId: int("inquiry_id").notNull(),
