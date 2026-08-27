@@ -756,23 +756,44 @@ export async function getAdminRevenueReport(filters: AdminRevenueFilters = {}) {
 
 export type ContactInquiryActor = { openId: string; name?: string | null; email?: string | null };
 
-export async function listNewsletterSubscribers(input: { page?: number; pageSize?: number } = {}) {
+type NewsletterSubscriberFilters = { search?: string; status?: string; fromDate?: Date | string; toDate?: Date | string };
+export function normalizeNewsletterDateBound(value: Date | string | undefined, endOfDay = false) {
+  if (!value) return undefined;
+  if (value instanceof Date) return value;
+  const normalized = String(value).trim();
+  if (!normalized) return undefined;
+  return new Date(/^\d{4}-\d{2}-\d{2}$/.test(normalized) ? `${normalized}T${endOfDay ? "23:59:59.999" : "00:00:00.000"}Z` : normalized);
+}
+function newsletterSubscriberConditions(filters: NewsletterSubscriberFilters = {}) {
+  const conditions: SQL[] = [];
+  const search = filters.search?.trim();
+  if (search) conditions.push(or(like(newsletterSubscribers.email, `%${search}%`), like(newsletterSubscribers.source, `%${search}%`))!);
+  if (filters.status && filters.status !== "all") conditions.push(eq(newsletterSubscribers.status, filters.status));
+  const fromDate = normalizeNewsletterDateBound(filters.fromDate);
+  const toDate = normalizeNewsletterDateBound(filters.toDate, true);
+  if (fromDate && !Number.isNaN(fromDate.getTime())) conditions.push(gte(newsletterSubscribers.createdAt, fromDate));
+  if (toDate && !Number.isNaN(toDate.getTime())) conditions.push(lte(newsletterSubscribers.createdAt, toDate));
+  return conditions.length === 0 ? undefined : conditions.length === 1 ? conditions[0] : and(...conditions);
+}
+
+export async function listNewsletterSubscribers(input: { page?: number; pageSize?: number } & NewsletterSubscriberFilters = {}) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const page = Math.max(1, input.page ?? 1);
   const pageSize = Math.min(100, Math.max(5, input.pageSize ?? 25));
+  const conditions = newsletterSubscriberConditions(input);
   const [rows, totalRows] = await Promise.all([
-    db.select().from(newsletterSubscribers).orderBy(desc(newsletterSubscribers.createdAt)).limit(pageSize).offset((page - 1) * pageSize),
-    db.select({ count: sql<number>`count(*)` }).from(newsletterSubscribers),
+    db.select().from(newsletterSubscribers).where(conditions).orderBy(desc(newsletterSubscribers.createdAt)).limit(pageSize).offset((page - 1) * pageSize),
+    db.select({ count: sql<number>`count(*)` }).from(newsletterSubscribers).where(conditions),
   ]);
   const total = Number(totalRows[0]?.count ?? 0);
   return { rows, total, page, pageSize, pageCount: Math.max(1, Math.ceil(total / pageSize)) };
 }
 
-export async function getNewsletterSubscribersForExport() {
+export async function getNewsletterSubscribersForExport(filters: NewsletterSubscriberFilters = {}) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  return db.select().from(newsletterSubscribers).orderBy(desc(newsletterSubscribers.createdAt));
+  return db.select().from(newsletterSubscribers).where(newsletterSubscriberConditions(filters)).orderBy(desc(newsletterSubscribers.createdAt));
 }
 
 export async function subscribeToNewsletter(input: { email: string; source?: string }) {

@@ -1787,3 +1787,15 @@
 - [x] Add regression coverage for admin authorization, subscriber pagination/export, Insights Load More behavior, and newsletter validation.
 - [x] Verify responsive UX, TypeScript, full Vitest, production build, runtime logs, and desktop/mobile screenshots.
 - [x] Read the complete TODO file, mark validated items complete, and save a checkpoint for the newsletter administration and Insights scalability work.
+
+# Newsletter Filters, Insights Articles, and Reusable Workflow Skill
+
+- [x] Add protected newsletter subscriber search and status-filter inputs with server-side pagination.
+- [x] Add date-range filters to newsletter CSV export with UTC-safe inclusive boundaries and safe CSV escaping.
+- [x] Add regression coverage for newsletter filtering, date boundaries, export escaping, and admin authorization.
+- [x] Add individual Insights article detail routes and link each preview card to its detail page.
+- [x] Add honest full-content article drafts for the current preview topics with clear preview/draft labeling and related links.
+- [x] Add route-specific SEO metadata and structured data for Insights article detail pages.
+- [x] Create a reusable Profound IQ consulting website workflow skill using skill-creator, validate it, and prepare the SKILL.md deliverable.
+- [x] Run full TypeScript, Vitest, production build, responsive/route verification, mark validated items complete, and save a website checkpoint.
+- [x] Fix the existing Admin Inquiry maximum-update-depth runtime error observed during admin route verification, then rerun runtime and dashboard checks.

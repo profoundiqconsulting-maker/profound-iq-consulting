@@ -74,7 +74,7 @@ export default function AdminInquiryPanel() {
   const updateStatus = trpc.admin.updateContactInquiryStatus.useMutation({ onSuccess: () => inquiries.refetch() });
   const updateNotes = trpc.admin.updateContactInquiryNotes.useMutation({ onSuccess: () => inquiries.refetch() });
   const bulkUpdate = trpc.admin.bulkUpdateContactInquiryStatus.useMutation({ onSuccess: () => { setSelected([]); inquiries.refetch(); } });
-  const rows = inquiries.data?.rows ?? [];
+  const rows = useMemo(() => inquiries.data?.rows ?? [], [inquiries.data?.rows]);
   const allVisibleSelected = rows.length > 0 && rows.every(row => selected.includes(row.id));
   const subjectLabel = (value: string) => categories.find(([key]) => key === value)?.[1] ?? value;
   const resetPage = () => { setPage(1); setSelected([]); };

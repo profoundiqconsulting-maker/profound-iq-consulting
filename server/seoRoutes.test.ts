@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildSitemapXml, courseSocialImageUrl, renderCourseCatalogPage, renderCourseDetailPage, renderCourseSocialImage } from "./seoRoutes";
+import { buildSitemapXml, courseSocialImageUrl, renderCourseCatalogPage, renderCourseDetailPage, renderCourseSocialImage, renderInsightArticlePage } from "./seoRoutes";
+import { insightArticles } from "../shared/insightsArticles";
 import sharp from "sharp";
 
 describe("course SEO server routes", () => {
@@ -10,9 +11,10 @@ describe("course SEO server routes", () => {
     expect(xml).toContain("https://profoundiqconsulting.com/about?lang=en");
     expect(xml).toContain("https://profoundiqconsulting.com/school-solutions?lang=sw");
     expect(xml).toContain("https://profoundiqconsulting.com/contact?lang=ja");
+    expect(xml).toContain(`https://profoundiqconsulting.com/blog/${insightArticles[0].slug}?lang=en`);
     expect(xml).toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"');
     expect(xml).toContain('hreflang="sw"');
-    expect(xml.match(/<url>/g)?.length).toBe(170);
+    expect(xml.match(/<url>/g)?.length).toBe(200);
   });
 
   it("generates a course-specific absolute PNG preview image", async () => {
@@ -40,6 +42,15 @@ describe("course SEO server routes", () => {
     expect(html).toContain('rel="canonical" href="https://profoundiqconsulting.com/courses/decision-lab"');
     expect(html).toContain('"@type":"Course"');
     expect(html).toContain("Frame options");
+  });
+
+  it("renders Insights article metadata and draft content inside the app root", () => {
+    const html = renderInsightArticlePage(insightArticles[0], null);
+    expect(html).toContain(`<title>${insightArticles[0].title} | Profound IQ Consulting</title>`);
+    expect(html).toContain(`rel="canonical" href="https://profoundiqconsulting.com/blog/${insightArticles[0].slug}"`);
+    expect(html).toContain('"@type":"Article"');
+    expect(html).toContain("Draft preview");
+    expect(html).toContain(insightArticles[0].sections[0].heading);
   });
 
   it("renders course titles, links, and crawlable metadata inside the app root", () => {
