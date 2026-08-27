@@ -20,6 +20,7 @@ export const users = mysqlTable("users", {
   avatarUrl: varchar("avatarUrl", { length: 512 }),
   timezone: varchar("timezone", { length: 64 }),
   learningGoals: json("learningGoals"),
+  cohort: varchar("cohort", { length: 80 }),
   leaderboardOptIn: boolean("leaderboardOptIn").default(false).notNull(),
   leaderboardDisplayName: varchar("leaderboardDisplayName", { length: 80 }),
 }, (table) => ({

@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `cohort` varchar(80);

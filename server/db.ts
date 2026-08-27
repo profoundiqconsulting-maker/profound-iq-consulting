@@ -1232,8 +1232,15 @@ export async function getAdminUsersForReview(input: { page: number; pageSize: nu
   const safePageSize = Math.min(100, Math.max(1, input.pageSize));
   const totalPages = Math.max(1, Math.ceil(totalCount / safePageSize));
   const page = Math.min(Math.max(1, input.page), totalPages);
-  const rows = await db.select({ id: users.id, openId: users.openId, name: users.name, email: users.email, role: users.role, emailVerifiedAt: users.emailVerifiedAt, createdAt: users.createdAt, lastSignedIn: users.lastSignedIn }).from(users).where(where).orderBy(desc(users.lastSignedIn)).limit(safePageSize).offset((page - 1) * safePageSize);
+  const rows = await db.select({ id: users.id, openId: users.openId, name: users.name, email: users.email, role: users.role, emailVerifiedAt: users.emailVerifiedAt, createdAt: users.createdAt, lastSignedIn: users.lastSignedIn, cohort: users.cohort }).from(users).where(where).orderBy(desc(users.lastSignedIn)).limit(safePageSize).offset((page - 1) * safePageSize);
   return { rows, total: totalCount, totalPages, page, pageSize: safePageSize };
+}
+
+export async function updateUserCohort(openId: string, cohort: string | null) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(users).set({ cohort: cohort?.trim() || null }).where(eq(users.openId, openId));
+  return { openId, cohort: cohort?.trim() || null };
 }
 
 export async function revokeUserEmailVerification(openId: string, actor: { openId: string; name?: string | null; email?: string | null }, reason: string) {

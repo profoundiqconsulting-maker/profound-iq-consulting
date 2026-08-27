@@ -1857,3 +1857,9 @@
 - [x] Add Last 7 Days and Last 30 Days presets shared by charts and CSV exports.
 - [x] Add current-versus-previous-period comparison metrics and visual treatment.
 - [x] Update reusable skill, add tests, verify responsive behavior, and checkpoint the release.
+
+# Saved Segmentation Presets and Chart Exports
+- [x] Add admin quick-access presets for custom access-observatory filter combinations.
+- [x] Add admin controls to manually assign users to named cohorts for segmentation.
+- [x] Add PNG and PDF exports for conversion trend charts.
+- [x] Add tests, responsive verification, skill update, and checkpoint the release.
