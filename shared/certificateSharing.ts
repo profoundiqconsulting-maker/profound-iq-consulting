@@ -1,11 +1,12 @@
 export const CERTIFICATE_DOWNLOAD_PLATFORMS = { pdf: "pdf", png: "png" } as const;
 export type CertificateSharePlatform = "linkedin" | "facebook" | "whatsapp" | "twitter";
 
-export function buildCertificateShareUrl(platform: CertificateSharePlatform, certificateUrl: string, courseTitle: string) {
+export function buildCertificateShareUrl(platform: CertificateSharePlatform, certificateUrl: string, courseTitle: string, message?: string) {
+  const shareMessage = message?.trim() || `I completed ${courseTitle} with Profound IQ Consulting.`;
   if (platform === "linkedin") return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(certificateUrl)}`;
-  if (platform === "facebook") return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(certificateUrl)}`;
-  if (platform === "whatsapp") return `https://wa.me/?text=${encodeURIComponent(`${courseTitle} · ${certificateUrl}`)}`;
-  return `https://twitter.com/intent/tweet?text=${encodeURIComponent(`I completed ${courseTitle} with Profound IQ Consulting.`)}&url=${encodeURIComponent(certificateUrl)}`;
+  if (platform === "facebook") return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(certificateUrl)}&quote=${encodeURIComponent(shareMessage)}`;
+  if (platform === "whatsapp") return `https://wa.me/?text=${encodeURIComponent(`${shareMessage} ${certificateUrl}`)}`;
+  return `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareMessage)}&url=${encodeURIComponent(certificateUrl)}`;
 }
 
 export function buildCertificateLinkedInPost(courseTitle: string, certificateUrl: string) {

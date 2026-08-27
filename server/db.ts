@@ -1179,6 +1179,16 @@ export async function getCertificateUsageAnalytics(filters?: { fromDate?: Date; 
   return { totals: summary.totals, byPlatform: summary.byPlatform, daily: dailyRows.map((row) => ({ day: row.day, eventType: row.eventType, platform: row.platform ?? "unknown", count: Number(row.count ?? 0) })) };
 }
 
+export async function getCertificateGenerationRecords(filters?: { fromDate?: Date; toDate?: Date }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const conditions: SQL[] = [];
+  if (filters?.fromDate) conditions.push(gte(courseCertificates.createdAt, filters.fromDate));
+  if (filters?.toDate) conditions.push(lte(courseCertificates.createdAt, filters.toDate));
+  const rows = await db.select({ certificateNumber: courseCertificates.certificateNumber, enrollmentId: courseCertificates.enrollmentId, recipientName: courseCertificates.recipientName, courseTitle: courseCertificates.courseTitle, status: courseCertificates.status, artifactHash: courseCertificates.artifactHash, createdAt: courseCertificates.createdAt }).from(courseCertificates).where(conditions.length ? and(...conditions) : undefined).orderBy(desc(courseCertificates.createdAt));
+  return rows;
+}
+
 export async function getAdminAnalyticsSettings(adminOpenId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -1937,7 +1947,7 @@ export async function createCourseCertificate(input: { enrollmentId: number; rec
 export async function findPublicCourseCertificate(certificateNumber: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  return (await db.select({ certificateNumber: courseCertificates.certificateNumber, recipientName: courseCertificates.recipientName, courseTitle: courseCertificates.courseTitle, status: courseCertificates.status, createdAt: courseCertificates.createdAt }).from(courseCertificates).where(and(eq(courseCertificates.certificateNumber, certificateNumber), eq(courseCertificates.status, "issued"))).limit(1))[0] ?? null;
+  return (await db.select({ certificateNumber: courseCertificates.certificateNumber, recipientName: courseCertificates.recipientName, courseTitle: courseCertificates.courseTitle, status: courseCertificates.status, artifactHash: courseCertificates.artifactHash, createdAt: courseCertificates.createdAt }).from(courseCertificates).where(and(eq(courseCertificates.certificateNumber, certificateNumber), eq(courseCertificates.status, "issued"))).limit(1))[0] ?? null;
 }
 
 export async function getCareerPathActiveModule(userOpenId: string) {

@@ -1,5 +1,11 @@
 # Current Certificate Workflow
 
+- [x] Allow admins to edit, delete/hide, and drag all certificate objects, text fields, lines, and the QR object.
+- [x] Display the persisted certificate artifact hash on public verification pages.
+- [x] Add filtered certificate issuance/generation-record exports beside usage exports.
+- [x] Add customizable learner social-share message text for all supported platforms.
+- [x] Add regression tests, responsive QA, production build, and checkpoint validation.
+
 - [x] Move the QR code above the Certificate ID, remove the website address, and remove the top line near the signature.
 - [x] Make all social platforms share the actual generated certificate PNG plus its verification link.
 - [x] Remove text override labels from copy, download, and print-preview controls and bind them to the canonical certificate.
