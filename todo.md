@@ -1,5 +1,12 @@
 # Current Certificate Workflow
 
+- [x] Align Zoom, Sheet, and Save buttons in the Explanatory lens action row.
+- [x] Validate responsive course-lesson rendering and save a checkpoint.
+
+- [x] Apply the persisted admin certificate settings to every course certificate generation path.
+- [x] Preserve course-specific recipient, course title, issue date, certificate ID, and verification data while using the saved design.
+- [x] Add all-course generation regression coverage and validate the production build.
+
 - [ ] Sanitize, store, and render uploaded custom SVG/image certificate assets through managed storage.
 - [ ] Add drag-and-drop positioning and resizing controls for uploaded custom assets.
 - [ ] Add visual snapshot previews with rollback confirmation in the admin editor.

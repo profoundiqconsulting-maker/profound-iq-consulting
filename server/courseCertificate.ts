@@ -100,7 +100,7 @@ export function renderCourseCertificateSvg(input: { recipientName: string; recip
 
 
 
-export async function renderCourseCertificatePdf(input: { recipientName: string; recipientEmail?: string; courseTitle: string; certificateNumber: string; issuedOn: Date | string; verificationUrl?: string; locale?: GeneratedLocale; logoUrl?: string; trainerName?: string; trainerTitle?: string; signatureDataUri?: string; fieldLayout?: CertificateFieldLayout; certificateSvg?: string; artifactHash?: string }) {
+export async function renderCourseCertificatePdf(input: { recipientName: string; recipientEmail?: string; courseTitle: string; certificateNumber: string; issuedOn: Date | string; verificationUrl?: string; locale?: GeneratedLocale; logoUrl?: string; trainerName?: string; trainerTitle?: string; signatureDataUri?: string; customElements?: Record<string, string>; fieldLayout?: CertificateFieldLayout; certificateSvg?: string; artifactHash?: string }) {
   const svg = input.certificateSvg ?? renderCourseCertificateSvg(input);
   const png = await sharp(Buffer.from(svg)).png().toBuffer();
   const pageWidth = 841.89;
