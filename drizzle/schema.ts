@@ -20,6 +20,7 @@ export const users = mysqlTable("users", {
   avatarUrl: varchar("avatarUrl", { length: 512 }),
   timezone: varchar("timezone", { length: 64 }),
   learningGoals: json("learningGoals"),
+  recommendationAnswers: json("recommendationAnswers"),
   cohort: varchar("cohort", { length: 80 }),
   leaderboardOptIn: boolean("leaderboardOptIn").default(false).notNull(),
   leaderboardDisplayName: varchar("leaderboardDisplayName", { length: 80 }),
@@ -170,6 +171,13 @@ export const courseLessonResponses = mysqlTable("course_lesson_responses", {
   responseHtml: text("responseHtml").notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({ enrollmentLessonTaskUnique: uniqueIndex("course_enrollment_lesson_task_unique").on(table.enrollmentId, table.lessonId, table.taskId) }));
+export const courseSavedCourses = mysqlTable("course_saved_courses", {
+  id: int("id").autoincrement().primaryKey(),
+  userOpenId: varchar("userOpenId", { length: 64 }).notNull(),
+  courseSlug: varchar("courseSlug", { length: 120 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({ learnerCourseUnique: uniqueIndex("course_saved_course_unique").on(table.userOpenId, table.courseSlug), learnerIdx: index("course_saved_course_learner_idx").on(table.userOpenId) }));
+
 export const courseLessonIllustrationBookmarks = mysqlTable("course_lesson_illustration_bookmarks", {
   id: int("id").autoincrement().primaryKey(),
   userOpenId: varchar("userOpenId", { length: 64 }).notNull(),

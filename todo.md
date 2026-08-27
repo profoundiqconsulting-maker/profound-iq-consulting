@@ -1992,3 +1992,13 @@
 - [x] Add a quick syllabus highlights preview modal to course cards.
 - [x] Add localized, accessible UI copy and share feedback for the discovery flows.
 - [x] Add regression tests, run full validation, and save a live checkpoint.
+
+# Shareable Comparisons, Recommendation Profiles, and Saved Courses
+
+- [x] Add a dedicated public comparison route that restores selected course slugs from URL state.
+- [x] Add route-specific social sharing metadata and Course comparison JSON-LD for the comparison page.
+- [x] Add additive authenticated persistence for recommendation quiz answers.
+- [x] Add protected saved-course persistence and a save-course action in the preview modal.
+- [x] Add dashboard surfaces for saved courses and personalized follow-up suggestions.
+- [x] Add localization, authorization, migration, regression tests, and responsive validation.
+- [x] Save and auto-publish a checkpoint for the completed discovery persistence features.

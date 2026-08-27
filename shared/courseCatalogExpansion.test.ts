@@ -89,6 +89,10 @@ describe("quiz learning feedback and analytics", () => {
     expect(source).toContain("recommendedCourses");
     expect(source).toContain("setPreviewCourse(course)");
     expect(source).toContain("FIRST SIX MODULE HIGHLIGHTS");
+    expect(source).toContain("saveCourseRecommendationAnswers");
+    expect(source).toContain("toggleSavedCourse");
+    expect(readFileSync("client/src/pages/CourseComparison.tsx", "utf8")).toContain("courses/compare?compare=");
+    expect(readFileSync("client/src/App.tsx", "utf8")).toContain('path=\"/courses/compare\"');
   });
 
   it("exposes catalog comparison and discovery controls", () => {
@@ -104,5 +108,28 @@ describe("quiz learning feedback and analytics", () => {
     expect(source).toContain("New randomized attempt");
     expect(source).toContain("Learning review");
     expect(source).toContain("optionExplanations");
+  });
+});
+
+describe("shareable comparison and personalized course revisit", () => {
+  it("registers the dedicated comparison route and route metadata", () => {
+    const app = readFileSync("client/src/App.tsx", "utf8");
+    const comparison = readFileSync("client/src/pages/CourseComparison.tsx", "utf8");
+    expect(app).toContain('path="/courses/compare"');
+    expect(comparison).toContain('params.get("compare")');
+    expect(comparison).toContain('meta[property="og:title"]');
+    expect(comparison).toContain("Share comparison");
+  });
+
+  it("exposes authenticated persistence contracts for recommendations and saved courses", () => {
+    const router = readFileSync("server/routers.ts", "utf8");
+    const schema = readFileSync("drizzle/schema.ts", "utf8");
+    const dashboard = readFileSync("client/src/pages/UserDashboard.tsx", "utf8");
+    expect(router).toContain("saveCourseRecommendationAnswers");
+    expect(router).toContain("toggleSavedCourse");
+    expect(schema).toContain("recommendationAnswers");
+    expect(schema).toContain("courseSavedCourses");
+    expect(dashboard).toContain("savedCourses");
+    expect(dashboard).toContain("Suggested follow-up");
   });
 });
