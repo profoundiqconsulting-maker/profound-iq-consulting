@@ -25,6 +25,13 @@ describe("course certificate renderer", () => {
     expect(svg).toContain("Managing Director");
   });
 
+  it("applies custom trainer settings and signature data", () => {
+    const svg = renderCourseCertificateSvg({ recipientName: "Amina Njeri", courseTitle: "Leadership Essentials", certificateNumber: "PIQ-2026-CUSTOM", issuedOn: "2026-08-27T08:00:00.000Z", trainerName: "Dr. Grace Wambui", trainerTitle: "Lead Facilitator", signatureDataUri: "data:image/png;base64,QUJD" });
+    expect(svg).toContain("Dr. Grace Wambui");
+    expect(svg).toContain("Lead Facilitator");
+    expect(svg).toContain("data:image/png;base64,QUJD");
+  });
+
   it("escapes learner-controlled fields while keeping the QR verification payload", () => {
     const svg = renderCourseCertificateSvg({
       recipientName: "Ada <Admin>",

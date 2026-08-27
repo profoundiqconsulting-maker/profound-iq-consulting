@@ -2116,3 +2116,11 @@
 - [x] Add regression tests and verify SVG/PNG preview and generated certificate output.
 - [x] Run full tests, TypeScript, production build, and responsive certificate QA.
 - [x] Save and auto-publish a checkpoint for the certificate refinement.
+
+# Certificate Trainer Settings, Preview Controls, and LinkedIn Sharing
+- [x] Add protected persisted admin settings for trainer name, trainer title, and signature asset.
+- [x] Apply the saved trainer and signature settings to newly generated certificates and admin previews.
+- [x] Add bounded zoom controls and a print action to certificate preview surfaces.
+- [x] Add a Share to LinkedIn action on the completed certificate surface with certificate URL metadata.
+- [x] Add authorization and renderer/UI regression tests, run full validation, and verify responsive behavior.
+- [x] Save and auto-publish a checkpoint for the certificate controls release.

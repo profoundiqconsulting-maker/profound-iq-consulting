@@ -478,6 +478,15 @@ export const adminAnalyticsSettings = mysqlTable("admin_analytics_settings", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+export const adminCertificateSettings = mysqlTable("admin_certificate_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  adminOpenId: varchar("adminOpenId", { length: 64 }).notNull().unique(),
+  trainerName: varchar("trainerName", { length: 160 }).default("Stephen Mwihaki").notNull(),
+  trainerTitle: varchar("trainerTitle", { length: 160 }).default("Managing Director").notNull(),
+  signatureDataUri: text("signatureDataUri").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 export const siteSeoSettings = mysqlTable("site_seo_settings", {
   settingKey: varchar("settingKey", { length: 80 }).primaryKey(),
   settingValue: text("settingValue").notNull(),
