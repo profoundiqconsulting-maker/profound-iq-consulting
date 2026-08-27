@@ -1984,3 +1984,11 @@
 - [x] Add catalog filtering and sorting by topic, category, skill level, and course title.
 - [x] Create and validate a reusable catalog-expansion workflow skill.
 - [x] Add regression tests, run full validation, and save a live checkpoint.
+
+# Course Discovery Recommendation and Preview Upgrade
+
+- [x] Persist selected comparison courses in URL query state and restore shared comparisons on load.
+- [x] Add a short interactive career-goal and skill-level course recommendation quiz.
+- [x] Add a quick syllabus highlights preview modal to course cards.
+- [x] Add localized, accessible UI copy and share feedback for the discovery flows.
+- [x] Add regression tests, run full validation, and save a live checkpoint.

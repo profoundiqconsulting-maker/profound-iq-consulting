@@ -81,6 +81,16 @@ describe("quiz learning feedback and analytics", () => {
     }
   });
 
+  it("exposes shareable comparison, recommendation, and preview controls", () => {
+    const source = readFileSync("client/src/pages/Courses.tsx", "utf8");
+    expect(source).toContain('params.get("compare")');
+    expect(source).toContain("syncComparison");
+    expect(source).toContain("shareComparison");
+    expect(source).toContain("recommendedCourses");
+    expect(source).toContain("setPreviewCourse(course)");
+    expect(source).toContain("FIRST SIX MODULE HIGHLIGHTS");
+  });
+
   it("exposes catalog comparison and discovery controls", () => {
     const source = readFileSync("client/src/pages/Courses.tsx", "utf8");
     expect(source).toContain("comparisonSlugs");
