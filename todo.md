@@ -2249,3 +2249,13 @@
 - [x] Localize remaining report-stage headings and social-share copy across all supported locales.
 - [x] Add direct paid-assessment report-history deep links in the user dashboard.
 - [x] Add regression coverage, responsive QA, full validation, and a live checkpoint for the certificate/report-access update.
+
+- [x] Update the reusable credential-delivery skill with the latest canonical certificate preview and report-history workflow, then validate the skill package.
+- [x] Localize all certificate preview modal labels across the supported locales.
+- [x] Add course-name and completion-date filters to paid assessment report history.
+- [x] Replace the generic certificate preview with the exact server-rendered canonical artifact preview.
+- [x] Add regression coverage, responsive QA, full validation, skill validation, and a live checkpoint.
+
+- [x] Add a paginated assessment report-history panel to My Space → Results.
+- [x] Add course-name and completion-date filters with protected report deep links for each paid record.
+- [x] Add Results-panel regression coverage, responsive QA, full validation, and a live checkpoint.

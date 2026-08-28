@@ -26,6 +26,11 @@ describe("My Space workspace navigation", () => {
     expect(quickNav).toContain("lg:grid-cols-3");
     expect(staff).toContain('<DashboardQuickNav role="staff"');
     expect(user).toContain("<DashboardQuickNav");
+    expect(user).toContain("report-history-title");
+    expect(user).toContain("reportHistoryFrom");
+    expect(user).toContain("reportHistoryTo");
+    expect(user).toContain("pagedReportHistory");
+    expect(user).toContain("aria-label=\"Report history pagination\"");
   });
 });
 
