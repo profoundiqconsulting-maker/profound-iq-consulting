@@ -16,7 +16,8 @@ describe("assessment learner experience", () => {
   it("brands the completion certificate with the managed site logo", () => {
     expect(source).toContain('import { LOGO_URL } from "@/components/BrandLogo";');
     expect(source).toContain('xmlns:xlink="http://www.w3.org/1999/xlink"');
-    expect(source).toContain('href="${window.location.origin}${LOGO_URL}"');
+    expect(source).toContain('import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";');
+    expect(source).toContain('href="${PUBLISHED_SITE_ORIGIN}${LOGO_URL}"');
   });
 
   it("moves the learner to the first question when opening a module", () => {

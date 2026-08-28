@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 import { Check, Languages, Send, X } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
@@ -34,7 +35,7 @@ export function TranslationFeedback() {
   });
   const [currentPage, setCurrentPage] = useState(location);
   useEffect(() => {
-    setCurrentPage(`${window.location.origin}${location}`);
+    setCurrentPage(`${PUBLISHED_SITE_ORIGIN}${location}`);
   }, [location]);
 
   const submit = (event: React.FormEvent<HTMLFormElement>) => {

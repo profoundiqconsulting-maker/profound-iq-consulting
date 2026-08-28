@@ -1,5 +1,6 @@
 /* Profound IQ Consulting — compact share rail with localized, accessible actions. */
 import { useState } from "react";
+import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 import { Copy, Linkedin, Mail, MessageCircle, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,7 @@ export function CourseShareActions({ courseSlug, courseTitle, shareUrl: provided
   const { locale } = useLocale();
   const labels = copy[locale];
   const trackShare = trpc.analytics.track.useMutation();
-  const getShareUrl = () => providedShareUrl ?? `${window.location.origin}/courses/${encodeURIComponent(courseSlug ?? "")}`;
+  const getShareUrl = () => providedShareUrl ?? `${PUBLISHED_SITE_ORIGIN}/courses/${encodeURIComponent(courseSlug ?? "")}`;
   const localizedMessage = `${courseTitle} — ${labels.label}.`;
   const track = (platform: string) => trackShare.mutate({ eventName: "course_shared", metadata: { platform, courseSlug: courseSlug ?? "comparison", ...(providedShareUrl?.includes("compare=") ? { comparisonSlugs: providedShareUrl.split("compare=")[1] } : {}), pagePath: pagePath ?? window.location.pathname, locale } });
   const share = (platform: "linkedin" | "whatsapp" | "email") => { const url = getShareUrl(); const encodedUrl = encodeURIComponent(url); const destinations = { linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`, whatsapp: `https://wa.me/?text=${encodeURIComponent(`${localizedMessage} ${url}`)}`, email: `mailto:?subject=${encodeURIComponent(courseTitle)}&body=${encodeURIComponent(`${localizedMessage}\n${url}`)}` }; track(platform); window.open(destinations[platform], platform === "email" ? "_self" : "_blank", platform === "email" ? undefined : "noopener,noreferrer"); };

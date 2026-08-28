@@ -10,7 +10,8 @@ const settingsSource = readFileSync(resolve(process.cwd(), "client/src/pages/Set
     expect(authSource).toContain("googleSignInPending");
     expect(authSource).toContain("Redirecting securely to Google");
     expect(authSource).toContain("disabled={googleSignInPending}");
-    expect(authSource).toContain("window.location.origin");
+    expect(authSource).toContain('import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";');
+    expect(authSource).toContain("PUBLISHED_SITE_ORIGIN");
   });
 
   it("exposes connected account and preferred language controls in settings", () => {

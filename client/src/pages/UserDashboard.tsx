@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 import { useEffect, useMemo, useState } from "react";
 import { startLogin } from "@/const";
 import { trpc } from "@/lib/trpc";
@@ -211,14 +212,14 @@ export default function UserDashboard() {
   }, [user]);
   const revokeShareLink = trpc.dashboard.revokeShareLink.useMutation({ onSuccess: () => { toast.success("Share link revoked"); void shares.refetch(); }, onError: (error) => toast.error("Could not revoke share link", { description: error.message }) });
   const createShareLink = trpc.dashboard.createShareLink.useMutation({
-    onSuccess: (result) => { const url = `${window.location.origin}/shared-report?token=${encodeURIComponent(result.token)}`; setShareLink(url); setShareConsent(false); void navigator.clipboard?.writeText(url); toast.success("Private share link created", { description: "The seven-day link was copied to your clipboard." }); },
+    onSuccess: (result) => { const url = `${PUBLISHED_SITE_ORIGIN}/shared-report?token=${encodeURIComponent(result.token)}`; setShareLink(url); setShareConsent(false); void navigator.clipboard?.writeText(url); toast.success("Private share link created", { description: "The seven-day link was copied to your clipboard." }); },
     onError: (error) => toast.error("Could not create share link", { description: error.message }),
   });
 
   const shareResultByEmail = async (attemptId: number) => {
     try {
       const result = await createShareLink.mutateAsync({ attemptId, expiresInDays: 7, consent: true, lens: "leadership", recipientPurpose: "coaching" });
-      const url = `${window.location.origin}/shared-report?token=${encodeURIComponent(result.token)}`;
+      const url = `${PUBLISHED_SITE_ORIGIN}/shared-report?token=${encodeURIComponent(result.token)}`;
       window.location.href = `mailto:?subject=${encodeURIComponent("My Profound IQ assessment results")}&body=${encodeURIComponent(`I’m sharing my completed Profound IQ assessment results with you. This private link expires in 7 days: ${url}`)}`;
       toast.success("Email draft prepared", { description: "Your secure results link was added to a new email draft." });
     } catch { /* Mutation callback provides the user-facing error. */ }

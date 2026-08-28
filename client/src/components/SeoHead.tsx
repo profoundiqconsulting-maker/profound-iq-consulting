@@ -2,10 +2,11 @@ import { useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
 import { useLocale, type LocaleCode } from "@/contexts/LocaleContext";
 import { getInsightArticle } from "@shared/insightsArticles";
+import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 
 const SITE_NAME = "Profound IQ Consulting";
-const SITE_ORIGIN = "https://profoundiq-vguqrhsm.manus.space";
-const PUBLIC_IMAGE_ORIGIN = "https://profoundiq-vguqrhsm.manus.space";
+export const SITE_ORIGIN = PUBLISHED_SITE_ORIGIN;
+const PUBLIC_IMAGE_ORIGIN = PUBLISHED_SITE_ORIGIN;
 const DEFAULT_IMAGE = `${PUBLIC_IMAGE_ORIGIN}/manus-storage/profound-iq-social-preview_9d540b32.png`;
 const courseSocialImageUrl = (slug: string) => `${PUBLIC_IMAGE_ORIGIN}/og/course/${encodeURIComponent(slug)}.png`;
 const SEO_LOCALES = ["en", "sw", "fr", "es", "pt", "ar", "zh", "hi", "de", "ja"] as const;
@@ -35,7 +36,7 @@ function getSeo(pathname: string): SeoConfig {
   if (cleanPath === "/assessment") return { ...common, title: `Self Assessment | ${SITE_NAME}`, description: "Take the Profound IQ Self Assessment to clarify your strengths, development priorities, and next learning steps.", jsonLd: { "@context": "https://schema.org", "@type": "Service", name: "Profound IQ Self Assessment", provider: { "@type": "Organization", name: SITE_NAME }, areaServed: "Worldwide", offers: { "@type": "Offer", price: "399", priceCurrency: "KES", url: `${SITE_ORIGIN}/assessment` } } };
   if (cleanPath === "/careerpath" || cleanPath === "/careerpath/assessment") return { ...common, title: `CareerPath Talent Fit Assessment | ${SITE_NAME}`, description: "Discover strengths, explore possibilities, and choose with confidence through the Profound IQ CareerPath assessment for competency-based education learners.", jsonLd: { "@context": "https://schema.org", "@type": "Service", name: "Profound IQ CareerPath Talent Fit Assessment", provider: { "@type": "Organization", name: SITE_NAME }, offers: { "@type": "Offer", price: "399", priceCurrency: "KES", url: `${SITE_ORIGIN}/careerpath` } } };
   if (cleanPath === "/psychometrics" || cleanPath.startsWith("/psychometrics/")) return { ...common, title: `${cleanPath === "/psychometrics" ? "Psychometric Assessments" : `${courseName} Psychometric Assessment`} | ${SITE_NAME}`, description: "Use structured psychometric insight to understand personality, cognition, emotional intelligence, employability, leadership potential, and career fit.", jsonLd: { "@context": "https://schema.org", "@type": "Service", name: "Profound IQ Psychometric Assessments", provider: { "@type": "Organization", name: SITE_NAME }, offers: { "@type": "Offer", price: "699", priceCurrency: "KES", url: `${SITE_ORIGIN}${cleanPath}` } } };
-  if (cleanPath === "/verify/certificate" || cleanPath === "/verify/psychometric") return { ...common, title: `Verify a Profound IQ Credential | ${SITE_NAME}`, description: "Verify the authenticity of a Profound IQ Consulting certificate or psychometric report using its secure verification reference.", jsonLd: { "@context": "https://schema.org", "@type": "WebPage", name: "Credential Verification", isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_ORIGIN } } };
+  if (cleanPath === "/verify/assessment" || cleanPath === "/verify/certificate" || cleanPath === "/verify/psychometric") return { ...common, title: `Verify a Profound IQ Credential | ${SITE_NAME}`, description: "Verify the authenticity of a Profound IQ Consulting certificate or psychometric report using its secure verification reference.", jsonLd: { "@context": "https://schema.org", "@type": "WebPage", name: "Credential Verification", isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_ORIGIN } } };
   if (cleanPath === "/privacy-policy") return { ...common, title: `Privacy Policy | ${SITE_NAME}`, description: "Read how Profound IQ Consulting handles account, learning, assessment, payment, communication, and sharing information.", jsonLd: { "@context": "https://schema.org", "@type": "WebPage", name: "Privacy Policy", description: "Privacy practices for Profound IQ Consulting.", url: `${SITE_ORIGIN}/privacy-policy`, publisher: { "@type": "Organization", name: SITE_NAME, url: SITE_ORIGIN } } };
   if (cleanPath === "/terms-of-service") return { ...common, title: `Terms of Service | ${SITE_NAME}`, description: "Read the terms governing Profound IQ Consulting courses, assessments, reports, certificates, payments, and support services.", jsonLd: { "@context": "https://schema.org", "@type": "WebPage", name: "Terms of Service", description: "Terms governing the Profound IQ Consulting platform.", url: `${SITE_ORIGIN}/terms-of-service`, publisher: { "@type": "Organization", name: SITE_NAME, url: SITE_ORIGIN } } };
   return { ...common, title: `${SITE_NAME} Workspace`, description: "Secure Profound IQ Consulting workspace for assessments, courses, reports, certificates, and learning progress.", noIndex: true };
@@ -108,4 +109,4 @@ export function SeoHead() {
   return null;
 }
 
-export { getSeo, SITE_ORIGIN, DEFAULT_IMAGE, courseSocialImageUrl };
+export { getSeo, DEFAULT_IMAGE, courseSocialImageUrl };

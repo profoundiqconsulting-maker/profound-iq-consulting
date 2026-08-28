@@ -1,4 +1,5 @@
 import { ChevronDown, ChevronRight, Menu, Moon, Search, Settings2, Sun, UserCircle2, X } from "lucide-react";
+import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Link } from "wouter";
@@ -47,7 +48,7 @@ export function TransformationNav({ active }: { active: "assessment" | "careerpa
     return () => document.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  const shareCertificate = async () => { const shareData = { title: "Profound IQ completion certificate", text: "I earned a Profound IQ Consulting completion certificate.", url: `${window.location.origin}/dashboard?tab=certificates` }; try { if (navigator.share) await navigator.share(shareData); else if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`); toast.success("Certificate share text copied"); } else throw new Error("Sharing is unavailable in this browser."); } catch (error) { if ((error as DOMException).name !== "AbortError") toast.error("Could not share certificate", { description: error instanceof Error ? error.message : "Try opening Certificates from your profile." }); } };
+  const shareCertificate = async () => { const shareData = { title: "Profound IQ completion certificate", text: "I earned a Profound IQ Consulting completion certificate.", url: `${PUBLISHED_SITE_ORIGIN}/dashboard?tab=certificates` }; try { if (navigator.share) await navigator.share(shareData); else if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`); toast.success("Certificate share text copied"); } else throw new Error("Sharing is unavailable in this browser."); } catch (error) { if ((error as DOMException).name !== "AbortError") toast.error("Could not share certificate", { description: error instanceof Error ? error.message : "Try opening Certificates from your profile." }); } };
 
   useEffect(() => {
     if (certificateAvailable && window.localStorage.getItem("piq-certificate-toast-seen") !== "true") { toast.success("New certificate awarded", { description: "Your completion certificate is ready to view.", action: { label: "View certificate", onClick: () => { window.location.href = "/dashboard?tab=certificates"; } }, cancel: { label: "Share", onClick: () => { void shareCertificate(); } } }); window.localStorage.setItem("piq-certificate-toast-seen", "true"); }

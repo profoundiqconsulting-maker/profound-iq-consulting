@@ -2296,3 +2296,11 @@
 - [x] Add a PDF export action to the admin Quality Control certificate preview using the canonical certificate artifact.
 - [x] Add an admin-only recent QC certificate widget with date/course/status filters and generation tracking.
 - [x] Add regression coverage, responsive QA, full validation, and save the live checkpoint.
+
+# Sitewide Published-Domain Routing Audit
+
+- [x] Audit all route definitions, internal links, external origin constants, SEO metadata, sitemap/robots entries, verification links, and generated artifact URLs.
+- [x] Normalize all user-facing and generated site URLs to https://profoundiq-vguqrhsm.manus.space without changing email addresses or third-party OAuth/payment endpoints.
+- [x] Correct route ordering, trailing-slash, query-string, deep-link, and authenticated navigation anomalies discovered during the audit.
+- [x] Add regression coverage and verify public, authenticated, certificate, verification, sharing, SEO, desktop, and mobile routes.
+- [x] Save and auto-publish the validated routing checkpoint.
