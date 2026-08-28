@@ -6,6 +6,7 @@ const home = readFileSync("client/src/pages/Home.tsx", "utf8");
 const routes = readFileSync("client/src/App.tsx", "utf8");
 const verification = readFileSync("client/src/pages/CertificateVerification.tsx", "utf8");
 const notFound = readFileSync("client/src/pages/NotFound.tsx", "utf8");
+const brandLogo = readFileSync("client/src/components/BrandLogo.tsx", "utf8");
 
 describe("sitewide navigation alignment", () => {
   it("keeps the primary public journey links in the shared shell", () => {
@@ -42,6 +43,16 @@ describe("sitewide navigation alignment", () => {
   it("keeps the custom 404 page pointed to the homepage", () => {
     expect(notFound).toContain('setLocation("/")');
     expect(notFound).toContain("Return to the Profound IQ Consulting homepage");
+  });
+
+  it("keeps shared branding and sticky navigation resilient", () => {
+    expect(brandLogo).toContain('const LOGO_URL = "/manus-storage/ProfoundIQLogo-header_aad21220.jpg"');
+    expect(brandLogo).toContain("onError={() => setFailed(true)}");
+    expect(brandLogo).toContain("data-brand-logo");
+    expect(shell).toContain("data-sticky-navigation");
+    expect(shell).toContain("sticky top-0 z-50");
+    expect(home).toContain("data-sticky-navigation");
+    expect(home).toContain("sticky inset-x-0 top-0 z-50");
   });
 
   it("keeps home navigation aligned with registered routes and mobile access", () => {

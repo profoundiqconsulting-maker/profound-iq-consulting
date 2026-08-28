@@ -36,12 +36,12 @@ export function PublicPageShell({ eyebrow, title, intro, breadcrumbs = [], child
   const { t } = useLocale();
   return (
     <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#101d35]/95 text-[#f7f3e8] backdrop-blur">
-        <div className="container flex min-h-20 items-center justify-between gap-5 py-4">
+      <header data-sticky-navigation className="sticky top-0 z-50 border-b border-white/15 bg-[#101d35]/95 text-[#f7f3e8] shadow-[0_10px_30px_rgba(7,17,35,.16)] backdrop-blur-xl supports-[backdrop-filter]:bg-[#101d35]/80">
+        <div className="container flex min-h-20 items-center justify-between gap-4 py-3 sm:gap-5 sm:py-4">
           <Link href="/" className="flex shrink-0 items-center gap-3" aria-label="Profound IQ Consulting home">
             <BrandLogo context="public page" className="border border-[#c9a34e]/70" />
           </Link>
-          <nav className="hidden items-center gap-4 lg:flex xl:gap-5" aria-label="Primary navigation">
+          <nav id="site-navigation" className="hidden items-center gap-4 lg:flex xl:gap-5" aria-label="Primary navigation">
             {navItems.map((item) => { const active = location === item.href || location.startsWith(`${item.href}/`); return <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined} className={`text-[10px] font-black uppercase tracking-[.12em] transition-colors ${active ? "text-[#c9a34e]" : "text-[#c9d1df] hover:text-[#c9a34e]"}`}>{item.label}</Link>; })}
           </nav>
           <div className="hidden items-center gap-3 md:flex">
@@ -51,10 +51,10 @@ export function PublicPageShell({ eyebrow, title, intro, breadcrumbs = [], child
           </div>
           <button type="button" className="inline-flex h-11 w-11 items-center justify-center border border-white/20 lg:hidden" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}>{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
         </div>
-        {menuOpen && <nav className="border-t border-white/10 bg-[#101d35] px-5 py-5 lg:hidden" aria-label="Mobile navigation"><div className="container flex flex-col gap-1">{navItems.map((item) => { const active = location === item.href || location.startsWith(`${item.href}/`); return <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined} onClick={() => setMenuOpen(false)} className={`border-b border-white/10 px-1 py-4 text-[11px] font-black uppercase tracking-[.14em] transition-colors ${active ? "text-[#c9a34e]" : "text-[#d6dce6] hover:text-[#c9a34e]"}`}>{item.label}</Link>; })}<Link href={isAuthenticated ? "/dashboard" : "/auth?mode=login"} onClick={() => setMenuOpen(false)} className="border-b border-white/10 px-1 py-4 text-[11px] font-black uppercase tracking-[.14em] text-[#c9a34e]">{isAuthenticated ? "My Space" : "Sign in"}</Link><Link href="/contact" onClick={() => setMenuOpen(false)} className="border-b border-white/10 px-1 py-4 text-[11px] font-black uppercase tracking-[.14em] text-[#c9a34e]">Contact</Link><div className="mt-4 flex flex-wrap items-center gap-3"><LanguageSelector compact onSelect={() => setMenuOpen(false)} /><Link href="/contact" onClick={() => setMenuOpen(false)} className="inline-flex items-center gap-2 border border-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8]">{t("beginConversation")} <ArrowUpRight size={14} /></Link></div></div></nav>}
+        {menuOpen && <nav id="site-navigation-mobile" className="border-t border-white/10 bg-[#101d35] px-5 py-5 shadow-[0_16px_30px_rgba(7,17,35,.18)] lg:hidden" aria-label="Mobile navigation"><div className="container flex flex-col gap-1">{navItems.map((item) => { const active = location === item.href || location.startsWith(`${item.href}/`); return <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined} onClick={() => setMenuOpen(false)} className={`border-b border-white/10 px-1 py-4 text-[11px] font-black uppercase tracking-[.14em] transition-colors ${active ? "text-[#c9a34e]" : "text-[#d6dce6] hover:text-[#c9a34e]"}`}>{item.label}</Link>; })}<Link href={isAuthenticated ? "/dashboard" : "/auth?mode=login"} onClick={() => setMenuOpen(false)} className="border-b border-white/10 px-1 py-4 text-[11px] font-black uppercase tracking-[.14em] text-[#c9a34e]">{isAuthenticated ? "My Space" : "Sign in"}</Link><Link href="/contact" onClick={() => setMenuOpen(false)} className="border-b border-white/10 px-1 py-4 text-[11px] font-black uppercase tracking-[.14em] text-[#c9a34e]">Contact</Link><div className="mt-4 flex flex-wrap items-center gap-3"><LanguageSelector compact onSelect={() => setMenuOpen(false)} /><Link href="/contact" onClick={() => setMenuOpen(false)} className="inline-flex items-center gap-2 border border-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8]">{t("beginConversation")} <ArrowUpRight size={14} /></Link></div></div></nav>}
       </header>
 
-      <main>
+      <main id="main-content" className="scroll-mt-24">
         <section className={`${darkHero ? "bg-[#101d35] text-[#f7f3e8]" : "bg-[#f7f3e8] text-[#16243d]"} relative overflow-hidden border-b border-[#16243d]/10 py-20 sm:py-24 lg:py-32`}>
           <div className="absolute right-[10%] top-0 hidden h-full w-px bg-[#c9a34e]/25 lg:block"><span className="absolute top-20 -left-1 h-2 w-2 rounded-full bg-[#c9a34e]" /></div>
           <div className="container relative">

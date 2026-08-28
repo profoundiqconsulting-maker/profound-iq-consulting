@@ -2319,3 +2319,11 @@
 - [x] Track public certificate share attempts by platform and native-share usage through the existing analytics contract.
 - [x] Extend and validate the reusable profound-iq-credential-delivery skill with localized sharing and analytics guidance.
 - [x] Add regression coverage, responsive QA, full validation, and save the live checkpoint.
+
+# Shared Branding and Sticky Navigation Refinement
+
+- [x] Audit the managed logo URL, image sizing, object-fit, contrast, and fallback behavior in shared header and footer surfaces.
+- [x] Repair header and footer logo presentation using the managed site logo without introducing local media assets.
+- [x] Make the public navigation sticky with smooth accessible scrolling, active-route clarity, and mobile-safe behavior.
+- [x] Continue responsive UX/UI refinement across representative public pages while preserving route and auth behavior.
+- [x] Add regression coverage, capture desktop/mobile QA, run full validation, and save the live checkpoint.
