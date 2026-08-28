@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const LOGO_URL = "/manus-storage/ProfoundIQLogo-header_aad21220.jpg";
+const LOGO_URL = "/manus-storage/profound-iq-logo_b3f171ae.webp";
 
 function LogoFallback({ context }: { context?: string }) {
   return <span aria-hidden="true" className="display text-xl font-semibold tracking-[-.08em] text-[#16243d]">PIQ<span className="text-[#a27e2e]">.</span></span>;

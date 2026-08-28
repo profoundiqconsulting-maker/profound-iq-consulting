@@ -46,13 +46,18 @@ describe("sitewide navigation alignment", () => {
   });
 
   it("keeps shared branding and sticky navigation resilient", () => {
-    expect(brandLogo).toContain('const LOGO_URL = "/manus-storage/ProfoundIQLogo-header_aad21220.jpg"');
+    expect(brandLogo).toContain('const LOGO_URL = "/manus-storage/profound-iq-logo_b3f171ae.webp"');
     expect(brandLogo).toContain("onError={() => setFailed(true)}");
     expect(brandLogo).toContain("data-brand-logo");
     expect(shell).toContain("data-sticky-navigation");
     expect(shell).toContain("sticky top-0 z-50");
+    expect(shell).toContain("data-compact={isCompact}");
+    expect(shell).toContain("aria-label=\"Back to top\"");
+    expect(shell).toContain("aria-label=\"Social media links\"");
     expect(home).toContain("data-sticky-navigation");
     expect(home).toContain("sticky inset-x-0 top-0 z-50");
+    expect(home).toContain("data-compact={isCompact}");
+    expect(home).toContain("aria-label=\"Back to top\"");
   });
 
   it("keeps home navigation aligned with registered routes and mobile access", () => {

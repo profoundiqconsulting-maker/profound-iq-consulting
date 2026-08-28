@@ -6,8 +6,8 @@ const documentHead = readFileSync(new URL("../client/index.html", import.meta.ur
 
 describe("shared app logo configuration", () => {
   it("uses the close-fit uploaded Profound IQ header logo asset", () => {
-    expect(LOGO_URL).toBe("/manus-storage/ProfoundIQLogo-header_aad21220.jpg");
-    expect(LOGO_URL).toMatch(/^\/manus-storage\/ProfoundIQLogo-header_.*\.jpg$/);
+    expect(LOGO_URL).toBe("/manus-storage/profound-iq-logo_b3f171ae.webp");
+    expect(LOGO_URL).toMatch(/^\/manus-storage\/profound-iq-logo_.*\.webp$/);
   });
 
   it("uses a real favicon and optimized brand images for metadata", () => {

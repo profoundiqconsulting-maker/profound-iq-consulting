@@ -2327,3 +2327,22 @@
 - [x] Make the public navigation sticky with smooth accessible scrolling, active-route clarity, and mobile-safe behavior.
 - [x] Continue responsive UX/UI refinement across representative public pages while preserving route and auth behavior.
 - [x] Add regression coverage, capture desktop/mobile QA, run full validation, and save the live checkpoint.
+
+# Compact Navigation and Logo Performance
+
+- [x] Add a scroll-aware compact sticky-header state for the home and shared public shells.
+- [x] Add a persistent accessible back-to-top control with reduced-motion support.
+- [x] Add official social media icons and links to the shared footer.
+- [x] Convert managed logo assets to WebP, upload them to managed storage, and preserve a safe fallback.
+- [x] Add regression coverage, responsive/performance QA, full validation, and save the live checkpoint.
+
+# Public Navigation and Logo Refinement — 2026-08-28
+
+- [x] Align the home-page header with the shared compact sticky navigation behavior.
+- [x] Add a persistent, accessible back-to-top control with smooth scrolling on the home page.
+- [x] Convert the supplied Profound IQ logo to an optimized WebP asset and reference managed storage.
+- [x] Update logo and navigation regression coverage for the WebP asset and compact states.
+- [x] Run full Vitest, TypeScript validation, and production build.
+- [x] Verify desktop landing-page and course-catalog rendering after the refinement.
+- [x] Complete a fresh mobile screenshot after the dev-server preview URL is restored.
+- [x] Save and publish the final checkpoint.
