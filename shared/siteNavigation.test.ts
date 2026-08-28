@@ -24,7 +24,12 @@ describe("sitewide navigation alignment", () => {
     expect(verification).toContain("facebook.com/sharer/sharer.php");
     expect(verification).toContain("wa.me/?text=");
     expect(verification).toContain("twitter.com/intent/tweet");
-    expect(verification).toContain('toast.success("Verification link copied")');
+    expect(verification).toContain("navigator.share");
+    expect(verification).toContain('recordShareEvent("native")');
+    expect(verification).toContain("recordCertificateShare");
+    expect(verification).toContain("actions.copied");
+    for (const locale of ["en", "sw", "fr", "es", "pt", "ar", "zh", "hi", "de", "ja"]) expect(verification).toContain(`${locale}: {`);
+    expect(verification).toContain("nativeShareSupported");
   });
 
   it("registers credential verification routes before the catch-all fallback", () => {

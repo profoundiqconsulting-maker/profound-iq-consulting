@@ -1179,6 +1179,25 @@ export async function getCertificateUsageAnalytics(filters?: { fromDate?: Date; 
   return { totals: summary.totals, byPlatform: summary.byPlatform, daily: dailyRows.map((row) => ({ day: row.day, eventType: row.eventType, platform: row.platform ?? "unknown", count: Number(row.count ?? 0) })) };
 }
 
+export async function getPublicCertificateShareAnalytics(filters?: { fromDate?: Date; toDate?: Date }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const conditions: SQL[] = [eq(analyticsEvents.eventName, "course_shared")];
+  if (filters?.fromDate) conditions.push(gte(analyticsEvents.createdAt, filters.fromDate));
+  if (filters?.toDate) conditions.push(lte(analyticsEvents.createdAt, filters.toDate));
+  const rows = await db.select({ createdAt: analyticsEvents.createdAt, metadata: analyticsEvents.metadata }).from(analyticsEvents).where(and(...conditions)).orderBy(desc(analyticsEvents.createdAt)).limit(10000);
+  const byPlatform = new Map<string, number>();
+  const daily = new Map<string, number>();
+  for (const row of rows) {
+    const metadata = row.metadata && typeof row.metadata === "object" && !Array.isArray(row.metadata) ? row.metadata as Record<string, unknown> : {};
+    const platform = typeof metadata.platform === "string" && metadata.platform.trim() ? metadata.platform.trim() : "unknown";
+    const day = new Date(row.createdAt).toISOString().slice(0, 10);
+    byPlatform.set(platform, (byPlatform.get(platform) ?? 0) + 1);
+    daily.set(day, (daily.get(day) ?? 0) + 1);
+  }
+  return { total: rows.length, byPlatform: Array.from(byPlatform, ([platform, count]) => ({ platform, count })).sort((a, b) => b.count - a.count), daily: Array.from(daily, ([day, count]) => ({ day, count })).sort((a, b) => a.day.localeCompare(b.day)) };
+}
+
 export async function getCertificateGenerationRecords(filters?: { fromDate?: Date; toDate?: Date }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");

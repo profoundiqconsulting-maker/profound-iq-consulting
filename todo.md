@@ -2311,3 +2311,11 @@
 - [x] Add a copy-to-clipboard control beside the public certificate verification URL with accessible success and error feedback.
 - [x] Refine the custom 404 page with a clear homepage recovery action and route-safe navigation.
 - [x] Add regression coverage, responsive QA, full validation, and save the live checkpoint.
+
+# Public Certificate Sharing Localization and Analytics
+
+- [x] Add mobile-native Web Share API support with a graceful social-button fallback.
+- [x] Localize share, copy, native-share, copied, and share-error labels across all ten supported locales.
+- [x] Track public certificate share attempts by platform and native-share usage through the existing analytics contract.
+- [x] Extend and validate the reusable profound-iq-credential-delivery skill with localized sharing and analytics guidance.
+- [x] Add regression coverage, responsive QA, full validation, and save the live checkpoint.
