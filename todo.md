@@ -2238,3 +2238,8 @@
 - [x] Expose protected report access, download, and share actions in the previous-session section.
 - [x] Arrange assessment actions into a compact, attractive single-line responsive button group.
 - [x] Add assessment regression tests, responsive QA, TypeScript/build validation, and a live checkpoint.
+
+- [x] Localize new assessment motivational messages and animation labels across all supported locales.
+- [x] Add a branded PDF completion-certificate export alongside the existing SVG export.
+- [x] Connect Access report to the learner’s specific paid report reference.
+- [x] Add regression coverage, run full validation and responsive QA, and save a live checkpoint.

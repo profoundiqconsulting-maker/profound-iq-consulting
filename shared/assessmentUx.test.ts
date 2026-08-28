@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const source = readFileSync(resolve(process.cwd(), "client/src/pages/Assessment.tsx"), "utf8");
+const routerSource = readFileSync(resolve(process.cwd(), "server/routers.ts"), "utf8");
 
 describe("assessment learner experience", () => {
   it("autofills authenticated participant details without replacing manual edits", () => {
@@ -28,15 +29,26 @@ describe("assessment learner experience", () => {
   it("keeps previous-session completion actions visible", () => {
     expect(source).toContain("Previous session found");
     expect(source).toContain("openPreviousReport");
-    expect(source).toContain("Access report");
-    expect(source).toContain("Certificate");
+    expect(source).toContain("assessmentCopy.accessReport");
+    expect(source).toContain("assessmentCopy.certificatePdf");
+    expect(source).toContain("assessmentCopy.certificateSvg");
     expect(source).toContain("Share Results");
   });
 
   it("shows positive completion feedback when advancing to a new module", () => {
     expect(source).toContain("setModuleCelebration(true)");
-    expect(source).toContain("Module complete — keep building");
-    expect(source).toContain("Module complete — your next question is ready.");
+    expect(source).toContain("assessmentCopy.moduleCompleted");
+    expect(source).toContain("assessmentCopy.nextQuestionReady");
+    expect(source).toContain("moduleCompletedDescription");
+  });
+
+  it("connects Access report and PDF certificate to the exact paid reference", () => {
+    expect(source).toContain("piq-assessment-paid-reference");
+    expect(source).toContain("window.location.href = `/assessment?reference=${encodeURIComponent(reportReference)}`");
+    expect(source).toContain("downloadCertificatePdf.mutate({ reference: reportReference }");
+    expect(routerSource).toContain("downloadCompletionCertificatePdf: protectedProcedure");
+    expect(routerSource).toContain("attempt.email.trim().toLowerCase() !== ctx.user.email.trim().toLowerCase()");
+    expect(routerSource).toContain("renderCourseCertificatePdf");
   });
 
   it("uses a compact flexible action row for completion controls", () => {

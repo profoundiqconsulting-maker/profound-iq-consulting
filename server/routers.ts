@@ -680,6 +680,16 @@ lessonResponses: staffProcedure.input(z.object({ page: z.number().int().min(1).d
       }
       return { report, reference: input.reference, emailSent };
     }),
+    downloadCompletionCertificatePdf: protectedProcedure.input(z.object({ reference: z.string().min(10).max(120) })).mutation(async ({ ctx, input }) => {
+      if (!ctx.user.email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "A verified account email is required." });
+      const attempt = await getAssessmentAttemptByReference(input.reference);
+      if (!attempt || attempt.email.trim().toLowerCase() !== ctx.user.email.trim().toLowerCase() || attempt.paymentStatus !== "paid" || !attempt.report) throw new TRPCError({ code: "FORBIDDEN", message: "A verified paid assessment is required to download this certificate." });
+      const settings = await getAdminCertificateSettings(ENV.ownerOpenId || ctx.user.openId);
+      const originHeader = ctx.req.headers.origin;
+      const origin = typeof originHeader === "string" ? originHeader : PUBLIC_SITE_ORIGIN;
+      const pdf = await renderCourseCertificatePdf({ recipientName: attempt.name, recipientEmail: attempt.email, courseTitle: "Profound IQ Self Assessment", certificateNumber: `PIQ-AS-${attempt.id}`, issuedOn: attempt.paidAt ?? attempt.createdAt, verificationUrl: `${origin}/verify/assessment?reference=${encodeURIComponent(input.reference)}`, locale: getRequestLocale(ctx.req), trainerName: settings.trainerName, trainerTitle: settings.trainerTitle, signatureDataUri: settings.signatureDataUri, customElements: (settings as typeof settings & { customElements?: Record<string, string> }).customElements ?? undefined, fieldLayout: settings.fieldLayout as Record<string, { x?: number; y?: number; width?: number; height?: number; visible?: boolean; text?: string }> | undefined });
+      return { contentType: "application/pdf", filename: `profound-iq-self-assessment-${attempt.id}-certificate.pdf`, data: pdf.toString("base64") };
+    }),
     reflectionResponses: protectedProcedure.input(z.object({ attemptId: z.number().int().positive() })).query(async ({ ctx, input }) => {
       const attempt = await getAssessmentAttempt(input.attemptId);
       if (!attempt || !ctx.user.email || attempt.email.trim().toLowerCase() !== ctx.user.email.trim().toLowerCase() || attempt.paymentStatus !== "paid" || !attempt.report) throw new TRPCError({ code: "FORBIDDEN", message: "A verified payment and matching account are required." });
