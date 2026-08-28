@@ -2304,3 +2304,10 @@
 - [x] Correct route ordering, trailing-slash, query-string, deep-link, and authenticated navigation anomalies discovered during the audit.
 - [x] Add regression coverage and verify public, authenticated, certificate, verification, sharing, SEO, desktop, and mobile routes.
 - [x] Save and auto-publish the validated routing checkpoint.
+
+# Public Certificate Sharing and 404 Recovery
+
+- [x] Add a public certificate verification share control for supported social platforms using the exact verification URL.
+- [x] Add a copy-to-clipboard control beside the public certificate verification URL with accessible success and error feedback.
+- [x] Refine the custom 404 page with a clear homepage recovery action and route-safe navigation.
+- [x] Add regression coverage, responsive QA, full validation, and save the live checkpoint.
