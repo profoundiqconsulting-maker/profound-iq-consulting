@@ -44,6 +44,12 @@ describe("course SEO server routes", () => {
     expect(html).toContain("Frame options");
   });
 
+  it("points SEO course actions to the interactive workspace entry path", () => {
+    const detail = renderCourseDetailPage({ slug: "decision-lab", title: "Decision Lab", strapline: "Practice better decisions", description: "A focused professional course.", audience: "Leaders", duration: "4 weeks", priceKes: 4999, outcomes: ["Frame options"] }, null);
+    expect(detail).toContain('href="https://profoundiq-vguqrhsm.manus.space/courses/decision-lab?workspace=1"');
+    expect(detail).toContain('>Open course details</a>');
+  });
+
   it("renders Insights article metadata and draft content inside the app root", () => {
     const html = renderInsightArticlePage(insightArticles[0], null);
     expect(html).toContain(`<title>${insightArticles[0].title} | Profound IQ Consulting</title>`);
@@ -58,6 +64,6 @@ describe("course SEO server routes", () => {
     expect(html).toContain("<title>Professional Courses | Profound IQ Consulting</title>");
     expect(html).toContain('<div id="root"><main');
     expect(html).toContain("Decision Lab");
-    expect(html).toContain('href="/courses/decision-lab"');
+    expect(html).toContain('href="/courses/decision-lab?workspace=1"');
   });
 });

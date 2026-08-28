@@ -2346,3 +2346,12 @@
 - [x] Verify desktop landing-page and course-catalog rendering after the refinement.
 - [x] Complete a fresh mobile screenshot after the dev-server preview URL is restored.
 - [x] Save and publish the final checkpoint.
+
+# Course Lesson Navigation Repair — 2026-08-28
+
+- [x] Trace course catalog, course detail, enrollment, workspace, and lesson route registrations for broken links or button handlers.
+- [x] Repair all catalog-to-course-to-lesson navigation links and preserve authentication/payment gates.
+- [x] Ensure lesson next/previous/module navigation buttons resolve to valid lesson state and URLs.
+- [x] Add regression coverage for course cards, lesson entry links, and lesson navigation actions.
+- [x] Run full tests, TypeScript validation, production build, and responsive course-navigation QA.
+- [ ] Save and publish the verified course-navigation fix.

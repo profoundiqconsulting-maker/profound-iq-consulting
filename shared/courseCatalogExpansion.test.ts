@@ -140,6 +140,20 @@ describe("quiz learning feedback and analytics", () => {
     expect(source).toContain("Price: low to high");
   });
 
+  it("keeps every course entry action pointed at the interactive lesson workspace", () => {
+    const catalog = readFileSync("client/src/pages/Courses.tsx", "utf8");
+    const comparison = readFileSync("client/src/pages/CourseComparison.tsx", "utf8");
+    const seoRoutes = readFileSync("server/seoRoutes.ts", "utf8");
+    expect(catalog).toContain("/courses/${course.slug}?workspace=1");
+    expect(catalog).toContain("/courses/${selectedCourse.slug}?workspace=1");
+    expect(comparison).toContain("/courses/${course.slug}?workspace=1");
+    expect(seoRoutes).toContain('req.query.workspace === "1"');
+    expect(seoRoutes).toContain('href=\"/courses/${encodeURIComponent(course.slug)}?workspace=1\"');
+    const workspace = readFileSync("client/src/pages/CourseWorkspace.tsx", "utf8");
+    expect(workspace).toContain("/courses/${course.slug}?workspace=1");
+    expect(workspace).toContain("window.location.pathname + window.location.search");
+  });
+
   it("exposes the randomized-attempt and feedback contract in the workspace", async () => {
     const source = readFileSync("client/src/pages/CourseWorkspace.tsx", "utf8");
     expect(source).toContain("New randomized attempt");
