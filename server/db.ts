@@ -1950,6 +1950,34 @@ export async function findPublicCourseCertificate(certificateNumber: string) {
   return (await db.select({ certificateNumber: courseCertificates.certificateNumber, recipientName: courseCertificates.recipientName, courseTitle: courseCertificates.courseTitle, status: courseCertificates.status, artifactHash: courseCertificates.artifactHash, createdAt: courseCertificates.createdAt }).from(courseCertificates).where(and(eq(courseCertificates.certificateNumber, certificateNumber), eq(courseCertificates.status, "issued"))).limit(1))[0] ?? null;
 }
 
+export async function listCourseCertificatesForAdmin(input: { courseSlug?: string; status?: string; search?: string; from?: Date; to?: Date; limit?: number } = {}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const conditions = [
+    input.courseSlug && input.courseSlug !== "all" ? eq(courseLearnerEnrollments.courseSlug, input.courseSlug) : undefined,
+    input.status && input.status !== "all" ? eq(courseCertificates.status, input.status) : undefined,
+    input.from ? gte(courseCertificates.createdAt, input.from) : undefined,
+    input.to ? lte(courseCertificates.createdAt, input.to) : undefined,
+    input.search?.trim() ? or(
+      like(courseCertificates.certificateNumber, `%${input.search.trim()}%`),
+      like(courseCertificates.recipientName, `%${input.search.trim()}%`),
+      like(courseCertificates.courseTitle, `%${input.search.trim()}%`),
+    ) : undefined,
+  ].filter(Boolean) as Array<ReturnType<typeof eq>>;
+  return db.select({
+    id: courseCertificates.id,
+    enrollmentId: courseCertificates.enrollmentId,
+    certificateNumber: courseCertificates.certificateNumber,
+    recipientName: courseCertificates.recipientName,
+    courseTitle: courseCertificates.courseTitle,
+    courseSlug: courseLearnerEnrollments.courseSlug,
+    status: courseCertificates.status,
+    artifactHash: courseCertificates.artifactHash,
+    emailStatus: courseCertificates.emailStatus,
+    createdAt: courseCertificates.createdAt,
+  }).from(courseCertificates).innerJoin(courseLearnerEnrollments, eq(courseCertificates.enrollmentId, courseLearnerEnrollments.id)).where(conditions.length ? and(...conditions) : undefined).orderBy(desc(courseCertificates.createdAt)).limit(Math.min(500, Math.max(1, input.limit ?? 100)));
+}
+
 export async function getCareerPathActiveModule(userOpenId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");

@@ -44,7 +44,14 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const NewsletterAction = lazy(() => import("./pages/NewsletterAction"));
 
 function RouteLoading() {
-  return <div className="grid min-h-[45vh] place-items-center bg-[#f7f3e8] text-[#16243d]" role="status" aria-live="polite"><span className="border-b-2 border-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.16em]">Loading workspace</span></div>;
+  return <main className="min-h-[70vh] bg-[#f7f3e8] px-4 py-8 text-[#16243d] sm:px-6 lg:px-8" role="status" aria-live="polite" aria-label="Loading page">
+    <div className="mx-auto max-w-7xl animate-pulse space-y-8 motion-reduce:animate-none">
+      <div className="flex items-center justify-between border-b border-[#16243d]/10 pb-5"><div className="h-7 w-40 rounded-sm bg-[#16243d]/10" /><div className="hidden gap-3 sm:flex"><div className="h-3 w-16 rounded bg-[#16243d]/10" /><div className="h-3 w-20 rounded bg-[#16243d]/10" /><div className="h-3 w-14 rounded bg-[#16243d]/10" /></div><div className="h-9 w-9 rounded-full bg-[#c9a34e]/25 sm:hidden" /></div>
+      <div className="grid gap-8 lg:grid-cols-[1.05fr_.95fr] lg:items-center"><div className="space-y-5"><div className="h-3 w-28 rounded bg-[#c9a34e]/35" /><div className="h-12 w-full max-w-xl rounded bg-[#16243d]/12 sm:h-16" /><div className="h-4 w-full max-w-lg rounded bg-[#16243d]/8" /><div className="h-4 w-4/5 max-w-md rounded bg-[#16243d]/8" /><div className="flex gap-3 pt-2"><div className="h-11 w-32 rounded bg-[#16243d]/12" /><div className="h-11 w-28 rounded border border-[#16243d]/10 bg-white/50" /></div></div><div className="min-h-56 rounded-sm border border-[#c9a34e]/25 bg-white/55 p-5"><div className="h-full min-h-48 rounded-sm bg-[#16243d]/6" /></div></div>
+      <div className="grid gap-4 sm:grid-cols-3"><div className="h-28 rounded-sm border border-[#16243d]/10 bg-white/55" /><div className="h-28 rounded-sm border border-[#16243d]/10 bg-white/55" /><div className="h-28 rounded-sm border border-[#16243d]/10 bg-white/55" /></div>
+      <span className="sr-only">Loading workspace</span>
+    </div>
+  </main>;
 }
 
 function Router() {

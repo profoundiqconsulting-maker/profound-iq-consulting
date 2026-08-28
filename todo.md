@@ -2289,3 +2289,10 @@
 - [x] Update the Baseline browser-mapping development dependency and lockfile, then verify the build environment.
 - [x] Extend and validate the reusable profound-iq-credential-delivery skill with performance and browser-QA guidance.
 - [x] Run tests, TypeScript, production build, browser smoke validation, skill validation, and save the live checkpoint.
+
+# QC Certificate UX and Tracking
+
+- [x] Replace the route-transition text fallback with a branded responsive skeleton loading screen.
+- [x] Add a PDF export action to the admin Quality Control certificate preview using the canonical certificate artifact.
+- [x] Add an admin-only recent QC certificate widget with date/course/status filters and generation tracking.
+- [x] Add regression coverage, responsive QA, full validation, and save the live checkpoint.
