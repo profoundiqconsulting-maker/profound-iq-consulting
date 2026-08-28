@@ -2243,3 +2243,9 @@
 - [x] Add a branded PDF completion-certificate export alongside the existing SVG export.
 - [x] Connect Access report to the learner’s specific paid report reference.
 - [x] Add regression coverage, run full validation and responsive QA, and save a live checkpoint.
+
+- [x] Allow completion-certificate generation for every course, including the designated admin quality-control account, without changing learner-specific certificate data.
+- [x] Add a learner certificate preview modal before PDF or SVG download.
+- [x] Localize remaining report-stage headings and social-share copy across all supported locales.
+- [x] Add direct paid-assessment report-history deep links in the user dashboard.
+- [x] Add regression coverage, responsive QA, full validation, and a live checkpoint for the certificate/report-access update.
