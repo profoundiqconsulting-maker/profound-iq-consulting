@@ -13,7 +13,7 @@ describe("route SEO metadata", () => {
     expect(assessment.canonical).toBe("/assessment");
     expect(course.title).toContain("Leadership Development");
     expect(course.jsonLd?.["@type"]).toBe("Course");
-    expect(`${SITE_ORIGIN}${course.canonical}`).toBe("https://profoundiqconsulting.com/courses/leadership-development");
+    expect(`${SITE_ORIGIN}${course.canonical}`).toBe("https://profoundiq-vguqrhsm.manus.space/courses/leadership-development");
     expect(DEFAULT_IMAGE).toMatch(/^https:\/\/profoundiq-vguqrhsm\.manus\.space\/manus-storage\/.*\.png$/);
   });
 
@@ -27,8 +27,8 @@ describe("route SEO metadata", () => {
     const robots = readFileSync("client/public/robots.txt", "utf8");
     const sitemap = readFileSync("client/public/sitemap.xml", "utf8");
     expect(existsSync("client/public/robots.txt")).toBe(true);
-    expect(robots).toContain("Sitemap: https://profoundiqconsulting.com/sitemap.xml");
+    expect(robots).toContain("Sitemap: https://profoundiq-vguqrhsm.manus.space/sitemap.xml");
     expect(robots).toContain("Disallow: /admin");
-    expect(sitemap).toContain("https://profoundiqconsulting.com/courses");
+    expect(sitemap).toContain("https://profoundiq-vguqrhsm.manus.space/courses");
   });
 });

@@ -22,6 +22,6 @@ describe("public page SEO contracts", () => {
 
   it("keeps canonical paths relative to the configured public origin", () => {
     const seo = getSeo("/services");
-    expect(`${SITE_ORIGIN}${seo.canonical}`).toBe("https://profoundiqconsulting.com/services");
+    expect(`${SITE_ORIGIN}${seo.canonical}`).toBe("https://profoundiq-vguqrhsm.manus.space/services");
   });
 });

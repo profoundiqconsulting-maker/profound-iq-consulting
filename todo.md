@@ -2273,3 +2273,11 @@
 - [x] Verify every course and assessment certificate creation/download/preview guard allows the designated Quality Control Mode admin without weakening learner payment gates.
 - [x] Add focused regression coverage for admin certificate generation and non-admin payment protection in shared course-access and enrollment UX contracts.
 - [x] Run the full test suite, TypeScript check, production build, and responsive certificate QA; save the validated release checkpoint.
+
+# Quality Control Workflow and Published Domain
+
+- [x] Package the certificate-generation and Quality Control Mode workflow as a reusable skill and validate its SKILL.md.
+- [x] Add a visible admin-only Quality Control Mode indicator to the workspace without exposing it to ordinary learners.
+- [x] Investigate and resolve the stale Vite console warning shown during a fresh browser session, then verify clean startup logs.
+- [x] Normalize public, authenticated, certificate, verification, sharing, SEO, and generated-link URLs to https://profoundiq-vguqrhsm.manus.space.
+- [x] Run tests, TypeScript, production build, responsive QA, skill validation, and save the live checkpoint.

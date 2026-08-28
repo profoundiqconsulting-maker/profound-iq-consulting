@@ -4,7 +4,7 @@ import { useLocale, type LocaleCode } from "@/contexts/LocaleContext";
 import { getInsightArticle } from "@shared/insightsArticles";
 
 const SITE_NAME = "Profound IQ Consulting";
-const SITE_ORIGIN = "https://profoundiqconsulting.com";
+const SITE_ORIGIN = "https://profoundiq-vguqrhsm.manus.space";
 const PUBLIC_IMAGE_ORIGIN = "https://profoundiq-vguqrhsm.manus.space";
 const DEFAULT_IMAGE = `${PUBLIC_IMAGE_ORIGIN}/manus-storage/profound-iq-social-preview_9d540b32.png`;
 const courseSocialImageUrl = (slug: string) => `${PUBLIC_IMAGE_ORIGIN}/og/course/${encodeURIComponent(slug)}.png`;

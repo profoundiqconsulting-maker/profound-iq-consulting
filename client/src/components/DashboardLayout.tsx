@@ -21,7 +21,8 @@ import {
 } from "@/components/ui/sidebar";
 import { startLogin } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LogOut, PanelLeft } from "lucide-react";
+import { LogOut, PanelLeft, ShieldCheck } from "lucide-react";
+import { isQualityControlAdmin } from "@shared/courseAccess";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -172,6 +173,16 @@ function DashboardLayoutContent({
                   <span className="font-semibold tracking-tight truncate">
                     {t("navigation")}
                   </span>
+                  {isQualityControlAdmin(user) ? (
+                    <span
+                      aria-label="Quality Control Mode active"
+                      title="Quality Control Mode active"
+                      className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary"
+                    >
+                      <ShieldCheck className="h-3 w-3" aria-hidden="true" />
+                      <span>QC Mode</span>
+                    </span>
+                  ) : null}
                 </div>
               ) : null}
             </div>
@@ -257,13 +268,24 @@ function DashboardLayoutContent({
           <div className="flex border-b h-14 items-center justify-between bg-background/95 px-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col gap-1">
-                  <span className="tracking-tight text-foreground">
-                    {activeMenuItem?.label ?? "Menu"}
-                  </span>
-                </div>
-              </div>
+                                <div className="flex items-center gap-3">
+                    <div className="flex flex-col gap-1">
+                      <span className="tracking-tight text-foreground">
+                        {activeMenuItem?.label ?? "Menu"}
+                      </span>
+                    </div>
+                    {isQualityControlAdmin(user) ? (
+                      <span
+                        aria-label="Quality Control Mode active"
+                        title="Quality Control Mode active"
+                        className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-primary"
+                      >
+                        <ShieldCheck className="h-3 w-3" aria-hidden="true" />
+                        <span>QC</span>
+                      </span>
+                    ) : null}
+                  </div>
+
             </div>
             <LanguageSelector compact className="shrink-0" />
           </div>

@@ -37,7 +37,7 @@ const schema = {
   "@type": "LocalBusiness",
   name: "Profound IQ Consulting",
   description: "Transformational learning, educational consulting, psychometric testing, research surveys, and professional courses.",
-  url: "https://profoundiqconsulting.com",
+  url: "https://profoundiq-vguqrhsm.manus.space",
   address: { "@type": "PostalAddress", addressLocality: "Online" },
   email: "admin@profoundiqconsulting.com",
   telephone: "+254727374055",

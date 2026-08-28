@@ -9,4 +9,4 @@ Disallow: /reset-password
 Disallow: /shared-report
 Disallow: /courses/payment-success
 Disallow: /careerpath/results
-Sitemap: https://profoundiqconsulting.com/sitemap.xml
+Sitemap: https://profoundiq-vguqrhsm.manus.space/sitemap.xml

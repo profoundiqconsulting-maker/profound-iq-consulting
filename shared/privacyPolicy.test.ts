@@ -13,8 +13,8 @@ describe("Privacy Policy page", () => {
 
   it("is included in the public sitemap", () => {
     const sitemap = buildSitemapXml([]);
-    expect(sitemap).toContain("https://profoundiqconsulting.com/privacy-policy");
-    expect(sitemap).toContain("https://profoundiqconsulting.com/terms-of-service");
+    expect(sitemap).toContain("https://profoundiq-vguqrhsm.manus.space/privacy-policy");
+    expect(sitemap).toContain("https://profoundiq-vguqrhsm.manus.space/terms-of-service");
   });
 
   it("has dedicated Terms of Service metadata and a stable consent key", () => {

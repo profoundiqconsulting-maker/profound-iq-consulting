@@ -19,7 +19,7 @@ describe("illustration study sheets", () => {
     expect(svg).toContain("PROFOUND IQ CONSULTING");
     expect(svg).toContain("Strategic Growth");
     expect(svg).toContain("Decision architecture");
-    expect(svg).toContain('href="https://profoundiqconsulting.com/manus-storage/lesson-art.png"');
+    expect(svg).toContain('href="https://profoundiq-vguqrhsm.manus.space/manus-storage/lesson-art.png"');
     expect(svg).toContain("A visual study sheet for reflection");
   });
 

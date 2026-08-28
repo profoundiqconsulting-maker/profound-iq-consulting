@@ -6,12 +6,12 @@ import sharp from "sharp";
 describe("course SEO server routes", () => {
   it("includes every published course slug in the sitemap without duplicates", () => {
     const xml = buildSitemapXml([{ slug: "leadership-development" }, { slug: "leadership-development" }, { slug: "new-course" }]);
-    expect(xml).toContain("https://profoundiqconsulting.com/courses/leadership-development?lang=en");
-    expect(xml).toContain("https://profoundiqconsulting.com/courses/new-course?lang=ar");
-    expect(xml).toContain("https://profoundiqconsulting.com/about?lang=en");
-    expect(xml).toContain("https://profoundiqconsulting.com/school-solutions?lang=sw");
-    expect(xml).toContain("https://profoundiqconsulting.com/contact?lang=ja");
-    expect(xml).toContain(`https://profoundiqconsulting.com/blog/${insightArticles[0].slug}?lang=en`);
+    expect(xml).toContain("https://profoundiq-vguqrhsm.manus.space/courses/leadership-development?lang=en");
+    expect(xml).toContain("https://profoundiq-vguqrhsm.manus.space/courses/new-course?lang=ar");
+    expect(xml).toContain("https://profoundiq-vguqrhsm.manus.space/about?lang=en");
+    expect(xml).toContain("https://profoundiq-vguqrhsm.manus.space/school-solutions?lang=sw");
+    expect(xml).toContain("https://profoundiq-vguqrhsm.manus.space/contact?lang=ja");
+    expect(xml).toContain(`https://profoundiq-vguqrhsm.manus.space/blog/${insightArticles[0].slug}?lang=en`);
     expect(xml).toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"');
     expect(xml).toContain('hreflang="sw"');
     expect(xml.match(/<url>/g)?.length).toBe(200);
@@ -39,7 +39,7 @@ describe("course SEO server routes", () => {
   it("renders individual course metadata and JSON-LD inside the app root", () => {
     const html = renderCourseDetailPage({ slug: "decision-lab", title: "Decision Lab", strapline: "Practice better decisions", description: "A focused professional course.", audience: "Leaders", duration: "4 weeks", priceKes: 4999, outcomes: ["Frame options"] }, null);
     expect(html).toContain("<title>Decision Lab | Profound IQ Consulting</title>");
-    expect(html).toContain('rel="canonical" href="https://profoundiqconsulting.com/courses/decision-lab"');
+    expect(html).toContain('rel="canonical" href="https://profoundiq-vguqrhsm.manus.space/courses/decision-lab"');
     expect(html).toContain('"@type":"Course"');
     expect(html).toContain("Frame options");
   });
@@ -47,7 +47,7 @@ describe("course SEO server routes", () => {
   it("renders Insights article metadata and draft content inside the app root", () => {
     const html = renderInsightArticlePage(insightArticles[0], null);
     expect(html).toContain(`<title>${insightArticles[0].title} | Profound IQ Consulting</title>`);
-    expect(html).toContain(`rel="canonical" href="https://profoundiqconsulting.com/blog/${insightArticles[0].slug}"`);
+    expect(html).toContain(`rel="canonical" href="https://profoundiq-vguqrhsm.manus.space/blog/${insightArticles[0].slug}"`);
     expect(html).toContain('"@type":"Article"');
     expect(html).toContain("Draft preview");
     expect(html).toContain(insightArticles[0].sections[0].heading);

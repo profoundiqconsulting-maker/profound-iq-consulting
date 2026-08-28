@@ -66,11 +66,12 @@ import { toast } from "sonner";
 import { useLocale } from "@/contexts/LocaleContext";
 import { DashboardQuickNav } from "@/components/DashboardQuickNav";
 import { DashboardPagination } from "@/components/DashboardPagination";
+import { isQualityControlAdmin } from "@shared/courseAccess";
 
 function statusLabel(status: string) {
   return status === "paid" ? "Paid" : "Pending";
 }
-export function toLocalDateKey(value: Date | string | number) {
+function toLocalDateKey(value: Date | string | number) {
   const date = new Date(value);
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
@@ -641,6 +642,7 @@ export default function AdminDashboard() {
             <span className="text-[11px] font-extrabold tracking-[.18em]">
               / ADMIN
             </span>
+            {isQualityControlAdmin(user) && <span aria-label="Quality Control Mode active" title="Quality Control Mode active" className="inline-flex items-center gap-1 rounded-full border border-[#c9a34e]/50 bg-[#c9a34e]/10 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#d7b762]"><ShieldCheck size={12} aria-hidden="true" /> QC Mode</span>}
           </Link>
           <Link
             href="/"

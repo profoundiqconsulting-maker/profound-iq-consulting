@@ -37,6 +37,16 @@ queryClient.getMutationCache().subscribe(event => {
   }
 });
 
+async function fetchWithTransientRetry(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  const retryableStatuses = new Set([502, 503, 504]);
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const response = await globalThis.fetch(input, init);
+    if (!retryableStatuses.has(response.status) || attempt === 2) return response;
+    await new Promise((resolve) => window.setTimeout(resolve, 120 * (attempt + 1)));
+  }
+  return globalThis.fetch(input, init);
+}
+
 const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
@@ -63,7 +73,7 @@ const trpcClient = trpc.createClient({
         return {};
       },
       fetch(input, init) {
-        return globalThis.fetch(input, {
+        return fetchWithTransientRetry(input, {
           ...(init ?? {}),
           credentials: "include",
         });

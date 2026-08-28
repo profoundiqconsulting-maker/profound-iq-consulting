@@ -8,6 +8,8 @@ const accessSource = readFileSync(resolve(process.cwd(), "shared/courseAccess.ts
 const routerSource = readFileSync(resolve(process.cwd(), "server/routers.ts"), "utf8");
 const authSource = readFileSync(resolve(process.cwd(), "client/src/pages/Auth.tsx"), "utf8");
 const dashboardSource = readFileSync(resolve(process.cwd(), "client/src/pages/UserDashboard.tsx"), "utf8");
+const dashboardLayoutSource = readFileSync(resolve(process.cwd(), "client/src/components/DashboardLayout.tsx"), "utf8");
+const adminDashboardSource = readFileSync(resolve(process.cwd(), "client/src/pages/AdminDashboard.tsx"), "utf8");
 const localeSource = readFileSync(resolve(process.cwd(), "client/src/contexts/LocaleContext.tsx"), "utf8");
 
 describe("course enrollment access flow", () => {
@@ -54,6 +56,14 @@ describe("course enrollment access flow", () => {
     expect(routerSource).toContain("paymentStatus: attempt.paymentStatus");
     expect(routerSource).toContain("hasReport: Boolean(attempt.report)");
     expect(accessSource).toContain("Quality Control Mode bypasses payment status");
+  });
+
+  it("shows Quality Control Mode only for the designated admin in the workspace shell", () => {
+    expect(dashboardLayoutSource).toContain("isQualityControlAdmin(user)");
+    expect(dashboardLayoutSource).toContain('aria-label="Quality Control Mode active"');
+    expect(dashboardLayoutSource).toContain("QC Mode");
+    expect(adminDashboardSource).toContain("isQualityControlAdmin(user)");
+    expect(adminDashboardSource).toContain('aria-label="Quality Control Mode active"');
   });
 
   it("exposes a development-only mock checkout without weakening production payment verification", () => {
