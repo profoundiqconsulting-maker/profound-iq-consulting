@@ -2259,3 +2259,7 @@
 - [x] Add a paginated assessment report-history panel to My Space → Results.
 - [x] Add course-name and completion-date filters with protected report deep links for each paid record.
 - [x] Add Results-panel regression coverage, responsive QA, full validation, and a live checkpoint.
+
+- [x] Audit and align internal and external links across public pages, course flows, assessments, My Space, staff, and admin workspaces.
+- [x] Improve shared navigation, active states, back/escape routes, CTA destinations, footer links, and mobile access patterns without breaking protected routes.
+- [x] Add navigation regression coverage, responsive QA, full validation, and a live checkpoint.
