@@ -2263,3 +2263,13 @@
 - [x] Audit and align internal and external links across public pages, course flows, assessments, My Space, staff, and admin workspaces.
 - [x] Improve shared navigation, active states, back/escape routes, CTA destinations, footer links, and mobile access patterns without breaking protected routes.
 - [x] Add navigation regression coverage, responsive QA, full validation, and a live checkpoint.
+
+- [x] Enable certificate generation in Quality Control Mode for the designated admin account across completion, preview, PDF, SVG, and sharing flows.
+- [x] Preserve strict non-admin payment and eligibility restrictions and add authorization regression coverage.
+- [x] Run TypeScript, focused/full tests, production build, responsive QA, and save a live checkpoint.
+
+# Quality Control Certificate Generation
+
+- [x] Verify every course and assessment certificate creation/download/preview guard allows the designated Quality Control Mode admin without weakening learner payment gates.
+- [x] Add focused regression coverage for admin certificate generation and non-admin payment protection in shared course-access and enrollment UX contracts.
+- [x] Run the full test suite, TypeScript check, production build, and responsive certificate QA; save the validated release checkpoint.

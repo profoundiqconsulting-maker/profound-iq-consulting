@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canAccessCourseLessons, canAccessModuleLessons, canBypassCoursePayment, courseAccessReason, isQualityControlAdmin, qualityControlQuizScore, requiredPaymentStageForModule } from "./courseAccess";
+import { canAccessAssessmentCertificate, canAccessCourseLessons, canAccessModuleLessons, canBypassCoursePayment, courseAccessReason, isQualityControlAdmin, qualityControlQuizScore, requiredPaymentStageForModule } from "./courseAccess";
 
 describe("course lesson access", () => {
   it("blocks unregistered visitors while keeping a sign-in reason", () => {
@@ -37,6 +37,19 @@ describe("module payment boundaries", () => {
 
   it("allows quality-control admins to inspect all modules without payment", () => {
     expect(canAccessModuleLessons({ moduleIndex: 9, paidStages: 0, isQualityControlAdmin: true })).toBe(true);
+  });
+});
+
+describe("assessment certificate access policy", () => {
+  it("allows the designated Quality Control admin to generate from an unpaid report", () => {
+    expect(canAccessAssessmentCertificate({ isQualityControlAdmin: true, identityMatches: true, paymentStatus: "pending", hasReport: true })).toBe(true);
+  });
+
+  it("requires payment for ordinary learners and still protects ownership/report data", () => {
+    expect(canAccessAssessmentCertificate({ isQualityControlAdmin: false, identityMatches: true, paymentStatus: "pending", hasReport: true })).toBe(false);
+    expect(canAccessAssessmentCertificate({ isQualityControlAdmin: false, identityMatches: true, paymentStatus: "paid", hasReport: true })).toBe(true);
+    expect(canAccessAssessmentCertificate({ isQualityControlAdmin: true, identityMatches: false, paymentStatus: "pending", hasReport: true })).toBe(false);
+    expect(canAccessAssessmentCertificate({ isQualityControlAdmin: true, identityMatches: true, paymentStatus: "pending", hasReport: false })).toBe(false);
   });
 });
 

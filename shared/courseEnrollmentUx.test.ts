@@ -47,6 +47,15 @@ describe("course enrollment access flow", () => {
     expect(routerSource).toContain("isQualityControlAdmin(ctx.user)");
   });
 
+  it("allows Quality Control certificate generation while retaining report ownership and data checks", () => {
+    expect(routerSource).toContain("canAccessAssessmentCertificate");
+    expect(routerSource).toContain("certificateSvgPreview");
+    expect(routerSource).toContain("downloadCompletionCertificatePdf");
+    expect(routerSource).toContain("paymentStatus: attempt.paymentStatus");
+    expect(routerSource).toContain("hasReport: Boolean(attempt.report)");
+    expect(accessSource).toContain("Quality Control Mode bypasses payment status");
+  });
+
   it("exposes a development-only mock checkout without weakening production payment verification", () => {
     expect(workspaceSource).toContain("trpc.course.mockFirstStagePayment.useMutation");
     expect(workspaceSource).toContain("import.meta.env.DEV");

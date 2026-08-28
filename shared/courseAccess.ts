@@ -12,6 +12,20 @@ export function qualityControlQuizScore(input: { rawScore: number; isQualityCont
   return input.isQualityControlAdmin ? 100 : input.rawScore;
 }
 
+/**
+ * Certificate output is available only for the owning account with a computed
+ * report. Quality Control Mode bypasses payment status, but never bypasses
+ * ownership or the requirement for report data.
+ */
+export function canAccessAssessmentCertificate(input: {
+  isQualityControlAdmin: boolean;
+  identityMatches: boolean;
+  paymentStatus: string | null | undefined;
+  hasReport: boolean;
+}) {
+  return input.identityMatches && input.hasReport && (input.isQualityControlAdmin || input.paymentStatus === "paid");
+}
+
 export type CourseAccessInput = { isAuthenticated: boolean; paidStages: number; isQualityControlAdmin: boolean };
 
 /** Returns the installment required before a module's lessons may be opened. Modules are 1-indexed in the learner-facing copy. */
