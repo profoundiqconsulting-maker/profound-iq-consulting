@@ -12,6 +12,7 @@ export default defineConfig({
     launchOptions: { executablePath: "/usr/bin/chromium" },
     viewport: { width: 1280, height: 800 },
     colorScheme: "light",
+    storageState: process.env.PLAYWRIGHT_STORAGE_STATE || undefined,
   },
   webServer: {
     command: "pnpm run dev -- --host 127.0.0.1",

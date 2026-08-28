@@ -2281,3 +2281,11 @@
 - [x] Investigate and resolve the stale Vite console warning shown during a fresh browser session, then verify clean startup logs.
 - [x] Normalize public, authenticated, certificate, verification, sharing, SEO, and generated-link URLs to https://profoundiq-vguqrhsm.manus.space.
 - [x] Run tests, TypeScript, production build, responsive QA, skill validation, and save the live checkpoint.
+
+# Performance, Browser Smoke Test, and Skill Iteration
+
+- [x] Implement route-level dynamic imports with a loading fallback and preserve authenticated route behavior.
+- [x] Add a browser smoke test covering admin Quality Control Mode certificate access, generation, preview, and download controls.
+- [x] Update the Baseline browser-mapping development dependency and lockfile, then verify the build environment.
+- [x] Extend and validate the reusable profound-iq-credential-delivery skill with performance and browser-QA guidance.
+- [x] Run tests, TypeScript, production build, browser smoke validation, skill validation, and save the live checkpoint.
