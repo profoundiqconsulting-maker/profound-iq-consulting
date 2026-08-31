@@ -140,7 +140,7 @@ describe("quiz learning feedback and analytics", () => {
     expect(source).toContain("Price: low to high");
   });
 
-  it("keeps every course entry action pointed at the interactive lesson workspace", () => {
+  it("routes public course details into registration while preserving the interactive workspace flow", () => {
     const catalog = readFileSync("client/src/pages/Courses.tsx", "utf8");
     const comparison = readFileSync("client/src/pages/CourseComparison.tsx", "utf8");
     const seoRoutes = readFileSync("server/seoRoutes.ts", "utf8");
@@ -148,10 +148,23 @@ describe("quiz learning feedback and analytics", () => {
     expect(catalog).toContain("/courses/${selectedCourse.slug}?workspace=1");
     expect(comparison).toContain("/courses/${course.slug}?workspace=1");
     expect(seoRoutes).toContain('req.query.workspace === "1"');
-    expect(seoRoutes).toContain('href=\"/courses/${encodeURIComponent(course.slug)}?workspace=1\"');
+    expect(seoRoutes).toContain("Start course registration");
+    expect(seoRoutes).toContain("${SITE_ORIGIN}/courses?enroll=${encodeURIComponent(course.slug)}");
     const workspace = readFileSync("client/src/pages/CourseWorkspace.tsx", "utf8");
     expect(workspace).toContain("/courses/${course.slug}?workspace=1");
     expect(workspace).toContain("window.location.pathname + window.location.search");
+  });
+
+  it("exposes the progress-aware lesson map and transition loading contract", () => {
+    const workspace = readFileSync("client/src/pages/CourseWorkspace.tsx", "utf8");
+    const courseMap = readFileSync("client/src/components/CourseMapSidebar.tsx", "utf8");
+    expect(workspace).toContain('aria-label="Overall course progress"');
+    expect(courseMap).toContain('aria-label="Course modules and lessons"');
+    expect(courseMap).toContain("course-map-navigation");
+    expect(workspace).toContain("lessonTransitioning");
+    expect(workspace).toContain("LessonPlayerSkeleton");
+    expect(courseMap).toContain("onSelectLesson");
+    expect(workspace).toContain("const selectModule = (nextIndex: number)");
   });
 
   it("exposes the randomized-attempt and feedback contract in the workspace", async () => {

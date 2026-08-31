@@ -179,3 +179,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 @media (prefers-reduced-motion: reduce) {
   .newsletter-success { animation: none; }
 }
+
+@keyframes piqLessonPanelEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.lesson-panel-enter { animation: piqLessonPanelEnter 220ms cubic-bezier(.23,1,.32,1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .lesson-panel-enter { animation: none; }
+}

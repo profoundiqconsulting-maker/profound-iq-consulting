@@ -2354,4 +2354,15 @@
 - [x] Ensure lesson next/previous/module navigation buttons resolve to valid lesson state and URLs.
 - [x] Add regression coverage for course cards, lesson entry links, and lesson navigation actions.
 - [x] Run full tests, TypeScript validation, production build, and responsive course-navigation QA.
-- [ ] Save and publish the verified course-navigation fix.
+- [x] Save and publish the verified course-navigation fix.
+
+# Course Entry and Workspace UX Enhancement — 2026-08-28
+
+- [x] Make the public “Open course details” CTA enter registration or the authenticated staged-enrollment workflow instead of stopping at a generic highlights screen.
+- [x] Preserve signed-in continuation and existing staged-payment access restrictions for course enrollment.
+- [x] Add a visual course-workspace completion progress bar across lessons.
+- [x] Add smooth lesson-to-lesson transitions and loading skeleton states.
+- [x] Add a collapsible module and lesson sidebar with accessible jump navigation.
+- [x] Add regression coverage for course CTA routing, progress calculations, transitions, and sidebar navigation.
+- [x] Run full tests, TypeScript validation, production build, and responsive browser QA.
+- [x] Save and publish the verified course-workspace enhancement.

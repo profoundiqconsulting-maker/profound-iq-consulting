@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import { buildSitemapXml, courseSocialImageUrl, renderCourseCatalogPage, renderCourseDetailPage, renderCourseSocialImage, renderInsightArticlePage } from "./seoRoutes";
 import { insightArticles } from "../shared/insightsArticles";
 import sharp from "sharp";
@@ -44,10 +45,14 @@ describe("course SEO server routes", () => {
     expect(html).toContain("Frame options");
   });
 
-  it("points SEO course actions to the interactive workspace entry path", () => {
+  it("points SEO course actions to the selected course registration workflow", () => {
     const detail = renderCourseDetailPage({ slug: "decision-lab", title: "Decision Lab", strapline: "Practice better decisions", description: "A focused professional course.", audience: "Leaders", duration: "4 weeks", priceKes: 4999, outcomes: ["Frame options"] }, null);
-    expect(detail).toContain('href="https://profoundiq-vguqrhsm.manus.space/courses/decision-lab?workspace=1"');
-    expect(detail).toContain('>Open course details</a>');
+    expect(detail).toContain('href="https://profoundiq-vguqrhsm.manus.space/courses?enroll=decision-lab"');
+    expect(detail).toContain(">Start course registration</a>");
+    const routes = readFileSync("server/seoRoutes.ts", "utf8");
+    expect(routes).toContain('typeof req.query.enroll === "string"');
+    expect(routes).toContain('req.query.recommend === "1"');
+    expect(routes).toContain('typeof req.query.compare === "string"');
   });
 
   it("renders Insights article metadata and draft content inside the app root", () => {
