@@ -20,7 +20,7 @@ function encodeState(value: { provider: Provider; nonce: string; origin: string;
 function decodeState(value: string | undefined) { try { return value ? JSON.parse(Buffer.from(value, "base64url").toString("utf8")) as { provider?: Provider; nonce?: string; origin?: string; returnTo?: string } : {}; } catch { return {}; } }
 function safeOrigin(value: string | undefined) { try { const url = new URL(value || ""); return url.protocol === "https:" || (url.protocol === "http:" && url.hostname === "localhost") ? url.origin : null; } catch { return null; } }
 function safeReturnTo(value: string | undefined) { return value && value.startsWith("/") && !value.startsWith("//") && !value.includes("\\") ? value : "/"; }
-function redirectError(res: Response, origin: string | null, message: string) { res.redirect(`${origin ?? "/"}/auth?error=${encodeURIComponent(message)}`); }
+function redirectError(res: Response, origin: string | null, message: string) { res.redirect(`${origin ?? ""}/auth?error=${encodeURIComponent(message)}`); }
 
 export function socialOAuthRedirectUri(provider: Provider, origin: string) { return `${origin}/api/oauth/${provider}/callback`; }
 

@@ -85,7 +85,15 @@ describe("Google social OAuth flow", () => {
     const routes = registeredRoutes();
     const redirect = vi.fn();
     await routes.get("/api/oauth/google/callback")?.({ query: { code: "code", state: "bad-state" }, headers: { cookie: "__Host-social_oauth_state=google.wrong" } }, { redirect });
-    expect(redirect).toHaveBeenCalledWith("//auth?error=invalid_social_oauth_state");
+    expect(redirect).toHaveBeenCalledWith("/auth?error=invalid_social_oauth_state");
+    expect(mocks.createSessionToken).not.toHaveBeenCalled();
+  });
+
+  it("returns malformed state to the local auth route without exchanging a code", async () => {
+    const routes = registeredRoutes();
+    const redirect = vi.fn();
+    await routes.get("/api/oauth/google/callback")?.({ query: { code: "code", state: "not-valid-base64" }, headers: { cookie: "" } }, { redirect });
+    expect(redirect).toHaveBeenCalledWith("/auth?error=invalid_social_oauth_state");
     expect(mocks.createSessionToken).not.toHaveBeenCalled();
   });
 });

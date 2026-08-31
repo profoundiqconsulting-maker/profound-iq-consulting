@@ -2366,3 +2366,22 @@
 - [x] Add regression coverage for course CTA routing, progress calculations, transitions, and sidebar navigation.
 - [x] Run full tests, TypeScript validation, production build, and responsive browser QA.
 - [x] Save and publish the verified course-workspace enhancement.
+
+# Amplitude Remote-Config Runtime Error — 2026-08-31
+
+- [x] Trace whether the remote-config error originates in the project bundle, first-party analytics, or the Manus editor instrumentation.
+- [x] Confirm no project-owned Amplitude integration or course-page application failure exists; the reported remote-config log is emitted by the external Manus editor instrumentation layer.
+- [x] Preserve existing first-party analytics behavior when configuration is available.
+- [x] Verify analytics failure isolation on `/courses` and course workspace routes through source inspection and live route QA.
+- [x] Use the existing validated test/build output, clean restart, and affected-route browser QA; no application source change was required.
+- [x] Document the external instrumentation diagnosis; no site-code checkpoint is required for a platform-layer error.
+
+# Social OAuth Invalid-State Repair — 2026-08-31
+
+- [x] Trace social-login start handlers, state encoding, nonce cookie persistence, callback validation, and auth-page error handling.
+- [x] Repair the invalid-state flow without weakening CSRF protection or exchanging codes before validation.
+- [x] Make social-login retry behavior clear and safe after a failed callback.
+- [x] Add regression coverage for Google/LinkedIn state generation, callback mismatch rejection, and auth-page recovery.
+- [x] Confirm the Amplitude editor warning remains external to the application and does not mask OAuth failures.
+- [x] Run full tests, TypeScript validation, production build, restart, and sign-in route QA.
+- [x] Save and publish the verified OAuth-state fix.
