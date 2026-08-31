@@ -16,7 +16,7 @@ export async function weeklyEnrollmentExportHandler(req: Request, res: Response)
   const timestamp = new Date();
   try {
     const user = await sdk.authenticateRequest(req);
-    if (!user.isCron || !user.taskUid) return res.status(403).json({ error: "cron-only" });
+    if (!user || !user.isCron || !user.taskUid) return res.status(403).json({ error: "cron-only" });
     const record = await getScheduledExport(WEEKLY_EXPORT_KEY);
     if (!record || record.scheduleTaskUid !== user.taskUid) return res.json({ ok: true, skipped: "orphan" });
     if (record.lastRunAt && sameUtcWeek(new Date(record.lastRunAt), timestamp)) return res.json({ ok: true, skipped: "already-generated", fileUrl: record.lastFileUrl });

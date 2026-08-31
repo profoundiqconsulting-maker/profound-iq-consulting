@@ -19,12 +19,11 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { startLogin } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { LogOut, PanelLeft, ShieldCheck } from "lucide-react";
 import { isQualityControlAdmin } from "@shared/courseAccess";
 import { CSSProperties, useEffect, useRef, useState } from "react";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { useLocale } from "@/contexts/LocaleContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
@@ -69,11 +68,11 @@ export default function DashboardLayout({
             </p>
           </div>
           <Button
-            onClick={() => startLogin()}
+            asChild
             size="lg"
             className="w-full shadow-lg hover:shadow-xl transition-all"
           >
-            {t("signIn")}
+            <Link href="/auth?mode=login&returnTo=%2Fdashboard">{t("signIn")}</Link>
           </Button>
         </div>
       </div>

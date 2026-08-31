@@ -1,7 +1,8 @@
 /* Profound IQ Consulting — Executive Observatory page. Sections alternate between a dark strategic field and ivory reading surfaces, with a slim signal rail, trajectory motifs, and restrained gold accents. */
 import { useEffect, useMemo, useState } from "react";
-import { ArrowDownRight, ArrowUp, ArrowUpRight, Check, ChevronRight, Clock3, Facebook, Instagram, Linkedin, Mail, Menu, MessageCircle, Phone, Sparkles, X } from "lucide-react";
+import { ArrowDownRight, ArrowUp, ArrowUpRight, Check, ChevronRight, Clock3, Facebook, Instagram, Linkedin, Mail, MessageCircle, Phone, Sparkles, X } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
+import { SiteNavigation } from "@/components/SiteNavigation";
 import { trpc } from "@/lib/trpc";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { startLogin } from "@/const";
@@ -9,8 +10,8 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { courseCatalog, COURSE_PRICE_KES } from "@shared/courseCatalog";
 import { ASSESSMENT_PRICE_KES } from "@shared/assessment";
 import { CAREER_PATH_PRICE_KES } from "@shared/careerPath";
+import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 import { useLocale } from "@/contexts/LocaleContext";
-import { LanguageSelector } from "@/components/LanguageSelector";
 
 const baseCourses = courseCatalog.map((course) => ({
   ...course,
@@ -37,7 +38,7 @@ const schema = {
   "@type": "LocalBusiness",
   name: "Profound IQ Consulting",
   description: "Transformational learning, educational consulting, psychometric testing, research surveys, and professional courses.",
-  url: "https://profoundiq-vguqrhsm.manus.space",
+  url: PUBLISHED_SITE_ORIGIN,
   address: { "@type": "PostalAddress", addressLocality: "Online" },
   email: "admin@profoundiqconsulting.com",
   telephone: "+254727374055",
@@ -49,10 +50,6 @@ const schema = {
 
 export default function Home() {
 
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [isCompact, setIsCompact] = useState(false);
-  const [showBackToTop, setShowBackToTop] = useState(false);
-  const [homePath, setHomePath] = useState(() => window.location.pathname);
   const [sent, setSent] = useState(false);
   const [inquiryError, setInquiryError] = useState<string | null>(null);
   const [mathA, setMathA] = useState(() => Math.floor(Math.random() * 9) + 2);
@@ -91,16 +88,6 @@ export default function Home() {
   }, [liveCatalog.data]);
 
   useEffect(() => {
-    const onScroll = () => {
-      setIsCompact(window.scrollY > 28);
-      setShowBackToTop(window.scrollY > 420);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
     if (!selectedCourse) return;
     const handleKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedCourse(null); };
     document.addEventListener("keydown", handleKeyDown);
@@ -136,21 +123,7 @@ export default function Home() {
     <div className="min-h-screen overflow-hidden bg-[#101d35] text-[#f7f3e8]">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
 
-      <header data-sticky-navigation data-compact={isCompact} className={`sticky inset-x-0 top-0 z-50 border-b border-white/15 bg-[#101d35]/95 text-[#f7f3e8] shadow-[0_10px_30px_rgba(7,17,35,.16)] backdrop-blur-xl transition-[box-shadow,background-color] duration-200 supports-[backdrop-filter]:bg-[#101d35]/80 ${isCompact ? "shadow-[0_14px_34px_rgba(7,17,35,.24)]" : ""}`}>
-        <div className={`container flex items-center justify-between gap-4 transition-[min-height,padding] duration-200 sm:gap-5 ${isCompact ? "min-h-16 py-2" : "py-3 sm:py-4"}`}>
-          <a href="#top" className="flex items-center gap-3" aria-label="Profound IQ Consulting home">
-            <BrandLogo context="home" compact={isCompact} className="border border-[#c9a34e]/70" />
-          </a>
-          <nav id="home-site-navigation" className="hidden min-w-0 items-center gap-5 text-[10px] font-extrabold uppercase tracking-[.14em] text-[#c9d1df] lg:flex xl:gap-6" aria-label="Primary navigation">
-            {[{ label: "About", href: "/about" }, { label: "Services", href: "/services" }, { label: t("courses"), href: "/courses" }, { label: t("selfAssessment"), href: "/assessment" }, { label: t("careerPath"), href: "/careerpath" }, { label: "Resources", href: "/resources" }, { label: t("contact"), href: "/contact" }].map((item) => <a key={item.href} href={item.href} aria-current={homePath === item.href ? "page" : undefined} className={`transition-colors ${homePath === item.href ? "text-[#c9a34e]" : "hover:text-[#c9a34e]"}`}>{item.label}</a>)}
-          </nav>
-          <div className="hidden shrink-0 items-center gap-2 lg:flex xl:gap-3"><LanguageSelector compact /><a href="#contact" className="hidden items-center gap-2 border border-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition-all hover:bg-[#c9a34e] hover:text-[#101d35] 2xl:inline-flex">{t("beginConversation")} <ArrowUpRight size={14} /></a>
-            {isAuthenticated ? <a href="/dashboard" className="hidden border border-white/25 px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#c9d1df] hover:border-[#c9a34e] hover:text-[#c9a34e] 2xl:inline-flex">{user?.name ? "My workspace" : "Workspace"}</a> : <><a href="/auth?mode=login" className="hidden px-2 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#c9d1df] hover:text-[#c9a34e] xl:inline-flex">Sign in</a><a href="/auth?mode=register" className="hidden border border-white/25 px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#c9d1df] hover:border-[#c9a34e] hover:text-[#c9a34e] xl:inline-flex">Create account</a></>}
-          </div>
-          <button type="button" className="inline-flex h-11 w-11 items-center justify-center border border-white/20 md:hidden" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
-        </div>
-        {menuOpen && <nav id="home-site-navigation-mobile" className="border-t border-white/10 bg-[#101d35] px-5 py-5 shadow-[0_16px_30px_rgba(7,17,35,.18)] md:hidden" aria-label="Mobile primary navigation"><div className="flex flex-col gap-1 text-xs font-extrabold uppercase tracking-[.15em]">{[{ label: "About", href: "/about" }, { label: "Services", href: "/services" }, { label: t("courses"), href: "/courses" }, { label: t("selfAssessment"), href: "/assessment" }, { label: t("careerPath"), href: "/careerpath" }, { label: "Resources", href: "/resources" }, { label: t("contact"), href: "/contact" }].map((item) => <a key={item.href} href={item.href} aria-current={homePath === item.href ? "page" : undefined} onClick={() => setMenuOpen(false)} className={`border-b border-white/10 px-1 py-4 ${homePath === item.href ? "text-[#c9a34e]" : "text-[#f7f3e8]"}`}>{item.label}</a>)}<LanguageSelector compact className="mt-3 w-fit" onSelect={() => setMenuOpen(false)} />{isAuthenticated ? <a href="/dashboard" onClick={() => setMenuOpen(false)} className="border-b border-white/10 px-1 py-4 text-[#c9a34e]">{t("myWorkspace")}</a> : <><a href="/auth?mode=login" className="border-b border-white/10 px-1 py-4 text-left" onClick={() => setMenuOpen(false)}>Sign in</a><a href="/auth?mode=register" className="px-1 py-4 text-left text-[#c9a34e]" onClick={() => setMenuOpen(false)}>Create account</a></>}</div></nav>}
-      </header>
+      <SiteNavigation variant="home" dark />
 
       <main id="top">
         <section className="grain relative min-h-[720px] border-b border-white/10 bg-[#101d35]">
@@ -188,7 +161,6 @@ export default function Home() {
       {selectedCourse && <div className="fixed inset-0 z-50 grid place-items-center bg-[#071225]/80 p-5 backdrop-blur-sm" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedCourse(null); }}><div role="dialog" aria-modal="true" aria-labelledby="enrollment-title" className="max-h-[92vh] w-full max-w-xl overflow-y-auto border border-[#c9a34e]/70 bg-[#f7f3e8] p-7 text-[#16243d] shadow-2xl sm:p-10"><div className="flex items-start justify-between gap-6"><div><p className="eyebrow text-[#a27e2e]">Enrollment / next step</p><h2 id="enrollment-title" className="display mt-4 text-4xl leading-none tracking-[-.04em]">Reserve your place.</h2></div><button type="button" aria-label="Close enrollment form" onClick={() => setSelectedCourse(null)} className="grid h-9 w-9 place-items-center border border-[#16243d]/25 text-[#16243d] transition-colors hover:border-[#c9a34e] hover:text-[#a27e2e]"><X size={17} /></button></div>{enrollmentSubmitted ? <div className="mt-10 border-l-2 border-[#c9a34e] bg-[#16243d] p-6 text-[#f7f3e8]"><Check size={20} className="text-[#c9a34e]" /><h3 className="display mt-4 text-2xl">Your interest is recorded.</h3><p className="mt-3 text-sm leading-6 text-[#c1cad7]">Thank you for choosing {selectedCourse.title}. Our team will follow up using the email you provided.</p><button type="button" onClick={() => setSelectedCourse(null)} className="mt-6 border-b border-[#c9a34e] pb-1 text-[10px] font-black uppercase tracking-[.16em] text-[#c9a34e]">Close form</button></div> : <form className="mt-8" onSubmit={submitEnrollment}><label className="block text-xs font-black uppercase tracking-[.14em]">Selected course<select required name="courseTitle" value={selectedCourse.title} onChange={(event) => setSelectedCourse(courses.find((course) => course.title === event.target.value) ?? selectedCourse)} className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent px-0 py-3 text-base font-semibold outline-none focus:border-[#c9a34e]">{courses.map((course) => <option key={course.title} value={course.title}>{course.title} — {course.price}</option>)}</select></label><label className="mt-7 block text-xs font-black uppercase tracking-[.14em]">Your name<input required name="enrollment-name" type="text" autoComplete="name" placeholder="Name" className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent px-0 py-3 text-base font-semibold outline-none placeholder:text-[#657084] focus:border-[#c9a34e]" /></label><label className="mt-7 block text-xs font-black uppercase tracking-[.14em]">Email address<input required name="enrollment-email" type="email" autoComplete="email" placeholder="you@example.com" className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent px-0 py-3 text-base font-semibold outline-none placeholder:text-[#657084] focus:border-[#c9a34e]" /></label><div className="mt-7 flex items-start gap-3"><input required id="enrollment-consent" name="enrollment-consent" type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-[#c9a34e]" /><label htmlFor="enrollment-consent" className="text-xs leading-5 text-[#4f5b6e]">I consent to Profound IQ Consulting using my name and email to respond to this enrollment inquiry, in line with the <a href="#privacy-note" className="font-bold text-[#a27e2e] underline underline-offset-2">privacy policy</a>.</label></div><p id="privacy-note" className="mt-4 text-[11px] leading-5 text-[#657084]">Disclaimer: submitting this form records your interest only; course availability, schedule, and final enrollment details will be confirmed by our team.</p><button type="submit" disabled={enrollment.isPending} className="mt-8 inline-flex items-center gap-3 bg-[#c9a34e] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#101d35] transition-all hover:-translate-y-1 disabled:opacity-60">{enrollment.isPending ? "Recording…" : "Submit enrollment interest"} <ArrowUpRight size={15} /></button></form>}</div></div>}
 
       <footer id="site-footer" className="bg-[#101d35] py-10 text-[#f7f3e8]"><div className="container flex flex-col justify-between gap-7 sm:flex-row sm:items-end"><div><BrandLogo context="footer" /><p className="mt-4 max-w-xs text-xs leading-5 text-[#8f9db3]">{t("transformationalLearning")} — people ready to move from understanding to action.</p><div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-[10px] font-black uppercase tracking-[.12em] text-[#c9a34e]"><a href="/about" className="hover:text-[#f7f3e8]">About</a><a href="/services" className="hover:text-[#f7f3e8]">Services</a><a href="/school-solutions" className="hover:text-[#f7f3e8]">Schools</a><a href="/resources" className="hover:text-[#f7f3e8]">Resources</a><a href="/blog" className="hover:text-[#f7f3e8]">Insights</a><a href="/contact" className="hover:text-[#f7f3e8]">Contact</a></div></div><div className="flex flex-wrap items-center gap-2 text-[#aab5c6]"><a href="/privacy-policy" className="inline-flex h-9 items-center border border-white/15 px-3 text-[10px] font-bold uppercase tracking-[.12em] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#c9a34e] hover:text-[#c9a34e] active:scale-95">{t("privacyPolicy")}</a><a href="/terms-of-service" className="inline-flex h-9 items-center border border-white/15 px-3 text-[10px] font-bold uppercase tracking-[.12em] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#c9a34e] hover:text-[#c9a34e] active:scale-95">{t("termsOfService")}</a><a href="https://www.facebook.com/profoundIQ" target="_blank" rel="noreferrer" aria-label="Profound IQ Consulting on Facebook" title="Facebook" className="inline-flex h-9 w-9 items-center justify-center border border-white/15 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:border-[#1877F2] hover:bg-[#1877F2] hover:text-white active:scale-95"><Facebook size={16} strokeWidth={2} /></a><a href="https://x.com/ProfoundIQC" target="_blank" rel="noreferrer" aria-label="Profound IQ Consulting on X" title="X" className="inline-flex h-9 w-9 items-center justify-center border border-white/15 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:border-white hover:bg-white hover:text-[#101d35] active:scale-95"><X size={16} /></a><a href="https://linkedin.com/company/profoundiqconsulting" target="_blank" rel="noreferrer" aria-label="Profound IQ Consulting on LinkedIn" title="LinkedIn" className="inline-flex h-9 w-9 items-center justify-center border border-white/15 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:border-[#0A66C2] hover:bg-[#0A66C2] hover:text-white active:scale-95"><Linkedin size={16} /></a><a href="https://www.instagram.com/profoundiqconsulting/" target="_blank" rel="noreferrer" aria-label="Profound IQ Consulting on Instagram" title="Instagram" className="inline-flex h-9 w-9 items-center justify-center border border-white/15 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:border-[#E4405F] hover:bg-gradient-to-br hover:from-[#833AB4] hover:via-[#E4405F] hover:to-[#FCAF45] hover:text-white active:scale-95"><Instagram size={16} /></a><Tooltip><TooltipTrigger asChild><a href="https://wa.me/254727374055?text=Hello%20Profound%20IQ%20Consulting%2C%20I%20need%20quick%20support." target="_blank" rel="noreferrer" aria-label="Chat with Profound IQ Consulting on WhatsApp" className="inline-flex h-9 items-center gap-2 border border-[#25D366]/60 px-3 text-[10px] font-bold uppercase tracking-[.12em] text-[#d9fbe5] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#25D366] hover:bg-[#25D366]/10 active:scale-95"><MessageCircle size={16} /> <span className="hidden sm:inline">{t("whatsappSupport")}</span></a></TooltipTrigger><TooltipContent>Monday to Saturday · Office hours</TooltipContent></Tooltip></div><p className="text-[10px] uppercase tracking-[.14em] text-[#64738b]">© 2026 Profound IQ Consulting</p></div></footer>
-      <button type="button" aria-label="Back to top" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className={`fixed bottom-5 right-5 z-40 inline-flex h-11 w-11 items-center justify-center border border-[#c9a34e] bg-[#101d35] text-[#c9a34e] shadow-[0_10px_24px_rgba(7,17,35,.22)] transition-[opacity,transform] duration-200 hover:-translate-y-1 hover:bg-[#c9a34e] hover:text-[#101d35] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a34e] motion-reduce:transition-none ${showBackToTop ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-3 opacity-0"}`}><ArrowUp size={17} aria-hidden="true" /></button>
     </div>
   );
 }

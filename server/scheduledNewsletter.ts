@@ -3,6 +3,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { sdk } from "./_core/sdk";
 import { getScheduledExport, updateScheduledExport, listConfirmedNewsletterRecipients, rotateNewsletterUnsubscribeToken, listInsightArticles } from "./db";
 import { sendNewsletterDigestEmail } from "./email";
+import { PUBLISHED_SITE_ORIGIN } from "../shared/siteOrigin";
 
 export const BIWEEKLY_NEWSLETTER_KEY = "biweekly_insights_newsletter";
 const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000;
@@ -13,7 +14,7 @@ export async function biweeklyNewsletterHandler(req: Request, res: Response) {
   const timestamp = new Date();
   try {
     const user = await sdk.authenticateRequest(req);
-    if (!user.isCron || !user.taskUid) return res.status(403).json({ error: "cron-only" });
+    if (!user || !user.isCron || !user.taskUid) return res.status(403).json({ error: "cron-only" });
     const record = await getScheduledExport(BIWEEKLY_NEWSLETTER_KEY);
     if (!record || record.scheduleTaskUid !== user.taskUid) return res.json({ ok: true, skipped: "orphan" });
     if (!isBiweeklyDue(record.lastRunAt, timestamp)) return res.json({ ok: true, skipped: "not-due", lastRunAt: record.lastRunAt });
@@ -24,7 +25,7 @@ export async function biweeklyNewsletterHandler(req: Request, res: Response) {
     for (const recipient of recipients) {
       const rawToken = randomBytes(32).toString("hex");
       await rotateNewsletterUnsubscribeToken(recipient.id, hashNewsletterToken(rawToken));
-      await sendNewsletterDigestEmail({ to: recipient.email, articles: articles.rows, unsubscribeUrl: `https://profoundiq-vguqrhsm.manus.space/newsletter/unsubscribe?token=${rawToken}` });
+      await sendNewsletterDigestEmail({ to: recipient.email, articles: articles.rows, unsubscribeUrl: `${PUBLISHED_SITE_ORIGIN}/newsletter/unsubscribe?token=${rawToken}` });
       sent += 1;
     }
     await updateScheduledExport(BIWEEKLY_NEWSLETTER_KEY, { lastRunAt: timestamp });

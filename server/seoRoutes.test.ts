@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { buildSitemapXml, courseSocialImageUrl, renderCourseCatalogPage, renderCourseDetailPage, renderCourseSocialImage, renderInsightArticlePage } from "./seoRoutes";
+import { buildSitemapXml, courseSocialImageUrl, getSocialPreviewSettings, renderCourseCatalogPage, renderCourseDetailPage, renderCourseSocialImage, renderInsightArticlePage } from "./seoRoutes";
 import { insightArticles } from "../shared/insightsArticles";
 import sharp from "sharp";
 
@@ -70,5 +70,11 @@ describe("course SEO server routes", () => {
     expect(html).toContain('<div id="root"><main');
     expect(html).toContain("Decision Lab");
     expect(html).toContain('href="/courses/decision-lab?workspace=1"');
+  });
+
+  it("falls back to default social preview settings when the database is unavailable", async () => {
+    const settings = await getSocialPreviewSettings();
+    expect(settings.fallbackImageUrl).toBe("https://profoundiq-vguqrhsm.manus.space/manus-storage/profound-iq-social-preview_9d540b32.png");
+    expect(settings.version).toBe("1");
   });
 });

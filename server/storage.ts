@@ -1,20 +1,45 @@
-// Preconfigured storage helpers for Manus WebDev templates
-// Uploads via Forge Server presigned URL to S3 (PUT direct).
-// Downloads return /manus-storage/{key} paths served via 307 redirect.
+/**
+ * Storage integration with DigitalOcean Spaces (S3-compatible).
+ * Handles file uploads, downloads, and presigned URLs for direct client access.
+ */
 
+import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { randomUUID } from "node:crypto";
 import { ENV } from "./_core/env";
 
-function getForgeConfig() {
-  const forgeUrl = ENV.forgeApiUrl;
-  const forgeKey = ENV.forgeApiKey;
-
-  if (!forgeUrl || !forgeKey) {
+// Initialize S3 client for DigitalOcean Spaces
+const createS3Client = (): S3Client => {
+  if (
+    !ENV.doSpacesEndpoint ||
+    !ENV.doSpacesRegion ||
+    !ENV.doSpacesBucket ||
+    !ENV.doSpacesAccessKey ||
+    !ENV.doSpacesSecretKey
+  ) {
     throw new Error(
-      "Storage config missing: set BUILT_IN_FORGE_API_URL and BUILT_IN_FORGE_API_KEY",
+      "DigitalOcean Spaces configuration incomplete. " +
+      "Set DO_SPACES_ENDPOINT, DO_SPACES_REGION, DO_SPACES_BUCKET, DO_SPACES_ACCESS_KEY, DO_SPACES_SECRET_KEY"
     );
   }
 
-  return { forgeUrl: forgeUrl.replace(/\/+$/, ""), forgeKey };
+  return new S3Client({
+    region: ENV.doSpacesRegion,
+    endpoint: ENV.doSpacesEndpoint,
+    credentials: {
+      accessKeyId: ENV.doSpacesAccessKey,
+      secretAccessKey: ENV.doSpacesSecretKey,
+    },
+  });
+};
+
+let s3Client: S3Client | null = null;
+
+function getS3Client(): S3Client {
+  if (!s3Client) {
+    s3Client = createS3Client();
+  }
+  return s3Client;
 }
 
 function normalizeKey(relKey: string): string {
@@ -22,76 +47,85 @@ function normalizeKey(relKey: string): string {
 }
 
 function appendHashSuffix(relKey: string): string {
-  const hash = crypto.randomUUID().replace(/-/g, "").slice(0, 8);
+  const hash = randomUUID().replace(/-/g, "").slice(0, 8);
   const lastDot = relKey.lastIndexOf(".");
   if (lastDot === -1) return `${relKey}_${hash}`;
   return `${relKey.slice(0, lastDot)}_${hash}${relKey.slice(lastDot)}`;
 }
 
+/**
+ * Upload a file to DigitalOcean Spaces.
+ * Returns the storage key and a publicly accessible URL.
+ */
 export async function storagePut(
   relKey: string,
   data: Buffer | Uint8Array | string,
-  contentType = "application/octet-stream",
+  contentType = "application/octet-stream"
 ): Promise<{ key: string; url: string }> {
-  const { forgeUrl, forgeKey } = getForgeConfig();
+  const client = getS3Client();
   const key = appendHashSuffix(normalizeKey(relKey));
 
-  // 1. Get presigned PUT URL from Forge
-  const presignUrl = new URL("v1/storage/presign/put", forgeUrl + "/");
-  presignUrl.searchParams.set("path", key);
+  try {
+    const command = new PutObjectCommand({
+      Bucket: ENV.doSpacesBucket,
+      Key: key,
+      Body: typeof data === "string" ? Buffer.from(data) : data,
+      ContentType: contentType,
+    });
 
-  const presignResp = await fetch(presignUrl, {
-    headers: { Authorization: `Bearer ${forgeKey}` },
-  });
+    await client.send(command);
 
-  if (!presignResp.ok) {
-    const msg = await presignResp.text().catch(() => presignResp.statusText);
-    throw new Error(`Storage presign failed (${presignResp.status}): ${msg}`);
+    // Construct public URL
+    const baseUrl = ENV.doSpacesBaseUrl || `https://${ENV.doSpacesBucket}.${ENV.doSpacesRegion}.digitaloceanspaces.com`;
+    const url = `${baseUrl.replace(/\/$/, "")}/${key}`;
+
+    return { key, url };
+  } catch (error) {
+    throw new Error(
+      `Failed to upload file to DigitalOcean Spaces: ${error instanceof Error ? error.message : String(error)}`
+    );
   }
-
-  const { url: s3Url } = (await presignResp.json()) as { url: string };
-  if (!s3Url) throw new Error("Forge returned empty presign URL");
-
-  // 2. PUT file directly to S3
-  const blob =
-    typeof data === "string"
-      ? new Blob([data], { type: contentType })
-      : new Blob([data as any], { type: contentType });
-
-  const uploadResp = await fetch(s3Url, {
-    method: "PUT",
-    headers: { "Content-Type": contentType },
-    body: blob,
-  });
-
-  if (!uploadResp.ok) {
-    throw new Error(`Storage upload to S3 failed (${uploadResp.status})`);
-  }
-
-  return { key, url: `/manus-storage/${key}` };
 }
 
+/**
+ * Get the public URL for a stored file.
+ * For DigitalOcean Spaces, files can be accessed directly via the public URL.
+ */
 export async function storageGet(relKey: string): Promise<{ key: string; url: string }> {
   const key = normalizeKey(relKey);
-  return { key, url: `/manus-storage/${key}` };
+  const baseUrl = ENV.doSpacesBaseUrl || `https://${ENV.doSpacesBucket}.${ENV.doSpacesRegion}.digitaloceanspaces.com`;
+  const url = `${baseUrl.replace(/\/$/, "")}/${key}`;
+
+  return { key, url };
 }
 
-export async function storageGetSignedUrl(relKey: string): Promise<string> {
-  const { forgeUrl, forgeKey } = getForgeConfig();
+/**
+ * Generate a presigned URL for temporary direct access to a file.
+ * Useful for private files that need temporary public access.
+ * Defaults to 1 hour expiration.
+ */
+export async function storageGetSignedUrl(
+  relKey: string,
+  expirationSeconds = 3600
+): Promise<string> {
+  const client = getS3Client();
   const key = normalizeKey(relKey);
 
-  const getUrl = new URL("v1/storage/presign/get", forgeUrl + "/");
-  getUrl.searchParams.set("path", key);
+  try {
+    const command = new GetObjectCommand({
+      Bucket: ENV.doSpacesBucket,
+      Key: key,
+    });
 
-  const resp = await fetch(getUrl, {
-    headers: { Authorization: `Bearer ${forgeKey}` },
-  });
+    const url = await getSignedUrl(client, command, {
+      expiresIn: expirationSeconds,
+    });
 
-  if (!resp.ok) {
-    const msg = await resp.text().catch(() => resp.statusText);
-    throw new Error(`Storage signed URL failed (${resp.status}): ${msg}`);
+    return url;
+  } catch (error) {
+    throw new Error(
+      `Failed to generate presigned URL: ${error instanceof Error ? error.message : String(error)}`
+    );
   }
-
-  const { url } = (await resp.json()) as { url: string };
-  return url;
 }
+

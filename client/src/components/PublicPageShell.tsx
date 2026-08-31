@@ -1,10 +1,9 @@
 /* Profound IQ Consulting — Executive Observatory public-page shell: editorial navy fields, ivory reading surfaces, antique-gold route markers, and restrained motion. */
-import { useEffect, useState } from "react";
-import { ArrowUp, ArrowUpRight, ChevronRight, Facebook, Instagram, Linkedin, Menu, MessageCircle, X } from "lucide-react";
-import { Link, useLocation } from "wouter";
+import { ArrowUp, ArrowUpRight, ChevronRight, Facebook, Instagram, Linkedin, MessageCircle, X } from "lucide-react";
+import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { BrandLogo } from "@/components/BrandLogo";
-import { LanguageSelector } from "@/components/LanguageSelector";
+import { SiteNavigation } from "@/components/SiteNavigation";
 import { useLocale } from "@/contexts/LocaleContext";
 
 const navItems = [
@@ -30,44 +29,12 @@ type PublicPageShellProps = {
 };
 
 export function PublicPageShell({ eyebrow, title, intro, breadcrumbs = [], children, cta, darkHero = true }: PublicPageShellProps) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [isCompact, setIsCompact] = useState(false);
-  const [showBackToTop, setShowBackToTop] = useState(false);
-  const [location] = useLocation();
   const { isAuthenticated } = useAuth();
   const { t } = useLocale();
 
-  useEffect(() => {
-    const onScroll = () => {
-      setIsCompact(window.scrollY > 28);
-      setShowBackToTop(window.scrollY > 420);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
-
   return (
     <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-      <header data-sticky-navigation data-compact={isCompact} className={`sticky top-0 z-50 border-b border-white/15 bg-[#101d35]/95 text-[#f7f3e8] shadow-[0_10px_30px_rgba(7,17,35,.16)] backdrop-blur-xl transition-[box-shadow,background-color] duration-200 supports-[backdrop-filter]:bg-[#101d35]/80 ${isCompact ? "shadow-[0_14px_34px_rgba(7,17,35,.24)]" : ""}`}>
-        <div className={`container flex items-center justify-between gap-4 transition-[min-height,padding] duration-200 sm:gap-5 ${isCompact ? "min-h-16 py-2" : "min-h-20 py-3 sm:py-4"}`}>
-          <Link href="/" className="flex shrink-0 items-center gap-3" aria-label="Profound IQ Consulting home">
-            <BrandLogo context="public page" compact={isCompact} className="border border-[#c9a34e]/70" />
-          </Link>
-          <nav id="site-navigation" className="hidden items-center gap-4 lg:flex xl:gap-5" aria-label="Primary navigation">
-            {navItems.map((item) => { const active = location === item.href || location.startsWith(`${item.href}/`); return <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined} className={`text-[10px] font-black uppercase tracking-[.12em] transition-colors ${active ? "text-[#c9a34e]" : "text-[#c9d1df] hover:text-[#c9a34e]"}`}>{item.label}</Link>; })}
-          </nav>
-          <div className="hidden items-center gap-3 md:flex">
-            <LanguageSelector compact />
-            <Link href={isAuthenticated ? "/dashboard" : "/auth?mode=login"} className="hidden border border-white/25 px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#c9d1df] transition-colors hover:border-[#c9a34e] hover:text-[#c9a34e] xl:inline-flex">{isAuthenticated ? "My Space" : "Sign in"}</Link>
-            <Link href="/contact" className="hidden items-center gap-2 border border-[#c9a34e] 2xl:inline-flex px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] transition-colors hover:bg-[#c9a34e] hover:text-[#101d35]">{t("beginConversation")} <ArrowUpRight size={14} /></Link>
-          </div>
-          <button type="button" className="inline-flex h-11 w-11 items-center justify-center border border-white/20 lg:hidden" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}>{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
-        </div>
-        {menuOpen && <nav id="site-navigation-mobile" className="border-t border-white/10 bg-[#101d35] px-5 py-5 shadow-[0_16px_30px_rgba(7,17,35,.18)] lg:hidden" aria-label="Mobile navigation"><div className="container flex flex-col gap-1">{navItems.map((item) => { const active = location === item.href || location.startsWith(`${item.href}/`); return <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined} onClick={() => setMenuOpen(false)} className={`border-b border-white/10 px-1 py-4 text-[11px] font-black uppercase tracking-[.14em] transition-colors ${active ? "text-[#c9a34e]" : "text-[#d6dce6] hover:text-[#c9a34e]"}`}>{item.label}</Link>; })}<Link href={isAuthenticated ? "/dashboard" : "/auth?mode=login"} onClick={() => setMenuOpen(false)} className="border-b border-white/10 px-1 py-4 text-[11px] font-black uppercase tracking-[.14em] text-[#c9a34e]">{isAuthenticated ? "My Space" : "Sign in"}</Link><Link href="/contact" onClick={() => setMenuOpen(false)} className="border-b border-white/10 px-1 py-4 text-[11px] font-black uppercase tracking-[.14em] text-[#c9a34e]">Contact</Link><div className="mt-4 flex flex-wrap items-center gap-3"><LanguageSelector compact onSelect={() => setMenuOpen(false)} /><Link href="/contact" onClick={() => setMenuOpen(false)} className="inline-flex items-center gap-2 border border-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8]">{t("beginConversation")} <ArrowUpRight size={14} /></Link></div></div></nav>}
-      </header>
+      <SiteNavigation variant="public" dark />
 
       <main id="main-content" className="scroll-mt-24">
         <section className={`${darkHero ? "bg-[#101d35] text-[#f7f3e8]" : "bg-[#f7f3e8] text-[#16243d]"} relative overflow-hidden border-b border-[#16243d]/10 py-20 sm:py-24 lg:py-32`}>
@@ -91,7 +58,6 @@ export function PublicPageShell({ eyebrow, title, intro, breadcrumbs = [], child
         </div>
         <div className="border-t border-white/10"><div className="container flex flex-col gap-3 py-5 text-[10px] font-bold uppercase tracking-[.14em] text-[#8f9db3] sm:flex-row sm:items-center sm:justify-between"><span>© 2026 Profound IQ Consulting</span><span>Online / Kenya / Global reach</span></div></div>
       </footer>
-      <button type="button" aria-label="Back to top" onClick={scrollToTop} className={`fixed bottom-5 right-5 z-40 inline-flex h-11 w-11 items-center justify-center border border-[#c9a34e] bg-[#101d35] text-[#c9a34e] shadow-[0_10px_24px_rgba(7,17,35,.22)] transition-[opacity,transform] duration-200 hover:-translate-y-1 hover:bg-[#c9a34e] hover:text-[#101d35] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a34e] motion-reduce:transition-none ${showBackToTop ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-3 opacity-0"}`}><ArrowUp size={17} aria-hidden="true" /></button>
     </div>
   );
 }

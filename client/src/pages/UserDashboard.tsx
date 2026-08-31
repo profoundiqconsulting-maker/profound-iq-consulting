@@ -1,7 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 import { useEffect, useMemo, useState } from "react";
-import { startLogin } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { BrandLogo } from "@/components/BrandLogo";
 import { formatReportEmailSentAt } from "@shared/emailStatus";
@@ -312,4 +311,4 @@ function ReportEmailStatus({ status, sentAt }: { status?: string | null; sentAt?
 }
 function Metric({ icon: Icon, label, value, accent = false }: { icon: typeof FileText; label: string; value: number; accent?: boolean }) { return <div className={`border-t-2 ${accent ? "border-[#c9a34e]" : "border-[#16243d]/30"} bg-white/45 p-5`}><Icon size={18} className={accent ? "text-[#a27e2e]" : "text-[#657084]"} /><p className="mt-6 text-xs font-black uppercase tracking-[.14em] text-[#657084]">{label}</p><p className="display mt-2 text-4xl">{value}</p></div>; }
 function LoadingState() { return <div className="grid min-h-screen place-items-center bg-[#f7f3e8] text-[#16243d]"><RefreshCw className="animate-spin text-[#a27e2e]" /></div>; }
-function AccessState() { return <div className="grid min-h-screen place-items-center bg-[#f7f3e8] px-6 text-[#16243d]"><div className="max-w-md border-t-2 border-[#c9a34e] bg-white/50 p-8 text-center"><LockKeyhole className="mx-auto text-[#a27e2e]" /><h1 className="display mt-5 text-4xl">Sign in to continue</h1><p className="mt-4 text-sm leading-6 text-[#657084]">Your personal assessment history is private to your authenticated account.</p><div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row"><button onClick={() => startLogin()} className="bg-[#16243d] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#f7f3e8]">Sign in →</button><Link href="/" className="border border-[#16243d]/25 px-5 py-4 text-[11px] font-black uppercase tracking-[.15em]">Return to site</Link></div></div></div>; }
+function AccessState() { return <div className="grid min-h-screen place-items-center bg-[#f7f3e8] px-6 text-[#16243d]"><div className="max-w-md border-t-2 border-[#c9a34e] bg-white/50 p-8 text-center"><LockKeyhole className="mx-auto text-[#a27e2e]" /><h1 className="display mt-5 text-4xl">Sign in to continue</h1><p className="mt-4 text-sm leading-6 text-[#657084]">Your personal assessment history is private to your authenticated account.</p><div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row"><Link href="/auth?mode=login&returnTo=%2Fdashboard" className="bg-[#16243d] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#f7f3e8]">Sign in →</Link><Link href="/" className="border border-[#16243d]/25 px-5 py-4 text-[11px] font-black uppercase tracking-[.15em]">Return to site</Link></div></div></div>; }

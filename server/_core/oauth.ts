@@ -1,74 +1,19 @@
-import { COOKIE_NAME, ONE_YEAR_MS, OAUTH_STATE_COOKIE, decodeOAuthState } from "@shared/const";
-import { parse as parseCookieHeader } from "cookie";
-import type { Express, Request, Response } from "express";
-import * as db from "../db";
-import { getSessionCookieOptions } from "./cookies";
-import { sdk } from "./sdk";
+import type { Express } from "express";
 
-function getQueryParam(req: Request, key: string): string | undefined {
-  const value = req.query[key];
-  return typeof value === "string" ? value : undefined;
-}
-
-function safeReturnTo(value: unknown): string {
-  return typeof value === "string" && value.startsWith("/") && !value.startsWith("//") && !value.includes("\\") ? value : "/";
-}
-
+/**
+ * Register OAuth routes.
+ * In the self-hosted version, auth is handled via tRPC mutations:
+ * - auth.register: Create a new account
+ * - auth.login: Authenticate with email/username and password
+ * - auth.requestPasswordReset: Request a password reset email
+ * - auth.resetPassword: Reset password with a token
+ * - auth.logout: Revoke session (handled via tRPC)
+ *
+ * This function is kept for compatibility with the index.ts initialization,
+ * but doesn't register any routes. Auth is entirely tRPC-based.
+ */
 export function registerOAuthRoutes(app: Express) {
-  app.get("/api/oauth/callback", async (req: Request, res: Response) => {
-    const code = getQueryParam(req, "code");
-    const state = getQueryParam(req, "state");
-
-    if (!code || !state) {
-      res.status(400).json({ error: "code and state are required" });
-      return;
-    }
-
-    // CSRF guard: the nonce in `state` must match the one-time cookie that
-    // startLogin set in the browser that began this login. An attacker can
-    // forge `state`, but cannot plant this cookie in the victim's browser.
-    const { nonce, returnTo } = decodeOAuthState(state);
-    const expectedNonce = parseCookieHeader(req.headers.cookie ?? "")[OAUTH_STATE_COOKIE];
-    if (!nonce || nonce !== expectedNonce) {
-      res.status(403).json({ error: "invalid oauth state" });
-      return;
-    }
-    res.clearCookie(OAUTH_STATE_COOKIE, { path: "/", secure: true, sameSite: "none" });
-
-    try {
-      const tokenResponse = await sdk.exchangeCodeForToken(code, state);
-      const userInfo = await sdk.getUserInfo(tokenResponse.accessToken);
-
-      if (!userInfo.openId) {
-        res.status(400).json({ error: "openId missing from user info" });
-        return;
-      }
-
-      const profilePicture = (userInfo as typeof userInfo & { avatarUrl?: string; picture?: string }).avatarUrl ?? (userInfo as typeof userInfo & { picture?: string }).picture ?? null;
-      const normalizedEmail = userInfo.email?.trim().toLowerCase();
-      const existingAccount = normalizedEmail ? await db.findUserByLocalIdentifier(normalizedEmail) : undefined;
-      const sessionOpenId = existingAccount?.openId ?? userInfo.openId;
-      await db.upsertUser({
-        openId: sessionOpenId,
-        name: userInfo.name || existingAccount?.name || null,
-        email: normalizedEmail ?? existingAccount?.email ?? null,
-        loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
-        avatarUrl: profilePicture || existingAccount?.avatarUrl || null,
-        lastSignedIn: new Date(),
-      });
-
-      const sessionToken = await sdk.createSessionToken(sessionOpenId, {
-        name: userInfo.name || existingAccount?.name || "",
-        expiresInMs: ONE_YEAR_MS,
-      });
-
-      const cookieOptions = getSessionCookieOptions(req);
-      res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
-
-      res.redirect(302, safeReturnTo(returnTo));
-    } catch (error) {
-      console.error("[OAuth] Callback failed", error);
-      res.status(500).json({ error: "OAuth callback failed" });
-    }
-  });
+  // No routes to register - auth is handled via tRPC
+  console.log("[Auth] Email/password authentication via tRPC configured");
 }
+

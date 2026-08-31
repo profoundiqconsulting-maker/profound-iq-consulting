@@ -3,8 +3,9 @@ import { Image as ImageIcon, Save } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
+import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 
-const DEFAULT_PREVIEW_IMAGE = "https://profoundiq-vguqrhsm.manus.space/manus-storage/profound-iq-social-preview_9d540b32.png";
+const DEFAULT_PREVIEW_IMAGE = `${PUBLISHED_SITE_ORIGIN}/manus-storage/profound-iq-social-preview_9d540b32.png`;
 
 export default function AdminSocialPreviewSettings() {
   const settings = trpc.admin.socialPreviewSettings.useQuery();

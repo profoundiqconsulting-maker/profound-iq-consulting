@@ -37,7 +37,7 @@ export async function deliveryLogExportWorkerHandler(req: Request, res: Response
   const timestamp = new Date();
   try {
     const user = await sdk.authenticateRequest(req);
-    if (!user.isCron || !user.taskUid) return res.status(403).json({ error: "cron-only" });
+    if (!user || !user.isCron || !user.taskUid) return res.status(403).json({ error: "cron-only" });
     const config = await getScheduledExport(DELIVERY_LOG_EXPORT_KEY);
     if (!config || config.scheduleTaskUid !== user.taskUid) return res.json({ ok: true, skipped: "orphan" });
     const result = await processNextDeliveryLogExportJob();
