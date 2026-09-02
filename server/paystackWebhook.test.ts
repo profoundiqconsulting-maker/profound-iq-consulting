@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import express from "express";
 import { createServer } from "node:http";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const getAssessmentAttemptByReference = vi.fn();
 const markAssessmentPaid = vi.fn();
@@ -11,14 +11,20 @@ const createCoursePaymentEvent = vi.fn();
 const getCoursePaymentStageByReference = vi.fn();
 const markCoursePaymentEventProcessed = vi.fn();
 const updateCoursePaymentStageStatus = vi.fn();
+const getCourseEnrollmentById = vi.fn();
+const sendPaymentReceiptEmail = vi.fn();
 
-vi.mock("./db", () => ({ getAssessmentAttemptByReference, markAssessmentPaid, recordAnalyticsEvent, createCoursePaymentEvent, getCoursePaymentStageByReference, markCoursePaymentEventProcessed, updateCoursePaymentStageStatus }));
-vi.mock("./email", () => ({ emailAssessmentReportIfNeeded }));
+vi.mock("./db", () => ({ getAssessmentAttemptByReference, markAssessmentPaid, recordAnalyticsEvent, createCoursePaymentEvent, getCoursePaymentStageByReference, markCoursePaymentEventProcessed, updateCoursePaymentStageStatus, getCourseEnrollmentById }));
+vi.mock("./email", () => ({ emailAssessmentReportIfNeeded, sendPaymentReceiptEmail }));
 
 const { registerPaystackWebhook } = await import("./paystackWebhook");
 
 describe("Paystack webhook", () => {
   const secret = process.env.PAYSTACK_SECRET_KEY ?? "test-secret";
+
+  beforeEach(() => {
+    process.env.PAYSTACK_SECRET_KEY = secret;
+  });
 
   afterEach(() => {
     getAssessmentAttemptByReference.mockReset();
@@ -29,6 +35,8 @@ describe("Paystack webhook", () => {
     getCoursePaymentStageByReference.mockReset();
     markCoursePaymentEventProcessed.mockReset();
     updateCoursePaymentStageStatus.mockReset();
+    getCourseEnrollmentById.mockReset();
+    sendPaymentReceiptEmail.mockReset();
   });
 
   it("rejects an invalid signature", async () => {
@@ -65,6 +73,7 @@ describe("Paystack webhook", () => {
   it("reconciles a correctly signed course stage success event", async () => {
     const reference = "piq-course-stage-reference";
     getCoursePaymentStageByReference.mockResolvedValue({ id: 12, enrollmentId: 4, amountKes: 1250, paymentStatus: "pending", paystackReference: reference });
+    getCourseEnrollmentById.mockResolvedValue({ id: 4, courseSlug: "lead-with-clarity", name: "Test Learner", email: "learner@example.com" });
     createCoursePaymentEvent.mockResolvedValue({ duplicate: false, event: { id: 1 } });
     updateCoursePaymentStageStatus.mockResolvedValue({ id: 12, paymentStatus: "paid" });
     const app = express();
@@ -79,6 +88,49 @@ describe("Paystack webhook", () => {
     expect(response.status).toBe(200);
     expect(updateCoursePaymentStageStatus).toHaveBeenCalledWith(12, { status: "paid", paid: true });
     expect(markCoursePaymentEventProcessed).toHaveBeenCalledWith("456");
+    expect(sendPaymentReceiptEmail).toHaveBeenCalledOnce();
+    await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  });
+
+  it("marks a course stage as failed on charge.failed", async () => {
+    const reference = "piq-course-failed-reference";
+    getCoursePaymentStageByReference.mockResolvedValue({ id: 14, enrollmentId: 6, amountKes: 1250, paymentStatus: "pending", paystackReference: reference });
+    getCourseEnrollmentById.mockResolvedValue({ id: 6, courseSlug: "lead-with-clarity", name: "Failed Learner", email: "failed@example.com" });
+    createCoursePaymentEvent.mockResolvedValue({ duplicate: false, event: { id: 3 } });
+    updateCoursePaymentStageStatus.mockResolvedValue({ id: 14, paymentStatus: "failed" });
+    const app = express();
+    registerPaystackWebhook(app);
+    const server = createServer(app);
+    await new Promise<void>((resolve) => server.listen(0, resolve));
+    const address = server.address();
+    const port = typeof address === "object" && address ? address.port : 0;
+    const body = JSON.stringify({ event: "charge.failed", data: { id: 999, reference, status: "failed", amount: 125000, currency: "KES", failure_message: "Insufficient funds" } });
+    const signature = crypto.createHmac("sha512", secret).update(body).digest("hex");
+    const response = await fetch(`http://127.0.0.1:${port}/api/paystack/webhook`, { method: "POST", headers: { "content-type": "application/json", "x-paystack-signature": signature }, body });
+    expect(response.status).toBe(200);
+    expect(updateCoursePaymentStageStatus).toHaveBeenCalledWith(14, { status: "failed", errorMessage: "Insufficient funds" });
+    expect(markCoursePaymentEventProcessed).toHaveBeenCalledWith("999");
+    await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  });
+
+  it("marks a course stage as pending on charge.pending", async () => {
+    const reference = "piq-course-pending-reference";
+    getCoursePaymentStageByReference.mockResolvedValue({ id: 15, enrollmentId: 7, amountKes: 1250, paymentStatus: "pending", paystackReference: reference });
+    getCourseEnrollmentById.mockResolvedValue({ id: 7, courseSlug: "lead-with-clarity", name: "Pending Learner", email: "pending@example.com" });
+    createCoursePaymentEvent.mockResolvedValue({ duplicate: false, event: { id: 4 } });
+    updateCoursePaymentStageStatus.mockResolvedValue({ id: 15, paymentStatus: "pending" });
+    const app = express();
+    registerPaystackWebhook(app);
+    const server = createServer(app);
+    await new Promise<void>((resolve) => server.listen(0, resolve));
+    const address = server.address();
+    const port = typeof address === "object" && address ? address.port : 0;
+    const body = JSON.stringify({ event: "charge.pending", data: { id: 1000, reference, status: "pending", amount: 125000, currency: "KES" } });
+    const signature = crypto.createHmac("sha512", secret).update(body).digest("hex");
+    const response = await fetch(`http://127.0.0.1:${port}/api/paystack/webhook`, { method: "POST", headers: { "content-type": "application/json", "x-paystack-signature": signature }, body });
+    expect(response.status).toBe(200);
+    expect(updateCoursePaymentStageStatus).toHaveBeenCalledWith(15, { status: "pending", errorMessage: null });
+    expect(markCoursePaymentEventProcessed).toHaveBeenCalledWith("1000");
     await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
   });
 

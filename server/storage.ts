@@ -93,6 +93,9 @@ export async function storagePut(
  */
 export async function storageGet(relKey: string): Promise<{ key: string; url: string }> {
   const key = normalizeKey(relKey);
+  if (!ENV.doSpacesBucket || !ENV.doSpacesRegion) {
+    throw new Error("DigitalOcean Spaces is not configured. Set DO_SPACES_BUCKET and DO_SPACES_REGION.");
+  }
   const baseUrl = ENV.doSpacesBaseUrl || `https://${ENV.doSpacesBucket}.${ENV.doSpacesRegion}.digitaloceanspaces.com`;
   const url = `${baseUrl.replace(/\/$/, "")}/${key}`;
 

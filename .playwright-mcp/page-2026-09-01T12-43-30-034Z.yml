@@ -1,0 +1,23 @@
+- generic [ref=e2]:
+  - region "Notifications alt+T"
+  - status "Loading page" [ref=e3]:
+    - generic [ref=e4]: Loading workspace
+  - generic [ref=e28]:
+    - link "Chat with Profound IQ Consulting on WhatsApp. Online now. Hello Profound IQ Consulting, I need quick support with my learning journey." [ref=e30] [cursor=pointer]:
+      - /url: https://wa.me/254727374055?text=Hello%20Profound%20IQ%20Consulting%2C%20I%20need%20quick%20support%20with%20my%20learning%20journey.
+      - generic [ref=e33]:
+        - strong [ref=e34]: Quick support
+        - generic [ref=e35]: Online now · reply within 15 min
+    - button "Close" [ref=e37]
+  - button "Suggest a translation improvement" [ref=e39]
+  - complementary "Your privacy choices" [ref=e45]:
+    - generic [ref=e50]:
+      - generic [ref=e52]:
+        - paragraph [ref=e53]: Your privacy choices
+        - heading "A clearer way to use cookies." [level=2] [ref=e54]
+      - paragraph [ref=e55]: We use essential browser storage to keep the site secure and remember progress. Optional analytics help us understand journeys such as course sharing and assessment starts.
+      - generic [ref=e56]:
+        - button "Accept all" [ref=e57]
+        - button "Customize" [ref=e60]
+        - link "Privacy Policy" [ref=e64] [cursor=pointer]:
+          - /url: /privacy-policy

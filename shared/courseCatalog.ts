@@ -18,11 +18,11 @@ export const COURSE_SKILL_LEVELS: readonly CourseSkillLevel[] = ["Foundation", "
 export type CourseDefinition = { slug: string; index: string; title: string; strapline: string; description: string; audience: string; duration: string; outcomes: readonly string[]; priceKes: number; stageAmountsKes: readonly number[]; modules: CourseModule[]; category: CourseCategory; skillLevel: CourseSkillLevel; coverImage: string };
 
 const explanatoryVisuals = [
-  { url: "/manus-storage/piq-explainer-journey_6b36511b.png", alt: "A rising pathway connecting insight to purposeful action." },
-  { url: "/manus-storage/piq-explainer-feedback-loop_8245cc4d.png", alt: "A circular feedback loop connecting observation, interpretation, action, and learning." },
-  { url: "/manus-storage/piq-explainer-decision-matrix_22a2f148.png", alt: "A decision matrix with a marker moving toward a high-value quadrant." },
-  { url: "/manus-storage/piq-explainer-iceberg_dcd03685.png", alt: "An iceberg showing visible behaviour above deeper assumptions and systems." },
-  { url: "/manus-storage/piq-explainer-bridge_916cd9ec.png", alt: "A bridge connecting theory to everyday practice." },
+  { url: "/piq-explainer-journey_6b36511b.svg", alt: "A rising pathway connecting insight to purposeful action." },
+  { url: "/piq-explainer-feedback-loop_8245cc4d.svg", alt: "A circular feedback loop connecting observation, interpretation, action, and learning." },
+  { url: "/piq-explainer-decision-matrix_22a2f148.svg", alt: "A decision matrix with a marker moving toward a high-value quadrant." },
+  { url: "/piq-explainer-iceberg_dcd03685.svg", alt: "An iceberg showing visible behaviour above deeper assumptions and systems." },
+  { url: "/piq-explainer-bridge_916cd9ec.svg", alt: "A bridge connecting theory to everyday practice." },
 ] as const;
 
 const lessonBlueprints = [
@@ -435,12 +435,12 @@ const additionalCourseSeeds = [
 ].map((course) => ({ ...course, duration: "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes", priceKes: STANDARD_COURSE_PRICE_KES, stageAmountsKes: STANDARD_COURSE_STAGE_AMOUNTS_KES }));
 
 const courseCoverByCategory: Record<CourseCategory, string> = {
-  "AI & Digital": "/manus-storage/cover-ai-learning_e7060957.jpg",
-  "Business & Analytics": "/manus-storage/cover-insight-analytics_3177ed26.jpg",
-  "Education & Research": "/manus-storage/cover-people-practice_342ff6e3.jpg",
-  "Communication & Career": "/manus-storage/cover-digital-growth_c45a2cd5.jpg",
-  "Leadership & Workplace": "/manus-storage/cover-customer-value_969a689e.jpg",
-  "Personal Development": "/manus-storage/cover-people-practice_342ff6e3.jpg",
+  "AI & Digital": "/cover-ai-learning_e7060957.svg",
+  "Business & Analytics": "/cover-insight-analytics_3177ed26.svg",
+  "Education & Research": "/cover-people-practice_342ff6e3.svg",
+  "Communication & Career": "/cover-digital-growth_c45a2cd5.svg",
+  "Leadership & Workplace": "/cover-customer-value_969a689e.svg",
+  "Personal Development": "/cover-people-practice_342ff6e3.svg",
 };
 
 const skillLevelOverrides: Record<string, CourseSkillLevel> = {

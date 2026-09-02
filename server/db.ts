@@ -66,8 +66,12 @@ export async function getAdminNotificationRecipients(): Promise<string[]> {
 
 export async function recordLoginEvent(input: { openId?: string | null; identifierType: string; success: boolean; failureCode?: string | null; networkHash: string; networkAddress?: string | null; userAgent?: string | null; deviceType?: string | null; estimatedLocation?: string | null; createdAt?: Date }) {
   const db = await getDb();
-  if (!db) throw new Error("Database is not available");
-  await db.insert(loginEvents).values({ ...input, createdAt: input.createdAt ?? new Date() });
+  if (!db) return;
+  try {
+    await db.insert(loginEvents).values({ ...input, createdAt: input.createdAt ?? new Date() });
+  } catch {
+    // ignore logging failures
+  }
 }
 
 export async function getLoginEventsForUser(input: { openId: string; limit?: number; deviceType?: string; locationSearch?: string }) {
@@ -125,16 +129,24 @@ export async function getAdminSecuritySettings(adminOpenId: string) {
 
 export async function getEffectiveLoginAlertThreshold() {
   const db = await getDb();
-  if (!db) throw new Error("Database is not available");
-  const row = (await db.select({ threshold: sql<number>`min(${adminSecuritySettings.alertThreshold})` }).from(adminSecuritySettings))[0];
-  return Math.max(3, Math.min(20, Number(row?.threshold ?? 5)));
+  if (!db) return 5;
+  try {
+    const row = (await db.select({ threshold: sql<number>`min(${adminSecuritySettings.alertThreshold})` }).from(adminSecuritySettings))[0];
+    return Math.max(3, Math.min(20, Number(row?.threshold ?? 5)));
+  } catch {
+    return 5;
+  }
 }
 
 export async function getEffectiveLoginLockoutWindowSeconds() {
   const db = await getDb();
-  if (!db) throw new Error("Database is not available");
-  const row = (await db.select({ window: sql<number>`min(${adminSecuritySettings.lockoutWindowSeconds})` }).from(adminSecuritySettings))[0];
-  return Math.max(60, Math.min(86400, Number(row?.window ?? 60)));
+  if (!db) return 60;
+  try {
+    const row = (await db.select({ window: sql<number>`min(${adminSecuritySettings.lockoutWindowSeconds})` }).from(adminSecuritySettings))[0];
+    return Math.max(60, Math.min(86400, Number(row?.window ?? 60)));
+  } catch {
+    return 60;
+  }
 }
 
 export async function getEffectiveLoginEventRetentionDays(adminOpenId: string) {
@@ -159,9 +171,13 @@ export async function saveAdminSecuritySettings(adminOpenId: string, input: { al
 
 export async function createUserSession(input: { openId: string; tokenHash: string; networkHash?: string | null; userAgent?: string | null; deviceType?: string | null; estimatedLocation?: string | null; trustedDevice?: boolean; trustExpiresAt?: Date | null; createdAt?: Date; expiresAt: Date }) {
   const db = await getDb();
-  if (!db) throw new Error("Database is not available");
-  const now = input.createdAt ?? new Date();
-  await db.insert(userSessions).values({ ...input, createdAt: now, lastSeenAt: now });
+  if (!db) return;
+  try {
+    const now = input.createdAt ?? new Date();
+    await db.insert(userSessions).values({ ...input, createdAt: now, lastSeenAt: now });
+  } catch {
+    // ignore session creation failures
+  }
 }
 
 export async function getSessionByTokenHash(tokenHash: string) {
@@ -196,37 +212,49 @@ export async function revokeOtherUserSessions(openId: string, currentTokenHash: 
 
 export async function checkLoginRateLimit(identifierHash: string, networkHash: string, now = new Date()) {
   const db = await getDb();
-  if (!db) throw new Error("Database is not available");
-  const windowSeconds = await getEffectiveLoginLockoutWindowSeconds();
-  const windowMs = windowSeconds * 1000;
-  const row = (await db.select().from(authLoginAttempts).where(and(eq(authLoginAttempts.identifierHash, identifierHash), eq(authLoginAttempts.networkHash, networkHash))).limit(1))[0];
-  if (!row) return { blocked: false, failedCount: 0, unlockAt: null as Date | null, windowSeconds };
-  const windowAge = now.getTime() - row.windowStartedAt.getTime();
-  if (windowAge >= windowMs) { await db.delete(authLoginAttempts).where(eq(authLoginAttempts.id, row.id)); return { blocked: false, failedCount: 0, unlockAt: null as Date | null, windowSeconds }; }
-  const blocked = row.failedCount >= 5;
-  return { blocked, failedCount: row.failedCount, unlockAt: blocked ? new Date(row.windowStartedAt.getTime() + windowMs) : null, windowSeconds };
+  if (!db) return { blocked: false, failedCount: 0, unlockAt: null as Date | null, windowSeconds: 60 };
+  try {
+    const windowSeconds = await getEffectiveLoginLockoutWindowSeconds();
+    const windowMs = windowSeconds * 1000;
+    const row = (await db.select().from(authLoginAttempts).where(and(eq(authLoginAttempts.identifierHash, identifierHash), eq(authLoginAttempts.networkHash, networkHash))).limit(1))[0];
+    if (!row) return { blocked: false, failedCount: 0, unlockAt: null as Date | null, windowSeconds };
+    const windowAge = now.getTime() - row.windowStartedAt.getTime();
+    if (windowAge >= windowMs) { await db.delete(authLoginAttempts).where(eq(authLoginAttempts.id, row.id)); return { blocked: false, failedCount: 0, unlockAt: null as Date | null, windowSeconds }; }
+    const blocked = row.failedCount >= 5;
+    return { blocked, failedCount: row.failedCount, unlockAt: blocked ? new Date(row.windowStartedAt.getTime() + windowMs) : null, windowSeconds };
+  } catch {
+    return { blocked: false, failedCount: 0, unlockAt: null as Date | null, windowSeconds: 60 };
+  }
 }
 
 export async function recordFailedLogin(identifierHash: string, networkHash: string, now = new Date(), alertThreshold = 5) {
   const db = await getDb();
-  if (!db) throw new Error("Database is not available");
-  const windowMs = (await getEffectiveLoginLockoutWindowSeconds()) * 1000;
-  const existing = (await db.select().from(authLoginAttempts).where(and(eq(authLoginAttempts.identifierHash, identifierHash), eq(authLoginAttempts.networkHash, networkHash))).limit(1))[0];
-  if (!existing || now.getTime() - existing.windowStartedAt.getTime() >= windowMs) {
-    if (existing) await db.delete(authLoginAttempts).where(eq(authLoginAttempts.id, existing.id));
-    await db.insert(authLoginAttempts).values({ identifierHash, networkHash, failedCount: 1, windowStartedAt: now, lastFailedAt: now });
+  if (!db) return { failedCount: 1, shouldAlert: false };
+  try {
+    const windowMs = (await getEffectiveLoginLockoutWindowSeconds()) * 1000;
+    const existing = (await db.select().from(authLoginAttempts).where(and(eq(authLoginAttempts.identifierHash, identifierHash), eq(authLoginAttempts.networkHash, networkHash))).limit(1))[0];
+    if (!existing || now.getTime() - existing.windowStartedAt.getTime() >= windowMs) {
+      if (existing) await db.delete(authLoginAttempts).where(eq(authLoginAttempts.id, existing.id));
+      await db.insert(authLoginAttempts).values({ identifierHash, networkHash, failedCount: 1, windowStartedAt: now, lastFailedAt: now });
+      return { failedCount: 1, shouldAlert: false };
+    }
+    const nextCount = existing.failedCount + 1;
+    const shouldAlert = nextCount >= alertThreshold && !existing.alertSentAt;
+    await db.update(authLoginAttempts).set({ failedCount: nextCount, lastFailedAt: now, alertSentAt: shouldAlert ? now : existing.alertSentAt }).where(eq(authLoginAttempts.id, existing.id));
+    return { failedCount: nextCount, shouldAlert };
+  } catch {
     return { failedCount: 1, shouldAlert: false };
   }
-  const nextCount = existing.failedCount + 1;
-  const shouldAlert = nextCount >= alertThreshold && !existing.alertSentAt;
-  await db.update(authLoginAttempts).set({ failedCount: nextCount, lastFailedAt: now, alertSentAt: shouldAlert ? now : existing.alertSentAt }).where(eq(authLoginAttempts.id, existing.id));
-  return { failedCount: nextCount, shouldAlert };
 }
 
 export async function clearLoginFailures(identifierHash: string, networkHash: string) {
   const db = await getDb();
-  if (!db) throw new Error("Database is not available");
-  await db.delete(authLoginAttempts).where(and(eq(authLoginAttempts.identifierHash, identifierHash), eq(authLoginAttempts.networkHash, networkHash)));
+  if (!db) return;
+  try {
+    await db.delete(authLoginAttempts).where(and(eq(authLoginAttempts.identifierHash, identifierHash), eq(authLoginAttempts.networkHash, networkHash)));
+  } catch {
+    // ignore cleanup failures
+  }
 }
 export async function unlockUserLoginFailures(input: { targetOpenId: string; actorOpenId: string; actorName?: string | null }) {
   const db = await getDb();
@@ -281,7 +309,12 @@ export async function getFailedLoginRegions(input: { from?: Date; to?: Date } = 
 export async function findUserByLocalIdentifier(identifier: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  return (await db.select().from(users).where(or(eq(users.email, identifier), eq(users.phone, identifier), eq(users.username, identifier))).limit(1))[0] ?? undefined;
+  const normalized = identifier.toLowerCase();
+  return (await db.select().from(users).where(or(
+    sql`lower(${users.email}) = ${normalized}`,
+    sql`lower(${users.phone}) = ${normalized}`,
+    sql`lower(${users.username}) = ${normalized}`
+  )).limit(1))[0] ?? undefined;
 }
 
 export async function createLocalUser(input: { openId: string; name: string; email?: string | null; phone?: string | null; username?: string | null; passwordHash: string; role?: "user" | "staff" | "admin" }) {
@@ -1492,6 +1525,12 @@ export async function getOrCreateCourseEnrollment(input: { userOpenId: string; c
   await db.insert(coursePaymentStages).values([1, 2, 3, 4].map((stage) => ({ enrollmentId, stage, amountKes: stageAmounts[stage - 1] })));
   return (await db.select().from(courseLearnerEnrollments).where(eq(courseLearnerEnrollments.id, enrollmentId)).limit(1))[0];
 }
+export async function getCourseEnrollmentById(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return (await db.select().from(courseLearnerEnrollments).where(eq(courseLearnerEnrollments.id, id)).limit(1))[0] ?? undefined;
+}
+
 export async function getCourseEnrollment(userOpenId: string, courseSlug: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");

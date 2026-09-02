@@ -3,7 +3,7 @@ import { ArrowUp, ArrowUpRight, ChevronRight, Facebook, Instagram, Linkedin, Mes
 import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { BrandLogo } from "@/components/BrandLogo";
-import { SiteNavigation } from "@/components/SiteNavigation";
+import { ExecutiveHeader } from "@/components/ExecutiveHeader";
 import { useLocale } from "@/contexts/LocaleContext";
 
 const navItems = [
@@ -34,7 +34,7 @@ export function PublicPageShell({ eyebrow, title, intro, breadcrumbs = [], child
 
   return (
     <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-      <SiteNavigation variant="public" dark />
+      <ExecutiveHeader variant="public" dark />
 
       <main id="main-content" className="scroll-mt-24">
         <section className={`${darkHero ? "bg-[#101d35] text-[#f7f3e8]" : "bg-[#f7f3e8] text-[#16243d]"} relative overflow-hidden border-b border-[#16243d]/10 py-20 sm:py-24 lg:py-32`}>

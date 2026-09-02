@@ -49,7 +49,7 @@ describe("expanded professional course catalog", () => {
   });
 
   it("assigns discoverable taxonomy and managed cover artwork to every course", () => {
-    expect(courseCatalog.every((course) => course.category && ["Foundation", "Practitioner", "Advanced"].includes(course.skillLevel) && course.coverImage.startsWith("/manus-storage/"))).toBe(true);
+    expect(courseCatalog.every((course) => course.category && ["Foundation", "Practitioner", "Advanced"].includes(course.skillLevel) && course.coverImage.startsWith("/cover-"))).toBe(true);
     expect(new Set(courseCatalog.map((course) => course.category)).size).toBeGreaterThanOrEqual(5);
     expect(courseCatalog.find((course) => course.slug === "artificial-intelligence-for-educators")?.category).toBe("AI & Digital");
     expect(courseCatalog.find((course) => course.slug === "business-analytics")?.category).toBe("Business & Analytics");
@@ -57,12 +57,12 @@ describe("expanded professional course catalog", () => {
   });
 
   it("inherits branded certificate metadata for new courses", () => {
-    const svg = renderCourseCertificateSvg({ recipientName: "Amina Otieno", recipientEmail: "amina@example.com", courseTitle: "Decision-Making Skills", certificateNumber: "PIQ-2026-0001", issuedOn: "2026-08-24T00:00:00Z", verificationUrl: "https://profoundiq-vguqrhsm.manus.space/verify/certificate?certificate=PIQ-2026-0001" });
+    const svg = renderCourseCertificateSvg({ recipientName: "Amina Otieno", recipientEmail: "amina@example.com", courseTitle: "Decision-Making Skills", certificateNumber: "PIQ-2026-0001", issuedOn: "2026-08-24T00:00:00Z", verificationUrl: "http://localhost:3000/verify/certificate?certificate=PIQ-2026-0001" });
     expect(svg).toContain("Amina Otieno");
     expect(svg).toContain("Decision-Making Skills");
     expect(svg).toContain("PIQ-2026-0001");
     expect(svg).toContain("SCAN TO VERIFY");
-    expect(svg).toContain("https://profoundiq-vguqrhsm.manus.space/verify/certificate");
+    expect(svg).toContain("http://localhost:3000/verify/certificate");
     expect(svg).toContain("Issued");
   });
 
@@ -84,7 +84,7 @@ describe("expanded professional course catalog", () => {
         courseTitle: course.title,
         certificateNumber,
         issuedOn: "2026-08-24T00:00:00Z",
-        verificationUrl: `https://profoundiq-vguqrhsm.manus.space/verify/certificate?certificate=${certificateNumber}`,
+        verificationUrl: `http://localhost:3000/verify/certificate?certificate=${certificateNumber}`,
         ...sharedDesign,
       });
 

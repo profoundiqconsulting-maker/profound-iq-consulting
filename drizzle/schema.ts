@@ -692,3 +692,45 @@ export type VerificationRevocationAudit = typeof verificationRevocationAudits.$i
 export type DeliveryLogExportJob = typeof deliveryLogExportJobs.$inferSelect;
 export type AdminAnalyticsSettings = typeof adminAnalyticsSettings.$inferSelect;
 export type UnlockAuditExportDownload = typeof unlockAuditExportDownloads.$inferSelect;
+
+/* ---------------------------------------------------------------------------
+ * Header navigation: pinned favorites and recent activity
+ * ------------------------------------------------------------------------- */
+
+export const userNavFavorites = mysqlTable(
+  "user_nav_favorites",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    userOpenId: varchar("userOpenId", { length: 64 }).notNull(),
+    navHref: varchar("navHref", { length: 255 }).notNull(),
+    navLabel: varchar("navLabel", { length: 120 }).notNull(),
+    sortOrder: int("sortOrder").default(0).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (table) => ({
+    userHrefUnique: uniqueIndex("user_nav_favorites_user_href_unique").on(table.userOpenId, table.navHref),
+    userIdx: index("user_nav_favorites_user_idx").on(table.userOpenId),
+  })
+);
+
+export const userActivityEvents = mysqlTable(
+  "user_activity_events",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    userOpenId: varchar("userOpenId", { length: 64 }).notNull(),
+    activityType: varchar("activityType", { length: 32 }).notNull(),
+    title: varchar("title", { length: 200 }).notNull(),
+    description: text("description"),
+    href: varchar("href", { length: 255 }),
+    metadata: json("metadata"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdx: index("user_activity_events_user_idx").on(table.userOpenId, table.createdAt),
+  })
+);
+
+export type UserNavFavorite = typeof userNavFavorites.$inferSelect;
+export type InsertUserNavFavorite = typeof userNavFavorites.$inferInsert;
+export type UserActivityEvent = typeof userActivityEvents.$inferSelect;
+export type InsertUserActivityEvent = typeof userActivityEvents.$inferInsert;

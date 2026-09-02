@@ -8,7 +8,7 @@ describe("course illustration interactions", () => {
     const lessons = courseCatalog.flatMap((course) => course.modules.flatMap((module) => module.lessons));
     expect(lessons.length).toBeGreaterThan(0);
     for (const lesson of lessons) {
-      expect(lesson.illustration.visualUrl).toMatch(/^\/manus-storage\/.+\.png$/);
+      expect(lesson.illustration.visualUrl).toMatch(/^\/piq-explainer-.+\.svg$/);
       expect(lesson.illustration.visualAlt.length).toBeGreaterThan(10);
       expect(lesson.illustration.experientialOptions).toHaveLength(3);
       expect(lesson.illustration.experientialFeedback).toHaveLength(3);

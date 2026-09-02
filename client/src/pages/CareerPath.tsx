@@ -57,6 +57,7 @@ import {
   type PaystackCheckoutState,
 } from "@shared/paystackFeedback";
 import { useLocale } from "@/contexts/LocaleContext";
+import PaystackInlineModal, { type PaystackInlineProduct } from "@/components/PaystackInlineModal";
 
 const scale = ["1", "2", "3", "4", "5"];
 const QUESTIONS_PER_CONTENT_PAGE = 5;
@@ -244,7 +245,10 @@ export default function CareerPath() {
   const [verificationError, setVerificationError] = useState("");
   const [paymentState, setPaymentState] =
     useState<PaystackCheckoutState>("idle");
+  const [inlineModalOpen, setInlineModalOpen] = useState(false);
+  const [inlineProduct, setInlineProduct] = useState<PaystackInlineProduct | null>(null);
   const initializePayment = trpc.careerPath.initializePayment.useMutation();
+  const initializeInlinePayment = trpc.careerPath.initializeInlinePayment.useMutation();
   const receiptDownload = trpc.careerPath.downloadReceipt.useMutation();
   const downloadCareerPathReceipt = async (referenceValue: string) => {
     try {
@@ -555,23 +559,27 @@ export default function CareerPath() {
     if (!data || !previewReport) return;
     try {
       setPaymentState(paystackStateAfter("begin"));
-      const result = await initializePayment.mutateAsync({
+      const result = await initializeInlinePayment.mutateAsync({
         name: name.trim(),
         email: email.trim(),
         personalNotes: personalNotes.trim() || undefined,
         receiptTitle: receiptTitle.trim() || undefined,
         consent: true,
-        answers: data.questions.map(question => ({
+        answers: data.questions.map((question) => ({
           questionId: question.id,
           value: answers[question.id],
         })),
       });
       setReceiptPreviewOpen(false);
       setPaymentState(paystackStateAfter("ready"));
-      toast.success("Checkout ready", {
-        description: paystackCheckoutCopy.redirecting.description,
+      setInlineProduct({
+        accessCode: result.accessCode,
+        reference: result.reference,
+        amountKes: result.amountKes,
+        productName: result.productName,
+        productType: result.productType as "careerpath",
       });
-      window.location.assign(result.authorizationUrl);
+      setInlineModalOpen(true);
     } catch (error) {
       setPaymentState(paystackStateAfter("failure"));
       toast.error(
@@ -1392,11 +1400,11 @@ export default function CareerPath() {
                     <Button
                       type="submit"
                       disabled={
-                        !complete || !consent || initializePayment.isPending
+                        !complete || !consent ||                         initializeInlinePayment.isPending
                       }
                       className="bg-[#c9a34e] px-5 py-3 text-[#16243d] hover:bg-[#e1bd5b]"
                     >
-                      {initializePayment.isPending ? (
+                      {initializeInlinePayment.isPending ? (
                         <>
                           <Loader2 className="mr-2 animate-spin" size={16} />{" "}
                           {paystackCheckoutCopy.initializing.label}
@@ -1629,10 +1637,10 @@ export default function CareerPath() {
               <Button
                 type="button"
                 onClick={beginPayment}
-                disabled={initializePayment.isPending}
+                disabled={initializeInlinePayment.isPending}
                 className="bg-[#16243d] text-[#f7f3e8] hover:bg-[#243657]"
               >
-                {initializePayment.isPending ? (
+                {initializeInlinePayment.isPending ? (
                   <>
                     <Loader2 className="mr-2 animate-spin" size={15} />{" "}
                     Preparing checkout…
@@ -1645,13 +1653,45 @@ export default function CareerPath() {
                 )}
               </Button>
             </DialogFooter>
-          </DialogContent>
+            </DialogContent>
         </Dialog>
       </main>
+      <PaystackInlineModal
+        open={inlineModalOpen}
+        product={inlineProduct}
+        customerEmail={currentUser?.email ?? ""}
+        onClose={() => {
+          setInlineModalOpen(false);
+          setInlineProduct(null);
+        }}
+        onSuccess={(reference) => {
+          setInlineModalOpen(false);
+          setInlineProduct(null);
+          setPaymentState("verifying");
+          verifyPayment.mutate({ reference }, {
+            onSuccess: (result) => {
+              setReport(result.report);
+              setPaymentState("paid");
+              toast.success("Payment verified");
+            },
+            onError: (error) => {
+              setPaymentState("error");
+              setVerificationError(error.message);
+              toast.error(error.message);
+            },
+          });
+        }}
+        onError={(message) => {
+          setInlineModalOpen(false);
+          setInlineProduct(null);
+          setPaymentState("error");
+          setVerificationError(message);
+          toast.error("Payment failed", { description: message });
+        }}
+      />
     </div>
   );
 }
-
 function CareerPathReportView({
   report,
   reference,

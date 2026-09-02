@@ -671,7 +671,8 @@ export default function AdminDashboard() {
             <LockKeyhole size={15} className="text-[#a27e2e]" /> Admin only
           </div>
         </div>
-        <DashboardQuickNav role="admin" className="mt-8" />
+         <DashboardQuickNav role="admin" className="mt-8" />
+         <AdminSectionMenu />
         <div id="share-observatory" className="scroll-mt-8">
           <AdminSocialPreviewSettings />
           <AdminCourseShareAnalytics />

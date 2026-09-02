@@ -8,7 +8,7 @@ describe("course certificate PDF", () => {
       courseTitle: "Leadership and Strategic Growth",
       certificateNumber: "PIQ-2026-QA-0001",
       issuedOn: "2026-08-27T08:00:00.000Z",
-      verificationUrl: "https://profoundiq-vguqrhsm.manus.space/verify/certificate?certificate=PIQ-2026-QA-0001",
+      verificationUrl: "http://localhost:3000/verify/certificate?certificate=PIQ-2026-QA-0001",
     });
     expect(pdf.subarray(0, 5).toString()).toBe("%PDF-");
     expect(pdf.length).toBeGreaterThan(10_000);

@@ -2,7 +2,7 @@
 import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Route, Switch } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LocaleProvider } from "./contexts/LocaleContext";
@@ -31,6 +31,7 @@ const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const StaffDashboard = lazy(() => import("./pages/StaffDashboard"));
 const SavedPathwaysPrint = lazy(() => import("./pages/SavedPathwaysPrint"));
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
+const MyCertificates = lazy(() => import("./pages/MyCertificates"));
 const MyIllustrations = lazy(() => import("./pages/MyIllustrations"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Auth = lazy(() => import("./pages/Auth"));
@@ -44,6 +45,12 @@ const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const NewsletterAction = lazy(() => import("./pages/NewsletterAction"));
 
+function MySpace() {
+  const [, navigate] = useLocation();
+  navigate("/dashboard", { replace: true });
+  return null;
+}
+
 function RouteLoading() {
   return <main className="min-h-[70vh] bg-[#f7f3e8] px-4 py-8 text-[#16243d] sm:px-6 lg:px-8" role="status" aria-live="polite" aria-label="Loading page">
     <div className="mx-auto max-w-7xl animate-pulse space-y-8 motion-reduce:animate-none">
@@ -56,7 +63,7 @@ function RouteLoading() {
 }
 
 function Router() {
-  return <Suspense fallback={<RouteLoading />}><Switch><Route path="/" component={Home} /><Route path="/about" component={About} /><Route path="/services" component={Services} /><Route path="/school-solutions" component={SchoolSolutions} /><Route path="/resources" component={Resources} /><Route path="/blog" component={Blog} /><Route path="/blog/:slug" component={InsightArticle} /><Route path="/contact" component={Contact} /><Route path="/newsletter/confirm" component={() => <NewsletterAction action="confirm" />} /><Route path="/newsletter/unsubscribe" component={() => <NewsletterAction action="unsubscribe" />} /><Route path="/assessment" component={Assessment} /><Route path="/careerpath/assessment" component={CareerPath} /><Route path="/careerpath/results" component={CareerPath} /><Route path="/careerpath" component={CareerPath} /><Route path="/psychometrics" component={Psychometrics} /><Route path="/psychometrics/:slug" component={Psychometrics} /><Route path="/courses" component={Courses} /><Route path="/courses/compare" component={CourseComparison} /><Route path="/courses/payment-success" component={CoursePaymentSuccess} /><Route path="/courses/:slug" component={CourseWorkspace} /><Route path="/admin/cohorts" component={CohortManagement} /><Route path="/admin" component={AdminDashboard} /><Route path="/staff" component={StaffDashboard} /><Route path="/dashboard/print-pathways" component={SavedPathwaysPrint} /><Route path="/dashboard" component={UserDashboard} /><Route path="/my-illustrations" component={MyIllustrations} /><Route path="/settings" component={Settings} /><Route path="/auth" component={Auth} /><Route path="/reset-password" component={ResetPassword} /><Route path="/shared-report" component={SharedReport} /><Route path="/verify/assessment" component={AssessmentVerification} /><Route path="/verify/certificate" component={CertificateVerification} /><Route path="/verify/psychometric" component={PsychometricVerification} /><Route path="/privacy-policy" component={PrivacyPolicy} /><Route path="/terms-of-service" component={TermsOfService} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch></Suspense>;
+  return <Suspense fallback={<RouteLoading />}><Switch><Route path="/" component={Home} /><Route path="/about" component={About} /><Route path="/services" component={Services} /><Route path="/school-solutions" component={SchoolSolutions} /><Route path="/resources" component={Resources} /><Route path="/blog" component={Blog} /><Route path="/blog/:slug" component={InsightArticle} /><Route path="/contact" component={Contact} /><Route path="/newsletter/confirm" component={() => <NewsletterAction action="confirm" />} /><Route path="/newsletter/unsubscribe" component={() => <NewsletterAction action="unsubscribe" />} /><Route path="/assessment" component={Assessment} /><Route path="/careerpath/assessment" component={CareerPath} /><Route path="/careerpath/results" component={CareerPath} /><Route path="/careerpath" component={CareerPath} /><Route path="/psychometrics" component={Psychometrics} /><Route path="/psychometrics/:slug" component={Psychometrics} /><Route path="/courses" component={Courses} /><Route path="/courses/compare" component={CourseComparison} /><Route path="/courses/payment-success" component={CoursePaymentSuccess} /><Route path="/courses/:slug" component={CourseWorkspace} /><Route path="/admin/cohorts" component={CohortManagement} /><Route path="/admin" component={AdminDashboard} /><Route path="/staff" component={StaffDashboard} /><Route path="/dashboard/print-pathways" component={SavedPathwaysPrint} /><Route path="/dashboard" component={UserDashboard} /><Route path="/dashboard/certificates" component={MyCertificates} /><Route path="/myspace" component={MySpace} /><Route path="/my-illustrations" component={MyIllustrations} /><Route path="/settings" component={Settings} /><Route path="/auth" component={Auth} /><Route path="/reset-password" component={ResetPassword} /><Route path="/shared-report" component={SharedReport} /><Route path="/verify/assessment" component={AssessmentVerification} /><Route path="/verify/certificate" component={CertificateVerification} /><Route path="/verify/psychometric" component={PsychometricVerification} /><Route path="/privacy-policy" component={PrivacyPolicy} /><Route path="/terms-of-service" component={TermsOfService} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch></Suspense>;
 }
 
 export default function App() {

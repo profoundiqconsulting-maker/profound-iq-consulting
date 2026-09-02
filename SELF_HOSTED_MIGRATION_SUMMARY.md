@@ -143,7 +143,7 @@ storageGetSignedUrl(relKey, expirationSeconds)  // Returns presigned URL
   - Result: Auth entirely tRPC-based now
 
 - **`server/_core/storageProxy.ts`** (simplified)
-  - Removed: /manus-storage/* route registration
+  - Removed: /local-storage/* route registration
   - Added: Single console.log message
   - Result: No proxy layer needed, DO Spaces URLs are public
 

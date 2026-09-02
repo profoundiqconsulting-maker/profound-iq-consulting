@@ -2,6 +2,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { TrpcContext } from "./_core/context";
 import { hashPassword } from "./localAuthCrypto";
 
+beforeEach(() => {
+  process.env.SESSION_SECRET = "test-session-secret";
+});
+
 const { findUserByLocalIdentifier, createLocalUser, setPasswordResetToken, consumePasswordResetToken, checkLoginRateLimit, recordFailedLogin, clearLoginFailures, getEffectiveLoginAlertThreshold, recordLoginEvent, createUserSession, getAdminNotificationRecipients, sendPasswordResetEmail, sendFailedLoginAlert } = vi.hoisted(() => ({
   findUserByLocalIdentifier: vi.fn(),
   createLocalUser: vi.fn(),
@@ -17,6 +21,9 @@ const { findUserByLocalIdentifier, createLocalUser, setPasswordResetToken, consu
   sendPasswordResetEmail: vi.fn(),
   sendFailedLoginAlert: vi.fn().mockResolvedValue(undefined),
 }));
+
+const mockCreateSessionToken = vi.fn().mockResolvedValue("fake-session-token");
+vi.mock("./_core/sdk", () => ({ sdk: { createSessionToken: mockCreateSessionToken } }));
 
 vi.mock("./db", async (importOriginal) => ({ ...(await importOriginal<typeof import("./db")>()), findUserByLocalIdentifier, createLocalUser, setPasswordResetToken, consumePasswordResetToken, checkLoginRateLimit, recordFailedLogin, clearLoginFailures, getEffectiveLoginAlertThreshold, recordLoginEvent, createUserSession, getAdminNotificationRecipients }));
 vi.mock("./email", async (importOriginal) => ({ ...(await importOriginal<typeof import("./email")>()), sendPasswordResetEmail, sendFailedLoginAlert }));

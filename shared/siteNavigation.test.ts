@@ -7,14 +7,15 @@ const routes = readFileSync("client/src/App.tsx", "utf8");
 const verification = readFileSync("client/src/pages/CertificateVerification.tsx", "utf8");
 const notFound = readFileSync("client/src/pages/NotFound.tsx", "utf8");
 const brandLogo = readFileSync("client/src/components/BrandLogo.tsx", "utf8");
+const siteNav = readFileSync("client/src/components/SiteNavigation.tsx", "utf8");
 
 describe("sitewide navigation alignment", () => {
   it("keeps the primary public journey links in the shared shell", () => {
     for (const path of ["/about", "/services", "/school-solutions", "/courses", "/assessment", "/careerpath", "/resources"]) {
-      expect(shell).toContain(`href: "${path}"`);
+      expect(siteNav).toContain(`href: "${path}"`);
     }
-    expect(shell).toContain("aria-current={active ? \"page\" : undefined}");
-    expect(shell).toContain("isAuthenticated ? \"/dashboard\" : \"/auth?mode=login\"");
+    expect(siteNav).toContain("aria-current={item.active ? \"page\" : undefined}");
+    expect(siteNav).toContain("isAuthenticated ? \"/dashboard\" : \"/auth?mode=login\"");
     expect(shell).toContain('href="/contact"');
   });
 
@@ -46,27 +47,27 @@ describe("sitewide navigation alignment", () => {
   });
 
   it("keeps shared branding and sticky navigation resilient", () => {
-    expect(brandLogo).toContain('const LOGO_URL = "/manus-storage/profound-iq-logo_b3f171ae.webp"');
+    expect(brandLogo).toContain('const LOGO_URL = "/ProfoundIQLogo.png"');
     expect(brandLogo).toContain("onError={() => setFailed(true)}");
     expect(brandLogo).toContain("data-brand-logo");
-    expect(shell).toContain("data-sticky-navigation");
-    expect(shell).toContain("sticky top-0 z-50");
-    expect(shell).toContain("data-compact={isCompact}");
-    expect(shell).toContain("aria-label=\"Back to top\"");
+    expect(siteNav).toContain("data-sticky-navigation");
+    expect(siteNav).toContain("sticky top-0 z-50");
+    expect(siteNav).toContain("data-compact={isCompact}");
+    expect(siteNav).toContain("aria-label=\"Back to top\"");
     expect(shell).toContain("aria-label=\"Social media links\"");
-    expect(home).toContain("data-sticky-navigation");
-    expect(home).toContain("sticky inset-x-0 top-0 z-50");
-    expect(home).toContain("data-compact={isCompact}");
-    expect(home).toContain("aria-label=\"Back to top\"");
+    expect(siteNav).toContain("data-sticky-navigation");
+    expect(siteNav).toContain("sticky top-0 z-50");
+    expect(siteNav).toContain("data-compact={isCompact}");
+    expect(siteNav).toContain("aria-label=\"Back to top\"");
   });
 
   it("keeps home navigation aligned with registered routes and mobile access", () => {
     for (const path of ["/about", "/services", "/courses", "/assessment", "/careerpath", "/resources", "/contact"]) {
-      expect(home).toContain(`href: "${path}"`);
+      expect(siteNav).toContain(`href: "${path}"`);
       expect(routes).toContain(`path=\"${path}\"`);
     }
-    expect(home).toContain('aria-label={menuOpen ? "Close navigation" : "Open navigation"}');
-    expect(home).toContain('href="/dashboard"');
+    expect(siteNav).toContain('aria-label={menuOpen ? "Close navigation" : "Open navigation"}');
+    expect(siteNav).toContain('href="/dashboard"');
     expect(routes).toContain('path="/verify/assessment"');
   });
 });

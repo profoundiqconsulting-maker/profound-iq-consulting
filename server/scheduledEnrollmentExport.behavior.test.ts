@@ -13,13 +13,13 @@ describe("scheduled enrollment export handler", () => {
     mocks.getScheduledExport.mockResolvedValue({ exportKey: WEEKLY_EXPORT_KEY, scheduleTaskUid: "task-1", lastRunAt: null });
     const date = new Date("2026-08-22T09:00:00.000Z");
     mocks.getCourseEnrollments.mockResolvedValue([{ id: 1, courseTitle: "Lead", name: "Amina", email: "amina@example.com", status: "new", createdAt: date, consentedAt: date }]);
-    mocks.storagePut.mockResolvedValue({ key: "scheduled-exports/report.csv", url: "/manus-storage/scheduled-exports/report.csv" });
+    mocks.storagePut.mockResolvedValue({ key: "scheduled-exports/report.csv", url: "/exports/scheduled-exports/report.csv" });
     const res = { status: vi.fn().mockReturnThis(), json: vi.fn() };
     await weeklyEnrollmentExportHandler({ originalUrl: "/api/scheduled/weeklyEnrollmentExport" } as never, res as never);
     expect(mocks.storagePut).toHaveBeenCalledWith(expect.stringContaining("scheduled-exports/course-enrollments-"), expect.stringContaining("Amina"), "text/csv;charset=utf-8");
     expect(mocks.deleteExpiredScheduledExportRuns).toHaveBeenCalledWith(WEEKLY_EXPORT_KEY, expect.any(Date));
     expect(mocks.updateScheduledExport).toHaveBeenCalledWith(WEEKLY_EXPORT_KEY, expect.objectContaining({ lastFileKey: "scheduled-exports/report.csv" }));
-    expect(mocks.sendScheduledExportNotification).toHaveBeenCalledWith({ status: "success", recipients: ["one@example.com", "two@example.com"], reportUrl: "/manus-storage/scheduled-exports/report.csv", rowCount: 1 });
+    expect(mocks.sendScheduledExportNotification).toHaveBeenCalledWith({ status: "success", recipients: ["one@example.com", "two@example.com"], reportUrl: "/exports/scheduled-exports/report.csv", rowCount: 1 });
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ ok: true, rows: 1 }));
   });
 

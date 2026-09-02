@@ -1,4 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@shared/siteOrigin", () => {
+  const origin = "http://localhost:3000";
+  return {
+    PUBLISHED_SITE_ORIGIN: origin,
+    publishedSiteUrl: (path = "") => `${origin}${path.startsWith("/") || path.length === 0 ? path : `/${path}`}`,
+  };
+});
+
 import { buildSitemapXml } from "../server/seoRoutes";
 import { getSeo } from "../client/src/components/SeoHead";
 import { CONSENT_KEY } from "../client/src/components/CookieConsent";
@@ -13,8 +22,8 @@ describe("Privacy Policy page", () => {
 
   it("is included in the public sitemap", () => {
     const sitemap = buildSitemapXml([]);
-    expect(sitemap).toContain("https://profoundiq-vguqrhsm.manus.space/privacy-policy");
-    expect(sitemap).toContain("https://profoundiq-vguqrhsm.manus.space/terms-of-service");
+    expect(sitemap).toContain("http://localhost:3000/privacy-policy");
+    expect(sitemap).toContain("http://localhost:3000/terms-of-service");
   });
 
   it("has dedicated Terms of Service metadata and a stable consent key", () => {

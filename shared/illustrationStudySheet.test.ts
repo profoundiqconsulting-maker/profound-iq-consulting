@@ -1,4 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@shared/siteOrigin", () => {
+  const origin = "http://localhost:3000";
+  return {
+    PUBLISHED_SITE_ORIGIN: origin,
+    publishedSiteUrl: (path = "") => `${origin}${path.startsWith("/") || path.length === 0 ? path : `/${path}`}`,
+  };
+});
+
 import { buildIllustrationStudySheetSvg, studySheetPngFilename } from "@/lib/illustrationStudySheet";
 
 describe("illustration study sheets", () => {
@@ -8,7 +17,7 @@ describe("illustration study sheets", () => {
   });
   it("builds a branded, self-contained SVG with the artwork and lesson context", () => {
     const svg = buildIllustrationStudySheetSvg({
-      imageUrl: "/manus-storage/lesson-art.png",
+      imageUrl: "/lesson-art.png",
       courseTitle: "Strategic Growth",
       lessonTitle: "Decision architecture",
       modeLabel: "Explanatory lens",
@@ -19,7 +28,7 @@ describe("illustration study sheets", () => {
     expect(svg).toContain("PROFOUND IQ CONSULTING");
     expect(svg).toContain("Strategic Growth");
     expect(svg).toContain("Decision architecture");
-    expect(svg).toContain('href="https://profoundiq-vguqrhsm.manus.space/manus-storage/lesson-art.png"');
+    expect(svg).toContain('href="http://localhost:3000/lesson-art.png"');
     expect(svg).toContain("A visual study sheet for reflection");
   });
 

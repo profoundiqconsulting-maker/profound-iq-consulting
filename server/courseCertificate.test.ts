@@ -9,16 +9,16 @@ describe("course certificate renderer", () => {
       courseTitle: "Professional Certificate in International Curriculum Pedagogy",
       certificateNumber: "PIQ-2026-ABC123",
       issuedOn: "2026-08-27T08:00:00.000Z",
-      verificationUrl: "https://profoundiq-vguqrhsm.manus.space/verify/certificate?certificate=PIQ-2026-ABC123",
+      verificationUrl: "http://localhost:3000/verify/certificate?certificate=PIQ-2026-ABC123",
     });
-    expect(svg).toContain('data:image/jpeg;base64,');
+    expect(svg).toContain('data:image/png;base64,');
     expect(svg).toContain("Amina Njeri");
     expect(svg).not.toContain("amina@example.com");
     expect(svg).toContain("proudly awarded to");
     expect(svg).toContain("for successfully completing the course");
     expect(svg).toContain("Professional Certificate in International Curriculum Pedagogy");
     expect(svg).toContain("PIQ-2026-ABC123");
-    expect(svg).toContain("https://profoundiq-vguqrhsm.manus.space/verify/certificate");
+    expect(svg).toContain("http://localhost:3000/verify/certificate");
     expect(svg).toContain("CERTIFICATE ISSUED ON:");
     expect(svg).toContain("CERTIFICATE ID:");
     expect(svg).toContain('data:image/png;base64,');

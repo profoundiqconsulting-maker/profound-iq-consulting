@@ -9,7 +9,7 @@ import { PUBLISHED_SITE_ORIGIN } from "../shared/siteOrigin";
 
 const SITE_ORIGIN = PUBLISHED_SITE_ORIGIN;
 const PUBLIC_IMAGE_ORIGIN = PUBLISHED_SITE_ORIGIN;
-const DEFAULT_SOCIAL_IMAGE_URL = `${PUBLIC_IMAGE_ORIGIN}/manus-storage/profound-iq-social-preview_9d540b32.png`;
+const DEFAULT_SOCIAL_IMAGE_URL = `${PUBLIC_IMAGE_ORIGIN}/profound-iq-social-preview.svg`;
 const SEO_LOCALES = ["en", "sw", "fr", "es", "pt", "ar", "zh", "hi", "de", "ja"] as const;
 
 function escapeHtml(value: unknown) {

@@ -1,10 +1,15 @@
 import crypto from "node:crypto";
 import type { Express, Request, Response } from "express";
 import express from "express";
-import { ASSESSMENT_PRICE_KES, buildReport } from "../shared/assessment";
-import { COURSE_STAGE_AMOUNT_KES } from "../shared/courseCatalog";
-import { getAssessmentAttemptByReference, markAssessmentPaid, recordAnalyticsEvent, createCoursePaymentEvent, getCoursePaymentStageByReference, markCoursePaymentEventProcessed, updateCoursePaymentStageStatus } from "./db";
-import { emailAssessmentReportIfNeeded } from "./email";
+import { ASSESSMENT_PRICE_KES, buildReport, type AssessmentReport } from "../shared/assessment";
+import { CAREER_PATH_PRICE_KES } from "../shared/careerPath";
+import { COURSE_STAGE_AMOUNT_KES, courseCatalog } from "../shared/courseCatalog";
+import { PSYCHOMETRIC_PRICE_KES } from "../shared/psychometrics";
+import { buildCareerPathReport, type CareerPathReport } from "../shared/careerPath";
+import { scorePsychometricTest, type PsychometricAnswer, type PsychometricReport } from "../shared/psychometrics";
+import { getAssessmentAttemptByReference, markAssessmentPaid, recordAnalyticsEvent, createCoursePaymentEvent, getCoursePaymentStageByReference, markCoursePaymentEventProcessed, updateCoursePaymentStageStatus, getPsychometricAttemptByReference, markPsychometricPaid, getCareerPathAttemptByReference, markCareerPathPaid, getCourseEnrollmentById } from "./db";
+import { emailAssessmentReportIfNeeded, emailCareerPathReportIfNeeded, emailPsychometricReportIfNeeded, sendPaymentReceiptEmail } from "./email";
+import { PUBLISHED_SITE_ORIGIN } from "../shared/siteOrigin";
 
 function isValidSignature(body: Buffer, signature: string | undefined, secret: string | undefined) {
   if (!secret || !signature || signature.length !== 128) return false;
@@ -12,7 +17,7 @@ function isValidSignature(body: Buffer, signature: string | undefined, secret: s
   return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
 }
 
-type PaystackEvent = { event?: string; data?: { id?: number | string; reference?: string; status?: string; amount?: number; currency?: string; metadata?: unknown } };
+type PaystackEvent = { event?: string; data?: { id?: number | string; reference?: string; status?: string; amount?: number; currency?: string; metadata?: unknown; failure_message?: string; failure_code?: string } };
 
 async function reconcileCoursePayment(event: PaystackEvent, rawPayload: unknown) {
   const data = event.data;
@@ -28,12 +33,101 @@ async function reconcileCoursePayment(event: PaystackEvent, rawPayload: unknown)
   if (validSuccess) {
     await updateCoursePaymentStageStatus(stage.id, { status: "paid", paid: true });
     await markCoursePaymentEventProcessed(eventId);
+    const enrollment = await getCourseEnrollmentById(stage.enrollmentId);
+    if (enrollment) {
+      const course = courseCatalog.find((item) => item.slug === enrollment.courseSlug);
+      try {
+        await sendPaymentReceiptEmail({ to: enrollment.email, participantName: enrollment.name, reference: stage.paystackReference ?? reference, productName: course?.title ?? "Course", amountKes: stage.amountKes, paidAt: new Date(), productType: "course_stage", courseSlug: enrollment.courseSlug, enrollmentId: stage.enrollmentId });
+      } catch (error) {
+        console.error("[Paystack] Course receipt email failed:", error);
+      }
+    }
     return true;
   }
 
-  const reason = event.event === "charge.success" ? "Paystack success payload did not match the expected stage amount or currency." : `Unhandled Paystack event ${event.event ?? "unknown"} for a course payment.`;
+  const failureReason = data?.failure_message ?? data?.failure_code;
+
+  if (event.event === "charge.failed" && (data?.status === "failed" || data?.status === "declined" || data?.status === "abandoned")) {
+    await updateCoursePaymentStageStatus(stage.id, { status: "failed", errorMessage: failureReason ?? "Payment was declined or failed." });
+    await markCoursePaymentEventProcessed(eventId);
+    return true;
+  }
+
+  if (event.event === "charge.pending" || data?.status === "pending") {
+    await updateCoursePaymentStageStatus(stage.id, { status: "pending", errorMessage: null });
+    await markCoursePaymentEventProcessed(eventId);
+    return true;
+  }
+
+  const reason = `Unhandled Paystack event ${event.event ?? "unknown"} (status: ${data?.status ?? "unspecified"}) for a course payment.`;
   await updateCoursePaymentStageStatus(stage.id, { status: "exception", errorMessage: reason });
   await markCoursePaymentEventProcessed(eventId, reason);
+  return true;
+}
+
+async function reconcileAssessmentPayment(event: PaystackEvent) {
+  const data = event.data;
+  if (!event.data?.reference || event.data.status !== "success" || event.data.amount !== ASSESSMENT_PRICE_KES * 100 || event.data.currency !== "KES") return false;
+  const attempt = await getAssessmentAttemptByReference(event.data.reference);
+  if (!attempt || attempt.paymentStatus === "paid") return true;
+  const report = buildReport(attempt.answers as Array<{ questionId: string; value: number }>);
+  await markAssessmentPaid(attempt.id, report);
+  await recordAnalyticsEvent({ eventName: "payment_completed", attemptId: attempt.id, metadata: { currency: "KES", amount: ASSESSMENT_PRICE_KES, source: "webhook" } });
+  try {
+    await emailAssessmentReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report, reportEmailStatus: attempt.reportEmailStatus, reportEmailSentAt: attempt.reportEmailSentAt });
+  } catch (error) {
+    console.error("[Paystack] Assessment report email delivery failed:", error);
+  }
+  try {
+    await sendPaymentReceiptEmail({ to: attempt.email, participantName: attempt.name, reference: event.data.reference, productName: "Profound IQ Self Assessment", amountKes: ASSESSMENT_PRICE_KES, paidAt: new Date(), productType: "assessment" });
+  } catch (error) {
+    console.error("[Paystack] Assessment receipt email failed:", error);
+  }
+  return true;
+}
+
+async function reconcilePsychometricPayment(event: PaystackEvent) {
+  const data = event.data;
+  if (!event.data?.reference || event.data.status !== "success" || event.data.amount !== PSYCHOMETRIC_PRICE_KES * 100 || event.data.currency !== "KES") return false;
+  const attempt = await getPsychometricAttemptByReference(event.data.reference);
+  if (!attempt || attempt.paymentStatus === "paid") return true;
+  const testSlug = attempt.testSlug;
+  const test = (await import("../shared/psychometrics")).getPsychometricTest(testSlug);
+  if (!test) return false;
+  const report = scorePsychometricTest(test, attempt.answers as PsychometricAnswer[]);
+  await markPsychometricPaid(attempt.id, report);
+  await recordAnalyticsEvent({ eventName: "payment_completed", attemptId: attempt.id, metadata: { product: testSlug, currency: "KES", amount: PSYCHOMETRIC_PRICE_KES, source: "webhook" } });
+  try {
+    await emailPsychometricReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report, reportEmailStatus: attempt.reportEmailStatus, reportEmailSentAt: attempt.reportEmailSentAt, verificationUrl: `${PUBLISHED_SITE_ORIGIN}/verify/psychometric?reference=${encodeURIComponent(event.data.reference)}` });
+  } catch (error) {
+    console.error("[Paystack] Psychometric report email delivery failed:", error);
+  }
+  try {
+    await sendPaymentReceiptEmail({ to: attempt.email, participantName: attempt.name, reference: event.data.reference, productName: test.title, amountKes: PSYCHOMETRIC_PRICE_KES, paidAt: new Date(), productType: "psychometric" });
+  } catch (error) {
+    console.error("[Paystack] Psychometric receipt email failed:", error);
+  }
+  return true;
+}
+
+async function reconcileCareerPathPayment(event: PaystackEvent) {
+  const data = event.data;
+  if (!event.data?.reference || event.data.status !== "success" || event.data.amount !== CAREER_PATH_PRICE_KES * 100 || event.data.currency !== "KES") return false;
+  const attempt = await getCareerPathAttemptByReference(event.data.reference);
+  if (!attempt || attempt.paymentStatus === "paid") return true;
+  const report = buildCareerPathReport(attempt.answers as Array<{ questionId: string; value: number }>);
+  await markCareerPathPaid(attempt.id, report);
+  await recordAnalyticsEvent({ eventName: "payment_completed", attemptId: attempt.id, metadata: { product: "careerpath", currency: "KES", amount: CAREER_PATH_PRICE_KES, source: "webhook" } });
+  try {
+    await emailCareerPathReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report, personalNotes: attempt.personalNotes, receiptTitle: attempt.receiptTitle });
+  } catch (error) {
+    console.error("[Paystack] CareerPath report email delivery failed:", error);
+  }
+  try {
+    await sendPaymentReceiptEmail({ to: attempt.email, participantName: attempt.name, reference: event.data.reference, productName: "CareerPath Talent Fit", amountKes: CAREER_PATH_PRICE_KES, paidAt: new Date(), productType: "careerpath" });
+  } catch (error) {
+    console.error("[Paystack] CareerPath receipt email failed:", error);
+  }
   return true;
 }
 
@@ -46,17 +140,14 @@ export function registerPaystackWebhook(app: Express) {
 
     let event: PaystackEvent;
     try { event = JSON.parse(body.toString()) as PaystackEvent; } catch { return res.status(400).json({ received: false }); }
+
     const courseHandled = await reconcileCoursePayment(event, event);
-    if (!courseHandled && event.event === "charge.success" && event.data?.reference && event.data.status === "success" && event.data.amount === ASSESSMENT_PRICE_KES * 100 && event.data.currency === "KES") {
-      const attempt = await getAssessmentAttemptByReference(event.data.reference);
-      if (attempt && attempt.paymentStatus !== "paid") {
-        const report = buildReport(attempt.answers as Array<{ questionId: string; value: number }>);
-        await markAssessmentPaid(attempt.id, report);
-        await recordAnalyticsEvent({ eventName: "payment_completed", attemptId: attempt.id, metadata: { currency: "KES", amount: ASSESSMENT_PRICE_KES, source: "webhook" } });
-        try {
-          await emailAssessmentReportIfNeeded({ attemptId: attempt.id, participantName: attempt.name, email: attempt.email, createdAt: attempt.createdAt, report, reportEmailStatus: attempt.reportEmailStatus, reportEmailSentAt: attempt.reportEmailSentAt });
-        } catch (error) {
-          console.error("[Paystack] Report email delivery failed:", error);
+    if (!courseHandled) {
+      const assessmentHandled = await reconcileAssessmentPayment(event);
+      if (!assessmentHandled) {
+        const psychometricHandled = await reconcilePsychometricPayment(event);
+        if (!psychometricHandled) {
+          await reconcileCareerPathPayment(event);
         }
       }
     }

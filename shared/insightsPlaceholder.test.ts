@@ -1,4 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/main", () => ({}));
+
 import { articlePreviews, contributors, filterInsightsPreviews, getVisibleInsightsPreviews } from "@/pages/Blog";
 
 describe("Insights preview content", () => {

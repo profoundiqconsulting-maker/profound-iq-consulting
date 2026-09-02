@@ -31,7 +31,7 @@ describe("course enrollment access flow", () => {
     expect(workspaceSource).toContain("function FirstStageCheckout");
     expect(workspaceSource).toContain("trpc.course.enroll.useMutation");
     expect(workspaceSource).toContain("stage: 1");
-    expect(workspaceSource).toContain("payment.authorizationUrl");
+    expect(workspaceSource).toContain("initializeStageInlinePayment.useMutation");
     expect(workspaceSource).toContain("Lesson access opens only after payment verification");
   });
 

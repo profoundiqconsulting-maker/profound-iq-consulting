@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
+process.env.RESEND_API_KEY = "test-resend-api-key";
+
 const {
   sendMail,
   renderAssessmentReportPdf,

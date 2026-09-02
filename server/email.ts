@@ -1,5 +1,4 @@
 import nodemailer from "nodemailer";
-import type { Transporter } from "nodemailer";
 import type { AssessmentReport } from "../shared/assessment";
 import { getTopCareerPathStrengths, type CareerPathReport } from "../shared/careerPath";
 import { buildSubPathwayComparisonSvg } from "../shared/reportComparisonVisual";
@@ -11,7 +10,10 @@ import type { PsychometricReport } from "../shared/psychometrics";
 import { getGeneratedCopy } from "../shared/generatedLocalization";
 import { PUBLISHED_SITE_ORIGIN } from "../shared/siteOrigin";
 
-type SmtpEnv = { SMTP_HOST?: string; SMTP_PORT?: string; SMTP_USER?: string; SMTP_PASSWORD?: string; SMTP_FROM?: string; SMTP_FROM_NAME?: string };
+type SmtpEnv = { SMTP_HOST?: string; SMTP_PORT?: string; SMTP_USER?: string; SMTP_PASSWORD?: string; SMTP_FROM?: string; SMTP_FROM_NAME?: string; RESEND_API_KEY?: string; EMAIL_FROM?: string };
+type MailAttachment = { filename?: string; content?: string | Buffer; contentType?: string };
+type MailOptions = { from?: string | { name?: string; address: string }; to?: string | string[]; subject?: string; text?: string; html?: string; attachments?: MailAttachment[] };
+type MailTransport = { sendMail: (options: MailOptions) => Promise<unknown>; verify: () => Promise<void> };
 
 export type SmtpConfig = {
   host: string;
@@ -22,25 +24,29 @@ export type SmtpConfig = {
   fromName: string;
 };
 
-let transporter: Transporter | null = null;
+let transporter: MailTransport | null = null;
 
 export function getSmtpConfig(env: SmtpEnv = process.env as SmtpEnv): SmtpConfig {
-  const host = env.SMTP_HOST?.trim();
-  const port = Number(env.SMTP_PORT ?? 587);
-  const user = env.SMTP_USER?.trim();
-  const password = env.SMTP_PASSWORD;
-  const from = env.SMTP_FROM?.trim() || user;
+  const resendApiKey = env.RESEND_API_KEY?.trim();
+  const configuredHost = env.SMTP_HOST?.trim();
+  const usingResend = Boolean(resendApiKey && (!configuredHost || configuredHost === "smtp.resend.com"));
+  const host = configuredHost || (usingResend ? "smtp.resend.com" : undefined);
+  const port = Number(env.SMTP_PORT ?? (usingResend ? 465 : 587));
+  const user = env.SMTP_USER?.trim() || (usingResend ? "resend" : undefined);
+  const password = env.SMTP_PASSWORD?.trim() || (usingResend ? resendApiKey : undefined);
+  const from = env.SMTP_FROM?.trim() || env.EMAIL_FROM?.trim() || user;
   const fromName = env.SMTP_FROM_NAME?.trim() || "Profound IQ Consulting";
   if (!host || !Number.isInteger(port) || port <= 0 || !user || !password || !from) throw new Error("SMTP report delivery is not configured.");
   return { host, port, user, password, from, fromName };
 }
 
-function getTransporter(): Transporter {
+function getTransporter(): MailTransport {
   if (!transporter) {
     const config = getSmtpConfig();
-    transporter = nodemailer.createTransport({ host: config.host, port: config.port, secure: config.port === 465, auth: { user: config.user, pass: config.password } });
+    const smtpTransport = nodemailer.createTransport({ host: config.host, port: config.port, secure: config.port === 465, auth: { user: config.user, pass: config.password } });
+    transporter = { sendMail: (options) => smtpTransport.sendMail(options), verify: async () => { await smtpTransport.verify(); } };
   }
-  return transporter;
+  return transporter!;
 }
 
 export async function verifySmtpConnection(): Promise<void> {
@@ -268,4 +274,23 @@ export async function sendWeeklyCourseLessonReviewAnalyticsEmail(input: { recipi
   const subject = `Profound IQ weekly instructor review analytics · ${input.toDate}`;
   const message = `Attached is the review analytics report for ${input.fromDate} to ${input.toDate}. It covers ${input.reviewedResponses} reviewed response(s) and ${input.needsReviewResponses} response(s) still needing review.`;
   await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to: recipients, subject, text: message, html: `<div style="font-family:Arial,sans-serif;color:#16243d"><h2>${escapeHtml(subject)}</h2><p>${escapeHtml(message)}</p><p>The report includes response aging, reviewer workload, course summaries, module summaries, and daily activity.</p></div>`, attachments: [{ filename: `review-analytics-${input.toDate}.pdf`, content: input.reportPdf, contentType: "application/pdf" }] });
+}
+
+export async function sendPaymentReceiptEmail(input: { to: string; participantName: string; reference: string; productName: string; amountKes: number; paidAt: Date | string; productType: "assessment" | "psychometric" | "careerpath" | "course_stage"; courseSlug?: string; enrollmentId?: number }): Promise<void> {
+  const config = getSmtpConfig();
+  const safeName = escapeHtml(input.participantName || "Learner");
+  const safeProduct = escapeHtml(input.productName);
+  const safeReference = escapeHtml(input.reference);
+  const safeAmount = `KES ${input.amountKes.toLocaleString()}`;
+  const safeDate = new Date(input.paidAt).toLocaleString();
+  const subject = `Payment receipt · ${safeProduct} · Profound IQ Consulting`;
+  const origin = PUBLISHED_SITE_ORIGIN;
+  let verificationUrl = `${origin}/dashboard`;
+  if (input.productType === "assessment") verificationUrl = `${origin}/assessment?reference=${encodeURIComponent(input.reference)}`;
+  else if (input.productType === "psychometric") verificationUrl = `${origin}/psychometrics?reference=${encodeURIComponent(input.reference)}`;
+  else if (input.productType === "careerpath") verificationUrl = `${origin}/careerpath?reference=${encodeURIComponent(input.reference)}`;
+  else if (input.productType === "course_stage" && input.courseSlug) verificationUrl = `${origin}/courses/${encodeURIComponent(input.courseSlug)}`;
+  const text = `Hello ${safeName},\n\nThank you for your payment of ${safeAmount} for ${safeProduct}.\n\nTransaction reference: ${safeReference}\nPaid on: ${safeDate}\n\nView your purchase: ${verificationUrl}\n\nIf you have any questions, reply to this email or contact our support team.\n\nProfound IQ Consulting · Transformational learning`;
+  const html = `<div style="max-width:680px;margin:0 auto;background:#f7f3e8;color:#16243d;font-family:Arial,sans-serif"><div style="background:#101d35;color:#f7f3e8;padding:24px 28px;border-top:6px solid #c9a34e"><div style="font-size:12px;letter-spacing:3px;font-weight:700">PROFOUND IQ CONSULTING</div><div style="margin-top:8px;color:#c9a34e;font-size:11px;letter-spacing:2px">PAYMENT RECEIPT</div></div><div style="padding:28px"><p>Hello ${safeName},</p><p>Thank you for your purchase. Your payment has been confirmed and your access is being updated.</p><div style="border:1px solid #d8cfba;background:#fff;padding:20px;margin:20px 0"><p style="font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#a27e2e;margin:0 0 12px">Transaction details</p><table style="width:100%;border-collapse:collapse;font-size:14px"><tr style="border-bottom:1px solid #eee"><td style="padding:8px 0;color:#657084">Product</td><td style="padding:8px 0;text-align:right;font-weight:600">${safeProduct}</td></tr><tr style="border-bottom:1px solid #eee"><td style="padding:8px 0;color:#657084">Amount paid</td><td style="padding:8px 0;text-align:right;font-weight:700;color:#a27e2e">${safeAmount}</td></tr><tr style="border-bottom:1px solid #eee"><td style="padding:8px 0;color:#657084">Reference</td><td style="padding:8px 0;text-align:right;font-family:monospace">${safeReference}</td></tr><tr><td style="padding:8px 0;color:#657084">Date</td><td style="padding:8px 0;text-align:right">${safeDate}</td></tr></table></div><p style="margin:0"><a href="${verificationUrl}" style="display:inline-block;background:#16243d;color:#f7f3e8;padding:12px 24px;text-decoration:none;font-weight:700;font-size:13px;letter-spacing:1px">VIEW YOUR PURCHASE</a></p><p style="margin-top:24px;font-size:13px;color:#657084">Keep this receipt for your records. If you did not authorize this transaction, contact us immediately.</p></div><div style="background:#16243d;color:#c1cad7;padding:18px 28px;font-size:12px">Profound IQ Consulting · Transformational learning · Online / global reach</div></div>`;
+  await getTransporter().sendMail({ from: { name: config.fromName, address: config.from }, to: [input.to], subject, text, html });
 }

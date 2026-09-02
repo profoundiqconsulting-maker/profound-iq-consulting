@@ -1,4 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@shared/siteOrigin", () => {
+  const origin = "http://localhost:3000";
+  return {
+    PUBLISHED_SITE_ORIGIN: origin,
+    publishedSiteUrl: (path = "") => `${origin}${path.startsWith("/") || path.length === 0 ? path : `/${path}`}`,
+  };
+});
+
 import { getSeo, SITE_ORIGIN } from "@/components/SeoHead";
 
 describe("public page SEO contracts", () => {
@@ -22,6 +31,6 @@ describe("public page SEO contracts", () => {
 
   it("keeps canonical paths relative to the configured public origin", () => {
     const seo = getSeo("/services");
-    expect(`${SITE_ORIGIN}${seo.canonical}`).toBe("https://profoundiq-vguqrhsm.manus.space/services");
+    expect(`${SITE_ORIGIN}${seo.canonical}`).toBe("http://localhost:3000/services");
   });
 });

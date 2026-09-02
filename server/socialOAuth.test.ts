@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+process.env.GOOGLE_OAUTH_CLIENT_ID = "google-client-id";
+process.env.GOOGLE_OAUTH_CLIENT_SECRET = "google-client-secret";
+
 const mocks = vi.hoisted(() => ({
   findUserByLocalIdentifier: vi.fn(),
   upsertUser: vi.fn(),
@@ -10,11 +13,12 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("./db", () => ({ findUserByLocalIdentifier: mocks.findUserByLocalIdentifier, upsertUser: mocks.upsertUser }));
 vi.mock("./_core/sdk", () => ({ sdk: { createSessionToken: mocks.createSessionToken } }));
+vi.mock("./_core/env", () => ({ ENV: { googleOAuthClientId: "google-client-id", googleOAuthClientSecret: "google-client-secret", sessionSecret: "test-secret", databaseUrl: "", adminEmail: "", port: 3000, doSpacesEndpoint: "", doSpacesRegion: "", doSpacesBucket: "", doSpacesAccessKey: "", doSpacesSecretKey: "", doSpacesBaseUrl: "", paystackSecretKey: "", resendApiKey: "", emailFrom: "", forgeApiUrl: "", forgeApiKey: "", oAuthServerUrl: "", ownerOpenId: "", appId: "", linkedinOAuthClientId: "", linkedinOAuthClientSecret: "", isProduction: false, isDevelopment: true } }));
 vi.mock("jose", () => ({ jwtVerify: mocks.jwtVerify, createRemoteJWKSet: mocks.createRemoteJWKSet }));
 
 import { buildSocialAuthorizationUrl, registerSocialOAuthRoutes, socialOAuthRedirectUri } from "./_core/socialOAuth";
 
-const origin = "https://profoundiq-vguqrhsm.manus.space";
+const origin = "http://localhost:3000";
 
 type Handler = (req: any, res: any) => unknown;
 

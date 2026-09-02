@@ -1,15 +1,15 @@
 import PDFDocument from "pdfkit";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { getDimensionReflectionPoints, type AssessmentReport, type RoleLensReadout } from "../shared/assessment";
 import type { CareerPathReport } from "../shared/careerPath";
-import { storageGetSignedUrl } from "./storage";
 import { getGeneratedCopy, type GeneratedLocale } from "../shared/generatedLocalization";
 
 type ReportPdfInput = { attemptId: number; participantName: string; email?: string; createdAt: Date | string; report: AssessmentReport; lens?: RoleLensReadout; locale?: GeneratedLocale };
 const NAVY = "#16243d";
 const GOLD = "#a27e2e";
 const MUTED = "#5f6a7b";
-const LOGO_KEY = "ProfoundIQLogo-header_aad21220.jpg";
+const LOGO_PATH = join(process.cwd(), "client/public/ProfoundIQLogo.png");
 const PDF_FONT_DIR = "/usr/share/fonts";
 function pdfFont(locale: GeneratedLocale, bold = false): string {
   const code = String(locale ?? "en").split("-")[0];
@@ -23,12 +23,20 @@ let logoBufferPromise: Promise<Buffer | null> | null = null;
 
 async function loadBrandLogo(): Promise<Buffer | null> {
   if (process.env.NODE_ENV === "test") return null;
-  if (!logoBufferPromise) logoBufferPromise = (async () => { try { const signedUrl = await storageGetSignedUrl(LOGO_KEY); const response = await fetch(signedUrl); return response.ok ? Buffer.from(await response.arrayBuffer()) : null; } catch { return null; } })();
+  if (!logoBufferPromise) logoBufferPromise = (async () => { try { if (!existsSync(LOGO_PATH)) return null; return readFileSync(LOGO_PATH); } catch { return null; } })();
   return logoBufferPromise;
 }
 async function loadCustomLogo(url?: string): Promise<Buffer | null> {
   if (!url || process.env.NODE_ENV === "test") return null;
-  try { const key = url.replace(/^\/manus-storage\//, ""); const signedUrl = await storageGetSignedUrl(key); const response = await fetch(signedUrl); return response.ok ? Buffer.from(await response.arrayBuffer()) : null; } catch { return null; }
+  try {
+    if (url.startsWith("/")) {
+      const fsPath = join(process.cwd(), "client/public", url);
+      if (existsSync(fsPath)) return readFileSync(fsPath);
+      return null;
+    }
+    const response = await fetch(url);
+    return response.ok ? Buffer.from(await response.arrayBuffer()) : null;
+  } catch { return null; }
 }
 
 type CareerPathPdfInput = { attemptId: number; participantName: string; email?: string; createdAt: Date | string; report: CareerPathReport; locale?: GeneratedLocale };
@@ -189,7 +197,7 @@ function writeText(doc: PDFKit.PDFDocument, value: string, x: number, y: number,
 
 function addFooter(doc: PDFKit.PDFDocument): void {
   const pageNumber = doc.bufferedPageRange().count;
-  doc.fillColor(GOLD).font("Helvetica").fontSize(8.5).text("profoundiq-vguqrhsm.manus.space", 52, 746, { characterSpacing: 0.8 });
+  doc.fillColor(GOLD).font("Helvetica").fontSize(8.5).text("localhost:3000", 52, 746, { characterSpacing: 0.8 });
   doc.fillColor(MUTED).font("Helvetica").fontSize(8).text(`Page ${pageNumber}`, 450, 746, { width: 93, align: "right" });
 }
 function formatDate(value: Date | string, locale?: GeneratedLocale): string {
@@ -342,7 +350,7 @@ export async function renderPaymentReceiptPdf(input: { attemptId: number; partic
   doc.fillColor(NAVY).font("Helvetica").fontSize(9).fillColor(NAVY).text(input.verificationUrl, 52, 575, { link: input.verificationUrl, underline: true, width: 490 });
   doc.fillColor(MUTED).font("Helvetica").fontSize(8).text("Scan the QR code on your credential or open the verification link above to confirm authenticity.", 52, 610, { width: 490 });
   doc.fillColor(NAVY).rect(0, 760, doc.page.width, 82).fill();
-  doc.fillColor("#f7f3e8").font("Helvetica").fontSize(8).text("profoundiq-vguqrhsm.manus.space  ·  admin@profoundiqconsulting.com  ·  +254 727 374 055", 52, 796, { width: 490, align: "center" });
+  doc.fillColor("#f7f3e8").font("Helvetica").fontSize(8).text("localhost:3000  ·  admin@profoundiqconsulting.com  ·  +254 727 374 055", 52, 796, { width: 490, align: "center" });
   doc.end();
   return finished;
 }

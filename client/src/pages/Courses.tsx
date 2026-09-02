@@ -15,7 +15,7 @@ import { getCourseEnrollmentCopy } from "@shared/courseEnrollmentLocalization";
 type ModulePreview = { id: string; title: string; promise: string };
 type CourseCard = { slug: string; index: string; title: string; strapline: string; description: string; audience: string; duration: string; outcomes: string[]; modules: ModulePreview[]; price: string; stagePlan: string; format: string; body: string; category: string; skillLevel: "Foundation" | "Practitioner" | "Advanced"; coverImage: string; isDatabaseItem: boolean };
 const courseCategory = (course: Pick<CourseCard, "category">) => course.category;
-const coverFallback = "/manus-storage/cover-people-practice_b105669e.jpg";
+const coverFallback = "/cover-people-practice_342ff6e3.svg";
 const skillFallback = (slug: string): CourseCard["skillLevel"] => /professional-certificate|mastering|lead|strategic|negotiation/.test(slug) ? "Advanced" : /essentials|personal-growth|growth-mindset|communication|confidence/.test(slug) ? "Foundation" : "Practitioner";
 const codeCourses: CourseCard[] = courseCatalog.map((course, index) => ({ slug: course.slug, index: String(index + 1).padStart(2, "0"), title: course.title, strapline: course.strapline, description: course.description, audience: course.audience, duration: course.duration, outcomes: [...course.outcomes], modules: course.modules.map((module) => ({ id: module.id, title: module.title, promise: module.promise })), price: `KES ${course.priceKes.toLocaleString()}`, stagePlan: course.stageAmountsKes.map((amount) => `KES ${amount.toLocaleString()}`).join(" / "), format: course.duration, body: course.description, category: course.category, skillLevel: course.skillLevel, coverImage: course.coverImage, isDatabaseItem: false }));
 

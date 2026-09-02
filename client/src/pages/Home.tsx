@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowDownRight, ArrowUp, ArrowUpRight, Check, ChevronRight, Clock3, Facebook, Instagram, Linkedin, Mail, MessageCircle, Phone, Sparkles, X } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
-import { SiteNavigation } from "@/components/SiteNavigation";
+import { ExecutiveHeader } from "@/components/ExecutiveHeader";
 import { trpc } from "@/lib/trpc";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { startLogin } from "@/const";
@@ -123,7 +123,7 @@ export default function Home() {
     <div className="min-h-screen overflow-hidden bg-[#101d35] text-[#f7f3e8]">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
 
-      <SiteNavigation variant="home" dark />
+      <ExecutiveHeader variant="home" dark />
 
       <main id="top">
         <section className="grain relative min-h-[720px] border-b border-white/10 bg-[#101d35]">

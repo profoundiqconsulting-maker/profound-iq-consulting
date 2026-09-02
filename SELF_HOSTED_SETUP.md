@@ -63,7 +63,7 @@ Successfully rebuilt the Manus WebDev platform runtime layer as a self-hosted sy
   - `storageGetSignedUrl()`: Generates temporary presigned URLs (1 hour default)
   - Function signatures unchanged - no router.ts changes needed
 - `server/_core/storageProxy.ts`: Stubbed out
-  - No `/manus-storage/*` redirect layer needed
+  - No `/local-storage/*` redirect layer needed
   - Files accessed directly via DO Spaces public URLs
 
 **Environment Variables - NEW:**

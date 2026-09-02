@@ -1,15 +1,34 @@
-import type { Express } from "express";
+import type { Express, NextFunction, Request, Response } from "express";
+import { storageGet } from "../storage";
 
 /**
  * Storage proxy for DigitalOcean Spaces.
- * In the self-hosted version, files are stored directly in DO Spaces
- * and accessed via public URLs. No proxy layer needed.
- *
- * This function is kept for compatibility with the index.ts initialization,
- * but doesn't register any routes.
+ * Registers legacy /manus-storage/* and canonical /local-storage/* routes
+ * so both prefixes resolve to the same DO Spaces files.
  */
 export function registerStorageProxy(app: Express) {
-  // No routes needed - DO Spaces files are accessed directly via public URLs
-  console.log("[Storage] DigitalOcean Spaces configured for direct access");
+  app.get("/manus-storage/*", async (req: Request, res: Response, next: NextFunction) => {
+    await proxyStorageRequest(req, res, next, "/manus-storage/");
+  });
+
+  app.get("/local-storage/*", async (req: Request, res: Response, next: NextFunction) => {
+    await proxyStorageRequest(req, res, next, "/local-storage/");
+  });
+}
+
+async function proxyStorageRequest(req: Request, res: Response, next: NextFunction, prefix: string) {
+  try {
+    const relativePath = req.originalUrl.slice(prefix.length);
+    const key = relativePath.split("?")[0];
+    const { url } = await storageGet(key);
+    res.redirect(302, url);
+  } catch (error) {
+    console.error(`[Storage] Proxy failed for ${req.originalUrl}:`, error);
+    if (!res.headersSent) {
+      res.status(404).json({ error: "Storage is not configured." });
+    } else {
+      next(error);
+    }
+  }
 }
 

@@ -1,5 +1,16 @@
 import { existsSync, readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+const ORIGIN = "http://localhost:3000";
+
+vi.mock("../shared/siteOrigin", () => {
+  const origin = "http://localhost:3000";
+  return {
+    PUBLISHED_SITE_ORIGIN: origin,
+    publishedSiteUrl: (path = "") => `${origin}${path.startsWith("/") || path.length === 0 ? path : `/${path}`}`,
+  };
+});
+
 import { getSeo, SITE_ORIGIN, DEFAULT_IMAGE } from "../client/src/components/SeoHead";
 
 describe("route SEO metadata", () => {
@@ -13,8 +24,8 @@ describe("route SEO metadata", () => {
     expect(assessment.canonical).toBe("/assessment");
     expect(course.title).toContain("Leadership Development");
     expect(course.jsonLd?.["@type"]).toBe("Course");
-    expect(`${SITE_ORIGIN}${course.canonical}`).toBe("https://profoundiq-vguqrhsm.manus.space/courses/leadership-development");
-    expect(DEFAULT_IMAGE).toMatch(/^https:\/\/profoundiq-vguqrhsm\.manus\.space\/manus-storage\/.*\.png$/);
+    expect(`${SITE_ORIGIN}${course.canonical}`).toBe("http://localhost:3000/courses/leadership-development");
+    expect(DEFAULT_IMAGE).toMatch(/^http:\/\/localhost:3000\/profound-iq-social-preview\.svg$/);
   });
 
   it("marks private workspace routes as noindex", () => {
@@ -27,8 +38,8 @@ describe("route SEO metadata", () => {
     const robots = readFileSync("client/public/robots.txt", "utf8");
     const sitemap = readFileSync("client/public/sitemap.xml", "utf8");
     expect(existsSync("client/public/robots.txt")).toBe(true);
-    expect(robots).toContain("Sitemap: https://profoundiq-vguqrhsm.manus.space/sitemap.xml");
+    expect(robots).toContain("Sitemap: http://localhost:3000/sitemap.xml");
     expect(robots).toContain("Disallow: /admin");
-    expect(sitemap).toContain("https://profoundiq-vguqrhsm.manus.space/courses");
+    expect(sitemap).toContain("http://localhost:3000/courses");
   });
 });

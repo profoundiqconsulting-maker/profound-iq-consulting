@@ -5,6 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocale } from "@/contexts/LocaleContext";
 import { TransformationNav } from "@/components/TransformationNav";
+import { startLogin } from "@/const";
 
 export default function CoursePaymentSuccess() {
   const [, setLocation] = useLocation();
@@ -17,6 +18,13 @@ export default function CoursePaymentSuccess() {
   const state = trpc.course.state.useQuery(undefined, { enabled: Boolean(user), retry: false });
   const [status, setStatus] = useState<"verifying" | "success" | "error">(reference ? "verifying" : "error");
 
+  const signInHref = `/auth?mode=login&returnTo=${encodeURIComponent(window.location.pathname + window.location.search + window.location.hash)}`;
+
+  const handleSignIn = (event: React.MouseEvent) => {
+    event.preventDefault();
+    startLogin(window.location.pathname + window.location.search + window.location.hash);
+  };
+
   useEffect(() => {
     if (!user || !reference || verify.isPending || status !== "verifying") return;
     verify.mutate({ reference }, { onSuccess: () => { setStatus("success"); void state.refetch(); }, onError: () => setStatus("error") });
@@ -27,7 +35,7 @@ export default function CoursePaymentSuccess() {
 
   if (loading || (user && status === "verifying")) return <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]"><TransformationNav active="assessment" /><main className="container grid min-h-[70vh] place-items-center py-16"><div className="text-center"><Loader2 className="mx-auto animate-spin text-[#a27e2e]" size={34} /><p className="eyebrow mt-5 text-[#a27e2e]">Secure verification</p><h1 className="display mt-3 text-4xl">Confirming your payment.</h1><p className="mt-4 text-sm text-[#657084]">We are checking the Paystack transaction before unlocking your next course step.</p></div></main></div>;
 
-  if (!user) return <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]"><TransformationNav active="assessment" /><main className="container grid min-h-[70vh] place-items-center py-16"><div className="max-w-md text-center"><AlertCircle className="mx-auto text-[#a27e2e]" size={34} /><h1 className="display mt-4 text-4xl">Sign in to confirm payment.</h1><p className="mt-4 text-sm leading-6 text-[#657084]">Return to your authenticated workspace so we can securely match this payment to your course enrollment.</p><Link href={`/auth?returnTo=${encodeURIComponent(window.location.pathname + window.location.search)}`} className="mt-6 inline-flex items-center gap-2 bg-[#16243d] px-5 py-3 text-xs font-black uppercase tracking-[.12em] text-[#f7f3e8]">{t("signIn")} <ArrowRight size={14} /></Link></div></main></div>;
+  if (!user) return <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]"><TransformationNav active="assessment" /><main className="container grid min-h-[70vh] place-items-center py-16"><div className="max-w-md text-center"><AlertCircle className="mx-auto text-[#a27e2e]" size={34} /><h1 className="display mt-4 text-4xl">Sign in to confirm payment.</h1><p className="mt-4 text-sm leading-6 text-[#657084]">Return to your authenticated workspace so we can securely match this payment to your course enrollment.</p><button onClick={handleSignIn} className="mt-6 inline-flex items-center gap-2 bg-[#16243d] px-5 py-3 text-xs font-black uppercase tracking-[.12em] text-[#f7f3e8]">{t("signIn")} <ArrowRight size={14} /></button></div></main></div>;
 
   if (status === "error") return <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]"><TransformationNav active="assessment" /><main className="container grid min-h-[70vh] place-items-center py-16"><div className="max-w-md text-center"><AlertCircle className="mx-auto text-red-700" size={34} /><h1 className="display mt-4 text-4xl">Payment needs another check.</h1><p className="mt-4 text-sm leading-6 text-[#657084]">We could not verify this transaction yet. Your course access has not changed. Return to the course and use the retry payment action.</p><Link href={courseSlug ? `/courses/${courseSlug}` : "/courses"} className="mt-6 inline-flex items-center gap-2 border border-[#16243d]/25 px-5 py-3 text-xs font-black uppercase tracking-[.12em]">Return to course <ArrowRight size={14} /></Link></div></main></div>;
 

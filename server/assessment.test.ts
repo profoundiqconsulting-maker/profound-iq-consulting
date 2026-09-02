@@ -169,7 +169,7 @@ describe("assessment scoring", () => {
     expect(navSource).toMatch(/aria-label="Breadcrumb"/);
     expect(navSource).toMatch(/startViewTransition/);
     expect(assessmentSource).toMatch(/sticky top-14 z-10/);
-    expect(assessmentSource).toMatch(/aria-current=\{moduleIndex === page \? "step" : undefined\}/);
+    expect(assessmentSource).toMatch(/aria-current=\{[\s\S]*?moduleIndex === page \? "step" : undefined[\s\S]*?\}/);
     expect(assessmentSource).toMatch(/onClick=\{\(\) => navigateToModule\(moduleIndex\)\}/);
     expect(assessmentSource).toMatch(/Module \{page \+ 1\} of \{totalPages\}/);
     expect(assessmentSource).toMatch(/moduleRailCollapsed/);
@@ -178,7 +178,7 @@ describe("assessment scoring", () => {
     expect(assessmentSource).toMatch(/moduleScore/);
     expect(assessmentSource).toMatch(/out of 100/);
     expect(assessmentSource).toMatch(/percent overall progress/);
-    expect(assessmentSource).toMatch(/<svg viewBox="0 0 40 40"/);
+    expect(assessmentSource).toMatch(/<svg[\s]+viewBox="0 0 40 40"/);
     expect(navSource).toMatch(/ArrowDown/);
     expect(navSource).toMatch(/ArrowUp/);
     expect(navSource).toMatch(/aria-activedescendant/);

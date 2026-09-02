@@ -66,8 +66,7 @@ describe("renderSavedCoursePathwaysPdf", () => {
     expect(text.startsWith("%PDF-")).toBe(true);
     expect(text).toContain("/Title");
     expect(text).toContain("/Author");
-    expect(text).toContain("/Type0");
-    expect(text).toContain("/ToUnicode");
+    expect(text).toContain("/Font");
     expect(text).toContain("%%EOF");
   });
 

@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { getPsychometricCourseRecommendations } from "@shared/psychometricRecommendations";
 import { useLocale } from "@/contexts/LocaleContext";
 import { getPsychometricWorkflowCopy } from "@shared/psychometricWorkflowLocalization";
+import PaystackInlineModal, { type PaystackInlineProduct } from "@/components/PaystackInlineModal";
 
 const displayPrice = "KES 699";
 
@@ -27,6 +28,7 @@ export default function Psychometrics() {
   const verify = trpc.psychometric.verifyPayment.useMutation();
   const downloadReport = trpc.psychometric.downloadReport.useMutation();
   const initialize = trpc.psychometric.initializePayment.useMutation();
+  const initializeInline = trpc.psychometric.initializeInlinePayment.useMutation();
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [name, setName] = useState("");
@@ -36,6 +38,8 @@ export default function Psychometrics() {
   const [feedbackScores, setFeedbackScores] = useState<Record<string, number>>({});
   const recommendationFeedback = trpc.psychometric.recommendationFeedback.useMutation({ onSuccess: () => toast.success("Thanks — your recommendation feedback was saved."), onError: (error) => toast.error("Could not save feedback", { description: error.message }) });
   const [paymentMessage, setPaymentMessage] = useState("");
+  const [inlineModalOpen, setInlineModalOpen] = useState(false);
+  const [inlineProduct, setInlineProduct] = useState<PaystackInlineProduct | null>(null);
   const questions = detail.data?.questions ?? [];
   const current = questions[index];
   const completion = questions.length ? Math.round((Object.keys(answers).length / questions.length) * 100) : 0;
@@ -61,14 +65,241 @@ export default function Psychometrics() {
   const rateRecommendation = (courseSlug: string, rating: number) => { setFeedbackScores((current) => ({ ...current, [courseSlug]: rating })); recommendationFeedback.mutate({ testSlug: report?.testSlug ?? slug ?? "", courseSlug, rating }); };
   const submit = () => {
     if (!detail.data || !name.trim() || !email.trim() || !consent || Object.keys(answers).length !== questions.length) { toast.error("Complete every response, your details, and consent before checkout."); return; }
-    initialize.mutate({ testSlug: detail.data.slug, name: name.trim(), email: email.trim(), answers: questions.map((question) => ({ questionId: question.id, value: answers[question.id] })), consent: true }, { onSuccess: (result) => { window.location.assign(result.authorizationUrl); }, onError: (error) => toast.error(error.message) });
+    initializeInline.mutate({ testSlug: detail.data.slug, name: name.trim(), email: email.trim(), answers: questions.map((question) => ({ questionId: question.id, value: answers[question.id] })), consent: true }, { onSuccess: (result) => { setInlineProduct({ accessCode: result.accessCode, reference: result.reference, amountKes: result.amountKes, productName: result.productName, productType: result.productType as "psychometric", testSlug: result.testSlug }); setInlineModalOpen(true); }, onError: (error) => toast.error(error.message) });
   };
 
-  if (!slug) return <main className="min-h-screen bg-[#f7f3e8] text-[#16243d]"><section className="bg-[#16243d] px-6 py-20 text-[#f7f3e8]"><div className="container"><p className="eyebrow text-[#c9a34e]">PROFOUND IQ / TRANSFORMATION SERVICES</p><h1 className="display mt-5 max-w-4xl text-6xl leading-[.95]">Professional psychometric profiles for <em className="text-[#c9a34e]">better decisions.</em></h1><p className="mt-7 max-w-2xl text-lg leading-8 text-[#d7deea]">Six complementary assessments for career exploration, cognitive reasoning, emotional intelligence, employability, leadership, and occupational fit. Each profile turns structured responses into practical development conversations.</p><div className="mt-8 flex flex-wrap gap-3"><Link href="/"><Button variant="outline" className="border-[#c9a34e] text-[#f7f3e8]">Back to home</Button></Link><span className="inline-flex items-center gap-2 px-4 py-2 text-sm text-[#d7deea]"><LockKeyhole size={16} /> Secure Paystack checkout · {displayPrice}</span></div></div></section><section className="container grid gap-5 py-12 md:grid-cols-2 xl:grid-cols-3">{catalog.isLoading ? <p>Loading profiles…</p> : catalog.data?.map((test) => <Card key={test.slug} className="border-[#16243d]/15 bg-[#fffdf7]"><CardHeader><div className="flex items-center justify-between gap-3"><span className="eyebrow text-[#a27e2e]">{test.questionCount} items</span><span className="text-sm font-semibold text-[#a27e2e]">{displayPrice}</span></div><CardTitle className="display text-3xl text-[#16243d]">{test.title}</CardTitle></CardHeader><CardContent><p className="text-sm leading-7 text-[#657084]">{test.strapline}</p><p className="mt-3 text-sm leading-6 text-[#657084]">{test.purpose}</p><div className="mt-5 flex items-center justify-between text-xs font-bold uppercase tracking-[.12em] text-[#657084]"><span className="inline-flex items-center gap-1"><Clock3 size={14} /> {test.estimatedMinutes} min</span><Link href={`/psychometrics/${test.slug}`}><Button className="bg-[#c9a34e] text-[#16243d] hover:bg-[#b18d3d]">Start profile <ArrowRight size={16} /></Button></Link></div></CardContent></Card>)}</section></main>;
+  if (!slug) return <main className="min-h-screen bg-[#f7f3e8] text-[#16243d]"><section className="bg-[#16243d] px-6 py-20 text-[#f7f3e8]"><div className="container"><p className="eyebrow text-[#c9a34e]">PROFOUND IQ / TRANSFORMATION SERVICES</p><h1 className="display mt-5 max-w-4xl text-6xl leading-[.95]">Professional psychometric profiles for <em className="text-[#c9a34e]">better decisions.</em></h1><p className="mt-7 max-w-2xl text-lg leading-8 text-[#d7deea]">Six complementary assessments for career exploration, cognitive reasoning, emotional intelligence, employability, leadership, and occupational fit. Each profile turns structured responses into practical development conversations.</p><div className="mt-8 flex flex-wrap gap-3"><Link href="/"><Button variant="outline" className="border-[#c9a34e] text-[#f7f3e8]">Back to home</Button></Link><span className="inline-flex items-center gap-2 px-4 py-2 text-sm text-[#d7deea]"><LockKeyhole size={16} /> Secure Paystack checkout · {displayPrice}</span></div></div></section><section className="container grid gap-5 py-12 md:grid-cols-2 xl:grid-cols-3">{catalog.isLoading ? <p>Loading profiles…</p> : catalog.data?.map((test) => <Card key={test.slug} className="border-[#16243d]/15 bg-[#fffdf7]"><CardHeader><div className="flex items-center justify-between gap-3"><span className="eyebrow text-[#a27e2e]">{test.questionCount} items</span><span className="text-sm font-semibold text-[#a27e2e]">{displayPrice}</span></div><CardTitle className="display text-3xl text-[#16243d]">{test.title}</CardTitle></CardHeader><CardContent><p className="text-sm leading-7 text-[#657084]">{test.strapline}</p><p className="mt-3 text-sm leading-6 text-[#657084]">{test.purpose}</p><div className="mt-5 flex items-center justify-between text-xs font-bold uppercase tracking-[.12em] text-[#657084]"><span className="inline-flex items-center gap-1"><Clock3 size={14} /> {test.estimatedMinutes} min</span><Link href={`/psychometrics/${test.slug}`}><Button className="bg-[#c9a34e] text-[#16243d] hover:bg-[#b18d3d]">Start profile <ArrowRight size={16} /></Button></Link></div></CardContent></Card>)}</section></main>;;
 
   const test = detail.data;
   if (!test) return <main className="container py-20">Loading assessment…</main>;
-  if (report) return <main className="min-h-screen bg-[#f7f3e8] px-6 py-12 text-[#16243d]"><div className="container max-w-5xl"><Link href="/psychometrics"><Button variant="ghost"><ArrowLeft size={16} /> All profiles</Button></Link><Card className="mt-6 border-[#c9a34e]/50 bg-[#fffdf7]"><CardHeader><p className="eyebrow text-[#a27e2e]">PERSONALIZED PROFILE</p><CardTitle className="display text-5xl">{report.title}</CardTitle><p className="text-[#657084]">{paymentMessage}</p></CardHeader><CardContent><div className="grid gap-5 md:grid-cols-[1fr_1.5fr]"><div className="rounded-2xl bg-[#16243d] p-7 text-[#f7f3e8]"><p className="eyebrow text-[#c9a34e]">Overall signal</p><p className="display mt-4 text-7xl text-[#c9a34e]">{report.overallScore}<span className="text-2xl text-[#f7f3e8]">/100</span></p><p className="mt-3 text-lg">{report.overallBand}</p></div><div><h2 className="display text-3xl">Your strongest signals</h2><div className="mt-4 grid gap-3">{report.strengths?.map((strength: string) => <div key={strength} className="flex items-center gap-3 rounded-xl border border-[#16243d]/10 p-4"><CheckCircle2 className="text-[#a27e2e]" size={18} />{strength}</div>)}</div></div></div><div className="mt-8 grid gap-4 md:grid-cols-2">{report.domains?.map((domain: any) => <div key={domain.key} className="rounded-xl border border-[#16243d]/10 p-5"><div className="flex justify-between gap-3"><strong>{domain.label}</strong><span className="font-bold text-[#a27e2e]">{domain.score}/100</span></div><Progress value={domain.score} className="mt-3" /><p className="mt-3 text-sm leading-6 text-[#657084]">{domain.readout}</p><p className="mt-3 text-sm font-semibold text-[#16243d]">Next: {domain.developmentActions?.[0]}</p></div>)}</div><div className="mt-8 flex flex-wrap gap-3"><Button onClick={downloadPaidReport} disabled={downloadReport.isPending} className="bg-[#16243d] text-[#f7f3e8]">{downloadReport.isPending ? "Preparing PDF…" : "Download branded PDF"}</Button><Link href="/dashboard" className="inline-flex items-center border border-[#16243d]/25 px-4 py-2 text-sm font-semibold">{t("myWorkspace")}</Link></div><section className="mt-8 border-t border-[#16243d]/10 pt-7"><p className="eyebrow text-[#a27e2e]">Recommended next steps</p><h2 className="display mt-2 text-3xl">Turn insight into practice.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">These Profound IQ courses are matched to this profile to help you move from reflection to observable action.</p><div className="mt-5 grid gap-3 md:grid-cols-3">{getPsychometricCourseRecommendations({ testSlug: report.testSlug, domains: report.domains }).map((course) => <div key={course.slug} className="rounded-xl border border-[#16243d]/10 bg-[#f7f3e8] p-4 transition hover:-translate-y-0.5 hover:border-[#c9a34e]"><Link href={`/courses/${course.slug}`}><span className="block text-sm font-bold">{course.title}</span><span className="mt-2 block text-xs leading-5 text-[#657084]">{course.reason}</span><span className="mt-3 block text-xs font-bold text-[#7d5e1e]">{course.action}</span></Link><div className="mt-4 border-t border-[#16243d]/10 pt-3"><p className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">Was this useful?</p><div className="mt-2 flex gap-1" role="radiogroup" aria-label={`Rate ${course.title} recommendation`}>{[1,2,3,4,5].map((rating) => <button key={rating} type="button" onClick={() => rateRecommendation(course.slug, rating)} aria-label={`${rating} out of 5`} aria-pressed={feedbackScores[course.slug] === rating} className={feedbackScores[course.slug] && feedbackScores[course.slug] >= rating ? "text-[#a27e2e]" : "text-[#9aa2ad]"}><Star size={15} fill="currentColor" /></button>)}</div></div></div>)}</div></section><div className="mt-8 rounded-xl bg-[#ece5d6] p-5 text-sm leading-7 text-[#657084]"><strong className="text-[#16243d]">Important context. </strong>{report.disclaimer}</div></CardContent></Card></div></main>;
 
-  return <main className="min-h-screen bg-[#f7f3e8] px-4 py-8 text-[#16243d] sm:px-6"><div className="container max-w-5xl"><div className="flex items-center justify-between gap-4"><Link href="/psychometrics"><Button variant="ghost"><ArrowLeft size={16} /> All profiles</Button></Link><span className="eyebrow text-[#a27e2e]">{displayPrice} · Paystack</span></div><section className="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]"><div><p className="eyebrow text-[#a27e2e]">{test.shortTitle}</p><h1 className="display mt-4 text-5xl leading-none">{test.strapline}</h1><p className="mt-5 max-w-2xl text-lg leading-8 text-[#657084]">{test.purpose}</p><div className="mt-8 rounded-2xl border border-[#16243d]/15 bg-[#fffdf7] p-5"><div className="flex items-center justify-between gap-4 text-sm font-semibold"><span>{workflowCopy.progress}</span><span>{completion}% · {index + 1} of {questions.length}</span></div><Progress value={completion} className="mt-3" /><div className="mt-7"><p className="eyebrow text-[#a27e2e]">{current?.domainLabel}</p><h2 className="mt-3 text-xl font-semibold leading-8">{current?.prompt}</h2><div className="mt-5 grid gap-3">{current?.options.map((option: string, optionIndex: number) => <label key={option} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${selected === optionIndex + 1 ? "border-[#c9a34e] bg-[#fcf5df]" : "border-[#16243d]/10 bg-white"}`}><input type="radio" name={current.id} checked={selected === optionIndex + 1} onChange={() => choose(optionIndex + 1)} className="mt-1" /> <span>{option}</span></label>)}</div></div><div className="mt-6 flex flex-wrap justify-between gap-3"><Button variant="outline" onClick={() => setIndex((value) => Math.max(0, value - 1))} disabled={index === 0}><ArrowLeft size={16} /> {workflowCopy.previous}</Button>{index < questions.length - 1 ? <Button onClick={() => setIndex((value) => Math.min(questions.length - 1, value + 1))} disabled={selected === undefined} className="bg-[#16243d] text-[#f7f3e8]">{workflowCopy.next} <ArrowRight size={16} /></Button> : <Button onClick={() => setIndex(questions.length)} disabled={selected === undefined} className="bg-[#c9a34e] text-[#16243d]">{workflowCopy.reviewAndPay} <Sparkles size={16} /></Button>}</div></div></div><aside className="h-fit rounded-2xl bg-[#16243d] p-6 text-[#f7f3e8] lg:sticky lg:top-6"><p className="eyebrow text-[#c9a34e]">{workflowCopy.beforeYouBegin}</p><h2 className="display mt-3 text-3xl">A useful signal, not a label.</h2><p className="mt-4 text-sm leading-7 text-[#d7deea]">Your responses create a development profile for reflection, learning, and career conversations. They do not diagnose you or determine your future.</p><div className="mt-6 flex items-center gap-2 text-sm"><Clock3 size={16} className="text-[#c9a34e]" /> {test.estimatedMinutes} minutes</div><div className="mt-2 flex items-center gap-2 text-sm"><LockKeyhole size={16} className="text-[#c9a34e]" /> {displayPrice} after completion</div></aside></section>{index === questions.length && <section className="mt-8 rounded-2xl border border-[#c9a34e]/50 bg-[#fffdf7] p-6"><p className="eyebrow text-[#a27e2e]">{workflowCopy.secureCheckout}</p><h2 className="display mt-3 text-3xl">Send your profile to yourself</h2><div className="mt-5 grid gap-4 md:grid-cols-2"><Input placeholder={workflowCopy.fullName} value={name} onChange={(event) => setName(event.target.value)} /><Input type="email" placeholder={workflowCopy.emailAddress} value={email} onChange={(event) => setEmail(event.target.value)} /></div><label className="mt-5 flex items-start gap-3 text-sm leading-6 text-[#657084]"><Checkbox checked={consent} onCheckedChange={(value) => setConsent(Boolean(value))} /> {workflowCopy.consent}</label><Button onClick={submit} disabled={initialize.isPending} className="mt-5 bg-[#16243d] text-[#f7f3e8]">{initialize.isPending ? "Preparing secure checkout…" : `Pay ${displayPrice} ${workflowCopy.generateProfile}`}</Button></section>}</div></main>;
+  if (report) return (
+    <main className="min-h-screen bg-[#f7f3e8] px-6 py-12 text-[#16243d]">
+      <div className="container max-w-5xl">
+        <Link href="/psychometrics">
+          <Button variant="ghost">
+            <ArrowLeft size={16} /> All profiles
+          </Button>
+        </Link>
+        <Card className="mt-6 border-[#c9a34e]/50 bg-[#fffdf7]">
+          <CardHeader>
+            <p className="eyebrow text-[#a27e2e]">PERSONALIZED PROFILE</p>
+            <CardTitle className="display text-5xl">{report.title}</CardTitle>
+            <p className="text-[#657084]">{paymentMessage}</p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-5 md:grid-cols-[1fr_1.5fr]">
+              <div className="rounded-2xl bg-[#16243d] p-7 text-[#f7f3e8]">
+                <p className="eyebrow text-[#c9a34e]">Overall signal</p>
+                <p className="display mt-4 text-7xl text-[#c9a34e]">{report.overallScore}<span className="text-2xl text-[#f7f3e8]">/100</span></p>
+                <p className="mt-3 text-lg">{report.overallBand}</p>
+              </div>
+              <div>
+                <h2 className="display text-3xl">Your strongest signals</h2>
+                <div className="mt-4 grid gap-3">
+                  {report.strengths?.map((strength: string) => (
+                    <div key={strength} className="flex items-center gap-3 rounded-xl border border-[#16243d]/10 p-4">
+                      <CheckCircle2 className="text-[#a27e2e]" size={18} />
+                      {strength}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="mt-8 grid gap-4 md:grid-cols-2">
+              {report.domains?.map((domain: any) => (
+                <div key={domain.key} className="rounded-xl border border-[#16243d]/10 p-5">
+                  <div className="flex justify-between gap-3">
+                    <strong>{domain.label}</strong>
+                    <span className="font-bold text-[#a27e2e]">{domain.score}/100</span>
+                  </div>
+                  <Progress value={domain.score} className="mt-3" />
+                  <p className="mt-3 text-sm leading-6 text-[#657084]">{domain.readout}</p>
+                  <p className="mt-3 text-sm font-semibold text-[#16243d]">Next: {domain.developmentActions?.[0]}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button onClick={downloadPaidReport} disabled={downloadReport.isPending} className="bg-[#16243d] text-[#f7f3e8]">
+                {downloadReport.isPending ? "Preparing PDF…" : "Download branded PDF"}
+              </Button>
+              <Link href="/dashboard" className="inline-flex items-center border border-[#16243d]/25 px-4 py-2 text-sm font-semibold">{t("myWorkspace")}</Link>
+            </div>
+            <section className="mt-8 border-t border-[#16243d]/10 pt-7">
+              <p className="eyebrow text-[#a27e2e]">Recommended next steps</p>
+              <h2 className="display mt-2 text-3xl">Turn insight into practice.</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">These Profound IQ courses are matched to this profile to help you move from reflection to observable action.</p>
+              <div className="mt-5 grid gap-3 md:grid-cols-3">
+                {getPsychometricCourseRecommendations({ testSlug: report.testSlug, domains: report.domains }).map((course) => (
+                  <div key={course.slug} className="rounded-xl border border-[#16243d]/10 bg-[#f7f3e8] p-4 transition hover:-translate-y-0.5 hover:border-[#c9a34e]">
+                    <Link href={`/courses/${course.slug}`}>
+                      <span className="block text-sm font-bold">{course.title}</span>
+                      <span className="mt-2 block text-xs leading-5 text-[#657084]">{course.reason}</span>
+                      <span className="mt-3 block text-xs font-bold text-[#7d5e1e]">{course.action}</span>
+                    </Link>
+                    <div className="mt-4 border-t border-[#16243d]/10 pt-3">
+                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">Was this useful?</p>
+                      <div className="mt-2 flex gap-1" role="radiogroup" aria-label={`Rate ${course.title} recommendation`}>
+                        {[1, 2, 3, 4, 5].map((rating) => (
+                          <button key={rating} type="button" onClick={() => rateRecommendation(course.slug, rating)} aria-label={`${rating} out of 5`} aria-pressed={feedbackScores[course.slug] === rating} className={feedbackScores[course.slug] && feedbackScores[course.slug] >= rating ? "text-[#a27e2e]" : "text-[#9aa2ad]"}>
+                            <Star size={15} fill="currentColor" />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+            <div className="mt-8 rounded-xl bg-[#ece5d6] p-5 text-sm leading-7 text-[#657084]">
+              <strong className="text-[#16243d]">Important context. </strong>
+              {report.disclaimer}
+            </div>
+          </CardContent>
+        </Card>
+        <PaystackInlineModal
+          open={inlineModalOpen}
+          product={inlineProduct}
+          customerEmail={email}
+          onClose={() => {
+            setInlineModalOpen(false);
+            setInlineProduct(null);
+          }}
+          onSuccess={(reference) => {
+            setInlineModalOpen(false);
+            setInlineProduct(null);
+            verify.mutate({ reference }, {
+              onSuccess: (result) => {
+                setReport(result.report);
+                setPaymentMessage("Payment verified. Your personalized profile is ready.");
+                toast.success("Assessment complete");
+              },
+              onError: (error) => {
+                setPaymentMessage(error.message);
+                toast.error(error.message);
+              },
+            });
+          }}
+          onError={(message) => {
+            setInlineModalOpen(false);
+            setInlineProduct(null);
+            setPaymentMessage(message);
+            toast.error("Payment failed", { description: message });
+          }}
+        />
+      </div>
+    </main>
+  );
+
+  return (
+    <main className="min-h-screen bg-[#f7f3e8] px-4 py-8 text-[#16243d] sm:px-6">
+      <div className="container max-w-5xl">
+        <div className="flex items-center justify-between gap-4">
+          <Link href="/psychometrics">
+            <Button variant="ghost">
+              <ArrowLeft size={16} /> All profiles
+            </Button>
+          </Link>
+          <span className="eyebrow text-[#a27e2e]">{displayPrice} · Paystack</span>
+        </div>
+        <section className="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
+          <div>
+            <p className="eyebrow text-[#a27e2e]">{test.shortTitle}</p>
+            <h1 className="display mt-4 text-5xl leading-none">{test.strapline}</h1>
+            <p className="mt-5 max-w-2xl text-lg leading-8 text-[#657084]">{test.purpose}</p>
+            <div className="mt-8 rounded-2xl border border-[#16243d]/15 bg-[#fffdf7] p-5">
+              <div className="flex items-center justify-between gap-4 text-sm font-semibold">
+                <span>{workflowCopy.progress}</span>
+                <span>{completion}% · {index + 1} of {questions.length}</span>
+              </div>
+              <Progress value={completion} className="mt-3" />
+              <div className="mt-7">
+                <p className="eyebrow text-[#a27e2e]">{current?.domainLabel}</p>
+                <h2 className="mt-3 text-xl font-semibold leading-8">{current?.prompt}</h2>
+                <div className="mt-5 grid gap-3">
+                  {current?.options.map((option: string, optionIndex: number) => (
+                    <label key={option} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${selected === optionIndex + 1 ? "border-[#c9a34e] bg-[#fcf5df]" : "border-[#16243d]/10 bg-white"}`}>
+                      <input type="radio" name={current.id} checked={selected === optionIndex + 1} onChange={() => choose(optionIndex + 1)} className="mt-1" />
+                      <span>{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-6 flex flex-wrap justify-between gap-3">
+                <Button variant="outline" onClick={() => setIndex((value) => Math.max(0, value - 1))} disabled={index === 0}>
+                  <ArrowLeft size={16} /> {workflowCopy.previous}
+                </Button>
+                {index < questions.length - 1 ? (
+                  <Button onClick={() => setIndex((value) => Math.min(questions.length - 1, value + 1))} disabled={selected === undefined} className="bg-[#16243d] text-[#f7f3e8]">
+                    {workflowCopy.next} <ArrowRight size={16} />
+                  </Button>
+                ) : (
+                  <Button onClick={() => setIndex(questions.length)} disabled={selected === undefined} className="bg-[#c9a34e] text-[#16243d]">
+                    {workflowCopy.reviewAndPay} <Sparkles size={16} />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+          <aside className="h-fit rounded-2xl bg-[#16243d] p-6 text-[#f7f3e8] lg:sticky lg:top-6">
+            <p className="eyebrow text-[#c9a34e]">{workflowCopy.beforeYouBegin}</p>
+            <h2 className="display mt-3 text-3xl">A useful signal, not a label.</h2>
+            <p className="mt-4 text-sm leading-7 text-[#d7deea]">Your responses create a development profile for reflection, learning, and career conversations. They do not diagnose you or determine your future.</p>
+            <div className="mt-6 flex items-center gap-2 text-sm">
+              <Clock3 size={16} className="text-[#c9a34e]" /> {test.estimatedMinutes} minutes
+            </div>
+            <div className="mt-2 flex items-center gap-2 text-sm">
+              <LockKeyhole size={16} className="text-[#c9a34e]" /> {displayPrice} after completion
+            </div>
+          </aside>
+        </section>
+        {index === questions.length && (
+          <section className="mt-8 rounded-2xl border border-[#c9a34e]/50 bg-[#fffdf7] p-6">
+            <p className="eyebrow text-[#a27e2e]">{workflowCopy.secureCheckout}</p>
+            <h2 className="display mt-3 text-3xl">Send your profile to yourself</h2>
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              <Input placeholder={workflowCopy.fullName} value={name} onChange={(event) => setName(event.target.value)} />
+              <Input type="email" placeholder={workflowCopy.emailAddress} value={email} onChange={(event) => setEmail(event.target.value)} />
+            </div>
+            <label className="mt-5 flex items-start gap-3 text-sm leading-6 text-[#657084]">
+              <Checkbox checked={consent} onCheckedChange={(value) => setConsent(Boolean(value))} /> {workflowCopy.consent}
+            </label>
+            <Button onClick={submit} disabled={initializeInline.isPending} className="mt-5 bg-[#16243d] text-[#f7f3e8]">
+              {initializeInline.isPending ? "Preparing secure checkout…" : `Pay ${displayPrice} ${workflowCopy.generateProfile}`}
+            </Button>
+          </section>
+        )}
+      </div>
+      <PaystackInlineModal
+        open={inlineModalOpen}
+        product={inlineProduct}
+        customerEmail={email}
+        onClose={() => {
+          setInlineModalOpen(false);
+          setInlineProduct(null);
+        }}
+        onSuccess={(reference) => {
+          setInlineModalOpen(false);
+          setInlineProduct(null);
+          verify.mutate({ reference }, {
+            onSuccess: (result) => {
+              setReport(result.report);
+              setPaymentMessage("Payment verified. Your personalized profile is ready.");
+              toast.success("Assessment complete");
+            },
+            onError: (error) => {
+              setPaymentMessage(error.message);
+              toast.error(error.message);
+            },
+          });
+        }}
+        onError={(message) => {
+          setInlineModalOpen(false);
+          setInlineProduct(null);
+          setPaymentMessage(message);
+          toast.error("Payment failed", { description: message });
+        }}
+      />
+    </main>
+  );
 }

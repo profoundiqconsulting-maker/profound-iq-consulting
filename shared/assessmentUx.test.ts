@@ -45,8 +45,8 @@ describe("assessment learner experience", () => {
 
   it("connects Access report and PDF certificate to the exact paid reference", () => {
     expect(source).toContain("piq-assessment-paid-reference");
-    expect(source).toContain("window.location.href = `/assessment?reference=${encodeURIComponent(reportReference)}`");
-    expect(source).toContain("downloadCertificatePdf.mutate({ reference: reportReference }");
+    expect(source).toMatch(/window\.location\.href = .\/assessment\?reference=\$\{encodeURIComponent\(reportReference\)\}/);
+    expect(source).toMatch(/downloadCertificatePdf\.mutate\([\s\S]*?\{ reference: reportReference \}/);
     expect(routerSource).toContain("downloadCompletionCertificatePdf: protectedProcedure");
     expect(routerSource).toContain("attempt.email.trim().toLowerCase() !== ctx.user.email.trim().toLowerCase()");
     expect(routerSource).toContain("renderCourseCertificatePdf");

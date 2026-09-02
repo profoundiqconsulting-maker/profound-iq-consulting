@@ -1,4 +1,4 @@
-import { BarChart3, BookOpen, Bookmark, ClipboardCheck, ClipboardList, LayoutDashboard, Settings, Users } from "lucide-react";
+import { Award, BarChart3, BookOpen, Bookmark, ClipboardCheck, ClipboardList, LayoutDashboard, Settings, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export type DashboardNavItem = {
@@ -15,6 +15,7 @@ export type DashboardNavItem = {
 export const dashboardNavItems: DashboardNavItem[] = [
   { id: "overview", labelKey: "overview", fallbackLabel: "Overview", path: "/dashboard", icon: LayoutDashboard, group: "workspace" },
   { id: "settings", labelKey: "settings", fallbackLabel: "Settings", path: "/settings", icon: Settings, group: "workspace" },
+  { id: "my-certificates", labelKey: "settings", fallbackLabel: "My Certificates", path: "/dashboard/certificates", icon: Award, group: "workspace" },
   { id: "self-assessment", labelKey: "selfAssessment", fallbackLabel: "Self Assessment", path: "/assessment", icon: ClipboardCheck, group: "growth" },
   { id: "careerpath", labelKey: "careerPath", fallbackLabel: "CareerPath", path: "/careerpath", icon: Users, group: "growth" },
   { id: "courses", labelKey: "courses", fallbackLabel: "Courses", path: "/courses", icon: BookOpen, group: "growth" },

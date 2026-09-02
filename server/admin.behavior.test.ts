@@ -7,8 +7,8 @@ const mocks = vi.hoisted(() => ({
   getEmailTemplates: vi.fn().mockResolvedValue([{ templateKey: "assessment_report", label: "Saved", subject: "Saved subject", body: "Hello {{name}}", id: 1, updatedByOpenId: "admin-test", updatedAt: new Date() }]),
   sendTemplateTestEmail: vi.fn().mockResolvedValue(undefined),
   addEmailPreviewDelivery: vi.fn().mockResolvedValue(undefined),
-  getScheduledExport: vi.fn().mockResolvedValue({ exportKey: "weekly_course_enrollments", scheduleTaskUid: "task-1", lastRunAt: new Date("2026-08-24T09:00:00.000Z"), lastFileKey: "scheduled-exports/latest.csv", lastFileUrl: "/manus-storage/scheduled-exports/latest.csv" }),
-  getScheduledExportRuns: vi.fn().mockResolvedValue([{ id: 1, exportKey: "weekly_course_enrollments", fileKey: "scheduled-exports/latest.csv", fileUrl: "/manus-storage/scheduled-exports/latest.csv", rowCount: 4, createdAt: new Date("2026-08-24T09:00:00.000Z") }]),
+  getScheduledExport: vi.fn().mockResolvedValue({ exportKey: "weekly_course_enrollments", scheduleTaskUid: "task-1", lastRunAt: new Date("2026-08-24T09:00:00.000Z"), lastFileKey: "scheduled-exports/latest.csv", lastFileUrl: "/exports/scheduled-exports/latest.csv" }),
+  getScheduledExportRuns: vi.fn().mockResolvedValue([{ id: 1, exportKey: "weekly_course_enrollments", fileKey: "scheduled-exports/latest.csv", fileUrl: "/exports/scheduled-exports/latest.csv", rowCount: 4, createdAt: new Date("2026-08-24T09:00:00.000Z") }]),
   getEmailPreviewDeliveries: vi.fn().mockResolvedValue([{ id: 1, templateKey: "assessment_report", recipientEmail: "admin@example.com", subject: "Preview", body: "Hello **{{name}}**", status: "sent", errorMessage: null, createdAt: new Date("2026-08-24T09:00:00.000Z") }]),
   getEmailPreviewDeliveriesPage: vi.fn().mockResolvedValue({ rows: [{ id: 1, templateKey: "assessment_report", recipientEmail: "admin@example.com", subject: "Preview", status: "sent", errorMessage: null, createdAt: new Date("2026-08-24T09:00:00.000Z") }], total: 1, totalPages: 1, page: 1, pageSize: 12 }),
   getEmailPreviewDeliveriesForExport: vi.fn().mockResolvedValue([{ id: 1, templateKey: "assessment_report", recipientEmail: "admin@example.com", subject: "Preview", status: "sent", errorMessage: null, createdAt: new Date("2026-08-24T09:00:00.000Z") }]),
@@ -53,8 +53,8 @@ describe("admin feature behavior", () => {
 
   it("returns schedule status and report history for an admin", async () => {
     const result = await appRouter.createCaller(adminContext()).admin.scheduledExportStatus();
-    expect(result.config?.lastFileUrl).toBe("/manus-storage/scheduled-exports/latest.csv");
-    expect(result.runs).toEqual(expect.arrayContaining([expect.objectContaining({ rowCount: 4, fileUrl: "/manus-storage/scheduled-exports/latest.csv" })]));
+    expect(result.config?.lastFileUrl).toBe("/exports/scheduled-exports/latest.csv");
+    expect(result.runs).toEqual(expect.arrayContaining([expect.objectContaining({ rowCount: 4, fileUrl: "/exports/scheduled-exports/latest.csv" })]));
     await expect(appRouter.createCaller(adminContext()).admin.emailPreviewHistory({ page: 1, pageSize: 12, status: "sent" })).resolves.toEqual(expect.objectContaining({ rows: expect.arrayContaining([expect.objectContaining({ status: "sent", recipientEmail: "admin@example.com" })]), total: 1 }));
   });
 

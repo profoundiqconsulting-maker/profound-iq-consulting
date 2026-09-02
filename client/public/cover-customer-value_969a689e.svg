@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <rect width="640" height="360" fill="#16243d" rx="8"/>
+  <rect x="40" y="40" width="560" height="280" fill="#f7f3e8" rx="4"/>
+  <text x="320" y="175" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#16243d">Leadership & Workplace</text>
+  <text x="320" y="215" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#657084">Course cover</text>
+</svg>

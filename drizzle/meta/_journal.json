@@ -484,6 +484,13 @@
       "when": 1787865507587,
       "tag": "0068_misty_banshee",
       "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "5",
+      "when": 1788352676464,
+      "tag": "0069_silent_vengeance",
+      "breakpoints": true
     }
   ]
 }

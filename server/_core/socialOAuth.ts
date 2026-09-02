@@ -66,9 +66,41 @@ export function registerSocialOAuthRoutes(app: Express) {
         const profile = await profileResponse.json() as { sub?: string; name?: string; email?: string; email_verified?: boolean; picture?: string };
         if (!profile.sub) throw new Error("Provider profile is missing a stable subject");
         const normalizedEmail = profile.email_verified === true && profile.email ? profile.email.trim().toLowerCase() : undefined;
-        const existing = normalizedEmail ? await findUserByLocalIdentifier(normalizedEmail) : undefined;
+        let existing;
+        try { existing = normalizedEmail ? await findUserByLocalIdentifier(normalizedEmail) : undefined; } catch { existing = undefined; }
         const openId = existing?.openId ?? `social:${provider}:${profile.sub}`;
-        await upsertUser({ openId, name: profile.name || existing?.name || `${provider} user`, email: normalizedEmail || existing?.email || null, loginMethod: provider, avatarUrl: profile.picture || existing?.avatarUrl || null, lastSignedIn: new Date() });
+        try {
+          await upsertUser({ openId, name: profile.name || existing?.name || `${provider} user`, email: normalizedEmail || existing?.email || null, loginMethod: provider, avatarUrl: profile.picture || existing?.avatarUrl || null, lastSignedIn: new Date() });
+        } catch (error) {
+          const raw = error instanceof Error ? error : new Error(String(error));
+          let duplicateMessage: string | undefined;
+          let code: string | undefined;
+          let errno: number | undefined;
+          let current: unknown = raw;
+          for (let depth = 0; depth < 10 && current; depth++) {
+            if (current instanceof Error) {
+              const err = current as any;
+              const msg = (err.message || "").toLowerCase();
+              if (!duplicateMessage && (msg.includes("duplicate") || msg.includes("unique") || msg.includes("constraint"))) duplicateMessage = msg;
+              if (!code && err.code) code = String(err.code);
+              if (!errno && typeof err.errno === "number") errno = err.errno;
+              current = err.cause;
+            } else {
+              break;
+            }
+          }
+          const isDuplicate = Boolean(duplicateMessage) || code === "ER_DUP_ENTRY" || errno === 1062;
+          if (isDuplicate) {
+            const fallbackOpenId = existing?.openId ?? `social:${provider}:${profile.sub}`;
+            if (fallbackOpenId !== openId) {
+              await upsertUser({ openId: fallbackOpenId, name: profile.name || existing?.name || `${provider} user`, email: normalizedEmail || existing?.email || null, loginMethod: provider, avatarUrl: profile.picture || existing?.avatarUrl || null, lastSignedIn: new Date() });
+            } else {
+              throw error;
+            }
+          } else {
+            throw error;
+          }
+        }
         const sessionToken = await sdk.createSessionToken(openId, { name: profile.name || existing?.name || `${provider} user`, expiresInMs: ONE_YEAR_MS });
         res.cookie(COOKIE_NAME, sessionToken, { ...getSessionCookieOptions(req), maxAge: ONE_YEAR_MS });
         res.redirect(`${origin}${safeReturnTo(state.returnTo)}`);

@@ -7,7 +7,7 @@ import { CERTIFICATE_SIGNATURE_DATA_URI } from "./certificateSignature";
 import { PUBLISHED_SITE_ORIGIN } from "../shared/siteOrigin";
 
 const SITE_ORIGIN = PUBLISHED_SITE_ORIGIN;
-const SITE_LOGO_URL = `${SITE_ORIGIN}/manus-storage/ProfoundIQLogo-header_aad21220.jpg`;
+const SITE_LOGO_URL = `${SITE_ORIGIN}/ProfoundIQLogo.png`;
 export type CertificateFieldLayout = Record<string, { x?: number; y?: number; width?: number; height?: number; visible?: boolean; text?: string }>;
 export const DEFAULT_CERTIFICATE_FIELD_LAYOUT: CertificateFieldLayout = {
   logo: { x: 735, y: 24, width: 530, height: 265, visible: true },
