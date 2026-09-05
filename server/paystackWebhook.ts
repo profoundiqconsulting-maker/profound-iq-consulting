@@ -9,7 +9,7 @@ import { buildCareerPathReport, type CareerPathReport } from "../shared/careerPa
 import { scorePsychometricTest, type PsychometricAnswer, type PsychometricReport } from "../shared/psychometrics";
 import { getAssessmentAttemptByReference, markAssessmentPaid, recordAnalyticsEvent, createCoursePaymentEvent, getCoursePaymentStageByReference, markCoursePaymentEventProcessed, updateCoursePaymentStageStatus, getPsychometricAttemptByReference, markPsychometricPaid, getCareerPathAttemptByReference, markCareerPathPaid, getCourseEnrollmentById, listCourseEnrollmentState, getAdminCertificateSettings, createCourseCertificate } from "./db";
 import { emailAssessmentReportIfNeeded, emailCareerPathReportIfNeeded, emailPsychometricReportIfNeeded, sendPaymentReceiptEmail, sendCourseCertificateEmail } from "./email";
-import { renderCourseCertificateSvg } from "./reportPdf";
+import { renderCourseCertificateSvg } from "./courseCertificate";
 import { storagePut } from "./storage";
 import { getRequestLocale } from "./requestLocale";
 import { createHash, createHmac, randomUUID, timingSafeEqual } from "node:crypto";

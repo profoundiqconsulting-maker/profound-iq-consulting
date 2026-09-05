@@ -20,7 +20,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LogOut, PanelLeft, ShieldCheck } from "lucide-react";
+import { ArrowLeft, LogOut, PanelLeft, ShieldCheck } from "lucide-react";
 import { isQualityControlAdmin } from "@shared/courseAccess";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
@@ -37,8 +37,10 @@ const MAX_WIDTH = 480;
 
 export default function DashboardLayout({
   children,
+  title,
 }: {
   children: React.ReactNode;
+  title?: string;
 }) {
   const [sidebarWidth, setSidebarWidth] = useState(() => {
     const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
@@ -97,11 +99,13 @@ export default function DashboardLayout({
 type DashboardLayoutContentProps = {
   children: React.ReactNode;
   setSidebarWidth: (width: number) => void;
+  title?: string;
 };
 
 function DashboardLayoutContent({
   children,
   setSidebarWidth,
+  title,
 }: DashboardLayoutContentProps) {
   const { user, logout } = useAuth();
   const { t } = useLocale();
@@ -170,7 +174,7 @@ function DashboardLayoutContent({
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="font-semibold tracking-tight truncate">
-                    {t("navigation")}
+                    {title || t("navigation")}
                   </span>
                   {isQualityControlAdmin(user) ? (
                     <span
@@ -205,9 +209,9 @@ function DashboardLayoutContent({
                             isActive={isActive}
                             onClick={() => setLocation(item.path)}
                             tooltip={item.label}
-                            className="h-10 font-normal transition-all"
+                            className="h-10 font-normal transition-all hover:bg-accent/80 data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:font-semibold"
                           >
-                            <item.icon className={`h-4 w-4 ${isActive ? "text-primary" : ""}`} />
+                            <item.icon className={`h-4 w-4 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
                             <span>{item.label}</span>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
@@ -267,26 +271,28 @@ function DashboardLayoutContent({
           <div className="flex border-b h-14 items-center justify-between bg-background/95 px-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
-                                <div className="flex items-center gap-3">
-                    <div className="flex flex-col gap-1">
-                      <span className="tracking-tight text-foreground">
-                        {activeMenuItem?.label ?? "Menu"}
-                      </span>
-                    </div>
-                    {isQualityControlAdmin(user) ? (
-                      <span
-                        aria-label="Quality Control Mode active"
-                        title="Quality Control Mode active"
-                        className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-primary"
-                      >
-                        <ShieldCheck className="h-3 w-3" aria-hidden="true" />
-                        <span>QC</span>
-                      </span>
-                    ) : null}
-                  </div>
-
+              <Link href="/" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.16em] text-muted-foreground hover:text-foreground">
+                <ArrowLeft size={14} aria-hidden="true" /> Back
+              </Link>
             </div>
-            <LanguageSelector compact className="shrink-0" />
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col gap-1">
+                <span className="tracking-tight text-foreground">
+                  {activeMenuItem?.label ?? "Menu"}
+                </span>
+              </div>
+              {isQualityControlAdmin(user) ? (
+                <span
+                  aria-label="Quality Control Mode active"
+                  title="Quality Control Mode active"
+                  className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-1 text-[9px] font-black uppercase tracking-[.1em] text-primary"
+                >
+                  <ShieldCheck className="h-3 w-3" aria-hidden="true" />
+                  <span>QC</span>
+                </span>
+              ) : null}
+            </div>
+
           </div>
         )}
         <main className="min-w-0 flex-1 p-3 sm:p-4 lg:p-6">{children}</main>

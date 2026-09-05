@@ -8,7 +8,8 @@ import { useLocale } from "@/contexts/LocaleContext";
 import { DashboardPagination } from "@/components/DashboardPagination";
 import { courseCatalog } from "@shared/courseCatalog";
 import { DashboardQuickNav } from "@/components/DashboardQuickNav";
-import { DashboardSection, DashboardSectionHeader, DashboardSectionStats, DashboardSectionFilters, DashboardSectionContent, DashboardSectionPagination, DashboardStatCard } from "@/components/DashboardSection";
+import { DashboardSection, DashboardSectionHeader, DashboardSectionStats, DashboardSectionFilters, DashboardSectionContent, DashboardSectionPagination } from "@/components/DashboardSection";
+import { DashboardStatCard } from "@/components/DashboardStatCard";
 
 type Status = "all" | "new" | "contacted" | "closed";
 type SortMode = "priority" | "dueDate" | "newest";
@@ -70,6 +71,7 @@ function InquiryDesk() {
   const [status, setStatus] = useState<Status>("all");
   const [sortMode, setSortMode] = useState<SortMode>("priority");
   const [page, setPage] = useState(1);
+  const [noteDrafts, setNoteDrafts] = useState<Record<number, string>>({});
   const input = useMemo(() => ({ page, pageSize: 10, search: search || undefined, status }), [page, search, status]);
   const inquiries = trpc.staff.assignedInquiries.useQuery(input, { retry: false, refetchInterval: 30000 });
   const updateStatus = trpc.staff.updateStatus.useMutation({ onSuccess: () => { inquiries.refetch(); toast.success("Inquiry status updated."); }, onError: error => toast.error(error.message) });
@@ -161,7 +163,7 @@ function InquiryDesk() {
                   <div className="flex shrink-0 flex-col gap-2">
                     <select
                       value={inquiry.status}
-                      onChange={event => updateStatus.mutate({ id: inquiry.id, status: event.target.value as Status })}
+                      onChange={event => updateStatus.mutate({ id: inquiry.id, status: event.target.value as "new" | "contacted" | "closed" })}
                       aria-label="Update inquiry status"
                       className="border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs"
                     >
@@ -231,12 +233,12 @@ function InstructorReviewPanel() {
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={exportCsv} className="border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.08em]">CSV</button>
             <button type="button" onClick={exportPdf} className="border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.08em]">PDF</button>
-            <button type="button" onClick={() => void enableSchedule.mutate()} disabled={enableSchedule.isPending || Boolean(schedule.data?.config?.scheduleTaskUid)} className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.08em] disabled:opacity-50">
-              <CalendarClock size={13} />{schedule.data?.config?.scheduleTaskUid ? "Delivery enabled" : "Enable weekly delivery"}
+            <button type="button" onClick={() => void enableSchedule.mutate()} disabled={enableSchedule.isPending || Boolean(schedule.data?.taskUid)} className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.08em] disabled:opacity-50">
+              <CalendarClock size={13} />{schedule.data?.taskUid ? "Delivery enabled" : "Enable weekly delivery"}
             </button>
-            {schedule.data?.config?.scheduleTaskUid && (
-              <button type="button" onClick={() => void pauseSchedule.mutate({ paused: !schedule.data?.config?.pausedAt })} disabled={pauseSchedule.isPending} className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.08em] disabled:opacity-50">
-                {schedule.data?.config?.pausedAt ? <Play size={13} /> : <Pause size={13} />}{schedule.data?.config?.pausedAt ? "Resume" : "Pause"}
+            {schedule.data?.taskUid && (
+              <button type="button" onClick={() => void pauseSchedule.mutate({ paused: !schedule.data?.pausedAt })} disabled={pauseSchedule.isPending} className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.08em] disabled:opacity-50">
+                {schedule.data?.pausedAt ? <Play size={13} /> : <Pause size={13} />}{schedule.data?.pausedAt ? "Resume" : "Pause"}
               </button>
             )}
           </div>
