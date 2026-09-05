@@ -12,13 +12,13 @@ import { emailAssessmentReportIfNeeded, emailCareerPathReportIfNeeded, emailPsyc
 import { renderCourseCertificateSvg } from "./reportPdf";
 import { storagePut } from "./storage";
 import { getRequestLocale } from "./requestLocale";
-import { createHash, createHmac, randomUUID } from "node:crypto";
+import { createHash, createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 import { PUBLISHED_SITE_ORIGIN } from "../shared/siteOrigin";
 
 function isValidSignature(body: Buffer, signature: string | undefined, secret: string | undefined) {
   if (!secret || !signature || signature.length !== 128) return false;
-  const expected = crypto.createHmac("sha512", secret).update(body).digest("hex");
-  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
+  const expected = createHmac("sha512", secret).update(body).digest("hex");
+  return timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
 }
 
 type PaystackEvent = { event?: string; data?: { id?: number | string; reference?: string; status?: string; amount?: number; currency?: string; metadata?: unknown; failure_message?: string; failure_code?: string } };
@@ -53,7 +53,7 @@ async function reconcileCoursePayment(event: PaystackEvent, rawPayload: unknown)
           if (record.lessons.length >= course.modules.length * 7 && passed.size >= course.modules.length) {
             const certificateNumber = `PIQ-${new Date().getFullYear()}-${randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
             const verificationUrl = `${PUBLISHED_SITE_ORIGIN}/verify/certificate?certificate=${encodeURIComponent(certificateNumber)}`;
-            const certificateSettings = await getAdminCertificateSettings(record.enrollment.userOpenId);
+            const certificateSettings = await getAdminCertificateSettings(ENV.ownerOpenId || record.enrollment.userOpenId);
             const certificateSvg = renderCourseCertificateSvg({ recipientName: record.enrollment.name, recipientEmail: record.enrollment.email, courseTitle: course.title, certificateNumber, issuedOn: new Date(), verificationUrl, locale: getRequestLocale(req), trainerName: certificateSettings.trainerName, trainerTitle: certificateSettings.trainerTitle, signatureDataUri: certificateSettings.signatureDataUri, customElements: (certificateSettings as typeof certificateSettings & { customElements?: Record<string, string> }).customElements ?? undefined, fieldLayout: certificateSettings.fieldLayout as Record<string, { x?: number; y?: number; width?: number; height?: number; visible?: boolean; text?: string }> | undefined });
             const artifactHash = createHash("sha256").update(certificateSvg).digest("hex");
             const uploaded = await storagePut(`course-certificates/${certificateNumber}.svg`, certificateSvg, "image/svg+xml");
