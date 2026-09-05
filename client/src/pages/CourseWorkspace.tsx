@@ -234,6 +234,37 @@ function CourseWorkspaceUnlocked({ course, qualityControl = false, accessOverrid
   useEffect(() => { if (!unreadFeedbackNotifications.length) return; toast.info(`${unreadFeedbackNotifications.length} new instructor feedback ${unreadFeedbackNotifications.length === 1 ? "note" : "notes"}`, { description: "Review the feedback in your course workspace." }); }, [unreadFeedbackNotifications.length]);
   useEffect(() => { const newlyEarned = moduleBadges.filter((badge) => badge.status === "earned" && !badgeCelebrated.current.has(badge.moduleId)); if (!newlyEarned.length) return; newlyEarned.forEach((badge) => { badgeCelebrated.current.add(badge.moduleId); toast.success(`Module ${badge.moduleIndex + 1} badge earned`, { description: "Seven lessons and the module quiz are complete. Keep building your learning streak." }); }); }, [moduleBadges]);
   useEffect(() => { const reference = new URLSearchParams(window.location.search).get("reference"); if (!paymentPending || !reference || !isAuthenticated) return; verifyMutation.mutate({ reference }, { onSuccess: () => { void courseState.refetch(); setPaymentPending(false); window.history.replaceState({}, "", window.location.pathname); } }); }, [courseState, isAuthenticated, paymentPending]);
+  useEffect(() => {
+    if (!inlineModalOpen || !inlineProduct?.reference) return;
+    let cancelled = false;
+    const tick = async () => {
+      if (cancelled) return;
+      try {
+        await new Promise<void>((resolve) => {
+          verifyMutation.mutate({ reference: inlineProduct.reference }, {
+            onSuccess: () => {
+              if (!cancelled) {
+                void courseState.refetch();
+                setInlineModalOpen(false);
+                setInlineProduct(null);
+                toast.success("Payment verified", {
+                  description: "Your course access is updated.",
+                });
+              }
+              resolve();
+            },
+            onError: () => resolve(),
+          });
+        });
+      } catch {
+        // keep polling
+      } finally {
+        if (!cancelled) setTimeout(tick, 3000);
+      }
+    };
+    tick();
+    return () => { cancelled = true; };
+  }, [inlineModalOpen, inlineProduct?.reference, verifyMutation, courseState]);
   const startCheckout = (requestedStage?: number) => {
     if (!isAuthenticated) { window.location.href = "/auth?returnTo=" + encodeURIComponent(window.location.pathname + window.location.search); return; }
     if (!currentEnrollment?.enrollment.id) { setIdentityName(user?.name ?? ""); setIdentityEmail(user?.email ?? ""); setIdentityConsent(false); setIdentityOpen(true); return; }

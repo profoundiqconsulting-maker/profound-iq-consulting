@@ -42,6 +42,7 @@ const english = {
   removeBookmark: "Remove bookmark",
   illustrationMode: "Illustration mode",
   selfAssessment: "Self Assessment",
+  psychometrics: "Psychometrics",
   contact: "Contact",
   beginConversation: "Begin a conversation",
   myWorkspace: "My workspace",

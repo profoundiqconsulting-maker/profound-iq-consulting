@@ -26,7 +26,7 @@ function csvDownload(data: { data: string; filename: string; contentType: string
 }
 
 function InquiryAuditHistory({ inquiryId, open }: { inquiryId: number; open: boolean }) {
-  const audit = trpc.admin.contactInquiryAuditHistory.useQuery({ inquiryId }, { enabled: open, retry: false });
+  const audit = trpc.admin.contactInquiryAuditHistory.useQuery({ inquiryId }, { enabled: open, refetchInterval: 30000 });
   if (!open) return null;
   return (
     <div className="mt-3 border-t border-[#16243d]/10 pt-3">
@@ -65,10 +65,10 @@ export default function AdminInquiryPanel() {
   const [auditOpen, setAuditOpen] = useState<number | null>(null);
   const filters = useMemo(() => ({ search: search || undefined, category, status, assignedToOpenId, fromDate: fromDate || undefined, toDate: toDate || undefined }), [assignedToOpenId, category, fromDate, search, status, toDate]);
   const input = useMemo(() => ({ ...filters, page, pageSize: 8 }), [filters, page]);
-  const inquiries = trpc.admin.contactInquiries.useQuery(input, { retry: false });
-  const chart = trpc.admin.contactInquiryCategoryCounts.useQuery(undefined, { retry: false });
-  const exportInquiries = trpc.admin.exportContactInquiries.useQuery(filters, { enabled: false, retry: false });
-  const teamMembers = trpc.admin.teamMembers.useQuery(undefined, { retry: false });
+  const inquiries = trpc.admin.contactInquiries.useQuery(input, { retry: false, refetchInterval: 30000 });
+  const chart = trpc.admin.contactInquiryCategoryCounts.useQuery(undefined, { retry: false, refetchInterval: 30000 });
+  const exportInquiries = trpc.admin.exportContactInquiries.useQuery(filters, { enabled: false, refetchInterval: 30000 });
+  const teamMembers = trpc.admin.teamMembers.useQuery(undefined, { retry: false, refetchInterval: 30000 });
   const updateAssignment = trpc.admin.updateContactInquiryAssignment.useMutation({ onSuccess: () => inquiries.refetch() });
   const updateWorkload = trpc.admin.updateContactInquiryWorkload.useMutation({ onSuccess: () => inquiries.refetch() });
   const updateStatus = trpc.admin.updateContactInquiryStatus.useMutation({ onSuccess: () => inquiries.refetch() });

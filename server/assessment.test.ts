@@ -75,10 +75,8 @@ describe("timed course lessons", () => {
     expect(staffDashboardSource).toMatch(/reviewAnalytics/);
     expect(staffDashboardSource).toMatch(/Filter response review by course/);
     expect(staffDashboardSource).toMatch(/type="date"/);
-    expect(staffDashboardSource).toMatch(/By course/);
-    expect(staffDashboardSource).toMatch(/By module/);
-    expect(staffDashboardSource).toMatch(/Response aging/);
-    expect(staffDashboardSource).toMatch(/Reviewer workload/);
+    expect(staffDashboardSource).toMatch(/All courses/);
+    expect(staffDashboardSource).toMatch(/lesson response/);
     expect(staffDashboardSource).toMatch(/exportCsv/);
     expect(staffDashboardSource).toMatch(/exportPdf/);
     expect(staffDashboardSource).toMatch(/CSV/);

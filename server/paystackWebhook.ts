@@ -1,4 +1,4 @@
-import crypto from "node:crypto";
+import { ENV } from "./_core/env";
 import type { Express, Request, Response } from "express";
 import express from "express";
 import { ASSESSMENT_PRICE_KES, buildReport, type AssessmentReport } from "../shared/assessment";
@@ -7,8 +7,12 @@ import { COURSE_STAGE_AMOUNT_KES, courseCatalog } from "../shared/courseCatalog"
 import { PSYCHOMETRIC_PRICE_KES } from "../shared/psychometrics";
 import { buildCareerPathReport, type CareerPathReport } from "../shared/careerPath";
 import { scorePsychometricTest, type PsychometricAnswer, type PsychometricReport } from "../shared/psychometrics";
-import { getAssessmentAttemptByReference, markAssessmentPaid, recordAnalyticsEvent, createCoursePaymentEvent, getCoursePaymentStageByReference, markCoursePaymentEventProcessed, updateCoursePaymentStageStatus, getPsychometricAttemptByReference, markPsychometricPaid, getCareerPathAttemptByReference, markCareerPathPaid, getCourseEnrollmentById } from "./db";
-import { emailAssessmentReportIfNeeded, emailCareerPathReportIfNeeded, emailPsychometricReportIfNeeded, sendPaymentReceiptEmail } from "./email";
+import { getAssessmentAttemptByReference, markAssessmentPaid, recordAnalyticsEvent, createCoursePaymentEvent, getCoursePaymentStageByReference, markCoursePaymentEventProcessed, updateCoursePaymentStageStatus, getPsychometricAttemptByReference, markPsychometricPaid, getCareerPathAttemptByReference, markCareerPathPaid, getCourseEnrollmentById, listCourseEnrollmentState, getAdminCertificateSettings, createCourseCertificate } from "./db";
+import { emailAssessmentReportIfNeeded, emailCareerPathReportIfNeeded, emailPsychometricReportIfNeeded, sendPaymentReceiptEmail, sendCourseCertificateEmail } from "./email";
+import { renderCourseCertificateSvg } from "./reportPdf";
+import { storagePut } from "./storage";
+import { getRequestLocale } from "./requestLocale";
+import { createHash, createHmac, randomUUID } from "node:crypto";
 import { PUBLISHED_SITE_ORIGIN } from "../shared/siteOrigin";
 
 function isValidSignature(body: Buffer, signature: string | undefined, secret: string | undefined) {
@@ -40,6 +44,27 @@ async function reconcileCoursePayment(event: PaystackEvent, rawPayload: unknown)
         await sendPaymentReceiptEmail({ to: enrollment.email, participantName: enrollment.name, reference: stage.paystackReference ?? reference, productName: course?.title ?? "Course", amountKes: stage.amountKes, paidAt: new Date(), productType: "course_stage", courseSlug: enrollment.courseSlug, enrollmentId: stage.enrollmentId });
       } catch (error) {
         console.error("[Paystack] Course receipt email failed:", error);
+      }
+      if (stage.stage === 4 && course && enrollment.userOpenId) {
+        const state = await listCourseEnrollmentState(enrollment.userOpenId);
+        const record = state.find((item) => item.enrollment.id === stage.enrollmentId);
+        if (record && record.stages.filter((s) => s.paymentStatus === "paid").length >= 4 && !record.certificates.length) {
+          const passed = new Set(record.quizAttempts.filter((attempt) => attempt.passed).map((attempt) => attempt.moduleId));
+          if (record.lessons.length >= course.modules.length * 7 && passed.size >= course.modules.length) {
+            const certificateNumber = `PIQ-${new Date().getFullYear()}-${randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
+            const verificationUrl = `${PUBLISHED_SITE_ORIGIN}/verify/certificate?certificate=${encodeURIComponent(certificateNumber)}`;
+            const certificateSettings = await getAdminCertificateSettings(record.enrollment.userOpenId);
+            const certificateSvg = renderCourseCertificateSvg({ recipientName: record.enrollment.name, recipientEmail: record.enrollment.email, courseTitle: course.title, certificateNumber, issuedOn: new Date(), verificationUrl, locale: getRequestLocale(req), trainerName: certificateSettings.trainerName, trainerTitle: certificateSettings.trainerTitle, signatureDataUri: certificateSettings.signatureDataUri, customElements: (certificateSettings as typeof certificateSettings & { customElements?: Record<string, string> }).customElements ?? undefined, fieldLayout: certificateSettings.fieldLayout as Record<string, { x?: number; y?: number; width?: number; height?: number; visible?: boolean; text?: string }> | undefined });
+            const artifactHash = createHash("sha256").update(certificateSvg).digest("hex");
+            const uploaded = await storagePut(`course-certificates/${certificateNumber}.svg`, certificateSvg, "image/svg+xml");
+            await createCourseCertificate({ enrollmentId: record.enrollment.id, recipientName: record.enrollment.name, courseTitle: course.title, certificateNumber, fileKey: uploaded.key, fileUrl: uploaded.url, artifactHash });
+            try {
+              await sendCourseCertificateEmail({ recipientName: record.enrollment.name, email: record.enrollment.email, courseTitle: course.title, certificateNumber, certificateSvg, locale: getRequestLocale(req) });
+            } catch (error) {
+              console.error("[Paystack] Course certificate email failed:", error);
+            }
+          }
+        }
       }
     }
     return true;

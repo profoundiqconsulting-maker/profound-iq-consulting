@@ -38,9 +38,9 @@ export default function UserDashboard() {
   const { t, locale } = useLocale();
   const pdfLayoutCopy = ({ en: { summary: "Summary", detailed: "Detailed", zoomOut: "Zoom out", zoomIn: "Zoom in", resetZoom: "Reset zoom" }, sw: { summary: "Muhtasari", detailed: "Kwa kina", zoomOut: "Punguza", zoomIn: "Kuza", resetZoom: "Weka upya" }, fr: { summary: "Résumé", detailed: "Détaillé", zoomOut: "Réduire", zoomIn: "Agrandir", resetZoom: "Réinitialiser" }, es: { summary: "Resumen", detailed: "Detallado", zoomOut: "Alejar", zoomIn: "Acercar", resetZoom: "Restablecer" }, pt: { summary: "Resumo", detailed: "Detalhado", zoomOut: "Reduzir", zoomIn: "Ampliar", resetZoom: "Repor" }, ar: { summary: "ملخص", detailed: "مفصل", zoomOut: "تصغير", zoomIn: "تكبير", resetZoom: "إعادة الضبط" }, zh: { summary: "摘要", detailed: "详细", zoomOut: "缩小", zoomIn: "放大", resetZoom: "重置" }, hi: { summary: "सारांश", detailed: "विस्तृत", zoomOut: "ज़ूम आउट", zoomIn: "ज़ूम इन", resetZoom: "रीसेट" }, de: { summary: "Zusammenfassung", detailed: "Detailliert", zoomOut: "Verkleinern", zoomIn: "Vergrößern", resetZoom: "Zurücksetzen" }, ja: { summary: "概要", detailed: "詳細", zoomOut: "縮小", zoomIn: "拡大", resetZoom: "リセット" }} as Record<string, { summary: string; detailed: string; zoomOut: string; zoomIn: string; resetZoom: string }>)[locale] ?? { summary: "Summary", detailed: "Detailed", zoomOut: "Zoom out", zoomIn: "Zoom in", resetZoom: "Reset zoom" };
   const [activeTab, setActiveTab] = useState<"overview" | "payments">(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("tab") === "payments" ? "payments" : "overview");
-  const history = trpc.dashboard.mine.useQuery(undefined, { enabled: Boolean(user), retry: false });
-  const recommendations = trpc.dashboard.recommendations.useQuery(undefined, { enabled: Boolean(user), retry: false });
-  const profile = trpc.profile.get.useQuery(undefined, { enabled: Boolean(user), retry: false });
+  const history = trpc.dashboard.mine.useQuery(undefined, { enabled: Boolean(user), retry: false, refetchInterval: 30000 });
+  const recommendations = trpc.dashboard.recommendations.useQuery(undefined, { enabled: Boolean(user), retry: false, refetchInterval: 30000 });
+  const profile = trpc.profile.get.useQuery(undefined, { enabled: Boolean(user), retry: false, refetchInterval: 60000 });
   const [activityFilter, setActivityFilter] = useState<"all" | "completed" | "unlocked">("all");
   const [reportHistoryCourse, setReportHistoryCourse] = useState("all");
   const [reportHistoryFrom, setReportHistoryFrom] = useState("");
@@ -66,8 +66,8 @@ export default function UserDashboard() {
   const updateExportPreferences = trpc.profile.updateExportPreferences.useMutation({ onSuccess: () => void profile.refetch() });
   const uploadExportLogo = trpc.profile.uploadExportLogo.useMutation({ onSuccess: () => { void profile.refetch(); toast.success("Custom logo saved"); }, onError: (error) => toast.error("Could not save custom logo", { description: error.message }) });
   useEffect(() => { const preferences = profile.data?.exportPreferences as { pageSize?: string; watermark?: boolean; coverPage?: boolean; coverTemplate?: string } | null | undefined; if (preferences) { if (preferences.pageSize === "A4" || preferences.pageSize === "LETTER") setSavedPathwaysPageSize(preferences.pageSize); if (typeof preferences.watermark === "boolean") setSavedPathwaysWatermark(preferences.watermark); if (typeof preferences.coverPage === "boolean") setSavedPathwaysCoverPage(preferences.coverPage); if (preferences.coverTemplate === "classic" || preferences.coverTemplate === "editorial" || preferences.coverTemplate === "signal") setSavedPathwaysCoverTemplate(preferences.coverTemplate); } }, [profile.data?.exportPreferences]);
-  const careerPathHistory = trpc.careerPath.history.useQuery(undefined, { enabled: Boolean(user), retry: false });
-  const psychometricHistory = trpc.psychometric.history.useQuery(undefined, { enabled: Boolean(user), retry: false });
+  const careerPathHistory = trpc.careerPath.history.useQuery(undefined, { enabled: Boolean(user), retry: false, refetchInterval: 30000 });
+  const psychometricHistory = trpc.psychometric.history.useQuery(undefined, { enabled: Boolean(user), retry: false, refetchInterval: 30000 });
   const resendPsychometricReport = trpc.psychometric.resendReportEmail.useMutation({ onSuccess: () => { toast.success("Report email resent", { description: "A fresh PDF copy is on its way to your inbox." }); void psychometricHistory.refetch(); }, onError: (error) => toast.error("Could not resend report email", { description: error.message }) });
   const courseHistory = trpc.course.state.useQuery(undefined, { enabled: Boolean(user), retry: false, refetchInterval: 30000, refetchOnWindowFocus: true });
   const savedCourses = trpc.course.savedCoursesPage.useQuery({ page: savedCoursePage, pageSize: 6 }, { enabled: Boolean(user), retry: false, refetchOnWindowFocus: true });
@@ -86,7 +86,7 @@ export default function UserDashboard() {
   const downloadBadge = trpc.course.downloadBadge.useMutation({ onError: (error) => toast.error("Badge download failed", { description: error.message }) });
   const saveLeaderboardPreference = trpc.course.saveLeaderboardPreference.useMutation({ onSuccess: () => { toast.success("Leaderboard preference saved"); void profile.refetch(); void leaderboard.refetch(); }, onError: (error) => toast.error("Could not update leaderboard preference", { description: error.message }) });
   const [leaderboardName, setLeaderboardName] = useState("");
-  const courseDeliveryHistory = trpc.dashboard.courseDeliveryHistory.useQuery(undefined, { enabled: Boolean(user), retry: false });
+  const courseDeliveryHistory = trpc.dashboard.courseDeliveryHistory.useQuery(undefined, { enabled: Boolean(user), retry: false, refetchInterval: 30000 });
   const recordCourseDelivery = trpc.dashboard.recordCourseDelivery.useMutation({ onSuccess: () => void courseDeliveryHistory.refetch(), onError: (error) => toast.error("Delivery status could not be saved", { description: error.message }) });
   const requestOrganizationReview = trpc.course.requestOrganizationReview.useMutation({ onSuccess: () => { toast.success("Organization review request sent", { description: "The request is now pending review." }); if (deliveryEnrollmentId) recordCourseDelivery.mutate({ enrollmentId: deliveryEnrollmentId, step: "organization", status: "sent", organizationName: organizationName.trim(), recipientEmail: organizationEmail.trim() }); setDeliveryStep("share"); setOrganizationName(""); setOrganizationEmail(""); }, onError: (error) => toast.error("Could not request organization review", { description: error.message }) });
   const [compareWithId, setCompareWithId] = useState<number | null>(null);
@@ -164,12 +164,12 @@ export default function UserDashboard() {
   const trendDimensions = paidVersions[0]?.dimensionScores ?? [];
   const trendColors = ["#a27e2e", "#2f6f78", "#8b4f63", "#55705a", "#6d5b8d", "#b26836", "#3b6b9a", "#8b7650", "#6d7d83", "#9a4f4f"];
   const compareInput = useMemo(() => currentVersion && compareWithId ? { currentAttemptId: currentVersion.id, previousAttemptId: compareWithId } : undefined, [currentVersion, compareWithId]);
-  const comparison = trpc.dashboard.compareReports.useQuery(compareInput!, { enabled: Boolean(compareInput) && !previewMode, retry: false });
+  const comparison = trpc.dashboard.compareReports.useQuery(compareInput!, { enabled: Boolean(compareInput) && !previewMode, retry: false, refetchInterval: 30000 });
   const comparisonData = previewMode ? reportComparisonPreview : comparison.data;
   const latestCareerPathReport = careerPathHistory.data?.[0]?.report as CareerPathReport | undefined;
-  const shares = trpc.dashboard.reportShares.useQuery(undefined, { enabled: Boolean(user), retry: false });
+  const shares = trpc.dashboard.reportShares.useQuery(undefined, { enabled: Boolean(user), retry: false, refetchInterval: 30000 });
   const auditInput = useMemo(() => ({ attemptId: auditAttemptId || undefined, eventType: auditEventType || undefined }), [auditAttemptId, auditEventType]);
-  const shareAudit = trpc.dashboard.reportShareAudit.useQuery(auditInput, { enabled: Boolean(user), retry: false });
+  const shareAudit = trpc.dashboard.reportShareAudit.useQuery(auditInput, { enabled: Boolean(user), retry: false, refetchInterval: 30000 });
   const exportShareAudit = trpc.dashboard.exportShareAudit.useQuery(auditInput, { enabled: false, retry: false });
   const utils = trpc.useUtils();
   const downloadShareAudit = async () => { const result = await exportShareAudit.refetch(); if (!result.data) return; const blob = new Blob([result.data.csv], { type: "text/csv;charset=utf-8" }); const url = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = url; anchor.download = result.data.filename; anchor.click(); URL.revokeObjectURL(url); toast.success("Share audit downloaded"); };

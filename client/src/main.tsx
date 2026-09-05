@@ -8,7 +8,17 @@ import App from "./App";
 import "./index.css";
 import "./executive-header.css";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+      staleTime: 30_000,
+      gcTime: 5 * 60_000,
+      retry: false,
+    },
+  },
+});
 
 let isLoggingOut = false;
 

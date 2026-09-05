@@ -20,7 +20,7 @@ export type AchievementLeaderboardRow = {
   totalBadges: number;
 };
 
-export function normalizeLeaderboardDisplayName(name: string | null | undefined, fallback = "Learner") {
+export function normalizeLeaderboardDisplayName(name: string | null | undefined, fallback = "Respondent") {
   const cleaned = (name ?? "").replace(/[^a-zA-Z0-9 ._-]/g, "").trim().slice(0, 80);
   return cleaned || fallback;
 }

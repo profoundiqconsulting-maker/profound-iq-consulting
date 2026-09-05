@@ -47,6 +47,15 @@ export default function PaystackInlineModal({ open, product, customerEmail, onCl
   const [scriptReady, setScriptReady] = useState(false);
   const [scriptError, setScriptError] = useState(false);
   const scriptRef = useRef<HTMLScriptElement | null>(null);
+  const onSuccessRef = useRef(onSuccess);
+  const onCloseRef = useRef(onClose);
+  const onErrorRef = useRef(onError);
+
+  useEffect(() => {
+    onSuccessRef.current = onSuccess;
+    onCloseRef.current = onClose;
+    onErrorRef.current = onError;
+  }, [onSuccess, onClose, onError]);
 
   useEffect(() => {
     if (!open) return;
@@ -75,7 +84,7 @@ export default function PaystackInlineModal({ open, product, customerEmail, onCl
     setLoading(false);
     const publicKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "";
     if (!publicKey) {
-      onError("Paystack public key is not configured. Contact support.");
+      onErrorRef.current("Paystack public key is not configured. Contact support.");
       return;
     }
     const handler = window.PaystackPop.setup({
@@ -94,17 +103,20 @@ export default function PaystackInlineModal({ open, product, customerEmail, onCl
         stage: product.stage,
       },
       onSuccess: (reference) => {
-        onSuccess(reference.reference);
+        onSuccessRef.current(reference.reference);
       },
       onCancel: () => {
-        onClose();
+        onCloseRef.current();
       },
       onError: (error) => {
-        onError(error.message || "Payment failed. Please try again.");
+        onErrorRef.current(error.message || "Payment failed. Please try again.");
       },
     });
     handler.openIframe();
-  }, [open, product, scriptReady, customerEmail, onClose, onSuccess, onError]);
+    return () => {
+      // Paystack inline does not expose a destroy method; cleanup is limited.
+    };
+  }, [open, product, scriptReady, customerEmail]);
 
   if (!open) return null;
 
@@ -132,6 +144,7 @@ export default function PaystackInlineModal({ open, product, customerEmail, onCl
             <p className="mt-1 text-sm text-[#657084]">KES {(product?.amountKes ?? 0).toLocaleString()}</p>
             <p className="mt-1 text-xs text-[#657084]">Ref: {product?.reference}</p>
             <p className="mt-4 text-xs text-[#657084]">A secure payment form will appear shortly. If it does not open automatically, check your popup blocker.</p>
+            <button type="button" onClick={() => onSuccessRef.current(product?.reference ?? "")} className="mt-4 inline-flex items-center gap-2 border border-[#16243d]/25 px-4 py-2 text-xs font-black uppercase tracking-[.12em]">I have completed payment</button>
           </>
         )}
       </div>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 import {
   ArrowLeft,
@@ -291,6 +291,16 @@ export default function CareerPath() {
   );
 
   useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    const returnedReference = query.get("reference");
+    if (!returnedReference) return;
+    if (query.get("payment") !== "success") return;
+    if (report || verifyPayment.isPending || verifyPayment.isSuccess) return;
+    setPaymentState(paystackStateAfter("verify"));
+    verifyPayment.mutate({ reference: returnedReference });
+  }, [report, verifyPayment]);
+
+  useEffect(() => {
     if (
       reference &&
       !report &&
@@ -301,6 +311,34 @@ export default function CareerPath() {
       verifyPayment.mutate({ reference });
     }
   }, [reference, report, verifyPayment]);
+
+  useEffect(() => {
+    if (!inlineModalOpen || !inlineProduct?.reference) return;
+    let cancelled = false;
+    const tick = async () => {
+      if (cancelled) return;
+      try {
+        await new Promise<void>((resolve) => {
+          verifyPayment.mutate({ reference: inlineProduct.reference }, {
+            onSuccess: () => {
+              if (!cancelled) {
+                setInlineModalOpen(false);
+                setInlineProduct(null);
+              }
+              resolve();
+            },
+            onError: () => resolve(),
+          });
+        });
+      } catch {
+        // keep polling
+      } finally {
+        if (!cancelled) setTimeout(tick, 3000);
+      }
+    };
+    tick();
+    return () => { cancelled = true; };
+  }, [inlineModalOpen, inlineProduct?.reference, verifyPayment]);
 
   const grouped = useMemo(() => {
     if (!data?.questions) return [];

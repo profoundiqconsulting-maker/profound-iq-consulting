@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useRoute } from "wouter";
 import { ArrowLeft, ArrowRight, CheckCircle2, Clock3, LockKeyhole, Sparkles, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,7 @@ export default function Psychometrics() {
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
   const [report, setReport] = useState<any>(null);
+  const [paidReference, setPaidReference] = useState<string | null>(null);
   const [feedbackScores, setFeedbackScores] = useState<Record<string, number>>({});
   const recommendationFeedback = trpc.psychometric.recommendationFeedback.useMutation({ onSuccess: () => toast.success("Thanks — your recommendation feedback was saved."), onError: (error) => toast.error("Could not save feedback", { description: error.message }) });
   const [paymentMessage, setPaymentMessage] = useState("");
@@ -48,8 +49,62 @@ export default function Psychometrics() {
     const query = new URLSearchParams(window.location.search);
     const reference = query.get("reference");
     if (!reference) return;
-    verify.mutate({ reference }, { onSuccess: (result) => { setReport(result.report); setPaymentMessage("Payment verified. Your personalized profile is ready."); toast.success("Assessment complete"); }, onError: (error) => { setPaymentMessage(error.message); toast.error(error.message); } });
+    if (query.get("payment") !== "success") return;
+    verify.mutate({ reference }, { onSuccess: (result) => { setReport(result.report); setPaidReference(reference); setPaymentMessage("Payment verified. Your personalized profile is ready."); toast.success("Assessment complete"); }, onError: (error) => { setPaymentMessage(error.message); toast.error(error.message); } });
   }, []);
+
+  useEffect(() => {
+    if (!inlineModalOpen || !inlineProduct?.reference) return;
+    let cancelled = false;
+    const tick = async () => {
+      if (cancelled) return;
+      try {
+        await new Promise<void>((resolve, reject) => {
+          verify.mutate({ reference: inlineProduct.reference }, {
+            onSuccess: (result) => {
+              if (!cancelled && result?.report) {
+                setReport(result.report);
+                setPaidReference(inlineProduct.reference);
+                setPaymentMessage("Payment verified. Your personalized profile is ready.");
+                toast.success("Assessment complete");
+                setInlineModalOpen(false);
+                setInlineProduct(null);
+              }
+              resolve();
+            },
+            onError: () => resolve(),
+          });
+        });
+      } catch {
+        // keep polling
+      } finally {
+        if (!cancelled) setTimeout(tick, 3000);
+      }
+    };
+    tick();
+    return () => { cancelled = true; };
+  }, [inlineModalOpen, inlineProduct?.reference, verify]);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("piq-psychometric-answers");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setAnswers(parsed);
+      } catch {
+        // ignore corrupt storage
+      }
+    }
+  }, [slug]);
+
+  useEffect(() => {
+    if (!slug) return;
+    const handler = () => {
+      window.localStorage.setItem("piq-psychometric-answers", JSON.stringify(answers));
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [answers, slug]);
 
   useEffect(() => {
     if (slug && detail.data) {
@@ -61,14 +116,14 @@ export default function Psychometrics() {
 
   const selected = useMemo(() => current ? answers[current.id] : undefined, [answers, current]);
   const choose = (value: number) => { if (!current) return; setAnswers((previous) => ({ ...previous, [current.id]: value })); };
-  const downloadPaidReport = async () => { const reference = new URLSearchParams(window.location.search).get("reference"); if (!reference) { toast.error("A verified payment reference is required."); return; } try { const result = await downloadReport.mutateAsync({ reference }); const bytes = Uint8Array.from(atob(result.data), (character) => character.charCodeAt(0)); const url = URL.createObjectURL(new Blob([bytes], { type: result.contentType })); const anchor = document.createElement("a"); anchor.href = url; anchor.download = result.filename; anchor.click(); URL.revokeObjectURL(url); toast.success("Profile PDF downloaded"); } catch (error) { toast.error("Profile PDF unavailable", { description: error instanceof Error ? error.message : "Please try again." }); } };
+  const downloadPaidReport = async () => { const reference = paidReference || new URLSearchParams(window.location.search).get("reference"); if (!reference) { toast.error("A verified payment reference is required."); return; } try { const result = await downloadReport.mutateAsync({ reference }); const bytes = Uint8Array.from(atob(result.data), (character) => character.charCodeAt(0)); const url = URL.createObjectURL(new Blob([bytes], { type: result.contentType })); const anchor = document.createElement("a"); anchor.href = url; anchor.download = result.filename; anchor.click(); URL.revokeObjectURL(url); toast.success("Profile PDF downloaded"); } catch (error) { toast.error("Profile PDF unavailable", { description: error instanceof Error ? error.message : "Please try again." }); } };
   const rateRecommendation = (courseSlug: string, rating: number) => { setFeedbackScores((current) => ({ ...current, [courseSlug]: rating })); recommendationFeedback.mutate({ testSlug: report?.testSlug ?? slug ?? "", courseSlug, rating }); };
   const submit = () => {
     if (!detail.data || !name.trim() || !email.trim() || !consent || Object.keys(answers).length !== questions.length) { toast.error("Complete every response, your details, and consent before checkout."); return; }
     initializeInline.mutate({ testSlug: detail.data.slug, name: name.trim(), email: email.trim(), answers: questions.map((question) => ({ questionId: question.id, value: answers[question.id] })), consent: true }, { onSuccess: (result) => { setInlineProduct({ accessCode: result.accessCode, reference: result.reference, amountKes: result.amountKes, productName: result.productName, productType: result.productType as "psychometric", testSlug: result.testSlug }); setInlineModalOpen(true); }, onError: (error) => toast.error(error.message) });
   };
 
-  if (!slug) return <main className="min-h-screen bg-[#f7f3e8] text-[#16243d]"><section className="bg-[#16243d] px-6 py-20 text-[#f7f3e8]"><div className="container"><p className="eyebrow text-[#c9a34e]">PROFOUND IQ / TRANSFORMATION SERVICES</p><h1 className="display mt-5 max-w-4xl text-6xl leading-[.95]">Professional psychometric profiles for <em className="text-[#c9a34e]">better decisions.</em></h1><p className="mt-7 max-w-2xl text-lg leading-8 text-[#d7deea]">Six complementary assessments for career exploration, cognitive reasoning, emotional intelligence, employability, leadership, and occupational fit. Each profile turns structured responses into practical development conversations.</p><div className="mt-8 flex flex-wrap gap-3"><Link href="/"><Button variant="outline" className="border-[#c9a34e] text-[#f7f3e8]">Back to home</Button></Link><span className="inline-flex items-center gap-2 px-4 py-2 text-sm text-[#d7deea]"><LockKeyhole size={16} /> Secure Paystack checkout · {displayPrice}</span></div></div></section><section className="container grid gap-5 py-12 md:grid-cols-2 xl:grid-cols-3">{catalog.isLoading ? <p>Loading profiles…</p> : catalog.data?.map((test) => <Card key={test.slug} className="border-[#16243d]/15 bg-[#fffdf7]"><CardHeader><div className="flex items-center justify-between gap-3"><span className="eyebrow text-[#a27e2e]">{test.questionCount} items</span><span className="text-sm font-semibold text-[#a27e2e]">{displayPrice}</span></div><CardTitle className="display text-3xl text-[#16243d]">{test.title}</CardTitle></CardHeader><CardContent><p className="text-sm leading-7 text-[#657084]">{test.strapline}</p><p className="mt-3 text-sm leading-6 text-[#657084]">{test.purpose}</p><div className="mt-5 flex items-center justify-between text-xs font-bold uppercase tracking-[.12em] text-[#657084]"><span className="inline-flex items-center gap-1"><Clock3 size={14} /> {test.estimatedMinutes} min</span><Link href={`/psychometrics/${test.slug}`}><Button className="bg-[#c9a34e] text-[#16243d] hover:bg-[#b18d3d]">Start profile <ArrowRight size={16} /></Button></Link></div></CardContent></Card>)}</section></main>;;
+  if (!slug) return <main className="min-h-screen bg-[#f7f3e8] text-[#16243d]"><section className="bg-[#16243d] px-6 py-20 text-[#f7f3e8]"><div className="container"><p className="eyebrow text-[#c9a34e]">PROFOUND IQ / TRANSFORMATION SERVICES</p><h1 className="display mt-5 max-w-4xl text-6xl leading-[.95]">Professional psychometric profiles for <em className="text-[#c9a34e]">better decisions.</em></h1><p className="mt-7 max-w-2xl text-lg leading-8 text-[#d7deea]">Six complementary assessments for career exploration, cognitive reasoning, emotional intelligence, employability, leadership, and occupational fit. Each profile turns structured responses into practical development conversations.</p><div className="mt-8 flex flex-wrap gap-3"><Link href="/"><Button variant="outline" className="border-[#c9a34e] text-[#f7f3e8]">Back to home</Button></Link><span className="inline-flex items-center gap-2 px-4 py-2 text-sm text-[#d7deea]"><LockKeyhole size={16} /> Secure Paystack checkout · {displayPrice}</span></div></div></section><section className="container grid gap-5 py-12 md:grid-cols-2 xl:grid-cols-3">{catalog.isLoading ? <p>Loading profiles…</p> : catalog.data?.map((test) => <Card key={test.slug} className="border-[#16243d]/15 bg-[#fffdf7]"><CardHeader><div className="flex items-center justify-between gap-3"><span className="eyebrow text-[#a27e2e]">{test.questionCount} items</span><span className="text-sm font-semibold text-[#a27e2e]">{displayPrice}</span></div><CardTitle className="display text-3xl text-[#16243d]">{test.title}</CardTitle></CardHeader><CardContent><p className="text-sm leading-7 text-[#16243d]">{test.strapline}</p><p className="mt-3 text-sm leading-6 text-[#16243d]">{test.purpose}</p><div className="mt-5 flex items-center justify-between text-xs font-bold uppercase tracking-[.12em] text-[#16243d]"><span className="inline-flex items-center gap-1"><Clock3 size={14} /> {test.estimatedMinutes} min</span><Link href={`/psychometrics/${test.slug}`}><Button className="bg-[#c9a34e] text-[#16243d] hover:bg-[#b18d3d]">Start profile <ArrowRight size={16} /></Button></Link></div></CardContent></Card>)}</section></main>;;
 
   const test = detail.data;
   if (!test) return <main className="container py-20">Loading assessment…</main>;
@@ -85,73 +140,76 @@ export default function Psychometrics() {
           <CardHeader>
             <p className="eyebrow text-[#a27e2e]">PERSONALIZED PROFILE</p>
             <CardTitle className="display text-5xl">{report.title}</CardTitle>
-            <p className="text-[#657084]">{paymentMessage}</p>
+            <p className="text-[#16243d]">{paymentMessage}</p>
           </CardHeader>
-          <CardContent>
-            <div className="grid gap-5 md:grid-cols-[1fr_1.5fr]">
-              <div className="rounded-2xl bg-[#16243d] p-7 text-[#f7f3e8]">
-                <p className="eyebrow text-[#c9a34e]">Overall signal</p>
-                <p className="display mt-4 text-7xl text-[#c9a34e]">{report.overallScore}<span className="text-2xl text-[#f7f3e8]">/100</span></p>
-                <p className="mt-3 text-lg">{report.overallBand}</p>
-              </div>
-              <div>
-                <h2 className="display text-3xl">Your strongest signals</h2>
-                <div className="mt-4 grid gap-3">
-                  {report.strengths?.map((strength: string) => (
-                    <div key={strength} className="flex items-center gap-3 rounded-xl border border-[#16243d]/10 p-4">
-                      <CheckCircle2 className="text-[#a27e2e]" size={18} />
-                      {strength}
-                    </div>
-                  ))}
+            <CardContent>
+              <div className="grid gap-5 md:grid-cols-[1fr_1.5fr]">
+                <div className="rounded-2xl bg-[#16243d] p-7 text-[#f7f3e8]">
+                  <p className="eyebrow text-[#c9a34e]">Overall signal</p>
+                  <p className="display mt-4 text-7xl text-[#c9a34e]">{report.overallScore}<span className="text-2xl text-[#f7f3e8]">/100</span></p>
+                  <p className="mt-3 text-lg">{report.overallBand}</p>
                 </div>
-              </div>
-            </div>
-            <div className="mt-8 grid gap-4 md:grid-cols-2">
-              {report.domains?.map((domain: any) => (
-                <div key={domain.key} className="rounded-xl border border-[#16243d]/10 p-5">
-                  <div className="flex justify-between gap-3">
-                    <strong>{domain.label}</strong>
-                    <span className="font-bold text-[#a27e2e]">{domain.score}/100</span>
-                  </div>
-                  <Progress value={domain.score} className="mt-3" />
-                  <p className="mt-3 text-sm leading-6 text-[#657084]">{domain.readout}</p>
-                  <p className="mt-3 text-sm font-semibold text-[#16243d]">Next: {domain.developmentActions?.[0]}</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button onClick={downloadPaidReport} disabled={downloadReport.isPending} className="bg-[#16243d] text-[#f7f3e8]">
-                {downloadReport.isPending ? "Preparing PDF…" : "Download branded PDF"}
-              </Button>
-              <Link href="/dashboard" className="inline-flex items-center border border-[#16243d]/25 px-4 py-2 text-sm font-semibold">{t("myWorkspace")}</Link>
-            </div>
-            <section className="mt-8 border-t border-[#16243d]/10 pt-7">
-              <p className="eyebrow text-[#a27e2e]">Recommended next steps</p>
-              <h2 className="display mt-2 text-3xl">Turn insight into practice.</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">These Profound IQ courses are matched to this profile to help you move from reflection to observable action.</p>
-              <div className="mt-5 grid gap-3 md:grid-cols-3">
-                {getPsychometricCourseRecommendations({ testSlug: report.testSlug, domains: report.domains }).map((course) => (
-                  <div key={course.slug} className="rounded-xl border border-[#16243d]/10 bg-[#f7f3e8] p-4 transition hover:-translate-y-0.5 hover:border-[#c9a34e]">
-                    <Link href={`/courses/${course.slug}`}>
-                      <span className="block text-sm font-bold">{course.title}</span>
-                      <span className="mt-2 block text-xs leading-5 text-[#657084]">{course.reason}</span>
-                      <span className="mt-3 block text-xs font-bold text-[#7d5e1e]">{course.action}</span>
-                    </Link>
-                    <div className="mt-4 border-t border-[#16243d]/10 pt-3">
-                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">Was this useful?</p>
-                      <div className="mt-2 flex gap-1" role="radiogroup" aria-label={`Rate ${course.title} recommendation`}>
-                        {[1, 2, 3, 4, 5].map((rating) => (
-                          <button key={rating} type="button" onClick={() => rateRecommendation(course.slug, rating)} aria-label={`${rating} out of 5`} aria-pressed={feedbackScores[course.slug] === rating} className={feedbackScores[course.slug] && feedbackScores[course.slug] >= rating ? "text-[#a27e2e]" : "text-[#9aa2ad]"}>
-                            <Star size={15} fill="currentColor" />
-                          </button>
-                        ))}
+                <div>
+                  <h2 className="display text-3xl">Your strongest signals</h2>
+                  <div className="mt-4 grid gap-3">
+                    {report.strengths?.map((strength: string) => (
+                      <div key={strength} className="flex items-center gap-3 rounded-xl border border-[#16243d]/10 p-4">
+                        <CheckCircle2 className="text-[#a27e2e]" size={18} />
+                        <span className="text-sm font-semibold text-[#16243d]">{strength}</span>
                       </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="mt-8 grid gap-4 md:grid-cols-2">
+                {report.domains?.map((domain: any) => (
+                  <div key={domain.key} className="rounded-xl border border-[#16243d]/10 bg-white p-5">
+                    <div className="flex justify-between gap-3">
+                      <strong className="text-[#16243d]">{domain.label}</strong>
+                      <span className="font-bold text-[#a27e2e]">{domain.score}/100</span>
                     </div>
+                    <Progress value={domain.score} className="mt-3" />
+                    <p className="mt-3 text-sm leading-6 text-[#16243d]">{domain.readout}</p>
+                    <p className="mt-3 text-sm font-semibold text-[#16243d]">Next: {domain.developmentActions?.[0]}</p>
                   </div>
                 ))}
               </div>
-            </section>
-            <div className="mt-8 rounded-xl bg-[#ece5d6] p-5 text-sm leading-7 text-[#657084]">
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Button onClick={downloadPaidReport} disabled={downloadReport.isPending} className="bg-[#16243d] text-[#f7f3e8]">
+                  {downloadReport.isPending ? "Preparing PDF…" : "Download branded PDF"}
+                </Button>
+                <Button variant="outline" onClick={() => { window.localStorage.setItem(`piq-psychometric-saved-${paidReference || new URLSearchParams(window.location.search).get("reference")}`, JSON.stringify({ ...report, savedAt: new Date().toISOString() })); toast.success("Profile saved to dashboard"); }} className="border-[#16243d]/25 text-[#16243d]">
+                  Save to dashboard
+                </Button>
+                <Link href="/dashboard" className="inline-flex items-center border border-[#16243d]/25 px-4 py-2 text-sm font-semibold text-[#16243d]">{t("myWorkspace")}</Link>
+              </div>
+              <section className="mt-8 border-t border-[#16243d]/10 pt-7">
+                <p className="eyebrow text-[#a27e2e]">Recommended next steps</p>
+                <h2 className="display mt-2 text-3xl">Turn insight into practice.</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">These Profound IQ courses are matched to this profile to help you move from reflection to observable action.</p>
+                <div className="mt-5 grid gap-3 md:grid-cols-3">
+                  {getPsychometricCourseRecommendations({ testSlug: report.testSlug, domains: report.domains }).map((course) => (
+                    <div key={course.slug} className="rounded-xl border border-[#16243d]/10 bg-[#f7f3e8] p-4 transition hover:-translate-y-0.5 hover:border-[#c9a34e]">
+                      <Link href={`/courses/${course.slug}`}>
+                        <span className="block text-sm font-bold text-[#16243d]">{course.title}</span>
+                        <span className="mt-2 block text-xs leading-5 text-[#16243d]">{course.reason}</span>
+                        <span className="mt-3 block text-xs font-bold text-[#7d5e1e]">{course.action}</span>
+                      </Link>
+                      <div className="mt-4 border-t border-[#16243d]/10 pt-3">
+                        <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">Was this useful?</p>
+                        <div className="mt-2 flex gap-1" role="radiogroup" aria-label={`Rate ${course.title} recommendation`}>
+                          {[1, 2, 3, 4, 5].map((rating) => (
+                            <button key={rating} type="button" onClick={() => rateRecommendation(course.slug, rating)} aria-label={`${rating} out of 5`} aria-pressed={feedbackScores[course.slug] === rating} className={feedbackScores[course.slug] && feedbackScores[course.slug] >= rating ? "text-[#a27e2e]" : "text-[#9aa2ad]"}>
+                              <Star size={15} fill="currentColor" />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            <div className="mt-8 rounded-xl bg-[#ece5d6] p-5 text-sm leading-7 text-[#16243d]">
               <strong className="text-[#16243d]">Important context. </strong>
               {report.disclaimer}
             </div>
@@ -171,6 +229,7 @@ export default function Psychometrics() {
             verify.mutate({ reference }, {
               onSuccess: (result) => {
                 setReport(result.report);
+                setPaidReference(reference);
                 setPaymentMessage("Payment verified. Your personalized profile is ready.");
                 toast.success("Assessment complete");
               },
@@ -206,7 +265,7 @@ export default function Psychometrics() {
           <div>
             <p className="eyebrow text-[#a27e2e]">{test.shortTitle}</p>
             <h1 className="display mt-4 text-5xl leading-none">{test.strapline}</h1>
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-[#657084]">{test.purpose}</p>
+            <p className="mt-5 max-w-2xl text-lg leading-8 text-[#16243d]">{test.purpose}</p>
             <div className="mt-8 rounded-2xl border border-[#16243d]/15 bg-[#fffdf7] p-5">
               <div className="flex items-center justify-between gap-4 text-sm font-semibold">
                 <span>{workflowCopy.progress}</span>
@@ -261,7 +320,7 @@ export default function Psychometrics() {
               <Input placeholder={workflowCopy.fullName} value={name} onChange={(event) => setName(event.target.value)} />
               <Input type="email" placeholder={workflowCopy.emailAddress} value={email} onChange={(event) => setEmail(event.target.value)} />
             </div>
-            <label className="mt-5 flex items-start gap-3 text-sm leading-6 text-[#657084]">
+            <label className="mt-5 flex items-start gap-3 text-sm leading-6 text-[#16243d]">
               <Checkbox checked={consent} onCheckedChange={(value) => setConsent(Boolean(value))} /> {workflowCopy.consent}
             </label>
             <Button onClick={submit} disabled={initializeInline.isPending} className="mt-5 bg-[#16243d] text-[#f7f3e8]">
@@ -284,6 +343,7 @@ export default function Psychometrics() {
           verify.mutate({ reference }, {
             onSuccess: (result) => {
               setReport(result.report);
+              setPaidReference(reference);
               setPaymentMessage("Payment verified. Your personalized profile is ready.");
               toast.success("Assessment complete");
             },

@@ -8,7 +8,7 @@ import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 const DEFAULT_PREVIEW_IMAGE = `${PUBLISHED_SITE_ORIGIN}/profound-iq-social-preview.svg`;
 
 export default function AdminSocialPreviewSettings() {
-  const settings = trpc.admin.socialPreviewSettings.useQuery();
+  const settings = trpc.admin.socialPreviewSettings.useQuery({ retry: false, refetchInterval: 30000 });
   const save = trpc.admin.saveSocialPreviewSettings.useMutation({
     onSuccess: () => {
       void settings.refetch();

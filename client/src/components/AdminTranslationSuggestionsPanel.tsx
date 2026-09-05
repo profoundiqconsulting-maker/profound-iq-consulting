@@ -11,7 +11,7 @@ export default function AdminTranslationSuggestionsPanel() {
   const [status, setStatus] = useState<SuggestionStatus>("new");
   const [page, setPage] = useState(1);
   const input = useMemo(() => ({ search: search || undefined, category: "translation-feedback" as const, status, page, pageSize: 6 }), [page, search, status]);
-  const suggestions = trpc.admin.contactInquiries.useQuery(input, { retry: false });
+  const suggestions = trpc.admin.contactInquiries.useQuery(input, { retry: false, refetchInterval: 30000 });
   const updateStatus = trpc.admin.updateContactInquiryStatus.useMutation({
     onSuccess: () => { toast.success("Translation suggestion updated."); suggestions.refetch(); },
     onError: (error) => toast.error(error.message || "Could not update this suggestion."),

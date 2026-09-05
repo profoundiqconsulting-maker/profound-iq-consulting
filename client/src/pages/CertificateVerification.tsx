@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Check, CheckCircle2, Copy, ExternalLink, Facebook, Linkedin, Share2, ShieldCheck, X, XCircle } from "lucide-react";
+import { Check, CheckCircle2, Copy, Download, ExternalLink, Facebook, Linkedin, Share2, ShieldCheck, X, XCircle } from "lucide-react";
 import { Link } from "wouter";
 import { TransformationNav } from "@/components/TransformationNav";
 import { trpc } from "@/lib/trpc";
@@ -43,6 +43,34 @@ export default function CertificateVerification() {
   const actions = actionCopy[locale] ?? actionCopy.en;
   const nativeShareSupported = typeof navigator !== "undefined" && "share" in navigator;
   const recordShare = trpc.course.recordCertificateShare.useMutation();
+
+  const downloadVerification = trpc.course.downloadVerificationReport.useMutation();
+  const handleDownloadVerification = async () => {
+    if (!certificate) return;
+    try {
+      const verification = await downloadVerification.mutateAsync({
+        type: "certificate",
+        reference: certificateNumber,
+        certificateNumber: certificate.certificateNumber,
+        respondentName: certificate.recipientName,
+        credentialTitle: certificate.courseTitle,
+        issuedAt: new Date(certificate.createdAt).toISOString(),
+        artifactHash: certificate.artifactHash,
+      });
+      const bytes = Uint8Array.from(atob(verification.data), (character) => character.charCodeAt(0));
+      const blob = new Blob([bytes], { type: verification.contentType });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = verification.filename;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      toast.success("Verification report downloaded");
+    } catch (error) {
+      toast.error("Unable to download verification report");
+    }
+  };
+
   const recordShareEvent = (platform: "native" | "linkedin" | "facebook" | "whatsapp" | "x") => {
     if (!certificateNumber) return;
     void recordShare.mutateAsync({ platform, certificateNumber, courseTitle: certificate?.courseTitle }).catch(() => undefined);

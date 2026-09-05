@@ -15,9 +15,9 @@ export default function AdminCourseShareAnalytics() {
   const [previewSlug, setPreviewSlug] = useState("");
   const [excludeAdminShares, setExcludeAdminShares] = useState(false);
   const analyticsInput = { fromDate: fromDate || undefined, toDate: toDate || undefined, excludeAdminShares: excludeAdminShares || undefined };
-  const analytics = trpc.admin.courseShareAnalytics.useQuery(analyticsInput, { retry: false });
-  const courses = trpc.catalog.adminList.useQuery(undefined, { retry: false });
-  const socialSettings = trpc.admin.socialPreviewSettings.useQuery(undefined, { retry: false });
+  const analytics = trpc.admin.courseShareAnalytics.useQuery(analyticsInput, { retry: false, refetchInterval: 30000 });
+  const courses = trpc.catalog.adminList.useQuery(undefined, { retry: false, refetchInterval: 30000 });
+  const socialSettings = trpc.admin.socialPreviewSettings.useQuery(undefined, { retry: false, refetchInterval: 30000 });
   const csvExport = trpc.admin.exportCourseShareCsv.useQuery(analyticsInput, { enabled: false });
   const pdfExport = trpc.admin.exportCourseSharePdf.useMutation();
   const trackShare = trpc.analytics.track.useMutation();

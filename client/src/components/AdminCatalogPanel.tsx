@@ -10,7 +10,7 @@ const initialForm = { slug: "", itemType: "course" as const, title: "", straplin
 export default function AdminCatalogPanel() {
   const [form, setForm] = useState(initialForm);
   const [cropJob, setCropJob] = useState<{ id: number; title: string; file: File } | null>(null);
-  const items = trpc.catalog.adminList.useQuery(undefined, { retry: false });
+  const items = trpc.catalog.adminList.useQuery(undefined, { retry: false, refetchInterval: 30000 });
   const utils = trpc.useUtils();
   const create = trpc.catalog.create.useMutation({
     onSuccess: async () => {

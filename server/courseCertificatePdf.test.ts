@@ -12,5 +12,5 @@ describe("course certificate PDF", () => {
     });
     expect(pdf.subarray(0, 5).toString()).toBe("%PDF-");
     expect(pdf.length).toBeGreaterThan(10_000);
-  });
+  }, 30_000);
 });

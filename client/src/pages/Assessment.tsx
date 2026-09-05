@@ -697,6 +697,46 @@ export default function Assessment() {
     );
   }, []);
 
+  useEffect(() => {
+    if (!inlineModalOpen || !inlineProduct?.reference) return;
+    let cancelled = false;
+    const tick = async () => {
+      if (cancelled) return;
+      try {
+        await new Promise<void>((resolve) => {
+          verifyPayment.mutate({ reference: inlineProduct.reference }, {
+            onSuccess: (result) => {
+              if (!cancelled) {
+                setPaymentState("paid");
+                setReport(result.report as AssessmentReport);
+                setEmailSent(result.emailSent);
+                setStage("report");
+                setInlineModalOpen(false);
+                setInlineProduct(null);
+                window.localStorage.setItem(
+                  "piq-assessment-paid-reference",
+                  inlineProduct.reference
+                );
+                sessionStorage.removeItem("piq-assessment-reference");
+                toast.success("Payment verified", {
+                  description: "Your assessment report is now unlocked.",
+                });
+              }
+              resolve();
+            },
+            onError: () => resolve(),
+          });
+        });
+      } catch {
+        // keep polling
+      } finally {
+        if (!cancelled) setTimeout(tick, 3000);
+      }
+    };
+    tick();
+    return () => { cancelled = true; };
+  }, [inlineModalOpen, inlineProduct?.reference, verifyPayment]);
+
   const saveReflectionPrompt = async (
     item: (typeof reflectionPrompts)[number]
   ) => {

@@ -67,7 +67,7 @@ const english: GeneratedCopy = {
   transactionReference: "Transaction reference",
   amountPaid: "Amount paid",
   paidOn: "Paid on",
-  learner: "Learner",
+  learner: "Respondent",
   course: "Course",
   congratulations: "Congratulations",
   certificateAttached: "Your professional certificate is attached.",

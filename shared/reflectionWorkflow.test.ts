@@ -4,7 +4,7 @@ import { buildReflectionExportCsv } from "./reflectionWorkflow";
 describe("reflection workflow", () => {
   it("exports selected prompts with notes and statuses as escaped CSV", () => {
     const csv = buildReflectionExportCsv([{ dimensionLabel: "Clarity of direction", promptText: "What would make your next priority easier to explain?", note: "Discuss with my manager\nthis week", status: "active" }]);
-    expect(csv).toContain('"Dimension","Reflection prompt","Learner response","Action status"');
+    expect(csv).toContain('"Dimension","Reflection prompt","Respondent response","Action status"');
     expect(csv).toContain('"Clarity of direction","What would make your next priority easier to explain?","Discuss with my manager this week","active"');
   });
 

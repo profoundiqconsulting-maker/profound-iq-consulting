@@ -10,7 +10,7 @@ export default function AdminPaymentExceptionsPanel() {
   const [status, setStatus] = useState<Status>("pending");
   const [search, setSearch] = useState("");
   const input = { status, search: search.trim() || undefined, limit: 100 };
-  const payments = trpc.admin.coursePaymentExceptions.useQuery(input, { retry: false });
+  const payments = trpc.admin.coursePaymentExceptions.useQuery(input, { retry: false, refetchInterval: 30000 });
   const utils = trpc.useUtils();
   const reconcile = trpc.admin.reconcileCoursePayment.useMutation({
     onSuccess: (result) => {

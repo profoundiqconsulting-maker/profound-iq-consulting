@@ -8,31 +8,187 @@ import { useLocale } from "@/contexts/LocaleContext";
 import { DashboardPagination } from "@/components/DashboardPagination";
 import { courseCatalog } from "@shared/courseCatalog";
 import { DashboardQuickNav } from "@/components/DashboardQuickNav";
+import { DashboardSection, DashboardSectionHeader, DashboardSectionStats, DashboardSectionFilters, DashboardSectionContent, DashboardSectionPagination, DashboardStatCard } from "@/components/DashboardSection";
 
 type Status = "all" | "new" | "contacted" | "closed";
 type SortMode = "priority" | "dueDate" | "newest";
+type StaffTab = "inquiries" | "review";
 
 export default function StaffDashboard() {
+  const { t } = useLocale();
+  const [tab, setTab] = useState<StaffTab>("inquiries");
+
+  return (
+    <DashboardLayout>
+      <main className="min-h-screen bg-[#f7f3e8] px-4 py-8 text-[#16243d] sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-6xl">
+          <DashboardQuickNav role="staff" className="mb-8" />
+          <div className="flex flex-col justify-between gap-5 border-b border-[#16243d]/15 pb-8 sm:flex-row sm:items-end">
+            <div>
+              <p className="eyebrow text-[#a27e2e]">Assigned work</p>
+              <h1 className="display mt-3 text-4xl sm:text-5xl">Your inquiry desk.</h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#657084]">
+                Review inquiries assigned to you, keep internal context current, and move each conversation forward.
+              </p>
+            </div>
+            <span className="border border-[#c9a34e]/60 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Assigned work only</span>
+          </div>
+
+          <div className="mt-8 flex gap-2" role="tablist" aria-label="Staff workspace">
+            {([
+              { id: "inquiries", label: "Assigned inquiries" },
+              { id: "review", label: "Instructor review" },
+            ] as { id: StaffTab; label: string }[]).map(item => (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                aria-selected={tab === item.id}
+                onClick={() => setTab(item.id)}
+                className={`border px-4 py-2 text-[10px] font-black uppercase tracking-[.12em] transition-all ${
+                  tab === item.id
+                    ? "border-[#16243d] bg-[#16243d] text-[#f7f3e8]"
+                    : "border-[#16243d]/15 bg-white/50 text-[#657084] hover:border-[#c9a34e] hover:text-[#16243d]"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+
+          {tab === "inquiries" && <InquiryDesk />}
+          {tab === "review" && <InstructorReviewPanel />}
+        </div>
+      </main>
+    </DashboardLayout>
+  );
+}
+
+function InquiryDesk() {
   const { t } = useLocale();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<Status>("all");
   const [sortMode, setSortMode] = useState<SortMode>("priority");
   const [page, setPage] = useState(1);
-  const [noteDrafts, setNoteDrafts] = useState<Record<number, string>>({});
   const input = useMemo(() => ({ page, pageSize: 10, search: search || undefined, status }), [page, search, status]);
-  const inquiries = trpc.staff.assignedInquiries.useQuery(input, { retry: false });
+  const inquiries = trpc.staff.assignedInquiries.useQuery(input, { retry: false, refetchInterval: 30000 });
   const updateStatus = trpc.staff.updateStatus.useMutation({ onSuccess: () => { inquiries.refetch(); toast.success("Inquiry status updated."); }, onError: error => toast.error(error.message) });
   const updateNotes = trpc.staff.updateNotes.useMutation({ onSuccess: () => { inquiries.refetch(); toast.success("Internal note saved."); }, onError: error => toast.error(error.message) });
   const rows = inquiries.data?.rows ?? [];
   const sortedRows = useMemo(() => sortAssignedInquiries(rows, sortMode), [rows, sortMode]);
   const stats = { total: inquiries.data?.total ?? 0, new: rows.filter(row => row.status === "new").length, contacted: rows.filter(row => row.status === "contacted").length, closed: rows.filter(row => row.status === "closed").length };
   const setFilter = (setter: (value: any) => void, value: any) => { setter(value); setPage(1); };
-  return <DashboardLayout><main className="min-h-screen bg-[#f7f3e8] px-4 py-8 text-[#16243d] sm:px-8 lg:px-12"><div className="mx-auto max-w-6xl"><DashboardQuickNav role="staff" className="mb-8" /><div className="flex flex-col justify-between gap-5 border-b border-[#16243d]/15 pb-8 sm:flex-row sm:items-end"><div><p className="eyebrow text-[#a27e2e]">{t("myWorkspace")} / assigned work</p><h1 className="display mt-3 text-4xl sm:text-5xl">Your inquiry desk.</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-[#657084]">Review inquiries assigned to you, keep internal context current, and move each conversation forward.</p></div><span className="border border-[#c9a34e]/60 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Assigned work only</span></div>
-    <section className="mt-8 grid gap-3 sm:grid-cols-4"><Metric label="Assigned" value={stats.total} icon={<ClipboardList size={16} />} /><Metric label="New" value={stats.new} /><Metric label="Contacted" value={stats.contacted} /><Metric label="Closed" value={stats.closed} icon={<CheckCircle2 size={16} />} /></section>
-    <section className="mt-8 border border-[#16243d]/15 bg-white/50 p-4 sm:p-6"><div className="flex flex-col gap-3 md:flex-row"><label className="relative flex-1"><span className="sr-only">Search assigned inquiries</span><Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#657084]" /><input value={search} onChange={event => setFilter(setSearch, event.target.value)} placeholder="Search name, email, or message" className="w-full border border-[#16243d]/20 bg-[#f7f3e8] py-3 pl-9 pr-3 text-sm outline-none focus:border-[#c9a34e]" /></label><select value={status} onChange={event => setFilter(setStatus, event.target.value)} aria-label="Filter assigned inquiries by status" className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm"><option value="all">All statuses</option><option value="new">New</option><option value="contacted">Contacted</option><option value="closed">Closed</option></select><select value={sortMode} onChange={event => setSortMode(event.target.value as SortMode)} aria-label="Sort assigned inquiries" className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm"><option value="priority">Sort: priority</option><option value="dueDate">Sort: due date</option><option value="newest">Sort: newest</option></select></div>
-      {inquiries.isLoading ? <div className="flex items-center gap-2 py-12 text-sm text-[#657084]"><RefreshCw size={15} className="animate-spin" /> Loading your assigned inquiries…</div> : inquiries.isError ? <div className="border-l-2 border-red-700 bg-red-50 p-4 text-sm text-red-900">Unable to load your assigned inquiries. Please refresh and try again.</div> : rows.length === 0 ? <div className="py-12 text-center text-sm text-[#657084]">No inquiries match your current view.</div> : <div className="mt-5 divide-y divide-[#16243d]/10 border-y border-[#16243d]/10">{sortedRows.map(inquiry => <article key={inquiry.id} className="py-6"><div className="flex flex-col justify-between gap-4 lg:flex-row"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h2 className="font-bold">{inquiry.name}</h2><span className="border border-[#c9a34e]/60 px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">{inquiry.category.replaceAll("-", " ")}</span><span className={`px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] ${inquiry.priority === "urgent" ? "bg-red-700 text-white" : inquiry.priority === "high" ? "bg-[#c9a34e] text-[#16243d]" : "border border-[#16243d]/15 text-[#657084]"}`}>{inquiry.priority ?? "normal"}</span>{isInquiryOverdue(inquiry) && <span className="bg-red-50 px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] text-red-800">Overdue</span>}</div><a href={`mailto:${inquiry.email}`} className="mt-1 inline-flex items-center gap-1 text-sm text-[#a27e2e] hover:underline"><Mail size={13} />{inquiry.email}</a><p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[#4a566a]">{inquiry.message}</p><p className="mt-2 text-[11px] uppercase tracking-[.1em] text-[#8a94a4]">Received {new Date(inquiry.createdAt).toLocaleString()}{inquiry.dueDate && <span className={`ml-2 ${isInquiryOverdue(inquiry) ? "font-bold text-red-800" : ""}`}>· Due {new Date(inquiry.dueDate).toLocaleDateString()}</span>}</p></div><select value={inquiry.status} onChange={event => updateStatus.mutate({ id: inquiry.id, status: event.target.value as Exclude<Status, "all"> })} disabled={updateStatus.isPending} aria-label={`Update status for ${inquiry.name}`} className="h-10 border border-[#16243d]/20 bg-[#f7f3e8] px-3 text-sm"><option value="new">New</option><option value="contacted">Contacted</option><option value="closed">Closed</option></select></div><div className="mt-5 max-w-3xl"><label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">Internal note<textarea value={noteDrafts[inquiry.id] ?? inquiry.internalNotes ?? ""} onChange={event => setNoteDrafts(current => ({ ...current, [inquiry.id]: event.target.value }))} rows={2} placeholder="Add context for the team…" className="mt-2 w-full border border-[#16243d]/15 bg-[#f7f3e8] p-3 text-sm outline-none focus:border-[#c9a34e]" /></label><button type="button" onClick={() => updateNotes.mutate({ id: inquiry.id, internalNotes: noteDrafts[inquiry.id] ?? inquiry.internalNotes ?? "" })} disabled={updateNotes.isPending} className="mt-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-50">{updateNotes.isPending ? "Saving…" : "Save note"}</button></div></article>)}</div>}
-      <DashboardPagination page={inquiries.data?.page ?? page} pageCount={inquiries.data?.totalPages ?? 1} totalItems={inquiries.data?.total ?? 0} pageSize={10} onPageChange={setPage} itemLabel="assigned inquiries" />
-    </section><InstructorReviewPanel /></div></main></DashboardLayout>;
+
+  return (
+    <DashboardSection className="mt-8">
+      <DashboardSectionHeader
+        eyebrow={t("myWorkspace")}
+        title="Assigned inquiries"
+        description="Review inquiries assigned to you, keep internal context current, and move each conversation forward."
+        actions={
+          <span className="border border-[#c9a34e]/60 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Assigned work only</span>
+        }
+      />
+      <DashboardSectionStats>
+        <DashboardStatCard label="Assigned" value={stats.total} icon={<ClipboardList size={16} />} />
+        <DashboardStatCard label="New" value={stats.new} />
+        <DashboardStatCard label="Contacted" value={stats.contacted} />
+        <DashboardStatCard label="Closed" value={stats.closed} icon={<CheckCircle2 size={16} />} />
+      </DashboardSectionStats>
+      <DashboardSectionFilters>
+        <div className="flex flex-col gap-3 md:flex-row">
+          <label className="relative flex-1">
+            <span className="sr-only">Search assigned inquiries</span>
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#657084]" />
+            <input
+              value={search}
+              onChange={event => setFilter(setSearch, event.target.value)}
+              placeholder="Search name, email, or message"
+              className="w-full border border-[#16243d]/20 bg-[#f7f3e8] py-3 pl-9 pr-3 text-sm outline-none focus:border-[#c9a34e]"
+            />
+          </label>
+          <select
+            value={status}
+            onChange={event => setFilter(setStatus, event.target.value)}
+            aria-label="Filter assigned inquiries by status"
+            className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm"
+          >
+            <option value="all">All statuses</option>
+            <option value="new">New</option>
+            <option value="contacted">Contacted</option>
+            <option value="closed">Closed</option>
+          </select>
+          <select
+            value={sortMode}
+            onChange={event => setFilter(setSortMode, event.target.value)}
+            aria-label="Sort assigned inquiries"
+            className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm"
+          >
+            <option value="priority">Sort: priority</option>
+            <option value="dueDate">Sort: due date</option>
+            <option value="newest">Sort: newest</option>
+          </select>
+        </div>
+      </DashboardSectionFilters>
+      <DashboardSectionContent>
+        {inquiries.isLoading ? (
+          <div className="flex items-center gap-2 py-12 text-sm text-[#657084]">
+            <RefreshCw size={15} className="animate-spin" /> Loading your assigned inquiries…
+          </div>
+        ) : inquiries.isError ? (
+          <div className="border-l-2 border-red-700 bg-red-50 p-4 text-sm text-red-900">Unable to load your assigned inquiries. Please refresh and try again.</div>
+        ) : rows.length === 0 ? (
+          <div className="py-12 text-center text-sm text-[#657084]">No inquiries match your current view.</div>
+        ) : (
+          <div className="mt-5 divide-y divide-[#16243d]/10 border-y border-[#16243d]/10">
+            {sortedRows.map(inquiry => (
+              <article key={inquiry.id} className="py-6">
+                <div className="flex flex-col justify-between gap-4 lg:flex-row">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="font-bold">{inquiry.name}</h2>
+                      <span className="border border-[#c9a34e]/60 px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">{inquiry.category.replaceAll("-", " ")}</span>
+                      <span className={`px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] ${inquiry.priority === "urgent" ? "bg-red-700 text-white" : inquiry.priority === "high" ? "bg-[#c9a34e] text-[#16243d]" : "border border-[#16243d]/15 text-[#657084]"}`}>{inquiry.priority ?? "normal"}</span>
+                      {isInquiryOverdue(inquiry) && <span className="bg-red-50 px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] text-red-800">Overdue</span>}
+                    </div>
+                    <a href={`mailto:${inquiry.email}`} className="mt-1 inline-flex items-center gap-1 text-sm text-[#a27e2e] hover:underline"><Mail size={13} />{inquiry.email}</a>
+                    <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[#4a566a]">{inquiry.message}</p>
+                    <p className="mt-2 text-[11px] uppercase tracking-[.1em] text-[#8a94a4]">
+                      Received {new Date(inquiry.createdAt).toLocaleString()}
+                      {inquiry.dueDate && <span className={`ml-2 ${isInquiryOverdue(inquiry) ? "font-bold text-red-800" : ""}`}>· Due {new Date(inquiry.dueDate).toLocaleDateString()}</span>}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 flex-col gap-2">
+                    <select
+                      value={inquiry.status}
+                      onChange={event => updateStatus.mutate({ id: inquiry.id, status: event.target.value as Status })}
+                      aria-label="Update inquiry status"
+                      className="border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs"
+                    >
+                      <option value="new">New</option>
+                      <option value="contacted">Contacted</option>
+                      <option value="closed">Closed</option>
+                    </select>
+                    <textarea
+                      value={noteDrafts[inquiry.id] ?? inquiry.internalNotes ?? ""}
+                      onChange={event => setNoteDrafts(prev => ({ ...prev, [inquiry.id]: event.target.value }))}
+                      onBlur={() => { if (noteDrafts[inquiry.id] !== inquiry.internalNotes) updateNotes.mutate({ id: inquiry.id, notes: noteDrafts[inquiry.id] }); }}
+                      placeholder="Internal notes"
+                      className="border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs"
+                      rows={3}
+                    />
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </DashboardSectionContent>
+      <DashboardSectionPagination>
+        <DashboardPagination page={inquiries.data?.page ?? page} pageCount={inquiries.data?.totalPages ?? 1} totalItems={inquiries.data?.total ?? 0} pageSize={10} onPageChange={setPage} itemLabel="assigned inquiries" />
+      </DashboardSectionPagination>
+    </DashboardSection>
+  );
 }
 
 function InstructorReviewPanel() {
@@ -45,11 +201,11 @@ function InstructorReviewPanel() {
   const [feedbackDrafts, setFeedbackDrafts] = useState<Record<number, string>>({});
   const filterInput = useMemo(() => ({ courseSlug: courseSlug === "all" ? undefined : courseSlug, fromDate: fromDate || undefined, toDate: toDate || undefined }), [courseSlug, fromDate, toDate]);
   const input = useMemo(() => ({ page, pageSize: 8, search: search || undefined, reviewStatus, ...filterInput }), [page, search, reviewStatus, filterInput]);
-  const responses = trpc.staff.lessonResponses.useQuery(input, { retry: false });
-  const analytics = trpc.staff.reviewAnalytics.useQuery(filterInput, { retry: false });
-  const csvExport = trpc.staff.exportReviewAnalyticsCsv.useQuery(filterInput, { enabled: false, retry: false });
-  const pdfExport = trpc.staff.exportReviewAnalyticsPdf.useQuery(filterInput, { enabled: false, retry: false });
-  const schedule = trpc.staff.reviewAnalyticsSchedule.useQuery(undefined, { retry: false });
+  const responses = trpc.staff.lessonResponses.useQuery(input, { retry: false, refetchInterval: 30000 });
+  const analytics = trpc.staff.reviewAnalytics.useQuery(filterInput, { retry: false, refetchInterval: 30000 });
+  const csvExport = trpc.staff.exportReviewAnalyticsCsv.useQuery(filterInput, { enabled: false, retry: false, refetchInterval: 30000 });
+  const pdfExport = trpc.staff.exportReviewAnalyticsPdf.useQuery(filterInput, { enabled: false, retry: false, refetchInterval: 30000 });
+  const schedule = trpc.staff.reviewAnalyticsSchedule.useQuery(undefined, { retry: false, refetchInterval: 30000 });
   const enableSchedule = trpc.staff.enableReviewAnalyticsSchedule.useMutation({ onSuccess: () => { schedule.refetch(); toast.success("Weekly review analytics delivery enabled."); }, onError: (error) => toast.error(error.message) });
   const pauseSchedule = trpc.staff.pauseReviewAnalyticsSchedule.useMutation({ onSuccess: () => { schedule.refetch(); toast.success("Review analytics delivery paused."); }, onError: (error) => toast.error(error.message) });
   const reviewMutation = trpc.staff.reviewLessonResponse.useMutation({ onSuccess: () => { responses.refetch(); toast.success("Instructor feedback saved."); }, onError: (error) => toast.error(error.message) });
@@ -58,9 +214,103 @@ function InstructorReviewPanel() {
   const downloadResult = (result: { data?: { filename: string; contentType: string; data: string } }) => { if (!result.data) return; const binary = result.data.contentType === "application/pdf" ? Uint8Array.from(atob(result.data.data), (character) => character.charCodeAt(0)) : new TextEncoder().encode(result.data.data); const blob = new Blob([binary], { type: result.data.contentType }); const url = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = url; anchor.download = result.data.filename; anchor.click(); URL.revokeObjectURL(url); };
   const exportCsv = async () => { const result = await csvExport.refetch(); downloadResult(result); toast.success("Review analytics CSV downloaded."); };
   const exportPdf = async () => { const result = await pdfExport.refetch(); downloadResult(result); toast.success("Review analytics PDF downloaded."); };
-  return <section className="mt-8 border border-[#c9a34e]/55 bg-[#fffaf0] p-4 sm:p-6"><div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/15 pb-5 lg:flex-row lg:items-end"><div><p className="eyebrow text-[#a27e2e]">Instructor review</p><h2 className="display mt-2 text-3xl">Learner response desk.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">Review required lesson responses, leave actionable feedback, and move work from needs review to reviewed. Access is limited to staff and administrators.</p></div><span className="border border-[#c9a34e]/60 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Learning quality control</span></div><div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-5"><label className="relative lg:col-span-2"><span className="sr-only">Search learner responses</span><Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#657084]" /><input value={search} onChange={(event) => setFilter(event.target.value)} placeholder="Search learner, lesson, or response" className="w-full border border-[#16243d]/20 bg-[#f7f3e8] py-3 pl-9 pr-3 text-sm outline-none focus:border-[#c9a34e]" /></label><select value={courseSlug} onChange={(event) => { setCourseSlug(event.target.value); setPage(1); }} aria-label="Filter response review by course" className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm"><option value="all">All courses</option>{courseCatalog.map((course) => <option key={course.slug} value={course.slug}>{course.title}</option>)}</select><select value={reviewStatus} onChange={(event) => { setReviewStatus(event.target.value as typeof reviewStatus); setPage(1); }} aria-label="Filter response review status" className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm"><option value="needs-review">Needs review</option><option value="reviewed">Reviewed</option><option value="all">All responses</option></select><button type="button" onClick={resetFilters} className="border border-[#16243d]/25 px-3 py-3 text-[10px] font-black uppercase tracking-[.1em]">Reset filters</button></div><div className="mt-3 grid gap-3 md:grid-cols-2 lg:grid-cols-[1fr_1fr_auto]"><label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">From date<input type="date" value={fromDate} onChange={(event) => { setFromDate(event.target.value); setPage(1); }} className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal tracking-normal text-[#16243d]" /></label><label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">To date<input type="date" value={toDate} onChange={(event) => { setToDate(event.target.value); setPage(1); }} className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal tracking-normal text-[#16243d]" /></label><div className="self-end pb-3"><p className="text-xs text-[#657084]">Dates use the response’s latest saved timestamp.</p><div className="mt-3 flex flex-wrap gap-2"><button type="button" onClick={() => void exportCsv()} disabled={csvExport.isFetching} className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-50"><Download size={14} /> {csvExport.isFetching ? "Preparing…" : "CSV"}</button><button type="button" onClick={() => void exportPdf()} disabled={pdfExport.isFetching} className="inline-flex items-center gap-2 bg-[#16243d] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] disabled:opacity-50"><Download size={14} /> {pdfExport.isFetching ? "Preparing…" : "PDF"}</button></div></div></div><div className="mt-6 grid gap-3 sm:grid-cols-4"><Metric label="Responses" value={analytics.data?.totalResponses ?? 0} icon={<BarChart3 size={16} />} /><Metric label="Reviewed" value={analytics.data?.reviewedResponses ?? 0} /><Metric label="Needs review" value={analytics.data?.needsReviewResponses ?? 0} /><Metric label="Review rate" value={`${analytics.data?.reviewRate ?? 0}%`} /></div><div className="mt-5 grid gap-5 lg:grid-cols-3"><div className="border border-[#16243d]/10 bg-white/60 p-4"><p className="eyebrow text-[#a27e2e]">Response aging</p><div className="mt-3 space-y-2 text-xs text-[#657084]"><p className="flex justify-between gap-3"><span>Average open age</span><strong className="text-[#16243d]">{analytics.data?.aging.averageAgeHours ?? 0}h</strong></p><p className="flex justify-between gap-3"><span>Oldest open response</span><strong className="text-[#16243d]">{analytics.data?.aging.oldestAgeHours ?? 0}h</strong></p><p className="flex justify-between gap-3"><span>Under 24 hours</span><strong className="text-[#16243d]">{analytics.data?.aging.under24Hours ?? 0}</strong></p><p className="flex justify-between gap-3"><span>Over 3 days</span><strong className="text-red-800">{analytics.data?.aging.overThreeDays ?? 0}</strong></p></div></div><div className="border border-[#16243d]/10 bg-white/60 p-4"><p className="eyebrow text-[#a27e2e]">Reviewer workload</p>{(analytics.data?.reviewerWorkload ?? []).length === 0 ? <p className="mt-3 text-sm text-[#657084]">No reviewed responses in this view.</p> : <div className="mt-3 space-y-2">{analytics.data?.reviewerWorkload.slice(0, 5).map((row) => <div key={row.reviewerOpenId} className="flex items-center gap-3 text-xs"><span className="min-w-0 flex-1 truncate font-semibold">{row.reviewerName}</span><span className="font-bold text-[#7d5e1e]">{row.reviewedResponses}</span></div>)}</div>}</div><div className="border border-[#16243d]/10 bg-white/60 p-4"><p className="eyebrow text-[#a27e2e]">Export scope</p><p className="mt-3 text-sm leading-6 text-[#657084]">Downloads include the selected course, date range, response aging, reviewer workload, course, and module summaries.</p><p className="mt-3 text-[11px] text-[#657084]">Exports are protected by the staff workspace role.</p></div></div><div className="mt-5 border border-[#16243d]/10 bg-white/60 p-4"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start"><div className="flex items-start gap-3"><CalendarClock size={18} className="mt-1 text-[#a27e2e]" /><div><p className="eyebrow text-[#a27e2e]">Automated delivery</p><h3 className="display mt-2 text-2xl">Weekly review report.</h3><p className="mt-1 text-sm leading-6 text-[#657084]">Send a branded PDF to verified staff recipients every Monday at 09:00 UTC.</p></div></div><div className="flex flex-col items-start gap-2 sm:items-end"><span className={`border px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] ${schedule.data?.enabled ? "border-emerald-700/30 bg-emerald-50 text-emerald-900" : "border-[#16243d]/15 text-[#657084]"}`}>{schedule.data?.enabled ? "Enabled" : schedule.data?.pausedAt ? "Paused" : "Not enabled"}</span><div className="flex flex-wrap gap-2">{schedule.data?.enabled ? <button type="button" onClick={() => pauseSchedule.mutate()} disabled={pauseSchedule.isPending} className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-50"><Pause size={13} /> {pauseSchedule.isPending ? "Pausing…" : "Pause"}</button> : <button type="button" onClick={() => enableSchedule.mutate({ cron: "0 0 9 * * 1" })} disabled={enableSchedule.isPending} className="inline-flex items-center gap-2 bg-[#16243d] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] disabled:opacity-50"><Play size={13} /> {enableSchedule.isPending ? "Enabling…" : "Enable weekly delivery"}</button>}</div></div></div>{schedule.data?.lastRunAt && <p className="mt-4 text-xs text-[#657084]">Last delivered {new Date(schedule.data.lastRunAt).toLocaleString()}. Reports are retained in managed storage for staff history.</p>}</div><div className="mt-5 border border-[#16243d]/10 bg-white/60 p-4"><div className="flex flex-wrap items-end justify-between gap-3"><div><p className="eyebrow text-[#a27e2e]">Reviewer workload trend</p><h3 className="display mt-2 text-2xl">Review activity over time.</h3></div><p className="text-xs text-[#657084]">Daily reviewed responses · selected filters</p></div>{(analytics.data?.reviewerWorkloadTrend ?? []).length === 0 ? <p className="mt-4 text-sm text-[#657084]">No reviewer activity for the selected period.</p> : <div className="mt-5 flex h-44 items-end gap-2 overflow-x-auto border-b border-l border-[#16243d]/15 px-2 pb-1 pt-4">{analytics.data?.reviewerWorkloadTrend.map((point) => { const max = Math.max(...(analytics.data?.reviewerWorkloadTrend ?? []).map((item) => item.reviewedResponses), 1); return <div key={point.date} className="flex min-w-10 flex-1 flex-col items-center justify-end gap-2"><span className="text-[10px] font-bold text-[#7d5e1e]">{point.reviewedResponses}</span><div className="w-full max-w-8 bg-[#c9a34e] transition-[height]" style={{ height: `${Math.max(8, (point.reviewedResponses / max) * 112)}px` }} title={`${point.date}: ${point.reviewedResponses} reviewed by ${point.reviewers} reviewer${point.reviewers === 1 ? "" : "s"}`} /><span className="rotate-[-45deg] whitespace-nowrap text-[9px] text-[#657084]">{point.date.slice(5)}</span></div>})}</div>}</div><div className="mt-5 grid gap-5 lg:grid-cols-2"><div className="border border-[#16243d]/10 bg-white/60 p-4"><p className="eyebrow text-[#a27e2e]">By course</p>{(analytics.data?.byCourse ?? []).length === 0 ? <p className="mt-3 text-sm text-[#657084]">No analytics for the selected filters.</p> : <div className="mt-3 space-y-3">{analytics.data?.byCourse.map((row) => <div key={row.courseSlug} className="flex items-center gap-3 text-xs"><span className="min-w-0 flex-1 truncate font-semibold">{courseCatalog.find((course) => course.slug === row.courseSlug)?.title ?? row.courseSlug}</span><span className="text-[#657084]">{row.reviewedResponses}/{row.totalResponses}</span><span className="w-16 text-right font-bold text-[#7d5e1e]">{row.reviewRate}%</span></div>)}</div>}</div><div className="border border-[#16243d]/10 bg-white/60 p-4"><p className="eyebrow text-[#a27e2e]">By module</p>{(analytics.data?.byModule ?? []).length === 0 ? <p className="mt-3 text-sm text-[#657084]">No module activity for the selected filters.</p> : <div className="mt-3 grid max-h-40 gap-2 overflow-auto pr-1 sm:grid-cols-2">{analytics.data?.byModule.map((row) => <div key={`${row.courseSlug}-${row.moduleIndex}`} className="border-l-2 border-[#c9a34e] pl-3 text-xs"><p className="font-semibold">{row.courseSlug} · Module {row.moduleIndex + 1}</p><p className="mt-1 text-[#657084]">{row.reviewedResponses} reviewed · {row.needsReviewResponses} open · {row.reviewRate}% complete</p></div>)}</div>}</div></div>{responses.isLoading ? <div className="flex items-center gap-2 py-10 text-sm text-[#657084]"><RefreshCw size={15} className="animate-spin" /> Loading learner responses…</div> : responses.isError ? <div className="mt-5 border-l-2 border-red-700 bg-red-50 p-4 text-sm text-red-900">Unable to load learner responses. Please refresh and try again.</div> : (responses.data?.rows.length ?? 0) === 0 ? <div className="mt-5 border border-[#16243d]/10 bg-white/60 p-8 text-center text-sm text-[#657084]">No learner responses match this review queue.</div> : <div className="mt-5 divide-y divide-[#16243d]/10 border-y border-[#16243d]/10">{responses.data?.rows.map(({ response, enrollment, review }) => { const draft = feedbackDrafts[response.id] ?? review?.feedback ?? ""; return <article key={response.id} className="py-6"><div className="flex flex-col justify-between gap-3 lg:flex-row"><div><div className="flex flex-wrap items-center gap-2"><h3 className="font-bold">{enrollment?.name}</h3><span className="text-xs text-[#657084]">{enrollment?.email}</span><span className={`px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] ${review ? "bg-emerald-100 text-emerald-900" : "bg-[#16243d] text-[#f7f3e8]"}`}>{review ? "Reviewed" : "Needs review"}</span></div><p className="mt-2 text-xs font-bold uppercase tracking-[.1em] text-[#a27e2e]">{enrollment?.courseSlug} · {response.lessonId} · {response.taskId}</p></div><span className="text-[11px] text-[#657084]">Saved {new Date(response.updatedAt).toLocaleString()}</span></div><div className="mt-4 border-l-2 border-[#c9a34e] bg-white/70 p-4"><p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Learner response</p><p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-[#4a566a]">{stripResponseHtml(response.responseHtml)}</p></div><div className="mt-4"><label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">Instructor feedback<textarea value={draft} onChange={(event) => setFeedbackDrafts((current) => ({ ...current, [response.id]: event.target.value }))} rows={3} placeholder="Write a specific, encouraging next step…" className="mt-2 w-full border border-[#16243d]/15 bg-[#f7f3e8] p-3 text-sm leading-6 outline-none focus:border-[#c9a34e]" /></label><div className="mt-2 flex flex-wrap gap-2"><button type="button" onClick={() => reviewMutation.mutate({ responseId: response.id, enrollmentId: response.enrollmentId, lessonId: response.lessonId, taskId: response.taskId, feedback: draft, status: "reviewed" })} disabled={reviewMutation.isPending || !draft.trim()} className="border border-[#16243d] bg-[#16243d] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] disabled:opacity-50">{reviewMutation.isPending ? "Saving…" : "Save as reviewed"}</button>{review && <button type="button" onClick={() => reviewMutation.mutate({ responseId: response.id, enrollmentId: response.enrollmentId, lessonId: response.lessonId, taskId: response.taskId, feedback: draft, status: "needs-review" })} disabled={reviewMutation.isPending || !draft.trim()} className="border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-50">Return to review</button>}</div></div></article>; })}</div>}<DashboardPagination page={responses.data?.page ?? page} pageCount={responses.data?.totalPages ?? 1} totalItems={responses.data?.total ?? 0} pageSize={8} onPageChange={setPage} itemLabel="learner responses" /></section>;
+  const responseRows = responses.data?.rows ?? [];
+  const stats = useMemo(() => ({
+    pending: responseRows.filter(row => row.status === "needs-review").length,
+    reviewed: responseRows.filter(row => row.status === "reviewed").length,
+    total: responseRows.length,
+  }), [responseRows]);
+
+  return (
+    <DashboardSection className="mt-8">
+      <DashboardSectionHeader
+        eyebrow="Learning quality control"
+        title="Learner response desk."
+        description="Review required lesson responses, leave actionable feedback, and move work from needs review to reviewed."
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={exportCsv} className="border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.08em]">CSV</button>
+            <button type="button" onClick={exportPdf} className="border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.08em]">PDF</button>
+            <button type="button" onClick={() => void enableSchedule.mutate()} disabled={enableSchedule.isPending || Boolean(schedule.data?.config?.scheduleTaskUid)} className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.08em] disabled:opacity-50">
+              <CalendarClock size={13} />{schedule.data?.config?.scheduleTaskUid ? "Delivery enabled" : "Enable weekly delivery"}
+            </button>
+            {schedule.data?.config?.scheduleTaskUid && (
+              <button type="button" onClick={() => void pauseSchedule.mutate({ paused: !schedule.data?.config?.pausedAt })} disabled={pauseSchedule.isPending} className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.08em] disabled:opacity-50">
+                {schedule.data?.config?.pausedAt ? <Play size={13} /> : <Pause size={13} />}{schedule.data?.config?.pausedAt ? "Resume" : "Pause"}
+              </button>
+            )}
+          </div>
+        }
+      />
+      <DashboardSectionStats>
+        <DashboardStatCard label="Pending review" value={stats.pending} />
+        <DashboardStatCard label="Reviewed" value={stats.reviewed} icon={<CheckCircle2 size={16} />} />
+        <DashboardStatCard label="Total responses" value={stats.total} icon={<BarChart3 size={16} />} />
+      </DashboardSectionStats>
+      <DashboardSectionFilters>
+        <div className="flex flex-col gap-3 md:flex-row">
+          <label className="relative lg:col-span-2">
+            <span className="sr-only">Search learner responses</span>
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#657084]" />
+            <input
+              value={search}
+              onChange={(event) => setFilter(event.target.value)}
+              placeholder="Search learner, lesson, or response"
+              className="w-full border border-[#16243d]/20 bg-[#f7f3e8] py-3 pl-9 pr-3 text-sm outline-none focus:border-[#c9a34e]"
+            />
+          </label>
+          <select value={courseSlug} onChange={(event) => { setCourseSlug(event.target.value); setPage(1); }} aria-label="Filter response review by course" className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm">
+            <option value="all">All courses</option>
+            {courseCatalog.map((course) => <option key={course.slug} value={course.slug}>{course.title}</option>)}
+          </select>
+          <select value={reviewStatus} onChange={(event) => { setReviewStatus(event.target.value as typeof reviewStatus); setPage(1); }} aria-label="Filter response review status" className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm">
+            <option value="needs-review">Needs review</option>
+            <option value="reviewed">Reviewed</option>
+            <option value="all">All responses</option>
+          </select>
+          <input type="date" value={fromDate} onChange={(event) => { setFromDate(event.target.value); setPage(1); }} aria-label="From date" className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm" />
+          <input type="date" value={toDate} onChange={(event) => { setToDate(event.target.value); setPage(1); }} aria-label="To date" className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm" />
+          <button type="button" onClick={resetFilters} className="border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.08em]">Reset</button>
+        </div>
+      </DashboardSectionFilters>
+      <DashboardSectionContent>
+        {responses.isLoading ? (
+          <div className="flex items-center gap-2 py-12 text-sm text-[#657084]"><RefreshCw size={15} className="animate-spin" /> Loading responses…</div>
+        ) : responses.isError ? (
+          <div className="border-l-2 border-red-700 bg-red-50 p-4 text-sm text-red-900">Unable to load responses.</div>
+        ) : responseRows.length === 0 ? (
+          <div className="py-12 text-center text-sm text-[#657084]">No responses match your current view.</div>
+        ) : (
+          <div className="mt-5 space-y-4">
+            {responseRows.map(row => (
+              <div key={row.id} className="border border-[#16243d]/10 bg-white/50 p-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-semibold text-[#16243d]">{row.learnerName}</span>
+                  <span className="border border-[#c9a34e]/60 px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">{row.courseTitle}</span>
+                  <span className={`px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] ${row.status === "reviewed" ? "border border-emerald-700/30 text-emerald-800" : "border border-[#7d5e1e]/30 text-[#7d5e1e]"}`}>{row.status}</span>
+                </div>
+                <p className="mt-2 text-sm leading-6 text-[#4a566a]">{stripResponseHtml(row.response)}</p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <textarea
+                    value={feedbackDrafts[row.id] ?? row.feedback ?? ""}
+                    onChange={event => setFeedbackDrafts(prev => ({ ...prev, [row.id]: event.target.value }))}
+                    onBlur={() => { if (feedbackDrafts[row.id] !== row.feedback) reviewMutation.mutate({ responseId: row.id, feedback: feedbackDrafts[row.id] }); }}
+                    placeholder="Feedback"
+                    className="w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs sm:w-96"
+                    rows={2}
+                  />
+                  <button type="button" onClick={() => reviewMutation.mutate({ responseId: row.id, feedback: feedbackDrafts[row.id] ?? row.feedback ?? "" })} disabled={reviewMutation.isPending} className="border border-[#16243d] bg-[#16243d] px-3 py-2 text-[10px] font-black uppercase tracking-[.08em] text-[#f7f3e8] disabled:opacity-50">Save feedback</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </DashboardSectionContent>
+      <DashboardSectionPagination>
+        <DashboardPagination page={responses.data?.page ?? page} pageCount={responses.data?.totalPages ?? 1} totalItems={responses.data?.total ?? 0} pageSize={8} onPageChange={setPage} itemLabel="responses" />
+      </DashboardSectionPagination>
+    </DashboardSection>
+  );
 }
 
 function stripResponseHtml(value: string) { return value.replace(/<br\s*\/?\s*>/gi, "\n").replace(/<\/p>/gi, "\n").replace(/<[^>]+>/g, "").replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").trim(); }
-
-function Metric({ label, value, icon }: { label: string; value: number | string; icon?: React.ReactNode }) { return <div className="border border-[#16243d]/10 bg-white/50 p-4"><p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">{icon}{label}</p><p className="mt-2 text-3xl font-bold">{value}</p></div>; }

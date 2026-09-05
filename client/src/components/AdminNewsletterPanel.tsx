@@ -13,11 +13,11 @@ export default function AdminNewsletterPanel() {
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<SubscriberFilters>({ search: "", status: "all", fromDate: "", toDate: "" });
   const queryInput = useMemo(() => ({ page, pageSize: PAGE_SIZE, search: filters.search || undefined, status: filters.status, fromDate: filters.fromDate || undefined, toDate: filters.toDate || undefined }), [filters, page]);
-  const subscribers = trpc.newsletter.subscribers.useQuery(queryInput);
+  const subscribers = trpc.newsletter.subscribers.useQuery(queryInput, { retry: false, refetchInterval: 30000 });
   const exportInput = useMemo(() => ({ search: filters.search || undefined, status: filters.status, fromDate: filters.fromDate || undefined, toDate: filters.toDate || undefined }), [filters]);
-  const exportCsv = trpc.newsletter.exportCsv.useQuery(exportInput, { enabled: false });
+  const exportCsv = trpc.newsletter.exportCsv.useQuery(exportInput, { enabled: false, retry: false });
   const setStatus = trpc.newsletter.setStatus.useMutation({ onSuccess: () => subscribers.refetch(), onError: (error) => toast.error(error.message || "Unable to update subscriber status.") });
-  const schedule = trpc.admin.biweeklyNewsletterSchedule.useQuery();
+  const schedule = trpc.admin.biweeklyNewsletterSchedule.useQuery({ retry: false, refetchInterval: 30000 });
   const enableSchedule = trpc.admin.enableBiweeklyNewsletterSchedule.useMutation({ onSuccess: (result) => { toast.success(result.alreadyEnabled ? "Bi-weekly newsletter schedule is already enabled." : "Bi-weekly newsletter schedule enabled."); schedule.refetch(); }, onError: (error) => toast.error(error.message || "Unable to enable newsletter scheduling.") });
 
   useEffect(() => { setPage(1); }, [filters.search, filters.status, filters.fromDate, filters.toDate]);

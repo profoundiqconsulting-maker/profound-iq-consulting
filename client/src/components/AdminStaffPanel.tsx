@@ -12,11 +12,11 @@ export default function AdminStaffPanel() {
   const [inviteLink, setInviteLink] = useState("");
   const [performanceFrom, setPerformanceFrom] = useState("");
   const [performanceTo, setPerformanceTo] = useState("");
-  const members = trpc.admin.teamMembers.useQuery(undefined, { retry: false });
-  const invitations = trpc.admin.staffInvitations.useQuery(undefined, { retry: false });
+  const members = trpc.admin.teamMembers.useQuery(undefined, { retry: false, refetchInterval: 30000 });
+  const invitations = trpc.admin.staffInvitations.useQuery(undefined, { retry: false, refetchInterval: 30000 });
   const performanceInput = useMemo(() => ({ fromDate: performanceFrom || undefined, toDate: performanceTo || undefined }), [performanceFrom, performanceTo]);
-  const performance = trpc.admin.staffPerformance.useQuery(performanceInput, { retry: false });
-  const performanceExport = trpc.admin.exportStaffPerformance.useQuery(performanceInput, { enabled: false, retry: false });
+  const performance = trpc.admin.staffPerformance.useQuery(performanceInput, { retry: false, refetchInterval: 30000 });
+  const performanceExport = trpc.admin.exportStaffPerformance.useQuery(performanceInput, { enabled: false, refetchInterval: 30000 });
   const invite = trpc.admin.inviteStaff.useMutation({ onSuccess: result => { setInviteLink(result.inviteUrl); setName(""); setEmail(""); invitations.refetch(); toast.success("Invitation created. Copy the secure link to send it to the team member."); }, onError: error => toast.error(error.message) });
   const updateRole = trpc.admin.updateStaffRole.useMutation({ onSuccess: () => { members.refetch(); performance.refetch(); toast.success("Role updated."); }, onError: error => toast.error(error.message) });
   const copy = async () => { if (!inviteLink) return; await navigator.clipboard.writeText(inviteLink); toast.success("Invitation link copied."); };

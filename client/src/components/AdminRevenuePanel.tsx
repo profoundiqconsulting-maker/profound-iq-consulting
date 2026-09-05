@@ -11,7 +11,7 @@ export default function AdminRevenuePanel() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const input = useMemo(() => ({ fromDate: fromDate || undefined, toDate: toDate || undefined }), [fromDate, toDate]);
-  const report = trpc.admin.revenueReport.useQuery(input, { retry: false });
+  const report = trpc.admin.revenueReport.useQuery(input, { retry: false, refetchInterval: 30000 });
   const setPreset = (days: number) => {
     const end = new Date();
     const start = new Date();
