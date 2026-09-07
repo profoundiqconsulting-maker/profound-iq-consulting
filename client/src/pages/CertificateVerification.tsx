@@ -54,8 +54,8 @@ export default function CertificateVerification() {
         certificateNumber: certificate.certificateNumber,
         respondentName: certificate.recipientName,
         credentialTitle: certificate.courseTitle,
-        issuedAt: new Date(certificate.createdAt).toISOString(),
-        artifactHash: certificate.artifactHash,
+        issuedAt: certificate.createdAt ? new Date(certificate.createdAt).toISOString() : new Date().toISOString(),
+        artifactHash: certificate.artifactHash ?? "",
       });
       const bytes = Uint8Array.from(atob(verification.data), (character) => character.charCodeAt(0));
       const blob = new Blob([bytes], { type: verification.contentType });

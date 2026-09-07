@@ -58,7 +58,7 @@ export function AdminCertificatePreview() {
   const [usageToDate, setUsageToDate] = useState("");
   const dragRef = useRef<{ field: string; mode: "move" | "resize"; pointerId: number; startClientX: number; startClientY: number; startLayout: FieldLayout } | null>(null);
   const usageInput = useMemo(() => ({ fromDate: usageFromDate || undefined, toDate: usageToDate || undefined }), [usageFromDate, usageToDate]);
-  const settings = trpc.admin.certificateSettings.useQuery({ retry: false, refetchInterval: 30000 });
+  const settings = trpc.admin.certificateSettings.useQuery(undefined, { retry: false, refetchInterval: 30000 });
   const usage = trpc.admin.certificateUsageAnalytics.useQuery(usageInput, { retry: false, refetchInterval: 30000 });
   const publicShares = trpc.admin.publicCertificateShareAnalytics.useQuery(usageInput, { retry: false, refetchInterval: 30000 });
   const exportUsage = trpc.admin.exportCertificateUsageAnalytics.useQuery(usageInput, { enabled: false });

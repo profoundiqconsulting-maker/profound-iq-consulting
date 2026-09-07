@@ -23,7 +23,7 @@ function isValidSignature(body: Buffer, signature: string | undefined, secret: s
 
 type PaystackEvent = { event?: string; data?: { id?: number | string; reference?: string; status?: string; amount?: number; currency?: string; metadata?: unknown; failure_message?: string; failure_code?: string } };
 
-async function reconcileCoursePayment(event: PaystackEvent, rawPayload: unknown) {
+async function reconcileCoursePayment(event: PaystackEvent, rawPayload: unknown, req?: Request) {
   const data = event.data;
   const reference = data?.reference;
   if (!reference?.startsWith("piq-course-")) return false;
@@ -54,12 +54,12 @@ async function reconcileCoursePayment(event: PaystackEvent, rawPayload: unknown)
             const certificateNumber = `PIQ-${new Date().getFullYear()}-${randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
             const verificationUrl = `${PUBLISHED_SITE_ORIGIN}/verify/certificate?certificate=${encodeURIComponent(certificateNumber)}`;
             const certificateSettings = await getAdminCertificateSettings(ENV.ownerOpenId || record.enrollment.userOpenId);
-            const certificateSvg = renderCourseCertificateSvg({ recipientName: record.enrollment.name, recipientEmail: record.enrollment.email, courseTitle: course.title, certificateNumber, issuedOn: new Date(), verificationUrl, locale: getRequestLocale(req), trainerName: certificateSettings.trainerName, trainerTitle: certificateSettings.trainerTitle, signatureDataUri: certificateSettings.signatureDataUri, customElements: (certificateSettings as typeof certificateSettings & { customElements?: Record<string, string> }).customElements ?? undefined, fieldLayout: certificateSettings.fieldLayout as Record<string, { x?: number; y?: number; width?: number; height?: number; visible?: boolean; text?: string }> | undefined });
+            const certificateSvg = renderCourseCertificateSvg({ recipientName: record.enrollment.name, recipientEmail: record.enrollment.email, courseTitle: course.title, certificateNumber, issuedOn: new Date(), verificationUrl, locale: req ? getRequestLocale(req) : "en", trainerName: certificateSettings.trainerName, trainerTitle: certificateSettings.trainerTitle, signatureDataUri: certificateSettings.signatureDataUri, customElements: (certificateSettings as typeof certificateSettings & { customElements?: Record<string, string> }).customElements ?? undefined, fieldLayout: certificateSettings.fieldLayout as Record<string, { x?: number; y?: number; width?: number; height?: number; visible?: boolean; text?: string }> | undefined });
             const artifactHash = createHash("sha256").update(certificateSvg).digest("hex");
             const uploaded = await storagePut(`course-certificates/${certificateNumber}.svg`, certificateSvg, "image/svg+xml");
             await createCourseCertificate({ enrollmentId: record.enrollment.id, recipientName: record.enrollment.name, courseTitle: course.title, certificateNumber, fileKey: uploaded.key, fileUrl: uploaded.url, artifactHash });
             try {
-              await sendCourseCertificateEmail({ recipientName: record.enrollment.name, email: record.enrollment.email, courseTitle: course.title, certificateNumber, certificateSvg, locale: getRequestLocale(req) });
+              await sendCourseCertificateEmail({ recipientName: record.enrollment.name, email: record.enrollment.email, courseTitle: course.title, certificateNumber, certificateSvg, locale: req ? getRequestLocale(req) : "en" });
             } catch (error) {
               console.error("[Paystack] Course certificate email failed:", error);
             }
@@ -166,7 +166,7 @@ export function registerPaystackWebhook(app: Express) {
     let event: PaystackEvent;
     try { event = JSON.parse(body.toString()) as PaystackEvent; } catch { return res.status(400).json({ received: false }); }
 
-    const courseHandled = await reconcileCoursePayment(event, event);
+    const courseHandled = await reconcileCoursePayment(event, event, req);
     if (!courseHandled) {
       const assessmentHandled = await reconcileAssessmentPayment(event);
       if (!assessmentHandled) {

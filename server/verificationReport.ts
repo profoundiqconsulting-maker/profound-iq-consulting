@@ -130,7 +130,7 @@ function formatDateTime(value: Date | string): string {
   return date.toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
-function addFooter(doc: PDFDocument): void {
+function addFooter(doc: typeof PDFDocument): void {
   const y = doc.page.height - 40;
   doc.fillColor(NAVY).rect(0, y - 10, doc.page.width, 50).fill();
   doc.fillColor("#f7f3e8").font("Helvetica").fontSize(8).text("Profound IQ Consulting · Transformational learning · Online / global reach", 52, y + 8, { characterSpacing: 0.4 });

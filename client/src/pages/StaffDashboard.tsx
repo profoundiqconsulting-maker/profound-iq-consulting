@@ -92,10 +92,10 @@ function InquiryDesk() {
         }
       />
       <DashboardSectionStats>
-        <DashboardStatCard label="Assigned" value={stats.total} icon={<ClipboardList size={16} />} />
+        <DashboardStatCard label="Assigned" value={stats.total} icon={ClipboardList} />
         <DashboardStatCard label="New" value={stats.new} />
         <DashboardStatCard label="Contacted" value={stats.contacted} />
-        <DashboardStatCard label="Closed" value={stats.closed} icon={<CheckCircle2 size={16} />} />
+        <DashboardStatCard label="Closed" value={stats.closed} icon={CheckCircle2} />
       </DashboardSectionStats>
       <DashboardSectionFilters>
         <div className="flex flex-col gap-3 md:flex-row">
@@ -174,7 +174,7 @@ function InquiryDesk() {
                     <textarea
                       value={noteDrafts[inquiry.id] ?? inquiry.internalNotes ?? ""}
                       onChange={event => setNoteDrafts(prev => ({ ...prev, [inquiry.id]: event.target.value }))}
-                      onBlur={() => { if (noteDrafts[inquiry.id] !== inquiry.internalNotes) updateNotes.mutate({ id: inquiry.id, notes: noteDrafts[inquiry.id] }); }}
+                      onBlur={() => { if (noteDrafts[inquiry.id] !== inquiry.internalNotes) updateNotes.mutate({ id: inquiry.id, internalNotes: noteDrafts[inquiry.id] }); }}
                       placeholder="Internal notes"
                       className="border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs"
                       rows={3}
@@ -218,8 +218,8 @@ function InstructorReviewPanel() {
   const exportPdf = async () => { const result = await pdfExport.refetch(); downloadResult(result); toast.success("Review analytics PDF downloaded."); };
   const responseRows = responses.data?.rows ?? [];
   const stats = useMemo(() => ({
-    pending: responseRows.filter(row => row.status === "needs-review").length,
-    reviewed: responseRows.filter(row => row.status === "reviewed").length,
+     pending: responseRows.filter(row => (row.review?.status ?? "needs-review") === "needs-review").length,
+     reviewed: responseRows.filter(row => (row.review?.status ?? "") === "reviewed").length,
     total: responseRows.length,
   }), [responseRows]);
 
@@ -237,7 +237,7 @@ function InstructorReviewPanel() {
               <CalendarClock size={13} />{schedule.data?.taskUid ? "Delivery enabled" : "Enable weekly delivery"}
             </button>
             {schedule.data?.taskUid && (
-              <button type="button" onClick={() => void pauseSchedule.mutate({ paused: !schedule.data?.pausedAt })} disabled={pauseSchedule.isPending} className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.08em] disabled:opacity-50">
+              <button type="button" onClick={() => void pauseSchedule.mutate()} disabled={pauseSchedule.isPending} className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.08em] disabled:opacity-50">
                 {schedule.data?.pausedAt ? <Play size={13} /> : <Pause size={13} />}{schedule.data?.pausedAt ? "Resume" : "Pause"}
               </button>
             )}
@@ -246,8 +246,8 @@ function InstructorReviewPanel() {
       />
       <DashboardSectionStats>
         <DashboardStatCard label="Pending review" value={stats.pending} />
-        <DashboardStatCard label="Reviewed" value={stats.reviewed} icon={<CheckCircle2 size={16} />} />
-        <DashboardStatCard label="Total responses" value={stats.total} icon={<BarChart3 size={16} />} />
+        <DashboardStatCard label="Reviewed" value={stats.reviewed} icon={CheckCircle2} />
+        <DashboardStatCard label="Total responses" value={stats.total} icon={BarChart3} />
       </DashboardSectionStats>
       <DashboardSectionFilters>
         <div className="flex flex-col gap-3 md:flex-row">
@@ -284,27 +284,33 @@ function InstructorReviewPanel() {
           <div className="py-12 text-center text-sm text-[#657084]">No responses match your current view.</div>
         ) : (
           <div className="mt-5 space-y-4">
-            {responseRows.map(row => (
-              <div key={row.id} className="border border-[#16243d]/10 bg-white/50 p-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-sm font-semibold text-[#16243d]">{row.learnerName}</span>
-                  <span className="border border-[#c9a34e]/60 px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">{row.courseTitle}</span>
-                  <span className={`px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] ${row.status === "reviewed" ? "border border-emerald-700/30 text-emerald-800" : "border border-[#7d5e1e]/30 text-[#7d5e1e]"}`}>{row.status}</span>
-                </div>
-                <p className="mt-2 text-sm leading-6 text-[#4a566a]">{stripResponseHtml(row.response)}</p>
+            {responseRows.map(row => {
+              const learnerName = row.enrollment?.userOpenId ?? "Learner";
+              const courseTitle = row.enrollment?.courseSlug ?? "Course";
+              const reviewStatus = row.review?.status ?? "needs-review";
+              const responseText = typeof row.response === "string" ? row.response : row.response?.responseHtml ?? "";
+              return (
+                <div key={row.response.id} className="border border-[#16243d]/10 bg-white/50 p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-semibold text-[#16243d]">{learnerName}</span>
+                    <span className="border border-[#c9a34e]/60 px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">{courseTitle}</span>
+                    <span className={`px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] ${reviewStatus === "reviewed" ? "border border-emerald-700/30 text-emerald-800" : "border border-[#7d5e1e]/30 text-[#7d5e1e]"}`}>{reviewStatus}</span>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-[#4a566a]">{stripResponseHtml(responseText)}</p>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <textarea
-                    value={feedbackDrafts[row.id] ?? row.feedback ?? ""}
-                    onChange={event => setFeedbackDrafts(prev => ({ ...prev, [row.id]: event.target.value }))}
-                    onBlur={() => { if (feedbackDrafts[row.id] !== row.feedback) reviewMutation.mutate({ responseId: row.id, feedback: feedbackDrafts[row.id] }); }}
+                    value={feedbackDrafts[row.response.id] ?? row.review?.feedback ?? ""}
+                    onChange={event => setFeedbackDrafts(prev => ({ ...prev, [row.response.id]: event.target.value }))}
+                    onBlur={() => { const draft = feedbackDrafts[row.response.id]; if (draft !== row.review?.feedback) reviewMutation.mutate({ responseId: row.response.id, enrollmentId: row.response.enrollmentId, lessonId: row.response.lessonId, taskId: row.response.taskId, feedback: draft ?? "", status: (row.review?.status ?? "needs-review") as "reviewed" | "needs-review" }); }}
                     placeholder="Feedback"
                     className="w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs sm:w-96"
                     rows={2}
                   />
-                  <button type="button" onClick={() => reviewMutation.mutate({ responseId: row.id, feedback: feedbackDrafts[row.id] ?? row.feedback ?? "" })} disabled={reviewMutation.isPending} className="border border-[#16243d] bg-[#16243d] px-3 py-2 text-[10px] font-black uppercase tracking-[.08em] text-[#f7f3e8] disabled:opacity-50">Save feedback</button>
+                  <button type="button" onClick={() => reviewMutation.mutate({ responseId: row.response.id, enrollmentId: row.response.enrollmentId, lessonId: row.response.lessonId, taskId: row.response.taskId, feedback: feedbackDrafts[row.response.id] ?? row.review?.feedback ?? "", status: (row.review?.status ?? "needs-review") as "reviewed" | "needs-review" })} disabled={reviewMutation.isPending} className="border border-[#16243d] bg-[#16243d] px-3 py-2 text-[10px] font-black uppercase tracking-[.08em] text-[#f7f3e8] disabled:opacity-50">Save feedback</button>
                 </div>
               </div>
-            ))}
+            );
+          })}
           </div>
         )}
       </DashboardSectionContent>

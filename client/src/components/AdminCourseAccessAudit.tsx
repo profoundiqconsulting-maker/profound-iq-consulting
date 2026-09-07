@@ -14,14 +14,14 @@ export function AdminCourseAccessAudit() {
   const [presets, setPresets] = useState<Array<{ name: string; fromDate?: string; toDate?: string; cohort?: string; deviceType?: string; visibility: "private" | "admins" | "staff" }>>([]);
   const input = useMemo(() => ({ fromDate: fromDate || undefined, toDate: toDate || undefined, cohort: cohort || undefined, deviceType: deviceType || undefined }), [fromDate, toDate, cohort, deviceType]);
   const query = trpc.admin.courseAccessDeniedAnalytics.useQuery(input, { retry: false, refetchInterval: 30000 });
-  const presetsQuery = trpc.admin.accessFilterPresets.useQuery({ retry: false, refetchInterval: 30000 });
+  const presetsQuery = trpc.admin.accessFilterPresets.useQuery(undefined, { retry: false, refetchInterval: 30000 });
   const savePresets = trpc.admin.saveAccessFilterPresets.useMutation({ onSuccess: () => void presetsQuery.refetch() });
-  const alertSettings = trpc.admin.getCourseAccessAlertSettings.useQuery({ retry: false, refetchInterval: 30000 });
+  const alertSettings = trpc.admin.getCourseAccessAlertSettings.useQuery(undefined, { retry: false, refetchInterval: 30000 });
   const saveAlertSettings = trpc.admin.saveCourseAccessAlertSettings.useMutation({ onSuccess: () => void alertSettings.refetch() });
   const usersQuery = trpc.admin.userVerificationReview.useQuery({ page: 1, pageSize: 25, verification: "all" }, { retry: false, refetchInterval: 30000 });
   const assignCohort = trpc.admin.assignUserCohort.useMutation({ onSuccess: () => void usersQuery.refetch() });
-  const grantsQuery = trpc.admin.courseAccessGrants.useQuery({ retry: false, refetchInterval: 30000 });
-  const grantAuditsQuery = trpc.admin.courseAccessGrantAudits.useQuery({ retry: false, refetchInterval: 30000 });
+  const grantsQuery = trpc.admin.courseAccessGrants.useQuery(undefined, { retry: false, refetchInterval: 30000 });
+  const grantAuditsQuery = trpc.admin.courseAccessGrantAudits.useQuery(undefined, { retry: false, refetchInterval: 30000 });
   const grantAuditExportQuery = trpc.admin.exportCourseAccessGrantAudits.useQuery(undefined, { enabled: false, retry: false });
   const setGrant = trpc.admin.setCourseAccessGrant.useMutation({ onSuccess: () => { void grantsQuery.refetch(); void grantAuditsQuery.refetch(); } });
   const [grantCourseByUser, setGrantCourseByUser] = useState<Record<string, string>>({});
