@@ -140,13 +140,13 @@ function IntroPage({ onStart, onBack }: { onStart: (data: { name: string; email:
   );
 }
 
-function AssessmentPage({ onComplete, onBack, name, email, consent, answers, currentModule, onNameChange, onEmailChange, onConsentChange, onAnswersChange, onCurrentModuleChange }: { onComplete: (data: { name: string; email: string; answers: Array<{ questionId: string; value: number }> }) => void; onBack?: () => void; name: string; email: string; consent: boolean; answers: Record<string, number>; currentModule: number; onNameChange?: (name: string) => void; onEmailChange?: (email: string) => void; onConsentChange?: (consent: boolean) => void; onAnswersChange?: (value: Record<string, number> | ((prev: Record<string, number>) => Record<string, number>)) => void; onCurrentModuleChange?: (module: number | ((prev: number) => number)) => void }) {
+function AssessmentPage({ onComplete, onBack, defaultName, defaultEmail, defaultConsent }: { onComplete: (data: { name: string; email: string; answers: Array<{ questionId: string; value: number }> }) => void; onBack?: () => void; defaultName?: string; defaultEmail?: string; defaultConsent?: boolean }) {
   const { data, isLoading } = trpc.careerPath.questions.useQuery();
-  const handleNameChange = (value: string) => onNameChange?.(value);
-  const handleEmailChange = (value: string) => onEmailChange?.(value);
-  const handleConsentChange = (value: boolean) => onConsentChange?.(value);
-  const handleAnswersChange = (value: Record<string, number> | ((prev: Record<string, number>) => Record<string, number>)) => onAnswersChange?.(value);
-  const handleCurrentModuleChange = (module: number | ((prev: number) => number)) => onCurrentModuleChange?.(module);
+  const [name, setName] = useState(() => defaultName ?? "");
+  const [email, setEmail] = useState(() => defaultEmail ?? "");
+  const [consent, setConsent] = useState(() => defaultConsent ?? false);
+  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [currentModule, setCurrentModule] = useState(0);
 
   const grouped = useMemo(() => {
     if (!data?.questions) return [];
@@ -193,7 +193,7 @@ function AssessmentPage({ onComplete, onBack, name, email, consent, answers, cur
       });
       return;
     }
-    handleCurrentModuleChange(m => m + 1);
+    setCurrentModule(m => m + 1);
   };
 
   if (isLoading) {
@@ -224,15 +224,15 @@ function AssessmentPage({ onComplete, onBack, name, email, consent, answers, cur
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <label className="text-xs font-bold">
               Full name
-              <input value={name} onChange={e => handleNameChange(e.target.value)} required minLength={2} className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]" placeholder="Your name" />
+              <input value={name} onChange={e => setName(e.target.value)} required minLength={2} className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]" placeholder="Your name" />
             </label>
             <label className="text-xs font-bold">
               Email for your report
-              <input type="email" value={email} onChange={e => handleEmailChange(e.target.value)} required className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]" placeholder="you@example.com" />
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]" placeholder="you@example.com" />
             </label>
           </div>
           <label className="mt-5 flex items-start gap-3 text-xs leading-5 text-[#657084]">
-            <input type="checkbox" checked={consent} onChange={e => handleConsentChange(e.target.checked)} required className="mt-1 accent-[#a27e2e]" />
+            <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} required className="mt-1 accent-[#a27e2e]" />
             I consent to Profound IQ processing my responses to generate this educational pathway report and sending the report to the email above.
           </label>
           <div className="mt-6 flex items-center justify-between gap-3">
@@ -255,9 +255,9 @@ function AssessmentPage({ onComplete, onBack, name, email, consent, answers, cur
       data={data}
       grouped={grouped}
       currentModule={currentModule}
-      setCurrentModule={handleCurrentModuleChange}
+      setCurrentModule={setCurrentModule}
       answers={answers}
-      setAnswers={handleAnswersChange as React.Dispatch<React.SetStateAction<Record<string, number>>>}
+      setAnswers={setAnswers}
       currentGroup={currentGroup}
       currentGroupAnswered={currentGroupAnswered}
       currentGroupComplete={currentGroupComplete}
@@ -353,14 +353,14 @@ function AssessmentPlayer({
             <p className="mt-4 text-sm leading-6 text-[#657084]">Choose the response that best reflects you today.</p>
             <div className="mt-6 space-y-4">
               {currentGroup.questions.map(question => (
-                <LikertQuestion key={question.id} question={question} value={answers[question.id]} onChange={value => handleAnswersChange((prev: Record<string, number>) => ({ ...prev, [question.id]: value }))} index={Number(question.id.split("-").pop()) - 1} />
+                <LikertQuestion key={question.id} question={question} value={answers[question.id]} onChange={value => setAnswers(prev => ({ ...prev, [question.id]: value }))} index={Number(question.id.split("-").pop()) - 1} />
               ))}
             </div>
           </section>
         )}
 
         <div className="mt-6 flex items-center justify-between gap-3">
-          <Button type="button" variant="outline" onClick={() => handleCurrentModuleChange(m => Math.max(0, m - 1))} disabled={currentModule === 0} className="border-[#16243d]/25">
+          <Button type="button" variant="outline" onClick={() => setCurrentModule(m => Math.max(0, m - 1))} disabled={currentModule === 0} className="border-[#16243d]/25">
             <ArrowRight size={15} className="rotate-180" /> Previous
           </Button>
           <span className="text-xs text-[#657084]">
@@ -375,7 +375,7 @@ function AssessmentPlayer({
   );
 }
 
-function CheckoutPage({ reference, product, onVerified, onBack }: { reference: string; product?: PaystackInlineProduct | null; onVerified: (report: CareerPathReport) => void; onBack?: () => void }) {
+function CheckoutPage({ reference, product, onVerified, onBack, customerEmail }: { reference: string; product?: PaystackInlineProduct | null; onVerified: (report: CareerPathReport) => void; onBack?: () => void; customerEmail?: string }) {
   const [paymentState, setPaymentState] = useState<PaystackCheckoutState>("idle");
   const [inlineModalOpen, setInlineModalOpen] = useState(false);
   const [inlineProduct, setInlineProduct] = useState<PaystackInlineProduct | null>(product ?? null);
@@ -475,7 +475,7 @@ function CheckoutPage({ reference, product, onVerified, onBack }: { reference: s
       <PaystackInlineModal
         open={inlineModalOpen}
         product={inlineProduct}
-        customerEmail=""
+        customerEmail={customerEmail || ""}
         onClose={() => { setInlineModalOpen(false); setInlineProduct(null); }}
         onSuccess={handleModalSuccess}
         onError={(message) => {
@@ -777,7 +777,7 @@ export default function CareerPath() {
 
   useEffect(() => {
     const pathname = window.location.pathname;
-    if (pathname === "/careerpath/assessment" || (pathname === "/careerpath" && page === "introduction")) {
+    if (pathname === "/careerpath/assessment") {
       setPage("assessment");
     } else if (pathname === "/careerpath/checkout") {
       setPage("checkout");
@@ -788,6 +788,57 @@ export default function CareerPath() {
       setReportReference(urlReference);
     }
   }, [location]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = sessionStorage.getItem("careerpath-assessment");
+    if (!saved) return;
+    try {
+      const parsed = JSON.parse(saved) as { name: string; email: string; consent: boolean; answers: Record<string, number>; currentModule: number };
+      setParticipantName(parsed.name ?? "");
+      setParticipantEmail(parsed.email ?? "");
+      setParticipantConsent(Boolean(parsed.consent));
+      setAssessmentAnswers(parsed.answers ?? {});
+      setAssessmentCurrentModule(typeof parsed.currentModule === "number" ? parsed.currentModule : 0);
+    } catch {
+      sessionStorage.removeItem("careerpath-assessment");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const payload = {
+      name: participantName,
+      email: participantEmail,
+      consent: participantConsent,
+      answers: assessmentAnswers,
+      currentModule: assessmentCurrentModule,
+    };
+    sessionStorage.setItem("careerpath-assessment", JSON.stringify(payload));
+  }, [participantName, participantEmail, participantConsent, assessmentAnswers, assessmentCurrentModule]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (page === "reports" && unlockedReport) {
+      sessionStorage.removeItem("careerpath-assessment");
+      sessionStorage.removeItem("careerpath-checkout");
+    }
+  }, [page, unlockedReport]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (page === "checkout" && checkoutReference && !checkoutProduct) {
+      const saved = sessionStorage.getItem("careerpath-checkout");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed?.product) setCheckoutProduct(parsed.product);
+        } catch {
+          sessionStorage.removeItem("careerpath-checkout");
+        }
+      }
+    }
+  }, [page, checkoutReference, checkoutProduct]);
 
   const initializeInlinePayment = trpc.careerPath.initializeInlinePayment.useMutation();
 
@@ -814,6 +865,7 @@ export default function CareerPath() {
       };
       setCheckoutReference(result.reference);
       setCheckoutProduct(product);
+      sessionStorage.setItem("careerpath-checkout", JSON.stringify({ product }));
       setLocation(`/careerpath/checkout?reference=${encodeURIComponent(result.reference)}`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Unable to initialize payment.");
@@ -853,8 +905,8 @@ export default function CareerPath() {
       <CareerPathStepIndicator current={page} />
       <div className="animate-in fade-in duration-300">
         {page === "introduction" && <IntroPage onStart={(data) => { setParticipantName(data.name); setParticipantEmail(data.email); setParticipantConsent(data.consent); navigateTo("assessment", "/careerpath/assessment"); }} onBack={undefined} />}
-        {page === "assessment" && <AssessmentPage onComplete={handleAssessmentComplete} onBack={() => navigateTo("introduction", "/careerpath")} name={participantName} email={participantEmail} consent={participantConsent} answers={assessmentAnswers} currentModule={assessmentCurrentModule} onNameChange={setParticipantName} onEmailChange={setParticipantEmail} onConsentChange={setParticipantConsent} onAnswersChange={setAssessmentAnswers} onCurrentModuleChange={setAssessmentCurrentModule} />}
-        {page === "checkout" && checkoutReference && <CheckoutPage reference={checkoutReference} product={checkoutProduct} onVerified={handleCheckoutSuccess} onBack={() => navigateTo("assessment", "/careerpath/assessment")} />}
+        {page === "assessment" && <AssessmentPage onComplete={handleAssessmentComplete} onBack={() => navigateTo("introduction", "/careerpath")} defaultName={participantName} defaultEmail={participantEmail} defaultConsent={participantConsent} />}
+        {page === "checkout" && checkoutReference && <CheckoutPage reference={checkoutReference} product={checkoutProduct} onVerified={handleCheckoutSuccess} onBack={() => navigateTo("assessment", "/careerpath/assessment")} customerEmail={participantEmail} />}
       </div>
     </div>
   );
