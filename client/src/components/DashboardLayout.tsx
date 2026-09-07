@@ -41,9 +41,11 @@ const MAX_WIDTH = 480;
 export default function DashboardLayout({
   children,
   title,
+  role,
 }: {
   children: React.ReactNode;
   title?: string;
+  role?: "user" | "staff" | "admin";
 }) {
   const [sidebarWidth, setSidebarWidth] = useState(() => {
     const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
@@ -95,7 +97,11 @@ export default function DashboardLayout({
         } as CSSProperties
       }
     >
-      <DashboardLayoutContent setSidebarWidth={setSidebarWidth}>
+      <DashboardLayoutContent
+        setSidebarWidth={setSidebarWidth}
+        title={title}
+        role={role}
+      >
         {children}
       </DashboardLayoutContent>
     </SidebarProvider>
@@ -106,12 +112,14 @@ type DashboardLayoutContentProps = {
   children: React.ReactNode;
   setSidebarWidth: (width: number) => void;
   title?: string;
+  role?: "user" | "staff" | "admin";
 };
 
 function DashboardLayoutContent({
   children,
   setSidebarWidth,
   title,
+  role,
 }: DashboardLayoutContentProps) {
   const { user, logout } = useAuth();
   const { t } = useLocale();
@@ -120,14 +128,16 @@ function DashboardLayoutContent({
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const localizedMenuItems = visibleDashboardNavItems(user?.role).map(item => ({
+  const isMobile = useIsMobile();
+
+  const userRole = role || user?.role || "user";
+  const localizedMenuItems = visibleDashboardNavItems(userRole).map(item => ({
     ...item,
     label: t(item.labelKey) || item.fallbackLabel,
   }));
   const activeMenuItem = localizedMenuItems.find(
     item => location === item.path || location.startsWith(`${item.path}/`)
   );
-  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (isCollapsed) {
