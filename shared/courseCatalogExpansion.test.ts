@@ -1,63 +1,189 @@
 import { describe, expect, it } from "vitest";
-import { courseCatalog, COURSE_PASS_MARK, STANDARD_COURSE_PRICE_KES, STANDARD_COURSE_STAGE_AMOUNTS_KES } from "./courseCatalog";
+import {
+  courseCatalog,
+  COURSE_PASS_MARK,
+  STANDARD_COURSE_PRICE_KES,
+  STANDARD_COURSE_STAGE_AMOUNTS_KES,
+} from "./courseCatalog";
 import { renderCourseCertificateSvg } from "../server/courseCertificate";
 import { readFileSync } from "node:fs";
 
 describe("expanded professional course catalog", () => {
-  const additionalSlugs = ["personal-growth-self-discovery", "building-a-growth-mindset", "continuous-self-improvement", "mastering-self-discipline", "mastering-time-management", "personal-finance-management-essentials", "self-confidence-and-self-esteem", "emotional-intelligence-mastery", "personal-brand-strategy", "personal-excellence-mastery", "effective-communication-essentials", "lasting-interpersonal-relationships", "building-thriving-business-empires", "negotiation-mastery", "critical-thinking-problem-solving", "creativity-and-innovation", "teamwork-and-collaboration", "leadership-and-self-leadership", "adaptability-and-resilience", "time-management-personal-productivity", "decision-making-skills", "conflict-resolution-negotiation", "interpersonal-and-relationship-skills", "digital-literacy-and-etiquette", "presentation-and-public-speaking", "professionalism-and-workplace-ethics", "career-development-employability", "entrepreneurial-mindset", "artificial-intelligence-for-educators", "artificial-intelligence-generative-ai", "generative-ai-prompt-engineering", "ai-business-organization-transformation", "ai-powered-productivity-automation", "responsible-ai-ethics-governance", "social-media-management", "digital-marketing", "research-methods", "business-analytics", "business-intelligence", "competency-based-education-assessments", "communication-presentation-skills", "report-writing-presentation-skills", "career-guidance-coaching", "customer-experience-management", "search-engine-optimization", "data-analytics"];
+  const additionalSlugs = [
+    "personal-growth-self-discovery",
+    "building-a-growth-mindset",
+    "continuous-self-improvement",
+    "mastering-self-discipline",
+    "mastering-time-management",
+    "personal-finance-management-essentials",
+    "self-confidence-and-self-esteem",
+    "emotional-intelligence-mastery",
+    "personal-brand-strategy",
+    "personal-excellence-mastery",
+    "effective-communication-essentials",
+    "lasting-interpersonal-relationships",
+    "building-thriving-business-empires",
+    "negotiation-mastery",
+    "critical-thinking-problem-solving",
+    "creativity-and-innovation",
+    "teamwork-and-collaboration",
+    "leadership-and-self-leadership",
+    "adaptability-and-resilience",
+    "time-management-personal-productivity",
+    "decision-making-skills",
+    "conflict-resolution-negotiation",
+    "interpersonal-and-relationship-skills",
+    "digital-literacy-and-etiquette",
+    "presentation-and-public-speaking",
+    "professionalism-and-workplace-ethics",
+    "career-development-employability",
+    "entrepreneurial-mindset",
+    "artificial-intelligence-for-educators",
+    "artificial-intelligence-generative-ai",
+    "generative-ai-prompt-engineering",
+    "ai-business-organization-transformation",
+    "ai-powered-productivity-automation",
+    "responsible-ai-ethics-governance",
+    "social-media-management",
+    "digital-marketing",
+    "research-methods",
+    "business-analytics",
+    "business-intelligence",
+    "competency-based-education-assessments",
+    "communication-presentation-skills",
+    "report-writing-presentation-skills",
+    "career-guidance-coaching",
+    "customer-experience-management",
+    "search-engine-optimization",
+    "data-analytics",
+  ];
 
   it("contains every requested new course", () => {
-    expect(additionalSlugs.every((slug) => courseCatalog.some((course) => course.slug === slug))).toBe(true);
+    expect(
+      additionalSlugs.every(slug =>
+        courseCatalog.some(course => course.slug === slug)
+      )
+    ).toBe(true);
   });
 
   it("gives each new course the complete learning structure and staged price", () => {
     for (const slug of additionalSlugs) {
-      const course = courseCatalog.find((item) => item.slug === slug)!;
+      const course = courseCatalog.find(item => item.slug === slug)!;
       expect(course.priceKes).toBe(STANDARD_COURSE_PRICE_KES);
       expect(course.stageAmountsKes).toEqual(STANDARD_COURSE_STAGE_AMOUNTS_KES);
-      expect(course.stageAmountsKes.reduce((sum, amount) => sum + amount, 0)).toBe(4999);
+      expect(
+        course.stageAmountsKes.reduce((sum, amount) => sum + amount, 0)
+      ).toBe(4999);
       expect(course.modules).toHaveLength(10);
       expect(course.modules.length).toBe(10);
-      expect(course.modules.every((module) => module.lessons.length === 7 && module.quiz.length === 15)).toBe(true);
-      expect(course.modules.flatMap((module) => module.lessons).every((lesson) => lesson.durationMinutes === 30 && lesson.sections.length >= 4 && lesson.simulation.options.length >= 3 && lesson.reflectionPrompt.length > 30)).toBe(true);
+      expect(
+        course.modules.every(
+          module => module.lessons.length === 7 && module.quiz.length === 15
+        )
+      ).toBe(true);
+      expect(
+        course.modules
+          .flatMap(module => module.lessons)
+          .every(
+            lesson =>
+              lesson.durationMinutes === 30 &&
+              lesson.sections.length >= 4 &&
+              lesson.simulation.options.length >= 3 &&
+              lesson.reflectionPrompt.length > 30
+          )
+      ).toBe(true);
     }
     expect(COURSE_PASS_MARK).toBe(50);
   });
 
   it("keeps quiz questions aligned to their source lessons and modules", () => {
-    const course = courseCatalog.find((item) => item.slug === "decision-making-skills")!;
+    const course = courseCatalog.find(
+      item => item.slug === "decision-making-skills"
+    )!;
     for (const module of course.modules) {
-      expect(new Set(module.quiz.map((question) => question.sourceLessonId)).size).toBeGreaterThan(1);
-      expect(module.quiz.every((question) => module.lessons.some((lesson) => lesson.id === question.sourceLessonId) && question.options.length === 4 && question.correctOption >= 0 && question.correctOption < 4)).toBe(true);
+      expect(
+        new Set(module.quiz.map(question => question.sourceLessonId)).size
+      ).toBeGreaterThan(1);
+      expect(
+        module.quiz.every(
+          question =>
+            module.lessons.some(
+              lesson => lesson.id === question.sourceLessonId
+            ) &&
+            question.options.length === 4 &&
+            question.correctOption >= 0 &&
+            question.correctOption < 4
+        )
+      ).toBe(true);
     }
   });
 
   it("provides deeper concept teaching and everyday application guidance", () => {
-    const lesson = courseCatalog.find((item) => item.slug === "mastering-time-management")!.modules[4].lessons[2];
+    const lesson = courseCatalog.find(
+      item => item.slug === "mastering-time-management"
+    )!.modules[4].lessons[2];
     expect(lesson.durationMinutes).toBe(30);
     expect(lesson.sections.length).toBeGreaterThanOrEqual(6);
-    expect(lesson.sections.map((section) => section.body).join(" ").length).toBeGreaterThan(1800);
-    expect(lesson.sections.map((section) => section.body).join(" ")).toMatch(/work|study|family|finances|health|household/i);
+    expect(
+      lesson.sections.map(section => section.body).join(" ").length
+    ).toBeGreaterThan(1800);
+    expect(lesson.sections.map(section => section.body).join(" ")).toMatch(
+      /work|study|family|finances|health|household/i
+    );
     expect(lesson.example.context.length).toBeGreaterThan(70);
     expect(lesson.example.move.length).toBeGreaterThan(90);
     expect(lesson.simulation.prompt.length).toBeGreaterThan(50);
-    expect(lesson.reflectionPrompt).toMatch(/work|study|relationships|finances|health|household/i);
+    expect(lesson.reflectionPrompt).toMatch(
+      /work|study|relationships|finances|health|household/i
+    );
     expect(lesson.keyTakeaway.length).toBeGreaterThan(70);
     expect(lesson.deepDive.length).toBeGreaterThan(120);
     expect(lesson.responseTasks.length).toBeGreaterThanOrEqual(3);
-    expect(lesson.responseTasks.every((task) => task.required && task.prompt.length > 30)).toBe(true);
+    expect(
+      lesson.responseTasks.every(
+        task => task.required && task.prompt.length > 30
+      )
+    ).toBe(true);
   });
 
   it("assigns discoverable taxonomy and managed cover artwork to every course", () => {
-    expect(courseCatalog.every((course) => course.category && ["Foundation", "Practitioner", "Advanced"].includes(course.skillLevel) && course.coverImage.startsWith("/cover-"))).toBe(true);
-    expect(new Set(courseCatalog.map((course) => course.category)).size).toBeGreaterThanOrEqual(5);
-    expect(courseCatalog.find((course) => course.slug === "artificial-intelligence-for-educators")?.category).toBe("AI & Digital");
-    expect(courseCatalog.find((course) => course.slug === "business-analytics")?.category).toBe("Business & Analytics");
-    expect(courseCatalog.find((course) => course.slug === "research-methods")?.category).toBe("Education & Research");
+    expect(
+      courseCatalog.every(
+        course =>
+          course.category &&
+          ["Foundation", "Practitioner", "Advanced"].includes(
+            course.skillLevel
+          ) &&
+          course.coverImage.startsWith("/cover-")
+      )
+    ).toBe(true);
+    expect(
+      new Set(courseCatalog.map(course => course.category)).size
+    ).toBeGreaterThanOrEqual(5);
+    expect(
+      courseCatalog.find(
+        course => course.slug === "artificial-intelligence-for-educators"
+      )?.category
+    ).toBe("AI & Digital");
+    expect(
+      courseCatalog.find(course => course.slug === "business-analytics")
+        ?.category
+    ).toBe("Business & Analytics");
+    expect(
+      courseCatalog.find(course => course.slug === "research-methods")?.category
+    ).toBe("Education & Research");
   });
 
   it("inherits branded certificate metadata for new courses", () => {
-    const svg = renderCourseCertificateSvg({ recipientName: "Amina Otieno", recipientEmail: "amina@example.com", courseTitle: "Decision-Making Skills", certificateNumber: "PIQ-2026-0001", issuedOn: "2026-08-24T00:00:00Z", verificationUrl: "http://localhost:3000/verify/certificate?certificate=PIQ-2026-0001" });
+    const svg = renderCourseCertificateSvg({
+      recipientName: "Amina Otieno",
+      recipientEmail: "amina@example.com",
+      courseTitle: "Decision-Making Skills",
+      certificateNumber: "PIQ-2026-0001",
+      issuedOn: "2026-08-24T00:00:00Z",
+      verificationUrl:
+        "http://localhost:3000/verify/certificate?certificate=PIQ-2026-0001",
+    });
     expect(svg).toContain("Amina Otieno");
     expect(svg).toContain("Decision-Making Skills");
     expect(svg).toContain("PIQ-2026-0001");
@@ -71,7 +197,11 @@ describe("expanded professional course catalog", () => {
       trainerName: "Dr. Grace Wambui",
       trainerTitle: "Lead Facilitator",
       signatureDataUri: "data:image/png;base64,QUJD",
-      fieldLayout: { recipient: { x: 1111, y: 777 }, course: { x: 1000, y: 985 }, trainerTitle: { visible: false } },
+      fieldLayout: {
+        recipient: { x: 1111, y: 777 },
+        course: { x: 1000, y: 985 },
+        trainerTitle: { visible: false },
+      },
       customElements: { partnerMark: "https://example.com/partner-mark.svg" },
     };
 
@@ -89,7 +219,17 @@ describe("expanded professional course catalog", () => {
       });
 
       expect(svg).toContain(learnerName);
-      const escapedCourseTitle = course.title.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" })[character] ?? character);
+      const escapedCourseTitle = course.title.replace(
+        /[&<>"']/g,
+        character =>
+          ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&apos;",
+          })[character] ?? character
+      );
       expect(svg).toContain(escapedCourseTitle);
       expect(svg).toContain(certificateNumber);
       expect(svg).toContain('data-field="recipient" x="1111" y="777"');
@@ -111,8 +251,14 @@ describe("quiz learning feedback and analytics", () => {
         for (const question of module.quiz) {
           expect(question.options).toHaveLength(4);
           expect(question.optionExplanations).toHaveLength(4);
-          expect(question.optionExplanations.every((explanation) => explanation.length > 35)).toBe(true);
-          expect(question.optionExplanations[question.correctOption]).toMatch(/correct/i);
+          expect(
+            question.optionExplanations.every(
+              explanation => explanation.length > 35
+            )
+          ).toBe(true);
+          expect(question.optionExplanations[question.correctOption]).toMatch(
+            /correct/i
+          );
         }
       }
     }
@@ -128,8 +274,12 @@ describe("quiz learning feedback and analytics", () => {
     expect(source).toContain("FIRST SIX MODULE HIGHLIGHTS");
     expect(source).toContain("saveCourseRecommendationAnswers");
     expect(source).toContain("toggleSavedCourse");
-    expect(readFileSync("client/src/pages/CourseComparison.tsx", "utf8")).toContain("courses/compare?compare=");
-    expect(readFileSync("client/src/App.tsx", "utf8")).toContain('path=\"/courses/compare\"');
+    expect(
+      readFileSync("client/src/pages/CourseComparison.tsx", "utf8")
+    ).toContain("courses/compare?compare=");
+    expect(readFileSync("client/src/App.tsx", "utf8")).toContain(
+      'path=\"/courses/compare\"'
+    );
   });
 
   it("exposes catalog comparison and discovery controls", () => {
@@ -142,22 +292,38 @@ describe("quiz learning feedback and analytics", () => {
 
   it("routes public course details into registration while preserving the interactive workspace flow", () => {
     const catalog = readFileSync("client/src/pages/Courses.tsx", "utf8");
-    const comparison = readFileSync("client/src/pages/CourseComparison.tsx", "utf8");
+    const comparison = readFileSync(
+      "client/src/pages/CourseComparison.tsx",
+      "utf8"
+    );
     const seoRoutes = readFileSync("server/seoRoutes.ts", "utf8");
     expect(catalog).toContain("/courses/${course.slug}?workspace=1");
     expect(catalog).toContain("/courses/${selectedCourse.slug}?workspace=1");
     expect(comparison).toContain("/courses/${course.slug}?workspace=1");
     expect(seoRoutes).toContain('req.query.workspace === "1"');
     expect(seoRoutes).toContain("Start course registration");
-    expect(seoRoutes).toContain("${SITE_ORIGIN}/courses?enroll=${encodeURIComponent(course.slug)}");
-    const workspace = readFileSync("client/src/pages/CourseWorkspace.tsx", "utf8");
+    expect(seoRoutes).toContain(
+      "${SITE_ORIGIN}/courses?enroll=${encodeURIComponent(course.slug)}"
+    );
+    const workspace = readFileSync(
+      "client/src/pages/CourseWorkspace.tsx",
+      "utf8"
+    );
     expect(workspace).toContain("/courses/${course.slug}?workspace=1");
-    expect(workspace).toContain("window.location.pathname + window.location.search");
+    expect(workspace).toContain(
+      "window.location.pathname + window.location.search"
+    );
   });
 
   it("exposes the progress-aware lesson map and transition loading contract", () => {
-    const workspace = readFileSync("client/src/pages/CourseWorkspace.tsx", "utf8");
-    const courseMap = readFileSync("client/src/components/CourseMapSidebar.tsx", "utf8");
+    const workspace = readFileSync(
+      "client/src/pages/CourseWorkspace.tsx",
+      "utf8"
+    );
+    const courseMap = readFileSync(
+      "client/src/components/CourseMapSidebar.tsx",
+      "utf8"
+    );
     expect(workspace).toContain('aria-label="Overall course progress"');
     expect(courseMap).toContain('aria-label="Course modules and lessons"');
     expect(courseMap).toContain("course-map-navigation");
@@ -175,7 +341,10 @@ describe("quiz learning feedback and analytics", () => {
   });
 
   it("exposes pointer editing and confirmed visual snapshot restore in the certificate editor", () => {
-    const source = readFileSync("client/src/components/AdminCertificatePreview.tsx", "utf8");
+    const source = readFileSync(
+      "client/src/components/AdminCertificatePreview.tsx",
+      "utf8"
+    );
     expect(source).toContain("beginAssetPointer");
     expect(source).toContain('mode: "move" | "resize"');
     expect(source).toContain('drag.mode === "resize"');
@@ -190,7 +359,10 @@ describe("quiz learning feedback and analytics", () => {
 describe("shareable comparison and personalized course revisit", () => {
   it("registers the dedicated comparison route and route metadata", () => {
     const app = readFileSync("client/src/App.tsx", "utf8");
-    const comparison = readFileSync("client/src/pages/CourseComparison.tsx", "utf8");
+    const comparison = readFileSync(
+      "client/src/pages/CourseComparison.tsx",
+      "utf8"
+    );
     expect(app).toContain('path="/courses/compare"');
     expect(comparison).toContain('params.get("compare")');
     expect(comparison).toContain('meta[property="og:title"]');
@@ -200,7 +372,10 @@ describe("shareable comparison and personalized course revisit", () => {
   it("exposes authenticated persistence contracts for recommendations and saved courses", () => {
     const router = readFileSync("server/routers.ts", "utf8");
     const schema = readFileSync("drizzle/schema.ts", "utf8");
-    const dashboard = readFileSync("client/src/pages/UserDashboard.tsx", "utf8");
+    const dashboard = readFileSync(
+      "client/src/pages/UserDashboard.tsx",
+      "utf8"
+    );
     expect(router).toContain("saveCourseRecommendationAnswers");
     expect(router).toContain("toggleSavedCourse");
     expect(schema).toContain("recommendationAnswers");
@@ -222,7 +397,10 @@ describe("comparison SSR and personalized revisit upgrades", () => {
   it("exposes paginated saved-course management and recommendation history", () => {
     const router = readFileSync("server/routers.ts", "utf8");
     const db = readFileSync("server/db.ts", "utf8");
-    const dashboard = readFileSync("client/src/pages/UserDashboard.tsx", "utf8");
+    const dashboard = readFileSync(
+      "client/src/pages/UserDashboard.tsx",
+      "utf8"
+    );
     expect(router).toContain("savedCoursesPage");
     expect(router).toContain("recommendationHistory");
     expect(db).toContain("listSavedCoursesPage");
@@ -234,27 +412,54 @@ describe("comparison SSR and personalized revisit upgrades", () => {
   });
 
   it("covers localized share copy and comparison analytics presentation", () => {
-    const share = readFileSync("client/src/components/CourseShareActions.tsx", "utf8");
-    const analytics = readFileSync("client/src/components/AdminCourseShareAnalytics.tsx", "utf8");
+    const share = readFileSync(
+      "client/src/components/CourseShareActions.tsx",
+      "utf8"
+    );
+    const analytics = readFileSync(
+      "client/src/components/AdminCourseShareAnalytics.tsx",
+      "utf8"
+    );
     expect(share).toContain('eventName: "course_shared"');
     expect(share).toContain("comparisonSlugs");
-    for (const locale of ["en", "sw", "fr", "es", "pt", "ar", "zh", "hi", "de", "ja"]) expect(share).toContain(`${locale}:`);
+    for (const locale of [
+      "en",
+      "sw",
+      "fr",
+      "es",
+      "pt",
+      "ar",
+      "zh",
+      "hi",
+      "de",
+      "ja",
+    ])
+      expect(share).toContain(`${locale}:`);
     expect(analytics).toContain("byComparison");
     expect(analytics).toContain("Most shared comparisons.");
   });
 
   it("exposes the saved-pathways PDF preview contract", () => {
-    const dashboard = readFileSync("client/src/pages/UserDashboard.tsx", "utf8");
+    const dashboard = readFileSync(
+      "client/src/pages/UserDashboard.tsx",
+      "utf8"
+    );
     expect(dashboard).toContain("Saved learning pathways PDF preview");
     expect(dashboard).toContain("Download PDF");
     expect(dashboard).toContain("savedPathwaysPreview");
   });
 
   it("exposes summary and detailed PDF layout controls and comparison trends", () => {
-    const dashboard = readFileSync("client/src/pages/UserDashboard.tsx", "utf8");
+    const dashboard = readFileSync(
+      "client/src/pages/UserDashboard.tsx",
+      "utf8"
+    );
     const pdf = readFileSync("server/reportPdf.ts", "utf8");
     const router = readFileSync("server/routers.ts", "utf8");
-    const analytics = readFileSync("client/src/components/AdminCourseShareAnalytics.tsx", "utf8");
+    const analytics = readFileSync(
+      "client/src/components/AdminCourseShareAnalytics.tsx",
+      "utf8"
+    );
     const db = readFileSync("server/db.ts", "utf8");
     expect(dashboard).toContain("savedPathwaysLayout");
     expect(dashboard).toContain('setSavedPathwaysLayout("summary")');
@@ -268,7 +473,10 @@ describe("comparison SSR and personalized revisit upgrades", () => {
   });
 
   it("exposes localized PDF controls, preview zoom, and CSV sections", () => {
-    const dashboard = readFileSync("client/src/pages/UserDashboard.tsx", "utf8");
+    const dashboard = readFileSync(
+      "client/src/pages/UserDashboard.tsx",
+      "utf8"
+    );
     const csv = readFileSync("shared/adminExport.ts", "utf8");
     const router = readFileSync("server/routers.ts", "utf8");
     expect(dashboard).toContain("pdfLayoutCopy");
@@ -276,11 +484,16 @@ describe("comparison SSR and personalized revisit upgrades", () => {
     expect(dashboard).toContain("zoomIn");
     expect(csv).toContain("COMPARISON RANKINGS");
     expect(csv).toContain("DAILY SHARE TREND");
-    expect(router).toContain("buildCourseShareAnalyticsCsv({ matrix: data.matrix");
+    expect(router).toContain(
+      "buildCourseShareAnalyticsCsv({ matrix: data.matrix"
+    );
   });
 
   it("exposes printable localized PDFs and date-scoped analytics CSVs", () => {
-    const dashboard = readFileSync("client/src/pages/UserDashboard.tsx", "utf8");
+    const dashboard = readFileSync(
+      "client/src/pages/UserDashboard.tsx",
+      "utf8"
+    );
     const pdf = readFileSync("server/reportPdf.ts", "utf8");
     const router = readFileSync("server/routers.ts", "utf8");
     const csv = readFileSync("shared/adminExport.ts", "utf8");
@@ -289,17 +502,25 @@ describe("comparison SSR and personalized revisit upgrades", () => {
     expect(dashboard).toContain("locale, watermark: savedPathwaysWatermark");
     expect(pdf).toContain("labels.savedPathways");
     expect(pdf).toContain("labels.outcomes");
-    expect(router).toContain("locale: z.enum([\"en\", \"sw\"");
+    expect(router).toContain('locale: z.enum(["en", "sw"');
     expect(router).toContain("localizeCourseMetadata(locale");
     expect(csv).toContain("Date range");
-    expect(router).toContain("fromDate: input?.fromDate, toDate: input?.toDate");
+    expect(router).toContain(
+      "fromDate: input?.fromDate, toDate: input?.toDate"
+    );
   });
 
   it("supports paginated print layouts, localized timestamps, and configurable branding", () => {
     const pdf = readFileSync("server/reportPdf.ts", "utf8");
-    const printPage = readFileSync("client/src/pages/SavedPathwaysPrint.tsx", "utf8");
+    const printPage = readFileSync(
+      "client/src/pages/SavedPathwaysPrint.tsx",
+      "utf8"
+    );
     const router = readFileSync("server/routers.ts", "utf8");
-    const dashboard = readFileSync("client/src/pages/UserDashboard.tsx", "utf8");
+    const dashboard = readFileSync(
+      "client/src/pages/UserDashboard.tsx",
+      "utf8"
+    );
     expect(pdf).toContain("Page ${pageNumber}");
     expect(pdf).toContain("formatDate(new Date(), input.locale)");
     expect(pdf).toContain("watermark?: boolean");
@@ -314,18 +535,24 @@ describe("comparison SSR and personalized revisit upgrades", () => {
     expect(dashboard).toContain("savedPathwaysCoverPage");
     expect(dashboard).toContain("updateExportPreferences");
     expect(router).toContain("updateExportPreferences: protectedProcedure");
-    expect(pdf).toContain("pageSize?: \"A4\" | \"LETTER\"");
+    expect(pdf).toContain('pageSize?: "A4" | "LETTER"');
     expect(pdf).toContain("coverPage?: boolean");
-    expect(pdf).toContain("input.coverPage && input.layout === \"detailed\"");
+    expect(pdf).toContain('input.coverPage && input.layout === "detailed"');
     expect(printPage).toContain("@page { size: ${pageSize}");
     expect(printPage).toContain("print-cover");
   });
 
   it("supports Arabic and CJK PDF typography, quick date presets, and print layout routing", () => {
     const pdf = readFileSync("server/reportPdf.ts", "utf8");
-    const analytics = readFileSync("client/src/components/AdminCourseShareAnalytics.tsx", "utf8");
+    const analytics = readFileSync(
+      "client/src/components/AdminCourseShareAnalytics.tsx",
+      "utf8"
+    );
     const app = readFileSync("client/src/App.tsx", "utf8");
-    const printPage = readFileSync("client/src/pages/SavedPathwaysPrint.tsx", "utf8");
+    const printPage = readFileSync(
+      "client/src/pages/SavedPathwaysPrint.tsx",
+      "utf8"
+    );
     expect(pdf).toContain("NotoNaskhArabic");
     expect(pdf).toContain("NotoSansCJKsc");
     expect(pdf).toContain("labels.savedPathways[localeKey]");

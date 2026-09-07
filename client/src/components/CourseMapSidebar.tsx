@@ -1,4 +1,10 @@
-import { CheckCircle2, ChevronDown, LockKeyhole, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import {
+  CheckCircle2,
+  ChevronDown,
+  LockKeyhole,
+  PanelLeftClose,
+  PanelLeftOpen,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { canAccessModuleLessons } from "@shared/courseAccess";
 import type { CourseDefinition } from "@shared/courseCatalog";

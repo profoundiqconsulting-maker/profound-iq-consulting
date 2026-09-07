@@ -1,8 +1,22 @@
 function escapeXml(value: string): string {
-  return value.replace(/[&<>\"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&apos;" })[character] ?? character);
+  return value.replace(
+    /[&<>\"']/g,
+    character =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&apos;",
+      })[character] ?? character
+  );
 }
 
-export function buildCourseCompletionShareSvg(input: { learnerName: string; courseTitle: string; certificateNumber: string }): string {
+export function buildCourseCompletionShareSvg(input: {
+  learnerName: string;
+  courseTitle: string;
+  certificateNumber: string;
+}): string {
   const name = escapeXml(input.learnerName);
   const course = escapeXml(input.courseTitle);
   const number = escapeXml(input.certificateNumber);

@@ -3,7 +3,22 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { BrandLogo } from "@/components/BrandLogo";
 import DashboardLayout from "@/components/DashboardLayout";
-import { ArrowUpRight, Award, CheckCircle2, Copy, Download, ExternalLink, FileText, ImageDown, Loader2, Mail, MailCheck, Printer, Share2, ShieldCheck } from "lucide-react";
+import {
+  ArrowUpRight,
+  Award,
+  CheckCircle2,
+  Copy,
+  Download,
+  ExternalLink,
+  FileText,
+  ImageDown,
+  Loader2,
+  Mail,
+  MailCheck,
+  Printer,
+  Share2,
+  ShieldCheck,
+} from "lucide-react";
 import { Link } from "wouter";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -30,7 +45,9 @@ type CourseRecord = {
   stages: Array<{ stage: number; paymentStatus: string }>;
 };
 
-type CertificateWithEnrollment = Certificate & { enrollment: CourseRecord["enrollment"] };
+type CertificateWithEnrollment = Certificate & {
+  enrollment: CourseRecord["enrollment"];
+};
 
 export default function MyCertificates() {
   const { user, loading: authLoading } = useAuth();
@@ -41,35 +58,51 @@ export default function MyCertificates() {
   });
 
   const downloadPdf = trpc.course.downloadCertificatePdf.useMutation({
-    onError: (error) => toast.error("PDF download failed", { description: error.message }),
+    onError: error =>
+      toast.error("PDF download failed", { description: error.message }),
   });
   const recordEvent = trpc.course.recordCertificateUsage.useMutation();
 
   const [previewing, setPreviewing] = useState<Certificate | null>(null);
 
   const courseRecords = (courseHistory.data ?? []) as unknown as CourseRecord[];
-  const allCertificates = courseRecords.flatMap((record) =>
-    (record.certificates ?? []).map((cert) => ({ ...cert, enrollment: record.enrollment }))
+  const allCertificates = courseRecords.flatMap(record =>
+    (record.certificates ?? []).map(cert => ({
+      ...cert,
+      enrollment: record.enrollment,
+    }))
   );
 
   const handleDownloadPdf = async (cert: CertificateWithEnrollment) => {
     if (!cert.enrollment) {
-      toast.error("Could not download PDF", { description: "Enrollment information is missing." });
+      toast.error("Could not download PDF", {
+        description: "Enrollment information is missing.",
+      });
       return;
     }
     try {
-      const result = await downloadPdf.mutateAsync({ enrollmentId: cert.enrollment.id });
+      const result = await downloadPdf.mutateAsync({
+        enrollmentId: cert.enrollment.id,
+      });
       downloadCertificatePdf(result.data, result.filename);
-      recordEvent.mutate({ enrollmentId: cert.enrollment.id, eventType: "download", platform: "pdf" });
+      recordEvent.mutate({
+        enrollmentId: cert.enrollment.id,
+        eventType: "download",
+        platform: "pdf",
+      });
       toast.success("Certificate PDF downloaded");
     } catch (error) {
-      toast.error("Could not download PDF", { description: (error as Error).message });
+      toast.error("Could not download PDF", {
+        description: (error as Error).message,
+      });
     }
   };
 
   const handleDownloadPng = async (cert: CertificateWithEnrollment) => {
     if (!cert.fileUrl) {
-      toast.error("Preview not available", { description: "The certificate file URL is not yet available." });
+      toast.error("Preview not available", {
+        description: "The certificate file URL is not yet available.",
+      });
       return;
     }
     try {
@@ -77,11 +110,17 @@ export default function MyCertificates() {
       const svg = await response.text();
       await downloadCertificatePng(svg, `${cert.certificateNumber}.png`);
       if (cert.enrollment) {
-        recordEvent.mutate({ enrollmentId: cert.enrollment.id, eventType: "download", platform: "png" });
+        recordEvent.mutate({
+          enrollmentId: cert.enrollment.id,
+          eventType: "download",
+          platform: "png",
+        });
       }
       toast.success("Certificate PNG downloaded");
     } catch (error) {
-      toast.error("Could not download PNG", { description: (error as Error).message });
+      toast.error("Could not download PNG", {
+        description: (error as Error).message,
+      });
     }
   };
 
@@ -90,7 +129,11 @@ export default function MyCertificates() {
       toast.error("Preview not available");
       return;
     }
-    const printWindow = window.open(cert.fileUrl, "_blank", "noopener,noreferrer");
+    const printWindow = window.open(
+      cert.fileUrl,
+      "_blank",
+      "noopener,noreferrer"
+    );
     if (printWindow) {
       window.setTimeout(() => printWindow.print(), 900);
     } else {
@@ -115,11 +158,17 @@ export default function MyCertificates() {
       try {
         await navigator.share(shareData);
         if (cert.enrollment) {
-          recordEvent.mutate({ enrollmentId: cert.enrollment.id, eventType: "share", platform: "native" });
+          recordEvent.mutate({
+            enrollmentId: cert.enrollment.id,
+            eventType: "share",
+            platform: "native",
+          });
         }
       } catch (err) {
         if ((err as Error).name !== "AbortError") {
-          toast.error("Sharing failed", { description: (err as Error).message });
+          toast.error("Sharing failed", {
+            description: (err as Error).message,
+          });
         }
       }
     } else {
@@ -142,8 +191,12 @@ export default function MyCertificates() {
       <DashboardLayout>
         <div className="mx-auto max-w-md py-20 text-center">
           <Award className="mx-auto h-12 w-12 text-[#c9a34e]" />
-          <h1 className="mt-6 display text-3xl text-[#16243d]">Sign in to view your certificates</h1>
-          <p className="mt-3 text-sm text-[#4a566a]">Your earned certificates will appear here once you sign in.</p>
+          <h1 className="mt-6 display text-3xl text-[#16243d]">
+            Sign in to view your certificates
+          </h1>
+          <p className="mt-3 text-sm text-[#4a566a]">
+            Your earned certificates will appear here once you sign in.
+          </p>
           <Link
             href="/auth?mode=login&returnTo=/dashboard/certificates"
             className="mt-6 inline-flex items-center gap-2 border border-[#c9a34e] px-5 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-colors hover:bg-[#c9a34e]"
@@ -165,27 +218,38 @@ export default function MyCertificates() {
               My Certificates
             </h1>
             <p className="mt-2 max-w-xl text-sm leading-6 text-[#4a566a]">
-              Download, share, or verify any certificate you have earned through Profound IQ Consulting courses.
+              Download, share, or verify any certificate you have earned through
+              Profound IQ Consulting courses.
             </p>
           </div>
           <div className="text-right">
-            <p className="display text-3xl text-[#16243d]">{allCertificates.length}</p>
-            <p className="text-[10px] font-bold uppercase tracking-[.12em] text-[#657084]">Certificates earned</p>
+            <p className="display text-3xl text-[#16243d]">
+              {allCertificates.length}
+            </p>
+            <p className="text-[10px] font-bold uppercase tracking-[.12em] text-[#657084]">
+              Certificates earned
+            </p>
           </div>
         </header>
 
         {courseHistory.isLoading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-56 animate-pulse rounded-sm border border-[#16243d]/10 bg-white/55" />
+            {[1, 2, 3].map(i => (
+              <div
+                key={i}
+                className="h-56 animate-pulse rounded-sm border border-[#16243d]/10 bg-white/55"
+              />
             ))}
           </div>
         ) : allCertificates.length === 0 ? (
           <div className="border border-dashed border-[#16243d]/20 py-16 text-center">
             <Award className="mx-auto h-10 w-10 text-[#c9a34e]/60" />
-            <h2 className="mt-5 display text-2xl text-[#16243d]">No certificates yet</h2>
+            <h2 className="mt-5 display text-2xl text-[#16243d]">
+              No certificates yet
+            </h2>
             <p className="mx-auto mt-2 max-w-md text-sm text-[#657084]">
-              Complete a course, pass all quizzes, and finish all four payment stages to earn your certificate of completion.
+              Complete a course, pass all quizzes, and finish all four payment
+              stages to earn your certificate of completion.
             </p>
             <Link
               href="/dashboard"
@@ -196,14 +260,15 @@ export default function MyCertificates() {
           </div>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {allCertificates.map((cert) => (
+            {allCertificates.map(cert => (
               <article
                 key={cert.certificateNumber}
                 className="group flex flex-col border border-[#16243d]/10 bg-white p-5 transition-all hover:border-[#c9a34e] hover:shadow-[0_8px_24px_rgba(16,29,53,.08)]"
               >
                 <div className="flex items-start justify-between">
                   <Award className="h-7 w-7 text-[#c9a34e]" />
-                  {cert.emailStatus === "sent" || cert.emailStatus === "delivered" ? (
+                  {cert.emailStatus === "sent" ||
+                  cert.emailStatus === "delivered" ? (
                     <span className="inline-flex items-center gap-1 border border-[#c9a34e]/40 bg-[#c9a34e]/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
                       <MailCheck size={10} /> Emailed
                     </span>
@@ -214,24 +279,37 @@ export default function MyCertificates() {
                   ) : null}
                 </div>
 
-                <h3 className="display mt-5 text-xl leading-tight text-[#16243d]">{cert.courseTitle}</h3>
+                <h3 className="display mt-5 text-xl leading-tight text-[#16243d]">
+                  {cert.courseTitle}
+                </h3>
 
                 <dl className="mt-4 space-y-1.5 text-[11px] text-[#657084]">
                   <div className="flex justify-between gap-3">
-                    <dt className="font-bold uppercase tracking-[.1em] text-[#4a566a]">Certificate</dt>
-                    <dd className="font-mono text-[#16243d]">{cert.certificateNumber}</dd>
+                    <dt className="font-bold uppercase tracking-[.1em] text-[#4a566a]">
+                      Certificate
+                    </dt>
+                    <dd className="font-mono text-[#16243d]">
+                      {cert.certificateNumber}
+                    </dd>
                   </div>
                   {cert.createdAt && (
                     <div className="flex justify-between gap-3">
-                      <dt className="font-bold uppercase tracking-[.1em] text-[#4a566a]">Issued</dt>
+                      <dt className="font-bold uppercase tracking-[.1em] text-[#4a566a]">
+                        Issued
+                      </dt>
                       <dd className="text-[#16243d]">
-                        {new Date(cert.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
+                        {new Date(cert.createdAt).toLocaleDateString(
+                          undefined,
+                          { year: "numeric", month: "short", day: "numeric" }
+                        )}
                       </dd>
                     </div>
                   )}
                   {cert.artifactHash && (
                     <div className="flex justify-between gap-3">
-                      <dt className="font-bold uppercase tracking-[.1em] text-[#4a566a]">Hash</dt>
+                      <dt className="font-bold uppercase tracking-[.1em] text-[#4a566a]">
+                        Hash
+                      </dt>
                       <dd className="truncate font-mono text-[10px] text-[#16243d]">
                         {cert.artifactHash.slice(0, 10)}…
                       </dd>
@@ -278,7 +356,8 @@ export default function MyCertificates() {
                     href={`/verify/certificate?certificate=${encodeURIComponent(cert.certificateNumber)}`}
                     className="inline-flex items-center gap-1.5 px-1 text-[10px] font-bold uppercase tracking-[.12em] text-[#a27e2e] hover:text-[#16243d]"
                   >
-                    <ShieldCheck size={11} /> Verify credential <ExternalLink size={10} />
+                    <ShieldCheck size={11} /> Verify credential{" "}
+                    <ExternalLink size={10} />
                   </Link>
                   <button
                     type="button"
@@ -297,11 +376,13 @@ export default function MyCertificates() {
           <div
             className="fixed inset-0 z-50 grid place-items-center bg-[#071225]/80 p-5 backdrop-blur-sm"
             role="presentation"
-            onClick={(e) => e.target === e.currentTarget && setPreviewing(null)}
+            onClick={e => e.target === e.currentTarget && setPreviewing(null)}
           >
             <div className="max-h-[92vh] w-full max-w-4xl overflow-y-auto border border-[#c9a34e]/70 bg-white p-5 shadow-2xl">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="display text-xl text-[#16243d]">Certificate preview</h2>
+                <h2 className="display text-xl text-[#16243d]">
+                  Certificate preview
+                </h2>
                 <button
                   type="button"
                   onClick={() => setPreviewing(null)}
@@ -311,9 +392,15 @@ export default function MyCertificates() {
                 </button>
               </div>
               {previewing.fileUrl ? (
-                <img src={previewing.fileUrl} alt={`Certificate ${previewing.certificateNumber}`} className="w-full" />
+                <img
+                  src={previewing.fileUrl}
+                  alt={`Certificate ${previewing.certificateNumber}`}
+                  className="w-full"
+                />
               ) : (
-                <p className="py-10 text-center text-sm text-[#657084]">Preview not available.</p>
+                <p className="py-10 text-center text-sm text-[#657084]">
+                  Preview not available.
+                </p>
               )}
             </div>
           </div>

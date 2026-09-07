@@ -4,6 +4,13 @@ export { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 export const startLogin = (returnTo?: string) => {
   const currentRoute = `${window.location.pathname}${window.location.search}${window.location.hash}`;
   const requestedReturnTo = returnTo ?? currentRoute;
-  const safeReturnTo = requestedReturnTo.startsWith("/") && !requestedReturnTo.startsWith("//") && !requestedReturnTo.includes("\\") ? requestedReturnTo : "/";
-  window.location.assign(`/auth?mode=login&returnTo=${encodeURIComponent(safeReturnTo)}`);
+  const safeReturnTo =
+    requestedReturnTo.startsWith("/") &&
+    !requestedReturnTo.startsWith("//") &&
+    !requestedReturnTo.includes("\\")
+      ? requestedReturnTo
+      : "/";
+  window.location.assign(
+    `/auth?mode=login&returnTo=${encodeURIComponent(safeReturnTo)}`
+  );
 };

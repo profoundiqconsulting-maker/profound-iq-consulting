@@ -1,9 +1,29 @@
 import { trpc } from "@/lib/trpc";
-import { Check, Clipboard, Download, Mail, RefreshCw, UserPlus } from "lucide-react";
+import {
+  Check,
+  Clipboard,
+  Download,
+  Mail,
+  RefreshCw,
+  UserPlus,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
-function downloadCsv(data: { data: string; filename: string; contentType: string }) { const url = URL.createObjectURL(new Blob([data.data], { type: data.contentType })); const anchor = document.createElement("a"); anchor.href = url; anchor.download = data.filename; anchor.click(); URL.revokeObjectURL(url); }
+function downloadCsv(data: {
+  data: string;
+  filename: string;
+  contentType: string;
+}) {
+  const url = URL.createObjectURL(
+    new Blob([data.data], { type: data.contentType })
+  );
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = data.filename;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
 
 export default function AdminStaffPanel() {
   const [name, setName] = useState("");
@@ -12,19 +32,295 @@ export default function AdminStaffPanel() {
   const [inviteLink, setInviteLink] = useState("");
   const [performanceFrom, setPerformanceFrom] = useState("");
   const [performanceTo, setPerformanceTo] = useState("");
-  const members = trpc.admin.teamMembers.useQuery(undefined, { retry: false, refetchInterval: 30000 });
-  const invitations = trpc.admin.staffInvitations.useQuery(undefined, { retry: false, refetchInterval: 30000 });
-  const performanceInput = useMemo(() => ({ fromDate: performanceFrom || undefined, toDate: performanceTo || undefined }), [performanceFrom, performanceTo]);
-  const performance = trpc.admin.staffPerformance.useQuery(performanceInput, { retry: false, refetchInterval: 30000 });
-  const performanceExport = trpc.admin.exportStaffPerformance.useQuery(performanceInput, { enabled: false, refetchInterval: 30000 });
-  const invite = trpc.admin.inviteStaff.useMutation({ onSuccess: result => { setInviteLink(result.inviteUrl); setName(""); setEmail(""); invitations.refetch(); toast.success("Invitation created. Copy the secure link to send it to the team member."); }, onError: error => toast.error(error.message) });
-  const updateRole = trpc.admin.updateStaffRole.useMutation({ onSuccess: () => { members.refetch(); performance.refetch(); toast.success("Role updated."); }, onError: error => toast.error(error.message) });
-  const copy = async () => { if (!inviteLink) return; await navigator.clipboard.writeText(inviteLink); toast.success("Invitation link copied."); };
-  const exportPerformance = async () => { const result = await performanceExport.refetch(); if (result.data) { downloadCsv(result.data); toast.success("Performance CSV downloaded."); } };
-  return <section className="mt-10 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6" aria-labelledby="staff-ops-title"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="eyebrow flex items-center gap-2 text-[#a27e2e]"><UserPlus size={13} /> Team operations</p><h2 id="staff-ops-title" className="display mt-3 text-3xl">Staff access & performance.</h2><p className="mt-2 max-w-2xl text-sm text-[#657084]">Invite trusted team members, manage roles, and review how assigned inquiries are moving through the desk.</p></div><span className="text-xs font-bold uppercase tracking-[.12em] text-[#657084]">Admin only</span></div>
-    <div className="mt-6 grid gap-3 border border-[#16243d]/10 bg-[#f7f3e8] p-4 md:grid-cols-[1fr_1fr_auto_auto]"><label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">Name<input value={name} onChange={event => setName(event.target.value)} placeholder="Team member name" className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]" /></label><label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">Email<input type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="name@company.com" className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]" /></label><label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">Role<select value={role} onChange={event => setRole(event.target.value as "staff" | "admin")} className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"><option value="staff">Staff</option><option value="admin">Admin</option></select></label><button type="button" onClick={() => invite.mutate({ name, email, role })} disabled={invite.isPending || !name.trim() || !email.trim()} className="mt-auto inline-flex items-center justify-center gap-2 bg-[#16243d] px-4 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] disabled:opacity-40">{invite.isPending ? <RefreshCw size={13} className="animate-spin" /> : <Mail size={13} />} Create invite</button></div>
-    {inviteLink && <div className="mt-3 flex flex-col gap-3 border-l-2 border-[#c9a34e] bg-[#f7f3e8] p-3 sm:flex-row sm:items-center sm:justify-between"><p className="min-w-0 break-all text-xs text-[#657084]">{inviteLink}</p><button type="button" onClick={copy} className="inline-flex shrink-0 items-center justify-center gap-2 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em]"><Clipboard size={13} /> Copy link</button></div>}
-    <div className="mt-8 grid gap-8 lg:grid-cols-2"><div><h3 className="font-bold">Team members</h3>{members.isLoading ? <p className="mt-3 text-sm text-[#657084]">Loading team…</p> : <div className="mt-3 divide-y divide-[#16243d]/10 border-y border-[#16243d]/10">{(members.data ?? []).map(member => <div key={member.openId} className="flex flex-wrap items-center justify-between gap-3 py-3"><div><p className="font-bold">{member.name ?? "Unnamed member"}</p><p className="text-xs text-[#657084]">{member.email ?? member.openId}</p></div><select value={member.role === "admin" ? "admin" : "staff"} onChange={event => updateRole.mutate({ openId: member.openId, role: event.target.value as "staff" | "admin" })} aria-label={`Role for ${member.name ?? member.email ?? member.openId}`} className="border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs"><option value="staff">Staff</option><option value="admin">Admin</option></select></div>)}</div>}</div><div><div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end"><div><h3 className="font-bold">Performance summary</h3><p className="mt-1 text-xs text-[#657084]">Filter assignment and resolution metrics by inquiry creation date.</p></div><button type="button" onClick={exportPerformance} disabled={performanceExport.isFetching} className="inline-flex items-center justify-center gap-2 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-50">{performanceExport.isFetching ? <RefreshCw size={13} className="animate-spin" /> : <Download size={13} />} Export CSV</button></div><div className="mt-3 flex flex-wrap items-end gap-2"><label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">From<input type="date" value={performanceFrom} onChange={event => setPerformanceFrom(event.target.value)} className="mt-1 border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs" /></label><label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">To<input type="date" value={performanceTo} onChange={event => setPerformanceTo(event.target.value)} className="mt-1 border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs" /></label><button type="button" onClick={() => { setPerformanceFrom(""); setPerformanceTo(""); }} className="px-2 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">Clear</button></div>{performance.isLoading ? <p className="mt-3 text-sm text-[#657084]">Loading performance…</p> : <div className="mt-3 overflow-x-auto border-y border-[#16243d]/10"><table className="w-full min-w-[480px] text-left text-xs"><thead><tr className="border-b border-[#16243d]/10 text-[10px] uppercase tracking-[.1em] text-[#657084]"><th className="py-3 pr-3">Member</th><th className="py-3 pr-3">Assigned</th><th className="py-3 pr-3">Closed</th><th className="py-3">Avg. days</th></tr></thead><tbody>{(performance.data ?? []).map(member => <tr key={member.openId} className="border-b border-[#16243d]/10 last:border-0"><td className="py-3 pr-3 font-bold">{member.name ?? member.email ?? "—"}</td><td className="py-3 pr-3">{member.assignedCount}</td><td className="py-3 pr-3">{member.completedCount}</td><td className="py-3">{member.averageResolutionDays ?? "—"}</td></tr>)}</tbody></table></div>}</div></div>
-    <div className="mt-8 border-t border-[#16243d]/10 pt-5"><h3 className="font-bold">Recent invitations</h3><div className="mt-3 grid gap-2 sm:grid-cols-2">{(invitations.data ?? []).slice(0, 4).map(inv => <div key={inv.id} className="border border-[#16243d]/10 bg-[#f7f3e8] p-3 text-xs"><p className="font-bold">{inv.name} · {inv.role}</p><p className="mt-1 text-[#657084]">{inv.email}</p><p className="mt-1 text-[10px] uppercase tracking-[.1em] text-[#8a94a4]">{inv.acceptedAt ? <><Check size={11} className="mr-1 inline" />Accepted</> : `Expires ${new Date(inv.expiresAt).toLocaleDateString()}`}</p></div>)}</div></div>
-  </section>;
+  const members = trpc.admin.teamMembers.useQuery(undefined, {
+    retry: false,
+    refetchInterval: 30000,
+  });
+  const invitations = trpc.admin.staffInvitations.useQuery(undefined, {
+    retry: false,
+    refetchInterval: 30000,
+  });
+  const performanceInput = useMemo(
+    () => ({
+      fromDate: performanceFrom || undefined,
+      toDate: performanceTo || undefined,
+    }),
+    [performanceFrom, performanceTo]
+  );
+  const performance = trpc.admin.staffPerformance.useQuery(performanceInput, {
+    retry: false,
+    refetchInterval: 30000,
+  });
+  const performanceExport = trpc.admin.exportStaffPerformance.useQuery(
+    performanceInput,
+    { enabled: false, refetchInterval: 30000 }
+  );
+  const invite = trpc.admin.inviteStaff.useMutation({
+    onSuccess: result => {
+      setInviteLink(result.inviteUrl);
+      setName("");
+      setEmail("");
+      invitations.refetch();
+      toast.success(
+        "Invitation created. Copy the secure link to send it to the team member."
+      );
+    },
+    onError: error => toast.error(error.message),
+  });
+  const updateRole = trpc.admin.updateStaffRole.useMutation({
+    onSuccess: () => {
+      members.refetch();
+      performance.refetch();
+      toast.success("Role updated.");
+    },
+    onError: error => toast.error(error.message),
+  });
+  const copy = async () => {
+    if (!inviteLink) return;
+    await navigator.clipboard.writeText(inviteLink);
+    toast.success("Invitation link copied.");
+  };
+  const exportPerformance = async () => {
+    const result = await performanceExport.refetch();
+    if (result.data) {
+      downloadCsv(result.data);
+      toast.success("Performance CSV downloaded.");
+    }
+  };
+  return (
+    <section
+      className="mt-10 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6"
+      aria-labelledby="staff-ops-title"
+    >
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div>
+          <p className="eyebrow flex items-center gap-2 text-[#a27e2e]">
+            <UserPlus size={13} /> Team operations
+          </p>
+          <h2 id="staff-ops-title" className="display mt-3 text-3xl">
+            Staff access & performance.
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm text-[#657084]">
+            Invite trusted team members, manage roles, and review how assigned
+            inquiries are moving through the desk.
+          </p>
+        </div>
+        <span className="text-xs font-bold uppercase tracking-[.12em] text-[#657084]">
+          Admin only
+        </span>
+      </div>
+      <div className="mt-6 grid gap-3 border border-[#16243d]/10 bg-[#f7f3e8] p-4 md:grid-cols-[1fr_1fr_auto_auto]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+          Name
+          <input
+            value={name}
+            onChange={event => setName(event.target.value)}
+            placeholder="Team member name"
+            className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
+          />
+        </label>
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+          Email
+          <input
+            type="email"
+            value={email}
+            onChange={event => setEmail(event.target.value)}
+            placeholder="name@company.com"
+            className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
+          />
+        </label>
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+          Role
+          <select
+            value={role}
+            onChange={event => setRole(event.target.value as "staff" | "admin")}
+            className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
+          >
+            <option value="staff">Staff</option>
+            <option value="admin">Admin</option>
+          </select>
+        </label>
+        <button
+          type="button"
+          onClick={() => invite.mutate({ name, email, role })}
+          disabled={invite.isPending || !name.trim() || !email.trim()}
+          className="mt-auto inline-flex items-center justify-center gap-2 bg-[#16243d] px-4 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] disabled:opacity-40"
+        >
+          {invite.isPending ? (
+            <RefreshCw size={13} className="animate-spin" />
+          ) : (
+            <Mail size={13} />
+          )}{" "}
+          Create invite
+        </button>
+      </div>
+      {inviteLink && (
+        <div className="mt-3 flex flex-col gap-3 border-l-2 border-[#c9a34e] bg-[#f7f3e8] p-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="min-w-0 break-all text-xs text-[#657084]">
+            {inviteLink}
+          </p>
+          <button
+            type="button"
+            onClick={copy}
+            className="inline-flex shrink-0 items-center justify-center gap-2 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em]"
+          >
+            <Clipboard size={13} /> Copy link
+          </button>
+        </div>
+      )}
+      <div className="mt-8 grid gap-8 lg:grid-cols-2">
+        <div>
+          <h3 className="font-bold">Team members</h3>
+          {members.isLoading ? (
+            <p className="mt-3 text-sm text-[#657084]">Loading team…</p>
+          ) : (
+            <div className="mt-3 divide-y divide-[#16243d]/10 border-y border-[#16243d]/10">
+              {(members.data ?? []).map(member => (
+                <div
+                  key={member.openId}
+                  className="flex flex-wrap items-center justify-between gap-3 py-3"
+                >
+                  <div>
+                    <p className="font-bold">
+                      {member.name ?? "Unnamed member"}
+                    </p>
+                    <p className="text-xs text-[#657084]">
+                      {member.email ?? member.openId}
+                    </p>
+                  </div>
+                  <select
+                    value={member.role === "admin" ? "admin" : "staff"}
+                    onChange={event =>
+                      updateRole.mutate({
+                        openId: member.openId,
+                        role: event.target.value as "staff" | "admin",
+                      })
+                    }
+                    aria-label={`Role for ${member.name ?? member.email ?? member.openId}`}
+                    className="border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs"
+                  >
+                    <option value="staff">Staff</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <div>
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+            <div>
+              <h3 className="font-bold">Performance summary</h3>
+              <p className="mt-1 text-xs text-[#657084]">
+                Filter assignment and resolution metrics by inquiry creation
+                date.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={exportPerformance}
+              disabled={performanceExport.isFetching}
+              className="inline-flex items-center justify-center gap-2 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-50"
+            >
+              {performanceExport.isFetching ? (
+                <RefreshCw size={13} className="animate-spin" />
+              ) : (
+                <Download size={13} />
+              )}{" "}
+              Export CSV
+            </button>
+          </div>
+          <div className="mt-3 flex flex-wrap items-end gap-2">
+            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+              From
+              <input
+                type="date"
+                value={performanceFrom}
+                onChange={event => setPerformanceFrom(event.target.value)}
+                className="mt-1 border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs"
+              />
+            </label>
+            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+              To
+              <input
+                type="date"
+                value={performanceTo}
+                onChange={event => setPerformanceTo(event.target.value)}
+                className="mt-1 border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => {
+                setPerformanceFrom("");
+                setPerformanceTo("");
+              }}
+              className="px-2 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]"
+            >
+              Clear
+            </button>
+          </div>
+          {performance.isLoading ? (
+            <p className="mt-3 text-sm text-[#657084]">Loading performance…</p>
+          ) : (
+            <div className="mt-3 overflow-x-auto border-y border-[#16243d]/10">
+              <table className="w-full min-w-[480px] text-left text-xs">
+                <thead>
+                  <tr className="border-b border-[#16243d]/10 text-[10px] uppercase tracking-[.1em] text-[#657084]">
+                    <th className="py-3 pr-3">Member</th>
+                    <th className="py-3 pr-3">Assigned</th>
+                    <th className="py-3 pr-3">Closed</th>
+                    <th className="py-3">Avg. days</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(performance.data ?? []).map(member => (
+                    <tr
+                      key={member.openId}
+                      className="border-b border-[#16243d]/10 last:border-0"
+                    >
+                      <td className="py-3 pr-3 font-bold">
+                        {member.name ?? member.email ?? "—"}
+                      </td>
+                      <td className="py-3 pr-3">{member.assignedCount}</td>
+                      <td className="py-3 pr-3">{member.completedCount}</td>
+                      <td className="py-3">
+                        {member.averageResolutionDays ?? "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="mt-8 border-t border-[#16243d]/10 pt-5">
+        <h3 className="font-bold">Recent invitations</h3>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          {(invitations.data ?? []).slice(0, 4).map(inv => (
+            <div
+              key={inv.id}
+              className="border border-[#16243d]/10 bg-[#f7f3e8] p-3 text-xs"
+            >
+              <p className="font-bold">
+                {inv.name} · {inv.role}
+              </p>
+              <p className="mt-1 text-[#657084]">{inv.email}</p>
+              <p className="mt-1 text-[10px] uppercase tracking-[.1em] text-[#8a94a4]">
+                {inv.acceptedAt ? (
+                  <>
+                    <Check size={11} className="mr-1 inline" />
+                    Accepted
+                  </>
+                ) : (
+                  `Expires ${new Date(inv.expiresAt).toLocaleDateString()}`
+                )}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 }

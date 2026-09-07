@@ -3,61 +3,169 @@ import path from "node:path";
 import type { Express, NextFunction, Request, Response } from "express";
 import sharp from "sharp";
 import { courseCatalog } from "../shared/courseCatalog";
-import { getSiteSeoSetting, listPublishedCatalogItems, getInsightArticleBySlug } from "./db";
+import {
+  getSiteSeoSetting,
+  listPublishedCatalogItems,
+  getInsightArticleBySlug,
+} from "./db";
 import { insightArticles } from "../shared/insightsArticles";
 import { PUBLISHED_SITE_ORIGIN } from "../shared/siteOrigin";
 
 const SITE_ORIGIN = PUBLISHED_SITE_ORIGIN;
 const PUBLIC_IMAGE_ORIGIN = PUBLISHED_SITE_ORIGIN;
 const DEFAULT_SOCIAL_IMAGE_URL = `${PUBLIC_IMAGE_ORIGIN}/profound-iq-social-preview.svg`;
-const SEO_LOCALES = ["en", "sw", "fr", "es", "pt", "ar", "zh", "hi", "de", "ja"] as const;
+const SEO_LOCALES = [
+  "en",
+  "sw",
+  "fr",
+  "es",
+  "pt",
+  "ar",
+  "zh",
+  "hi",
+  "de",
+  "ja",
+] as const;
 
 function escapeHtml(value: unknown) {
-  return String(value ?? "").replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character] ?? character);
+  return String(value ?? "").replace(
+    /[&<>'"]/g,
+    character =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[
+        character
+      ] ?? character
+  );
 }
 
-type PublicCourse = { slug: string; title: string; strapline?: string; description: string; audience?: string; duration?: string; priceKes: number; outcomes?: readonly string[]; coverImageUrl?: string | null };
-export const courseSocialImageUrl = (slug: string, version = "1") => `${PUBLIC_IMAGE_ORIGIN}/og/course/${encodeURIComponent(slug)}.png?v=${encodeURIComponent(version)}`;
+type PublicCourse = {
+  slug: string;
+  title: string;
+  strapline?: string;
+  description: string;
+  audience?: string;
+  duration?: string;
+  priceKes: number;
+  outcomes?: readonly string[];
+  coverImageUrl?: string | null;
+};
+export const courseSocialImageUrl = (slug: string, version = "1") =>
+  `${PUBLIC_IMAGE_ORIGIN}/og/course/${encodeURIComponent(slug)}.png?v=${encodeURIComponent(version)}`;
 
 export async function renderCourseSocialImage(course: PublicCourse) {
-  const title = escapeHtml(course.title).replace(/&amp;/g, "&").replace(/&quot;/g, '"');
-  const subtitle = escapeHtml(course.strapline || "Applied professional learning").replace(/&amp;/g, "&").replace(/&quot;/g, '"');
+  const title = escapeHtml(course.title)
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"');
+  const subtitle = escapeHtml(
+    course.strapline || "Applied professional learning"
+  )
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"');
   const svg = `<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#101d35"/><stop offset="1" stop-color="#1e3152"/></linearGradient></defs><rect width="1200" height="630" fill="url(#bg)"/><rect width="18" height="630" fill="#c9a34e"/><path d="M70 520 L1080 95" stroke="#c9a34e" stroke-width="5" opacity=".9"/><text x="86" y="92" fill="#c9a34e" font-family="Arial,sans-serif" font-size="19" font-weight="700" letter-spacing="4">PROFOUND IQ CONSULTING</text><text x="86" y="225" fill="#f7f3e8" font-family="Georgia,serif" font-size="70" font-weight="500">${title}</text><text x="86" y="310" fill="#d4dbe5" font-family="Arial,sans-serif" font-size="28">${subtitle}</text><text x="86" y="560" fill="#f7f3e8" font-family="Arial,sans-serif" font-size="20">Professional learning · ${SITE_ORIGIN.replace(/^https?:\/\//, "")}</text></svg>`;
   const baseCard = sharp(Buffer.from(svg));
   if (!course.coverImageUrl) return baseCard.png().toBuffer();
   try {
-    const coverUrl = course.coverImageUrl.startsWith("http") ? course.coverImageUrl : `${PUBLIC_IMAGE_ORIGIN}${course.coverImageUrl}`;
+    const coverUrl = course.coverImageUrl.startsWith("http")
+      ? course.coverImageUrl
+      : `${PUBLIC_IMAGE_ORIGIN}${course.coverImageUrl}`;
     const response = await fetch(coverUrl);
     if (!response.ok) return baseCard.png().toBuffer();
-    const cover = await sharp(Buffer.from(await response.arrayBuffer())).resize({ width: 360, height: 360, fit: "cover" }).png().toBuffer();
-    return baseCard.composite([{ input: cover, left: 760, top: 135 }]).png().toBuffer();
+    const cover = await sharp(Buffer.from(await response.arrayBuffer()))
+      .resize({ width: 360, height: 360, fit: "cover" })
+      .png()
+      .toBuffer();
+    return baseCard
+      .composite([{ input: cover, left: 760, top: 135 }])
+      .png()
+      .toBuffer();
   } catch {
     return baseCard.png().toBuffer();
   }
 }
 
 async function getPublicCourses(): Promise<PublicCourse[]> {
-  const base = courseCatalog.map((course) => ({ slug: course.slug, title: course.title, strapline: course.strapline, description: course.description, audience: course.audience, duration: course.duration, priceKes: course.priceKes, outcomes: course.outcomes, coverImageUrl: null }));
+  const base = courseCatalog.map(course => ({
+    slug: course.slug,
+    title: course.title,
+    strapline: course.strapline,
+    description: course.description,
+    audience: course.audience,
+    duration: course.duration,
+    priceKes: course.priceKes,
+    outcomes: course.outcomes,
+    coverImageUrl: null,
+  }));
   try {
     const published = await listPublishedCatalogItems();
-    const overlays = published.filter((item) => item.itemType === "course" || item.itemType === "program").map((item) => ({ slug: item.slug, title: item.title, strapline: item.strapline, description: item.description, audience: item.audience, duration: item.duration, priceKes: item.priceKes, outcomes: Array.isArray(item.outcomes) ? item.outcomes.filter((value): value is string => typeof value === "string") : [], coverImageUrl: item.coverImageUrl ?? null }));
-    const bySlug = new Map(overlays.map((course) => [course.slug, course]));
-    const merged = base.map((course) => { const overlay = bySlug.get(course.slug); if (!overlay) return course; bySlug.delete(course.slug); return { ...course, ...overlay }; });
+    const overlays = published
+      .filter(item => item.itemType === "course" || item.itemType === "program")
+      .map(item => ({
+        slug: item.slug,
+        title: item.title,
+        strapline: item.strapline,
+        description: item.description,
+        audience: item.audience,
+        duration: item.duration,
+        priceKes: item.priceKes,
+        outcomes: Array.isArray(item.outcomes)
+          ? item.outcomes.filter(
+              (value): value is string => typeof value === "string"
+            )
+          : [],
+        coverImageUrl: item.coverImageUrl ?? null,
+      }));
+    const bySlug = new Map(overlays.map(course => [course.slug, course]));
+    const merged = base.map(course => {
+      const overlay = bySlug.get(course.slug);
+      if (!overlay) return course;
+      bySlug.delete(course.slug);
+      return { ...course, ...overlay };
+    });
     return [...merged, ...Array.from(bySlug.values())];
   } catch (error) {
-    console.warn("[SEO] Published catalog unavailable; using bundled courses for SSR:", error instanceof Error ? error.message : error);
+    console.warn(
+      "[SEO] Published catalog unavailable; using bundled courses for SSR:",
+      error instanceof Error ? error.message : error
+    );
     return base;
   }
 }
 
 export function buildSitemapXml(courses: Array<{ slug: string }>) {
-  const staticPaths = ["/", "/about", "/services", "/school-solutions", "/courses", "/assessment", "/careerpath", "/psychometrics", "/resources", "/blog", ...insightArticles.map((article) => `/blog/${article.slug}`), "/contact", "/verify/certificate", "/verify/psychometric", "/privacy-policy", "/terms-of-service"];
-  const paths = Array.from(new Set([...staticPaths, ...courses.map((course) => `/courses/${course.slug}`)]));
-  const localizedUrl = (path: string, locale: (typeof SEO_LOCALES)[number]) => `${SITE_ORIGIN}${path}${path.includes("?") ? "&" : "?"}lang=${locale}`;
-  const entries = paths.flatMap((path) => SEO_LOCALES.map((locale) => {
-    const alternates = SEO_LOCALES.map((alternate) => `<xhtml:link rel="alternate" hreflang="${alternate === "en" ? "en" : alternate}" href="${escapeHtml(localizedUrl(path, alternate))}"/>`).join("");
-    return `  <url><loc>${escapeHtml(localizedUrl(path, locale))}</loc>${alternates}</url>`;
-  }));
+  const staticPaths = [
+    "/",
+    "/about",
+    "/services",
+    "/school-solutions",
+    "/courses",
+    "/assessment",
+    "/careerpath",
+    "/psychometrics",
+    "/resources",
+    "/blog",
+    ...insightArticles.map(article => `/blog/${article.slug}`),
+    "/contact",
+    "/verify/certificate",
+    "/verify/psychometric",
+    "/privacy-policy",
+    "/terms-of-service",
+  ];
+  const paths = Array.from(
+    new Set([
+      ...staticPaths,
+      ...courses.map(course => `/courses/${course.slug}`),
+    ])
+  );
+  const localizedUrl = (path: string, locale: (typeof SEO_LOCALES)[number]) =>
+    `${SITE_ORIGIN}${path}${path.includes("?") ? "&" : "?"}lang=${locale}`;
+  const entries = paths.flatMap(path =>
+    SEO_LOCALES.map(locale => {
+      const alternates = SEO_LOCALES.map(
+        alternate =>
+          `<xhtml:link rel="alternate" hreflang="${alternate === "en" ? "en" : alternate}" href="${escapeHtml(localizedUrl(path, alternate))}"/>`
+      ).join("");
+      return `  <url><loc>${escapeHtml(localizedUrl(path, locale))}</loc>${alternates}</url>`;
+    })
+  );
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${entries.join("\n")}\n</urlset>\n`;
 }
 
@@ -69,36 +177,82 @@ function findClientScript() {
   ];
   for (const assetsDirectory of assetDirectories) {
     if (!fs.existsSync(assetsDirectory)) continue;
-    const asset = fs.readdirSync(assetsDirectory).find((name) => /^index-.*\.js$/.test(name));
+    const asset = fs
+      .readdirSync(assetsDirectory)
+      .find(name => /^index-.*\.js$/.test(name));
     if (asset) return `/assets/${asset}`;
   }
   return null;
 }
 
-export function renderCourseCatalogPage(courses: PublicCourse[], clientScript: string | null, socialImageUrl = DEFAULT_SOCIAL_IMAGE_URL) {
-  const cards = courses.map((course) => `<article class="course-card"><p class="course-kicker">Professional course · KES ${escapeHtml(course.priceKes.toLocaleString())}</p><h2>${escapeHtml(course.title)}</h2><p class="course-strapline">${escapeHtml(course.strapline || "Applied professional learning")}</p><p>${escapeHtml(course.description)}</p><p class="course-meta">${escapeHtml(course.duration || "Online learning")} · For ${escapeHtml(course.audience || "Professionals and learners")}</p><a href="/courses/${encodeURIComponent(course.slug)}?workspace=1">View course details</a></article>`).join("\n");
-  const script = clientScript ? `<script type="module" src="${escapeHtml(clientScript)}"></script>` : "";
+export function renderCourseCatalogPage(
+  courses: PublicCourse[],
+  clientScript: string | null,
+  socialImageUrl = DEFAULT_SOCIAL_IMAGE_URL
+) {
+  const cards = courses
+    .map(
+      course =>
+        `<article class="course-card"><p class="course-kicker">Professional course · KES ${escapeHtml(course.priceKes.toLocaleString())}</p><h2>${escapeHtml(course.title)}</h2><p class="course-strapline">${escapeHtml(course.strapline || "Applied professional learning")}</p><p>${escapeHtml(course.description)}</p><p class="course-meta">${escapeHtml(course.duration || "Online learning")} · For ${escapeHtml(course.audience || "Professionals and learners")}</p><a href="/courses/${encodeURIComponent(course.slug)}?workspace=1">View course details</a></article>`
+    )
+    .join("\n");
+  const script = clientScript
+    ? `<script type="module" src="${escapeHtml(clientScript)}"></script>`
+    : "";
   return `<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Professional Courses | Profound IQ Consulting</title><meta name="description" content="Explore globally relevant professional courses with interactive lessons, applied practice, quizzes, and completion certificates."/><link rel="canonical" href="${SITE_ORIGIN}/courses"/><meta property="og:title" content="Professional Courses | Profound IQ Consulting"/><meta property="og:description" content="Explore globally relevant professional courses with interactive lessons, applied practice, quizzes, and completion certificates."/><meta property="og:type" content="website"/><meta property="og:url" content="${SITE_ORIGIN}/courses"/><meta property="og:image" content="${socialImageUrl}"/><meta property="og:image:secure_url" content="${socialImageUrl}"/><meta property="og:image:type" content="image/png"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image:alt" content="Profound IQ Consulting branded social preview"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="Professional Courses | Profound IQ Consulting"/><meta name="twitter:description" content="Explore globally relevant professional courses with interactive lessons, applied practice, quizzes, and completion certificates."/><meta name="twitter:image" content="${socialImageUrl}"/><meta name="twitter:image:alt" content="Profound IQ Consulting branded social preview"/><link rel="icon" href="/favicon.ico"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/><style>body{margin:0;background:#101d35;color:#f7f3e8;font-family:Manrope,Arial,sans-serif}.shell{max-width:1180px;margin:auto;padding:64px 24px}.eyebrow,.course-kicker{color:#c9a34e;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}.hero{padding:44px 0 58px;border-bottom:1px solid #ffffff22}.hero h1{max-width:760px;margin:16px 0;font:500 clamp(3rem,8vw,6.8rem)/.92 Fraunces,serif;letter-spacing:-.05em}.hero p{max-width:620px;color:#c9d1df;font-size:18px;line-height:1.8}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;padding-top:42px}.course-card{background:#f7f3e8;color:#16243d;padding:26px;min-height:280px;border:1px solid #c9a34e55}.course-card h2{font:600 30px/1 Fraunces,serif;margin:14px 0}.course-card p{line-height:1.65}.course-strapline{font-weight:700}.course-meta{color:#657084;font-size:13px}.course-card a{display:inline-block;margin-top:16px;color:#7d5e1e;font-weight:800;text-decoration:none;border-bottom:1px solid #7d5e1e;padding-bottom:4px}@media(max-width:640px){.shell{padding:32px 18px}.hero{padding-top:20px}.course-card{min-height:0}}</style></head><body><div id="root"><main class="shell"><section class="hero"><p class="eyebrow">01 / Course catalog</p><h1>Capability is built in <em>practice.</em></h1><p>Explore structured professional learning designed to turn insight into a repeatable way of working.</p></section><section class="grid" aria-label="Professional courses">${cards}</section></main></div>${script}</body></html>`;
 }
 
-export function renderCourseDetailPage(course: PublicCourse, clientScript: string | null, socialImageUrl = DEFAULT_SOCIAL_IMAGE_URL) {
+export function renderCourseDetailPage(
+  course: PublicCourse,
+  clientScript: string | null,
+  socialImageUrl = DEFAULT_SOCIAL_IMAGE_URL
+) {
   const url = `${SITE_ORIGIN}/courses/${encodeURIComponent(course.slug)}`;
   const courseImageUrl = socialImageUrl;
   const description = `Build practical capability through ${course.title}, with structured modules, interactive lessons, quizzes, and a professional certificate of completion.`;
-  const script = clientScript ? `<script type="module" src="${escapeHtml(clientScript)}"></script>` : "";
-  const outcomes = (course.outcomes ?? []).slice(0, 4).map((outcome) => `<li>${escapeHtml(outcome)}</li>`).join("");
-  const shareText = encodeURIComponent(`Explore ${course.title} from Profound IQ Consulting: ${url}`);
+  const script = clientScript
+    ? `<script type="module" src="${escapeHtml(clientScript)}"></script>`
+    : "";
+  const outcomes = (course.outcomes ?? [])
+    .slice(0, 4)
+    .map(outcome => `<li>${escapeHtml(outcome)}</li>`)
+    .join("");
+  const shareText = encodeURIComponent(
+    `Explore ${course.title} from Profound IQ Consulting: ${url}`
+  );
   const shareLinks = `<nav class="share" aria-label="Share this course"><span>Share this course</span><a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://wa.me/?text=${shareText}" target="_blank" rel="noopener noreferrer">WhatsApp</a><a href="mailto:?subject=${encodeURIComponent(`Course recommendation: ${course.title}`)}&body=${shareText}">Email</a></nav>`;
-  const jsonLd = JSON.stringify({ "@context": "https://schema.org", "@type": "Course", name: course.title, description, provider: { "@type": "Organization", name: "Profound IQ Consulting", url: SITE_ORIGIN }, url, offers: { "@type": "Offer", price: String(course.priceKes), priceCurrency: "KES", url } }).replace(/</g, "\\u003c");
+  const jsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: course.title,
+    description,
+    provider: {
+      "@type": "Organization",
+      name: "Profound IQ Consulting",
+      url: SITE_ORIGIN,
+    },
+    url,
+    offers: {
+      "@type": "Offer",
+      price: String(course.priceKes),
+      priceCurrency: "KES",
+      url,
+    },
+  }).replace(/</g, "\\u003c");
   return `<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>${escapeHtml(course.title)} | Profound IQ Consulting</title><meta name="description" content="${escapeHtml(description)}"/><link rel="canonical" href="${url}"/><meta property="og:title" content="${escapeHtml(course.title)} | Profound IQ Consulting"/><meta property="og:description" content="${escapeHtml(description)}"/><meta property="og:type" content="website"/><meta property="og:url" content="${url}"/><meta property="og:image" content="${courseImageUrl}"/><meta property="og:image:secure_url" content="${courseImageUrl}"/><meta property="og:image:type" content="image/png"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image:alt" content="Profound IQ Consulting branded social preview"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="${escapeHtml(course.title)} | Profound IQ Consulting"/><meta name="twitter:description" content="${escapeHtml(description)}"/><meta name="twitter:image" content="${courseImageUrl}"/><meta name="twitter:image:alt" content="Profound IQ Consulting branded social preview"/><link rel="icon" href="/favicon.ico"/><script type="application/ld+json">${jsonLd}</script><style>body{margin:0;background:#101d35;color:#f7f3e8;font-family:Arial,sans-serif}.shell{max-width:980px;margin:auto;padding:72px 24px}.eyebrow{color:#c9a34e;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}.hero{border-bottom:1px solid #ffffff22;padding-bottom:38px}.hero h1{max-width:800px;margin:16px 0;font:500 clamp(3rem,8vw,6.8rem)/.92 Georgia,serif;letter-spacing:-.05em}.hero p{max-width:680px;color:#c9d1df;font-size:18px;line-height:1.8}.panel{margin-top:36px;display:grid;grid-template-columns:1.2fr .8fr;gap:20px}.card{background:#f7f3e8;color:#16243d;padding:28px}.card h2{font:500 32px/1.05 Georgia,serif;margin-top:0}.card li{margin-top:12px;line-height:1.6}.card a{display:inline-block;margin-top:22px;background:#c9a34e;color:#16243d;padding:14px 18px;font-weight:700;text-decoration:none}.muted{color:#657084;font-size:14px;line-height:1.6}.share{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:24px;color:#c9a34e;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.share a{color:#f7f3e8;border:1px solid #ffffff44;padding:9px 12px;text-decoration:none;letter-spacing:.03em;text-transform:none}.share a:hover{border-color:#c9a34e;color:#c9a34e}@media(max-width:700px){.shell{padding:38px 18px}.panel{grid-template-columns:1fr}}</style></head><body><div id="root"><main class="shell"><a href="/courses" style="color:#c9a34e;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase">← Course catalog</a><section class="hero"><p class="eyebrow" style="margin-top:42px">Professional course · KES ${escapeHtml(course.priceKes.toLocaleString())}</p><h1>${escapeHtml(course.title)}</h1><p>${escapeHtml(course.description)}</p>${shareLinks}</section><section class="panel"><article class="card"><h2>Build capability through applied practice.</h2><p>${escapeHtml(course.strapline || "A structured learning pathway for purposeful professional growth.")}</p><p class="muted">${escapeHtml(course.duration || "Online learning")} · Designed for ${escapeHtml(course.audience || "professionals and learners")}</p><a href="${SITE_ORIGIN}/courses?enroll=${encodeURIComponent(course.slug)}">Start course registration</a></article><aside class="card"><h2>Learning outcomes</h2><ul>${outcomes || "<li>Structured lessons and applied practice</li><li>Module quizzes with feedback</li><li>Professional completion certificate</li>"}</ul></aside></section></main></div>${script}</body></html>`;
 }
 
 export async function getSocialPreviewSettings() {
   try {
-    const fallbackImageUrl = await getSiteSeoSetting("fallback_social_image_url");
+    const fallbackImageUrl = await getSiteSeoSetting(
+      "fallback_social_image_url"
+    );
     const version = (await getSiteSeoSetting("social_card_version")) ?? "1";
     return {
-      fallbackImageUrl: fallbackImageUrl && /^https?:\/\//.test(fallbackImageUrl) ? fallbackImageUrl : DEFAULT_SOCIAL_IMAGE_URL,
+      fallbackImageUrl:
+        fallbackImageUrl && /^https?:\/\//.test(fallbackImageUrl)
+          ? fallbackImageUrl
+          : DEFAULT_SOCIAL_IMAGE_URL,
       version: version || "1",
     };
   } catch {
@@ -114,54 +268,268 @@ async function getSocialImageUrl() {
   }
 }
 
-export async function renderInsightSocialImage(article: (typeof insightArticles)[number]) {
-  const title = escapeHtml(article.title).replace(/&amp;/g, "&").replace(/&quot;/g, '"');
-  const subtitle = escapeHtml(article.category).replace(/&amp;/g, "&").replace(/&quot;/g, '"');
+export async function renderInsightSocialImage(
+  article: (typeof insightArticles)[number]
+) {
+  const title = escapeHtml(article.title)
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"');
+  const subtitle = escapeHtml(article.category)
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"');
   const svg = `<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#101d35"/><stop offset="1" stop-color="#1e3152"/></linearGradient></defs><rect width="1200" height="630" fill="url(#bg)"/><rect width="18" height="630" fill="#c9a34e"/><path d="M72 520 L1080 95" stroke="#c9a34e" stroke-width="5"/><text x="86" y="92" fill="#c9a34e" font-family="Arial,sans-serif" font-size="19" font-weight="700" letter-spacing="4">PROFOUND IQ CONSULTING</text><text x="86" y="190" fill="#c9a34e" font-family="Arial,sans-serif" font-size="22" font-weight="700" letter-spacing="3">${subtitle.toUpperCase()}</text><text x="86" y="315" fill="#f7f3e8" font-family="Georgia,serif" font-size="64" font-weight="500">${title}</text><text x="86" y="560" fill="#f7f3e8" font-family="Arial,sans-serif" font-size="20">Insights · ${SITE_ORIGIN.replace(/^https?:\/\//, "")}</text></svg>`;
   return sharp(Buffer.from(svg)).png().toBuffer();
 }
 
-export function renderInsightArticlePage(article: (typeof insightArticles)[number], clientScript: string | null) {
+export function renderInsightArticlePage(
+  article: (typeof insightArticles)[number],
+  clientScript: string | null
+) {
   const url = `${SITE_ORIGIN}/blog/${encodeURIComponent(article.slug)}`;
   const description = article.excerpt;
-  const jsonLd = JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: article.title, description, articleSection: article.category, timeRequired: `PT${parseInt(article.readTime, 10) || 5}M`, author: { "@type": "Organization", name: "Profound IQ Consulting", url: SITE_ORIGIN }, publisher: { "@type": "Organization", name: "Profound IQ Consulting", url: SITE_ORIGIN }, mainEntityOfPage: url }).replace(/</g, "\\u003c");
-  const sections = article.sections.map((section, index) => `<section><p class="eyebrow">${String(index + 1).padStart(2, "0")}</p><h2>${escapeHtml(section.heading)}</h2>${section.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}</section>`).join("");
-  const script = clientScript ? `<script type="module" src="${escapeHtml(clientScript)}"></script>` : "";
+  const jsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.title,
+    description,
+    articleSection: article.category,
+    timeRequired: `PT${parseInt(article.readTime, 10) || 5}M`,
+    author: {
+      "@type": "Organization",
+      name: "Profound IQ Consulting",
+      url: SITE_ORIGIN,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Profound IQ Consulting",
+      url: SITE_ORIGIN,
+    },
+    mainEntityOfPage: url,
+  }).replace(/</g, "\\u003c");
+  const sections = article.sections
+    .map(
+      (section, index) =>
+        `<section><p class="eyebrow">${String(index + 1).padStart(2, "0")}</p><h2>${escapeHtml(section.heading)}</h2>${section.paragraphs.map(paragraph => `<p>${escapeHtml(paragraph)}</p>`).join("")}</section>`
+    )
+    .join("");
+  const script = clientScript
+    ? `<script type="module" src="${escapeHtml(clientScript)}"></script>`
+    : "";
   return `<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>${escapeHtml(article.title)} | Profound IQ Consulting</title><meta name="description" content="${escapeHtml(description)}"/><link rel="canonical" href="${url}"/><meta property="og:title" content="${escapeHtml(article.title)} | Profound IQ Consulting"/><meta property="og:description" content="${escapeHtml(description)}"/><meta property="og:type" content="article"/><meta property="og:url" content="${url}"/><meta property="og:image" content=\"${article.socialImageUrl || `${PUBLIC_IMAGE_ORIGIN}/og/insight/${encodeURIComponent(article.slug)}.png`}\"/><meta name=\"twitter:card\" content="summary_large_image"/><meta name="twitter:title" content="${escapeHtml(article.title)} | Profound IQ Consulting"/><meta name="twitter:description" content="${escapeHtml(description)}"/><meta name="twitter:image" content=\"${article.socialImageUrl || `${PUBLIC_IMAGE_ORIGIN}/og/insight/${encodeURIComponent(article.slug)}.png`}\"/><link rel=\"icon\" href="/favicon.ico"/><script type="application/ld+json">${jsonLd}</script><style>body{margin:0;background:#101d35;color:#f7f3e8;font-family:Arial,sans-serif}.shell{max-width:900px;margin:auto;padding:64px 24px}.eyebrow{color:#c9a34e;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}.hero{border-bottom:1px solid #ffffff22;padding-bottom:42px}.hero h1{max-width:820px;margin:18px 0;font:500 clamp(3rem,8vw,6.4rem)/.94 Georgia,serif;letter-spacing:-.05em}.hero p{max-width:680px;color:#c9d1df;font-size:18px;line-height:1.8}.draft{margin-top:30px;border-left:2px solid #c9a34e;padding:16px 18px;color:#c9d1df;line-height:1.6}.article{margin-top:48px;background:#fffaf0;color:#16243d;padding:30px 26px}.article section{border-bottom:1px solid #16243d22;padding:26px 0}.article section:first-child{padding-top:0}.article section:last-child{border-bottom:0}.article h2{font:500 34px/1.08 Georgia,serif}.article p{color:#4a566a;font-size:18px;line-height:1.8}@media(max-width:640px){.shell{padding:36px 18px}.article{padding:24px 18px}}</style></head><body><main class="shell"><a href="/blog" style="color:#c9a34e;text-decoration:none;font-weight:700">← All Insights</a><header class="hero"><p class="eyebrow" style="margin-top:42px">${escapeHtml(article.index)} / ${escapeHtml(article.category)} · ${escapeHtml(article.status)}</p><h1>${escapeHtml(article.title)}</h1><p>${escapeHtml(article.excerpt)}</p><div class="draft">${escapeHtml(article.accent)} This is an editorial draft preview for layout review.</div></header><article class="article">${sections}</article></main>${script}</body></html>`;
 }
 
 function readComparisonSlugs(value: unknown) {
   const raw = Array.isArray(value) ? value[0] : value;
-  return String(raw ?? "").split(",").map((slug) => slug.trim()).filter(Boolean).slice(0, 3);
+  return String(raw ?? "")
+    .split(",")
+    .map(slug => slug.trim())
+    .filter(Boolean)
+    .slice(0, 3);
 }
 
-export const comparisonSocialImageUrl = (slugs: string[], version = "1") => `${PUBLIC_IMAGE_ORIGIN}/og/course-comparison.png?compare=${encodeURIComponent(slugs.join(","))}&v=${encodeURIComponent(version)}`;
+export const comparisonSocialImageUrl = (slugs: string[], version = "1") =>
+  `${PUBLIC_IMAGE_ORIGIN}/og/course-comparison.png?compare=${encodeURIComponent(slugs.join(","))}&v=${encodeURIComponent(version)}`;
 
-export async function renderCourseComparisonSocialImage(courses: PublicCourse[]) {
-  const rows = courses.slice(0, 3).map((course, index) => `<text x="86" y="${215 + index * 105}" fill="#f7f3e8" font-family="Georgia,serif" font-size="42" font-weight="500">${escapeHtml(course.title)}</text><text x="88" y="${255 + index * 105}" fill="#c9a34e" font-family="Arial,sans-serif" font-size="19">${escapeHtml(course.duration || "Applied professional learning")} · KES ${escapeHtml(course.priceKes.toLocaleString())}</text>`).join("");
+export async function renderCourseComparisonSocialImage(
+  courses: PublicCourse[]
+) {
+  const rows = courses
+    .slice(0, 3)
+    .map(
+      (course, index) =>
+        `<text x="86" y="${215 + index * 105}" fill="#f7f3e8" font-family="Georgia,serif" font-size="42" font-weight="500">${escapeHtml(course.title)}</text><text x="88" y="${255 + index * 105}" fill="#c9a34e" font-family="Arial,sans-serif" font-size="19">${escapeHtml(course.duration || "Applied professional learning")} · KES ${escapeHtml(course.priceKes.toLocaleString())}</text>`
+    )
+    .join("");
   const svg = `<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="comparison-bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#101d35"/><stop offset="1" stop-color="#1e3152"/></linearGradient></defs><rect width="1200" height="630" fill="url(#comparison-bg)"/><rect width="18" height="630" fill="#c9a34e"/><path d="M72 540 L1080 110" stroke="#c9a34e" stroke-width="5" opacity=".8"/><text x="86" y="86" fill="#c9a34e" font-family="Arial,sans-serif" font-size="19" font-weight="700" letter-spacing="4">PROFOUND IQ CONSULTING</text><text x="86" y="145" fill="#c9d1df" font-family="Arial,sans-serif" font-size="21" font-weight="700" letter-spacing="3">COURSE COMPARISON</text>${rows || `<text x="86" y="250" fill="#f7f3e8" font-family="Georgia,serif" font-size="50">Choose your next capability.</text>`}<text x="86" y="574" fill="#f7f3e8" font-family="Arial,sans-serif" font-size="20">Compare pathways · ${SITE_ORIGIN.replace(/^https?:\/\//, "")}</text></svg>`;
   return sharp(Buffer.from(svg)).png().toBuffer();
 }
 
-export function renderCourseComparisonPage(courses: PublicCourse[], clientScript: string | null, socialImageUrl: string, comparisonUrl: string) {
-  const titles = courses.map((course) => course.title).join(" vs ");
-  const title = courses.length ? `${titles} | Course Comparison | Profound IQ Consulting` : "Course Comparison | Profound IQ Consulting";
-  const description = courses.length ? `Compare ${titles} by outcomes, duration, delivery format, and staged investment.` : "Compare Profound IQ Consulting professional courses by outcomes, duration, and staged investment.";
+export function renderCourseComparisonPage(
+  courses: PublicCourse[],
+  clientScript: string | null,
+  socialImageUrl: string,
+  comparisonUrl: string
+) {
+  const titles = courses.map(course => course.title).join(" vs ");
+  const title = courses.length
+    ? `${titles} | Course Comparison | Profound IQ Consulting`
+    : "Course Comparison | Profound IQ Consulting";
+  const description = courses.length
+    ? `Compare ${titles} by outcomes, duration, delivery format, and staged investment.`
+    : "Compare Profound IQ Consulting professional courses by outcomes, duration, and staged investment.";
   const url = `${SITE_ORIGIN}/courses/compare${comparisonUrl}`;
-  const cards = courses.map((course) => `<article class="compare-card"><img src="${escapeHtml(course.coverImageUrl || DEFAULT_SOCIAL_IMAGE_URL)}" alt=""/><p class="eyebrow">${escapeHtml(course.duration || "Online learning")} · KES ${escapeHtml(course.priceKes.toLocaleString())}</p><h2>${escapeHtml(course.title)}</h2><p>${escapeHtml(course.description)}</p><h3>Outcomes</h3><ul>${(course.outcomes ?? []).slice(0, 4).map((outcome) => `<li>${escapeHtml(outcome)}</li>`).join("")}</ul><a href="/courses/${encodeURIComponent(course.slug)}?workspace=1">View syllabus</a></article>`).join("");
-  const jsonLd = JSON.stringify({ "@context": "https://schema.org", "@type": "ItemList", name: title, description, url, itemListElement: courses.map((course, index) => ({ "@type": "ListItem", position: index + 1, name: course.title, url: `${SITE_ORIGIN}/courses/${encodeURIComponent(course.slug)}` })) }).replace(/</g, "\\u003c");
-  const script = clientScript ? `<script type="module" src="${escapeHtml(clientScript)}"></script>` : "";
+  const cards = courses
+    .map(
+      course =>
+        `<article class="compare-card"><img src="${escapeHtml(course.coverImageUrl || DEFAULT_SOCIAL_IMAGE_URL)}" alt=""/><p class="eyebrow">${escapeHtml(course.duration || "Online learning")} · KES ${escapeHtml(course.priceKes.toLocaleString())}</p><h2>${escapeHtml(course.title)}</h2><p>${escapeHtml(course.description)}</p><h3>Outcomes</h3><ul>${(
+          course.outcomes ?? []
+        )
+          .slice(0, 4)
+          .map(outcome => `<li>${escapeHtml(outcome)}</li>`)
+          .join(
+            ""
+          )}</ul><a href="/courses/${encodeURIComponent(course.slug)}?workspace=1">View syllabus</a></article>`
+    )
+    .join("");
+  const jsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: title,
+    description,
+    url,
+    itemListElement: courses.map((course, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: course.title,
+      url: `${SITE_ORIGIN}/courses/${encodeURIComponent(course.slug)}`,
+    })),
+  }).replace(/</g, "\\u003c");
+  const script = clientScript
+    ? `<script type="module" src="${escapeHtml(clientScript)}"></script>`
+    : "";
   return `<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${escapeHtml(title)}</title><meta name="description" content="${escapeHtml(description)}"/><link rel="canonical" href="${escapeHtml(url)}"/><meta property="og:title" content="${escapeHtml(title)}"/><meta property="og:description" content="${escapeHtml(description)}"/><meta property="og:type" content="website"/><meta property="og:url" content="${escapeHtml(url)}"/><meta property="og:image" content="${escapeHtml(socialImageUrl)}"/><meta property="og:image:secure_url" content="${escapeHtml(socialImageUrl)}"/><meta property="og:image:type" content="image/png"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image:alt" content="Course comparison from Profound IQ Consulting"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="${escapeHtml(title)}"/><meta name="twitter:description" content="${escapeHtml(description)}"/><meta name="twitter:image" content="${escapeHtml(socialImageUrl)}"/><script type="application/ld+json">${jsonLd}</script><link rel="icon" href="/favicon.ico"/><style>body{margin:0;background:#101d35;color:#f7f3e8;font-family:Manrope,Arial,sans-serif}.shell{max-width:1180px;margin:auto;padding:48px 24px 80px}.eyebrow{color:#c9a34e;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}.hero{border-bottom:1px solid #ffffff22;padding:40px 0 50px}.hero h1{max-width:900px;margin:18px 0;font:500 clamp(3rem,8vw,6.6rem)/.92 Georgia,serif;letter-spacing:-.05em}.hero h1 em{color:#c9a34e;font-weight:400}.hero p{max-width:680px;color:#c9d1df;font-size:18px;line-height:1.8}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px;padding-top:42px}.compare-card{background:#f7f3e8;color:#16243d;padding:22px;border:1px solid #c9a34e66}.compare-card img{width:100%;height:130px;object-fit:cover;background:#16243d}.compare-card h2{font:500 31px/1.02 Georgia,serif;margin:12px 0}.compare-card p{line-height:1.65;color:#4a566a}.compare-card h3{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#a27e2e}.compare-card li{margin-top:8px;line-height:1.5}.compare-card a{display:inline-block;margin-top:16px;color:#7d5e1e;font-weight:800;text-decoration:none;border-bottom:1px solid #7d5e1e;padding-bottom:4px}@media(max-width:640px){.shell{padding:24px 18px 54px}.hero{padding-top:20px}.grid{grid-template-columns:1fr}}</style></head><body><main class="shell"><a href="/courses" style="color:#c9a34e;text-decoration:none;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:11px">← Course catalog</a><section class="hero"><p class="eyebrow">01 / Course comparison</p><h1>Choose with <em>confidence.</em></h1><p>${escapeHtml(description)}</p></section><section class="grid" aria-label="Compared courses">${cards || `<article class="compare-card"><h2>Build your comparison from the catalog.</h2><p>Select up to three pathways, then return here with a shareable comparison URL.</p><a href="/courses">Explore courses</a></article>`}</section></main>${script}</body></html>`;
 }
 
 export function registerSeoRoutes(app: Express) {
-  app.get("/og/course/:slug.png", async (req: Request, res: Response, next: NextFunction) => { const courses = await getPublicCourses(); const course = courses.find((item) => item.slug === req.params.slug); if (!course) return next(); const image = await renderCourseSocialImage(course); res.type("png").set("Cache-Control", "public, max-age=86400, immutable").send(image); });
-  app.get("/og/insight/:slug.png", async (req: Request, res: Response, next: NextFunction) => { const article = await getInsightArticleBySlug(req.params.slug); if (!article || article.status !== "Published") return next(); const image = await renderInsightSocialImage(article); res.type("png").set("Cache-Control", "public, max-age=86400, immutable").send(image); });
-  app.get("/og/course-comparison.png", async (req: Request, res: Response, next: NextFunction) => { const courses = await getPublicCourses(); const slugs = readComparisonSlugs(req.query.compare); const selected = slugs.map((slug) => courses.find((course) => course.slug === slug)).filter((course): course is PublicCourse => Boolean(course)); if (slugs.length && !selected.length) return next(); const image = await renderCourseComparisonSocialImage(selected); res.type("png").set("Cache-Control", "public, max-age=86400, immutable").send(image); });
-  app.get("/sitemap.xml", async (_req: Request, res: Response) => { const courses = await getPublicCourses(); res.type("application/xml").set("Cache-Control", "public, max-age=300").send(buildSitemapXml(courses)); });
-  app.get("/blog/:slug", async (req: Request, res: Response, next: NextFunction) => { const article = await getInsightArticleBySlug(req.params.slug); if (!article) return next(); res.type("html").set("Cache-Control", "no-cache").send(renderInsightArticlePage(article, findClientScript())); });
-  app.get("/courses", async (req: Request, res: Response, next: NextFunction) => { if (typeof req.query.enroll === "string" || req.query.recommend === "1" || typeof req.query.compare === "string") return next(); const [courses, socialSettings] = await Promise.all([getPublicCourses(), getSocialPreviewSettings()]); res.type("html").set("Cache-Control", "no-cache").send(renderCourseCatalogPage(courses, findClientScript(), socialSettings.fallbackImageUrl)); });
-  app.get("/courses/compare", async (req: Request, res: Response, next: NextFunction) => { const [courses, socialSettings] = await Promise.all([getPublicCourses(), getSocialPreviewSettings()]); const slugs = readComparisonSlugs(req.query.compare); const selected = slugs.map((slug) => courses.find((course) => course.slug === slug)).filter((course): course is PublicCourse => Boolean(course)); if (slugs.length && !selected.length) return next(); const query = selected.length ? `?compare=${encodeURIComponent(selected.map((course) => course.slug).join(","))}` : ""; res.type("html").set("Cache-Control", "no-cache").send(renderCourseComparisonPage(selected, findClientScript(), comparisonSocialImageUrl(selected.map((course) => course.slug), socialSettings.version), query)); });
-  app.get("/courses/payment-success", (_req: Request, _res: Response, next: NextFunction) => next());
-  app.get("/courses/:slug", async (req: Request, res: Response, next: NextFunction) => { if (req.query.workspace === "1") return next(); const [courses, socialSettings] = await Promise.all([getPublicCourses(), getSocialPreviewSettings()]); const course = courses.find((item) => item.slug === req.params.slug); if (!course) return next(); res.type("html").set("Cache-Control", "no-cache").send(renderCourseDetailPage(course, findClientScript(), `${courseSocialImageUrl(course.slug, socialSettings.version)}`)); });
+  app.get(
+    "/og/course/:slug.png",
+    async (req: Request, res: Response, next: NextFunction) => {
+      const courses = await getPublicCourses();
+      const course = courses.find(item => item.slug === req.params.slug);
+      if (!course) return next();
+      const image = await renderCourseSocialImage(course);
+      res
+        .type("png")
+        .set("Cache-Control", "public, max-age=86400, immutable")
+        .send(image);
+    }
+  );
+  app.get(
+    "/og/insight/:slug.png",
+    async (req: Request, res: Response, next: NextFunction) => {
+      const article = await getInsightArticleBySlug(req.params.slug);
+      if (!article || article.status !== "Published") return next();
+      const image = await renderInsightSocialImage(article);
+      res
+        .type("png")
+        .set("Cache-Control", "public, max-age=86400, immutable")
+        .send(image);
+    }
+  );
+  app.get(
+    "/og/course-comparison.png",
+    async (req: Request, res: Response, next: NextFunction) => {
+      const courses = await getPublicCourses();
+      const slugs = readComparisonSlugs(req.query.compare);
+      const selected = slugs
+        .map(slug => courses.find(course => course.slug === slug))
+        .filter((course): course is PublicCourse => Boolean(course));
+      if (slugs.length && !selected.length) return next();
+      const image = await renderCourseComparisonSocialImage(selected);
+      res
+        .type("png")
+        .set("Cache-Control", "public, max-age=86400, immutable")
+        .send(image);
+    }
+  );
+  app.get("/sitemap.xml", async (_req: Request, res: Response) => {
+    const courses = await getPublicCourses();
+    res
+      .type("application/xml")
+      .set("Cache-Control", "public, max-age=300")
+      .send(buildSitemapXml(courses));
+  });
+  app.get(
+    "/blog/:slug",
+    async (req: Request, res: Response, next: NextFunction) => {
+      const article = await getInsightArticleBySlug(req.params.slug);
+      if (!article) return next();
+      res
+        .type("html")
+        .set("Cache-Control", "no-cache")
+        .send(renderInsightArticlePage(article, findClientScript()));
+    }
+  );
+  app.get(
+    "/courses",
+    async (req: Request, res: Response, next: NextFunction) => {
+      if (
+        typeof req.query.enroll === "string" ||
+        req.query.recommend === "1" ||
+        typeof req.query.compare === "string"
+      )
+        return next();
+      const [courses, socialSettings] = await Promise.all([
+        getPublicCourses(),
+        getSocialPreviewSettings(),
+      ]);
+      res
+        .type("html")
+        .set("Cache-Control", "no-cache")
+        .send(
+          renderCourseCatalogPage(
+            courses,
+            findClientScript(),
+            socialSettings.fallbackImageUrl
+          )
+        );
+    }
+  );
+  app.get(
+    "/courses/compare",
+    async (req: Request, res: Response, next: NextFunction) => {
+      const [courses, socialSettings] = await Promise.all([
+        getPublicCourses(),
+        getSocialPreviewSettings(),
+      ]);
+      const slugs = readComparisonSlugs(req.query.compare);
+      const selected = slugs
+        .map(slug => courses.find(course => course.slug === slug))
+        .filter((course): course is PublicCourse => Boolean(course));
+      if (slugs.length && !selected.length) return next();
+      const query = selected.length
+        ? `?compare=${encodeURIComponent(selected.map(course => course.slug).join(","))}`
+        : "";
+      res
+        .type("html")
+        .set("Cache-Control", "no-cache")
+        .send(
+          renderCourseComparisonPage(
+            selected,
+            findClientScript(),
+            comparisonSocialImageUrl(
+              selected.map(course => course.slug),
+              socialSettings.version
+            ),
+            query
+          )
+        );
+    }
+  );
+  app.get(
+    "/courses/payment-success",
+    (_req: Request, _res: Response, next: NextFunction) => next()
+  );
+  app.get(
+    "/courses/:slug",
+    async (req: Request, res: Response, next: NextFunction) => {
+      if (req.query.workspace === "1") return next();
+      const [courses, socialSettings] = await Promise.all([
+        getPublicCourses(),
+        getSocialPreviewSettings(),
+      ]);
+      const course = courses.find(item => item.slug === req.params.slug);
+      if (!course) return next();
+      res
+        .type("html")
+        .set("Cache-Control", "no-cache")
+        .send(
+          renderCourseDetailPage(
+            course,
+            findClientScript(),
+            `${courseSocialImageUrl(course.slug, socialSettings.version)}`
+          )
+        );
+    }
+  );
 }

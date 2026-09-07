@@ -3,7 +3,25 @@ import { execFileSync } from "node:child_process";
 
 const publishedOrigin = "https://profoundiq-vguqrhsm.manus.space";
 const legacyUrl = "https://profoundiq-vguqrhsm.manus.space";
-const files = execFileSync("rg", ["-l", legacyUrl, ".", "--glob", "!node_modules/**", "--glob", "!dist/**", "--glob", "!pnpm-lock.yaml", "--glob", "!docs/**", "--glob", "!ideas.md"], { encoding: "utf8" })
+const files = execFileSync(
+  "rg",
+  [
+    "-l",
+    legacyUrl,
+    ".",
+    "--glob",
+    "!node_modules/**",
+    "--glob",
+    "!dist/**",
+    "--glob",
+    "!pnpm-lock.yaml",
+    "--glob",
+    "!docs/**",
+    "--glob",
+    "!ideas.md",
+  ],
+  { encoding: "utf8" }
+)
   .trim()
   .split("\n")
   .filter(Boolean);
@@ -16,7 +34,12 @@ for (const file of files) {
 
 const visualPath = "./shared/courseCompletionVisual.ts";
 const visual = await readFile(visualPath, "utf8");
-const normalizedVisual = visual.replaceAll("profoundiqconsulting.com", "profoundiq-vguqrhsm.manus.space");
+const normalizedVisual = visual.replaceAll(
+  "profoundiqconsulting.com",
+  "profoundiq-vguqrhsm.manus.space"
+);
 if (normalizedVisual !== visual) await writeFile(visualPath, normalizedVisual);
 
-console.log(`Normalized ${files.length} legacy URL file(s) to ${publishedOrigin}.`);
+console.log(
+  `Normalized ${files.length} legacy URL file(s) to ${publishedOrigin}.`
+);

@@ -8,6 +8,17 @@ export type ReflectionExportRow = {
 };
 
 export function buildReflectionExportCsv(rows: ReflectionExportRow[]): string {
-  const escapeCsv = (value: string) => `"${value.replaceAll('"', '""').replace(/\r?\n/g, " ")}"`;
-  return [["Dimension", "Reflection prompt", "Respondent response", "Action status"], ...rows.map((row) => [row.dimensionLabel, row.promptText, row.note || "No response recorded", row.status])].map((row) => row.map(escapeCsv).join(",")).join("\n");
+  const escapeCsv = (value: string) =>
+    `"${value.replaceAll('"', '""').replace(/\r?\n/g, " ")}"`;
+  return [
+    ["Dimension", "Reflection prompt", "Respondent response", "Action status"],
+    ...rows.map(row => [
+      row.dimensionLabel,
+      row.promptText,
+      row.note || "No response recorded",
+      row.status,
+    ]),
+  ]
+    .map(row => row.map(escapeCsv).join(","))
+    .join("\n");
 }

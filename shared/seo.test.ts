@@ -7,11 +7,16 @@ vi.mock("../shared/siteOrigin", () => {
   const origin = "http://localhost:3000";
   return {
     PUBLISHED_SITE_ORIGIN: origin,
-    publishedSiteUrl: (path = "") => `${origin}${path.startsWith("/") || path.length === 0 ? path : `/${path}`}`,
+    publishedSiteUrl: (path = "") =>
+      `${origin}${path.startsWith("/") || path.length === 0 ? path : `/${path}`}`,
   };
 });
 
-import { getSeo, SITE_ORIGIN, DEFAULT_IMAGE } from "../client/src/components/SeoHead";
+import {
+  getSeo,
+  SITE_ORIGIN,
+  DEFAULT_IMAGE,
+} from "../client/src/components/SeoHead";
 
 describe("route SEO metadata", () => {
   it("defines distinct public metadata and canonical paths", () => {
@@ -24,8 +29,12 @@ describe("route SEO metadata", () => {
     expect(assessment.canonical).toBe("/assessment");
     expect(course.title).toContain("Leadership Development");
     expect(course.jsonLd?.["@type"]).toBe("Course");
-    expect(`${SITE_ORIGIN}${course.canonical}`).toBe("http://localhost:3000/courses/leadership-development");
-    expect(DEFAULT_IMAGE).toMatch(/^http:\/\/localhost:3000\/profound-iq-social-preview\.svg$/);
+    expect(`${SITE_ORIGIN}${course.canonical}`).toBe(
+      "http://localhost:3000/courses/leadership-development"
+    );
+    expect(DEFAULT_IMAGE).toMatch(
+      /^http:\/\/localhost:3000\/profound-iq-social-preview\.svg$/
+    );
   });
 
   it("marks private workspace routes as noindex", () => {

@@ -11,7 +11,11 @@ describe("buildCourseRecommendations", () => {
     ]);
     expect(result[0]?.course.slug).toBe("lead-with-clarity");
     expect(result[0]?.fitScore).toBeGreaterThan(80);
-    expect(result[0]?.matchedSignals.map((signal) => signal.key)).toEqual(["clarity", "leadership", "influence"]);
+    expect(result[0]?.matchedSignals.map(signal => signal.key)).toEqual([
+      "clarity",
+      "leadership",
+      "influence",
+    ]);
     expect(result[0]?.rationale).toContain("direction-setting");
   });
 
@@ -20,7 +24,9 @@ describe("buildCourseRecommendations", () => {
   });
 
   it("keeps deterministic ordering when multiple courses share the same score", () => {
-    const result = buildCourseRecommendations([{ key: "unmapped", label: "Unmapped", score: 70 }]);
-    expect(result.map((item) => item.course.index)).toEqual(["01", "02", "03"]);
+    const result = buildCourseRecommendations([
+      { key: "unmapped", label: "Unmapped", score: 70 },
+    ]);
+    expect(result.map(item => item.course.index)).toEqual(["01", "02", "03"]);
   });
 });

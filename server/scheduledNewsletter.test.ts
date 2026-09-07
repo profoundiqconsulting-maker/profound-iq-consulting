@@ -7,7 +7,9 @@ describe("bi-weekly newsletter scheduling", () => {
   it("sends on the first run and only after fourteen days", () => {
     expect(isBiweeklyDue(null, now)).toBe(true);
     expect(isBiweeklyDue(new Date("2026-08-13T09:00:00.000Z"), now)).toBe(true);
-    expect(isBiweeklyDue(new Date("2026-08-14T09:00:00.000Z"), now)).toBe(false);
+    expect(isBiweeklyDue(new Date("2026-08-14T09:00:00.000Z"), now)).toBe(
+      false
+    );
   });
 
   it("produces a deterministic 64-character SHA-256 token hash without exposing the raw token", () => {

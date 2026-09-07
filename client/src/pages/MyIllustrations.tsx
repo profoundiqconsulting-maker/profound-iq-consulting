@@ -1,5 +1,21 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
-import { ArrowUpRight, Bookmark, BookOpen, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Download, Expand, Filter, Folder, Loader2, Search, X } from "lucide-react";
+import {
+  ArrowUpRight,
+  Bookmark,
+  BookOpen,
+  CheckCircle2,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  Download,
+  Expand,
+  Filter,
+  Folder,
+  Loader2,
+  Search,
+  X,
+} from "lucide-react";
 import { Link } from "wouter";
 import { toast } from "sonner";
 import { startLogin } from "@/const";
@@ -9,24 +25,292 @@ import { DashboardQuickNav } from "@/components/DashboardQuickNav";
 import { TransformationNav } from "@/components/TransformationNav";
 import { useLocale } from "@/contexts/LocaleContext";
 import { trpc } from "@/lib/trpc";
-import { downloadIllustrationStudySheet, downloadIllustrationStudySheetPng } from "@/lib/illustrationStudySheet";
+import {
+  downloadIllustrationStudySheet,
+  downloadIllustrationStudySheetPng,
+} from "@/lib/illustrationStudySheet";
 import { courseCatalog, type CourseDefinition } from "@shared/courseCatalog";
-import { getLessonIllustrationCopy, localizeCourseDefinition } from "@shared/contentLocalization";
+import {
+  getLessonIllustrationCopy,
+  localizeCourseDefinition,
+} from "@shared/contentLocalization";
 
 type IllustrationMode = "explanatory" | "applicational" | "experiential";
-type GalleryCard = { id: number; courseSlug: string; courseTitle: string; lessonId: string; lessonTitle: string; mode: IllustrationMode; modeLabel: string; title: string; content: string; folder: string; visualUrl?: string; visualAlt?: string; updatedAt: Date | string };
+type GalleryCard = {
+  id: number;
+  courseSlug: string;
+  courseTitle: string;
+  lessonId: string;
+  lessonTitle: string;
+  mode: IllustrationMode;
+  modeLabel: string;
+  title: string;
+  content: string;
+  folder: string;
+  visualUrl?: string;
+  visualAlt?: string;
+  updatedAt: Date | string;
+};
 
-const modeLabels: Record<IllustrationMode, string> = { explanatory: "Explanatory", applicational: "Applicational", experiential: "Experiential" };
-const modeStyles: Record<IllustrationMode, { border: string; tint: string; accent: string }> = { explanatory: { border: "border-[#c9a34e]/50", tint: "bg-[#fffaf0]", accent: "text-[#8a681e]" }, applicational: { border: "border-[#2f6f78]/35", tint: "bg-[#edf4ee]", accent: "text-[#2f6f78]" }, experiential: { border: "border-[#8b4f63]/35", tint: "bg-[#fff3f5]", accent: "text-[#8b4f63]" } };
-const findLesson = (course: CourseDefinition | undefined, lessonId: string) => course?.modules.flatMap((module) => module.lessons).find((lesson) => lesson.id === lessonId);
+const modeLabels: Record<IllustrationMode, string> = {
+  explanatory: "Explanatory",
+  applicational: "Applicational",
+  experiential: "Experiential",
+};
+const modeStyles: Record<
+  IllustrationMode,
+  { border: string; tint: string; accent: string }
+> = {
+  explanatory: {
+    border: "border-[#c9a34e]/50",
+    tint: "bg-[#fffaf0]",
+    accent: "text-[#8a681e]",
+  },
+  applicational: {
+    border: "border-[#2f6f78]/35",
+    tint: "bg-[#edf4ee]",
+    accent: "text-[#2f6f78]",
+  },
+  experiential: {
+    border: "border-[#8b4f63]/35",
+    tint: "bg-[#fff3f5]",
+    accent: "text-[#8b4f63]",
+  },
+};
+const findLesson = (course: CourseDefinition | undefined, lessonId: string) =>
+  course?.modules
+    .flatMap(module => module.lessons)
+    .find(lesson => lesson.id === lessonId);
 const pageSize = 24;
 
-type CardProps = { card: GalleryCard; selected: boolean; folders: string[]; editingFolderId: number | null; folderDraft: string; pngBusy: boolean; onToggleSelect: (id: number) => void; onZoom: (card: GalleryCard) => void; onDelete: (card: GalleryCard) => void; onStartFolderEdit: (card: GalleryCard) => void; onFolderDraftChange: (value: string) => void; onSaveFolder: (card: GalleryCard) => void; onDownloadPng: (card: GalleryCard) => void; onDragStart: (id: number) => void; onDragOver: (event: React.DragEvent<HTMLElement>, id: number) => void; onDrop: (id: number) => void; onMove: (id: number, direction: -1 | 1) => void };
+type CardProps = {
+  card: GalleryCard;
+  selected: boolean;
+  folders: string[];
+  editingFolderId: number | null;
+  folderDraft: string;
+  pngBusy: boolean;
+  onToggleSelect: (id: number) => void;
+  onZoom: (card: GalleryCard) => void;
+  onDelete: (card: GalleryCard) => void;
+  onStartFolderEdit: (card: GalleryCard) => void;
+  onFolderDraftChange: (value: string) => void;
+  onSaveFolder: (card: GalleryCard) => void;
+  onDownloadPng: (card: GalleryCard) => void;
+  onDragStart: (id: number) => void;
+  onDragOver: (event: React.DragEvent<HTMLElement>, id: number) => void;
+  onDrop: (id: number) => void;
+  onMove: (id: number, direction: -1 | 1) => void;
+};
 
-function IllustrationCard({ card, selected, folders, editingFolderId, folderDraft, pngBusy, onToggleSelect, onZoom, onDelete, onStartFolderEdit, onFolderDraftChange, onSaveFolder, onDownloadPng, onDragStart, onDragOver, onDrop, onMove }: CardProps) {
+function IllustrationCard({
+  card,
+  selected,
+  folders,
+  editingFolderId,
+  folderDraft,
+  pngBusy,
+  onToggleSelect,
+  onZoom,
+  onDelete,
+  onStartFolderEdit,
+  onFolderDraftChange,
+  onSaveFolder,
+  onDownloadPng,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onMove,
+}: CardProps) {
   const style = modeStyles[card.mode];
-  const studySheetInput = { imageUrl: card.visualUrl ?? "", courseTitle: card.courseTitle, lessonTitle: card.lessonTitle, modeLabel: card.modeLabel, content: card.content, filename: `${card.courseSlug}-${card.lessonId}-study-sheet.svg` };
-  return <article draggable onDragStart={() => onDragStart(card.id)} onDragOver={(event) => onDragOver(event, card.id)} onDrop={() => onDrop(card.id)} className={`overflow-hidden border ${style.border} ${style.tint} shadow-[0_12px_30px_rgba(22,36,61,0.06)] ${selected ? "ring-2 ring-[#c9a34e]" : ""}`}><div className="relative">{card.visualUrl ? <button type="button" onClick={() => onZoom(card)} className="group block w-full cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a34e]" aria-label={`Zoom ${card.lessonTitle}`}><img src={card.visualUrl} alt={card.visualAlt ?? card.lessonTitle} loading="lazy" className="aspect-[16/9] w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]" /><span className="absolute bottom-3 right-3 inline-flex items-center gap-1 bg-[#16243d]/85 px-2 py-1 text-[9px] font-black uppercase tracking-[.1em] text-[#f7f3e8]"><Expand size={12} /> View</span></button> : <div className="grid aspect-[16/9] place-items-center bg-[#16243d] p-6 text-center text-[#f7f3e8]"><BookOpen size={25} className="text-[#c9a34e]" aria-hidden="true" /><p className="mt-3 max-w-xs text-sm leading-6">{card.modeLabel} learning prompt</p></div>}</div><div className="p-5"><div className="flex items-start justify-between gap-3"><label className="flex min-w-0 items-start gap-3"><input type="checkbox" checked={selected} onChange={() => onToggleSelect(card.id)} aria-label={`Select ${card.lessonTitle}`} className="mt-1 accent-[#a27e2e]" /><span><p className={`text-[10px] font-black uppercase tracking-[.14em] ${style.accent}`}>{card.modeLabel}</p><h2 className="display mt-2 text-2xl leading-tight">{card.lessonTitle}</h2></span></label><button type="button" onClick={() => onDelete(card)} aria-label={`Remove ${card.lessonTitle}`} className="shrink-0 text-[#8a681e] transition hover:text-[#8b4f63]"><Bookmark size={18} fill="currentColor" /></button></div><p className="mt-2 text-xs font-semibold text-[#657084]">{card.courseTitle}</p><p className="mt-4 text-sm leading-6 text-[#4a566a]">{card.content}</p><div className="mt-4 flex items-center gap-2 text-xs text-[#657084]"><Folder size={13} className="text-[#a27e2e]" /><span>{card.folder}</span><button type="button" onClick={() => onStartFolderEdit(card)} className="ml-auto text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] underline decoration-[#c9a34e] underline-offset-4">Organize</button></div>{editingFolderId === card.id && <div className="mt-3 border border-[#c9a34e]/40 bg-white/70 p-3"><label className="block text-[10px] font-black uppercase tracking-[.12em] text-[#657084]" htmlFor={`folder-${card.id}`}>Create or move to folder</label><div className="mt-2 flex gap-2"><input id={`folder-${card.id}`} value={folderDraft} onChange={(event) => onFolderDraftChange(event.target.value)} maxLength={80} className="min-w-0 flex-1 border border-[#16243d]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#c9a34e]" placeholder="e.g. Leadership ideas" list={`folders-${card.id}`} /><datalist id={`folders-${card.id}`}>{folders.map((folder) => <option key={folder} value={folder} />)}</datalist><button type="button" onClick={() => onSaveFolder(card)} className="inline-flex items-center gap-1 bg-[#16243d] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8]">{updateLabel}</button></div><p className="mt-2 text-[11px] text-[#657084]">Type a new name to create a folder, or reuse an existing one.</p></div>}<div className="mt-5 flex flex-wrap items-center gap-3 border-t border-[#16243d]/10 pt-4"><Link href={`/courses/${card.courseSlug}`} className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.11em] text-[#16243d] hover:text-[#a27e2e]">Open lesson <ArrowUpRight size={13} /></Link>{card.visualUrl && <><button type="button" onClick={() => downloadIllustrationStudySheet(studySheetInput)} className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.11em] text-[#16243d] hover:text-[#a27e2e]"><Download size={13} /> SVG</button><button type="button" onClick={() => onDownloadPng(card)} disabled={pngBusy} className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.11em] text-[#16243d] hover:text-[#a27e2e] disabled:opacity-50">{pngBusy ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />} PNG</button></>}</div><div className="mt-4 flex items-center justify-between border-t border-[#16243d]/10 pt-3"><span className="cursor-grab text-[10px] font-black uppercase tracking-[.1em] text-[#8f9db3]" title="Drag to reorder within this folder">Drag to reorder</span><div className="flex items-center gap-1"><button type="button" onClick={() => onMove(card.id, -1)} aria-label={`Move ${card.lessonTitle} earlier`} className="border border-[#16243d]/15 p-1 text-[#657084] hover:text-[#16243d]"><ChevronUp size={15} /></button><button type="button" onClick={() => onMove(card.id, 1)} aria-label={`Move ${card.lessonTitle} later`} className="border border-[#16243d]/15 p-1 text-[#657084] hover:text-[#16243d]"><ChevronDown size={15} /></button></div></div><p className="mt-3 text-[10px] text-[#8f9db3]">Saved {new Date(card.updatedAt).toLocaleDateString()}</p></div></article>;
+  const studySheetInput = {
+    imageUrl: card.visualUrl ?? "",
+    courseTitle: card.courseTitle,
+    lessonTitle: card.lessonTitle,
+    modeLabel: card.modeLabel,
+    content: card.content,
+    filename: `${card.courseSlug}-${card.lessonId}-study-sheet.svg`,
+  };
+  return (
+    <article
+      draggable
+      onDragStart={() => onDragStart(card.id)}
+      onDragOver={event => onDragOver(event, card.id)}
+      onDrop={() => onDrop(card.id)}
+      className={`overflow-hidden border ${style.border} ${style.tint} shadow-[0_12px_30px_rgba(22,36,61,0.06)] ${selected ? "ring-2 ring-[#c9a34e]" : ""}`}
+    >
+      <div className="relative">
+        {card.visualUrl ? (
+          <button
+            type="button"
+            onClick={() => onZoom(card)}
+            className="group block w-full cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a34e]"
+            aria-label={`Zoom ${card.lessonTitle}`}
+          >
+            <img
+              src={card.visualUrl}
+              alt={card.visualAlt ?? card.lessonTitle}
+              loading="lazy"
+              className="aspect-[16/9] w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+            />
+            <span className="absolute bottom-3 right-3 inline-flex items-center gap-1 bg-[#16243d]/85 px-2 py-1 text-[9px] font-black uppercase tracking-[.1em] text-[#f7f3e8]">
+              <Expand size={12} /> View
+            </span>
+          </button>
+        ) : (
+          <div className="grid aspect-[16/9] place-items-center bg-[#16243d] p-6 text-center text-[#f7f3e8]">
+            <BookOpen size={25} className="text-[#c9a34e]" aria-hidden="true" />
+            <p className="mt-3 max-w-xs text-sm leading-6">
+              {card.modeLabel} learning prompt
+            </p>
+          </div>
+        )}
+      </div>
+      <div className="p-5">
+        <div className="flex items-start justify-between gap-3">
+          <label className="flex min-w-0 items-start gap-3">
+            <input
+              type="checkbox"
+              checked={selected}
+              onChange={() => onToggleSelect(card.id)}
+              aria-label={`Select ${card.lessonTitle}`}
+              className="mt-1 accent-[#a27e2e]"
+            />
+            <span>
+              <p
+                className={`text-[10px] font-black uppercase tracking-[.14em] ${style.accent}`}
+              >
+                {card.modeLabel}
+              </p>
+              <h2 className="display mt-2 text-2xl leading-tight">
+                {card.lessonTitle}
+              </h2>
+            </span>
+          </label>
+          <button
+            type="button"
+            onClick={() => onDelete(card)}
+            aria-label={`Remove ${card.lessonTitle}`}
+            className="shrink-0 text-[#8a681e] transition hover:text-[#8b4f63]"
+          >
+            <Bookmark size={18} fill="currentColor" />
+          </button>
+        </div>
+        <p className="mt-2 text-xs font-semibold text-[#657084]">
+          {card.courseTitle}
+        </p>
+        <p className="mt-4 text-sm leading-6 text-[#4a566a]">{card.content}</p>
+        <div className="mt-4 flex items-center gap-2 text-xs text-[#657084]">
+          <Folder size={13} className="text-[#a27e2e]" />
+          <span>{card.folder}</span>
+          <button
+            type="button"
+            onClick={() => onStartFolderEdit(card)}
+            className="ml-auto text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] underline decoration-[#c9a34e] underline-offset-4"
+          >
+            Organize
+          </button>
+        </div>
+        {editingFolderId === card.id && (
+          <div className="mt-3 border border-[#c9a34e]/40 bg-white/70 p-3">
+            <label
+              className="block text-[10px] font-black uppercase tracking-[.12em] text-[#657084]"
+              htmlFor={`folder-${card.id}`}
+            >
+              Create or move to folder
+            </label>
+            <div className="mt-2 flex gap-2">
+              <input
+                id={`folder-${card.id}`}
+                value={folderDraft}
+                onChange={event => onFolderDraftChange(event.target.value)}
+                maxLength={80}
+                className="min-w-0 flex-1 border border-[#16243d]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#c9a34e]"
+                placeholder="e.g. Leadership ideas"
+                list={`folders-${card.id}`}
+              />
+              <datalist id={`folders-${card.id}`}>
+                {folders.map(folder => (
+                  <option key={folder} value={folder} />
+                ))}
+              </datalist>
+              <button
+                type="button"
+                onClick={() => onSaveFolder(card)}
+                className="inline-flex items-center gap-1 bg-[#16243d] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8]"
+              >
+                {updateLabel}
+              </button>
+            </div>
+            <p className="mt-2 text-[11px] text-[#657084]">
+              Type a new name to create a folder, or reuse an existing one.
+            </p>
+          </div>
+        )}
+        <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-[#16243d]/10 pt-4">
+          <Link
+            href={`/courses/${card.courseSlug}`}
+            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.11em] text-[#16243d] hover:text-[#a27e2e]"
+          >
+            Open lesson <ArrowUpRight size={13} />
+          </Link>
+          {card.visualUrl && (
+            <>
+              <button
+                type="button"
+                onClick={() => downloadIllustrationStudySheet(studySheetInput)}
+                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.11em] text-[#16243d] hover:text-[#a27e2e]"
+              >
+                <Download size={13} /> SVG
+              </button>
+              <button
+                type="button"
+                onClick={() => onDownloadPng(card)}
+                disabled={pngBusy}
+                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.11em] text-[#16243d] hover:text-[#a27e2e] disabled:opacity-50"
+              >
+                {pngBusy ? (
+                  <Loader2 size={13} className="animate-spin" />
+                ) : (
+                  <Download size={13} />
+                )}{" "}
+                PNG
+              </button>
+            </>
+          )}
+        </div>
+        <div className="mt-4 flex items-center justify-between border-t border-[#16243d]/10 pt-3">
+          <span
+            className="cursor-grab text-[10px] font-black uppercase tracking-[.1em] text-[#8f9db3]"
+            title="Drag to reorder within this folder"
+          >
+            Drag to reorder
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => onMove(card.id, -1)}
+              aria-label={`Move ${card.lessonTitle} earlier`}
+              className="border border-[#16243d]/15 p-1 text-[#657084] hover:text-[#16243d]"
+            >
+              <ChevronUp size={15} />
+            </button>
+            <button
+              type="button"
+              onClick={() => onMove(card.id, 1)}
+              aria-label={`Move ${card.lessonTitle} later`}
+              className="border border-[#16243d]/15 p-1 text-[#657084] hover:text-[#16243d]"
+            >
+              <ChevronDown size={15} />
+            </button>
+          </div>
+        </div>
+        <p className="mt-3 text-[10px] text-[#8f9db3]">
+          Saved {new Date(card.updatedAt).toLocaleDateString()}
+        </p>
+      </div>
+    </article>
+  );
 }
 const updateLabel = "Save";
 
@@ -48,37 +332,741 @@ export default function MyIllustrations() {
   const [draggedId, setDraggedId] = useState<number | null>(null);
   const [pngBusyId, setPngBusyId] = useState<number | null>(null);
   const deferredQuery = useDeferredValue(query);
-  const bookmarksQuery = trpc.course.illustrationBookmarksPage.useQuery({ page, pageSize, search: deferredQuery.trim() || undefined, illustrationMode: modeFilter, folder: folderFilter === "all" ? undefined : folderFilter }, { enabled: isAuthenticated, placeholderData: (previous) => previous });
-  const allMatchingIdsQuery = trpc.course.illustrationBookmarkIds.useQuery({ search: deferredQuery.trim() || undefined, illustrationMode: modeFilter, folder: folderFilter === "all" ? undefined : folderFilter }, { enabled: isAuthenticated });
-  const deleteBookmark = trpc.course.deleteIllustrationBookmark.useMutation({ onSuccess: () => { void bookmarksQuery.refetch(); toast.success("Illustration removed"); }, onError: (error) => toast.error("Could not remove illustration", { description: error.message }) });
-  const updateFolder = trpc.course.updateIllustrationBookmarkFolder.useMutation({ onSuccess: () => { void bookmarksQuery.refetch(); setEditingFolderId(null); toast.success("Folder updated"); }, onError: (error) => toast.error("Could not update folder", { description: error.message }) });
-  const bulkMove = trpc.course.bulkMoveIllustrationBookmarks.useMutation({ onSuccess: () => { setSelectedIds([]); setBulkFolder(""); setMoveCelebration(true); window.setTimeout(() => setMoveCelebration(false), 1800); void bookmarksQuery.refetch(); toast.success("Illustrations moved"); }, onError: (error) => toast.error("Could not move illustrations", { description: error.message }) });
-  const renameFolder = trpc.course.renameIllustrationFolder.useMutation({ onSuccess: () => { setFolderManageName(""); void bookmarksQuery.refetch(); toast.success("Folder renamed"); }, onError: (error) => toast.error("Could not rename folder", { description: error.message }) });
-  const deleteFolder = trpc.course.deleteIllustrationFolder.useMutation({ onSuccess: (result) => { setFolderFilter("all"); setFolderManageName(""); void bookmarksQuery.refetch(); toast.success("Folder deleted", { description: `${result.reassigned} illustration${result.reassigned === 1 ? "" : "s"} moved to Unsorted.` }); }, onError: (error) => toast.error("Could not delete folder", { description: error.message }) });
-  const reorder = trpc.course.reorderIllustrationBookmarks.useMutation({ onSuccess: () => { void bookmarksQuery.refetch(); toast.success("Folder order saved"); }, onError: (error) => toast.error("Could not save order", { description: error.message }) });
+  const bookmarksQuery = trpc.course.illustrationBookmarksPage.useQuery(
+    {
+      page,
+      pageSize,
+      search: deferredQuery.trim() || undefined,
+      illustrationMode: modeFilter,
+      folder: folderFilter === "all" ? undefined : folderFilter,
+    },
+    { enabled: isAuthenticated, placeholderData: previous => previous }
+  );
+  const allMatchingIdsQuery = trpc.course.illustrationBookmarkIds.useQuery(
+    {
+      search: deferredQuery.trim() || undefined,
+      illustrationMode: modeFilter,
+      folder: folderFilter === "all" ? undefined : folderFilter,
+    },
+    { enabled: isAuthenticated }
+  );
+  const deleteBookmark = trpc.course.deleteIllustrationBookmark.useMutation({
+    onSuccess: () => {
+      void bookmarksQuery.refetch();
+      toast.success("Illustration removed");
+    },
+    onError: error =>
+      toast.error("Could not remove illustration", {
+        description: error.message,
+      }),
+  });
+  const updateFolder = trpc.course.updateIllustrationBookmarkFolder.useMutation(
+    {
+      onSuccess: () => {
+        void bookmarksQuery.refetch();
+        setEditingFolderId(null);
+        toast.success("Folder updated");
+      },
+      onError: error =>
+        toast.error("Could not update folder", { description: error.message }),
+    }
+  );
+  const bulkMove = trpc.course.bulkMoveIllustrationBookmarks.useMutation({
+    onSuccess: () => {
+      setSelectedIds([]);
+      setBulkFolder("");
+      setMoveCelebration(true);
+      window.setTimeout(() => setMoveCelebration(false), 1800);
+      void bookmarksQuery.refetch();
+      toast.success("Illustrations moved");
+    },
+    onError: error =>
+      toast.error("Could not move illustrations", {
+        description: error.message,
+      }),
+  });
+  const renameFolder = trpc.course.renameIllustrationFolder.useMutation({
+    onSuccess: () => {
+      setFolderManageName("");
+      void bookmarksQuery.refetch();
+      toast.success("Folder renamed");
+    },
+    onError: error =>
+      toast.error("Could not rename folder", { description: error.message }),
+  });
+  const deleteFolder = trpc.course.deleteIllustrationFolder.useMutation({
+    onSuccess: result => {
+      setFolderFilter("all");
+      setFolderManageName("");
+      void bookmarksQuery.refetch();
+      toast.success("Folder deleted", {
+        description: `${result.reassigned} illustration${result.reassigned === 1 ? "" : "s"} moved to Unsorted.`,
+      });
+    },
+    onError: error =>
+      toast.error("Could not delete folder", { description: error.message }),
+  });
+  const reorder = trpc.course.reorderIllustrationBookmarks.useMutation({
+    onSuccess: () => {
+      void bookmarksQuery.refetch();
+      toast.success("Folder order saved");
+    },
+    onError: error =>
+      toast.error("Could not save order", { description: error.message }),
+  });
 
-  useEffect(() => { setPage(1); setSelectedIds([]); setFolderManageName(folderFilter === "all" ? "" : folderFilter); }, [deferredQuery, modeFilter, folderFilter]);
-  useEffect(() => { if (bookmarksQuery.data && page > bookmarksQuery.data.pageCount) setPage(bookmarksQuery.data.pageCount); }, [bookmarksQuery.data, page]);
-  useEffect(() => { if (!zoomed) return; const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") setZoomed(null); }; window.addEventListener("keydown", onKeyDown); return () => window.removeEventListener("keydown", onKeyDown); }, [zoomed]);
+  useEffect(() => {
+    setPage(1);
+    setSelectedIds([]);
+    setFolderManageName(folderFilter === "all" ? "" : folderFilter);
+  }, [deferredQuery, modeFilter, folderFilter]);
+  useEffect(() => {
+    if (bookmarksQuery.data && page > bookmarksQuery.data.pageCount)
+      setPage(bookmarksQuery.data.pageCount);
+  }, [bookmarksQuery.data, page]);
+  useEffect(() => {
+    if (!zoomed) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setZoomed(null);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [zoomed]);
 
-  const cards = useMemo<GalleryCard[]>(() => (bookmarksQuery.data?.rows ?? []).map((bookmark) => { const baseCourse = courseCatalog.find((course) => course.slug === bookmark.courseSlug); const localizedCourse = baseCourse ? localizeCourseDefinition(locale, baseCourse) : undefined; const lesson = findLesson(localizedCourse, bookmark.lessonId); const mode = (bookmark.illustrationMode in modeLabels ? bookmark.illustrationMode : "explanatory") as IllustrationMode; return { id: bookmark.id, courseSlug: bookmark.courseSlug, courseTitle: localizedCourse?.title ?? bookmark.courseSlug, lessonId: bookmark.lessonId, lessonTitle: lesson?.title ?? bookmark.title, mode, modeLabel: getLessonIllustrationCopy(locale)[mode] || modeLabels[mode], title: bookmark.title, content: lesson?.illustration[mode] ?? bookmark.content, folder: bookmark.folder || "Unsorted", visualUrl: mode === "explanatory" ? lesson?.illustration.visualUrl : undefined, visualAlt: mode === "explanatory" ? lesson?.illustration.visualAlt : undefined, updatedAt: bookmark.updatedAt }; }), [bookmarksQuery.data?.rows, locale]);
+  const cards = useMemo<GalleryCard[]>(
+    () =>
+      (bookmarksQuery.data?.rows ?? []).map(bookmark => {
+        const baseCourse = courseCatalog.find(
+          course => course.slug === bookmark.courseSlug
+        );
+        const localizedCourse = baseCourse
+          ? localizeCourseDefinition(locale, baseCourse)
+          : undefined;
+        const lesson = findLesson(localizedCourse, bookmark.lessonId);
+        const mode = (
+          bookmark.illustrationMode in modeLabels
+            ? bookmark.illustrationMode
+            : "explanatory"
+        ) as IllustrationMode;
+        return {
+          id: bookmark.id,
+          courseSlug: bookmark.courseSlug,
+          courseTitle: localizedCourse?.title ?? bookmark.courseSlug,
+          lessonId: bookmark.lessonId,
+          lessonTitle: lesson?.title ?? bookmark.title,
+          mode,
+          modeLabel:
+            getLessonIllustrationCopy(locale)[mode] || modeLabels[mode],
+          title: bookmark.title,
+          content: lesson?.illustration[mode] ?? bookmark.content,
+          folder: bookmark.folder || "Unsorted",
+          visualUrl:
+            mode === "explanatory" ? lesson?.illustration.visualUrl : undefined,
+          visualAlt:
+            mode === "explanatory" ? lesson?.illustration.visualAlt : undefined,
+          updatedAt: bookmark.updatedAt,
+        };
+      }),
+    [bookmarksQuery.data?.rows, locale]
+  );
   const allFolders = bookmarksQuery.data?.folders ?? [];
-  const folders = useMemo(() => allFolders.filter((folder) => folder.toLowerCase().includes(folderQuery.trim().toLowerCase())), [allFolders, folderQuery]);
-  const visibleSelectedIds = selectedIds.filter((id) => cards.some((card) => card.id === id));
+  const folders = useMemo(
+    () =>
+      allFolders.filter(folder =>
+        folder.toLowerCase().includes(folderQuery.trim().toLowerCase())
+      ),
+    [allFolders, folderQuery]
+  );
+  const visibleSelectedIds = selectedIds.filter(id =>
+    cards.some(card => card.id === id)
+  );
   const allMatchingIds = allMatchingIdsQuery.data ?? [];
-  const allMatchingSelected = allMatchingIds.length > 0 && allMatchingIds.every((id) => selectedIds.includes(id));
+  const allMatchingSelected =
+    allMatchingIds.length > 0 &&
+    allMatchingIds.every(id => selectedIds.includes(id));
 
-  const toggleSelect = (id: number) => setSelectedIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
-  const selectPage = () => { const pageSelected = cards.length > 0 && cards.every((card) => selectedIds.includes(card.id)); setSelectedIds((current) => pageSelected ? current.filter((id) => !cards.some((card) => card.id === id)) : Array.from(new Set([...current, ...cards.map((card) => card.id)]))); };
-  const selectAllMatches = () => setSelectedIds((current) => allMatchingSelected ? current.filter((id) => !allMatchingIds.includes(id)) : Array.from(new Set([...current, ...allMatchingIds])));
+  const toggleSelect = (id: number) =>
+    setSelectedIds(current =>
+      current.includes(id)
+        ? current.filter(item => item !== id)
+        : [...current, id]
+    );
+  const selectPage = () => {
+    const pageSelected =
+      cards.length > 0 && cards.every(card => selectedIds.includes(card.id));
+    setSelectedIds(current =>
+      pageSelected
+        ? current.filter(id => !cards.some(card => card.id === id))
+        : Array.from(new Set([...current, ...cards.map(card => card.id)]))
+    );
+  };
+  const selectAllMatches = () =>
+    setSelectedIds(current =>
+      allMatchingSelected
+        ? current.filter(id => !allMatchingIds.includes(id))
+        : Array.from(new Set([...current, ...allMatchingIds]))
+    );
   const clearSelection = () => setSelectedIds([]);
-  const submitBulkMove = () => { const folder = bulkFolder.trim(); if (!folder || !selectedIds.length) { toast.error("Select illustrations and enter a folder name"); return; } bulkMove.mutate({ bookmarkIds: selectedIds, folder }); };
-  const reorderCards = (sourceId: number, targetId: number) => { if (sourceId === targetId || !folderFilter || folderFilter === "all") return; const order = cards.map((card) => card.id); const sourceIndex = order.indexOf(sourceId); const targetIndex = order.indexOf(targetId); if (sourceIndex < 0 || targetIndex < 0) return; order.splice(sourceIndex, 1); order.splice(targetIndex, 0, sourceId); reorder.mutate({ folder: folderFilter, orderedBookmarkIds: order }); };
-  const moveCard = (id: number, direction: -1 | 1) => { if (folderFilter === "all") { toast.info("Choose a folder before reordering"); return; } const order = cards.map((card) => card.id); const index = order.indexOf(id); const target = index + direction; if (index < 0 || target < 0 || target >= order.length) return; [order[index], order[target]] = [order[target], order[index]]; reorder.mutate({ folder: folderFilter, orderedBookmarkIds: order }); };
-  const downloadPng = async (card: GalleryCard) => { if (!card.visualUrl) return; setPngBusyId(card.id); try { await downloadIllustrationStudySheetPng({ imageUrl: card.visualUrl, courseTitle: card.courseTitle, lessonTitle: card.lessonTitle, modeLabel: card.modeLabel, content: card.content, filename: `${card.courseSlug}-${card.lessonId}-study-sheet.svg` }); toast.success("PNG study sheet downloaded"); } catch (error) { toast.error("PNG export failed", { description: error instanceof Error ? error.message : "Please try again." }); } finally { setPngBusyId(null); } };
+  const submitBulkMove = () => {
+    const folder = bulkFolder.trim();
+    if (!folder || !selectedIds.length) {
+      toast.error("Select illustrations and enter a folder name");
+      return;
+    }
+    bulkMove.mutate({ bookmarkIds: selectedIds, folder });
+  };
+  const reorderCards = (sourceId: number, targetId: number) => {
+    if (sourceId === targetId || !folderFilter || folderFilter === "all")
+      return;
+    const order = cards.map(card => card.id);
+    const sourceIndex = order.indexOf(sourceId);
+    const targetIndex = order.indexOf(targetId);
+    if (sourceIndex < 0 || targetIndex < 0) return;
+    order.splice(sourceIndex, 1);
+    order.splice(targetIndex, 0, sourceId);
+    reorder.mutate({ folder: folderFilter, orderedBookmarkIds: order });
+  };
+  const moveCard = (id: number, direction: -1 | 1) => {
+    if (folderFilter === "all") {
+      toast.info("Choose a folder before reordering");
+      return;
+    }
+    const order = cards.map(card => card.id);
+    const index = order.indexOf(id);
+    const target = index + direction;
+    if (index < 0 || target < 0 || target >= order.length) return;
+    [order[index], order[target]] = [order[target], order[index]];
+    reorder.mutate({ folder: folderFilter, orderedBookmarkIds: order });
+  };
+  const downloadPng = async (card: GalleryCard) => {
+    if (!card.visualUrl) return;
+    setPngBusyId(card.id);
+    try {
+      await downloadIllustrationStudySheetPng({
+        imageUrl: card.visualUrl,
+        courseTitle: card.courseTitle,
+        lessonTitle: card.lessonTitle,
+        modeLabel: card.modeLabel,
+        content: card.content,
+        filename: `${card.courseSlug}-${card.lessonId}-study-sheet.svg`,
+      });
+      toast.success("PNG study sheet downloaded");
+    } catch (error) {
+      toast.error("PNG export failed", {
+        description:
+          error instanceof Error ? error.message : "Please try again.",
+      });
+    } finally {
+      setPngBusyId(null);
+    }
+  };
 
-  if (loading) return <div className="grid min-h-screen place-items-center bg-[#f7f3e8] text-[#16243d]"><Loader2 className="animate-spin text-[#a27e2e]" aria-label="Loading workspace" /></div>;
-  if (!isAuthenticated || !user) return <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]"><TransformationNav active="assessment" /><main className="container py-16"><div className="mx-auto max-w-xl border-l-2 border-[#c9a34e] bg-[#16243d] p-8 text-[#f7f3e8] shadow-xl"><p className="eyebrow text-[#c9a34e]">{t("myWorkspace")}</p><h1 className="display mt-3 text-4xl">{t("signInToContinue")}</h1><p className="mt-4 text-sm leading-6 text-[#c1cad7]">Sign in to view the visual learning cards you have saved across your courses.</p><Button type="button" onClick={() => startLogin()} className="mt-6 bg-[#c9a34e] text-[#16243d]">{t("signIn")}</Button></div></main></div>;
+  if (loading)
+    return (
+      <div className="grid min-h-screen place-items-center bg-[#f7f3e8] text-[#16243d]">
+        <Loader2
+          className="animate-spin text-[#a27e2e]"
+          aria-label="Loading workspace"
+        />
+      </div>
+    );
+  if (!isAuthenticated || !user)
+    return (
+      <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
+        <TransformationNav active="assessment" />
+        <main className="container py-16">
+          <div className="mx-auto max-w-xl border-l-2 border-[#c9a34e] bg-[#16243d] p-8 text-[#f7f3e8] shadow-xl">
+            <p className="eyebrow text-[#c9a34e]">{t("myWorkspace")}</p>
+            <h1 className="display mt-3 text-4xl">{t("signInToContinue")}</h1>
+            <p className="mt-4 text-sm leading-6 text-[#c1cad7]">
+              Sign in to view the visual learning cards you have saved across
+              your courses.
+            </p>
+            <Button
+              type="button"
+              onClick={() => startLogin()}
+              className="mt-6 bg-[#c9a34e] text-[#16243d]"
+            >
+              {t("signIn")}
+            </Button>
+          </div>
+        </main>
+      </div>
+    );
 
-  return <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]"><TransformationNav active="assessment" /><main className="container py-7 sm:py-12"><div className="mx-auto max-w-7xl"><DashboardQuickNav role={user.role} className="mb-8" /><div className="flex flex-wrap items-end justify-between gap-5 border-b border-[#16243d]/15 pb-7"><div><div className="flex items-center gap-2 text-xs text-[#657084]"><Link href="/dashboard" className="transition hover:text-[#a27e2e]">{t("myWorkspace")}</Link><span aria-hidden="true">/</span><span className="font-semibold text-[#16243d]">{t("myIllustrations")}</span></div><p className="eyebrow mt-7 text-[#a27e2e]">Visual study library</p><h1 className="display mt-3 max-w-3xl text-5xl leading-[.95] tracking-[-.045em] sm:text-7xl">{t("myIllustrations")}</h1><p className="mt-5 max-w-2xl text-base leading-7 text-[#4a566a]">{t("myIllustrationsDescription")}</p></div><div className="border border-[#c9a34e]/45 bg-[#fffaf0] px-5 py-4 text-right"><p className="text-[10px] font-black uppercase tracking-[.14em] text-[#8a681e]">Saved collection</p><p className="display mt-2 text-4xl">{bookmarksQuery.data?.total ?? 0}</p><p className="text-xs text-[#657084]">visual cards</p></div></div><section className="mt-7 border border-[#16243d]/12 bg-white/55 p-4 sm:p-5" aria-label="Illustration filters"><div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"><label className="flex min-w-0 flex-1 items-center gap-3 border-b border-[#16243d]/20 pb-2 text-sm text-[#657084] lg:max-w-xl"><Search size={17} className="shrink-0 text-[#a27e2e]" /><span className="sr-only">Search saved illustrations</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search courses, lessons, or illustration notes" className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-[#8f9db3]" /></label><div className="flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#657084]"><Filter size={14} /> Filter</span>{(["all", "explanatory", "applicational", "experiential"] as const).map((mode) => <button key={mode} type="button" onClick={() => setModeFilter(mode)} className={`border px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] transition ${modeFilter === mode ? "border-[#16243d] bg-[#16243d] text-[#f7f3e8]" : "border-[#16243d]/15 bg-transparent text-[#657084] hover:border-[#c9a34e] hover:text-[#16243d]"}`}>{mode === "all" ? "All modes" : getLessonIllustrationCopy(locale)[mode]}</button>)}<label className="inline-flex items-center gap-2 border border-[#16243d]/15 bg-white/60 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]"><Folder size={13} className="text-[#a27e2e]" /><span className="sr-only">Filter by folder</span><select value={folderFilter} onChange={(event) => setFolderFilter(event.target.value)} className="max-w-[10rem] bg-transparent outline-none"><option value="all">All folders</option>{folders.map((folder) => <option key={folder} value={folder}>{folder}</option>)}</select></label></div></div><div className="mt-4 flex flex-col gap-3 border-t border-[#16243d]/10 pt-4 sm:flex-row sm:items-center"><label className="flex min-w-0 flex-1 items-center gap-2 text-xs text-[#657084]"><Search size={14} className="text-[#a27e2e]" /><span className="sr-only">Search folders</span><input value={folderQuery} onChange={(event) => setFolderQuery(event.target.value)} placeholder="Search custom folders" className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-[#8f9db3]" /></label><p className="text-[11px] text-[#657084]">{folders.length} matching folder{folders.length === 1 ? "" : "s"}</p></div></section>{folderFilter !== "all" && <section className="mt-5 border border-[#16243d]/15 bg-white/55 p-4 sm:p-5" aria-label="Folder management"><div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"><div><p className="text-[10px] font-black uppercase tracking-[.13em] text-[#a27e2e]">Manage folder</p><p className="mt-2 text-sm text-[#657084]">Rename <strong className="text-[#16243d]">{folderFilter}</strong>, or delete it and safely move its illustrations to Unsorted.</p></div><div className="flex w-full flex-col gap-2 sm:flex-row lg:max-w-xl"><label className="sr-only" htmlFor="folder-management-name">New folder name</label><input id="folder-management-name" value={folderManageName} onChange={(event) => setFolderManageName(event.target.value)} maxLength={80} className="min-w-0 flex-1 border border-[#16243d]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#c9a34e]" /><button type="button" onClick={() => { const next = folderManageName.trim(); if (!next || next === folderFilter) { toast.error("Enter a different folder name"); return; } renameFolder.mutate({ fromFolder: folderFilter, toFolder: next }); }} disabled={renameFolder.isPending || deleteFolder.isPending} className="border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] disabled:opacity-40">{renameFolder.isPending ? <Loader2 size={14} className="mx-auto animate-spin" /> : "Rename"}</button><button type="button" onClick={() => { if (window.confirm(`Delete ${folderFilter}? Its illustrations will move to Unsorted.`)) deleteFolder.mutate({ folder: folderFilter }); }} disabled={renameFolder.isPending || deleteFolder.isPending} className="border border-[#8b4f63]/35 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#8b4f63] disabled:opacity-40">{deleteFolder.isPending ? <Loader2 size={14} className="mx-auto animate-spin" /> : "Delete"}</button></div></div></section>}{cards.length > 0 && <section className="mt-5 flex flex-col gap-3 border border-[#c9a34e]/35 bg-[#fffaf0] p-4 sm:flex-row sm:items-center"><label className="flex items-center gap-3 text-xs font-bold"><input type="checkbox" checked={cards.length > 0 && cards.every((card) => selectedIds.includes(card.id))} onChange={selectPage} className="accent-[#a27e2e]" /> Select page</label><span className="text-xs text-[#657084]">{selectedIds.length} selected{allMatchingIds.length > cards.length ? ` of ${allMatchingIds.length} matching` : ""}</span><div className="flex flex-wrap items-center gap-2"><button type="button" onClick={selectAllMatches} disabled={allMatchingIdsQuery.isLoading || !allMatchingIds.length} className="border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] disabled:opacity-40">{allMatchingSelected ? "Deselect all" : "Select all results"}</button><button type="button" onClick={clearSelection} disabled={!selectedIds.length} className="border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084] disabled:opacity-40">Clear selection</button></div><div className="flex min-w-0 flex-1 gap-2 sm:ml-auto sm:max-w-xl"><input value={bulkFolder} onChange={(event) => setBulkFolder(event.target.value)} list="bulk-folders" placeholder="Folder for selected illustrations" maxLength={80} className="min-w-0 flex-1 border border-[#16243d]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#c9a34e]" /><datalist id="bulk-folders">{bookmarksQuery.data?.folders?.map((folder) => <option key={folder} value={folder} />)}</datalist><button type="button" onClick={submitBulkMove} disabled={!selectedIds.length || bulkMove.isPending} className="inline-flex items-center gap-2 bg-[#16243d] px-4 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] disabled:opacity-50">{bulkMove.isPending ? <Loader2 size={14} className="animate-spin" /> : <Folder size={14} />} Move selected</button></div></section>}{moveCelebration && <div role="status" aria-live="polite" className="mt-5 flex items-center gap-3 border border-[#2f6f78]/35 bg-[#edf4ee] px-4 py-3 text-sm font-semibold text-[#2f6f78] motion-safe:animate-[pulse_650ms_ease-out]"><CheckCircle2 size={18} /> Illustrations moved into their folder.</div>}{bookmarksQuery.isLoading ? <div className="grid place-items-center py-20 text-[#657084]"><Loader2 className="animate-spin text-[#a27e2e]" /></div> : (bookmarksQuery.data?.total ?? 0) === 0 ? <div className="mt-8 border border-dashed border-[#16243d]/20 bg-white/40 px-6 py-16 text-center"><Bookmark className="mx-auto text-[#c9a34e]" size={30} /><h2 className="display mt-5 text-3xl">{t("noIllustrations")}</h2><p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-[#657084]">Open a course lesson, choose an illustration that helps you learn, and select Save to build this collection.</p><Link href="/courses" className="mt-6 inline-flex items-center gap-2 border border-[#16243d] px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] transition hover:bg-[#16243d] hover:text-[#f7f3e8]">{t("courses")} <ArrowUpRight size={14} /></Link></div> : <><p className="mt-7 text-xs text-[#657084]">Reordering is available when one custom folder is selected. Drag a card or use the arrow controls; changes are saved across devices.</p><div className="mt-3 grid gap-5 md:grid-cols-2 xl:grid-cols-3">{cards.map((card) => <IllustrationCard key={card.id} card={card} selected={visibleSelectedIds.includes(card.id)} folders={bookmarksQuery.data?.folders ?? []} editingFolderId={editingFolderId} folderDraft={folderDraft} pngBusy={pngBusyId === card.id} onToggleSelect={toggleSelect} onZoom={setZoomed} onDelete={(item) => deleteBookmark.mutate({ courseSlug: item.courseSlug, lessonId: item.lessonId, illustrationMode: item.mode })} onStartFolderEdit={(item) => { setEditingFolderId(item.id); setFolderDraft(item.folder); }} onFolderDraftChange={setFolderDraft} onSaveFolder={(item) => { const folder = folderDraft.trim(); if (!folder) { toast.error("Enter a folder name"); return; } updateFolder.mutate({ bookmarkId: item.id, folder }); }} onDownloadPng={(item) => void downloadPng(item)} onDragStart={setDraggedId} onDragOver={(event, id) => { event.preventDefault(); if (draggedId !== null && draggedId !== id) event.dataTransfer.dropEffect = "move"; }} onDrop={(id) => { if (draggedId !== null) reorderCards(draggedId, id); setDraggedId(null); }} onMove={moveCard} />)}</div><div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[#16243d]/15 pt-5"><p className="text-xs text-[#657084]">Showing {((page - 1) * pageSize) + 1}–{Math.min(page * pageSize, bookmarksQuery.data?.total ?? 0)} of {bookmarksQuery.data?.total ?? 0} saved illustrations</p><div className="flex items-center gap-2"><button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page <= 1 || bookmarksQuery.isFetching} className="inline-flex items-center gap-1 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-40"><ChevronLeft size={14} /> Previous</button><span className="px-2 text-xs font-bold text-[#657084]">Page {page} of {bookmarksQuery.data?.pageCount ?? 1}</span><button type="button" onClick={() => setPage((current) => Math.min(bookmarksQuery.data?.pageCount ?? current, current + 1))} disabled={page >= (bookmarksQuery.data?.pageCount ?? 1) || bookmarksQuery.isFetching} className="inline-flex items-center gap-1 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-40">Next <ChevronRight size={14} /></button></div></div></>}<p className="mt-8 text-xs leading-5 text-[#657084]">Your collection is available across every course workspace.</p></div></main>{zoomed && <div className="fixed inset-0 z-[70] grid place-items-center bg-[#071225]/85 p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setZoomed(null); }}><div role="dialog" aria-modal="true" aria-labelledby="gallery-artwork-title" className="w-full max-w-5xl border border-[#c9a34e]/70 bg-[#16243d] p-4 text-[#f7f3e8] shadow-2xl sm:p-7"><div className="flex items-start justify-between gap-4"><div><p className="eyebrow text-[#c9a34e]">{zoomed.modeLabel}</p><h2 id="gallery-artwork-title" className="display mt-2 text-3xl">{zoomed.lessonTitle}</h2><p className="mt-1 text-xs text-[#c1cad7]">{zoomed.courseTitle}</p></div><button type="button" onClick={() => setZoomed(null)} aria-label="Close artwork preview" className="inline-flex items-center gap-2 border border-white/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8]"><X size={14} /> {t("close")}</button></div>{zoomed.visualUrl && <img src={zoomed.visualUrl} alt={zoomed.visualAlt ?? zoomed.lessonTitle} className="mt-6 max-h-[64vh] w-full object-contain" />}<p className="mt-5 max-w-3xl text-sm leading-7 text-[#c1cad7]">{zoomed.content}</p><div className="mt-6 flex flex-wrap gap-3">{zoomed.visualUrl && <><button type="button" onClick={() => downloadIllustrationStudySheet({ imageUrl: zoomed.visualUrl ?? "", courseTitle: zoomed.courseTitle, lessonTitle: zoomed.lessonTitle, modeLabel: zoomed.modeLabel, content: zoomed.content, filename: `${zoomed.courseSlug}-${zoomed.lessonId}-study-sheet.svg` })} className="inline-flex items-center gap-2 border border-white/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8]"><Download size={14} /> SVG</button><button type="button" onClick={() => void downloadPng(zoomed)} disabled={pngBusyId === zoomed.id} className="inline-flex items-center gap-2 bg-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] disabled:opacity-50">{pngBusyId === zoomed.id ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} PNG</button></>}<Link href={`/courses/${zoomed.courseSlug}`} onClick={() => setZoomed(null)} className="inline-flex items-center gap-2 border border-white/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8]">Open lesson <ArrowUpRight size={14} /></Link></div></div></div>}</div>;
+  return (
+    <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
+      <TransformationNav active="assessment" />
+      <main className="container py-7 sm:py-12">
+        <div className="mx-auto max-w-7xl">
+          <DashboardQuickNav role={user.role} className="mb-8" />
+          <div className="flex flex-wrap items-end justify-between gap-5 border-b border-[#16243d]/15 pb-7">
+            <div>
+              <div className="flex items-center gap-2 text-xs text-[#657084]">
+                <Link
+                  href="/dashboard"
+                  className="transition hover:text-[#a27e2e]"
+                >
+                  {t("myWorkspace")}
+                </Link>
+                <span aria-hidden="true">/</span>
+                <span className="font-semibold text-[#16243d]">
+                  {t("myIllustrations")}
+                </span>
+              </div>
+              <p className="eyebrow mt-7 text-[#a27e2e]">
+                Visual study library
+              </p>
+              <h1 className="display mt-3 max-w-3xl text-5xl leading-[.95] tracking-[-.045em] sm:text-7xl">
+                {t("myIllustrations")}
+              </h1>
+              <p className="mt-5 max-w-2xl text-base leading-7 text-[#4a566a]">
+                {t("myIllustrationsDescription")}
+              </p>
+            </div>
+            <div className="border border-[#c9a34e]/45 bg-[#fffaf0] px-5 py-4 text-right">
+              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#8a681e]">
+                Saved collection
+              </p>
+              <p className="display mt-2 text-4xl">
+                {bookmarksQuery.data?.total ?? 0}
+              </p>
+              <p className="text-xs text-[#657084]">visual cards</p>
+            </div>
+          </div>
+          <section
+            className="mt-7 border border-[#16243d]/12 bg-white/55 p-4 sm:p-5"
+            aria-label="Illustration filters"
+          >
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <label className="flex min-w-0 flex-1 items-center gap-3 border-b border-[#16243d]/20 pb-2 text-sm text-[#657084] lg:max-w-xl">
+                <Search size={17} className="shrink-0 text-[#a27e2e]" />
+                <span className="sr-only">Search saved illustrations</span>
+                <input
+                  value={query}
+                  onChange={event => setQuery(event.target.value)}
+                  placeholder="Search courses, lessons, or illustration notes"
+                  className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-[#8f9db3]"
+                />
+              </label>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                  <Filter size={14} /> Filter
+                </span>
+                {(
+                  [
+                    "all",
+                    "explanatory",
+                    "applicational",
+                    "experiential",
+                  ] as const
+                ).map(mode => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => setModeFilter(mode)}
+                    className={`border px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] transition ${modeFilter === mode ? "border-[#16243d] bg-[#16243d] text-[#f7f3e8]" : "border-[#16243d]/15 bg-transparent text-[#657084] hover:border-[#c9a34e] hover:text-[#16243d]"}`}
+                  >
+                    {mode === "all"
+                      ? "All modes"
+                      : getLessonIllustrationCopy(locale)[mode]}
+                  </button>
+                ))}
+                <label className="inline-flex items-center gap-2 border border-[#16243d]/15 bg-white/60 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+                  <Folder size={13} className="text-[#a27e2e]" />
+                  <span className="sr-only">Filter by folder</span>
+                  <select
+                    value={folderFilter}
+                    onChange={event => setFolderFilter(event.target.value)}
+                    className="max-w-[10rem] bg-transparent outline-none"
+                  >
+                    <option value="all">All folders</option>
+                    {folders.map(folder => (
+                      <option key={folder} value={folder}>
+                        {folder}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            </div>
+            <div className="mt-4 flex flex-col gap-3 border-t border-[#16243d]/10 pt-4 sm:flex-row sm:items-center">
+              <label className="flex min-w-0 flex-1 items-center gap-2 text-xs text-[#657084]">
+                <Search size={14} className="text-[#a27e2e]" />
+                <span className="sr-only">Search folders</span>
+                <input
+                  value={folderQuery}
+                  onChange={event => setFolderQuery(event.target.value)}
+                  placeholder="Search custom folders"
+                  className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-[#8f9db3]"
+                />
+              </label>
+              <p className="text-[11px] text-[#657084]">
+                {folders.length} matching folder
+                {folders.length === 1 ? "" : "s"}
+              </p>
+            </div>
+          </section>
+          {folderFilter !== "all" && (
+            <section
+              className="mt-5 border border-[#16243d]/15 bg-white/55 p-4 sm:p-5"
+              aria-label="Folder management"
+            >
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[.13em] text-[#a27e2e]">
+                    Manage folder
+                  </p>
+                  <p className="mt-2 text-sm text-[#657084]">
+                    Rename{" "}
+                    <strong className="text-[#16243d]">{folderFilter}</strong>,
+                    or delete it and safely move its illustrations to Unsorted.
+                  </p>
+                </div>
+                <div className="flex w-full flex-col gap-2 sm:flex-row lg:max-w-xl">
+                  <label className="sr-only" htmlFor="folder-management-name">
+                    New folder name
+                  </label>
+                  <input
+                    id="folder-management-name"
+                    value={folderManageName}
+                    onChange={event => setFolderManageName(event.target.value)}
+                    maxLength={80}
+                    className="min-w-0 flex-1 border border-[#16243d]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#c9a34e]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = folderManageName.trim();
+                      if (!next || next === folderFilter) {
+                        toast.error("Enter a different folder name");
+                        return;
+                      }
+                      renameFolder.mutate({
+                        fromFolder: folderFilter,
+                        toFolder: next,
+                      });
+                    }}
+                    disabled={renameFolder.isPending || deleteFolder.isPending}
+                    className="border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] disabled:opacity-40"
+                  >
+                    {renameFolder.isPending ? (
+                      <Loader2 size={14} className="mx-auto animate-spin" />
+                    ) : (
+                      "Rename"
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          `Delete ${folderFilter}? Its illustrations will move to Unsorted.`
+                        )
+                      )
+                        deleteFolder.mutate({ folder: folderFilter });
+                    }}
+                    disabled={renameFolder.isPending || deleteFolder.isPending}
+                    className="border border-[#8b4f63]/35 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#8b4f63] disabled:opacity-40"
+                  >
+                    {deleteFolder.isPending ? (
+                      <Loader2 size={14} className="mx-auto animate-spin" />
+                    ) : (
+                      "Delete"
+                    )}
+                  </button>
+                </div>
+              </div>
+            </section>
+          )}
+          {cards.length > 0 && (
+            <section className="mt-5 flex flex-col gap-3 border border-[#c9a34e]/35 bg-[#fffaf0] p-4 sm:flex-row sm:items-center">
+              <label className="flex items-center gap-3 text-xs font-bold">
+                <input
+                  type="checkbox"
+                  checked={
+                    cards.length > 0 &&
+                    cards.every(card => selectedIds.includes(card.id))
+                  }
+                  onChange={selectPage}
+                  className="accent-[#a27e2e]"
+                />{" "}
+                Select page
+              </label>
+              <span className="text-xs text-[#657084]">
+                {selectedIds.length} selected
+                {allMatchingIds.length > cards.length
+                  ? ` of ${allMatchingIds.length} matching`
+                  : ""}
+              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={selectAllMatches}
+                  disabled={
+                    allMatchingIdsQuery.isLoading || !allMatchingIds.length
+                  }
+                  className="border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] disabled:opacity-40"
+                >
+                  {allMatchingSelected ? "Deselect all" : "Select all results"}
+                </button>
+                <button
+                  type="button"
+                  onClick={clearSelection}
+                  disabled={!selectedIds.length}
+                  className="border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084] disabled:opacity-40"
+                >
+                  Clear selection
+                </button>
+              </div>
+              <div className="flex min-w-0 flex-1 gap-2 sm:ml-auto sm:max-w-xl">
+                <input
+                  value={bulkFolder}
+                  onChange={event => setBulkFolder(event.target.value)}
+                  list="bulk-folders"
+                  placeholder="Folder for selected illustrations"
+                  maxLength={80}
+                  className="min-w-0 flex-1 border border-[#16243d]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#c9a34e]"
+                />
+                <datalist id="bulk-folders">
+                  {bookmarksQuery.data?.folders?.map(folder => (
+                    <option key={folder} value={folder} />
+                  ))}
+                </datalist>
+                <button
+                  type="button"
+                  onClick={submitBulkMove}
+                  disabled={!selectedIds.length || bulkMove.isPending}
+                  className="inline-flex items-center gap-2 bg-[#16243d] px-4 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] disabled:opacity-50"
+                >
+                  {bulkMove.isPending ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Folder size={14} />
+                  )}{" "}
+                  Move selected
+                </button>
+              </div>
+            </section>
+          )}
+          {moveCelebration && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="mt-5 flex items-center gap-3 border border-[#2f6f78]/35 bg-[#edf4ee] px-4 py-3 text-sm font-semibold text-[#2f6f78] motion-safe:animate-[pulse_650ms_ease-out]"
+            >
+              <CheckCircle2 size={18} /> Illustrations moved into their folder.
+            </div>
+          )}
+          {bookmarksQuery.isLoading ? (
+            <div className="grid place-items-center py-20 text-[#657084]">
+              <Loader2 className="animate-spin text-[#a27e2e]" />
+            </div>
+          ) : (bookmarksQuery.data?.total ?? 0) === 0 ? (
+            <div className="mt-8 border border-dashed border-[#16243d]/20 bg-white/40 px-6 py-16 text-center">
+              <Bookmark className="mx-auto text-[#c9a34e]" size={30} />
+              <h2 className="display mt-5 text-3xl">{t("noIllustrations")}</h2>
+              <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-[#657084]">
+                Open a course lesson, choose an illustration that helps you
+                learn, and select Save to build this collection.
+              </p>
+              <Link
+                href="/courses"
+                className="mt-6 inline-flex items-center gap-2 border border-[#16243d] px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] transition hover:bg-[#16243d] hover:text-[#f7f3e8]"
+              >
+                {t("courses")} <ArrowUpRight size={14} />
+              </Link>
+            </div>
+          ) : (
+            <>
+              <p className="mt-7 text-xs text-[#657084]">
+                Reordering is available when one custom folder is selected. Drag
+                a card or use the arrow controls; changes are saved across
+                devices.
+              </p>
+              <div className="mt-3 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                {cards.map(card => (
+                  <IllustrationCard
+                    key={card.id}
+                    card={card}
+                    selected={visibleSelectedIds.includes(card.id)}
+                    folders={bookmarksQuery.data?.folders ?? []}
+                    editingFolderId={editingFolderId}
+                    folderDraft={folderDraft}
+                    pngBusy={pngBusyId === card.id}
+                    onToggleSelect={toggleSelect}
+                    onZoom={setZoomed}
+                    onDelete={item =>
+                      deleteBookmark.mutate({
+                        courseSlug: item.courseSlug,
+                        lessonId: item.lessonId,
+                        illustrationMode: item.mode,
+                      })
+                    }
+                    onStartFolderEdit={item => {
+                      setEditingFolderId(item.id);
+                      setFolderDraft(item.folder);
+                    }}
+                    onFolderDraftChange={setFolderDraft}
+                    onSaveFolder={item => {
+                      const folder = folderDraft.trim();
+                      if (!folder) {
+                        toast.error("Enter a folder name");
+                        return;
+                      }
+                      updateFolder.mutate({ bookmarkId: item.id, folder });
+                    }}
+                    onDownloadPng={item => void downloadPng(item)}
+                    onDragStart={setDraggedId}
+                    onDragOver={(event, id) => {
+                      event.preventDefault();
+                      if (draggedId !== null && draggedId !== id)
+                        event.dataTransfer.dropEffect = "move";
+                    }}
+                    onDrop={id => {
+                      if (draggedId !== null) reorderCards(draggedId, id);
+                      setDraggedId(null);
+                    }}
+                    onMove={moveCard}
+                  />
+                ))}
+              </div>
+              <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[#16243d]/15 pt-5">
+                <p className="text-xs text-[#657084]">
+                  Showing {(page - 1) * pageSize + 1}–
+                  {Math.min(page * pageSize, bookmarksQuery.data?.total ?? 0)}{" "}
+                  of {bookmarksQuery.data?.total ?? 0} saved illustrations
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPage(current => Math.max(1, current - 1))}
+                    disabled={page <= 1 || bookmarksQuery.isFetching}
+                    className="inline-flex items-center gap-1 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-40"
+                  >
+                    <ChevronLeft size={14} /> Previous
+                  </button>
+                  <span className="px-2 text-xs font-bold text-[#657084]">
+                    Page {page} of {bookmarksQuery.data?.pageCount ?? 1}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPage(current =>
+                        Math.min(
+                          bookmarksQuery.data?.pageCount ?? current,
+                          current + 1
+                        )
+                      )
+                    }
+                    disabled={
+                      page >= (bookmarksQuery.data?.pageCount ?? 1) ||
+                      bookmarksQuery.isFetching
+                    }
+                    className="inline-flex items-center gap-1 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-40"
+                  >
+                    Next <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+          <p className="mt-8 text-xs leading-5 text-[#657084]">
+            Your collection is available across every course workspace.
+          </p>
+        </div>
+      </main>
+      {zoomed && (
+        <div
+          className="fixed inset-0 z-[70] grid place-items-center bg-[#071225]/85 p-4"
+          role="presentation"
+          onMouseDown={event => {
+            if (event.target === event.currentTarget) setZoomed(null);
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="gallery-artwork-title"
+            className="w-full max-w-5xl border border-[#c9a34e]/70 bg-[#16243d] p-4 text-[#f7f3e8] shadow-2xl sm:p-7"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="eyebrow text-[#c9a34e]">{zoomed.modeLabel}</p>
+                <h2
+                  id="gallery-artwork-title"
+                  className="display mt-2 text-3xl"
+                >
+                  {zoomed.lessonTitle}
+                </h2>
+                <p className="mt-1 text-xs text-[#c1cad7]">
+                  {zoomed.courseTitle}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setZoomed(null)}
+                aria-label="Close artwork preview"
+                className="inline-flex items-center gap-2 border border-white/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8]"
+              >
+                <X size={14} /> {t("close")}
+              </button>
+            </div>
+            {zoomed.visualUrl && (
+              <img
+                src={zoomed.visualUrl}
+                alt={zoomed.visualAlt ?? zoomed.lessonTitle}
+                className="mt-6 max-h-[64vh] w-full object-contain"
+              />
+            )}
+            <p className="mt-5 max-w-3xl text-sm leading-7 text-[#c1cad7]">
+              {zoomed.content}
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              {zoomed.visualUrl && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      downloadIllustrationStudySheet({
+                        imageUrl: zoomed.visualUrl ?? "",
+                        courseTitle: zoomed.courseTitle,
+                        lessonTitle: zoomed.lessonTitle,
+                        modeLabel: zoomed.modeLabel,
+                        content: zoomed.content,
+                        filename: `${zoomed.courseSlug}-${zoomed.lessonId}-study-sheet.svg`,
+                      })
+                    }
+                    className="inline-flex items-center gap-2 border border-white/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8]"
+                  >
+                    <Download size={14} /> SVG
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void downloadPng(zoomed)}
+                    disabled={pngBusyId === zoomed.id}
+                    className="inline-flex items-center gap-2 bg-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] disabled:opacity-50"
+                  >
+                    {pngBusyId === zoomed.id ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Download size={14} />
+                    )}{" "}
+                    PNG
+                  </button>
+                </>
+              )}
+              <Link
+                href={`/courses/${zoomed.courseSlug}`}
+                onClick={() => setZoomed(null)}
+                className="inline-flex items-center gap-2 border border-white/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8]"
+              >
+                Open lesson <ArrowUpRight size={14} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

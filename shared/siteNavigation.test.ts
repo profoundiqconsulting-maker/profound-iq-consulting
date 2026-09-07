@@ -4,18 +4,36 @@ import { readFileSync } from "node:fs";
 const shell = readFileSync("client/src/components/PublicPageShell.tsx", "utf8");
 const home = readFileSync("client/src/pages/Home.tsx", "utf8");
 const routes = readFileSync("client/src/App.tsx", "utf8");
-const verification = readFileSync("client/src/pages/CertificateVerification.tsx", "utf8");
+const verification = readFileSync(
+  "client/src/pages/CertificateVerification.tsx",
+  "utf8"
+);
 const notFound = readFileSync("client/src/pages/NotFound.tsx", "utf8");
 const brandLogo = readFileSync("client/src/components/BrandLogo.tsx", "utf8");
-const siteNav = readFileSync("client/src/components/SiteNavigation.tsx", "utf8");
+const siteNav = readFileSync(
+  "client/src/components/SiteNavigation.tsx",
+  "utf8"
+);
 
 describe("sitewide navigation alignment", () => {
   it("keeps the primary public journey links in the shared shell", () => {
-    for (const path of ["/about", "/services", "/school-solutions", "/courses", "/assessment", "/careerpath", "/resources"]) {
+    for (const path of [
+      "/about",
+      "/services",
+      "/school-solutions",
+      "/courses",
+      "/assessment",
+      "/careerpath",
+      "/resources",
+    ]) {
       expect(siteNav).toContain(`href: "${path}"`);
     }
-    expect(siteNav).toContain("aria-current={item.active ? \"page\" : undefined}");
-    expect(siteNav).toContain("isAuthenticated ? \"/dashboard\" : \"/auth?mode=login\"");
+    expect(siteNav).toContain(
+      'aria-current={item.active ? "page" : undefined}'
+    );
+    expect(siteNav).toContain(
+      'isAuthenticated ? "/dashboard" : "/auth?mode=login"'
+    );
     expect(shell).toContain('href="/contact"');
   });
 
@@ -30,7 +48,19 @@ describe("sitewide navigation alignment", () => {
     expect(verification).toContain('recordShareEvent("native")');
     expect(verification).toContain("recordCertificateShare");
     expect(verification).toContain("actions.copied");
-    for (const locale of ["en", "sw", "fr", "es", "pt", "ar", "zh", "hi", "de", "ja"]) expect(verification).toContain(`${locale}: {`);
+    for (const locale of [
+      "en",
+      "sw",
+      "fr",
+      "es",
+      "pt",
+      "ar",
+      "zh",
+      "hi",
+      "de",
+      "ja",
+    ])
+      expect(verification).toContain(`${locale}: {`);
     expect(verification).toContain("nativeShareSupported");
   });
 
@@ -38,7 +68,9 @@ describe("sitewide navigation alignment", () => {
     expect(routes).toContain('path="/verify/assessment"');
     expect(routes).toContain('path="/verify/certificate"');
     expect(routes).toContain('path="/verify/psychometric"');
-    expect(routes.indexOf('path="/verify/assessment"')).toBeLessThan(routes.indexOf('path="/404"'));
+    expect(routes.indexOf('path="/verify/assessment"')).toBeLessThan(
+      routes.indexOf('path="/404"')
+    );
   });
 
   it("keeps the custom 404 page pointed to the homepage", () => {
@@ -53,20 +85,30 @@ describe("sitewide navigation alignment", () => {
     expect(siteNav).toContain("data-sticky-navigation");
     expect(siteNav).toContain("sticky top-0 z-50");
     expect(siteNav).toContain("data-compact={isCompact}");
-    expect(siteNav).toContain("aria-label=\"Back to top\"");
-    expect(shell).toContain("aria-label=\"Social media links\"");
+    expect(siteNav).toContain('aria-label="Back to top"');
+    expect(shell).toContain('aria-label="Social media links"');
     expect(siteNav).toContain("data-sticky-navigation");
     expect(siteNav).toContain("sticky top-0 z-50");
     expect(siteNav).toContain("data-compact={isCompact}");
-    expect(siteNav).toContain("aria-label=\"Back to top\"");
+    expect(siteNav).toContain('aria-label="Back to top"');
   });
 
   it("keeps home navigation aligned with registered routes and mobile access", () => {
-    for (const path of ["/about", "/services", "/courses", "/assessment", "/careerpath", "/resources", "/contact"]) {
+    for (const path of [
+      "/about",
+      "/services",
+      "/courses",
+      "/assessment",
+      "/careerpath",
+      "/resources",
+      "/contact",
+    ]) {
       expect(siteNav).toContain(`href: "${path}"`);
       expect(routes).toContain(`path=\"${path}\"`);
     }
-    expect(siteNav).toContain('aria-label={menuOpen ? "Close navigation" : "Open navigation"}');
+    expect(siteNav).toContain(
+      'aria-label={menuOpen ? "Close navigation" : "Open navigation"}'
+    );
     expect(siteNav).toContain('href="/dashboard"');
     expect(routes).toContain('path="/verify/assessment"');
   });

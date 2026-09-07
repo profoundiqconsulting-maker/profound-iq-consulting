@@ -4,7 +4,9 @@ export type CanonicalCertificateArtifact = {
   fileUrl: string | null;
 };
 
-export function getCanonicalCertificateArtifact(input: Partial<CanonicalCertificateArtifact> | null | undefined): CanonicalCertificateArtifact | null {
+export function getCanonicalCertificateArtifact(
+  input: Partial<CanonicalCertificateArtifact> | null | undefined
+): CanonicalCertificateArtifact | null {
   if (!input?.certificateNumber || !input.fileUrl) return null;
   return {
     certificateNumber: input.certificateNumber,

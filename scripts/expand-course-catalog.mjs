@@ -93,7 +93,17 @@ const additionalCourseSeeds = [
   },
 ].map((course) => ({ ...course, priceKes: STANDARD_COURSE_PRICE_KES, stageAmountsKes: STANDARD_COURSE_STAGE_AMOUNTS_KES }));
 `;
-source = source.replace('const buildModules = (course: { slug: string; title: string }): CourseModule[] => lessonBlueprints.map((lessonTitles, moduleIndex) => {\n  const moduleId = `module-${moduleIndex + 1}`;\n  const theme = moduleThemes[course.title][moduleIndex];', 'const buildModules = (course: { slug: string; title: string }): CourseModule[] => lessonBlueprints.map((lessonTitles, moduleIndex) => {\n  const moduleId = `module-${moduleIndex + 1}`;\n  const theme = moduleThemes[course.title]?.[moduleIndex] ?? extendedModuleThemes[course.slug]?.[moduleIndex] ?? `${course.title.toLowerCase()} practice ${moduleIndex + 1}`;');
-source = source.replace('const courseSeeds = [', themeBlock + '\nconst courseSeeds = [');
-source = source.replace('export const courseCatalog: CourseDefinition[] = courseSeeds.map((course) => ({ ...course, modules:', seedBlock + '\nexport const courseCatalog: CourseDefinition[] = [...courseSeeds, ...additionalCourseSeeds].map((course) => ({ ...course, modules:');
+source = source.replace(
+  "const buildModules = (course: { slug: string; title: string }): CourseModule[] => lessonBlueprints.map((lessonTitles, moduleIndex) => {\n  const moduleId = `module-${moduleIndex + 1}`;\n  const theme = moduleThemes[course.title][moduleIndex];",
+  "const buildModules = (course: { slug: string; title: string }): CourseModule[] => lessonBlueprints.map((lessonTitles, moduleIndex) => {\n  const moduleId = `module-${moduleIndex + 1}`;\n  const theme = moduleThemes[course.title]?.[moduleIndex] ?? extendedModuleThemes[course.slug]?.[moduleIndex] ?? `${course.title.toLowerCase()} practice ${moduleIndex + 1}`;"
+);
+source = source.replace(
+  "const courseSeeds = [",
+  themeBlock + "\nconst courseSeeds = ["
+);
+source = source.replace(
+  "export const courseCatalog: CourseDefinition[] = courseSeeds.map((course) => ({ ...course, modules:",
+  seedBlock +
+    "\nexport const courseCatalog: CourseDefinition[] = [...courseSeeds, ...additionalCourseSeeds].map((course) => ({ ...course, modules:"
+);
 fs.writeFileSync(path, source);

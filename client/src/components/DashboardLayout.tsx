@@ -24,11 +24,14 @@ import { ArrowLeft, LogOut, PanelLeft, ShieldCheck } from "lucide-react";
 import { isQualityControlAdmin } from "@shared/courseAccess";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
+import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
 import { useLocale } from "@/contexts/LocaleContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { Button } from "./ui/button";
-import { dashboardNavGroups, visibleDashboardNavItems } from "./dashboardNavigation";
+import {
+  dashboardNavGroups,
+  visibleDashboardNavItems,
+} from "./dashboardNavigation";
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
 const DEFAULT_WIDTH = 280;
@@ -54,7 +57,7 @@ export default function DashboardLayout({
   }, [sidebarWidth]);
 
   if (loading) {
-    return <DashboardLayoutSkeleton />
+    return <DashboardLayoutSkeleton />;
   }
 
   if (!user) {
@@ -66,7 +69,8 @@ export default function DashboardLayout({
               {t("signInToContinue")}
             </h1>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Access to this dashboard requires authentication. Continue to launch the login flow.
+              Access to this dashboard requires authentication. Continue to
+              launch the login flow.
             </p>
           </div>
           <Button
@@ -74,7 +78,9 @@ export default function DashboardLayout({
             size="lg"
             className="w-full shadow-lg hover:shadow-xl transition-all"
           >
-            <Link href="/auth?mode=login&returnTo=%2Fdashboard">{t("signIn")}</Link>
+            <Link href="/auth?mode=login&returnTo=%2Fdashboard">
+              {t("signIn")}
+            </Link>
           </Button>
         </div>
       </div>
@@ -114,8 +120,13 @@ function DashboardLayoutContent({
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const localizedMenuItems = visibleDashboardNavItems(user?.role).map((item) => ({ ...item, label: t(item.labelKey) || item.fallbackLabel }));
-  const activeMenuItem = localizedMenuItems.find((item) => location === item.path || location.startsWith(`${item.path}/`));
+  const localizedMenuItems = visibleDashboardNavItems(user?.role).map(item => ({
+    ...item,
+    label: t(item.labelKey) || item.fallbackLabel,
+  }));
+  const activeMenuItem = localizedMenuItems.find(
+    item => location === item.path || location.startsWith(`${item.path}/`)
+  );
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -193,16 +204,20 @@ function DashboardLayoutContent({
 
           <SidebarContent className="gap-0">
             <SidebarMenu className="gap-1 px-2 py-2">
-              {dashboardNavGroups.map((group) => {
-                const groupItems = localizedMenuItems.filter((item) => item.group === group.id);
+              {dashboardNavGroups.map(group => {
+                const groupItems = localizedMenuItems.filter(
+                  item => item.group === group.id
+                );
                 if (!groupItems.length) return null;
                 return (
                   <div key={group.id} className="mb-2 last:mb-0">
                     <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground group-data-[collapsible=icon]:sr-only">
                       {group.fallbackLabel}
                     </p>
-                    {groupItems.map((item) => {
-                      const isActive = location === item.path || location.startsWith(`${item.path}/`);
+                    {groupItems.map(item => {
+                      const isActive =
+                        location === item.path ||
+                        location.startsWith(`${item.path}/`);
                       return (
                         <SidebarMenuItem key={item.id}>
                           <SidebarMenuButton
@@ -211,7 +226,9 @@ function DashboardLayoutContent({
                             tooltip={item.label}
                             className="h-10 font-normal transition-all hover:bg-accent/80 data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:font-semibold"
                           >
-                            <item.icon className={`h-4 w-4 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
+                            <item.icon
+                              className={`h-4 w-4 ${isActive ? "text-primary" : "text-muted-foreground"}`}
+                            />
                             <span>{item.label}</span>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
@@ -224,12 +241,25 @@ function DashboardLayoutContent({
           </SidebarContent>
 
           <SidebarFooter className="space-y-3 p-3">
-            <LanguageSelector compact className="w-full justify-center group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:px-2" />
+            <LanguageSelector
+              compact
+              className="w-full justify-center group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:px-2"
+            />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <Avatar className="h-9 w-9 border shrink-0">
-                    {user?.avatarUrl && (user.notificationPreferences as { showAvatar?: boolean } | undefined)?.showAvatar !== false && <AvatarImage src={user.avatarUrl} alt={`${user.name ?? "User"} profile picture`} />}
+                    {user?.avatarUrl &&
+                      (
+                        user.notificationPreferences as
+                          | { showAvatar?: boolean }
+                          | undefined
+                      )?.showAvatar !== false && (
+                        <AvatarImage
+                          src={user.avatarUrl}
+                          alt={`${user.name ?? "User"} profile picture`}
+                        />
+                      )}
                     <AvatarFallback className="text-xs font-medium">
                       {user?.name?.charAt(0).toUpperCase()}
                     </AvatarFallback>
@@ -271,7 +301,10 @@ function DashboardLayoutContent({
           <div className="flex border-b h-14 items-center justify-between bg-background/95 px-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
-              <Link href="/" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.16em] text-muted-foreground hover:text-foreground">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.16em] text-muted-foreground hover:text-foreground"
+              >
                 <ArrowLeft size={14} aria-hidden="true" /> Back
               </Link>
             </div>
@@ -292,7 +325,6 @@ function DashboardLayoutContent({
                 </span>
               ) : null}
             </div>
-
           </div>
         )}
         <main className="min-w-0 flex-1 p-3 sm:p-4 lg:p-6">{children}</main>

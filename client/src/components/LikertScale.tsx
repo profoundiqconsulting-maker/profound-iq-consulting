@@ -50,7 +50,7 @@ export function LikertScale({
               {question}
             </p>
             <div className="mt-5 grid grid-cols-5 gap-2 sm:max-w-xl">
-              {options.map((option) => {
+              {options.map(option => {
                 const isSelected = value === option.value;
                 return (
                   <label
@@ -69,11 +69,15 @@ export function LikertScale({
                       onChange={() => onChange(option.value)}
                       className="sr-only"
                     />
-                    <span className={`text-lg font-bold ${isSelected ? "text-[#c9a34e]" : "text-[#16243d]"}`}>
+                    <span
+                      className={`text-lg font-bold ${isSelected ? "text-[#c9a34e]" : "text-[#16243d]"}`}
+                    >
                       {option.label}
                     </span>
                     {option.description && (
-                      <span className={`text-[9px] font-semibold uppercase tracking-[.1em] ${isSelected ? "text-[#c1cad7]" : "text-[#657084]"}`}>
+                      <span
+                        className={`text-[9px] font-semibold uppercase tracking-[.1em] ${isSelected ? "text-[#c1cad7]" : "text-[#657084]"}`}
+                      >
                         {option.description}
                       </span>
                     )}

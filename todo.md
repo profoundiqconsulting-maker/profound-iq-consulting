@@ -202,6 +202,7 @@
 - [x] Save a checkpoint containing the audit, queue, and modal enhancements.
 
 # Verification Audit History Enhancements
+
 - [x] Add shared audit-history filters, pagination, and safe CSV serialization contracts.
 - [x] Add server-side paginated audit queries filtered by admin and UTC date range.
 - [x] Add an admin-only audit CSV export procedure with compliance-safe fields.
@@ -212,6 +213,7 @@
 - [x] Save a checkpoint containing the audit-history enhancements.
 
 # Local Credential Authentication
+
 - [x] Add credential fields and password-reset token storage using secure schema contracts.
 - [x] Implement registration with unique email, phone, and username validation.
 - [x] Implement password login accepting email, phone number, or username.
@@ -224,6 +226,7 @@
 - [x] Save a checkpoint containing the local credential authentication enhancement.
 
 # Authentication Security Enhancements
+
 - [x] Add a real-time password-strength meter to registration and reset-password forms.
 - [x] Confirm password recovery remains email-only; no SMS provider is required.
 - [x] Keep password-reset delivery email-only using the existing single-use, expiring email token flow.
@@ -234,6 +237,7 @@
 - [x] Save a checkpoint containing the authentication security enhancements.
 
 # Login Security and Session Visibility
+
 - [x] Add a user-facing rate-limit countdown with automatic refresh when the lockout expires.
 - [x] Add durable login-event history with safe identifier and network redaction.
 - [x] Add active-session listing and revoke-current/other-session controls scoped to the signed-in user, including a dedicated current-device sign-out action.
@@ -365,6 +369,7 @@
 - [x] Save a checkpoint containing the CareerPath reporting enhancements.
 
 # CareerPath Visuals, Test Fixtures, and Checkout Feedback
+
 - [x] Add a downloadable coaching image visual (SVG) for the authenticated learner’s sub-pathway comparison.
 - [x] Add safe multi-version test fixtures and a local-only preview path for mobile trend-line legend verification without seeding real customer data.
 - [x] Add Paystack checkout loading animation and clear success-state feedback for the KES 200 and KES 999 flows.
@@ -373,6 +378,7 @@
 - [x] Save a checkpoint containing the visuals, fixtures, and checkout feedback enhancements.
 
 # Coaching Visual PNG, QA Toggle, and Receipt Email
+
 - [x] Add a PNG export option alongside the existing SVG CareerPath coaching visual.
 - [x] Add a dedicated QA-only multi-version fixture toggle in Settings and connect it to the dashboard preview.
 - [x] Attach the coaching visual to the automated email sent after verified Paystack CareerPath completion.
@@ -381,6 +387,7 @@
 - [x] Save a checkpoint containing the PNG export, QA toggle, and receipt-email enhancements.
 
 # Coaching Visual Preview, Strengths Summary, and PNG Feedback
+
 - [x] Add a preview modal for the CareerPath coaching visual before download or email delivery.
 - [x] Add a concise top-strengths summary to automated CareerPath receipt emails.
 - [x] Add an accessible PNG generation/download spinner and success toast feedback.
@@ -389,6 +396,7 @@
 - [x] Save a checkpoint containing the preview, email summary, and PNG feedback enhancements.
 
 # Coaching Notes, Assessment Pagination, and KES 20 Pricing
+
 - [x] Add a Copy to Clipboard action to the coaching-visual preview modal.
 - [x] Add a branded header and footer to automated CareerPath receipt emails.
 - [x] Allow optional personal notes to be added to the strengths summary before receipt email delivery.
@@ -401,6 +409,7 @@
 - [x] Correct the stale homepage standard-assessment price label from KES 200 to KES 20 and revalidate the visible copy.
 
 # Learner Receipt Preview, Progress Labels, and CareerPath KES 20 Pricing
+
 - [x] Add a pre-payment learner receipt preview screen showing strengths summary, personal notes, and delivery details.
 - [x] Add percentage completion and clear step labels to the assessment progress bar.
 - [x] Add a download fallback when clipboard image copying is unsupported on mobile browsers.
@@ -410,6 +419,7 @@
 - [x] Save a checkpoint containing these enhancements.
 
 # Receipt Titles, Resume Links, Preview Themes, and Module Pagination
+
 - [x] Allow learners to edit the receipt subject or coaching-session title in the pre-payment preview.
 - [x] Add a secure Save and Continue Later flow that emails a resume link without exposing raw answers.
 - [x] Add a light/dark theme toggle to the receipt preview screen.
@@ -419,6 +429,7 @@
 - [x] Save a checkpoint containing these learner UX enhancements.
 
 # Resume Recovery, Module Overview, and Save Confirmation
+
 - [x] Add a user-friendly expired-resume error page with a Start Over action.
 - [x] Add a slide-out assessment module overview drawer with completion badges.
 - [x] Add a save-success modal with a resend resume-email action.
@@ -427,6 +438,7 @@
 - [x] Save a checkpoint containing these assessment UX enhancements.
 
 # Inline Module Completion, Resume Link Copy, and Minimal Receipt Review
+
 - [x] Add visible completed/checkmark states to inline module navigation controls.
 - [x] Make completion badges in the overview drawer clickable for direct module navigation.
 - [x] Add a Copy Resume Link fallback action to the save-success modal.
@@ -436,6 +448,7 @@
 - [x] Save a checkpoint containing these assessment UX refinements.
 
 # Assessment Progress Summary, Copy Confirmation, and Navigation Guard
+
 - [x] Add a compact completed-modules summary to the assessment header.
 - [x] Confirm successful resume-link copying with a toast notification.
 - [x] Add a confirmation prompt before navigating to a completed module from the overview drawer.
@@ -444,6 +457,7 @@
 - [x] Save a checkpoint containing these assessment progress refinements.
 
 # Saved Timestamp, Sticky Mobile Progress, and Prompt Preference
+
 - [x] Add a persistent last-saved timestamp beside the assessment progress summary.
 - [x] Add a sticky compact mobile progress summary for long assessment pages.
 - [x] Add a “Don’t show this again” preference to the completed-module navigation prompt.
@@ -452,6 +466,7 @@
 - [x] Save a checkpoint containing these assessment progress refinements.
 
 # Manual Save, Learner Preferences, and Save Pulse
+
 - [x] Add a manual Save Now button beside the last-saved timestamp without sending a new email.
 - [x] Add a learner preferences modal for reviewing and resetting navigation-warning choices.
 - [x] Add a subtle visual pulse to the last-saved timestamp after a successful save.
@@ -460,6 +475,7 @@
 - [x] Save a checkpoint containing these assessment progress refinements.
 
 # Auto-save, Local Resume Prompt, and Assessment Theme Preference
+
 - [x] Auto-save locally after every answered question and update the pulsing saved timestamp.
 - [x] Add a landing-page Resume previous session prompt when a local draft is detected.
 - [x] Add a light/dark theme toggle to Assessment Preferences and apply it to the assessment experience.
@@ -468,6 +484,7 @@
 - [x] Save a checkpoint containing these assessment enhancements.
 
 # Saved Data Clearing, System Theme Sync, and Module Navigation
+
 - [x] Add a Clear saved data action in Assessment Preferences for local drafts and save metadata.
 - [x] Default assessment theme to the system preference while preserving a manual light/dark override.
 - [x] Show a brief Draft restored successfully toast after resuming a local session.
@@ -477,6 +494,7 @@
 - [x] Save a checkpoint containing these assessment improvements.
 
 # Clear-Data Confirmation, Keyboard Navigation, and Resume Summary
+
 - [x] Add a confirmation dialog before permanently clearing saved assessment data.
 - [x] Add left/right arrow-key shortcuts for Previous module and Next module navigation.
 - [x] Show the saved module name and completion percentage in the Resume previous session prompt.
@@ -485,6 +503,7 @@
 - [x] Save a checkpoint containing these assessment navigation refinements.
 
 # Resume Progress Bar, Navigation Toast, and Export Before Clear
+
 - [x] Add a visual progress bar to the Resume previous session prompt.
 - [x] Show a subtle success toast after arrow-key module navigation.
 - [x] Add an export/download current progress action to the clear-data confirmation dialog.
@@ -493,6 +512,7 @@
 - [x] Save a checkpoint containing these progress-management enhancements.
 
 # Resume Progress Animation and Escape Toast Dismissal
+
 - [x] Add a smooth entrance fill animation to the Resume previous session progress bar.
 - [x] Add Escape-key dismissal for visible toast notifications.
 - [x] Add regression coverage for the animation and Escape dismissal contracts.
@@ -500,6 +520,7 @@
 - [x] Save a checkpoint containing these interaction refinements.
 
 # Resume Preference, Toast Hover Pause, and Module Tooltip
+
 - [x] Add a “Don’t show again” checkbox to the Resume previous session prompt.
 - [x] Persist the resume-prompt preference and allow users to restore the prompt from preferences.
 - [x] Pause toast auto-dismiss while a toast is hovered.
@@ -509,6 +530,7 @@
 - [x] Save a checkpoint containing these learner preference refinements.
 
 # Completion Celebration, Import Progress, and Landing Settings Shortcut
+
 - [x] Add a subtle completion celebration when saved progress reaches 100%.
 - [x] Respect reduced-motion preferences for the completion celebration.
 - [x] Add Import Progress to restore a previously downloaded assessment JSON file locally.
@@ -519,6 +541,7 @@
 - [x] Save a checkpoint containing these assessment recovery enhancements.
 
 # Share Results, Drag-and-Drop Import, and Settings Tooltip
+
 - [x] Add a Share Results action to the 100% completion celebration.
 - [x] Provide a local/share-sheet fallback with clear success and error feedback.
 - [x] Add a drag-and-drop zone for JSON Import Progress uploads.
@@ -529,6 +552,7 @@
 - [x] Save a checkpoint containing these celebration and import enhancements.
 
 # Transformation Services and Completion Credential Enhancements
+
 - [x] Group Self Assessment and CareerPath under a Transformation Services service category.
 - [x] Apply recent resume, progress, import, navigation, completion, and sharing UX patterns across Transformation Services.
 - [x] Add a downloadable completion badge or certificate for fully completed assessments.
@@ -539,6 +563,7 @@
 - [x] Save a checkpoint containing the Transformation Services release.
 
 # Unified Transformation Services Navigation
+
 - [x] Create a shared branded navigation component for Transformation Services.
 - [x] Use the same navigation on Self Assessment and CareerPath pages.
 - [x] Include consistent service switching, home/contact, workspace, and mobile menu behavior.
@@ -547,6 +572,7 @@
 - [x] Save a checkpoint containing the unified navigation update.
 
 # Transformation Services Header Enhancements
+
 - [x] Add a breadcrumb trail below the standardized Transformation Services navigation.
 - [x] Add a smooth reduced-motion-aware transition when switching between Self Assessment and CareerPath.
 - [x] Add an authenticated user profile dropdown to the standardized header.
@@ -556,6 +582,7 @@
 - [x] Save a checkpoint containing the enhanced Transformation Services header.
 
 # Shared Header Theme, Certificate Badge, and Quick Search
+
 - [x] Add a light/dark theme toggle to the authenticated profile dropdown.
 - [x] Persist the selected theme across Transformation Services pages.
 - [x] Add a certificate notification badge when a new certificate is available.
@@ -566,6 +593,7 @@
 - [x] Save a checkpoint containing the shared header enhancements.
 
 # Recent Searches, Auto Theme, and Certificate Toast
+
 - [x] Add a Recent Searches section that appears when the quick-search dropdown opens.
 - [x] Persist a concise recent-search history and allow selecting a recent query.
 - [x] Add an Auto theme mode that follows system light/dark preference changes.
@@ -576,6 +604,7 @@
 - [x] Save a checkpoint containing these shared-header refinements.
 
 # Certificate Toast Sharing, Theme Fade, and Reusable Skill
+
 - [x] Add a Share action directly inside the new-certificate toast.
 - [x] Route toast sharing through native sharing with clipboard fallback.
 - [x] Add a smooth reduced-motion-aware fade transition when the theme changes, including Auto mode updates.
@@ -586,6 +615,7 @@
 - [x] Save a checkpoint containing the website refinements.
 
 # Transformation Services Navigation Improvement
+
 - [x] Audit navigation across Self Assessment, CareerPath, report, recovery, and module-level flows.
 - [x] Improve service switching, breadcrumbs, quick search, and workspace access hierarchy.
 - [x] Improve module-level Previous, Next, overview, completion, and keyboard navigation clarity.
@@ -596,6 +626,7 @@
 - [x] Save a checkpoint containing the navigation improvements.
 
 # Collapsible Module Rail, Search Highlights, and Score Tooltips
+
 - [x] Add an accessible toggle to collapse and expand the sticky module rail.
 - [x] Persist the rail’s collapsed preference locally across assessment sessions.
 - [x] Highlight quick-search keywords in matching module-rail labels.
@@ -605,6 +636,7 @@
 - [x] Save a checkpoint containing the module-rail refinements.
 
 # Collapsed Progress, Search Keyboard Navigation, and Review Links
+
 - [x] Add a circular overall-progress indicator to the collapsed current-module rail.
 - [x] Add Up/Down keyboard navigation through highlighted quick-search results.
 - [x] Add an accessible active-result state and Enter activation for search navigation.
@@ -614,6 +646,7 @@
 - [x] Save a checkpoint containing these module-rail accessibility refinements.
 
 # Module Rail Shortcut, Mobile Review Mode, and Improvement Guidance
+
 - [x] Add Ctrl+M to toggle the module rail collapse state.
 - [x] Preserve shortcut safety by ignoring editable fields and exposing accessible shortcut guidance.
 - [x] Add a focused mobile review mode when Review Section is activated on smaller screens.
@@ -623,6 +656,7 @@
 - [x] Save a checkpoint containing these module-rail refinements.
 
 # Sitewide Transformation Navigation and Module Filters
+
 - [x] Apply the standardized Transformation Services navigation to all Self Assessment and CareerPath routes and states.
 - [x] Add a smooth reduced-motion-aware slide-in animation to focused mobile review mode.
 - [x] Add a module-rail filter for sections with the highest potential improvement scores.
@@ -632,6 +666,7 @@
 - [x] Save a checkpoint containing the sitewide navigation update.
 
 # Improvement Sorting and Profile Score Summary Export
+
 - [x] Add a sort option to order high-potential sections by largest possible score increase.
 - [x] Persist the selected high-potential sort mode locally.
 - [x] Add a profile-dropdown action to download a PDF summary of the user’s assessment scores.
@@ -641,6 +676,7 @@
 - [x] Save a checkpoint containing the filter and export enhancements.
 
 # CareerPath Module Navigation Optimization
+
 - [x] Audit CareerPath module-level navigation, progress, and completion states.
 - [x] Add clearer module overview and active-module context for CareerPath learners.
 - [x] Add efficient Previous/Next and direct module-jump controls with safe navigation behavior.
@@ -651,6 +687,7 @@
 - [x] Save a checkpoint containing the CareerPath navigation improvements.
 
 # CareerPath Save/Resume and Mobile Module Drawer
+
 - [x] Add CareerPath Save and Continue Later with local draft persistence and exact module resumption.
 - [x] Add a save-success state with clear recovery guidance and last-saved context.
 - [x] Add visual completion badges to fully finished CareerPath modules.
@@ -661,6 +698,7 @@
 - [x] Save a checkpoint containing the CareerPath navigation recovery update.
 
 # CareerPath Drawer Affordance and Completion Celebration
+
 - [x] Add a drag handle icon at the top of the mobile CareerPath module drawer.
 - [x] Add a subtle reduced-motion-aware bounce animation to indicate the drawer can be swiped.
 - [x] Detect final CareerPath completion and show a celebratory confetti state.
@@ -670,6 +708,7 @@
 - [x] Save a checkpoint containing the CareerPath completion refinements.
 
 # My Certificates, Preview, and LinkedIn Sharing
+
 - [x] Add a My Certificates section to the authenticated profile dropdown.
 - [x] Allow users to view and re-download previously earned certificates from the certificates destination.
 - [x] Add a miniature generated-certificate preview to the CareerPath completion celebration.
@@ -680,6 +719,7 @@
 - [x] Save a checkpoint containing the certificate experience enhancements.
 
 # Professional Course Learning Platform
+
 - [x] Replace the simple course metadata with detailed professional curriculum content for every existing course.
 - [x] Define 10 modules per course, with 7 lessons and a 15-question quiz per module.
 - [x] Add automatic quiz availability after lesson 7 and aggregate module quiz results into final course results.
@@ -695,6 +735,7 @@
 - [x] Save a checkpoint containing the professional course learning platform.
 
 # CareerPath Introduction and Module Step Reorder
+
 - [x] Shorten the CareerPath landing view so introduction, purpose, pricing, and start/resume actions appear before modules.
 - [x] Move CareerPath module navigation and questions to a dedicated next step/page.
 - [x] Preserve resume drafts, payment callbacks, completion state, shared navigation, and mobile drawer behavior across the step boundary.
@@ -703,6 +744,7 @@
 - [x] Save a checkpoint containing the CareerPath reorder.
 
 # CareerPath Step URLs and Progress Sidebar
+
 - [x] Add unique bookmarkable URLs for CareerPath Introduction, Assessment, and Results steps.
 - [x] Restore the correct CareerPath step from direct links while preserving draft and payment state.
 - [x] Add a visual Introduction → Assessment → Results step indicator at the top of CareerPath.
@@ -713,6 +755,7 @@
 - [x] Save a checkpoint containing the CareerPath step navigation enhancements.
 
 # Admin Quality Control, Resume URLs, Results History, and Mobile Status
+
 - [x] Allow only profoundiqconsulting@gmail.com to bypass learner checkout gates for quality and content control, with server-side authorization.
 - [x] Preserve normal checkout and module-payment gates for all other learners.
 - [x] Add a CareerPath URL parameter for the active module and restore it from the URL and saved draft.
@@ -724,6 +767,7 @@
 - [x] Save a checkpoint containing these enhancements.
 
 # Quality Control Badge, Cross-Device Resume, and Results Previews
+
 - [x] Add a visible Quality Control Mode badge only for profoundiqconsulting@gmail.com when the bypass is active.
 - [x] Add database storage for each authenticated learner’s last active CareerPath module.
 - [x] Add protected procedures to read and update the active module without exposing another user’s progress.
@@ -735,6 +779,7 @@
 - [x] Save a checkpoint containing these enhancements.
 
 # Certificate Thumbnails, Resume Conflict Choices, and LinkedIn Sharing
+
 - [x] Add branded certificate thumbnails to authenticated CareerPath history cards.
 - [x] Add direct certificate download actions from history cards when a certificate exists.
 - [x] Add LinkedIn sharing for the generated CareerPath report and certificate.
@@ -745,6 +790,7 @@
 - [x] Save a checkpoint containing these enhancements.
 
 # Resume Transparency, Certificate URLs, LinkedIn Counts, and Post-Payment Access
+
 - [x] Show exact timestamps, module names, and response progress for local and server resume versions in the conflict prompt.
 - [x] Return secure certificate image URLs with authenticated history records and render the actual images on cards.
 - [x] Persist and display each user’s LinkedIn certificate-share count.
@@ -755,6 +801,7 @@
 - [x] Save a checkpoint containing these enhancements.
 
 # Server Share Ledger, Conflict Comparisons, and Secure Thumbnails
+
 - [x] Add a server-backed per-user share ledger for LinkedIn certificate shares.
 - [x] Extend the share ledger to record supported social platforms and display aggregate counts across devices.
 - [x] Add protected share-recording and share-count procedures with strict user ownership.
@@ -766,6 +813,7 @@
 - [x] Save a checkpoint containing these enhancements.
 
 # Resume Comparison Dialog, Authentic Thumbnails, and Share Observatory
+
 - [x] Replace the browser confirmation with a branded resume conflict comparison dialog.
 - [x] Show exact local/server timestamps, active module names, and response totals in the comparison dialog.
 - [x] Add explicit keep-local and keep-server actions with accessible focus and cancellation behavior.
@@ -777,6 +825,7 @@
 - [x] Save a checkpoint containing these enhancements.
 
 # Actionable History, Paystack Error Fix, Share Filters, Thumbnails, and Alerts
+
 - [x] Add clear actions to prior CareerPath records for payment, report generation, certificate download, and social sharing.
 - [x] Fix Paystack checkout handling when the server returns HTML or another non-JSON response.
 - [x] Add safe user-facing checkout error messages and preserve the raw response only in diagnostics.
@@ -788,6 +837,7 @@
 - [x] Save a checkpoint containing these enhancements.
 
 # Paid Reporting Access, Share Trends, Benchmarks, and Action Feedback
+
 - [x] Gate result and certificate viewing, email sending, downloading, and generation behind successful Paystack payment verification.
 - [x] Preserve the exact admin quality-control bypass only for the authorized admin identity.
 - [x] Add historical time-series data and trend lines to the admin Share Observatory.
@@ -798,6 +848,7 @@
 - [x] Save a checkpoint containing these enhancements.
 
 # Branded Outputs, Receipt History, Share Comparisons, and Payment Recovery
+
 - [x] Add the Profound IQ logo, verification QR code, and website address to certificate SVG outputs.
 - [x] Add logo, QR verification, website address, and verification metadata to all report PDFs and score summaries.
 - [x] Support secure learner email delivery and an explicitly authorized requesting-organization forwarding flow.
@@ -809,6 +860,7 @@
 - [x] Save a checkpoint containing these enhancements and deliver the reusable skill.
 
 # Live Verification, PDF Receipts, and Organization Approval
+
 - [x] Add non-guessable credential verification tokens and a public QR verification route.
 - [x] Render a live verification page showing credential authenticity, course/assessment identity, issue date, and verification status without exposing private report content.
 - [x] Add PDF receipt generation for every successful Paystack transaction and stage.
@@ -821,6 +873,7 @@
 - [x] Save a checkpoint containing these enhancements.
 
 # Receipt Branding, Organization Review Queue, and Verification UX
+
 - [x] Add the stored company logo to generated PDF receipts.
 - [x] Add a clickable QR verification link and visible verification URL to PDF receipts.
 - [x] Add a dedicated admin organization review queue with pending, approved, and rejected states.
@@ -832,6 +885,7 @@
 - [x] Save a checkpoint containing these enhancements.
 
 # Receipt Presentation Download and Organization Invitation Monitoring
+
 - [x] Add a branded PDF receipt download button directly to the presentation page.
 - [x] Add admin filters for organization approval history by status, date range, and organization/requester.
 - [x] Add a secure CSV export for filtered organization approval history.
@@ -842,6 +896,7 @@
 - [x] Save a checkpoint containing these enhancements.
 
 # Organization Invitation Backend Foundation
+
 - [x] Add organization invitation and approval-history schema with UTC expiry and reminder timestamps.
 - [x] Generate and apply the schema migration safely.
 - [x] Add database helpers for filtered approval history, CSV rows, pending invitations, and reminder updates.
@@ -851,6 +906,7 @@
 - [x] Add regression tests and complete build/responsive verification.
 
 # Approval History Pagination and Trend Summary
+
 - [x] Add server-side pagination metadata and page controls for organization approval history.
 - [x] Add compact recent approval trend aggregation for the admin dashboard.
 - [x] Add receipt-download spinner and success toast behavior.
@@ -858,6 +914,7 @@
 - [x] Save a checkpoint containing these enhancements.
 
 # Dashboard Navigation and Approval History Insights
+
 - [x] Add clear dashboard/my-workspace menu items for key learner and admin destinations.
 - [x] Add organization approval-history date range filters and organization/email search behavior.
 - [x] Add a real-data 30-day approval trend aggregation for the analytics line chart.
@@ -866,6 +923,7 @@
 - [x] Save a checkpoint containing these enhancements.
 
 # Organized User Dashboard
+
 - [x] Refine the authenticated dashboard workspace navigation and section hierarchy.
 - [x] Add clear overview cards for assessment progress, unlocked reports, certificates, payments, and recent activity.
 - [x] Organize report history, certificate access, receipt access, and resume actions into scannable sections.
@@ -873,6 +931,7 @@
 - [x] Verify responsive accessibility, tests, production build, and save a checkpoint.
 
 # Dashboard Quick Actions and Theme Controls
+
 - [x] Add a floating quick-action button to start a new self-assessment.
 - [x] Add a personalized greeting and dynamic progress summary widget to the Overview tab.
 - [x] Add a dark-mode toggle switch to the Settings tab.
@@ -880,6 +939,7 @@
 - [x] Run tests, production build, responsive verification, and save a checkpoint.
 
 # Dashboard Activity and Onboarding Polish
+
 - [x] Add a smooth light/dark theme transition respecting reduced-motion preferences.
 - [x] Add a recent activity feed for completed assessments and unlocked reports.
 - [x] Add a first-use onboarding tooltip for the floating New self-assessment button.
@@ -887,6 +947,7 @@
 - [x] Run tests, production build, responsive verification, and save a checkpoint.
 
 # Frontend Authentication and Dashboard Guidance
+
 - [x] Add frontend registration, login, and logout controls connected to database-backed session behavior.
 - [x] Preserve protected-route redirects and authenticated/unauthenticated loading states.
 - [x] Add a profile-completion progress bar based on saved account details and preferences.
@@ -895,24 +956,28 @@
 - [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
 
 # Profile Completion, Remember Me, and Activity Browsing
+
 - [x] Add a Complete Profile button and modal with missing-detail prompts.
 - [x] Add Remember Me to login and carry it through secure session creation without storing passwords client-side.
 - [x] Add Load More behavior for older activity while preserving filters and links.
 - [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
 
 # Profile Validation, Activity Exports, and Recommendations
+
 - [x] Add real-time inline validation to the Complete Profile modal and success toast after saved updates.
 - [x] Add secure PDF export buttons to completed-assessment activity items.
 - [x] Add profile-driven personalized self-assessment recommendations.
 - [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
 
 # Export Feedback, Recommendation Explanations, and Result Sharing
+
 - [x] Add loading spinner and success toast feedback to completed-assessment PDF export.
 - [x] Add View Details explanations for profile-driven recommendations.
 - [x] Add a secure email Share action beside completed-assessment PDF export.
 - [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
 
 # Professional Course Lesson Library and Interactive Player
+
 - [x] Add reusable professional 40-minute content for all course lessons.
 - [x] Add structured objectives, reading sections, examples, simulations, reflection prompts, and visual lesson treatments.
 - [x] Build an interactive lesson player with responsive navigation and completion actions.
@@ -921,6 +986,7 @@
 - [x] Save a checkpoint containing the complete course lesson library and player.
 
 # Lesson Player Progress, Bookmarks, and Notes
+
 - [x] Add a current-lesson progress indicator for the 40-minute player.
 - [x] Add Save for Later bookmarks for lesson sections and simulations.
 - [x] Add persistent note-taking with export controls inside the lesson player.
@@ -928,6 +994,7 @@
 - [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
 
 # Rich Lesson Notes and My Bookmarks
+
 - [x] Add bold, italic, and bullet-point controls to lesson notes.
 - [x] Preserve formatted note content in local persistence and exports.
 - [x] Add a My Bookmarks dashboard section for saved lesson sections and simulations.
@@ -935,6 +1002,7 @@
 - [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
 
 # Bookmark Search, My Notes, and AI Summaries
+
 - [x] Add search and course filters to My Bookmarks.
 - [x] Add a My Notes dashboard tab aggregating saved lesson notes across courses.
 - [x] Add review and export controls for the aggregated notes.
@@ -942,6 +1010,7 @@
 - [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
 
 # My Notes Exports and AI Study Aids
+
 - [x] Add Markdown and formatted PDF export for AI-generated note summaries.
 - [x] Add clickable course and lesson links to aggregated My Notes entries.
 - [x] Add AI-generated practice quiz or flashcard actions from summarized notes.
@@ -949,6 +1018,7 @@
 - [x] Add regression coverage and run tests, production build, responsive verification, and save a checkpoint.
 
 # Aligned Course Lessons and Module Quizzes
+
 - [x] Enrich lesson content with clearer concepts, applied examples, simulations, and module-specific takeaways.
 - [x] Map every module quiz question to a specific lesson or learning outcome.
 - [x] Recreate all module quizzes with 15 aligned questions, answers, explanations, and retry-safe scoring.
@@ -956,12 +1026,14 @@
 - [x] Run content integrity checks, tests, production build, responsive verification, and save a checkpoint.
 
 # OAuth Configuration and Build Warning
+
 - [x] Restore or securely configure OAUTH_SERVER_URL for the backend OAuth flow.
 - [x] Verify the corresponding frontend OAuth portal configuration and authenticated session behavior.
 - [x] Adjust the production chunk-size warning threshold or splitting configuration without masking build failures.
 - [x] Run tests and production build, then save a recoverable checkpoint.
 
 # Course Quality Verification
+
 - [x] Verify every module quiz question references an existing lesson and aligned module content.
 - [x] Verify answer indexes, option counts, and 15-question module totals.
 - [x] Test lesson-player navigation, simulation, notes, bookmarks, and completion controls; quiz submit/retry remains payment-gated for a future QA session.
@@ -969,6 +1041,7 @@
 - [x] Record verification results; checkpoint deferred because the payment-gated quiz submit/retry path was not fully exercised.
 
 # Complete Course QA and Accessibility Audit
+
 - [x] Prepare a non-charging QA enrollment with all seven module lessons unlocked.
 - [x] Submit a deliberate failing quiz attempt and verify retry remains available.
 - [x] Submit a passing retry and verify module progression updates correctly.
@@ -978,30 +1051,35 @@
 - [x] Run final validation; checkpoint remains subject to the documented stale historical console entry.
 
 # Sitewide Profound IQ Logo and Favicon
+
 - [x] Upload the provided Profound IQ logo through the project asset pipeline.
 - [x] Replace sitewide header, dashboard, course, assessment, and output logo references.
 - [x] Configure the new mark as the browser favicon and application metadata image.
 - [x] Verify logo rendering and generated-output references, then run tests/build and save a checkpoint.
 
 # OAuth Backend Configuration Repair
+
 - [x] Inspect the current OAuth connector and project configuration without exposing secret values.
 - [x] Restore OAUTH_SERVER_URL through the supported project configuration path or implement a safe platform fallback.
 - [x] Verify OAuth initialization, frontend login/session behavior, and runtime logs.
 - [x] Run authentication regression tests and save a recoverable checkpoint.
 
 # Managed Manus OAuth Restoration
+
 - [x] Inspect the built-in Manus OAuth configuration and current project deployment environment state.
 - [x] Restore or enable the managed backend OAUTH_SERVER_URL without changing VITE_OAUTH_PORTAL_URL.
 - [x] Verify production backend initialization and OAuth API base URL resolution for ExchangeToken and GetUserInfo.
 - [x] Run authentication regression checks and save a recoverable checkpoint if restored.
 
 # Inquiry Button Activation
+
 - [x] Inspect the existing frontend inquiry UI and backend inquiry procedure.
 - [x] Connect Send Inquiry to the backend with validation and loading/success/error feedback.
 - [x] Add regression coverage and verify desktop/mobile inquiry submission behavior.
 - [x] Save a checkpoint for the activated inquiry flow.
 
 # Inquiry Management and Anti-Spam
+
 - [x] Add a subject/category selector to the public inquiry form and persist the selected category.
 - [x] Add server-validated math verification to prevent automated inquiry submissions.
 - [x] Build an admin-only inquiry dashboard with search, category/status filters, pagination, and status management.
@@ -1009,6 +1087,7 @@
 - [x] Save a checkpoint for the inquiry management enhancements.
 
 # Inquiry Operations Update
+
 - [x] Trace and fix the public inquiry submission JSON/HTML response error.
 - [x] Add admin CSV export for the currently filtered contact inquiries.
 - [x] Add bulk status updates for selected inquiries.
@@ -1017,6 +1096,7 @@
 - [x] Save a checkpoint for the inquiry operations update.
 
 # Inquiry Date Filters, Notes, and Pagination
+
 - [x] Add UTC-safe from/to date filters to inquiry listing and filtered CSV export.
 - [x] Add persistent internal notes storage and an admin-only note update procedure.
 - [x] Enhance the inquiry list pagination with stable page reset and navigation states.
@@ -1024,6 +1104,7 @@
 - [x] Save a checkpoint for the Contact Desk enhancements.
 
 # Inquiry Presets, Assignment, and Audit History
+
 - [x] Add Today, Last 7 Days, and Last 30 Days date preset controls to the Contact Desk.
 - [x] Add admin team-member assignment storage, listing, and update controls for inquiries.
 - [x] Add per-inquiry audit history for status and internal-note updates with UTC timestamps and admin actor details.
@@ -1031,6 +1112,7 @@
 - [x] Save a checkpoint for the Contact Desk assignment and audit update.
 
 # Inquiry Assignment Filter and Audit Export
+
 - [x] Add an assigned team-member filter to inquiry listing and CSV export.
 - [x] Ensure inquiry search covers customer name, email, and message keywords.
 - [x] Include per-inquiry audit history records in the CSV export.
@@ -1038,6 +1120,7 @@
 - [x] Save a checkpoint for the Contact Desk export update.
 
 # Admin Revenue Reporting
+
 - [x] Stabilize and verify the pending Contact Desk assignment-filter and audit-export changes.
 - [x] Inspect existing payment and transaction records and define revenue aggregation rules.
 - [x] Add admin-only revenue summary and trend procedures with date filtering.
@@ -1046,6 +1129,7 @@
 - [x] Save a checkpoint for the admin revenue reporting feature.
 
 # Staff Assigned-Work Dashboard
+
 - [x] Inspect current role, assignment, and dashboard patterns for staff access.
 - [x] Add protected staff inquiry listing scoped to the signed-in team member.
 - [x] Add scoped staff status and internal-note update procedures with audit actors.
@@ -1054,6 +1138,7 @@
 - [x] Save a checkpoint for the staff dashboard feature.
 
 # Staff Operations and Performance
+
 - [x] Add admin-only staff invitation persistence and onboarding flow.
 - [x] Add admin-only staff role management controls.
 - [x] Add inquiry assignment due dates and priority levels to admin and staff views.
@@ -1062,6 +1147,7 @@
 - [x] Save a checkpoint for the staff operations update.
 
 # Staff Workload and Performance Export
+
 - [x] Add overdue assignment warning indicators and staff sorting by priority and due date.
 - [x] Add date-range filters to the admin staff performance summary.
 - [x] Add CSV export for filtered staff performance metrics.
@@ -1070,6 +1156,7 @@
 - [x] Save a checkpoint for the dashboard and skill update.
 
 # Course Variety and Completion Automation
+
 - [x] Inspect the shared quiz, lesson, payment, certificate, email, and social-sharing contracts.
 - [x] Create varied answer choices and shuffle questions and choices per quiz attempt and user.
 - [x] Enrich lessons with distinct content and interaction patterns that avoid repetition.
@@ -1079,6 +1166,7 @@
 - [x] Save a checkpoint for the course learning and completion update.
 
 # Automated Course Recommendations
+
 - [x] Define an explainable recommendation mapping from completed self-assessment dimensions to relevant professional courses.
 - [x] Add a protected recommendation query that only returns recommendations for the signed-in user and uses their paid assessment history.
 - [x] Add a polished recommendations section to the user dashboard with rationale, fit signals, and course links.
@@ -1087,6 +1175,7 @@
 - [x] Save a checkpoint for the automated course recommendations feature.
 
 # Dynamic Frontend Catalog Updates
+
 - [x] Define a shared data contract so code-created and admin/database-created catalog items use the same frontend shape.
 - [x] Add protected admin creation/listing for catalog items with validation and publication visibility.
 - [x] Make frontend catalog and recommendation surfaces query live items and refresh after creation.
@@ -1095,6 +1184,7 @@
 - [x] Save a checkpoint for dynamic frontend catalog updates.
 
 # Dedicated Courses Page
+
 - [x] Add a dedicated public Courses route using the live hybrid catalog.
 - [x] Add Courses links to desktop and mobile main navigation.
 - [x] Preserve branded enrollment, syllabus, and inquiry paths with clear loading and empty states.
@@ -1103,6 +1193,7 @@
 - [x] Save a checkpoint for the dedicated Courses page.
 
 # Paid Course Lesson Access
+
 - [x] Define the public course highlight versus protected lesson-content boundary.
 - [x] Enforce authentication and first-stage paid enrollment before serving detailed lessons.
 - [x] Add a clear locked-course experience with public highlights, pricing, and payment CTA.
@@ -1112,6 +1203,7 @@
 - [x] Save a checkpoint for paid course lesson access.
 
 # Personalized Reports and Certificates
+
 - [x] Define a safe full-name and email identity contract for paid authenticated outputs.
 - [x] Add the user’s full name and email to the Personal Score Summary and authenticated report views.
 - [x] Propagate identity into assessment, CareerPath, course, certificate, receipt, email, PDF, SVG, and shared-report outputs.
@@ -1121,6 +1213,7 @@
 - [x] Save a checkpoint for personalized reporting.
 
 # Course Completion Delivery Queue
+
 - [x] Refresh course completion and certificate state automatically in the user dashboard.
 - [x] Add a learner-controlled sequential queue for email delivery, organization forwarding, and social-image sharing.
 - [x] Add consent, ordered-step status, retry feedback, and audit-safe handling for outbound actions.
@@ -1130,6 +1223,7 @@
 - [x] Save a checkpoint for the course completion delivery queue.
 
 # Delivery Outcomes and Reusable Workflow
+
 - [x] Add PNG export for course-completion social images.
 - [x] Persist learner delivery-history records for email, organization requests, and social-image sharing.
 - [x] Add an admin observatory for delivery outcomes, statuses, filters, and retry visibility.
@@ -1140,6 +1234,7 @@
 - [x] Save a checkpoint for delivery outcomes and reusable workflow.
 
 # Course Enrollment Workflow Enhancement
+
 - [x] Improve the enrollment form with clearer course context, staged-payment explanation, validation, and privacy guidance.
 - [x] Improve enrollment-to-Paystack transition states with progress feedback and safe recovery from cancellation or failure.
 - [x] Improve post-payment learner handoff with clear first-module access and dashboard navigation.
@@ -1148,6 +1243,7 @@
 - [x] Save a checkpoint for the enhanced course enrollment workflow.
 
 # Authenticated Payment Experience
+
 - [x] Capture and persist the authenticated learner name and email before course checkout.
 - [x] Add a user-facing payment rollup for staged course payments and outstanding balance.
 - [x] Add a dedicated payment-success confirmation route with clear course-access next steps.
@@ -1157,6 +1253,7 @@
 - [x] Save a checkpoint for the authenticated payment experience.
 
 # Authenticated Payment Experience
+
 - [x] Implement the dedicated payment-success page with server-side Paystack reference verification and clear next steps.
 - [x] Add authenticated learner name and email capture before course enrollment checkout.
 - [x] Add learner payment rollup with four staged payments, paid amount, remaining balance, and status.
@@ -1166,6 +1263,7 @@
 - [x] Save a final completion checkpoint after all inherited payment-experience work is verified.
 
 # Authenticated Payment Experience Stabilization
+
 - [x] Repair the checkout identity form so a newly created enrollment is initialized before Paystack checkout.
 - [x] Ensure the callback routes to the dedicated payment-success verification page.
 - [x] Verify payment rollup and resume-card rendering contracts against course state data.
@@ -1173,6 +1271,7 @@
 - [x] Fix mobile dashboard header actions wrapping into a cramped four-column line during responsive verification.
 
 # Payment Reconciliation and Cross-Device Course Resume
+
 - [x] Add a secure Paystack webhook endpoint with signature verification and idempotent stage reconciliation.
 - [x] Persist payment event history and expose reconciled, pending, failed, and exception states.
 - [x] Persist the learner's active course module and lesson position server-side and hydrate it across devices.
@@ -1182,6 +1281,7 @@
 - [x] Save the completed reconciliation and cross-device resume checkpoint.
 
 # Self-Assessment Reflection Prompt Enhancement
+
 - [x] Audit the current reflection prompt source and on-screen/PDF report renderers.
 - [x] Add substantive, dimension-specific reflection prompts with practical coaching context.
 - [x] Ensure prompts appear in both the on-screen report and branded PDF output.
@@ -1190,6 +1290,7 @@
 - [x] Save the completed reflection-prompt enhancement checkpoint.
 
 # Reflection Notes, Status, and Coach Export
+
 - [x] Add durable per-report reflection notes and planned/active/reviewed action statuses.
 - [x] Add protected learner procedures to load and save notes/statuses for their own paid reports.
 - [x] Add coach/manager export for explicitly selected prompts and learner responses with access controls.
@@ -1199,6 +1300,7 @@
 - [x] Save the completed reflection workflow checkpoint.
 
 # Professional Certificate in International Curriculum Pedagogy
+
 - [x] Add the document-grounded course catalog entry and KES 14,999 pricing contract.
 - [x] Add 10 curriculum-aligned modules covering international curricula, pedagogy, professionalism, counselling, research, and education technology.
 - [x] Add 7 interactive 40-minute lessons and practical learning experiences to every module.
@@ -1210,6 +1312,7 @@
 - [x] Save the completed International Curriculum Pedagogy course checkpoint.
 
 # Module-Level Completion Badges
+
 - [x] Define a shared module badge contract based on seven completed lessons and a passed 15-question quiz.
 - [x] Add module completion badge presentation to the course workspace with earned, in-progress, and locked states.
 - [x] Add module badge visibility to the learner dashboard course progress cards.
@@ -1219,6 +1322,7 @@
 - [x] Save the completed module-badge checkpoint.
 
 # Achievement Gallery and Cohort Motivation
+
 - [x] Add learner downloads for earned module badges as PNG images and mini-certificates.
 - [x] Add a personal achievement gallery with earned badge history to My Space.
 - [x] Add an opt-in cohort leaderboard with privacy-preserving display names and badge progress.
@@ -1227,6 +1331,7 @@
 - [x] Save the completed achievement gallery and leaderboard checkpoint.
 
 # Expanded Professional Course Catalog
+
 - [x] Add 28 professionally framed personal-development, workplace, and entrepreneurship courses to the shared catalog.
 - [x] Generate 10 modules, 7 detailed lessons, practical interactions, simulations, and gamification for every new course.
 - [x] Generate 15 aligned auto-marked quiz questions per module with 50% pass threshold and aggregated final scoring.
@@ -1237,6 +1342,7 @@
 - [x] Save the expanded course catalog checkpoint.
 
 # Catalog Discovery and Student Dashboard
+
 - [x] Add course search to the public catalog page.
 - [x] Add category filters with clear active and empty states.
 - [x] Add a student course dashboard with progress and quiz scores.
@@ -1246,6 +1352,7 @@
 - [x] Save the catalog discovery and student dashboard checkpoint.
 
 # Timed Lesson Progression
+
 - [x] Add a 40-minute countdown timer to every course lesson.
 - [x] Prevent advancing to the next lesson until the active lesson timer completes.
 - [x] Preserve timer state across refreshes and existing lesson progress flows without allowing client clock shortcuts.
@@ -1255,6 +1362,7 @@
 - [x] Save the timed lesson progression checkpoint.
 
 # Assessment Pricing Update
+
 - [x] Update Self Assessment price to KES 399 across shared contract, checkout, webhook verification, revenue attribution, and UI.
 - [x] Update CareerPath price to KES 399 across shared contract, checkout, and UI.
 - [x] Update regression fixtures and expectations for KES 399 payment verification.
@@ -1262,6 +1370,7 @@
 - [x] Save the KES 399 pricing checkpoint.
 
 # Deep Lesson Content Enhancement
+
 - [x] Expand reusable lesson explanations with deeper concept teaching across all course lessons.
 - [x] Add practical day-to-day applications and contextual examples to every generated lesson.
 - [x] Strengthen practice, simulation, reflection, and key-takeaway content while preserving 40-minute timing.
@@ -1271,6 +1380,7 @@
 - [x] Save the deep lesson content enhancement checkpoint.
 
 # Quiz Variation Enhancement
+
 - [x] Shuffle quiz question order on every learner attempt and retake.
 - [x] Shuffle answer-option order while preserving the correct answer mapping.
 - [x] Reduce similarity across correct answers and distractors with varied, lesson-specific wording.
@@ -1280,6 +1390,7 @@
 - [x] Save the quiz variation enhancement checkpoint.
 
 # Quiz Learning Feedback and Analytics
+
 - [x] Add detailed explanations for every correct and incorrect quiz response.
 - [x] Show a clear visual indicator when a new randomized quiz attempt begins.
 - [x] Add student dashboard quiz analytics with score trends and improvement areas.
@@ -1289,6 +1400,7 @@
 - [x] Save the quiz learning feedback and analytics checkpoint.
 
 # Self Assessment Naming Update
+
 - [x] Rename learner-facing assessment labels to Self Assessment across navigation, entry pages, dashboards, metadata, and copy.
 - [x] Preserve existing assessment routes, API contracts, payment references, and stored data identifiers.
 - [x] Add regression coverage for the new display name and route compatibility.
@@ -1296,6 +1408,7 @@
 - [x] Save the Self Assessment naming checkpoint.
 
 # Self Assessment Discovery and Results
+
 - [x] Update Self Assessment landing-page title, meta description, canonical metadata, and Open Graph tags.
 - [x] Add a guided introductory modal and visible progress bar to the Self Assessment flow.
 - [x] Add a dedicated dashboard section for past Self Assessment scores and report access.
@@ -1306,6 +1419,7 @@
 - [x] Save the Self Assessment discovery and results checkpoint.
 
 # Psychometrics Assessment Suite
+
 - [x] Extract and document the attached suite background for all six psychometric tests.
 - [x] Define shared test contracts, dimensions, scoring rules, interpretation bands, and non-diagnostic safeguards.
 - [x] Add the six professional psychometric assessment catalogs with robust question banks and personalized result logic.
@@ -1317,6 +1431,7 @@
 - [x] Save the Psychometrics Assessment Suite checkpoint.
 
 # Psychometrics Suite Implementation Continuation
+
 - [x] Complete the six-test shared psychometric catalog with 120 stable items per test, domain metadata, scoring bands, and non-diagnostic safeguards.
 - [x] Correct keyed multiple-choice scoring for the Cognitive & Reasoning Assessment.
 - [x] Add public catalog and interactive branded assessment route with progress indicator, response controls, consent, and KES 699 Paystack checkout.
@@ -1329,6 +1444,7 @@
 - [x] Save the Psychometrics Assessment Suite checkpoint.
 
 # Psychometric Analytics and Recommendations Expansion
+
 - [x] Add admin psychometric conversion funnel and email-delivery analytics with date filters and trend summaries.
 - [x] Add authenticated learner report resend controls in My Space with loading, success, and failure states.
 - [x] Add profile-specific recommended Profound IQ courses to paid psychometric results and learner history.
@@ -1337,6 +1453,7 @@
 - [x] Save the validated psychometric analytics and recommendations checkpoint.
 
 # Psychometric Analytics Export and Personalization
+
 - [x] Add CSV, Excel, and PDF exports for filtered psychometric conversion and email-delivery analytics.
 - [x] Add immediate admin delivery-failure alerts and unread/acknowledged operational state.
 - [x] Personalize recommendations using dimension-level scores and completed-course history.
@@ -1345,6 +1462,7 @@
 - [x] Save the validated analytics export and personalization checkpoint.
 
 # Weekly Analytics Delivery and Recommendation Refinement
+
 - [x] Add a weekly scheduled psychometric analytics export job that emails administrators a branded report.
 - [x] Add schedule status, recipient visibility, idempotency, and failure handling for weekly delivery.
 - [x] Add administrator acknowledgement persistence for individual psychometric report delivery failures.
@@ -1355,6 +1473,7 @@
 - [x] Save the validated weekly delivery and recommendation refinement checkpoint.
 
 # Schedule Controls, Acknowledgement Audit, and Recommendation Feedback
+
 - [x] Add pause and resume controls for the automated weekly psychometric analytics schedule.
 - [x] Add acknowledgement notes and an auditable export for handled delivery failures.
 - [x] Add learner feedback capture for psychometric course recommendations and use it in future ranking.
@@ -1365,11 +1484,13 @@
 - [x] Save the validated schedule-controls and recommendation-feedback checkpoint.
 
 # Login Rate-Limit Window Adjustment
+
 - [x] Reduce excessive-login-attempt lockout duration to one minute.
 - [x] Update countdown copy and related login security tests.
 - [x] Run validation and publish the rate-limit adjustment checkpoint.
 
 # Configurable Login Security Analytics
+
 - [x] Add an admin-configurable login lockout duration with safe bounds and persistence.
 - [x] Show the exact unlock time when a user is temporarily locked out.
 - [x] Add admin security analytics for rate-limit events and failed login attempts with visual trends.
@@ -1378,6 +1499,7 @@
 - [x] Save the validated configurable security analytics checkpoint.
 
 # Admin Unlock, Login Filters, and Password Recovery Guidance
+
 - [x] Initiate the secure administrator password-reset email for the confirmed admin address without exposing a password.
 - [x] Add an admin-only manual unlock action that clears a user’s active login lockout state.
 - [x] Add IP-address and geographic-location filters to failed-login events and security analytics.
@@ -1387,6 +1509,7 @@
 - [x] Save the validated admin unlock and password-recovery checkpoint.
 
 # SMTP Retry, Unlock Audit, Regional Trends, and Auth CTAs
+
 - [x] Verify configured SMTP connectivity and retry the administrator password-reset email.
 - [x] Add a protected unlock-audit history query and table view in the Admin Security Observatory.
 - [x] Add regional failed-login aggregation and a location trend visualization.
@@ -1396,6 +1519,7 @@
 - [x] Save the validated release checkpoint.
 
 # Admin Reset-Link Fallback, Audit Filters, and Auth Feedback
+
 - [x] Add an admin-only secure one-time password-reset link generator with a non-persistent console response.
 - [x] Add unlock-audit search and date-range filters across the protected API and Observatory table.
 - [x] Add loading spinners and clear invalid-input errors to Sign in and Create account forms.
@@ -1404,6 +1528,7 @@
 - [x] Save the validated authentication update checkpoint.
 
 # Google Sign-in, Reset Link UX, Audit Export, and Password Visibility
+
 - [x] Complete Google sign-in across frontend, backend, and database-backed sessions.
 - [x] Add reset-link copy-to-clipboard control with live expiry countdown.
 - [x] Add filtered CSV export for unlock-audit history.
@@ -1413,6 +1538,7 @@
 - [x] Save the validated authentication release checkpoint.
 
 # Reset Revocation, Export Download Audit, and Google Profile Picture
+
 - [x] Add admin reset-link revocation with audit-safe invalidation.
 - [x] Track administrator downloads of filtered unlock-audit CSV exports.
 - [x] Display synchronized Google profile pictures in authenticated navigation.
@@ -1421,6 +1547,7 @@
 - [x] Save the validated security and navigation checkpoint.
 
 # Security Observatory Privacy and Audit UX
+
 - [x] Add an administrator confirmation dialog before reset-link revocation.
 - [x] Add search, UTC date-range filters, and pagination to export-download history.
 - [x] Add a protected profile setting to remove the stored Google profile picture and restore initials in navigation.
@@ -1429,6 +1556,7 @@
 - [x] Save the validated privacy and audit UX checkpoint.
 
 # Export Audit CSV, Revocation Detail, and Avatar Visibility
+
 - [x] Add a protected CSV export for filtered export-history records.
 - [x] Record detailed reset-link revocation audit events with acting administrator and timestamp.
 - [x] Add a reversible profile preference to hide or show the stored Google avatar in navigation.
@@ -1437,6 +1565,7 @@
 - [x] Save the validated audit and privacy update checkpoint.
 
 # Avatar Privacy Notice and Revocation Admin Quick-filter
+
 - [x] Add a privacy notice or tooltip explaining Google avatar storage, display, hiding, and removal behavior.
 - [x] Add a quick-filter for reset-link revocations performed by a selected administrator.
 - [x] Add regression coverage for administrator filtering and privacy-copy presence.
@@ -1444,6 +1573,7 @@
 - [x] Save the validated privacy and audit filter checkpoint.
 
 # Google and LinkedIn Social Sign-in
+
 - [x] Add secure Google OAuth sign-in with database-backed user upsert and session creation.
 - [x] Add secure LinkedIn OAuth sign-in with database-backed user upsert and session creation.
 - [x] Add provider buttons and callback error/loading states to the authentication UI.
@@ -1452,12 +1582,14 @@
 - [x] Save the validated social sign-in checkpoint.
 
 # Footer Social Icons and WhatsApp Support
+
 - [x] Replace footer social text links with recognizable official-style social media icons and accessible labels.
 - [x] Add a WhatsApp quick-support button linking to +254727374055.
 - [x] Verify social destinations, WhatsApp URL formatting, keyboard access, responsive layout, tests, and production build.
 - [x] Save the validated footer update checkpoint.
 
 # Sitewide WhatsApp Support and Footer Motion
+
 - [x] Add a floating WhatsApp chat widget to the bottom-right corner across all routes.
 - [x] Add smooth brand-specific hover color transitions and motion to footer social icons.
 - [x] Add a WhatsApp quick-support tooltip showing Monday to Saturday office hours.
@@ -1465,6 +1597,7 @@
 - [x] Save the validated sitewide support checkpoint.
 
 # WhatsApp Widget Attention and Availability
+
 - [x] Add a subtle pulse animation to the floating WhatsApp widget.
 - [x] Add minimize and restore controls so users can hide or reopen the widget.
 - [x] Add automatic online/offline status based on Monday–Saturday office hours.
@@ -1472,6 +1605,7 @@
 - [x] Save the validated WhatsApp widget checkpoint.
 
 # WhatsApp Widget Contextual Support Enhancements
+
 - [x] Add page-aware greeting messages to the WhatsApp widget.
 - [x] Add an office-hours hover tooltip showing the expected response time.
 - [x] Add an offline fallback contact form that captures and validates an email address.
@@ -1479,6 +1613,7 @@
 - [x] Save the validated contextual WhatsApp widget checkpoint.
 
 # WhatsApp Widget Course Context and Help Enhancements
+
 - [x] Add a subtle one-time bounce after more than 30 seconds on course pages.
 - [x] Add FAQ and quick-reply help actions inside the offline fallback form.
 - [x] Include the current page URL in the fallback inquiry context.
@@ -1486,6 +1621,7 @@
 - [x] Save the validated course-context WhatsApp widget checkpoint.
 
 # Deployment Branding Asset Repair
+
 - [x] Replace the unresolved hero CSS asset reference with an explicit managed image URL.
 - [x] Add a close-fit header logo asset so the logo is legible after deployment.
 - [x] Add a square favicon and conventional favicon.ico fallback.
@@ -1494,6 +1630,7 @@
 - [x] Save the validated branding repair checkpoint.
 
 # Website SEO Implementation
+
 - [x] Inventory and classify public and authenticated routes for SEO treatment.
 - [x] Add route-aware titles, descriptions, canonical URLs, Open Graph, and Twitter metadata.
 - [x] Add structured data and crawl-supporting robots/sitemap files for public content.
@@ -1502,6 +1639,7 @@
 - [x] Save the validated SEO checkpoint.
 
 # Course SEO Expansion
+
 - [x] Generate sitemap course entries from the published course catalog automatically.
 - [x] Implement server-side rendering for the public course catalog route with course data and metadata.
 - [x] Add accessible social sharing controls to course detail pages.
@@ -1509,6 +1647,7 @@
 - [x] Save the validated course SEO enhancement checkpoint.
 
 # Course Sharing and Detail SSR
+
 - [x] Track course share actions by platform with analytics events.
 - [x] Implement server-rendered HTML for individual public course detail routes.
 - [x] Confirm successful course-link copying with a visual toast notification.
@@ -1516,6 +1655,7 @@
 - [x] Save the validated course sharing and detail SSR checkpoint.
 
 # Social Preview Image Repair
+
 - [x] Audit all shared-page Open Graph and Twitter image URLs and verify their public responses.
 - [x] Provide a publicly resolvable branded preview image for catalog and course detail shares.
 - [x] Add image dimensions and image metadata where needed for social crawlers.
@@ -1523,6 +1663,7 @@
 - [x] Save the validated social preview image repair checkpoint.
 
 # Dynamic Course Social Preview Enhancement
+
 - [x] Generate deployment-safe course-specific Open Graph images using each course title and cover treatment.
 - [x] Resolve each course detail page to its specific social preview image with a fallback.
 - [x] Add a floating course share bar with per-platform analytics tracking.
@@ -1531,6 +1672,7 @@
 - [x] Save the validated dynamic course social preview checkpoint.
 
 # Course Social Card Operations
+
 - [x] Add admin-authorized course cover-image upload and persistence through managed storage.
 - [x] Include uploaded cover artwork in generated course Open Graph cards.
 - [x] Add course/platform social sharing analytics aggregation and admin chart.
@@ -1539,6 +1681,7 @@
 - [x] Save the validated course social-card operations checkpoint.
 
 # Social Card Editing and Reporting
+
 - [x] Add a browser-side crop and focal-point editor before course cover upload.
 - [x] Add CSV and PDF exports for course/platform social-sharing analytics.
 - [x] Add live Twitter and Facebook card previews using the generated course preview image.
@@ -1546,6 +1689,7 @@
 - [x] Save the validated social-card editing and reporting checkpoint.
 
 # Social Analytics and Auto-Crop Enhancement
+
 - [x] Add comparison date ranges and trend charts to social-sharing analytics.
 - [x] Add protected admin downloads for generated Open Graph preview cards.
 - [x] Add subject-aware automatic crop suggestion before manual crop adjustment.
@@ -1553,6 +1697,7 @@
 - [x] Save the validated social analytics and auto-cropping checkpoint.
 
 # Admin Social Preview Interaction Enhancement
+
 - [x] Add Last 7 Days, Last 30 Days, and custom date-range presets to sharing analytics.
 - [x] Visualize the AI-detected subject region with a bounding overlay or heatmap in the crop editor.
 - [x] Add admin quick-share actions for generated Open Graph cards with tracked platform events.
@@ -1560,6 +1705,7 @@
 - [x] Save the validated admin social preview interaction checkpoint.
 
 # Social Analytics Control Refinement
+
 - [x] Add drag and resize controls for the AI-detected subject bounding box.
 - [x] Add quick-share success toasts and a public-only analytics filter excluding admin shares.
 - [x] Add green/red period-over-period trend indicators to the analytics summary.
@@ -1567,6 +1713,7 @@
 - [x] Save the validated social analytics control refinement checkpoint.
 
 # Privacy Policy Page
+
 - [x] Create a dedicated branded Privacy Policy page with clear sections for data use, payments, assessments, communications, sharing, retention, and contact.
 - [x] Register the Privacy Policy route with page-specific SEO metadata and canonical URL.
 - [x] Add a persistent Privacy Policy link to the global footer.
@@ -1574,6 +1721,7 @@
 - [x] Save the validated Privacy Policy checkpoint.
 
 # Legal and Cookie Consent Experience
+
 - [x] Add a lightweight cookie consent banner with accept-all and customizable tracking preferences.
 - [x] Persist consent choices and provide an accessible way to reopen or update preferences.
 - [x] Create a dedicated branded Terms of Service page with route-specific SEO metadata.
@@ -1583,6 +1731,7 @@
 - [x] Save the validated legal and consent experience checkpoint.
 
 # Legal and Compliance Finalization
+
 - [x] Add a sticky Privacy Policy table of contents on desktop with anchored section navigation.
 - [x] Add a collapsible mobile-friendly Privacy Policy table of contents.
 - [x] Add the Terms of Service link beside Privacy Policy in the global footer.
@@ -1591,22 +1740,26 @@
 - [x] Save a final checkpoint for the legal and compliance experience.
 
 # Legal regression follow-up
+
 - [x] Update sitemap regression coverage for the additional Terms of Service URL.
 - [x] Add regression coverage for Terms metadata and the cookie consent storage key.
 - [x] Re-run the complete validation suite after the sitemap coverage update.
 - [x] Save a final checkpoint after the complete validation suite.
 
 ## Notes
+
 - Production build completes successfully; Vite still reports the existing large-chunk advisory for the application bundle.
 - The screenshot harness showed the cookie banner correctly overlaying the lower viewport on both legal pages; the mobile contents control remains visible above it.
 - Historical dev-server log entries mention an earlier missing Terms page before the inherited file was present; current type checking and production build pass.
 
 # Archived task status
+
 - [x] Legal/compliance refinement task complete.
 - [x] SEO/social-sharing/admin platform work inherited from prior checkpoints remains preserved.
 - [x] Auto-published checkpoint pending final save.
 
 # Final validation record
+
 - [x] Focused legal tests passed: 11 tests across 3 files.
 - [x] Full non-network Vitest suite passed.
 - [x] TypeScript noEmit validation passed.
@@ -1615,6 +1768,7 @@
 - [x] Final checkpoint ready.
 
 # Delivery checklist
+
 - [x] Privacy Policy sticky TOC delivered.
 - [x] Terms of Service footer link delivered.
 - [x] Mobile responsive legal navigation delivered.
@@ -1623,9 +1777,11 @@
 - [x] Final user report ready.
 
 # End state
+
 - [x] Profound IQ Consulting legal/compliance experience is ready for user review.
 
 # Sitewide Localization
+
 - [x] Define supported major-language locales and a translation key contract with English fallback.
 - [x] Add a persistent, accessible language selector to the shared public experience.
 - [x] Translate shared navigation, homepage, footer, cookie consent, WhatsApp support, Privacy Policy, Terms of Service, and public catalog labels.
@@ -1635,6 +1791,7 @@
 - [x] Save a checkpoint for the multilingual experience.
 
 # Localization Enhancements
+
 - [x] Detect the initial locale from browser language preferences while preserving an explicit saved choice.
 - [x] Animate language changes and RTL direction transitions without causing layout or hydration issues.
 - [x] Add a user-facing translation improvement suggestion form with locale, page, source text, suggested correction, and optional contact details.
@@ -1643,6 +1800,7 @@
 - [x] Save a checkpoint for the localization enhancements.
 
 # Translation Operations and International SEO
+
 - [x] Add an admin-only translation-suggestion review query with status/search/date filters and pagination.
 - [x] Add admin approve/reject mutations with audit-safe reviewer and timestamp fields.
 - [x] Add a dashboard section for reviewing, approving, and rejecting translation suggestions.
@@ -1652,12 +1810,14 @@
 - [x] Save a checkpoint for translation operations and international SEO.
 
 # Google OAuth Configuration Retest
+
 - [x] Provide step-by-step Google Cloud Console OAuth credential configuration guidance.
 - [x] Verify Google OAuth client ID and secret availability in the backend without exposing secret values.
 - [x] Retest the live Google OAuth start redirect and callback prerequisites after URI updates.
 - [x] Report any remaining browser-side consent or callback action required from the user.
 
 # Google OAuth and Authenticated Localization QA
+
 - [x] Add automated Google OAuth start/state/nonce and callback/session persistence coverage without real provider credentials.
 - [x] Prepare production OAuth consent-screen branding and verified legal-link configuration.
 - [x] Test authenticated dashboard language switching across supported locales.
@@ -1665,6 +1825,7 @@
 - [x] Run the full validation suite and publish the completed QA improvements.
 
 # Enrollment OAuth and Profile Settings
+
 - [x] Add a loading spinner and processing status message to Google OAuth sign-in during enrollment.
 - [x] Add connected Google account details to the user profile settings page.
 - [x] Add preferred-language controls to profile settings using the existing locale preference contract.
@@ -1673,6 +1834,7 @@
 - [x] Save a checkpoint for the enrollment OAuth and profile settings improvements.
 
 # Course Access Gate Correction
+
 - [x] Route registered learners from the course sign-in gate to their dashboard or course enrollment continuation.
 - [x] Route unregistered learners into registration while preserving the intended course slug and return step.
 - [x] Make the verified first staged payment the explicit unlock action for the course.
@@ -1682,6 +1844,7 @@
 - [x] Save a checkpoint for the corrected course access workflow.
 
 # Profile Payment Visibility and Checkout QA
+
 - [x] Display current course enrollment status and recent staged-payment history in Profile Settings.
 - [x] Add a localized success toast when the preferred language is updated.
 - [x] Add a clearly labeled mock checkout interface for the staged first payment, isolated from production Paystack charging.
@@ -1690,6 +1853,7 @@
 - [x] Save a checkpoint for the profile payment and checkout QA enhancements.
 
 # Payment History QA and Localization
+
 - [x] Add a main-dashboard shortcut linking directly to Profile Settings payment history.
 - [x] Add a development-only mock payment reset action for repeating enrollment tests.
 - [x] Localize payment status, enrollment progress, staged-payment, and mock QA copy in every supported locale.
@@ -1698,6 +1862,7 @@
 - [x] Save a checkpoint for the payment-history QA and localization enhancements.
 
 # Course Localization and Enrollment QA Expansion
+
 - [x] Translate all dynamic course titles and descriptions for the ten supported locales with English fallback.
 - [x] Add a development-only enrollment fixture picker for pending, stage-one-paid, stage-two-paid, stage-three-paid, and completed states.
 - [x] Add a dedicated Payment History tab to the main authenticated dashboard.
@@ -1706,6 +1871,7 @@
 - [x] Save a checkpoint for the course localization and enrollment QA expansion.
 
 # Payment History, Full Content Localization, and Navigation Language Switcher
+
 - [x] Add filter controls for course, payment stage, payment status, and date range to the dashboard Payment History tab.
 - [x] Add stable sorting controls for transaction date, amount, course, stage, and status, with accessible empty states.
 - [x] Add translated long-form lesson content for supported locales with clear English fallback and no changes to course identifiers.
@@ -1716,6 +1882,7 @@
 - [x] Save a checkpoint for the payment history, full content localization, and navigation language switcher enhancements.
 
 # Server Pagination, Cultural Localization, and Browser QA
+
 - [x] Add protected server-side payment-history pagination with filter/sort inputs and total counts.
 - [x] Update the Payment History tab to query paginated transaction rows and expose accessible page controls.
 - [x] Add locale-native, course-specific examples and context to long-form lesson projections without changing stable course or quiz identifiers.
@@ -1725,6 +1892,7 @@
 - [x] Save a checkpoint for server pagination, cultural localization, and browser QA coverage.
 
 # Independent Email and Username Credential Authentication
+
 - [x] Audit the existing credential registration, login, logout, session, and password-reset contracts and frontend entry points.
 - [x] Ensure email and username/password registration and sign-in work without Google or LinkedIn configuration.
 - [x] Preserve secure password hashing, generic authentication errors, rate limiting, session issuance, logout, and email-only password recovery.
@@ -1734,6 +1902,7 @@
 - [x] Save a checkpoint for independent email and username credential authentication.
 
 # Unified Multi-Method Authentication
+
 - [x] Audit credential identifiers, OAuth callbacks, provider matching, and session persistence for cross-method sign-in.
 - [x] Allow users to choose email/password, username/password, Google, LinkedIn, or Manus OAuth without requiring a single preferred method.
 - [x] Add safe account matching/linking rules that prevent duplicate or cross-account takeover while preserving existing profile data.
@@ -1743,6 +1912,7 @@
 - [x] Save a checkpoint for unified multi-method authentication.
 
 # Complete Sitewide Localization
+
 - [x] Audit all user-visible strings and generated copy across public pages, menus, dashboards, account flows, admin tools, courses, lessons, quizzes, checkout, assessments, reports, certificates, emails, PDFs, QR verification, and SEO.
 - [x] Expand the typed locale contract and translation maps so every supported locale has native copy or an explicit safe English fallback.
 - [x] Wire locale-aware rendering through all frontend pages, navigation, learning content, quizzes, payment and assessment workflows, and authenticated dashboards.
@@ -1753,6 +1923,7 @@
 - [x] Save a checkpoint for complete sitewide localization.
 
 # Staged Complete Localization Batches
+
 - [x] Batch 1: translate public homepage, footer, legal pages, contact/inquiry flows, course catalog entry points, and global navigation in all ten locales.
 - [x] Batch 1: verify public locale switching, persistence, metadata, and Arabic RTL rendering; save a batch checkpoint.
 - [x] Batch 2: translate authentication, dashboard, settings, profile, payment history, checkout, enrollment, and payment-success workflows in all ten locales.
@@ -1884,6 +2055,7 @@
 - [x] Validate newsletter lifecycle, publishing workflow, server search, and responsive UI
 
 # Bi-weekly Newsletter Automation
+
 - [x] Add a durable bi-weekly newsletter delivery handler for confirmed subscribers only.
 - [x] Add idempotent delivery gating, unsubscribe-token rotation, and delivery summaries.
 - [x] Add admin controls to enable and inspect the bi-weekly newsletter schedule.
@@ -1893,24 +2065,28 @@
 - [x] Activate the production newsletter schedule every other Monday at 09:00 EAT (06:00 UTC) and verify its callback.
 
 # Strict Staged Payment Access
+
 - [x] Audit and harden lesson access so every lesson requires its staged payment.
 - [x] Redirect unpaid lesson clicks to the matching installment checkout without revealing lesson content.
 - [x] Add regression coverage for payment-gated lesson navigation and quality-control admin access.
 - [x] Validate responsive payment-gate UX and checkpoint the release.
 
 # Payment Required UX and Access Audit
+
 - [x] Add a dedicated payment-required modal with matching installment details and checkout action.
 - [x] Refresh course enrollment state immediately after verified Paystack payment webhooks.
 - [x] Persist denied lesson-access events and expose admin drop-off analytics.
 - [x] Add regression tests, responsive checks, and checkpoint the release.
 
 # Access Funnel and Unlock Progress
+
 - [x] Add denied-to-paid access conversion metrics to the admin observatory.
 - [x] Add filtered CSV export for access-audit reports.
 - [x] Add a visual lesson-unlock progress bar to the payment-required modal.
 - [x] Add tests, responsive verification, and checkpoint the release.
 
 # Access Observatory Trends, Exports, and Alerts
+
 - [x] Add daily conversion trend data and chart to the admin access observatory.
 - [x] Include individual denied-access events in the filtered CSV export.
 - [x] Add persisted configurable drop-off threshold and admin alert state.
@@ -1918,30 +2094,35 @@
 - [x] Add tests, responsive checks, production build, and checkpoint the release.
 
 # Conversion Segmentation and Period Comparison
+
 - [x] Add cohort and device segmentation filters to conversion trend analytics.
 - [x] Add Last 7 Days and Last 30 Days presets shared by charts and CSV exports.
 - [x] Add current-versus-previous-period comparison metrics and visual treatment.
 - [x] Update reusable skill, add tests, verify responsive behavior, and checkpoint the release.
 
 # Saved Segmentation Presets and Chart Exports
+
 - [x] Add admin quick-access presets for custom access-observatory filter combinations.
 - [x] Add admin controls to manually assign users to named cohorts for segmentation.
 - [x] Add PNG and PDF exports for conversion trend charts.
 - [x] Add tests, responsive verification, skill update, and checkpoint the release.
 
 # Cohort Management, Branded Reports, and Shared Presets
+
 - [x] Add a dedicated admin cohort-management route with bulk user assignment.
 - [x] Replace browser print with a branded server-generated conversion PDF report.
 - [x] Add persisted shared filter presets with role-based visibility controls.
 - [x] Add authorization/tests, responsive checks, skill update, and checkpoint the release.
 
 # Persistent Presets, Cohort CSV Import, and Report Email Sharing
+
 - [x] Persist dashboard filter presets through the server across admin sessions.
 - [x] Add validated CSV upload and bulk cohort assignment to cohort management.
 - [x] Add an admin email-sharing action for branded server-generated PDF reports.
 - [x] Add authorization/tests, responsive checks, and checkpoint the release.
 
 # Interactive Course Lesson Hardening
+
 - [x] Lock all course lessons and lesson navigation while a quiz is open or being submitted.
 - [x] Reduce the lesson countdown to 30 minutes before the next lesson can unlock.
 - [x] Expand the lesson content with deeper explanations, examples, and practical activities.
@@ -1950,46 +2131,49 @@
 - [x] Add tests, responsive checks, and checkpoint the release.
 
 # Lesson Response Autosave, Instructor Review, and Localization
+
 - [x] Add debounced server autosave for lesson responses with visible save-status feedback.
 - [x] Add staff/instructor response review and feedback with protected authorization.
 - [x] Localize response-task instructions and motivational messages across all ten supported locales.
 - [x] Add tests, responsive verification, production build, and checkpoint the release.
 
 # Learner Feedback and Instructor Review Analytics
+
 - [x] Display reviewed instructor feedback to learners inside the course workspace.
 - [x] Add review analytics by course and module for staff and administrators.
 - [x] Add intuitive course and date filters to the staff response-review workspace.
 - [x] Add focused tests, responsive verification, production build, and publish checkpoint.
 
-
 # Feedback Notifications and Review Analytics Exports
+
 - [x] Notify learners when new instructor feedback is posted and support read-state handling.
 - [x] Add response-aging metrics and reviewer workload metrics to review analytics.
 - [x] Add protected CSV and PDF exports for staff review analytics.
 - [x] Add focused tests, responsive verification, production build, and publish checkpoint.
 
-
 # Notification Preferences and Scheduled Review Analytics
+
 - [x] Add learner settings for email and in-app instructor-feedback notification preferences.
 - [x] Add reviewer workload trend data and a staff-facing chart over time.
 - [x] Add staff-managed automated review analytics email scheduling with pause/resume controls.
 - [x] Add scheduled delivery tests, responsive verification, production build, deployment, and checkpoint.
 
-
 # Course Lesson Illustration Enrichment
+
 - [x] Define reusable explanatory, applicational, and experiential illustration content fields for lessons.
 - [x] Enrich all course lessons with scenario-appropriate illustrations and render them in the interactive player.
 - [x] Localize illustration labels and add regression coverage for lesson illustration completeness.
 - [x] Run tests, responsive verification, production build, and publish checkpoint.
 
-
 # AI Lesson Visuals and Experiential Activities
+
 - [x] Generate and integrate branded explanatory visual assets for all course lessons.
 - [x] Add persistent learner bookmarks for explanatory, applicational, and experiential illustration cards.
 - [x] Add experiential-story quiz and reflection interactions with localized copy and persistence.
 - [x] Add focused tests, responsive verification, production build, and publish checkpoint.
 
 # Localized My Illustrations Gallery
+
 - [x] Localize experiential activity questions, options, feedback, and reflection prompts across all ten supported locales.
 - [x] Create a protected cross-course My Illustrations gallery from durable learner bookmarks.
 - [x] Add explanatory artwork zoom and visual study-sheet download actions.
@@ -2069,6 +2253,7 @@
 - [x] Save and auto-publish a checkpoint for the completed discovery persistence features.
 
 # Server-Rendered Comparisons and Personalized Course Revisit
+
 - [x] Add server-rendered comparison-page metadata for crawler and social previews.
 - [x] Add dynamic Open Graph image generation for selected course comparisons.
 - [x] Add paginated saved-course listing and protected unsave controls in My Space.
@@ -2078,6 +2263,7 @@
 - [x] Save and auto-publish a checkpoint for the completed comparison and personalization upgrades.
 
 # Course Sharing, Discovery Transitions, and Saved Pathway Export
+
 - [x] Add share buttons for specific comparisons on the dedicated comparison page.
 - [x] Add share buttons for individual course detail pages with course-specific URLs and metadata.
 - [x] Add smooth, reduced-motion-friendly transitions and loading skeletons between the recommendation quiz and saved pathways surfaces.
@@ -2086,6 +2272,7 @@
 - [x] Save and auto-publish a checkpoint for the completed sharing, transition, and saved-pathway export features.
 
 # PDF Preview, Localized Sharing, and Comparison Share Analytics
+
 - [x] Add a My Space PDF preview modal that lets learners review saved pathways before downloading.
 - [x] Localize social sharing text using the active browser or site locale across course and comparison shares.
 - [x] Aggregate and display the most frequently shared course comparisons in analytics.
@@ -2093,6 +2280,7 @@
 - [x] Save and auto-publish a checkpoint for the completed PDF preview, localized sharing, and comparison analytics features.
 
 # PDF Layout Options and Comparison Share Trends
+
 - [x] Add summary and detailed layout options to the saved-pathway PDF export and preview flow.
 - [x] Pass the selected PDF layout through the protected export procedure and renderer.
 - [x] Add an admin visual trend chart for course-comparison shares over time.
@@ -2100,6 +2288,7 @@
 - [x] Save and auto-publish a checkpoint for the completed PDF layout and comparison trend features.
 
 # Localized PDF Controls, Preview Zoom, and Analytics CSV
+
 - [x] Localize summary and detailed PDF layout labels across all supported locales.
 - [x] Add zoom controls to the My Space saved-pathways PDF preview modal.
 - [x] Add an admin CSV export for course-comparison share analytics.
@@ -2107,6 +2296,7 @@
 - [x] Save and auto-publish a checkpoint for the completed localized controls, preview zoom, and analytics CSV features.
 
 # Printable, Localized PDF Content, and Date-Range Analytics Export
+
 - [x] Add a direct Print action to the My Space saved-pathways PDF preview modal.
 - [x] Localize generated PDF headings, labels, and course metadata using the learner’s selected locale.
 - [x] Apply admin date-range filters to course-share analytics and CSV export data.
@@ -2114,6 +2304,7 @@
 - [x] Save and auto-publish a checkpoint for the completed printable PDF, localized content, and date-range export features.
 
 # Arabic-CJK PDF Typography, Date Presets, and Print Layout
+
 - [x] Add locale-aware Arabic and CJK font selection and localized PDF metadata.
 - [x] Add quick analytics date presets including Last 7 Days and This Month to CSV export controls.
 - [x] Create a dedicated print-friendly learning-pathways page and route.
@@ -2121,6 +2312,7 @@
 - [x] Save and auto-publish a checkpoint for the typography, date presets, and print-layout features.
 
 # Paginated Print, Localized Dates, and Custom Branding
+
 - [x] Add pagination controls and page numbers to the print-friendly saved-pathways layout.
 - [x] Apply locale-specific date and time formatting to generated PDFs and print layouts.
 - [x] Add customizable watermark or branding-logo options to PDF export and print layouts.
@@ -2128,6 +2320,7 @@
 - [x] Save and auto-publish a checkpoint for the pagination, localized date, and branding features.
 
 # Export Page Sizes, Persisted Branding, and Cover Pages
+
 - [x] Add A4 and Letter page-size options to PDF export and print layouts.
 - [x] Persist watermark and branding preferences in the authenticated learner profile.
 - [x] Add an optional branded cover page with learner name and pathway title for detailed PDFs.
@@ -2135,6 +2328,7 @@
 - [x] Save and auto-publish a checkpoint for the page-size, preference, and cover-page features.
 
 # Custom Cover Branding, Templates, and Live Preview
+
 - [x] Add protected custom logo upload and profile-scoped logo persistence.
 - [x] Add multiple cover-page template choices to export preferences and PDF rendering.
 - [x] Add a live cover-page preview in the PDF export modal using current branding settings.
@@ -2142,6 +2336,7 @@
 - [x] Save and auto-publish a checkpoint for the custom branding, templates, and live-preview features.
 
 # Admin Quality-Control Access and Learner Grants
+
 - [x] Add server-side quality-control bypass for profoundiqconsulting@gmail.com across course payment gates, lesson timers, quizzes, and certificate generation.
 - [x] Ensure the designated admin receives automatic full quiz access and 100% completion eligibility without weakening ordinary learner rules.
 - [x] Add an admin-only workflow to grant or revoke course-content access for individual learners with audit records.
@@ -2150,6 +2345,7 @@
 - [x] Save and auto-publish a checkpoint for the admin quality-control and learner-access grant features.
 
 # Grant Search, Bulk Assignment, QA Checklist, and Audit Export
+
 - [x] Add admin-side grant search with learner name, email, and course filters.
 - [x] Add safe bulk grant and bulk revoke operations with per-user audit records.
 - [x] Add a dedicated admin QA checklist inside the course workspace with persistent local progress and clear quality-control status.
@@ -2158,6 +2354,7 @@
 - [x] Save and auto-publish a checkpoint for the grant-management and QA checklist enhancements.
 
 # Reference Certificate Redesign and Automatic Field Population
+
 - [x] Inspect the current certificate renderer, data contract, logo asset, QR verification, and generation/download flows.
 - [x] Redesign the certificate with the supplied reference hierarchy, Profound IQ branding, wave motif, seal treatment, and signature block.
 - [x] Populate learner name, course title, completion date, certificate ID, logo, QR verification URL, and site address from verified records.
@@ -2166,6 +2363,7 @@
 - [x] Save and auto-publish a checkpoint for the certificate redesign.
 
 # Certificate PNG Download, Offline Logo, and Admin Preview
+
 - [x] Add a high-resolution PNG download action for generated certificates.
 - [x] Embed the managed site logo as a base64 data URI in generated certificate SVGs for offline email viewing.
 - [x] Add an admin-only certificate preview interface using safe sample data and the production certificate renderer.
@@ -2174,6 +2372,7 @@
 - [x] Save and auto-publish a checkpoint for the certificate PNG, offline logo, and admin preview features.
 
 # Certificate Signature, Copy, Logo, and Layout Refinement
+
 - [x] Embed the exact supplied signature image above the Managing Director title.
 - [x] Remove the learner email from the course certificate and use the managed site logo without a generated replacement mark.
 - [x] Replace the certificate wording with “proudly awarded to”, learner name, “for successfully completing the course”, and course title.
@@ -2183,6 +2382,7 @@
 - [x] Save and auto-publish a checkpoint for the certificate refinement.
 
 # Certificate Trainer Settings, Preview Controls, and LinkedIn Sharing
+
 - [x] Add protected persisted admin settings for trainer name, trainer title, and signature asset.
 - [x] Apply the saved trainer and signature settings to newly generated certificates and admin previews.
 - [x] Add bounded zoom controls and a print action to certificate preview surfaces.
@@ -2191,6 +2391,7 @@
 - [x] Save and auto-publish a checkpoint for the certificate controls release.
 
 # Certificate Print, LinkedIn Copy, Live Preview, and Reusable Skill
+
 - [x] Add dedicated certificate print styling with selectable A4 and Letter landscape page sizes and safe margins.
 - [x] Enhance LinkedIn sharing with pre-filled course-specific post text and relevant hashtags.
 - [x] Make the admin certificate preview update live from unsaved trainer and signature edits before saving.
@@ -2199,6 +2400,7 @@
 - [x] Save and auto-publish a checkpoint for the certificate controls and reusable skill release.
 
 # Certificate PDF Download, Copy Link, Learner Print Preview, and Skill Update
+
 - [x] Add a secure PDF certificate download alongside SVG and PNG certificate actions.
 - [x] Add a copy-to-clipboard action for the certificate verification/link URL beside LinkedIn sharing.
 - [x] Add a learner-dashboard certificate print preview modal with layout verification before printing.
@@ -2207,6 +2409,7 @@
 - [x] Save and auto-publish a checkpoint for the certificate delivery enhancements.
 
 # Certificate Layout Editor, History Preview, and Usage Analytics
+
 - [x] Add persisted admin certificate field layout settings for moving, editing, hiding, and deleting supported fields.
 - [x] Apply saved certificate field layout settings to every subsequent SVG, PNG, PDF, email, and preview generation.
 - [x] Add admin drag/drop or keyboard-movable field controls with reset and save feedback.

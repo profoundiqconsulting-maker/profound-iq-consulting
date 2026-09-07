@@ -1,8 +1,32 @@
 import { describe, expect, it, vi } from "vitest";
 
-const { getUserAssessmentHistory, getAssessmentAttempt, compareUserAssessmentReports, createReportShare, getActiveReportShare, revokeReportShare, listReportShares, listReportShareAuditEvents } = vi.hoisted(() => ({ getUserAssessmentHistory: vi.fn(), getAssessmentAttempt: vi.fn(), compareUserAssessmentReports: vi.fn(), createReportShare: vi.fn(), getActiveReportShare: vi.fn(), revokeReportShare: vi.fn(), listReportShares: vi.fn(), listReportShareAuditEvents: vi.fn() }));
-const { renderAssessmentReportPdf, renderAssessmentScoreSummaryPdf } = vi.hoisted(() => ({ renderAssessmentReportPdf: vi.fn(), renderAssessmentScoreSummaryPdf: vi.fn() }));
-const { emailAssessmentReportIfNeeded } = vi.hoisted(() => ({ emailAssessmentReportIfNeeded: vi.fn() }));
+const {
+  getUserAssessmentHistory,
+  getAssessmentAttempt,
+  compareUserAssessmentReports,
+  createReportShare,
+  getActiveReportShare,
+  revokeReportShare,
+  listReportShares,
+  listReportShareAuditEvents,
+} = vi.hoisted(() => ({
+  getUserAssessmentHistory: vi.fn(),
+  getAssessmentAttempt: vi.fn(),
+  compareUserAssessmentReports: vi.fn(),
+  createReportShare: vi.fn(),
+  getActiveReportShare: vi.fn(),
+  revokeReportShare: vi.fn(),
+  listReportShares: vi.fn(),
+  listReportShareAuditEvents: vi.fn(),
+}));
+const { renderAssessmentReportPdf, renderAssessmentScoreSummaryPdf } =
+  vi.hoisted(() => ({
+    renderAssessmentReportPdf: vi.fn(),
+    renderAssessmentScoreSummaryPdf: vi.fn(),
+  }));
+const { emailAssessmentReportIfNeeded } = vi.hoisted(() => ({
+  emailAssessmentReportIfNeeded: vi.fn(),
+}));
 
 vi.mock("./db", () => ({
   recordAnalyticsEvent: vi.fn(),
@@ -21,7 +45,10 @@ vi.mock("./db", () => ({
   setPaystackReference: vi.fn(),
 }));
 
-vi.mock("./reportPdf", () => ({ renderAssessmentReportPdf, renderAssessmentScoreSummaryPdf }));
+vi.mock("./reportPdf", () => ({
+  renderAssessmentReportPdf,
+  renderAssessmentScoreSummaryPdf,
+}));
 vi.mock("./email", () => ({ emailAssessmentReportIfNeeded }));
 
 const { appRouter } = await import("./routers");
@@ -29,32 +56,73 @@ const { appRouter } = await import("./routers");
 function context(user: { email?: string } | null) {
   const now = new Date();
   return {
-    user: user ? { id: 1, openId: "user-dashboard-test", name: "Participant", email: user.email ?? null, loginMethod: "test", role: "user", createdAt: now, updatedAt: now, lastSignedIn: now } : null,
+    user: user
+      ? {
+          id: 1,
+          openId: "user-dashboard-test",
+          name: "Participant",
+          email: user.email ?? null,
+          loginMethod: "test",
+          role: "user",
+          createdAt: now,
+          updatedAt: now,
+          lastSignedIn: now,
+        }
+      : null,
     req: { protocol: "https", headers: {} } as never,
     res: {} as never,
   };
 }
 
-const paidReport = { overallScore: 78, overallBand: "Building momentum", dimensions: [], strengths: ["Clarity of direction"], focusAreas: ["Growth orientation"], disclaimer: "Educational development tool." };
+const paidReport = {
+  overallScore: 78,
+  overallBand: "Building momentum",
+  dimensions: [],
+  strengths: ["Clarity of direction"],
+  focusAreas: ["Growth orientation"],
+  disclaimer: "Educational development tool.",
+};
 
 describe("dashboard.mine", () => {
   it("requires authentication", async () => {
     const caller = appRouter.createCaller(context(null));
-    await expect(caller.dashboard.mine()).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+    await expect(caller.dashboard.mine()).rejects.toMatchObject({
+      code: "UNAUTHORIZED",
+    });
   });
 
   it("scopes the query to the authenticated account email", async () => {
     getUserAssessmentHistory.mockResolvedValue([]);
-    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
+    const caller = appRouter.createCaller(
+      context({ email: "owner@example.com" })
+    );
     await caller.dashboard.mine();
     expect(getUserAssessmentHistory).toHaveBeenCalledWith("owner@example.com");
   });
 
   it("returns the report email delivery status without exposing report internals", async () => {
-    getUserAssessmentHistory.mockResolvedValue([{ id: 12, paymentStatus: "paid", reportEmailStatus: "sent", reportEmailSentAt: new Date("2026-08-22T06:08:16Z"), overallScore: 79, overallBand: "Building momentum", paystackReference: "reference", createdAt: new Date(), paidAt: new Date(), report: paidReport }]);
-    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
+    getUserAssessmentHistory.mockResolvedValue([
+      {
+        id: 12,
+        paymentStatus: "paid",
+        reportEmailStatus: "sent",
+        reportEmailSentAt: new Date("2026-08-22T06:08:16Z"),
+        overallScore: 79,
+        overallBand: "Building momentum",
+        paystackReference: "reference",
+        createdAt: new Date(),
+        paidAt: new Date(),
+        report: paidReport,
+      },
+    ]);
+    const caller = appRouter.createCaller(
+      context({ email: "owner@example.com" })
+    );
     const result = await caller.dashboard.mine();
-    expect(result[0]).toMatchObject({ reportEmailStatus: "sent", overallScore: 79 });
+    expect(result[0]).toMatchObject({
+      reportEmailStatus: "sent",
+      overallScore: 79,
+    });
     expect(result[0]).not.toHaveProperty("answers");
   });
 });
@@ -62,57 +130,137 @@ describe("dashboard.mine", () => {
 describe("dashboard.compareReports", () => {
   it("requires authentication", async () => {
     const caller = appRouter.createCaller(context(null));
-    await expect(caller.dashboard.compareReports({ currentAttemptId: 2, previousAttemptId: 1 })).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+    await expect(
+      caller.dashboard.compareReports({
+        currentAttemptId: 2,
+        previousAttemptId: 1,
+      })
+    ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
   });
 
   it("scopes comparison to the authenticated account email", async () => {
-    compareUserAssessmentReports.mockResolvedValue({ current: { id: 2 }, previous: { id: 1 }, comparison: { currentScore: 80, previousScore: 70, scoreDelta: 10, dimensions: [] } });
-    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
-    await caller.dashboard.compareReports({ currentAttemptId: 2, previousAttemptId: 1 });
-    expect(compareUserAssessmentReports).toHaveBeenCalledWith("owner@example.com", 2, 1);
+    compareUserAssessmentReports.mockResolvedValue({
+      current: { id: 2 },
+      previous: { id: 1 },
+      comparison: {
+        currentScore: 80,
+        previousScore: 70,
+        scoreDelta: 10,
+        dimensions: [],
+      },
+    });
+    const caller = appRouter.createCaller(
+      context({ email: "owner@example.com" })
+    );
+    await caller.dashboard.compareReports({
+      currentAttemptId: 2,
+      previousAttemptId: 1,
+    });
+    expect(compareUserAssessmentReports).toHaveBeenCalledWith(
+      "owner@example.com",
+      2,
+      1
+    );
   });
 });
 
 describe("sharedReport and report-share management", () => {
   it("creates a share only for the authenticated owner’s paid report", async () => {
-    getAssessmentAttempt.mockResolvedValue({ id: 12, email: "owner@example.com", paymentStatus: "paid", report: paidReport, name: "Participant", createdAt: new Date() });
+    getAssessmentAttempt.mockResolvedValue({
+      id: 12,
+      email: "owner@example.com",
+      paymentStatus: "paid",
+      report: paidReport,
+      name: "Participant",
+      createdAt: new Date(),
+    });
     createReportShare.mockResolvedValue("opaque-share-token");
-    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
-    const result = await caller.dashboard.createShareLink({ attemptId: 12, expiresInDays: 7, consent: true, lens: "teamDevelopment", recipientPurpose: "manager" });
+    const caller = appRouter.createCaller(
+      context({ email: "owner@example.com" })
+    );
+    const result = await caller.dashboard.createShareLink({
+      attemptId: 12,
+      expiresInDays: 7,
+      consent: true,
+      lens: "teamDevelopment",
+      recipientPurpose: "manager",
+    });
     expect(result.token).toBe("opaque-share-token");
-    expect(createReportShare).toHaveBeenCalledWith(expect.objectContaining({ attemptId: 12, ownerOpenId: "user-dashboard-test", lens: "teamDevelopment", recipientPurpose: "manager", expiresAt: expect.any(Date) }));
+    expect(createReportShare).toHaveBeenCalledWith(
+      expect.objectContaining({
+        attemptId: 12,
+        ownerOpenId: "user-dashboard-test",
+        lens: "teamDevelopment",
+        recipientPurpose: "manager",
+        expiresAt: expect.any(Date),
+      })
+    );
   });
 
   it("requires explicit consent before creating a share", async () => {
-    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
-    await expect(caller.dashboard.createShareLink({ attemptId: 12, expiresInDays: 1, consent: false, lens: "leadership" } as never)).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    const caller = appRouter.createCaller(
+      context({ email: "owner@example.com" })
+    );
+    await expect(
+      caller.dashboard.createShareLink({
+        attemptId: 12,
+        expiresInDays: 1,
+        consent: false,
+        lens: "leadership",
+      } as never)
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 
   it("rejects public access when a share token is invalid or expired", async () => {
     getActiveReportShare.mockResolvedValue(undefined);
     const caller = appRouter.createCaller(context(null));
-    await expect(caller.sharedReport.get({ token: "x".repeat(32) })).rejects.toMatchObject({ code: "NOT_FOUND" });
+    await expect(
+      caller.sharedReport.get({ token: "x".repeat(32) })
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
   });
 
   it("keeps share listing and revocation scoped to the authenticated owner", async () => {
     listReportShares.mockResolvedValue([]);
-    listReportShareAuditEvents.mockResolvedValue([{ id: 1, eventType: "created", ownerOpenId: "user-dashboard-test" }]);
+    listReportShareAuditEvents.mockResolvedValue([
+      { id: 1, eventType: "created", ownerOpenId: "user-dashboard-test" },
+    ]);
     revokeReportShare.mockResolvedValue(undefined);
-    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
+    const caller = appRouter.createCaller(
+      context({ email: "owner@example.com" })
+    );
     await caller.dashboard.reportShares({ attemptId: 12 });
     const audit = await caller.dashboard.reportShareAudit({ attemptId: 12 });
     await caller.dashboard.revokeShareLink({ shareId: 4 });
     expect(audit[0]).toMatchObject({ eventType: "created" });
     expect(listReportShares).toHaveBeenCalledWith("user-dashboard-test", 12);
-    expect(listReportShareAuditEvents).toHaveBeenCalledWith("user-dashboard-test", { attemptId: 12 });
+    expect(listReportShareAuditEvents).toHaveBeenCalledWith(
+      "user-dashboard-test",
+      { attemptId: 12 }
+    );
     expect(revokeReportShare).toHaveBeenCalledWith("user-dashboard-test", 4);
   });
 
   it("filters and exports the owner’s share audit as escaped CSV", async () => {
-    listReportShareAuditEvents.mockResolvedValue([{ id: 2, attemptId: 12, eventType: "created", recipientPurpose: "manager, review", createdAt: new Date("2026-08-23T10:00:00Z") }]);
-    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
-    const result = await caller.dashboard.exportShareAudit({ attemptId: 12, eventType: "created" });
-    expect(listReportShareAuditEvents).toHaveBeenCalledWith("user-dashboard-test", { attemptId: 12, eventType: "created" });
+    listReportShareAuditEvents.mockResolvedValue([
+      {
+        id: 2,
+        attemptId: 12,
+        eventType: "created",
+        recipientPurpose: "manager, review",
+        createdAt: new Date("2026-08-23T10:00:00Z"),
+      },
+    ]);
+    const caller = appRouter.createCaller(
+      context({ email: "owner@example.com" })
+    );
+    const result = await caller.dashboard.exportShareAudit({
+      attemptId: 12,
+      eventType: "created",
+    });
+    expect(listReportShareAuditEvents).toHaveBeenCalledWith(
+      "user-dashboard-test",
+      { attemptId: 12, eventType: "created" }
+    );
     expect(result.csv).toContain('"manager, review"');
     expect(result.csv).toContain('"created"');
   });
@@ -121,81 +269,222 @@ describe("sharedReport and report-share management", () => {
 describe("dashboard.resendReportEmail", () => {
   it("rejects unauthenticated users", async () => {
     const caller = appRouter.createCaller(context(null));
-    await expect(caller.dashboard.resendReportEmail({ attemptId: 12 })).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+    await expect(
+      caller.dashboard.resendReportEmail({ attemptId: 12 })
+    ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
   });
 
   it("does not reveal another account's report for resend", async () => {
-    getAssessmentAttempt.mockResolvedValue({ id: 12, email: "other@example.com", paymentStatus: "paid", report: paidReport, reportEmailStatus: "pending", name: "Other", createdAt: new Date() });
-    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
-    await expect(caller.dashboard.resendReportEmail({ attemptId: 12 })).rejects.toMatchObject({ code: "NOT_FOUND" });
+    getAssessmentAttempt.mockResolvedValue({
+      id: 12,
+      email: "other@example.com",
+      paymentStatus: "paid",
+      report: paidReport,
+      reportEmailStatus: "pending",
+      name: "Other",
+      createdAt: new Date(),
+    });
+    const caller = appRouter.createCaller(
+      context({ email: "owner@example.com" })
+    );
+    await expect(
+      caller.dashboard.resendReportEmail({ attemptId: 12 })
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
     expect(emailAssessmentReportIfNeeded).not.toHaveBeenCalled();
   });
 
   it("does not resend an already-sent report", async () => {
-    getAssessmentAttempt.mockResolvedValue({ id: 12, email: "owner@example.com", paymentStatus: "paid", report: paidReport, reportEmailStatus: "sent", reportEmailSentAt: new Date(), name: "Participant", createdAt: new Date() });
-    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
-    await expect(caller.dashboard.resendReportEmail({ attemptId: 12 })).rejects.toMatchObject({ code: "CONFLICT" });
+    getAssessmentAttempt.mockResolvedValue({
+      id: 12,
+      email: "owner@example.com",
+      paymentStatus: "paid",
+      report: paidReport,
+      reportEmailStatus: "sent",
+      reportEmailSentAt: new Date(),
+      name: "Participant",
+      createdAt: new Date(),
+    });
+    const caller = appRouter.createCaller(
+      context({ email: "owner@example.com" })
+    );
+    await expect(
+      caller.dashboard.resendReportEmail({ attemptId: 12 })
+    ).rejects.toMatchObject({ code: "CONFLICT" });
     expect(emailAssessmentReportIfNeeded).not.toHaveBeenCalled();
   });
 
   it("triggers a resend for the authenticated owner's paid pending report", async () => {
-    getAssessmentAttempt.mockResolvedValue({ id: 12, email: "owner@example.com", paymentStatus: "paid", report: paidReport, reportEmailStatus: "pending", name: "Participant", createdAt: new Date() });
+    getAssessmentAttempt.mockResolvedValue({
+      id: 12,
+      email: "owner@example.com",
+      paymentStatus: "paid",
+      report: paidReport,
+      reportEmailStatus: "pending",
+      name: "Participant",
+      createdAt: new Date(),
+    });
     emailAssessmentReportIfNeeded.mockResolvedValue(true);
-    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
-    await expect(caller.dashboard.resendReportEmail({ attemptId: 12 })).resolves.toEqual({ sent: true });
-    expect(emailAssessmentReportIfNeeded).toHaveBeenCalledWith(expect.objectContaining({ attemptId: 12, email: "owner@example.com", report: paidReport, reportEmailStatus: "pending" }));
+    const caller = appRouter.createCaller(
+      context({ email: "owner@example.com" })
+    );
+    await expect(
+      caller.dashboard.resendReportEmail({ attemptId: 12 })
+    ).resolves.toEqual({ sent: true });
+    expect(emailAssessmentReportIfNeeded).toHaveBeenCalledWith(
+      expect.objectContaining({
+        attemptId: 12,
+        email: "owner@example.com",
+        report: paidReport,
+        reportEmailStatus: "pending",
+      })
+    );
   });
 
   it("returns a conflict when another resend is already in progress", async () => {
-    getAssessmentAttempt.mockResolvedValue({ id: 12, email: "owner@example.com", paymentStatus: "paid", report: paidReport, reportEmailStatus: "pending", name: "Participant", createdAt: new Date() });
+    getAssessmentAttempt.mockResolvedValue({
+      id: 12,
+      email: "owner@example.com",
+      paymentStatus: "paid",
+      report: paidReport,
+      reportEmailStatus: "pending",
+      name: "Participant",
+      createdAt: new Date(),
+    });
     emailAssessmentReportIfNeeded.mockResolvedValue(false);
-    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
-    await expect(caller.dashboard.resendReportEmail({ attemptId: 12 })).rejects.toMatchObject({ code: "CONFLICT" });
+    const caller = appRouter.createCaller(
+      context({ email: "owner@example.com" })
+    );
+    await expect(
+      caller.dashboard.resendReportEmail({ attemptId: 12 })
+    ).rejects.toMatchObject({ code: "CONFLICT" });
   });
 });
 
 describe("dashboard.downloadScoreSummary", () => {
   it("rejects unauthenticated users", async () => {
     const caller = appRouter.createCaller(context(null));
-    await expect(caller.dashboard.downloadScoreSummary()).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+    await expect(caller.dashboard.downloadScoreSummary()).rejects.toMatchObject(
+      { code: "UNAUTHORIZED" }
+    );
   });
 
   it("returns a concise PDF payload scoped to the authenticated account", async () => {
-    getUserAssessmentHistory.mockResolvedValue([{ id: 12, version: "v2", email: "owner@example.com", paymentStatus: "paid", createdAt: new Date("2026-08-22T00:00:00Z"), report: { ...paidReport, dimensions: [{ label: "Clarity", score: 82 }] } }, { id: 13, version: "v1", email: "owner@example.com", paymentStatus: "pending", createdAt: new Date(), report: null }]);
-    renderAssessmentScoreSummaryPdf.mockResolvedValue(Buffer.from("%PDF-summary-test"));
-    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
+    getUserAssessmentHistory.mockResolvedValue([
+      {
+        id: 12,
+        version: "v2",
+        email: "owner@example.com",
+        paymentStatus: "paid",
+        createdAt: new Date("2026-08-22T00:00:00Z"),
+        report: {
+          ...paidReport,
+          dimensions: [{ label: "Clarity", score: 82 }],
+        },
+      },
+      {
+        id: 13,
+        version: "v1",
+        email: "owner@example.com",
+        paymentStatus: "pending",
+        createdAt: new Date(),
+        report: null,
+      },
+    ]);
+    renderAssessmentScoreSummaryPdf.mockResolvedValue(
+      Buffer.from("%PDF-summary-test")
+    );
+    const caller = appRouter.createCaller(
+      context({ email: "owner@example.com" })
+    );
     const result = await caller.dashboard.downloadScoreSummary();
-    expect(result).toMatchObject({ filename: expect.stringContaining("profound-iq-score-summary-"), contentType: "application/pdf", data: Buffer.from("%PDF-summary-test").toString("base64") });
+    expect(result).toMatchObject({
+      filename: expect.stringContaining("profound-iq-score-summary-"),
+      contentType: "application/pdf",
+      data: Buffer.from("%PDF-summary-test").toString("base64"),
+    });
     expect(getUserAssessmentHistory).toHaveBeenCalledWith("owner@example.com");
-    expect(renderAssessmentScoreSummaryPdf).toHaveBeenCalledWith(expect.objectContaining({ participantName: "Participant", reports: [expect.objectContaining({ overallScore: 78, dimensionScores: [{ label: "Clarity", score: 82 }] })] }));
+    expect(renderAssessmentScoreSummaryPdf).toHaveBeenCalledWith(
+      expect.objectContaining({
+        participantName: "Participant",
+        reports: [
+          expect.objectContaining({
+            overallScore: 78,
+            dimensionScores: [{ label: "Clarity", score: 82 }],
+          }),
+        ],
+      })
+    );
   });
 });
 
 describe("dashboard.downloadReport", () => {
   it("rejects unauthenticated users", async () => {
     const caller = appRouter.createCaller(context(null));
-    await expect(caller.dashboard.downloadReport({ attemptId: 12 })).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+    await expect(
+      caller.dashboard.downloadReport({ attemptId: 12 })
+    ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
   });
 
   it("does not reveal another account's paid report", async () => {
-    getAssessmentAttempt.mockResolvedValue({ id: 12, email: "other@example.com", paymentStatus: "paid", report: paidReport, name: "Other", createdAt: new Date() });
-    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
-    await expect(caller.dashboard.downloadReport({ attemptId: 12 })).rejects.toMatchObject({ code: "NOT_FOUND" });
+    getAssessmentAttempt.mockResolvedValue({
+      id: 12,
+      email: "other@example.com",
+      paymentStatus: "paid",
+      report: paidReport,
+      name: "Other",
+      createdAt: new Date(),
+    });
+    const caller = appRouter.createCaller(
+      context({ email: "owner@example.com" })
+    );
+    await expect(
+      caller.dashboard.downloadReport({ attemptId: 12 })
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
     expect(renderAssessmentReportPdf).not.toHaveBeenCalled();
   });
 
   it("blocks unpaid reports", async () => {
-    getAssessmentAttempt.mockResolvedValue({ id: 12, email: "owner@example.com", paymentStatus: "pending", report: null, name: "Participant", createdAt: new Date() });
-    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
-    await expect(caller.dashboard.downloadReport({ attemptId: 12 })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    getAssessmentAttempt.mockResolvedValue({
+      id: 12,
+      email: "owner@example.com",
+      paymentStatus: "pending",
+      report: null,
+      name: "Participant",
+      createdAt: new Date(),
+    });
+    const caller = appRouter.createCaller(
+      context({ email: "owner@example.com" })
+    );
+    await expect(
+      caller.dashboard.downloadReport({ attemptId: 12 })
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
   it("returns a PDF payload for the authenticated owner's paid report", async () => {
-    getAssessmentAttempt.mockResolvedValue({ id: 12, email: "owner@example.com", paymentStatus: "paid", report: paidReport, name: "Participant", createdAt: new Date() });
+    getAssessmentAttempt.mockResolvedValue({
+      id: 12,
+      email: "owner@example.com",
+      paymentStatus: "paid",
+      report: paidReport,
+      name: "Participant",
+      createdAt: new Date(),
+    });
     renderAssessmentReportPdf.mockResolvedValue(Buffer.from("%PDF-test"));
-    const caller = appRouter.createCaller(context({ email: "owner@example.com" }));
+    const caller = appRouter.createCaller(
+      context({ email: "owner@example.com" })
+    );
     const result = await caller.dashboard.downloadReport({ attemptId: 12 });
-    expect(result).toMatchObject({ filename: "profound-iq-assessment-12.pdf", contentType: "application/pdf", data: Buffer.from("%PDF-test").toString("base64") });
-    expect(renderAssessmentReportPdf).toHaveBeenCalledWith(expect.objectContaining({ attemptId: 12, participantName: "Participant", report: paidReport }));
+    expect(result).toMatchObject({
+      filename: "profound-iq-assessment-12.pdf",
+      contentType: "application/pdf",
+      data: Buffer.from("%PDF-test").toString("base64"),
+    });
+    expect(renderAssessmentReportPdf).toHaveBeenCalledWith(
+      expect.objectContaining({
+        attemptId: 12,
+        participantName: "Participant",
+        report: paidReport,
+      })
+    );
   });
 });

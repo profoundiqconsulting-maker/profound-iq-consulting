@@ -45,9 +45,19 @@ export const reportComparisonPreview = {
     scoreDelta: 17,
     currentScore: 79,
     previousScore: 62,
-    dimensions: reportComparisonPreviewHistory[2].dimensionScores.map((dimension) => {
-      const previous = reportComparisonPreviewHistory[0].dimensionScores.find((item) => item.key === dimension.key)!;
-      return { key: dimension.key, label: dimension.label, currentScore: dimension.score, previousScore: previous.score, delta: dimension.score - previous.score };
-    }),
+    dimensions: reportComparisonPreviewHistory[2].dimensionScores.map(
+      dimension => {
+        const previous = reportComparisonPreviewHistory[0].dimensionScores.find(
+          item => item.key === dimension.key
+        )!;
+        return {
+          key: dimension.key,
+          label: dimension.label,
+          currentScore: dimension.score,
+          previousScore: previous.score,
+          delta: dimension.score - previous.score,
+        };
+      }
+    ),
   },
 };

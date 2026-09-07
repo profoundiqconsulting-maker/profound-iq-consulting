@@ -1,5 +1,5 @@
 import { trpc } from "@/lib/trpc";
-import { UNAUTHED_ERR_MSG } from '@shared/const';
+import { UNAUTHED_ERR_MSG } from "@shared/const";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, TRPCClientError } from "@trpc/client";
 import { createRoot, type Root } from "react-dom/client";
@@ -37,7 +37,9 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
   if (isLoggingOut) return;
 
   const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-  window.location.assign(`/auth?mode=login&returnTo=${encodeURIComponent(returnTo)}`);
+  window.location.assign(
+    `/auth?mode=login&returnTo=${encodeURIComponent(returnTo)}`
+  );
 };
 
 queryClient.getQueryCache().subscribe(event => {
@@ -56,12 +58,18 @@ queryClient.getMutationCache().subscribe(event => {
   }
 });
 
-async function fetchWithTransientRetry(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+async function fetchWithTransientRetry(
+  input: RequestInfo | URL,
+  init?: RequestInit
+): Promise<Response> {
   const retryableStatuses = new Set([502, 503, 504]);
   for (let attempt = 0; attempt < 3; attempt += 1) {
     const response = await globalThis.fetch(input, init);
-    if (!retryableStatuses.has(response.status) || attempt === 2) return response;
-    await new Promise((resolve) => window.setTimeout(resolve, 120 * (attempt + 1)));
+    if (!retryableStatuses.has(response.status) || attempt === 2)
+      return response;
+    await new Promise(resolve =>
+      window.setTimeout(resolve, 120 * (attempt + 1))
+    );
   }
   return globalThis.fetch(input, init);
 }
@@ -85,11 +93,14 @@ const trpcClient = trpc.createClient({
 });
 
 const rootElement = document.getElementById("root");
-const root: Root | null = rootElement ? (rootElement as any)._reactRoot ?? (() => {
-  const instance = createRoot(rootElement);
-  (rootElement as any)._reactRoot = instance;
-  return instance;
-})() : null;
+const root: Root | null = rootElement
+  ? ((rootElement as any)._reactRoot ??
+    (() => {
+      const instance = createRoot(rootElement);
+      (rootElement as any)._reactRoot = instance;
+      return instance;
+    })())
+  : null;
 
 root?.render(
   <trpc.Provider client={trpcClient} queryClient={queryClient}>

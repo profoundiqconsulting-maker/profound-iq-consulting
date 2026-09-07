@@ -64,7 +64,9 @@ import {
   buildReflectionExportCsv,
   type ReflectionStatus,
 } from "@shared/reflectionWorkflow";
-import PaystackInlineModal, { type PaystackInlineProduct } from "@/components/PaystackInlineModal";
+import PaystackInlineModal, {
+  type PaystackInlineProduct,
+} from "@/components/PaystackInlineModal";
 
 type ReflectionDraft = {
   note: string;
@@ -221,7 +223,8 @@ export default function Assessment() {
     "idle" | "verifying" | "paid"
   >("idle");
   const [inlineModalOpen, setInlineModalOpen] = useState(false);
-  const [inlineProduct, setInlineProduct] = useState<PaystackInlineProduct | null>(null);
+  const [inlineProduct, setInlineProduct] =
+    useState<PaystackInlineProduct | null>(null);
   const [roleLens, setRoleLens] = useState<RoleLens>("leadership");
   const [overviewOpen, setOverviewOpen] = useState(false);
   const [introModalOpen, setIntroModalOpen] = useState(
@@ -317,7 +320,8 @@ export default function Assessment() {
   const firstQuestionRef = useRef<HTMLDivElement>(null);
 
   const initializePayment = trpc.assessment.initializePayment.useMutation();
-  const initializeInlinePayment = trpc.assessment.initializeInlinePayment.useMutation();
+  const initializeInlinePayment =
+    trpc.assessment.initializeInlinePayment.useMutation();
   const saveDraft = trpc.assessment.saveDraft.useMutation();
   const resendDraft = trpc.assessment.resendDraft.useMutation();
   const resumeDraft = trpc.assessment.resumeDraft.useQuery(
@@ -703,29 +707,32 @@ export default function Assessment() {
     const tick = async () => {
       if (cancelled) return;
       try {
-        await new Promise<void>((resolve) => {
-          verifyPayment.mutate({ reference: inlineProduct.reference }, {
-            onSuccess: (result) => {
-              if (!cancelled) {
-                setPaymentState("paid");
-                setReport(result.report as AssessmentReport);
-                setEmailSent(result.emailSent);
-                setStage("report");
-                setInlineModalOpen(false);
-                setInlineProduct(null);
-                window.localStorage.setItem(
-                  "piq-assessment-paid-reference",
-                  inlineProduct.reference
-                );
-                sessionStorage.removeItem("piq-assessment-reference");
-                toast.success("Payment verified", {
-                  description: "Your assessment report is now unlocked.",
-                });
-              }
-              resolve();
-            },
-            onError: () => resolve(),
-          });
+        await new Promise<void>(resolve => {
+          verifyPayment.mutate(
+            { reference: inlineProduct.reference },
+            {
+              onSuccess: result => {
+                if (!cancelled) {
+                  setPaymentState("paid");
+                  setReport(result.report as AssessmentReport);
+                  setEmailSent(result.emailSent);
+                  setStage("report");
+                  setInlineModalOpen(false);
+                  setInlineProduct(null);
+                  window.localStorage.setItem(
+                    "piq-assessment-paid-reference",
+                    inlineProduct.reference
+                  );
+                  sessionStorage.removeItem("piq-assessment-reference");
+                  toast.success("Payment verified", {
+                    description: "Your assessment report is now unlocked.",
+                  });
+                }
+                resolve();
+              },
+              onError: () => resolve(),
+            }
+          );
         });
       } catch {
         // keep polling
@@ -734,7 +741,9 @@ export default function Assessment() {
       }
     };
     tick();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [inlineModalOpen, inlineProduct?.reference, verifyPayment]);
 
   const saveReflectionPrompt = async (
@@ -2120,7 +2129,7 @@ export default function Assessment() {
                   question={question.prompt}
                   index={currentModuleStart + index}
                   value={answers[question.id]}
-                  onChange={(value) => setAnswer(question.id, value)}
+                  onChange={value => setAnswer(question.id, value)}
                 />
               ))}
             </div>
@@ -2180,7 +2189,7 @@ export default function Assessment() {
                   disabled={
                     !pageComplete ||
                     !assessmentComplete ||
-                     initializeInlinePayment.isPending
+                    initializeInlinePayment.isPending
                   }
                   title={
                     !assessmentComplete
@@ -3134,8 +3143,11 @@ export default function Assessment() {
         open={inlineModalOpen}
         product={inlineProduct}
         customerEmail={email}
-        onClose={() => { setInlineModalOpen(false); setInlineProduct(null); }}
-        onSuccess={(reference) => {
+        onClose={() => {
+          setInlineModalOpen(false);
+          setInlineProduct(null);
+        }}
+        onSuccess={reference => {
           setInlineModalOpen(false);
           setInlineProduct(null);
           setPaymentState("verifying");
@@ -3167,7 +3179,7 @@ export default function Assessment() {
             }
           );
         }}
-        onError={(message) => {
+        onError={message => {
           setInlineModalOpen(false);
           setInlineProduct(null);
           setError(message);

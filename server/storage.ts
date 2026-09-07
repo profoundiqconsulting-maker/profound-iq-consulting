@@ -3,7 +3,11 @@
  * Handles file uploads, downloads, and presigned URLs for direct client access.
  */
 
-import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { randomUUID } from "node:crypto";
 import { ENV } from "./_core/env";
@@ -19,7 +23,7 @@ const createS3Client = (): S3Client => {
   ) {
     throw new Error(
       "DigitalOcean Spaces configuration incomplete. " +
-      "Set DO_SPACES_ENDPOINT, DO_SPACES_REGION, DO_SPACES_BUCKET, DO_SPACES_ACCESS_KEY, DO_SPACES_SECRET_KEY"
+        "Set DO_SPACES_ENDPOINT, DO_SPACES_REGION, DO_SPACES_BUCKET, DO_SPACES_ACCESS_KEY, DO_SPACES_SECRET_KEY"
     );
   }
 
@@ -76,7 +80,9 @@ export async function storagePut(
     await client.send(command);
 
     // Construct public URL
-    const baseUrl = ENV.doSpacesBaseUrl || `https://${ENV.doSpacesBucket}.${ENV.doSpacesRegion}.digitaloceanspaces.com`;
+    const baseUrl =
+      ENV.doSpacesBaseUrl ||
+      `https://${ENV.doSpacesBucket}.${ENV.doSpacesRegion}.digitaloceanspaces.com`;
     const url = `${baseUrl.replace(/\/$/, "")}/${key}`;
 
     return { key, url };
@@ -91,12 +97,18 @@ export async function storagePut(
  * Get the public URL for a stored file.
  * For DigitalOcean Spaces, files can be accessed directly via the public URL.
  */
-export async function storageGet(relKey: string): Promise<{ key: string; url: string }> {
+export async function storageGet(
+  relKey: string
+): Promise<{ key: string; url: string }> {
   const key = normalizeKey(relKey);
   if (!ENV.doSpacesBucket || !ENV.doSpacesRegion) {
-    throw new Error("DigitalOcean Spaces is not configured. Set DO_SPACES_BUCKET and DO_SPACES_REGION.");
+    throw new Error(
+      "DigitalOcean Spaces is not configured. Set DO_SPACES_BUCKET and DO_SPACES_REGION."
+    );
   }
-  const baseUrl = ENV.doSpacesBaseUrl || `https://${ENV.doSpacesBucket}.${ENV.doSpacesRegion}.digitaloceanspaces.com`;
+  const baseUrl =
+    ENV.doSpacesBaseUrl ||
+    `https://${ENV.doSpacesBucket}.${ENV.doSpacesRegion}.digitaloceanspaces.com`;
   const url = `${baseUrl.replace(/\/$/, "")}/${key}`;
 
   return { key, url };
@@ -131,4 +143,3 @@ export async function storageGetSignedUrl(
     );
   }
 }
-

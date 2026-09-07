@@ -7,16 +7,27 @@ import { storageGet } from "../storage";
  * so both prefixes resolve to the same DO Spaces files.
  */
 export function registerStorageProxy(app: Express) {
-  app.get("/manus-storage/*", async (req: Request, res: Response, next: NextFunction) => {
-    await proxyStorageRequest(req, res, next, "/manus-storage/");
-  });
+  app.get(
+    "/manus-storage/*",
+    async (req: Request, res: Response, next: NextFunction) => {
+      await proxyStorageRequest(req, res, next, "/manus-storage/");
+    }
+  );
 
-  app.get("/local-storage/*", async (req: Request, res: Response, next: NextFunction) => {
-    await proxyStorageRequest(req, res, next, "/local-storage/");
-  });
+  app.get(
+    "/local-storage/*",
+    async (req: Request, res: Response, next: NextFunction) => {
+      await proxyStorageRequest(req, res, next, "/local-storage/");
+    }
+  );
 }
 
-async function proxyStorageRequest(req: Request, res: Response, next: NextFunction, prefix: string) {
+async function proxyStorageRequest(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+  prefix: string
+) {
   try {
     const relativePath = req.originalUrl.slice(prefix.length);
     const key = relativePath.split("?")[0];
@@ -31,4 +42,3 @@ async function proxyStorageRequest(req: Request, res: Response, next: NextFuncti
     }
   }
 }
-

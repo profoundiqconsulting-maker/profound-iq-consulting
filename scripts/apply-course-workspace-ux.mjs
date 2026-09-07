@@ -50,20 +50,20 @@ const shuffle`,
 );
 workspace = replaceOnce(
   workspace,
-  '  const [moduleIndex, setModuleIndex] = useState(0);\n  const [quizOpen, setQuizOpen] = useState(false);',
-  '  const [moduleIndex, setModuleIndex] = useState(0);\n  const [courseNavOpen, setCourseNavOpen] = useState(true);\n  const [expandedModuleIndex, setExpandedModuleIndex] = useState(0);\n  const [lessonTransitioning, setLessonTransitioning] = useState(false);\n  const lessonTransitionTimer = useRef<number | null>(null);\n  const [quizOpen, setQuizOpen] = useState(false);',
+  "  const [moduleIndex, setModuleIndex] = useState(0);\n  const [quizOpen, setQuizOpen] = useState(false);",
+  "  const [moduleIndex, setModuleIndex] = useState(0);\n  const [courseNavOpen, setCourseNavOpen] = useState(true);\n  const [expandedModuleIndex, setExpandedModuleIndex] = useState(0);\n  const [lessonTransitioning, setLessonTransitioning] = useState(false);\n  const lessonTransitionTimer = useRef<number | null>(null);\n  const [quizOpen, setQuizOpen] = useState(false);",
   "workspace navigation state"
 );
 workspace = replaceOnce(
   workspace,
-  '  useEffect(() => () => { Object.values(responseSaveTimers.current).forEach((timer) => window.clearTimeout(timer)); }, []);',
-  '  useEffect(() => () => { Object.values(responseSaveTimers.current).forEach((timer) => window.clearTimeout(timer)); if (lessonTransitionTimer.current !== null) window.clearTimeout(lessonTransitionTimer.current); }, []);',
+  "  useEffect(() => () => { Object.values(responseSaveTimers.current).forEach((timer) => window.clearTimeout(timer)); }, []);",
+  "  useEffect(() => () => { Object.values(responseSaveTimers.current).forEach((timer) => window.clearTimeout(timer)); if (lessonTransitionTimer.current !== null) window.clearTimeout(lessonTransitionTimer.current); }, []);",
   "workspace transition cleanup"
 );
 workspace = replaceOnce(
   workspace,
-  '  const requestPaymentForModule = (stage: number) => { setPaymentRequiredStage(stage); recordAccessDeniedMutation.mutate({ courseSlug: course.slug, moduleIndex, requiredStage: stage }); };',
-  '  const requestPaymentForModule = (stage: number, requestedModuleIndex = moduleIndex) => { setPaymentRequiredStage(stage); recordAccessDeniedMutation.mutate({ courseSlug: course.slug, moduleIndex: requestedModuleIndex, requiredStage: stage }); };',
+  "  const requestPaymentForModule = (stage: number) => { setPaymentRequiredStage(stage); recordAccessDeniedMutation.mutate({ courseSlug: course.slug, moduleIndex, requiredStage: stage }); };",
+  "  const requestPaymentForModule = (stage: number, requestedModuleIndex = moduleIndex) => { setPaymentRequiredStage(stage); recordAccessDeniedMutation.mutate({ courseSlug: course.slug, moduleIndex: requestedModuleIndex, requiredStage: stage }); };",
   "workspace payment audit context"
 );
 workspace = replaceOnce(
@@ -74,14 +74,14 @@ workspace = replaceOnce(
 );
 workspace = replaceOnce(
   workspace,
-  '  const moduleLocked = !canAccessModuleLessons({ moduleIndex, paidStages: effectiveStageCount, isQualityControlAdmin: accessOverride });\n  useEffect(() => { if (moduleLocked && activeLessonId) setActiveLessonId(null); }, [moduleLocked, activeLessonId]);',
-  '  const moduleLocked = !canAccessModuleLessons({ moduleIndex, paidStages: effectiveStageCount, isQualityControlAdmin: accessOverride });\n  const selectModule = (nextIndex: number) => { const requiredStage = requiredStageForModule(nextIndex); const locked = !canAccessModuleLessons({ moduleIndex: nextIndex, paidStages: effectiveStageCount, isQualityControlAdmin: accessOverride }); if (locked) { requestPaymentForModule(requiredStage, nextIndex); return; } setModuleIndex(nextIndex); setExpandedModuleIndex(nextIndex); setActiveLessonId(null); setLessonTransitioning(false); };\n  const toggleModule = (nextIndex: number) => { if (!canAccessModuleLessons({ moduleIndex: nextIndex, paidStages: effectiveStageCount, isQualityControlAdmin: accessOverride })) { selectModule(nextIndex); return; } if (moduleIndex !== nextIndex) selectModule(nextIndex); else setExpandedModuleIndex((current) => current === nextIndex ? -1 : nextIndex); setActiveLessonId(null); };\n  useEffect(() => { if (moduleLocked && activeLessonId) setActiveLessonId(null); }, [moduleLocked, activeLessonId]);\n  useEffect(() => { setExpandedModuleIndex(moduleIndex); }, [moduleIndex]);',
+  "  const moduleLocked = !canAccessModuleLessons({ moduleIndex, paidStages: effectiveStageCount, isQualityControlAdmin: accessOverride });\n  useEffect(() => { if (moduleLocked && activeLessonId) setActiveLessonId(null); }, [moduleLocked, activeLessonId]);",
+  "  const moduleLocked = !canAccessModuleLessons({ moduleIndex, paidStages: effectiveStageCount, isQualityControlAdmin: accessOverride });\n  const selectModule = (nextIndex: number) => { const requiredStage = requiredStageForModule(nextIndex); const locked = !canAccessModuleLessons({ moduleIndex: nextIndex, paidStages: effectiveStageCount, isQualityControlAdmin: accessOverride }); if (locked) { requestPaymentForModule(requiredStage, nextIndex); return; } setModuleIndex(nextIndex); setExpandedModuleIndex(nextIndex); setActiveLessonId(null); setLessonTransitioning(false); };\n  const toggleModule = (nextIndex: number) => { if (!canAccessModuleLessons({ moduleIndex: nextIndex, paidStages: effectiveStageCount, isQualityControlAdmin: accessOverride })) { selectModule(nextIndex); return; } if (moduleIndex !== nextIndex) selectModule(nextIndex); else setExpandedModuleIndex((current) => current === nextIndex ? -1 : nextIndex); setActiveLessonId(null); };\n  useEffect(() => { if (moduleLocked && activeLessonId) setActiveLessonId(null); }, [moduleLocked, activeLessonId]);\n  useEffect(() => { setExpandedModuleIndex(moduleIndex); }, [moduleIndex]);",
   "workspace module selection"
 );
 workspace = replaceOnce(
   workspace,
-  'setModuleIndex(badge.moduleIndex);',
-  'selectModule(badge.moduleIndex);',
+  "setModuleIndex(badge.moduleIndex);",
+  "selectModule(badge.moduleIndex);",
   "workspace badge navigation"
 );
 workspace = replaceOnce(
@@ -104,14 +104,14 @@ workspace = replaceOnce(
 );
 workspace = replaceOnce(
   workspace,
-  'onClick={() => setModuleIndex((index) => Math.max(0, index - 1))}',
-  'onClick={() => selectModule(Math.max(0, moduleIndex - 1))}',
+  "onClick={() => setModuleIndex((index) => Math.max(0, index - 1))}",
+  "onClick={() => selectModule(Math.max(0, moduleIndex - 1))}",
   "workspace previous module"
 );
 workspace = replaceOnce(
   workspace,
-  'onClick={() => setModuleIndex((index) => Math.min(course.modules.length - 1, index + 1))}',
-  'onClick={() => selectModule(Math.min(course.modules.length - 1, moduleIndex + 1))}',
+  "onClick={() => setModuleIndex((index) => Math.min(course.modules.length - 1, index + 1))}",
+  "onClick={() => selectModule(Math.min(course.modules.length - 1, moduleIndex + 1))}",
   "workspace next module"
 );
 workspace = replaceOnce(
@@ -128,8 +128,8 @@ workspace = replaceOnce(
 );
 workspace = replaceOnce(
   workspace,
-  '</Button></div></div></div></div>}{quizOpen &&',
-  '</Button></div></div></div></div></div>}{quizOpen &&',
+  "</Button></div></div></div></div>}{quizOpen &&",
+  "</Button></div></div></div></div></div>}{quizOpen &&",
   "workspace lesson skeleton closing"
 );
 fs.writeFileSync(workspacePath, workspace);
@@ -144,11 +144,21 @@ seo = replaceOnce(
 fs.writeFileSync(seoPath, seo);
 
 let test = fs.readFileSync(testPath, "utf8");
-const oldCtaAssertion = 'expect(seoRoutes).toContain(\'href=\\"/courses/${encodeURIComponent(course.slug)}?workspace=1\\"\');';
+const oldCtaAssertion =
+  "expect(seoRoutes).toContain('href=\\\"/courses/${encodeURIComponent(course.slug)}?workspace=1\\\"');";
 if (test.includes(oldCtaAssertion)) {
-  test = replaceOnce(test, oldCtaAssertion, 'expect(seoRoutes).toContain("Start course registration");\n    expect(seoRoutes).toContain("${SITE_ORIGIN}/courses?enroll=${encodeURIComponent(course.slug)}");', "course navigation CTA assertion");
+  test = replaceOnce(
+    test,
+    oldCtaAssertion,
+    'expect(seoRoutes).toContain("Start course registration");\n    expect(seoRoutes).toContain("${SITE_ORIGIN}/courses?enroll=${encodeURIComponent(course.slug)}");',
+    "course navigation CTA assertion"
+  );
 }
-if (!test.includes('it("exposes the progress-aware lesson map and transition loading contract"')) {
+if (
+  !test.includes(
+    'it("exposes the progress-aware lesson map and transition loading contract"'
+  )
+) {
   test = replaceOnce(
     test,
     '  it("exposes the randomized-attempt and feedback contract in the workspace", async () => {',
@@ -169,4 +179,6 @@ if (!test.includes('it("exposes the progress-aware lesson map and transition loa
 }
 fs.writeFileSync(testPath, test);
 
-console.log("Applied focused course workspace UX patch without broad reformatting.");
+console.log(
+  "Applied focused course workspace UX patch without broad reformatting."
+);

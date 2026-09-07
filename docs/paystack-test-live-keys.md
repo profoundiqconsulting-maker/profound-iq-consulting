@@ -46,11 +46,11 @@ The webhook handler validates the `x-paystack-signature` HMAC-SHA512 header usin
 
 Use these cards in test mode:
 
-| Card Number | Expiry | CVV | Type |
-|-------------|--------|-----|------|
-| 4084084084084081 | Any future date | Any 3 digits | Visa |
+| Card Number         | Expiry          | CVV          | Type       |
+| ------------------- | --------------- | ------------ | ---------- |
+| 4084084084084081    | Any future date | Any 3 digits | Visa       |
 | 5060666666666666666 | Any future date | Any 3 digits | Mastercard |
-| 2533336758079359 | Any future date | Any 3 digits | Verve |
+| 2533336758079359    | Any future date | Any 3 digits | Verve      |
 
 ## Inline Modal vs Redirect
 

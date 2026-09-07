@@ -3,19 +3,115 @@ import { Link } from "wouter";
 import { useLocale } from "@/contexts/LocaleContext";
 
 const sections = [
-  ["Using the platform", "Profound IQ Consulting provides learning, consulting, research, psychometric, and assessment experiences through this website. You agree to use the platform lawfully, provide accurate information where required, and keep your account credentials secure."],
-  ["Accounts and access", "Some features require registration or authenticated access. You are responsible for activity carried out through your account and should promptly report unauthorized access. We may limit or suspend access where needed to protect users, services, or platform integrity."],
-  ["Courses and learning materials", "Course pages describe the learning experience, structure, pricing, payment stages, and completion requirements. Materials are provided for personal learning and professional development. You may not copy, resell, redistribute, or present platform materials as your own without written permission."],
-  ["Assessments and reports", "Assessment and psychometric outputs are designed to support reflection, learning, coaching, and development conversations. They are not medical, legal, financial, employment, or other professional determinations, and should not be treated as a substitute for qualified advice or independent judgment."],
-  ["Payments and refunds", "Prices and payment stages are shown before checkout. Payments are processed by Paystack, and access or report availability may depend on successful payment verification. Any refund or cancellation request should be directed to Profound IQ Consulting with the relevant transaction reference so it can be reviewed under the applicable purchase terms."],
-  ["Certificates and verification", "Completion certificates are issued only when the stated course, assessment, payment, and completion conditions are satisfied. Certificate references may be checked through the public verification service. A certificate confirms the recorded completion criteria; it does not guarantee employment, promotion, admission, or a particular outcome."],
-  ["User content and communications", "If you submit notes, inquiries, reflections, or other content, you retain your underlying rights while granting the permissions needed to store, display, process, and deliver the requested service. Do not submit confidential information that you are not authorized to share."],
-  ["Sharing and organizations", "When you email, forward, or share a report or certificate, you direct us to make the requested information available to the selected recipient or platform. You are responsible for confirming that the recipient and purpose are appropriate and that you have authority to share the information."],
-  ["Availability and changes", "We aim to keep the platform useful and secure, but features, schedules, course content, integrations, and availability may change. We may update these terms as the service develops. The effective date shown on this page identifies the current version."],
-  ["Contact", "Questions about these terms, a transaction, a course, or an account can be sent to admin@profoundiqconsulting.com or +254 727 374 055. We will use the information provided to review and respond to the request."],
+  [
+    "Using the platform",
+    "Profound IQ Consulting provides learning, consulting, research, psychometric, and assessment experiences through this website. You agree to use the platform lawfully, provide accurate information where required, and keep your account credentials secure.",
+  ],
+  [
+    "Accounts and access",
+    "Some features require registration or authenticated access. You are responsible for activity carried out through your account and should promptly report unauthorized access. We may limit or suspend access where needed to protect users, services, or platform integrity.",
+  ],
+  [
+    "Courses and learning materials",
+    "Course pages describe the learning experience, structure, pricing, payment stages, and completion requirements. Materials are provided for personal learning and professional development. You may not copy, resell, redistribute, or present platform materials as your own without written permission.",
+  ],
+  [
+    "Assessments and reports",
+    "Assessment and psychometric outputs are designed to support reflection, learning, coaching, and development conversations. They are not medical, legal, financial, employment, or other professional determinations, and should not be treated as a substitute for qualified advice or independent judgment.",
+  ],
+  [
+    "Payments and refunds",
+    "Prices and payment stages are shown before checkout. Payments are processed by Paystack, and access or report availability may depend on successful payment verification. Any refund or cancellation request should be directed to Profound IQ Consulting with the relevant transaction reference so it can be reviewed under the applicable purchase terms.",
+  ],
+  [
+    "Certificates and verification",
+    "Completion certificates are issued only when the stated course, assessment, payment, and completion conditions are satisfied. Certificate references may be checked through the public verification service. A certificate confirms the recorded completion criteria; it does not guarantee employment, promotion, admission, or a particular outcome.",
+  ],
+  [
+    "User content and communications",
+    "If you submit notes, inquiries, reflections, or other content, you retain your underlying rights while granting the permissions needed to store, display, process, and deliver the requested service. Do not submit confidential information that you are not authorized to share.",
+  ],
+  [
+    "Sharing and organizations",
+    "When you email, forward, or share a report or certificate, you direct us to make the requested information available to the selected recipient or platform. You are responsible for confirming that the recipient and purpose are appropriate and that you have authority to share the information.",
+  ],
+  [
+    "Availability and changes",
+    "We aim to keep the platform useful and secure, but features, schedules, course content, integrations, and availability may change. We may update these terms as the service develops. The effective date shown on this page identifies the current version.",
+  ],
+  [
+    "Contact",
+    "Questions about these terms, a transaction, a course, or an account can be sent to admin@profoundiqconsulting.com or +254 727 374 055. We will use the information provided to review and respond to the request.",
+  ],
 ];
 
 export default function TermsOfService() {
   const { t } = useLocale();
-  return <main className="min-h-screen bg-[#f7f3e8] text-[#16243d]"><header className="border-b border-[#16243d]/10 bg-[#101d35] text-[#f7f3e8]"><div className="container flex items-center justify-between gap-4 py-5"><Link href="/" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e] transition-opacity hover:opacity-80"><ArrowLeft size={15} /> {t("backToSite")}</Link><span className="hidden text-[10px] uppercase tracking-[.16em] text-[#aab5c6] sm:block">Profound IQ Consulting</span></div></header><section className="container max-w-4xl py-16 sm:py-24"><div className="max-w-3xl"><div className="flex items-center gap-3 text-[#a27e2e]"><FileText size={20} /><p className="text-[10px] font-black uppercase tracking-[.16em]">Service terms</p></div><h1 className="display mt-5 text-5xl leading-[.95] sm:text-7xl">Terms of Service.</h1><p className="mt-6 max-w-2xl text-lg leading-8 text-[#657084]">The terms that govern access to Profound IQ Consulting’s courses, assessments, reports, certificates, and support services.</p><p className="mt-5 text-xs uppercase tracking-[.14em] text-[#a27e2e]">{t("effectiveDate")}: 26 August 2026</p></div><div className="mt-14 border-t border-[#16243d]/15">{sections.map(([title, body], index) => <section key={title} className="grid gap-3 border-b border-[#16243d]/10 py-8 sm:grid-cols-[180px_1fr] sm:gap-10"><p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">{String(index + 1).padStart(2, "0")}</p><div><h2 className="text-2xl font-semibold">{title}</h2><p className="mt-3 text-sm leading-7 text-[#526078]">{body}</p></div></section>)}</div><section className="mt-12 border border-[#c9a34e]/50 bg-[#fffaf0] p-6 sm:p-8"><h2 className="text-2xl font-semibold">{t("privacyPolicy")}</h2><p className="mt-3 text-sm leading-7 text-[#526078]">For information about how account, learning, assessment, payment, and communication data is handled, read the <Link href="/privacy-policy" className="font-semibold text-[#8b691d] underline underline-offset-4">{t("privacyPolicy")}</Link>.</p></section></section></main>;
+  return (
+    <main className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
+      <header className="border-b border-[#16243d]/10 bg-[#101d35] text-[#f7f3e8]">
+        <div className="container flex items-center justify-between gap-4 py-5">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e] transition-opacity hover:opacity-80"
+          >
+            <ArrowLeft size={15} /> {t("backToSite")}
+          </Link>
+          <span className="hidden text-[10px] uppercase tracking-[.16em] text-[#aab5c6] sm:block">
+            Profound IQ Consulting
+          </span>
+        </div>
+      </header>
+      <section className="container max-w-4xl py-16 sm:py-24">
+        <div className="max-w-3xl">
+          <div className="flex items-center gap-3 text-[#a27e2e]">
+            <FileText size={20} />
+            <p className="text-[10px] font-black uppercase tracking-[.16em]">
+              Service terms
+            </p>
+          </div>
+          <h1 className="display mt-5 text-5xl leading-[.95] sm:text-7xl">
+            Terms of Service.
+          </h1>
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-[#657084]">
+            The terms that govern access to Profound IQ Consulting’s courses,
+            assessments, reports, certificates, and support services.
+          </p>
+          <p className="mt-5 text-xs uppercase tracking-[.14em] text-[#a27e2e]">
+            {t("effectiveDate")}: 26 August 2026
+          </p>
+        </div>
+        <div className="mt-14 border-t border-[#16243d]/15">
+          {sections.map(([title, body], index) => (
+            <section
+              key={title}
+              className="grid gap-3 border-b border-[#16243d]/10 py-8 sm:grid-cols-[180px_1fr] sm:gap-10"
+            >
+              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+                {String(index + 1).padStart(2, "0")}
+              </p>
+              <div>
+                <h2 className="text-2xl font-semibold">{title}</h2>
+                <p className="mt-3 text-sm leading-7 text-[#526078]">{body}</p>
+              </div>
+            </section>
+          ))}
+        </div>
+        <section className="mt-12 border border-[#c9a34e]/50 bg-[#fffaf0] p-6 sm:p-8">
+          <h2 className="text-2xl font-semibold">{t("privacyPolicy")}</h2>
+          <p className="mt-3 text-sm leading-7 text-[#526078]">
+            For information about how account, learning, assessment, payment,
+            and communication data is handled, read the{" "}
+            <Link
+              href="/privacy-policy"
+              className="font-semibold text-[#8b691d] underline underline-offset-4"
+            >
+              {t("privacyPolicy")}
+            </Link>
+            .
+          </p>
+        </section>
+      </section>
+    </main>
+  );
 }

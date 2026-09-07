@@ -25,11 +25,23 @@ export function DashboardPagination({
   const pages = getVisiblePages(page, pageCount);
 
   return (
-    <nav aria-label={`${itemLabel} pagination`} className="mt-5 flex flex-col gap-3 border-t border-border/70 pt-4 sm:flex-row sm:items-center sm:justify-between">
+    <nav
+      aria-label={`${itemLabel} pagination`}
+      className="mt-5 flex flex-col gap-3 border-t border-border/70 pt-4 sm:flex-row sm:items-center sm:justify-between"
+    >
       <p className="text-xs text-muted-foreground">
-        Showing <span className="font-medium text-foreground">{start}–{end}</span> of <span className="font-medium text-foreground">{totalItems}</span> {itemLabel}
+        Showing{" "}
+        <span className="font-medium text-foreground">
+          {start}–{end}
+        </span>{" "}
+        of <span className="font-medium text-foreground">{totalItems}</span>{" "}
+        {itemLabel}
       </p>
-      <div className="flex items-center gap-1" role="group" aria-label={`Navigate ${itemLabel}`}>
+      <div
+        className="flex items-center gap-1"
+        role="group"
+        aria-label={`Navigate ${itemLabel}`}
+      >
         <Button
           type="button"
           variant="outline"
@@ -43,7 +55,13 @@ export function DashboardPagination({
         </Button>
         {pages.map((pageNumber, index) =>
           pageNumber === null ? (
-            <span key={`ellipsis-${index}`} className="px-1 text-xs text-muted-foreground" aria-hidden="true">…</span>
+            <span
+              key={`ellipsis-${index}`}
+              className="px-1 text-xs text-muted-foreground"
+              aria-hidden="true"
+            >
+              …
+            </span>
           ) : (
             <Button
               key={pageNumber}
@@ -57,7 +75,7 @@ export function DashboardPagination({
             >
               {pageNumber}
             </Button>
-          ),
+          )
         )}
         <Button
           type="button"
@@ -75,9 +93,14 @@ export function DashboardPagination({
   );
 }
 
-function getVisiblePages(page: number, pageCount: number): Array<number | null> {
-  if (pageCount <= 5) return Array.from({ length: pageCount }, (_, index) => index + 1);
+function getVisiblePages(
+  page: number,
+  pageCount: number
+): Array<number | null> {
+  if (pageCount <= 5)
+    return Array.from({ length: pageCount }, (_, index) => index + 1);
   if (page <= 3) return [1, 2, 3, 4, null, pageCount];
-  if (page >= pageCount - 2) return [1, null, pageCount - 3, pageCount - 2, pageCount - 1, pageCount];
+  if (page >= pageCount - 2)
+    return [1, null, pageCount - 3, pageCount - 2, pageCount - 1, pageCount];
   return [1, null, page - 1, page, page + 1, null, pageCount];
 }

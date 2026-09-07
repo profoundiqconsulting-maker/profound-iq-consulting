@@ -1,16 +1,171 @@
-type LocaleCode = "en" | "sw" | "fr" | "es" | "pt" | "ar" | "zh" | "hi" | "de" | "ja";
+type LocaleCode =
+  | "en"
+  | "sw"
+  | "fr"
+  | "es"
+  | "pt"
+  | "ar"
+  | "zh"
+  | "hi"
+  | "de"
+  | "ja";
 
-type AuthCopy = { privateAccess:string; workspace:string; secureAccess:string; welcome:string; create:string; reset:string; checking:string; signIn:string; createAccount:string; sendReset:string; forgot:string; optionalSocial:string };
-const copy: Record<LocaleCode, AuthCopy> = {
- en:{privateAccess:"Private access / your next chapter",workspace:"Enter your workspace.",secureAccess:"Secure account access",welcome:"Welcome back.",create:"Create your account.",reset:"Reset your password.",checking:"Checking your session…",signIn:"Sign in",createAccount:"Create account",sendReset:"Send reset link",forgot:"Forgot password?",optionalSocial:"Optional social sign-in"},
- sw:{privateAccess:"Ufikiaji binafsi / sura yako inayofuata",workspace:"Ingiza nafasi yako ya kazi.",secureAccess:"Ufikiaji salama wa akaunti",welcome:"Karibu tena.",create:"Unda akaunti yako.",reset:"Weka upya nenosiri lako.",checking:"Tunaangalia kikao chako…",signIn:"Ingia",createAccount:"Unda akaunti",sendReset:"Tuma kiungo cha kuweka upya",forgot:"Umesahau nenosiri?",optionalSocial:"Kuingia kwa mitandao ya kijamii ni hiari"},
- fr:{privateAccess:"Accès privé / votre prochain chapitre",workspace:"Entrez dans votre espace.",secureAccess:"Accès sécurisé au compte",welcome:"Bon retour.",create:"Créez votre compte.",reset:"Réinitialisez votre mot de passe.",checking:"Vérification de votre session…",signIn:"Se connecter",createAccount:"Créer un compte",sendReset:"Envoyer le lien",forgot:"Mot de passe oublié ?",optionalSocial:"Connexion sociale facultative"},
- es:{privateAccess:"Acceso privado / tu próximo capítulo",workspace:"Entra en tu espacio.",secureAccess:"Acceso seguro a la cuenta",welcome:"Qué bueno verte de nuevo.",create:"Crea tu cuenta.",reset:"Restablece tu contraseña.",checking:"Comprobando tu sesión…",signIn:"Iniciar sesión",createAccount:"Crear cuenta",sendReset:"Enviar enlace",forgot:"¿Olvidaste tu contraseña?",optionalSocial:"Inicio social opcional"},
- pt:{privateAccess:"Acesso privado / o seu próximo capítulo",workspace:"Entre no seu espaço.",secureAccess:"Acesso seguro à conta",welcome:"Bem-vindo de volta.",create:"Crie a sua conta.",reset:"Redefina a sua palavra-passe.",checking:"A verificar a sua sessão…",signIn:"Iniciar sessão",createAccount:"Criar conta",sendReset:"Enviar ligação",forgot:"Esqueceu a palavra-passe?",optionalSocial:"Início social opcional"},
- ar:{privateAccess:"دخول خاص / فصلك القادم",workspace:"ادخل إلى مساحتك.",secureAccess:"دخول آمن إلى الحساب",welcome:"مرحباً بعودتك.",create:"أنشئ حسابك.",reset:"أعد تعيين كلمة المرور.",checking:"جارٍ التحقق من جلستك…",signIn:"تسجيل الدخول",createAccount:"إنشاء حساب",sendReset:"إرسال رابط إعادة التعيين",forgot:"هل نسيت كلمة المرور؟",optionalSocial:"تسجيل اجتماعي اختياري"},
- zh:{privateAccess:"私人访问 / 您的下一章",workspace:"进入您的工作区。",secureAccess:"安全账户访问",welcome:"欢迎回来。",create:"创建您的账户。",reset:"重置密码。",checking:"正在检查您的会话…",signIn:"登录",createAccount:"创建账户",sendReset:"发送重置链接",forgot:"忘记密码？",optionalSocial:"可选社交登录"},
- hi:{privateAccess:"निजी पहुँच / आपका अगला अध्याय",workspace:"अपने कार्यक्षेत्र में प्रवेश करें।",secureAccess:"सुरक्षित खाता पहुँच",welcome:"वापसी पर स्वागत है।",create:"अपना खाता बनाएँ।",reset:"पासवर्ड रीसेट करें।",checking:"आपका सत्र जाँचा जा रहा है…",signIn:"साइन इन",createAccount:"खाता बनाएँ",sendReset:"रीसेट लिंक भेजें",forgot:"पासवर्ड भूल गए?",optionalSocial:"वैकल्पिक सोशल साइन-इन"},
- de:{privateAccess:"Privater Zugang / Ihr nächstes Kapitel",workspace:"Betreten Sie Ihren Arbeitsbereich.",secureAccess:"Sicherer Kontozugang",welcome:"Willkommen zurück.",create:"Konto erstellen.",reset:"Passwort zurücksetzen.",checking:"Sitzung wird geprüft…",signIn:"Anmelden",createAccount:"Konto erstellen",sendReset:"Link senden",forgot:"Passwort vergessen?",optionalSocial:"Optionaler Social-Login"},
- ja:{privateAccess:"プライベートアクセス / 次の章へ",workspace:"ワークスペースに入る。",secureAccess:"安全なアカウントアクセス",welcome:"おかえりなさい。",create:"アカウントを作成。",reset:"パスワードをリセット。",checking:"セッションを確認中…",signIn:"サインイン",createAccount:"アカウントを作成",sendReset:"リセットリンクを送信",forgot:"パスワードをお忘れですか？",optionalSocial:"ソーシャルログイン（任意）"},
+type AuthCopy = {
+  privateAccess: string;
+  workspace: string;
+  secureAccess: string;
+  welcome: string;
+  create: string;
+  reset: string;
+  checking: string;
+  signIn: string;
+  createAccount: string;
+  sendReset: string;
+  forgot: string;
+  optionalSocial: string;
 };
-export function getAuthCopy(locale: LocaleCode): AuthCopy { return copy[locale] ?? copy.en; }
+const copy: Record<LocaleCode, AuthCopy> = {
+  en: {
+    privateAccess: "Private access / your next chapter",
+    workspace: "Enter your workspace.",
+    secureAccess: "Secure account access",
+    welcome: "Welcome back.",
+    create: "Create your account.",
+    reset: "Reset your password.",
+    checking: "Checking your session…",
+    signIn: "Sign in",
+    createAccount: "Create account",
+    sendReset: "Send reset link",
+    forgot: "Forgot password?",
+    optionalSocial: "Optional social sign-in",
+  },
+  sw: {
+    privateAccess: "Ufikiaji binafsi / sura yako inayofuata",
+    workspace: "Ingiza nafasi yako ya kazi.",
+    secureAccess: "Ufikiaji salama wa akaunti",
+    welcome: "Karibu tena.",
+    create: "Unda akaunti yako.",
+    reset: "Weka upya nenosiri lako.",
+    checking: "Tunaangalia kikao chako…",
+    signIn: "Ingia",
+    createAccount: "Unda akaunti",
+    sendReset: "Tuma kiungo cha kuweka upya",
+    forgot: "Umesahau nenosiri?",
+    optionalSocial: "Kuingia kwa mitandao ya kijamii ni hiari",
+  },
+  fr: {
+    privateAccess: "Accès privé / votre prochain chapitre",
+    workspace: "Entrez dans votre espace.",
+    secureAccess: "Accès sécurisé au compte",
+    welcome: "Bon retour.",
+    create: "Créez votre compte.",
+    reset: "Réinitialisez votre mot de passe.",
+    checking: "Vérification de votre session…",
+    signIn: "Se connecter",
+    createAccount: "Créer un compte",
+    sendReset: "Envoyer le lien",
+    forgot: "Mot de passe oublié ?",
+    optionalSocial: "Connexion sociale facultative",
+  },
+  es: {
+    privateAccess: "Acceso privado / tu próximo capítulo",
+    workspace: "Entra en tu espacio.",
+    secureAccess: "Acceso seguro a la cuenta",
+    welcome: "Qué bueno verte de nuevo.",
+    create: "Crea tu cuenta.",
+    reset: "Restablece tu contraseña.",
+    checking: "Comprobando tu sesión…",
+    signIn: "Iniciar sesión",
+    createAccount: "Crear cuenta",
+    sendReset: "Enviar enlace",
+    forgot: "¿Olvidaste tu contraseña?",
+    optionalSocial: "Inicio social opcional",
+  },
+  pt: {
+    privateAccess: "Acesso privado / o seu próximo capítulo",
+    workspace: "Entre no seu espaço.",
+    secureAccess: "Acesso seguro à conta",
+    welcome: "Bem-vindo de volta.",
+    create: "Crie a sua conta.",
+    reset: "Redefina a sua palavra-passe.",
+    checking: "A verificar a sua sessão…",
+    signIn: "Iniciar sessão",
+    createAccount: "Criar conta",
+    sendReset: "Enviar ligação",
+    forgot: "Esqueceu a palavra-passe?",
+    optionalSocial: "Início social opcional",
+  },
+  ar: {
+    privateAccess: "دخول خاص / فصلك القادم",
+    workspace: "ادخل إلى مساحتك.",
+    secureAccess: "دخول آمن إلى الحساب",
+    welcome: "مرحباً بعودتك.",
+    create: "أنشئ حسابك.",
+    reset: "أعد تعيين كلمة المرور.",
+    checking: "جارٍ التحقق من جلستك…",
+    signIn: "تسجيل الدخول",
+    createAccount: "إنشاء حساب",
+    sendReset: "إرسال رابط إعادة التعيين",
+    forgot: "هل نسيت كلمة المرور؟",
+    optionalSocial: "تسجيل اجتماعي اختياري",
+  },
+  zh: {
+    privateAccess: "私人访问 / 您的下一章",
+    workspace: "进入您的工作区。",
+    secureAccess: "安全账户访问",
+    welcome: "欢迎回来。",
+    create: "创建您的账户。",
+    reset: "重置密码。",
+    checking: "正在检查您的会话…",
+    signIn: "登录",
+    createAccount: "创建账户",
+    sendReset: "发送重置链接",
+    forgot: "忘记密码？",
+    optionalSocial: "可选社交登录",
+  },
+  hi: {
+    privateAccess: "निजी पहुँच / आपका अगला अध्याय",
+    workspace: "अपने कार्यक्षेत्र में प्रवेश करें।",
+    secureAccess: "सुरक्षित खाता पहुँच",
+    welcome: "वापसी पर स्वागत है।",
+    create: "अपना खाता बनाएँ।",
+    reset: "पासवर्ड रीसेट करें।",
+    checking: "आपका सत्र जाँचा जा रहा है…",
+    signIn: "साइन इन",
+    createAccount: "खाता बनाएँ",
+    sendReset: "रीसेट लिंक भेजें",
+    forgot: "पासवर्ड भूल गए?",
+    optionalSocial: "वैकल्पिक सोशल साइन-इन",
+  },
+  de: {
+    privateAccess: "Privater Zugang / Ihr nächstes Kapitel",
+    workspace: "Betreten Sie Ihren Arbeitsbereich.",
+    secureAccess: "Sicherer Kontozugang",
+    welcome: "Willkommen zurück.",
+    create: "Konto erstellen.",
+    reset: "Passwort zurücksetzen.",
+    checking: "Sitzung wird geprüft…",
+    signIn: "Anmelden",
+    createAccount: "Konto erstellen",
+    sendReset: "Link senden",
+    forgot: "Passwort vergessen?",
+    optionalSocial: "Optionaler Social-Login",
+  },
+  ja: {
+    privateAccess: "プライベートアクセス / 次の章へ",
+    workspace: "ワークスペースに入る。",
+    secureAccess: "安全なアカウントアクセス",
+    welcome: "おかえりなさい。",
+    create: "アカウントを作成。",
+    reset: "パスワードをリセット。",
+    checking: "セッションを確認中…",
+    signIn: "サインイン",
+    createAccount: "アカウントを作成",
+    sendReset: "リセットリンクを送信",
+    forgot: "パスワードをお忘れですか？",
+    optionalSocial: "ソーシャルログイン（任意）",
+  },
+};
+export function getAuthCopy(locale: LocaleCode): AuthCopy {
+  return copy[locale] ?? copy.en;
+}

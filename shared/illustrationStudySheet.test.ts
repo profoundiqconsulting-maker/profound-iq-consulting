@@ -4,15 +4,21 @@ vi.mock("@shared/siteOrigin", () => {
   const origin = "http://localhost:3000";
   return {
     PUBLISHED_SITE_ORIGIN: origin,
-    publishedSiteUrl: (path = "") => `${origin}${path.startsWith("/") || path.length === 0 ? path : `/${path}`}`,
+    publishedSiteUrl: (path = "") =>
+      `${origin}${path.startsWith("/") || path.length === 0 ? path : `/${path}`}`,
   };
 });
 
-import { buildIllustrationStudySheetSvg, studySheetPngFilename } from "@/lib/illustrationStudySheet";
+import {
+  buildIllustrationStudySheetSvg,
+  studySheetPngFilename,
+} from "@/lib/illustrationStudySheet";
 
 describe("illustration study sheets", () => {
   it("converts the SVG download name to a compatible PNG name", () => {
-    expect(studySheetPngFilename("leadership-study-sheet.svg")).toBe("leadership-study-sheet.png");
+    expect(studySheetPngFilename("leadership-study-sheet.svg")).toBe(
+      "leadership-study-sheet.png"
+    );
     expect(studySheetPngFilename("already.png")).toBe("already.png");
   });
   it("builds a branded, self-contained SVG with the artwork and lesson context", () => {
@@ -36,7 +42,7 @@ describe("illustration study sheets", () => {
     const svg = buildIllustrationStudySheetSvg({
       imageUrl: "https://cdn.example.test/art.png?x=1&y=2",
       courseTitle: "Growth <lab>",
-      lessonTitle: "Read \"the signal\"",
+      lessonTitle: 'Read "the signal"',
       modeLabel: "Experiential & applied",
       content: "Use <strong>evidence</strong> & reflection.",
       filename: "safe.svg",
@@ -44,7 +50,9 @@ describe("illustration study sheets", () => {
 
     expect(svg).toContain("Growth &lt;lab&gt;");
     expect(svg).toContain("Read &quot;the signal&quot;");
-    expect(svg).toContain("Use &lt;strong&gt;evidence&lt;/strong&gt; &amp; reflection.");
+    expect(svg).toContain(
+      "Use &lt;strong&gt;evidence&lt;/strong&gt; &amp; reflection."
+    );
     expect(svg).not.toContain("<strong>");
   });
 });

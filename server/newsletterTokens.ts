@@ -11,7 +11,10 @@ export function hashNewsletterToken(raw: string) {
   return createHash("sha256").update(raw).digest("hex");
 }
 
-export function tokensMatch(raw: string, expectedHash: string | null | undefined) {
+export function tokensMatch(
+  raw: string,
+  expectedHash: string | null | undefined
+) {
   if (!expectedHash || !/^[a-f0-9]{64}$/.test(expectedHash)) return false;
   const actual = Buffer.from(hashNewsletterToken(raw), "hex");
   const expected = Buffer.from(expectedHash, "hex");

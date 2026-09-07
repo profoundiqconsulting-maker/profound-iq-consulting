@@ -1,8 +1,11 @@
-export const identifierSchema = /^(?:[^\s@]+@[^\s@]+\.[^\s@]+|\+?[0-9][0-9\s().-]{6,}|[a-zA-Z0-9_][a-zA-Z0-9_.-]{2,39})$/;
+export const identifierSchema =
+  /^(?:[^\s@]+@[^\s@]+\.[^\s@]+|\+?[0-9][0-9\s().-]{6,}|[a-zA-Z0-9_][a-zA-Z0-9_.-]{2,39})$/;
 
 export function normalizeIdentifier(value: string) {
   const trimmed = value.trim();
-  return trimmed.includes("@") ? trimmed.toLowerCase() : trimmed.replace(/[\s().-]/g, "").toLowerCase();
+  return trimmed.includes("@")
+    ? trimmed.toLowerCase()
+    : trimmed.replace(/[\s().-]/g, "").toLowerCase();
 }
 
 export function passwordStrength(password: string) {
@@ -17,7 +20,10 @@ export function passwordStrength(password: string) {
 
 export const LOGIN_LOCKOUT_WINDOW_MS = 60_000;
 
-export function getRateLimitCountdownSeconds(lockedUntil: number, now = Date.now()) {
+export function getRateLimitCountdownSeconds(
+  lockedUntil: number,
+  now = Date.now()
+) {
   return Math.max(0, Math.ceil((lockedUntil - now) / 1000));
 }
 

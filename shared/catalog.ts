@@ -18,8 +18,21 @@ export type CatalogItem = {
   updatedAt: Date;
 };
 
-export function normalizeCatalogItem(input: Omit<CatalogItem, "outcomes" | "itemType"> & { itemType: string; outcomes: unknown }): CatalogItem {
-  const itemType: CatalogItemType = input.itemType === "service" || input.itemType === "program" ? input.itemType : "course";
-  const outcomes = Array.isArray(input.outcomes) ? input.outcomes.filter((outcome): outcome is string => typeof outcome === "string" && outcome.trim().length > 0) : [];
+export function normalizeCatalogItem(
+  input: Omit<CatalogItem, "outcomes" | "itemType"> & {
+    itemType: string;
+    outcomes: unknown;
+  }
+): CatalogItem {
+  const itemType: CatalogItemType =
+    input.itemType === "service" || input.itemType === "program"
+      ? input.itemType
+      : "course";
+  const outcomes = Array.isArray(input.outcomes)
+    ? input.outcomes.filter(
+        (outcome): outcome is string =>
+          typeof outcome === "string" && outcome.trim().length > 0
+      )
+    : [];
   return { ...input, itemType, outcomes };
 }

@@ -1,10 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { getRateLimitCountdownSeconds, LOGIN_LOCKOUT_WINDOW_MS, normalizeIdentifier, passwordStrength, validatePassword } from "./localAuth";
-import { createResetToken, hashPassword, hashRateLimitKey, hashResetToken, verifyPassword } from "../server/localAuthCrypto";
+import {
+  getRateLimitCountdownSeconds,
+  LOGIN_LOCKOUT_WINDOW_MS,
+  normalizeIdentifier,
+  passwordStrength,
+  validatePassword,
+} from "./localAuth";
+import {
+  createResetToken,
+  hashPassword,
+  hashRateLimitKey,
+  hashResetToken,
+  verifyPassword,
+} from "../server/localAuthCrypto";
 
 describe("local credential authentication", () => {
   it("normalizes supported identifiers", () => {
-    expect(normalizeIdentifier(" User.Name@Example.COM ")).toBe("user.name@example.com");
+    expect(normalizeIdentifier(" User.Name@Example.COM ")).toBe(
+      "user.name@example.com"
+    );
     expect(normalizeIdentifier("+254 727-374-055")).toBe("+254727374055");
     expect(normalizeIdentifier("  Amina_User ")).toBe("amina_user");
   });

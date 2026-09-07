@@ -17,11 +17,17 @@ export type CourseModuleBadge = {
   label: string;
 };
 
-export function buildCourseModuleBadges(input: { modules: CourseBadgeModule[]; completedLessonIds: readonly string[]; passedQuizModuleIds: readonly string[] }): CourseModuleBadge[] {
+export function buildCourseModuleBadges(input: {
+  modules: CourseBadgeModule[];
+  completedLessonIds: readonly string[];
+  passedQuizModuleIds: readonly string[];
+}): CourseModuleBadge[] {
   const completed = new Set(input.completedLessonIds);
   const passed = new Set(input.passedQuizModuleIds);
   return input.modules.map((module, moduleIndex) => {
-    const completedLessons = module.lessons.filter((lesson) => completed.has(lesson.id)).length;
+    const completedLessons = module.lessons.filter(lesson =>
+      completed.has(lesson.id)
+    ).length;
     const quizPassed = passed.has(module.id);
     const earned = completedLessons === module.lessons.length && quizPassed;
     return {
@@ -31,8 +37,16 @@ export function buildCourseModuleBadges(input: { modules: CourseBadgeModule[]; c
       completedLessons,
       totalLessons: module.lessons.length,
       quizPassed,
-      status: earned ? "earned" : completedLessons > 0 || quizPassed ? "in-progress" : "locked",
-      label: earned ? "Badge earned" : completedLessons > 0 || quizPassed ? "In progress" : "Not started",
+      status: earned
+        ? "earned"
+        : completedLessons > 0 || quizPassed
+          ? "in-progress"
+          : "locked",
+      label: earned
+        ? "Badge earned"
+        : completedLessons > 0 || quizPassed
+          ? "In progress"
+          : "Not started",
     };
   });
 }

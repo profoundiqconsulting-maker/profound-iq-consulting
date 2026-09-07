@@ -16,4 +16,3 @@ export function registerOAuthRoutes(app: Express) {
   // No routes to register - auth is handled via tRPC
   console.log("[Auth] Email/password authentication via tRPC configured");
 }
-

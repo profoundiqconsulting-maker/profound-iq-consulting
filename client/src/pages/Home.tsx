@@ -1,10 +1,29 @@
 /* Profound IQ Consulting — Executive Observatory page. Sections alternate between a dark strategic field and ivory reading surfaces, with a slim signal rail, trajectory motifs, and restrained gold accents. */
 import { useEffect, useMemo, useState } from "react";
-import { ArrowDownRight, ArrowUp, ArrowUpRight, Check, ChevronRight, Clock3, Facebook, Instagram, Linkedin, Mail, MessageCircle, Phone, Sparkles, X } from "lucide-react";
+import {
+  ArrowDownRight,
+  ArrowUp,
+  ArrowUpRight,
+  Check,
+  ChevronRight,
+  Clock3,
+  Facebook,
+  Instagram,
+  Linkedin,
+  Mail,
+  MessageCircle,
+  Phone,
+  Sparkles,
+  X,
+} from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
 import { ExecutiveHeader } from "@/components/ExecutiveHeader";
 import { trpc } from "@/lib/trpc";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { courseCatalog, COURSE_PRICE_KES } from "@shared/courseCatalog";
@@ -13,7 +32,7 @@ import { CAREER_PATH_PRICE_KES } from "@shared/careerPath";
 import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 import { useLocale } from "@/contexts/LocaleContext";
 
-const baseCourses = courseCatalog.map((course) => ({
+const baseCourses = courseCatalog.map(course => ({
   ...course,
   price: `KES ${COURSE_PRICE_KES.toLocaleString()}`,
   format: course.duration,
@@ -22,47 +41,93 @@ const baseCourses = courseCatalog.map((course) => ({
 }));
 
 const transformationServices = [
-  { index: "01", title: "Self Assessment", body: "A guided 100-question reflection with module navigation, secure progress saving, import/export recovery, payment-gated reporting, and practical development insights.", tag: "Professional insight", href: "/assessment" },
-  { index: "02", title: "CareerPath", body: "A pathway and talent-fit assessment for Competency Based Education learners, with clear progress, Paystack checkout, sub-pathway visuals, and coaching-ready results.", tag: "Learner direction", href: "/careerpath" },
+  {
+    index: "01",
+    title: "Self Assessment",
+    body: "A guided 100-question reflection with module navigation, secure progress saving, import/export recovery, payment-gated reporting, and practical development insights.",
+    tag: "Professional insight",
+    href: "/assessment",
+  },
+  {
+    index: "02",
+    title: "CareerPath",
+    body: "A pathway and talent-fit assessment for Competency Based Education learners, with clear progress, Paystack checkout, sub-pathway visuals, and coaching-ready results.",
+    tag: "Learner direction",
+    href: "/careerpath",
+  },
 ];
 
 const services = [
-  { index: "01", title: "Educational consulting", body: "Make better learning decisions with a clearer view of goals, pathways, and the environment required for meaningful progress.", tag: "Direction", href: "/services" },
-  { index: "02", title: "Professional courses", body: "Build practical capability across leadership, strategic growth, and the professional habits that turn knowledge into momentum.", tag: "Development", href: "/courses" },
-  { index: "03", title: "Psychometric testing", body: "See the patterns beneath performance. Use structured insight to support self-awareness, fit, and confident next steps.", tag: "Insight", href: "/psychometrics" },
-  { index: "04", title: "Research surveys", body: "Turn questions into evidence with focused surveys that help institutions and teams listen, learn, and act with precision.", tag: "Evidence", href: "/contact" },
+  {
+    index: "01",
+    title: "Educational consulting",
+    body: "Make better learning decisions with a clearer view of goals, pathways, and the environment required for meaningful progress.",
+    tag: "Direction",
+    href: "/services",
+  },
+  {
+    index: "02",
+    title: "Professional courses",
+    body: "Build practical capability across leadership, strategic growth, and the professional habits that turn knowledge into momentum.",
+    tag: "Development",
+    href: "/courses",
+  },
+  {
+    index: "03",
+    title: "Psychometric testing",
+    body: "See the patterns beneath performance. Use structured insight to support self-awareness, fit, and confident next steps.",
+    tag: "Insight",
+    href: "/psychometrics",
+  },
+  {
+    index: "04",
+    title: "Research surveys",
+    body: "Turn questions into evidence with focused surveys that help institutions and teams listen, learn, and act with precision.",
+    tag: "Evidence",
+    href: "/contact",
+  },
 ];
 
 const schema = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   name: "Profound IQ Consulting",
-  description: "Transformational learning, educational consulting, psychometric testing, research surveys, and professional courses.",
+  description:
+    "Transformational learning, educational consulting, psychometric testing, research surveys, and professional courses.",
   url: PUBLISHED_SITE_ORIGIN,
   address: { "@type": "PostalAddress", addressLocality: "Online" },
   email: "admin@profoundiqconsulting.com",
   telephone: "+254727374055",
   openingHours: "Mo-Sa 09:00-17:00",
   priceRange: "KES 10,000–20,000",
-  sameAs: ["https://www.facebook.com/profoundIQ", "https://x.com/ProfoundIQC", "https://linkedin.com/company/profoundiqconsulting", "https://www.instagram.com/profoundiqconsulting/"],
+  sameAs: [
+    "https://www.facebook.com/profoundIQ",
+    "https://x.com/ProfoundIQC",
+    "https://linkedin.com/company/profoundiqconsulting",
+    "https://www.instagram.com/profoundiqconsulting/",
+  ],
   areaServed: "Worldwide",
 };
 
 export default function Home() {
-
   const [sent, setSent] = useState(false);
   const [inquiryError, setInquiryError] = useState<string | null>(null);
   const [mathA, setMathA] = useState(() => Math.floor(Math.random() * 9) + 2);
   const [mathB, setMathB] = useState(() => Math.floor(Math.random() * 9) + 2);
-  const [selectedCourse, setSelectedCourse] = useState<(typeof courses)[number] | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<
+    (typeof courses)[number] | null
+  >(null);
   const [enrollmentSubmitted, setEnrollmentSubmitted] = useState(false);
   const enrollment = trpc.enrollment.create.useMutation();
   const inquiry = trpc.inquiry.create.useMutation();
   const { user, isAuthenticated } = useAuth();
   const { t } = useLocale();
-  const liveCatalog = trpc.catalog.listPublished.useQuery(undefined, { retry: false, refetchOnWindowFocus: true });
+  const liveCatalog = trpc.catalog.listPublished.useQuery(undefined, {
+    retry: false,
+    refetchOnWindowFocus: true,
+  });
   const courses = useMemo(() => {
-    const overlays = (liveCatalog.data ?? []).map((item) => ({
+    const overlays = (liveCatalog.data ?? []).map(item => ({
       slug: item.slug,
       index: `D${String(item.id).padStart(2, "0")}`,
       title: item.title,
@@ -77,22 +142,32 @@ export default function Home() {
       body: item.description,
       isDatabaseItem: true,
     }));
-    const bySlug = new Map(overlays.map((item) => [item.slug, item]));
-    const merged = baseCourses.map((course) => {
+    const bySlug = new Map(overlays.map(item => [item.slug, item]));
+    const merged = baseCourses.map(course => {
       const overlay = bySlug.get(course.slug);
       if (!overlay) return course;
       bySlug.delete(course.slug);
-      return { ...course, ...overlay, modules: course.modules, isDatabaseItem: true };
+      return {
+        ...course,
+        ...overlay,
+        modules: course.modules,
+        isDatabaseItem: true,
+      };
     });
     return [...merged, ...Array.from(bySlug.values())];
   }, [liveCatalog.data]);
 
   useEffect(() => {
     if (!selectedCourse) return;
-    const handleKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedCourse(null); };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSelectedCourse(null);
+    };
     document.addEventListener("keydown", handleKeyDown);
     document.body.style.overflow = "hidden";
-    return () => { document.removeEventListener("keydown", handleKeyDown); document.body.style.overflow = ""; };
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
   }, [selectedCourse]);
 
   const openEnrollment = (course: (typeof courses)[number]) => {
@@ -104,7 +179,15 @@ export default function Home() {
     event.preventDefault();
     if (!selectedCourse) return;
     const form = new FormData(event.currentTarget);
-    enrollment.mutate({ courseTitle: String(form.get("courseTitle")), name: String(form.get("enrollment-name")), email: String(form.get("enrollment-email")), consent: true }, { onSuccess: () => setEnrollmentSubmitted(true) });
+    enrollment.mutate(
+      {
+        courseTitle: String(form.get("courseTitle")),
+        name: String(form.get("enrollment-name")),
+        email: String(form.get("enrollment-email")),
+        consent: true,
+      },
+      { onSuccess: () => setEnrollmentSubmitted(true) }
+    );
   };
 
   const submitInquiry = (event: React.FormEvent<HTMLFormElement>) => {
@@ -113,54 +196,896 @@ export default function Home() {
     setInquiryError(null);
     const formElement = event.currentTarget;
     const form = new FormData(formElement);
-    inquiry.mutate({ name: String(form.get("name")), email: String(form.get("email")), category: String(form.get("category")) as "professional-courses" | "educational-consulting" | "psychometric-testing" | "research-surveys" | "organizational-development" | "general", message: String(form.get("message")), mathA, mathB, mathAnswer: Number(form.get("mathAnswer")) }, {
-      onSuccess: () => { setSent(true); formElement.reset(); setMathA(Math.floor(Math.random() * 9) + 2); setMathB(Math.floor(Math.random() * 9) + 2); },
-      onError: (error) => setInquiryError(error.message || "We could not send your inquiry. Please try again."),
-    });
+    inquiry.mutate(
+      {
+        name: String(form.get("name")),
+        email: String(form.get("email")),
+        category: String(form.get("category")) as
+          | "professional-courses"
+          | "educational-consulting"
+          | "psychometric-testing"
+          | "research-surveys"
+          | "organizational-development"
+          | "general",
+        message: String(form.get("message")),
+        mathA,
+        mathB,
+        mathAnswer: Number(form.get("mathAnswer")),
+      },
+      {
+        onSuccess: () => {
+          setSent(true);
+          formElement.reset();
+          setMathA(Math.floor(Math.random() * 9) + 2);
+          setMathB(Math.floor(Math.random() * 9) + 2);
+        },
+        onError: error =>
+          setInquiryError(
+            error.message || "We could not send your inquiry. Please try again."
+          ),
+      }
+    );
   };
 
   return (
     <div className="min-h-screen overflow-hidden bg-[#101d35] text-[#f7f3e8]">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
 
       <ExecutiveHeader variant="home" dark />
 
       <main id="top">
         <section className="grain relative min-h-[720px] border-b border-white/10 bg-[#101d35]">
-          <img src="/manus-storage/profound-hero-f95a7f36_76e0eb6f.webp" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover object-center opacity-85" />
+          <img
+            src="/manus-storage/profound-hero-f95a7f36_76e0eb6f.webp"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover object-center opacity-85"
+          />
           <div className="absolute inset-0 bg-gradient-to-r from-[#101d35] via-[#101d35]/88 to-[#101d35]/20" />
           <div className="container relative flex min-h-[720px] flex-col justify-end pb-16 pt-36 lg:pb-24">
             <div className="grid max-w-6xl grid-cols-1 gap-12 lg:grid-cols-[1fr_270px] lg:items-end">
               <div className="max-w-3xl">
-                <div className="reveal eyebrow mb-7 flex items-center gap-3 text-[#c9a34e]"><span className="h-px w-12 bg-[#c9a34e]" /> 01 / {t("orientation").toUpperCase()}</div>
-                <h1 className="display reveal reveal-delay-1 max-w-3xl text-6xl leading-[.92] tracking-[-.055em] text-[#f7f3e8] sm:text-7xl lg:text-[7.5rem]">{t("clarityIs")}<br /><em className="font-normal text-[#c9a34e]">{t("aCapability")}</em></h1>
-                <p className="reveal reveal-delay-2 mt-8 max-w-xl text-lg leading-8 text-[#d6dce6] sm:text-xl">{t("heroDescription")}</p>
-                <div className="reveal reveal-delay-3 mt-10 flex flex-wrap items-center gap-4"><a href="/assessment" className="inline-flex items-center gap-3 border border-[#c9a34e] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#f7f3e8] transition-all hover:bg-[#c9a34e] hover:text-[#101d35]">{t("takeAssessment")} <Sparkles size={16} /></a><a href="/careerpath" className="inline-flex items-center gap-3 border border-[#f7f3e8]/40 px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#f7f3e8] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e]">{t("careerPath")} · KES {CAREER_PATH_PRICE_KES.toLocaleString()} <ArrowUpRight size={16} /></a><a href="#offerings" className="inline-flex items-center gap-3 bg-[#c9a34e] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#101d35] transition-all hover:-translate-y-1">{t("exploreTheWork")} <ArrowDownRight size={16} /></a><a href="#contact" className="inline-flex items-center gap-3 border border-white/35 px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#f7f3e8] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e]">{t("talkToUs")} <ChevronRight size={16} /></a></div>
+                <div className="reveal eyebrow mb-7 flex items-center gap-3 text-[#c9a34e]">
+                  <span className="h-px w-12 bg-[#c9a34e]" /> 01 /{" "}
+                  {t("orientation").toUpperCase()}
+                </div>
+                <h1 className="display reveal reveal-delay-1 max-w-3xl text-6xl leading-[.92] tracking-[-.055em] text-[#f7f3e8] sm:text-7xl lg:text-[7.5rem]">
+                  {t("clarityIs")}
+                  <br />
+                  <em className="font-normal text-[#c9a34e]">
+                    {t("aCapability")}
+                  </em>
+                </h1>
+                <p className="reveal reveal-delay-2 mt-8 max-w-xl text-lg leading-8 text-[#d6dce6] sm:text-xl">
+                  {t("heroDescription")}
+                </p>
+                <div className="reveal reveal-delay-3 mt-10 flex flex-wrap items-center gap-4">
+                  <a
+                    href="/assessment"
+                    className="inline-flex items-center gap-3 border border-[#c9a34e] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#f7f3e8] transition-all hover:bg-[#c9a34e] hover:text-[#101d35]"
+                  >
+                    {t("takeAssessment")} <Sparkles size={16} />
+                  </a>
+                  <a
+                    href="/careerpath"
+                    className="inline-flex items-center gap-3 border border-[#f7f3e8]/40 px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#f7f3e8] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e]"
+                  >
+                    {t("careerPath")} · KES{" "}
+                    {CAREER_PATH_PRICE_KES.toLocaleString()}{" "}
+                    <ArrowUpRight size={16} />
+                  </a>
+                  <a
+                    href="#offerings"
+                    className="inline-flex items-center gap-3 bg-[#c9a34e] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#101d35] transition-all hover:-translate-y-1"
+                  >
+                    {t("exploreTheWork")} <ArrowDownRight size={16} />
+                  </a>
+                  <a
+                    href="#contact"
+                    className="inline-flex items-center gap-3 border border-white/35 px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#f7f3e8] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e]"
+                  >
+                    {t("talkToUs")} <ChevronRight size={16} />
+                  </a>
+                </div>
               </div>
-              <aside className="hidden border-l border-[#c9a34e]/60 pl-7 lg:block"><div className="trajectory h-24 w-px bg-[#c9a34e]" /><p className="eyebrow mt-5 text-[#8f9db3]">The signal</p><p className="mt-3 text-sm leading-6 text-[#d6dce6]">Insight matters most when it becomes a repeatable way of working.</p></aside>
+              <aside className="hidden border-l border-[#c9a34e]/60 pl-7 lg:block">
+                <div className="trajectory h-24 w-px bg-[#c9a34e]" />
+                <p className="eyebrow mt-5 text-[#8f9db3]">The signal</p>
+                <p className="mt-3 text-sm leading-6 text-[#d6dce6]">
+                  Insight matters most when it becomes a repeatable way of
+                  working.
+                </p>
+              </aside>
             </div>
           </div>
-          <div className="absolute bottom-0 left-0 right-0 flex justify-between border-t border-white/10 px-5 py-4 text-[10px] font-bold uppercase tracking-[.18em] text-[#8f9db3] sm:px-10 lg:px-14"><span>{t("transformationalLearning")} / 2026</span><span className="hidden sm:block">Online / Global reach</span></div>
+          <div className="absolute bottom-0 left-0 right-0 flex justify-between border-t border-white/10 px-5 py-4 text-[10px] font-bold uppercase tracking-[.18em] text-[#8f9db3] sm:px-10 lg:px-14">
+            <span>{t("transformationalLearning")} / 2026</span>
+            <span className="hidden sm:block">Online / Global reach</span>
+          </div>
         </section>
 
-        <section id="approach" className="relative bg-[#f7f3e8] py-24 text-[#16243d] lg:py-32">
-          <div className="container"><div className="grid gap-16 lg:grid-cols-[220px_1fr_250px] lg:gap-20"><div><p className="eyebrow text-[#a27e2e]">02 / POSITION</p><div className="mt-8 h-px w-14 bg-[#c9a34e]" /><p className="mt-5 text-sm leading-6 text-[#657084]">For the modern achiever who wants their next step to be intentional.</p></div><div><h2 className="display max-w-2xl text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">The world changes quickly. <em className="font-normal text-[#a27e2e]">Your thinking can stay ahead.</em></h2><p className="mt-8 max-w-2xl text-lg leading-8 text-[#4a566a]">We create the conditions for real development: a rigorous look at where you are, a practical path toward where you want to go, and the confidence to make the learning visible in your work.</p><a href="#contact" className="mt-9 inline-flex items-center gap-3 border-b border-[#16243d] pb-2 text-xs font-black uppercase tracking-[.15em] transition-colors hover:border-[#c9a34e] hover:text-[#a27e2e]">Build your next chapter <ArrowUpRight size={15} /></a></div><div className="border-t border-[#16243d]/20 pt-5 lg:border-l lg:border-t-0 lg:pl-7"><p className="eyebrow text-[#a27e2e]">At a glance</p><div className="mt-8 space-y-7"><div><p className="display text-4xl">KES 10k–20k</p><p className="mt-1 text-xs font-bold uppercase tracking-[.12em] text-[#657084]">Course investment range</p></div><div><p className="display text-4xl">Mon–Sat</p><p className="mt-1 text-xs font-bold uppercase tracking-[.12em] text-[#657084]">Office hours, online</p></div><div><p className="display text-4xl">4 ways</p><p className="mt-1 text-xs font-bold uppercase tracking-[.12em] text-[#657084]">To move insight forward</p></div></div></div></div></div>
+        <section
+          id="approach"
+          className="relative bg-[#f7f3e8] py-24 text-[#16243d] lg:py-32"
+        >
+          <div className="container">
+            <div className="grid gap-16 lg:grid-cols-[220px_1fr_250px] lg:gap-20">
+              <div>
+                <p className="eyebrow text-[#a27e2e]">02 / POSITION</p>
+                <div className="mt-8 h-px w-14 bg-[#c9a34e]" />
+                <p className="mt-5 text-sm leading-6 text-[#657084]">
+                  For the modern achiever who wants their next step to be
+                  intentional.
+                </p>
+              </div>
+              <div>
+                <h2 className="display max-w-2xl text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
+                  The world changes quickly.{" "}
+                  <em className="font-normal text-[#a27e2e]">
+                    Your thinking can stay ahead.
+                  </em>
+                </h2>
+                <p className="mt-8 max-w-2xl text-lg leading-8 text-[#4a566a]">
+                  We create the conditions for real development: a rigorous look
+                  at where you are, a practical path toward where you want to
+                  go, and the confidence to make the learning visible in your
+                  work.
+                </p>
+                <a
+                  href="#contact"
+                  className="mt-9 inline-flex items-center gap-3 border-b border-[#16243d] pb-2 text-xs font-black uppercase tracking-[.15em] transition-colors hover:border-[#c9a34e] hover:text-[#a27e2e]"
+                >
+                  Build your next chapter <ArrowUpRight size={15} />
+                </a>
+              </div>
+              <div className="border-t border-[#16243d]/20 pt-5 lg:border-l lg:border-t-0 lg:pl-7">
+                <p className="eyebrow text-[#a27e2e]">At a glance</p>
+                <div className="mt-8 space-y-7">
+                  <div>
+                    <p className="display text-4xl">KES 10k–20k</p>
+                    <p className="mt-1 text-xs font-bold uppercase tracking-[.12em] text-[#657084]">
+                      Course investment range
+                    </p>
+                  </div>
+                  <div>
+                    <p className="display text-4xl">Mon–Sat</p>
+                    <p className="mt-1 text-xs font-bold uppercase tracking-[.12em] text-[#657084]">
+                      Office hours, online
+                    </p>
+                  </div>
+                  <div>
+                    <p className="display text-4xl">4 ways</p>
+                    <p className="mt-1 text-xs font-bold uppercase tracking-[.12em] text-[#657084]">
+                      To move insight forward
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
-        <section id="offerings" className="grain relative bg-[#172844] py-24 lg:py-32"><div className="absolute right-8 top-12 hidden h-32 w-px bg-[#c9a34e]/60 lg:block"><span className="absolute -left-1 top-0 h-2 w-2 rounded-full bg-[#c9a34e]" /></div><div className="container"><div className="mb-14 flex flex-col justify-between gap-6 sm:flex-row sm:items-end"><div><p className="eyebrow text-[#c9a34e]">03 / APPLICATION</p><h2 className="display mt-5 max-w-xl text-5xl leading-none tracking-[-.04em] text-[#f7f3e8] sm:text-6xl">Tools for the work <em className="font-normal text-[#c9a34e]">ahead.</em></h2></div><p className="max-w-xs text-sm leading-6 text-[#aab5c6]">A comprehensive suite for students, professionals, leaders, and organizations ready to turn understanding into action.</p></div><p className="eyebrow mb-5 text-[#c9a34e]">Transformation services</p><div className="mb-12 grid gap-px border border-[#c9a34e]/40 bg-[#c9a34e]/20 md:grid-cols-2">{transformationServices.map((service) => <a href={service.href} key={service.index} className="group bg-[#1b3152] p-7 transition-colors hover:bg-[#254263] lg:p-9"><div className="flex items-start justify-between"><span className="eyebrow text-[#c9a34e]">{service.index}</span><span className="text-xs font-bold uppercase tracking-[.14em] text-[#aab5c6]">{service.tag}</span></div><h3 className="display mt-16 max-w-sm text-3xl leading-tight text-[#f7f3e8]">{service.title}</h3><p className="mt-5 max-w-md text-sm leading-7 text-[#c1cad7]">{service.body}</p><div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-[.16em] text-[#c9a34e]">Open service <ArrowUpRight size={14} /></div></a>)}</div><p className="eyebrow mb-5 text-[#8f9db3]">Additional ways to move insight forward</p><div className="grid gap-px border border-white/15 bg-white/15 md:grid-cols-2">{services.map((service) => <a href={service.href} key={service.index} className="group bg-[#172844] p-7 transition-colors hover:bg-[#203657] lg:p-9"><div className="flex items-start justify-between"><span className="eyebrow text-[#c9a34e]">{service.index}</span><span className="text-xs font-bold uppercase tracking-[.14em] text-[#8090a8]">{service.tag}</span></div><h3 className="display mt-16 max-w-sm text-3xl leading-tight text-[#f7f3e8]">{service.title}</h3><p className="mt-5 max-w-md text-sm leading-7 text-[#aab5c6]">{service.body}</p><div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-[.16em] text-[#c9a34e]">Learn more <ArrowUpRight size={14} className="transition-transform group-hover:-translate-y-1 group-hover:translate-x-1" /></div></a>)}</div></div></section>
+        <section
+          id="offerings"
+          className="grain relative bg-[#172844] py-24 lg:py-32"
+        >
+          <div className="absolute right-8 top-12 hidden h-32 w-px bg-[#c9a34e]/60 lg:block">
+            <span className="absolute -left-1 top-0 h-2 w-2 rounded-full bg-[#c9a34e]" />
+          </div>
+          <div className="container">
+            <div className="mb-14 flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+              <div>
+                <p className="eyebrow text-[#c9a34e]">03 / APPLICATION</p>
+                <h2 className="display mt-5 max-w-xl text-5xl leading-none tracking-[-.04em] text-[#f7f3e8] sm:text-6xl">
+                  Tools for the work{" "}
+                  <em className="font-normal text-[#c9a34e]">ahead.</em>
+                </h2>
+              </div>
+              <p className="max-w-xs text-sm leading-6 text-[#aab5c6]">
+                A comprehensive suite for students, professionals, leaders, and
+                organizations ready to turn understanding into action.
+              </p>
+            </div>
+            <p className="eyebrow mb-5 text-[#c9a34e]">
+              Transformation services
+            </p>
+            <div className="mb-12 grid gap-px border border-[#c9a34e]/40 bg-[#c9a34e]/20 md:grid-cols-2">
+              {transformationServices.map(service => (
+                <a
+                  href={service.href}
+                  key={service.index}
+                  className="group bg-[#1b3152] p-7 transition-colors hover:bg-[#254263] lg:p-9"
+                >
+                  <div className="flex items-start justify-between">
+                    <span className="eyebrow text-[#c9a34e]">
+                      {service.index}
+                    </span>
+                    <span className="text-xs font-bold uppercase tracking-[.14em] text-[#aab5c6]">
+                      {service.tag}
+                    </span>
+                  </div>
+                  <h3 className="display mt-16 max-w-sm text-3xl leading-tight text-[#f7f3e8]">
+                    {service.title}
+                  </h3>
+                  <p className="mt-5 max-w-md text-sm leading-7 text-[#c1cad7]">
+                    {service.body}
+                  </p>
+                  <div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-[.16em] text-[#c9a34e]">
+                    Open service <ArrowUpRight size={14} />
+                  </div>
+                </a>
+              ))}
+            </div>
+            <p className="eyebrow mb-5 text-[#8f9db3]">
+              Additional ways to move insight forward
+            </p>
+            <div className="grid gap-px border border-white/15 bg-white/15 md:grid-cols-2">
+              {services.map(service => (
+                <a
+                  href={service.href}
+                  key={service.index}
+                  className="group bg-[#172844] p-7 transition-colors hover:bg-[#203657] lg:p-9"
+                >
+                  <div className="flex items-start justify-between">
+                    <span className="eyebrow text-[#c9a34e]">
+                      {service.index}
+                    </span>
+                    <span className="text-xs font-bold uppercase tracking-[.14em] text-[#8090a8]">
+                      {service.tag}
+                    </span>
+                  </div>
+                  <h3 className="display mt-16 max-w-sm text-3xl leading-tight text-[#f7f3e8]">
+                    {service.title}
+                  </h3>
+                  <p className="mt-5 max-w-md text-sm leading-7 text-[#aab5c6]">
+                    {service.body}
+                  </p>
+                  <div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-[.16em] text-[#c9a34e]">
+                    Learn more{" "}
+                    <ArrowUpRight
+                      size={14}
+                      className="transition-transform group-hover:-translate-y-1 group-hover:translate-x-1"
+                    />
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
 
-        <section id="courses" className="relative bg-[#f7f3e8] py-24 text-[#16243d] lg:py-32"><div className="absolute right-[10%] top-0 hidden h-20 w-px bg-[#c9a34e]/70 lg:block"><span className="absolute -left-1 top-0 h-2 w-2 rounded-full bg-[#c9a34e]" /></div><div className="container"><div className="grid gap-10 lg:grid-cols-[.75fr_1.25fr]"><div><p className="eyebrow text-[#a27e2e]">04 / COURSE CATALOG</p><h2 className="display mt-5 max-w-md text-5xl leading-[.95] tracking-[-.045em] sm:text-6xl">Choose the capability <em className="font-normal text-[#a27e2e]">you want to build.</em></h2><p className="mt-7 max-w-sm text-lg leading-8 text-[#4a566a]">Each course is designed to meet professional standards while giving you a practical path from reflection to measurable progress.</p><p className="mt-8 text-xs font-bold uppercase tracking-[.14em] text-[#657084]">All enrollment inquiries are answered online.</p></div><div className="space-y-4">{courses.map((course) => <article key={course.index} className="group border-t border-[#16243d]/20 py-6 transition-all hover:border-[#c9a34e] sm:py-7"><div className="grid gap-5 sm:grid-cols-[48px_1fr_auto] sm:items-start"><span className="eyebrow text-[#a27e2e]">{course.index}</span><div><div className="flex flex-wrap items-baseline gap-x-4 gap-y-1"><h3 className="display text-3xl leading-tight">{course.title}</h3><span className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">{course.format}</span></div><p className="mt-3 max-w-2xl text-sm leading-7 text-[#657084]">{course.body}</p><div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">{course.modules.length ? <><span>10 modules</span><span>70 lessons</span><span>150 quiz questions</span><span>50% pass mark</span><span>4 staged payments</span></> : <><span>{course.isDatabaseItem ? "New catalog item" : "Program overview"}</span><span>Online delivery</span><span>Enquire for details</span></>}</div><p className="mt-3 max-w-2xl text-xs leading-5 text-[#657084]">{course.outcomes.join(" · ")}</p>{course.modules.length ? <details className="mt-5 border-t border-[#16243d]/10 pt-4"><summary className="cursor-pointer text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">View the 10-module curriculum</summary><div className="mt-4 grid gap-3 sm:grid-cols-2">{course.modules.map((module) => <div key={module.id} className="border-l border-[#c9a34e] pl-3"><p className="text-xs font-bold">{module.title}</p><p className="mt-1 text-[11px] leading-5 text-[#657084]">{module.promise}</p><p className="mt-1 text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">7 lessons · 15-question quiz</p></div>)}</div></details> : <p className="mt-5 border-t border-[#16243d]/10 pt-4 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e]">Newly published · enquire to shape the next step.</p>}</div><div className="sm:text-right"><p className="display text-2xl whitespace-nowrap">{course.price}</p><div className="mt-4 flex flex-wrap items-center gap-4"><button type="button" onClick={() => openEnrollment(course)} className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#a27e2e] transition-colors hover:text-[#16243d]">Enroll now <ArrowUpRight size={14} /></button><a href={course.modules.length ? `/courses/${course.slug}` : "#contact"} className="inline-flex items-center gap-2 border-b border-[#16243d]/25 pb-1 text-[10px] font-black uppercase tracking-[.15em] text-[#657084] hover:border-[#a27e2e] hover:text-[#a27e2e]">{course.modules.length ? "Open syllabus" : "Discuss item"} <ChevronRight size={14} /></a></div></div></div></article>)}</div></div></div></section>
+        <section
+          id="courses"
+          className="relative bg-[#f7f3e8] py-24 text-[#16243d] lg:py-32"
+        >
+          <div className="absolute right-[10%] top-0 hidden h-20 w-px bg-[#c9a34e]/70 lg:block">
+            <span className="absolute -left-1 top-0 h-2 w-2 rounded-full bg-[#c9a34e]" />
+          </div>
+          <div className="container">
+            <div className="grid gap-10 lg:grid-cols-[.75fr_1.25fr]">
+              <div>
+                <p className="eyebrow text-[#a27e2e]">04 / COURSE CATALOG</p>
+                <h2 className="display mt-5 max-w-md text-5xl leading-[.95] tracking-[-.045em] sm:text-6xl">
+                  Choose the capability{" "}
+                  <em className="font-normal text-[#a27e2e]">
+                    you want to build.
+                  </em>
+                </h2>
+                <p className="mt-7 max-w-sm text-lg leading-8 text-[#4a566a]">
+                  Each course is designed to meet professional standards while
+                  giving you a practical path from reflection to measurable
+                  progress.
+                </p>
+                <p className="mt-8 text-xs font-bold uppercase tracking-[.14em] text-[#657084]">
+                  All enrollment inquiries are answered online.
+                </p>
+              </div>
+              <div className="space-y-4">
+                {courses.map(course => (
+                  <article
+                    key={course.index}
+                    className="group border-t border-[#16243d]/20 py-6 transition-all hover:border-[#c9a34e] sm:py-7"
+                  >
+                    <div className="grid gap-5 sm:grid-cols-[48px_1fr_auto] sm:items-start">
+                      <span className="eyebrow text-[#a27e2e]">
+                        {course.index}
+                      </span>
+                      <div>
+                        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                          <h3 className="display text-3xl leading-tight">
+                            {course.title}
+                          </h3>
+                          <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+                            {course.format}
+                          </span>
+                        </div>
+                        <p className="mt-3 max-w-2xl text-sm leading-7 text-[#657084]">
+                          {course.body}
+                        </p>
+                        <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                          {course.modules.length ? (
+                            <>
+                              <span>10 modules</span>
+                              <span>70 lessons</span>
+                              <span>150 quiz questions</span>
+                              <span>50% pass mark</span>
+                              <span>4 staged payments</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>
+                                {course.isDatabaseItem
+                                  ? "New catalog item"
+                                  : "Program overview"}
+                              </span>
+                              <span>Online delivery</span>
+                              <span>Enquire for details</span>
+                            </>
+                          )}
+                        </div>
+                        <p className="mt-3 max-w-2xl text-xs leading-5 text-[#657084]">
+                          {course.outcomes.join(" · ")}
+                        </p>
+                        {course.modules.length ? (
+                          <details className="mt-5 border-t border-[#16243d]/10 pt-4">
+                            <summary className="cursor-pointer text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
+                              View the 10-module curriculum
+                            </summary>
+                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                              {course.modules.map(module => (
+                                <div
+                                  key={module.id}
+                                  className="border-l border-[#c9a34e] pl-3"
+                                >
+                                  <p className="text-xs font-bold">
+                                    {module.title}
+                                  </p>
+                                  <p className="mt-1 text-[11px] leading-5 text-[#657084]">
+                                    {module.promise}
+                                  </p>
+                                  <p className="mt-1 text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+                                    7 lessons · 15-question quiz
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          </details>
+                        ) : (
+                          <p className="mt-5 border-t border-[#16243d]/10 pt-4 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e]">
+                            Newly published · enquire to shape the next step.
+                          </p>
+                        )}
+                      </div>
+                      <div className="sm:text-right">
+                        <p className="display text-2xl whitespace-nowrap">
+                          {course.price}
+                        </p>
+                        <div className="mt-4 flex flex-wrap items-center gap-4">
+                          <button
+                            type="button"
+                            onClick={() => openEnrollment(course)}
+                            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#a27e2e] transition-colors hover:text-[#16243d]"
+                          >
+                            Enroll now <ArrowUpRight size={14} />
+                          </button>
+                          <a
+                            href={
+                              course.modules.length
+                                ? `/courses/${course.slug}`
+                                : "#contact"
+                            }
+                            className="inline-flex items-center gap-2 border-b border-[#16243d]/25 pb-1 text-[10px] font-black uppercase tracking-[.15em] text-[#657084] hover:border-[#a27e2e] hover:text-[#a27e2e]"
+                          >
+                            {course.modules.length
+                              ? "Open syllabus"
+                              : "Discuss item"}{" "}
+                            <ChevronRight size={14} />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
 
-        <section className="bg-[#f7f3e8] py-24 text-[#16243d] lg:py-32"><div className="container"><div className="grid items-center gap-14 lg:grid-cols-[1fr_1.05fr]"><div className="relative"><div className="absolute -left-5 -top-5 h-20 w-20 border-l border-t border-[#c9a34e]" /><img src="/manus-storage/profound-pathway_8ea985fc.jpg" alt="Abstract paper forms representing the journey from insight to action" className="relative aspect-square w-full max-w-md object-cover object-center" /><div className="absolute -bottom-6 right-2 max-w-[210px] border border-[#c9a34e] bg-[#101d35] p-5 text-[#f7f3e8] sm:right-12"><Sparkles size={18} className="mb-5 text-[#c9a34e]" /><p className="display text-xl leading-tight">“The shift begins with what you can now see.”</p></div></div><div><p className="eyebrow text-[#a27e2e]">05 / METHOD</p><h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">Discover.<br /><em className="font-normal text-[#a27e2e]">Develop.</em><br />Apply.</h2><p className="mt-8 max-w-lg text-lg leading-8 text-[#4a566a]">Progress is not a single breakthrough. It is the disciplined movement from a better question to a more capable response.</p><div className="mt-10 space-y-5">{[{n:"01",t:"Discover",d:"Surface the patterns, goals, and possibilities that shape the starting point."},{n:"02",t:"Develop",d:"Build a practical toolkit through focused learning and honest reflection."},{n:"03",t:"Apply",d:"Carry the insight into the choices, conversations, and systems that matter."}].map(step => <div key={step.n} className="flex gap-5 border-t border-[#16243d]/15 pt-5"><span className="eyebrow pt-1 text-[#a27e2e]">{step.n}</span><div><h3 className="text-lg font-extrabold">{step.t}</h3><p className="mt-1 text-sm leading-6 text-[#657084]">{step.d}</p></div></div>)}</div></div></div></div></section>
+        <section className="bg-[#f7f3e8] py-24 text-[#16243d] lg:py-32">
+          <div className="container">
+            <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.05fr]">
+              <div className="relative">
+                <div className="absolute -left-5 -top-5 h-20 w-20 border-l border-t border-[#c9a34e]" />
+                <img
+                  src="/manus-storage/profound-pathway_8ea985fc.jpg"
+                  alt="Abstract paper forms representing the journey from insight to action"
+                  className="relative aspect-square w-full max-w-md object-cover object-center"
+                />
+                <div className="absolute -bottom-6 right-2 max-w-[210px] border border-[#c9a34e] bg-[#101d35] p-5 text-[#f7f3e8] sm:right-12">
+                  <Sparkles size={18} className="mb-5 text-[#c9a34e]" />
+                  <p className="display text-xl leading-tight">
+                    “The shift begins with what you can now see.”
+                  </p>
+                </div>
+              </div>
+              <div>
+                <p className="eyebrow text-[#a27e2e]">05 / METHOD</p>
+                <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
+                  Discover.
+                  <br />
+                  <em className="font-normal text-[#a27e2e]">Develop.</em>
+                  <br />
+                  Apply.
+                </h2>
+                <p className="mt-8 max-w-lg text-lg leading-8 text-[#4a566a]">
+                  Progress is not a single breakthrough. It is the disciplined
+                  movement from a better question to a more capable response.
+                </p>
+                <div className="mt-10 space-y-5">
+                  {[
+                    {
+                      n: "01",
+                      t: "Discover",
+                      d: "Surface the patterns, goals, and possibilities that shape the starting point.",
+                    },
+                    {
+                      n: "02",
+                      t: "Develop",
+                      d: "Build a practical toolkit through focused learning and honest reflection.",
+                    },
+                    {
+                      n: "03",
+                      t: "Apply",
+                      d: "Carry the insight into the choices, conversations, and systems that matter.",
+                    },
+                  ].map(step => (
+                    <div
+                      key={step.n}
+                      className="flex gap-5 border-t border-[#16243d]/15 pt-5"
+                    >
+                      <span className="eyebrow pt-1 text-[#a27e2e]">
+                        {step.n}
+                      </span>
+                      <div>
+                        <h3 className="text-lg font-extrabold">{step.t}</h3>
+                        <p className="mt-1 text-sm leading-6 text-[#657084]">
+                          {step.d}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-        <section className="relative bg-[#101d35] py-24 lg:py-28"><div className="absolute left-[8%] top-0 hidden h-16 w-px bg-[#c9a34e]/60 lg:block" /><div className="container"><div className="grid gap-12 lg:grid-cols-[1fr_1.3fr]"><div><p className="eyebrow text-[#c9a34e]">06 / PROOF</p><h2 className="display mt-5 max-w-md text-5xl leading-none tracking-[-.04em] text-[#f7f3e8]">Learning that stays with you.</h2></div><blockquote className="border-l border-[#c9a34e] pl-7 sm:pl-10"><div className="mb-6 flex items-center gap-3 text-[10px] font-black uppercase tracking-[.18em] text-[#8090a8]"><span className="h-px w-8 bg-[#c9a34e]" /> Evidence / lived impact</div><p className="display max-w-2xl text-3xl leading-tight text-[#f7f3e8] sm:text-4xl">“I have gained a lot from this course. I will refer my friends.”</p><footer className="mt-7 flex items-center gap-3 text-xs font-black uppercase tracking-[.16em] text-[#c9a34e]"><span className="h-px w-8 bg-[#c9a34e]" /> Margaret Kim</footer></blockquote></div></div></section>
+        <section className="relative bg-[#101d35] py-24 lg:py-28">
+          <div className="absolute left-[8%] top-0 hidden h-16 w-px bg-[#c9a34e]/60 lg:block" />
+          <div className="container">
+            <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr]">
+              <div>
+                <p className="eyebrow text-[#c9a34e]">06 / PROOF</p>
+                <h2 className="display mt-5 max-w-md text-5xl leading-none tracking-[-.04em] text-[#f7f3e8]">
+                  Learning that stays with you.
+                </h2>
+              </div>
+              <blockquote className="border-l border-[#c9a34e] pl-7 sm:pl-10">
+                <div className="mb-6 flex items-center gap-3 text-[10px] font-black uppercase tracking-[.18em] text-[#8090a8]">
+                  <span className="h-px w-8 bg-[#c9a34e]" /> Evidence / lived
+                  impact
+                </div>
+                <p className="display max-w-2xl text-3xl leading-tight text-[#f7f3e8] sm:text-4xl">
+                  “I have gained a lot from this course. I will refer my
+                  friends.”
+                </p>
+                <footer className="mt-7 flex items-center gap-3 text-xs font-black uppercase tracking-[.16em] text-[#c9a34e]">
+                  <span className="h-px w-8 bg-[#c9a34e]" /> Margaret Kim
+                </footer>
+              </blockquote>
+            </div>
+          </div>
+        </section>
 
-        <section id="contact" className="relative bg-[#101d35] py-20 text-[#f7f3e8] lg:py-28"><div className="absolute right-[12%] top-0 hidden h-24 w-px bg-[#c9a34e]/60 lg:block" /><div className="container"><div className="grid gap-14 lg:grid-cols-[.95fr_1.05fr] lg:gap-24"><div><p className="eyebrow text-[#c9a34e]">07 / NEXT MOVE</p><h2 className="display mt-5 max-w-xl text-5xl leading-[.94] tracking-[-.05em] sm:text-7xl">Make the next step <em className="font-normal text-[#c9a34e]">deliberate.</em></h2><p className="mt-7 max-w-md text-lg leading-8 text-[#c1cad7]">Tell us what you are working toward. We will help you see the path with more clarity.</p><div className="mt-10 space-y-4 text-sm font-bold text-[#d6dce6]"><a href="mailto:admin@profoundiqconsulting.com" className="flex items-center gap-3 hover:text-[#c9a34e] hover:underline"><Mail size={17} /> admin@profoundiqconsulting.com</a><a href="tel:+254727374055" className="flex items-center gap-3 hover:underline"><Phone size={17} /> +254 727 374 055</a><div className="flex items-center gap-3"><Clock3 size={17} /> Monday to Saturday · Office hours</div></div></div><form onSubmit={submitInquiry} className="border border-white/15 bg-[#f7f3e8] p-7 text-[#16243d] sm:p-9"><p className="eyebrow text-[#a27e2e]">Start with a question</p>{sent && <div role="status" className="mt-5 flex items-center gap-2 bg-[#16243d] px-4 py-3 text-sm text-[#f7f3e8]"><Check size={16} /> Your inquiry has been received. We will be in touch shortly.</div>}{inquiryError && <div role="alert" className="mt-5 border border-red-800/30 bg-red-50 px-4 py-3 text-sm text-red-900">{inquiryError}</div>}<label className="mt-7 block text-xs font-black uppercase tracking-[.14em]">Your name<input required name="name" type="text" placeholder="Name" className="mt-3 w-full border-b border-[#101d35]/45 bg-transparent px-0 py-3 text-lg font-medium outline-none placeholder:text-[#665321] focus:border-[#101d35]" /></label><label className="mt-6 block text-xs font-black uppercase tracking-[.14em]">Email address<input required name="email" type="email" placeholder="you@example.com" className="mt-3 w-full border-b border-[#101d35]/45 bg-transparent px-0 py-3 text-lg font-medium outline-none placeholder:text-[#665321] focus:border-[#101d35]" /></label><label className="mt-6 block text-xs font-black uppercase tracking-[.14em]">Inquiry subject<select required name="category" defaultValue="general" className="mt-3 w-full border-b border-[#101d35]/45 bg-transparent px-0 py-3 text-lg font-medium outline-none focus:border-[#101d35]"><option value="general">General question</option><option value="professional-courses">Professional courses</option><option value="educational-consulting">Educational consulting</option><option value="psychometric-testing">Psychometric testing</option><option value="research-surveys">Research surveys</option><option value="organizational-development">Organizational development</option></select></label><label className="mt-6 block text-xs font-black uppercase tracking-[.14em]">What are you exploring?<textarea required name="message" placeholder="A course, a team challenge, a new direction…" rows={3} className="mt-3 w-full resize-none border-b border-[#101d35]/45 bg-transparent px-0 py-3 text-lg font-medium outline-none placeholder:text-[#665321] focus:border-[#101d35]" /></label><label className="mt-6 block text-xs font-black uppercase tracking-[.14em]">Quick verification<span className="mt-3 block text-sm font-semibold normal-case tracking-normal text-[#4a566a]">What is {mathA} + {mathB}?</span><input required name="mathAnswer" type="number" inputMode="numeric" min="2" max="40" placeholder="Your answer" aria-describedby="inquiry-verification-help" className="mt-2 w-full border-b border-[#101d35]/45 bg-transparent px-0 py-3 text-lg font-medium outline-none placeholder:text-[#665321] focus:border-[#101d35]" /><span id="inquiry-verification-help" className="mt-2 block text-[11px] font-normal normal-case tracking-normal text-[#657084]">This helps us keep automated submissions out.</span></label><button type="submit" disabled={inquiry.isPending} className="mt-8 inline-flex items-center gap-3 bg-[#c9a34e] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#101d35] transition-all hover:-translate-y-1 disabled:cursor-wait disabled:opacity-60">{inquiry.isPending ? "Sending…" : "Send inquiry"} <ArrowUpRight size={15} /></button></form></div></div></section>
+        <section
+          id="contact"
+          className="relative bg-[#101d35] py-20 text-[#f7f3e8] lg:py-28"
+        >
+          <div className="absolute right-[12%] top-0 hidden h-24 w-px bg-[#c9a34e]/60 lg:block" />
+          <div className="container">
+            <div className="grid gap-14 lg:grid-cols-[.95fr_1.05fr] lg:gap-24">
+              <div>
+                <p className="eyebrow text-[#c9a34e]">07 / NEXT MOVE</p>
+                <h2 className="display mt-5 max-w-xl text-5xl leading-[.94] tracking-[-.05em] sm:text-7xl">
+                  Make the next step{" "}
+                  <em className="font-normal text-[#c9a34e]">deliberate.</em>
+                </h2>
+                <p className="mt-7 max-w-md text-lg leading-8 text-[#c1cad7]">
+                  Tell us what you are working toward. We will help you see the
+                  path with more clarity.
+                </p>
+                <div className="mt-10 space-y-4 text-sm font-bold text-[#d6dce6]">
+                  <a
+                    href="mailto:admin@profoundiqconsulting.com"
+                    className="flex items-center gap-3 hover:text-[#c9a34e] hover:underline"
+                  >
+                    <Mail size={17} /> admin@profoundiqconsulting.com
+                  </a>
+                  <a
+                    href="tel:+254727374055"
+                    className="flex items-center gap-3 hover:underline"
+                  >
+                    <Phone size={17} /> +254 727 374 055
+                  </a>
+                  <div className="flex items-center gap-3">
+                    <Clock3 size={17} /> Monday to Saturday · Office hours
+                  </div>
+                </div>
+              </div>
+              <form
+                onSubmit={submitInquiry}
+                className="border border-white/15 bg-[#f7f3e8] p-7 text-[#16243d] sm:p-9"
+              >
+                <p className="eyebrow text-[#a27e2e]">Start with a question</p>
+                {sent && (
+                  <div
+                    role="status"
+                    className="mt-5 flex items-center gap-2 bg-[#16243d] px-4 py-3 text-sm text-[#f7f3e8]"
+                  >
+                    <Check size={16} /> Your inquiry has been received. We will
+                    be in touch shortly.
+                  </div>
+                )}
+                {inquiryError && (
+                  <div
+                    role="alert"
+                    className="mt-5 border border-red-800/30 bg-red-50 px-4 py-3 text-sm text-red-900"
+                  >
+                    {inquiryError}
+                  </div>
+                )}
+                <label className="mt-7 block text-xs font-black uppercase tracking-[.14em]">
+                  Your name
+                  <input
+                    required
+                    name="name"
+                    type="text"
+                    placeholder="Name"
+                    className="mt-3 w-full border-b border-[#101d35]/45 bg-transparent px-0 py-3 text-lg font-medium outline-none placeholder:text-[#665321] focus:border-[#101d35]"
+                  />
+                </label>
+                <label className="mt-6 block text-xs font-black uppercase tracking-[.14em]">
+                  Email address
+                  <input
+                    required
+                    name="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    className="mt-3 w-full border-b border-[#101d35]/45 bg-transparent px-0 py-3 text-lg font-medium outline-none placeholder:text-[#665321] focus:border-[#101d35]"
+                  />
+                </label>
+                <label className="mt-6 block text-xs font-black uppercase tracking-[.14em]">
+                  Inquiry subject
+                  <select
+                    required
+                    name="category"
+                    defaultValue="general"
+                    className="mt-3 w-full border-b border-[#101d35]/45 bg-transparent px-0 py-3 text-lg font-medium outline-none focus:border-[#101d35]"
+                  >
+                    <option value="general">General question</option>
+                    <option value="professional-courses">
+                      Professional courses
+                    </option>
+                    <option value="educational-consulting">
+                      Educational consulting
+                    </option>
+                    <option value="psychometric-testing">
+                      Psychometric testing
+                    </option>
+                    <option value="research-surveys">Research surveys</option>
+                    <option value="organizational-development">
+                      Organizational development
+                    </option>
+                  </select>
+                </label>
+                <label className="mt-6 block text-xs font-black uppercase tracking-[.14em]">
+                  What are you exploring?
+                  <textarea
+                    required
+                    name="message"
+                    placeholder="A course, a team challenge, a new direction…"
+                    rows={3}
+                    className="mt-3 w-full resize-none border-b border-[#101d35]/45 bg-transparent px-0 py-3 text-lg font-medium outline-none placeholder:text-[#665321] focus:border-[#101d35]"
+                  />
+                </label>
+                <label className="mt-6 block text-xs font-black uppercase tracking-[.14em]">
+                  Quick verification
+                  <span className="mt-3 block text-sm font-semibold normal-case tracking-normal text-[#4a566a]">
+                    What is {mathA} + {mathB}?
+                  </span>
+                  <input
+                    required
+                    name="mathAnswer"
+                    type="number"
+                    inputMode="numeric"
+                    min="2"
+                    max="40"
+                    placeholder="Your answer"
+                    aria-describedby="inquiry-verification-help"
+                    className="mt-2 w-full border-b border-[#101d35]/45 bg-transparent px-0 py-3 text-lg font-medium outline-none placeholder:text-[#665321] focus:border-[#101d35]"
+                  />
+                  <span
+                    id="inquiry-verification-help"
+                    className="mt-2 block text-[11px] font-normal normal-case tracking-normal text-[#657084]"
+                  >
+                    This helps us keep automated submissions out.
+                  </span>
+                </label>
+                <button
+                  type="submit"
+                  disabled={inquiry.isPending}
+                  className="mt-8 inline-flex items-center gap-3 bg-[#c9a34e] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#101d35] transition-all hover:-translate-y-1 disabled:cursor-wait disabled:opacity-60"
+                >
+                  {inquiry.isPending ? "Sending…" : "Send inquiry"}{" "}
+                  <ArrowUpRight size={15} />
+                </button>
+              </form>
+            </div>
+          </div>
+        </section>
       </main>
 
-      {selectedCourse && <div className="fixed inset-0 z-50 grid place-items-center bg-[#071225]/80 p-5 backdrop-blur-sm" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedCourse(null); }}><div role="dialog" aria-modal="true" aria-labelledby="enrollment-title" className="max-h-[92vh] w-full max-w-xl overflow-y-auto border border-[#c9a34e]/70 bg-[#f7f3e8] p-7 text-[#16243d] shadow-2xl sm:p-10"><div className="flex items-start justify-between gap-6"><div><p className="eyebrow text-[#a27e2e]">Enrollment / next step</p><h2 id="enrollment-title" className="display mt-4 text-4xl leading-none tracking-[-.04em]">Reserve your place.</h2></div><button type="button" aria-label="Close enrollment form" onClick={() => setSelectedCourse(null)} className="grid h-9 w-9 place-items-center border border-[#16243d]/25 text-[#16243d] transition-colors hover:border-[#c9a34e] hover:text-[#a27e2e]"><X size={17} /></button></div>{enrollmentSubmitted ? <div className="mt-10 border-l-2 border-[#c9a34e] bg-[#16243d] p-6 text-[#f7f3e8]"><Check size={20} className="text-[#c9a34e]" /><h3 className="display mt-4 text-2xl">Your interest is recorded.</h3><p className="mt-3 text-sm leading-6 text-[#c1cad7]">Thank you for choosing {selectedCourse.title}. Our team will follow up using the email you provided.</p><button type="button" onClick={() => setSelectedCourse(null)} className="mt-6 border-b border-[#c9a34e] pb-1 text-[10px] font-black uppercase tracking-[.16em] text-[#c9a34e]">Close form</button></div> : <form className="mt-8" onSubmit={submitEnrollment}><label className="block text-xs font-black uppercase tracking-[.14em]">Selected course<select required name="courseTitle" value={selectedCourse.title} onChange={(event) => setSelectedCourse(courses.find((course) => course.title === event.target.value) ?? selectedCourse)} className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent px-0 py-3 text-base font-semibold outline-none focus:border-[#c9a34e]">{courses.map((course) => <option key={course.title} value={course.title}>{course.title} — {course.price}</option>)}</select></label><label className="mt-7 block text-xs font-black uppercase tracking-[.14em]">Your name<input required name="enrollment-name" type="text" autoComplete="name" placeholder="Name" className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent px-0 py-3 text-base font-semibold outline-none placeholder:text-[#657084] focus:border-[#c9a34e]" /></label><label className="mt-7 block text-xs font-black uppercase tracking-[.14em]">Email address<input required name="enrollment-email" type="email" autoComplete="email" placeholder="you@example.com" className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent px-0 py-3 text-base font-semibold outline-none placeholder:text-[#657084] focus:border-[#c9a34e]" /></label><div className="mt-7 flex items-start gap-3"><input required id="enrollment-consent" name="enrollment-consent" type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-[#c9a34e]" /><label htmlFor="enrollment-consent" className="text-xs leading-5 text-[#4f5b6e]">I consent to Profound IQ Consulting using my name and email to respond to this enrollment inquiry, in line with the <a href="#privacy-note" className="font-bold text-[#a27e2e] underline underline-offset-2">privacy policy</a>.</label></div><p id="privacy-note" className="mt-4 text-[11px] leading-5 text-[#657084]">Disclaimer: submitting this form records your interest only; course availability, schedule, and final enrollment details will be confirmed by our team.</p><button type="submit" disabled={enrollment.isPending} className="mt-8 inline-flex items-center gap-3 bg-[#c9a34e] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#101d35] transition-all hover:-translate-y-1 disabled:opacity-60">{enrollment.isPending ? "Recording…" : "Submit enrollment interest"} <ArrowUpRight size={15} /></button></form>}</div></div>}
+      {selectedCourse && (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-[#071225]/80 p-5 backdrop-blur-sm"
+          role="presentation"
+          onMouseDown={event => {
+            if (event.target === event.currentTarget) setSelectedCourse(null);
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="enrollment-title"
+            className="max-h-[92vh] w-full max-w-xl overflow-y-auto border border-[#c9a34e]/70 bg-[#f7f3e8] p-7 text-[#16243d] shadow-2xl sm:p-10"
+          >
+            <div className="flex items-start justify-between gap-6">
+              <div>
+                <p className="eyebrow text-[#a27e2e]">Enrollment / next step</p>
+                <h2
+                  id="enrollment-title"
+                  className="display mt-4 text-4xl leading-none tracking-[-.04em]"
+                >
+                  Reserve your place.
+                </h2>
+              </div>
+              <button
+                type="button"
+                aria-label="Close enrollment form"
+                onClick={() => setSelectedCourse(null)}
+                className="grid h-9 w-9 place-items-center border border-[#16243d]/25 text-[#16243d] transition-colors hover:border-[#c9a34e] hover:text-[#a27e2e]"
+              >
+                <X size={17} />
+              </button>
+            </div>
+            {enrollmentSubmitted ? (
+              <div className="mt-10 border-l-2 border-[#c9a34e] bg-[#16243d] p-6 text-[#f7f3e8]">
+                <Check size={20} className="text-[#c9a34e]" />
+                <h3 className="display mt-4 text-2xl">
+                  Your interest is recorded.
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-[#c1cad7]">
+                  Thank you for choosing {selectedCourse.title}. Our team will
+                  follow up using the email you provided.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setSelectedCourse(null)}
+                  className="mt-6 border-b border-[#c9a34e] pb-1 text-[10px] font-black uppercase tracking-[.16em] text-[#c9a34e]"
+                >
+                  Close form
+                </button>
+              </div>
+            ) : (
+              <form className="mt-8" onSubmit={submitEnrollment}>
+                <label className="block text-xs font-black uppercase tracking-[.14em]">
+                  Selected course
+                  <select
+                    required
+                    name="courseTitle"
+                    value={selectedCourse.title}
+                    onChange={event =>
+                      setSelectedCourse(
+                        courses.find(
+                          course => course.title === event.target.value
+                        ) ?? selectedCourse
+                      )
+                    }
+                    className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent px-0 py-3 text-base font-semibold outline-none focus:border-[#c9a34e]"
+                  >
+                    {courses.map(course => (
+                      <option key={course.title} value={course.title}>
+                        {course.title} — {course.price}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="mt-7 block text-xs font-black uppercase tracking-[.14em]">
+                  Your name
+                  <input
+                    required
+                    name="enrollment-name"
+                    type="text"
+                    autoComplete="name"
+                    placeholder="Name"
+                    className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent px-0 py-3 text-base font-semibold outline-none placeholder:text-[#657084] focus:border-[#c9a34e]"
+                  />
+                </label>
+                <label className="mt-7 block text-xs font-black uppercase tracking-[.14em]">
+                  Email address
+                  <input
+                    required
+                    name="enrollment-email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="you@example.com"
+                    className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent px-0 py-3 text-base font-semibold outline-none placeholder:text-[#657084] focus:border-[#c9a34e]"
+                  />
+                </label>
+                <div className="mt-7 flex items-start gap-3">
+                  <input
+                    required
+                    id="enrollment-consent"
+                    name="enrollment-consent"
+                    type="checkbox"
+                    className="mt-1 h-4 w-4 shrink-0 accent-[#c9a34e]"
+                  />
+                  <label
+                    htmlFor="enrollment-consent"
+                    className="text-xs leading-5 text-[#4f5b6e]"
+                  >
+                    I consent to Profound IQ Consulting using my name and email
+                    to respond to this enrollment inquiry, in line with the{" "}
+                    <a
+                      href="#privacy-note"
+                      className="font-bold text-[#a27e2e] underline underline-offset-2"
+                    >
+                      privacy policy
+                    </a>
+                    .
+                  </label>
+                </div>
+                <p
+                  id="privacy-note"
+                  className="mt-4 text-[11px] leading-5 text-[#657084]"
+                >
+                  Disclaimer: submitting this form records your interest only;
+                  course availability, schedule, and final enrollment details
+                  will be confirmed by our team.
+                </p>
+                <button
+                  type="submit"
+                  disabled={enrollment.isPending}
+                  className="mt-8 inline-flex items-center gap-3 bg-[#c9a34e] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#101d35] transition-all hover:-translate-y-1 disabled:opacity-60"
+                >
+                  {enrollment.isPending
+                    ? "Recording…"
+                    : "Submit enrollment interest"}{" "}
+                  <ArrowUpRight size={15} />
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
 
-      <footer id="site-footer" className="bg-[#101d35] py-10 text-[#f7f3e8]"><div className="container flex flex-col justify-between gap-7 sm:flex-row sm:items-end"><div><BrandLogo context="footer" /><p className="mt-4 max-w-xs text-xs leading-5 text-[#8f9db3]">{t("transformationalLearning")} — people ready to move from understanding to action.</p><div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-[10px] font-black uppercase tracking-[.12em] text-[#c9a34e]"><a href="/about" className="hover:text-[#f7f3e8]">About</a><a href="/services" className="hover:text-[#f7f3e8]">Services</a><a href="/school-solutions" className="hover:text-[#f7f3e8]">Schools</a><a href="/resources" className="hover:text-[#f7f3e8]">Resources</a><a href="/blog" className="hover:text-[#f7f3e8]">Insights</a><a href="/contact" className="hover:text-[#f7f3e8]">Contact</a></div></div><div className="flex flex-wrap items-center gap-2 text-[#aab5c6]"><a href="/privacy-policy" className="inline-flex h-9 items-center border border-white/15 px-3 text-[10px] font-bold uppercase tracking-[.12em] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#c9a34e] hover:text-[#c9a34e] active:scale-95">{t("privacyPolicy")}</a><a href="/terms-of-service" className="inline-flex h-9 items-center border border-white/15 px-3 text-[10px] font-bold uppercase tracking-[.12em] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#c9a34e] hover:text-[#c9a34e] active:scale-95">{t("termsOfService")}</a><a href="https://www.facebook.com/profoundIQ" target="_blank" rel="noreferrer" aria-label="Profound IQ Consulting on Facebook" title="Facebook" className="inline-flex h-9 w-9 items-center justify-center border border-white/15 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:border-[#1877F2] hover:bg-[#1877F2] hover:text-white active:scale-95"><Facebook size={16} strokeWidth={2} /></a><a href="https://x.com/ProfoundIQC" target="_blank" rel="noreferrer" aria-label="Profound IQ Consulting on X" title="X" className="inline-flex h-9 w-9 items-center justify-center border border-white/15 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:border-white hover:bg-white hover:text-[#101d35] active:scale-95"><X size={16} /></a><a href="https://linkedin.com/company/profoundiqconsulting" target="_blank" rel="noreferrer" aria-label="Profound IQ Consulting on LinkedIn" title="LinkedIn" className="inline-flex h-9 w-9 items-center justify-center border border-white/15 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:border-[#0A66C2] hover:bg-[#0A66C2] hover:text-white active:scale-95"><Linkedin size={16} /></a><a href="https://www.instagram.com/profoundiqconsulting/" target="_blank" rel="noreferrer" aria-label="Profound IQ Consulting on Instagram" title="Instagram" className="inline-flex h-9 w-9 items-center justify-center border border-white/15 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:border-[#E4405F] hover:bg-gradient-to-br hover:from-[#833AB4] hover:via-[#E4405F] hover:to-[#FCAF45] hover:text-white active:scale-95"><Instagram size={16} /></a><Tooltip><TooltipTrigger asChild><a href="https://wa.me/254727374055?text=Hello%20Profound%20IQ%20Consulting%2C%20I%20need%20quick%20support." target="_blank" rel="noreferrer" aria-label="Chat with Profound IQ Consulting on WhatsApp" className="inline-flex h-9 items-center gap-2 border border-[#25D366]/60 px-3 text-[10px] font-bold uppercase tracking-[.12em] text-[#d9fbe5] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#25D366] hover:bg-[#25D366]/10 active:scale-95"><MessageCircle size={16} /> <span className="hidden sm:inline">{t("whatsappSupport")}</span></a></TooltipTrigger><TooltipContent>Monday to Saturday · Office hours</TooltipContent></Tooltip></div><p className="text-[10px] uppercase tracking-[.14em] text-[#64738b]">© 2026 Profound IQ Consulting</p></div></footer>
+      <footer id="site-footer" className="bg-[#101d35] py-10 text-[#f7f3e8]">
+        <div className="container flex flex-col justify-between gap-7 sm:flex-row sm:items-end">
+          <div>
+            <BrandLogo context="footer" />
+            <p className="mt-4 max-w-xs text-xs leading-5 text-[#8f9db3]">
+              {t("transformationalLearning")} — people ready to move from
+              understanding to action.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-[10px] font-black uppercase tracking-[.12em] text-[#c9a34e]">
+              <a href="/about" className="hover:text-[#f7f3e8]">
+                About
+              </a>
+              <a href="/services" className="hover:text-[#f7f3e8]">
+                Services
+              </a>
+              <a href="/school-solutions" className="hover:text-[#f7f3e8]">
+                Schools
+              </a>
+              <a href="/resources" className="hover:text-[#f7f3e8]">
+                Resources
+              </a>
+              <a href="/blog" className="hover:text-[#f7f3e8]">
+                Insights
+              </a>
+              <a href="/contact" className="hover:text-[#f7f3e8]">
+                Contact
+              </a>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 text-[#aab5c6]">
+            <a
+              href="/privacy-policy"
+              className="inline-flex h-9 items-center border border-white/15 px-3 text-[10px] font-bold uppercase tracking-[.12em] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#c9a34e] hover:text-[#c9a34e] active:scale-95"
+            >
+              {t("privacyPolicy")}
+            </a>
+            <a
+              href="/terms-of-service"
+              className="inline-flex h-9 items-center border border-white/15 px-3 text-[10px] font-bold uppercase tracking-[.12em] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#c9a34e] hover:text-[#c9a34e] active:scale-95"
+            >
+              {t("termsOfService")}
+            </a>
+            <a
+              href="https://www.facebook.com/profoundIQ"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Profound IQ Consulting on Facebook"
+              title="Facebook"
+              className="inline-flex h-9 w-9 items-center justify-center border border-white/15 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:border-[#1877F2] hover:bg-[#1877F2] hover:text-white active:scale-95"
+            >
+              <Facebook size={16} strokeWidth={2} />
+            </a>
+            <a
+              href="https://x.com/ProfoundIQC"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Profound IQ Consulting on X"
+              title="X"
+              className="inline-flex h-9 w-9 items-center justify-center border border-white/15 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:border-white hover:bg-white hover:text-[#101d35] active:scale-95"
+            >
+              <X size={16} />
+            </a>
+            <a
+              href="https://linkedin.com/company/profoundiqconsulting"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Profound IQ Consulting on LinkedIn"
+              title="LinkedIn"
+              className="inline-flex h-9 w-9 items-center justify-center border border-white/15 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:border-[#0A66C2] hover:bg-[#0A66C2] hover:text-white active:scale-95"
+            >
+              <Linkedin size={16} />
+            </a>
+            <a
+              href="https://www.instagram.com/profoundiqconsulting/"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Profound IQ Consulting on Instagram"
+              title="Instagram"
+              className="inline-flex h-9 w-9 items-center justify-center border border-white/15 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:border-[#E4405F] hover:bg-gradient-to-br hover:from-[#833AB4] hover:via-[#E4405F] hover:to-[#FCAF45] hover:text-white active:scale-95"
+            >
+              <Instagram size={16} />
+            </a>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a
+                  href="https://wa.me/254727374055?text=Hello%20Profound%20IQ%20Consulting%2C%20I%20need%20quick%20support."
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Chat with Profound IQ Consulting on WhatsApp"
+                  className="inline-flex h-9 items-center gap-2 border border-[#25D366]/60 px-3 text-[10px] font-bold uppercase tracking-[.12em] text-[#d9fbe5] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#25D366] hover:bg-[#25D366]/10 active:scale-95"
+                >
+                  <MessageCircle size={16} />{" "}
+                  <span className="hidden sm:inline">
+                    {t("whatsappSupport")}
+                  </span>
+                </a>
+              </TooltipTrigger>
+              <TooltipContent>Monday to Saturday · Office hours</TooltipContent>
+            </Tooltip>
+          </div>
+          <p className="text-[10px] uppercase tracking-[.14em] text-[#64738b]">
+            © 2026 Profound IQ Consulting
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

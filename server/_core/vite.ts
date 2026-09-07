@@ -11,8 +11,14 @@ import viteConfig from "../../vite.config";
  * and when navigating via the back/forward button. This is the most reliable
  * way to avoid stale SPA shells being served from the HTTP cache.
  */
-function noCacheHtmlMiddleware(req: express.Request, res: express.Response, next: express.NextFunction) {
-  const acceptsHtml = typeof req.headers.accept === "string" && req.headers.accept.includes("text/html");
+function noCacheHtmlMiddleware(
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) {
+  const acceptsHtml =
+    typeof req.headers.accept === "string" &&
+    req.headers.accept.includes("text/html");
   if (req.method === "GET" && acceptsHtml) {
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     res.setHeader("Pragma", "no-cache");
@@ -61,8 +67,8 @@ export async function setupVite(app: Express, server: Server) {
         .set({
           "Content-Type": "text/html",
           "Cache-Control": "no-cache, no-store, must-revalidate",
-          "Pragma": "no-cache",
-          "Expires": "0",
+          Pragma: "no-cache",
+          Expires: "0",
         })
         .end(page);
     } catch (e) {
@@ -89,18 +95,24 @@ export function serveStatic(app: Express) {
   // Serve static assets with appropriate cache headers
   // - Hashed assets (with hash in filename) get long-term caching
   // - Non-hashed assets get short-term caching with revalidation
-  app.use(express.static(distPath, {
-    setHeaders: (res, filePath) => {
-      if (filePath.endsWith(".html")) {
-        res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-        res.setHeader("Pragma", "no-cache");
-        res.setHeader("Expires", "0");
-      } else if (filePath.match(/\.(js|css|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|webp|ico)$/i)) {
-        // Long cache for hashed/static assets (1 year)
-        res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-      }
-    },
-  }));
+  app.use(
+    express.static(distPath, {
+      setHeaders: (res, filePath) => {
+        if (filePath.endsWith(".html")) {
+          res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+          res.setHeader("Pragma", "no-cache");
+          res.setHeader("Expires", "0");
+        } else if (
+          filePath.match(
+            /\.(js|css|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|webp|ico)$/i
+          )
+        ) {
+          // Long cache for hashed/static assets (1 year)
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        }
+      },
+    })
+  );
 
   // fall through to index.html if the file doesn't exist (SPA routing)
   app.use("*", (_req, res) => {

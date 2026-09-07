@@ -1,23 +1,23 @@
 - generic [ref=f2e2]:
-  - region "Notifications alt+T"
-  - status "Loading page" [ref=f2e3]:
-    - generic [ref=f2e4]: Loading workspace
-  - generic [ref=f2e28]:
-    - link "Chat with Profound IQ Consulting on WhatsApp. Online now. Hello Profound IQ Consulting, I need quick support with my learning journey." [ref=f2e30] [cursor=pointer]:
-      - /url: https://wa.me/254727374055?text=Hello%20Profound%20IQ%20Consulting%2C%20I%20need%20quick%20support%20with%20my%20learning%20journey.
-      - generic [ref=f2e33]:
-        - strong [ref=f2e34]: Quick support
-        - generic [ref=f2e35]: Online now · reply within 15 min
-    - button "Close" [ref=f2e37]
-  - button "Suggest a translation improvement" [ref=f2e39]
-  - complementary "Your privacy choices" [ref=f2e45]:
-    - generic [ref=f2e50]:
-      - generic [ref=f2e52]:
-        - paragraph [ref=f2e53]: Your privacy choices
-        - heading "A clearer way to use cookies." [level=2] [ref=f2e54]
-      - paragraph [ref=f2e55]: We use essential browser storage to keep the site secure and remember progress. Optional analytics help us understand journeys such as course sharing and assessment starts.
-      - generic [ref=f2e56]:
-        - button "Accept all" [ref=f2e57]
-        - button "Customize" [ref=f2e60]
-        - link "Privacy Policy" [ref=f2e64] [cursor=pointer]:
-          - /url: /privacy-policy
+    - region "Notifications alt+T"
+    - status "Loading page" [ref=f2e3]:
+        - generic [ref=f2e4]: Loading workspace
+    - generic [ref=f2e28]:
+        - link "Chat with Profound IQ Consulting on WhatsApp. Online now. Hello Profound IQ Consulting, I need quick support with my learning journey." [ref=f2e30] [cursor=pointer]:
+            - /url: https://wa.me/254727374055?text=Hello%20Profound%20IQ%20Consulting%2C%20I%20need%20quick%20support%20with%20my%20learning%20journey.
+            - generic [ref=f2e33]:
+                - strong [ref=f2e34]: Quick support
+                - generic [ref=f2e35]: Online now · reply within 15 min
+        - button "Close" [ref=f2e37]
+    - button "Suggest a translation improvement" [ref=f2e39]
+    - complementary "Your privacy choices" [ref=f2e45]:
+        - generic [ref=f2e50]:
+            - generic [ref=f2e52]:
+                - paragraph [ref=f2e53]: Your privacy choices
+                - heading "A clearer way to use cookies." [level=2] [ref=f2e54]
+            - paragraph [ref=f2e55]: We use essential browser storage to keep the site secure and remember progress. Optional analytics help us understand journeys such as course sharing and assessment starts.
+            - generic [ref=f2e56]:
+                - button "Accept all" [ref=f2e57]
+                - button "Customize" [ref=f2e60]
+                - link "Privacy Policy" [ref=f2e64] [cursor=pointer]:
+                    - /url: /privacy-policy

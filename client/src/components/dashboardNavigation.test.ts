@@ -8,17 +8,33 @@ import {
 
 describe("dashboard navigation registry", () => {
   it("keeps admin and staff visibility distinct", () => {
-    expect(visibleDashboardNavItems("user").some((item) => item.adminOnly)).toBe(false);
-    expect(visibleDashboardNavItems("user").some((item) => item.staffOnly)).toBe(false);
-    expect(visibleDashboardNavItems("staff").some((item) => item.staffOnly)).toBe(true);
-    expect(visibleDashboardNavItems("staff").some((item) => item.adminOnly)).toBe(false);
-    expect(visibleDashboardNavItems("admin").some((item) => item.adminOnly)).toBe(true);
-    expect(visibleDashboardNavItems("admin").some((item) => item.staffOnly)).toBe(true);
+    expect(visibleDashboardNavItems("user").some(item => item.adminOnly)).toBe(
+      false
+    );
+    expect(visibleDashboardNavItems("user").some(item => item.staffOnly)).toBe(
+      false
+    );
+    expect(visibleDashboardNavItems("staff").some(item => item.staffOnly)).toBe(
+      true
+    );
+    expect(visibleDashboardNavItems("staff").some(item => item.adminOnly)).toBe(
+      false
+    );
+    expect(visibleDashboardNavItems("admin").some(item => item.adminOnly)).toBe(
+      true
+    );
+    expect(visibleDashboardNavItems("admin").some(item => item.staffOnly)).toBe(
+      true
+    );
   });
 
   it("provides one registry entry per dashboard route", () => {
-    expect(new Set(dashboardNavItems.map((item) => item.id)).size).toBe(dashboardNavItems.length);
-    expect(new Set(dashboardNavItems.map((item) => item.path)).size).toBe(dashboardNavItems.length);
+    expect(new Set(dashboardNavItems.map(item => item.id)).size).toBe(
+      dashboardNavItems.length
+    );
+    expect(new Set(dashboardNavItems.map(item => item.path)).size).toBe(
+      dashboardNavItems.length
+    );
   });
 });
 

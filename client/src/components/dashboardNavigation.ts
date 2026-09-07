@@ -1,9 +1,29 @@
-import { Award, BarChart3, BookOpen, Bookmark, BrainCircuit, ClipboardCheck, ClipboardList, LayoutDashboard, Settings, Users } from "lucide-react";
+import {
+  Award,
+  BarChart3,
+  BookOpen,
+  Bookmark,
+  BrainCircuit,
+  ClipboardCheck,
+  ClipboardList,
+  LayoutDashboard,
+  Settings,
+  Users,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export type DashboardNavItem = {
   id: string;
-  labelKey: "overview" | "settings" | "selfAssessment" | "psychometrics" | "careerPath" | "courses" | "myIllustrations" | "adminObservatory" | "staffWorkspace";
+  labelKey:
+    | "overview"
+    | "settings"
+    | "selfAssessment"
+    | "psychometrics"
+    | "careerPath"
+    | "courses"
+    | "myIllustrations"
+    | "adminObservatory"
+    | "staffWorkspace";
   fallbackLabel: string;
   path: string;
   icon: LucideIcon;
@@ -13,16 +33,88 @@ export type DashboardNavItem = {
 };
 
 export const dashboardNavItems: DashboardNavItem[] = [
-  { id: "overview", labelKey: "overview", fallbackLabel: "Overview", path: "/dashboard", icon: LayoutDashboard, group: "workspace" },
-  { id: "settings", labelKey: "settings", fallbackLabel: "Settings", path: "/dashboard/settings", icon: Settings, group: "workspace" },
-  { id: "my-certificates", labelKey: "settings", fallbackLabel: "My Certificates", path: "/dashboard/certificates", icon: Award, group: "workspace" },
-  { id: "self-assessment", labelKey: "selfAssessment", fallbackLabel: "Self Assessment", path: "/assessment", icon: ClipboardCheck, group: "growth" },
-  { id: "psychometrics", labelKey: "psychometrics", fallbackLabel: "Psychometrics", path: "/psychometrics", icon: BrainCircuit, group: "growth" },
-  { id: "careerpath", labelKey: "careerPath", fallbackLabel: "CareerPath", path: "/careerpath", icon: Users, group: "growth" },
-  { id: "courses", labelKey: "courses", fallbackLabel: "Courses", path: "/courses", icon: BookOpen, group: "growth" },
-  { id: "my-illustrations", labelKey: "myIllustrations", fallbackLabel: "My Illustrations", path: "/my-illustrations", icon: Bookmark, group: "growth" },
-  { id: "admin", labelKey: "adminObservatory", fallbackLabel: "Admin observatory", path: "/admin", icon: BarChart3, group: "operations", adminOnly: true },
-  { id: "staff", labelKey: "staffWorkspace", fallbackLabel: "Staff workspace", path: "/staff", icon: ClipboardList, group: "operations", staffOnly: true },
+  {
+    id: "overview",
+    labelKey: "overview",
+    fallbackLabel: "Overview",
+    path: "/dashboard",
+    icon: LayoutDashboard,
+    group: "workspace",
+  },
+  {
+    id: "settings",
+    labelKey: "settings",
+    fallbackLabel: "Settings",
+    path: "/dashboard/settings",
+    icon: Settings,
+    group: "workspace",
+  },
+  {
+    id: "my-certificates",
+    labelKey: "settings",
+    fallbackLabel: "My Certificates",
+    path: "/dashboard/certificates",
+    icon: Award,
+    group: "workspace",
+  },
+  {
+    id: "self-assessment",
+    labelKey: "selfAssessment",
+    fallbackLabel: "Self Assessment",
+    path: "/assessment",
+    icon: ClipboardCheck,
+    group: "growth",
+  },
+  {
+    id: "psychometrics",
+    labelKey: "psychometrics",
+    fallbackLabel: "Psychometrics",
+    path: "/psychometrics",
+    icon: BrainCircuit,
+    group: "growth",
+  },
+  {
+    id: "careerpath",
+    labelKey: "careerPath",
+    fallbackLabel: "CareerPath",
+    path: "/careerpath",
+    icon: Users,
+    group: "growth",
+  },
+  {
+    id: "courses",
+    labelKey: "courses",
+    fallbackLabel: "Courses",
+    path: "/courses",
+    icon: BookOpen,
+    group: "growth",
+  },
+  {
+    id: "my-illustrations",
+    labelKey: "myIllustrations",
+    fallbackLabel: "My Illustrations",
+    path: "/my-illustrations",
+    icon: Bookmark,
+    group: "growth",
+  },
+  {
+    id: "admin",
+    labelKey: "adminObservatory",
+    fallbackLabel: "Admin observatory",
+    path: "/admin",
+    icon: BarChart3,
+    group: "operations",
+    adminOnly: true,
+  },
+  {
+    id: "staff",
+    labelKey: "staffWorkspace",
+    fallbackLabel: "Staff workspace",
+    path: "/staff",
+    icon: ClipboardList,
+    group: "operations",
+    staffOnly: true,
+  },
 ];
 
 export const dashboardNavGroups = [
@@ -32,9 +124,12 @@ export const dashboardNavGroups = [
 ] as const;
 
 export function visibleDashboardNavItems(role: string | undefined) {
-  return dashboardNavItems.filter((item) => (!item.adminOnly || role === "admin") && (!item.staffOnly || role === "admin" || role === "staff"));
+  return dashboardNavItems.filter(
+    item =>
+      (!item.adminOnly || role === "admin") &&
+      (!item.staffOnly || role === "admin" || role === "staff")
+  );
 }
-
 
 export function getDashboardPageCount(totalItems: number, pageSize: number) {
   if (!Number.isFinite(totalItems) || totalItems <= 0) return 1;
@@ -42,8 +137,15 @@ export function getDashboardPageCount(totalItems: number, pageSize: number) {
   return Math.max(1, Math.ceil(totalItems / pageSize));
 }
 
-export function paginateDashboardItems<T>(items: T[], page: number, pageSize: number) {
-  const safePageSize = Number.isFinite(pageSize) && pageSize > 0 ? Math.floor(pageSize) : items.length || 1;
+export function paginateDashboardItems<T>(
+  items: T[],
+  page: number,
+  pageSize: number
+) {
+  const safePageSize =
+    Number.isFinite(pageSize) && pageSize > 0
+      ? Math.floor(pageSize)
+      : items.length || 1;
   const pageCount = getDashboardPageCount(items.length, safePageSize);
   const safePage = Math.min(Math.max(1, Math.floor(page)), pageCount);
   return {

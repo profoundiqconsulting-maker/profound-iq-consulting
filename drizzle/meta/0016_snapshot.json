@@ -52,17 +52,13 @@
       "compositePrimaryKeys": {
         "admin_analytics_settings_id": {
           "name": "admin_analytics_settings_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "admin_analytics_settings_adminOpenId_unique": {
           "name": "admin_analytics_settings_adminOpenId_unique",
-          "columns": [
-            "adminOpenId"
-          ]
+          "columns": ["adminOpenId"]
         }
       },
       "checkConstraint": {}
@@ -119,9 +115,7 @@
       "compositePrimaryKeys": {
         "analytics_events_id": {
           "name": "analytics_events_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -230,17 +224,13 @@
       "compositePrimaryKeys": {
         "assessment_attempts_id": {
           "name": "assessment_attempts_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "assessment_attempts_paystackReference_unique": {
           "name": "assessment_attempts_paystackReference_unique",
-          "columns": [
-            "paystackReference"
-          ]
+          "columns": ["paystackReference"]
         }
       },
       "checkConstraint": {}
@@ -302,10 +292,7 @@
       "indexes": {
         "auth_login_attempts_identifier_network_unique": {
           "name": "auth_login_attempts_identifier_network_unique",
-          "columns": [
-            "identifierHash",
-            "networkHash"
-          ],
+          "columns": ["identifierHash", "networkHash"],
           "isUnique": true
         }
       },
@@ -313,9 +300,7 @@
       "compositePrimaryKeys": {
         "auth_login_attempts_id": {
           "name": "auth_login_attempts_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -381,9 +366,7 @@
       "compositePrimaryKeys": {
         "course_enrollments_id": {
           "name": "course_enrollments_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -477,9 +460,7 @@
       "compositePrimaryKeys": {
         "delivery_log_export_jobs_id": {
           "name": "delivery_log_export_jobs_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -551,9 +532,7 @@
       "compositePrimaryKeys": {
         "email_preview_deliveries_id": {
           "name": "email_preview_deliveries_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -619,17 +598,13 @@
       "compositePrimaryKeys": {
         "email_templates_id": {
           "name": "email_templates_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "email_templates_templateKey_unique": {
           "name": "email_templates_templateKey_unique",
-          "columns": [
-            "templateKey"
-          ]
+          "columns": ["templateKey"]
         }
       },
       "checkConstraint": {}
@@ -686,9 +661,7 @@
       "compositePrimaryKeys": {
         "scheduled_export_runs_id": {
           "name": "scheduled_export_runs_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -762,17 +735,13 @@
       "compositePrimaryKeys": {
         "scheduled_exports_id": {
           "name": "scheduled_exports_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "scheduled_exports_exportKey_unique": {
           "name": "scheduled_exports_exportKey_unique",
-          "columns": [
-            "exportKey"
-          ]
+          "columns": ["exportKey"]
         }
       },
       "checkConstraint": {}
@@ -915,23 +884,17 @@
       "indexes": {
         "users_email_unique": {
           "name": "users_email_unique",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "isUnique": true
         },
         "users_phone_unique": {
           "name": "users_phone_unique",
-          "columns": [
-            "phone"
-          ],
+          "columns": ["phone"],
           "isUnique": true
         },
         "users_username_unique": {
           "name": "users_username_unique",
-          "columns": [
-            "username"
-          ],
+          "columns": ["username"],
           "isUnique": true
         }
       },
@@ -939,17 +902,13 @@
       "compositePrimaryKeys": {
         "users_id": {
           "name": "users_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "users_openId_unique": {
           "name": "users_openId_unique",
-          "columns": [
-            "openId"
-          ]
+          "columns": ["openId"]
         }
       },
       "checkConstraint": {}
@@ -1020,9 +979,7 @@
       "compositePrimaryKeys": {
         "verification_revocation_audits_id": {
           "name": "verification_revocation_audits_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},

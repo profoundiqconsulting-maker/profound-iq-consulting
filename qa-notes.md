@@ -5,16 +5,13 @@
 - The staff screenshot showed the existing cookie-consent and translation-feedback overlays, which are sitewide UI and not part of the instructor panel.
 - Continue with mobile screenshots and runtime log inspection before checkpointing.
 
-
 ## Mobile verification
 
 The 390px staff view collapsed into the mobile DashboardLayout header and retained readable inquiry metrics and the staff workspace title. The course highlights view kept the course title, share controls, and learning-outcomes content within the viewport without horizontal overflow. Sitewide cookie-consent overlays remain visible in both captures by design.
 
-
 ## Learner feedback and review analytics verification
 
 Desktop verification showed the staff workspace retaining the established sidebar and editorial styling, with the Instructor Review section visible below the inquiry desk. The course highlights route retained its protected-learning presentation and shared action row. Mobile verification showed the staff header collapsing cleanly, the inquiry metrics stacking vertically, and the page remaining readable without horizontal overflow. The cookie-consent overlay is visible in the captures by design and can cover lower content until dismissed.
-
 
 ## Feedback notifications and analytics exports
 
@@ -31,4 +28,3 @@ At 390px, `/settings` preserves readable heading hierarchy and profile layout; t
 ## Course lesson illustration enrichment QA
 
 Desktop and mobile course surfaces preserved the established navy/ivory/gold visual system, readable course hierarchy, sharing controls, and responsive stacking without horizontal overflow. The new explanatory, applicational, and experiential cards are rendered inside the unlocked interactive lesson modal rather than the protected highlights view; the protected surface continues to reveal only course highlights before payment, as intended. Regression coverage confirms every catalog lesson contains all three illustration narratives and all ten locales provide localized illustration labels and narratives.
-

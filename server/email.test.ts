@@ -11,9 +11,14 @@ describe("SMTP configuration", () => {
       SMTP_FROM: "reports@example.com",
       SMTP_FROM_NAME: "Profound IQ Consulting",
     });
-    expect(config).toMatchObject({ host: "smtp.example.com", port: 587, user: "reports@example.com", from: "reports@example.com", fromName: "Profound IQ Consulting" });
+    expect(config).toMatchObject({
+      host: "smtp.example.com",
+      port: 587,
+      user: "reports@example.com",
+      from: "reports@example.com",
+      fromName: "Profound IQ Consulting",
+    });
     expect(config).not.toHaveProperty("publicKey");
     expect(config.password).toBe("app-password");
   });
-
 });

@@ -1,24 +1,60 @@
 import { describe, expect, it } from "vitest";
-import { canAccessAssessmentCertificate, canAccessCourseLessons, canAccessModuleLessons, canBypassCoursePayment, courseAccessReason, isQualityControlAdmin, qualityControlQuizScore, requiredPaymentStageForModule } from "./courseAccess";
+import {
+  canAccessAssessmentCertificate,
+  canAccessCourseLessons,
+  canAccessModuleLessons,
+  canBypassCoursePayment,
+  courseAccessReason,
+  isQualityControlAdmin,
+  qualityControlQuizScore,
+  requiredPaymentStageForModule,
+} from "./courseAccess";
 
 describe("course lesson access", () => {
   it("blocks unregistered visitors while keeping a sign-in reason", () => {
-    const input = { isAuthenticated: false, paidStages: 0, isQualityControlAdmin: false };
+    const input = {
+      isAuthenticated: false,
+      paidStages: 0,
+      isQualityControlAdmin: false,
+    };
     expect(canAccessCourseLessons(input)).toBe(false);
     expect(courseAccessReason(input)).toContain("Sign in or register");
   });
 
   it("blocks authenticated learners until the first 25% stage is paid", () => {
-    expect(canAccessCourseLessons({ isAuthenticated: true, paidStages: 0, isQualityControlAdmin: false })).toBe(false);
-    expect(canAccessCourseLessons({ isAuthenticated: true, paidStages: 1, isQualityControlAdmin: false })).toBe(true);
-    expect(courseAccessReason({ isAuthenticated: true, paidStages: 0, isQualityControlAdmin: false })).toContain("first 25%");
+    expect(
+      canAccessCourseLessons({
+        isAuthenticated: true,
+        paidStages: 0,
+        isQualityControlAdmin: false,
+      })
+    ).toBe(false);
+    expect(
+      canAccessCourseLessons({
+        isAuthenticated: true,
+        paidStages: 1,
+        isQualityControlAdmin: false,
+      })
+    ).toBe(true);
+    expect(
+      courseAccessReason({
+        isAuthenticated: true,
+        paidStages: 0,
+        isQualityControlAdmin: false,
+      })
+    ).toContain("first 25%");
   });
 
   it("allows the configured quality-control admin to inspect content without checkout", () => {
-    expect(canAccessCourseLessons({ isAuthenticated: true, paidStages: 0, isQualityControlAdmin: true })).toBe(true);
+    expect(
+      canAccessCourseLessons({
+        isAuthenticated: true,
+        paidStages: 0,
+        isQualityControlAdmin: true,
+      })
+    ).toBe(true);
   });
 });
-
 
 describe("module payment boundaries", () => {
   it("maps module ranges to the correct installment", () => {
@@ -29,46 +65,134 @@ describe("module payment boundaries", () => {
   });
 
   it("keeps staged modules locked until their matching installment is paid", () => {
-    expect(canAccessModuleLessons({ moduleIndex: 3, paidStages: 1, isQualityControlAdmin: false })).toBe(false);
-    expect(canAccessModuleLessons({ moduleIndex: 3, paidStages: 2, isQualityControlAdmin: false })).toBe(true);
-    expect(canAccessModuleLessons({ moduleIndex: 6, paidStages: 2, isQualityControlAdmin: false })).toBe(false);
-    expect(canAccessModuleLessons({ moduleIndex: 6, paidStages: 3, isQualityControlAdmin: false })).toBe(true);
+    expect(
+      canAccessModuleLessons({
+        moduleIndex: 3,
+        paidStages: 1,
+        isQualityControlAdmin: false,
+      })
+    ).toBe(false);
+    expect(
+      canAccessModuleLessons({
+        moduleIndex: 3,
+        paidStages: 2,
+        isQualityControlAdmin: false,
+      })
+    ).toBe(true);
+    expect(
+      canAccessModuleLessons({
+        moduleIndex: 6,
+        paidStages: 2,
+        isQualityControlAdmin: false,
+      })
+    ).toBe(false);
+    expect(
+      canAccessModuleLessons({
+        moduleIndex: 6,
+        paidStages: 3,
+        isQualityControlAdmin: false,
+      })
+    ).toBe(true);
   });
 
   it("allows quality-control admins to inspect all modules without payment", () => {
-    expect(canAccessModuleLessons({ moduleIndex: 9, paidStages: 0, isQualityControlAdmin: true })).toBe(true);
+    expect(
+      canAccessModuleLessons({
+        moduleIndex: 9,
+        paidStages: 0,
+        isQualityControlAdmin: true,
+      })
+    ).toBe(true);
   });
 });
 
 describe("assessment certificate access policy", () => {
   it("allows the designated Quality Control admin to generate from an unpaid report", () => {
-    expect(canAccessAssessmentCertificate({ isQualityControlAdmin: true, identityMatches: true, paymentStatus: "pending", hasReport: true })).toBe(true);
+    expect(
+      canAccessAssessmentCertificate({
+        isQualityControlAdmin: true,
+        identityMatches: true,
+        paymentStatus: "pending",
+        hasReport: true,
+      })
+    ).toBe(true);
   });
 
   it("requires payment for ordinary learners and still protects ownership/report data", () => {
-    expect(canAccessAssessmentCertificate({ isQualityControlAdmin: false, identityMatches: true, paymentStatus: "pending", hasReport: true })).toBe(false);
-    expect(canAccessAssessmentCertificate({ isQualityControlAdmin: false, identityMatches: true, paymentStatus: "paid", hasReport: true })).toBe(true);
-    expect(canAccessAssessmentCertificate({ isQualityControlAdmin: true, identityMatches: false, paymentStatus: "pending", hasReport: true })).toBe(false);
-    expect(canAccessAssessmentCertificate({ isQualityControlAdmin: true, identityMatches: true, paymentStatus: "pending", hasReport: false })).toBe(false);
+    expect(
+      canAccessAssessmentCertificate({
+        isQualityControlAdmin: false,
+        identityMatches: true,
+        paymentStatus: "pending",
+        hasReport: true,
+      })
+    ).toBe(false);
+    expect(
+      canAccessAssessmentCertificate({
+        isQualityControlAdmin: false,
+        identityMatches: true,
+        paymentStatus: "paid",
+        hasReport: true,
+      })
+    ).toBe(true);
+    expect(
+      canAccessAssessmentCertificate({
+        isQualityControlAdmin: true,
+        identityMatches: false,
+        paymentStatus: "pending",
+        hasReport: true,
+      })
+    ).toBe(false);
+    expect(
+      canAccessAssessmentCertificate({
+        isQualityControlAdmin: true,
+        identityMatches: true,
+        paymentStatus: "pending",
+        hasReport: false,
+      })
+    ).toBe(false);
   });
 });
 
 describe("quality-control access policy", () => {
   it("recognizes only the designated admin email", () => {
-    expect(isQualityControlAdmin({ email: "profoundiqconsulting@gmail.com" })).toBe(true);
-    expect(isQualityControlAdmin({ email: "PROFOUNDIQCONSULTING@GMAIL.COM" })).toBe(true);
+    expect(
+      isQualityControlAdmin({ email: "profoundiqconsulting@gmail.com" })
+    ).toBe(true);
+    expect(
+      isQualityControlAdmin({ email: "PROFOUNDIQCONSULTING@GMAIL.COM" })
+    ).toBe(true);
     expect(isQualityControlAdmin({ email: "other@example.com" })).toBe(false);
     expect(isQualityControlAdmin({ email: null })).toBe(false);
   });
 
   it("allows either the designated admin or an active learner grant to bypass payment", () => {
-    expect(canBypassCoursePayment({ isQualityControlAdmin: true, hasAccessGrant: false })).toBe(true);
-    expect(canBypassCoursePayment({ isQualityControlAdmin: false, hasAccessGrant: true })).toBe(true);
-    expect(canBypassCoursePayment({ isQualityControlAdmin: false, hasAccessGrant: false })).toBe(false);
+    expect(
+      canBypassCoursePayment({
+        isQualityControlAdmin: true,
+        hasAccessGrant: false,
+      })
+    ).toBe(true);
+    expect(
+      canBypassCoursePayment({
+        isQualityControlAdmin: false,
+        hasAccessGrant: true,
+      })
+    ).toBe(true);
+    expect(
+      canBypassCoursePayment({
+        isQualityControlAdmin: false,
+        hasAccessGrant: false,
+      })
+    ).toBe(false);
   });
 
   it("normalizes only quality-control admin quiz submissions to 100%", () => {
-    expect(qualityControlQuizScore({ rawScore: 40, isQualityControlAdmin: true })).toBe(100);
-    expect(qualityControlQuizScore({ rawScore: 40, isQualityControlAdmin: false })).toBe(40);
+    expect(
+      qualityControlQuizScore({ rawScore: 40, isQualityControlAdmin: true })
+    ).toBe(100);
+    expect(
+      qualityControlQuizScore({ rawScore: 40, isQualityControlAdmin: false })
+    ).toBe(40);
   });
 });

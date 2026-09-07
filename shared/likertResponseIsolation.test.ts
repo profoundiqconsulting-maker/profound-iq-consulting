@@ -39,9 +39,9 @@ describe("Likert response isolation", () => {
   it("binds each CareerPath Likert input to its owning question", () => {
     expect(careerPathPage).toContain("LikertScale");
     expect(likertComponent).toContain("name={id}");
-    expect(likertComponent).toMatch(
-      /checked=\{\s*isSelected\s*\}/
+    expect(likertComponent).toMatch(/checked=\{\s*isSelected\s*\}/);
+    expect(likertComponent).toContain(
+      "onChange={() => onChange(option.value)}"
     );
-    expect(likertComponent).toContain("onChange={() => onChange(option.value)}");
   });
 });

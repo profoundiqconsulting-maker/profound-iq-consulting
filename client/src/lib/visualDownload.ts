@@ -6,7 +6,8 @@ export async function svgToPngBlob(svg: string, scale = 2): Promise<Blob> {
   image.src = sourceUrl;
   await new Promise<void>((resolve, reject) => {
     image.onload = () => resolve();
-    image.onerror = () => reject(new Error("The coaching visual could not be prepared as a PNG."));
+    image.onerror = () =>
+      reject(new Error("The coaching visual could not be prepared as a PNG."));
   });
   const canvas = document.createElement("canvas");
   canvas.width = image.naturalWidth * scale;
@@ -16,7 +17,15 @@ export async function svgToPngBlob(svg: string, scale = 2): Promise<Blob> {
   context.scale(scale, scale);
   context.drawImage(image, 0, 0);
   return await new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("The coaching visual could not be encoded as a PNG.")), "image/png");
+    canvas.toBlob(
+      blob =>
+        blob
+          ? resolve(blob)
+          : reject(
+              new Error("The coaching visual could not be encoded as a PNG.")
+            ),
+      "image/png"
+    );
   });
 }
 

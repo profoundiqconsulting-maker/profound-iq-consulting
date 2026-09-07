@@ -1,26 +1,185 @@
 /* Profound IQ Consulting — Executive Observatory About page: authored positioning, audience clarity, and an editorial discover-develop-apply pathway. */
-import { ArrowUpRight, Compass, Lightbulb, Target, UsersRound } from "lucide-react";
+import {
+  ArrowUpRight,
+  Compass,
+  Lightbulb,
+  Target,
+  UsersRound,
+} from "lucide-react";
 import { Link } from "wouter";
 import { PublicPageShell } from "@/components/PublicPageShell";
 import { ScrollReveal } from "@/components/ScrollReveal";
 
 const audiences = [
-  { title: "Learners and students", body: "Build self-awareness, make confident choices, and turn learning into a practical next step.", icon: Compass },
-  { title: "Professionals and emerging leaders", body: "Strengthen the thinking, communication, and leadership habits that make progress visible at work.", icon: Target },
-  { title: "Schools and institutions", body: "Align people, curriculum, leadership, and systems around better learning experiences and outcomes.", icon: UsersRound },
+  {
+    title: "Learners and students",
+    body: "Build self-awareness, make confident choices, and turn learning into a practical next step.",
+    icon: Compass,
+  },
+  {
+    title: "Professionals and emerging leaders",
+    body: "Strengthen the thinking, communication, and leadership habits that make progress visible at work.",
+    icon: Target,
+  },
+  {
+    title: "Schools and institutions",
+    body: "Align people, curriculum, leadership, and systems around better learning experiences and outcomes.",
+    icon: UsersRound,
+  },
 ];
 
 const method = [
-  { index: "01", title: "Discover", body: "We begin with a rigorous look at context, capability, goals, and the patterns that shape decisions." },
-  { index: "02", title: "Develop", body: "We translate insight into structured learning, practical tools, and development experiences people can use." },
-  { index: "03", title: "Apply", body: "We help learners, leaders, and organizations move from understanding to action with clarity and confidence." },
+  {
+    index: "01",
+    title: "Discover",
+    body: "We begin with a rigorous look at context, capability, goals, and the patterns that shape decisions.",
+  },
+  {
+    index: "02",
+    title: "Develop",
+    body: "We translate insight into structured learning, practical tools, and development experiences people can use.",
+  },
+  {
+    index: "03",
+    title: "Apply",
+    body: "We help learners, leaders, and organizations move from understanding to action with clarity and confidence.",
+  },
 ];
 
 export default function About() {
-  return <PublicPageShell eyebrow="01 / About Profound IQ" title={<>Transforming potential into <em className="font-normal text-[#c9a34e]">purposeful impact.</em></>} intro="Profound IQ Consulting is a transformational learning and education consulting partner for people, leaders, schools, and organizations navigating a rapidly changing global landscape." breadcrumbs={[{ label: "About" }]} cta={{ label: "Explore our services", href: "/services" }}>
-    <section className="bg-[#f7f3e8] py-24 lg:py-32"><ScrollReveal><div className="container grid gap-16 lg:grid-cols-[.7fr_1.3fr] lg:gap-20"><div><p className="eyebrow text-[#a27e2e]">Why we exist</p><h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">Discovery should lead somewhere.</h2></div><div className="space-y-7 text-base leading-8 text-[#4a566a]"><p>We bridge the gap between raw potential and purposeful impact. Our work brings strategic insight into the fabric of professional and educational life so that every learner and institution can move from understanding to action.</p><p>Through educational consulting, professional learning, psychometric testing, research surveys, and digital learning solutions, we create the conditions for deep self-actualization and measurable progress.</p><div className="border-l-2 border-[#c9a34e] bg-white/70 p-6 text-sm leading-7 text-[#16243d] backdrop-blur-sm"><Lightbulb className="mb-3 text-[#a27e2e]" size={20} /><strong className="block">Our belief</strong><span className="mt-2 block">Clarity is not a personality trait. It is a capability that can be built, practiced, and applied.</span></div></div></div></ScrollReveal></section>
-    <section className="bg-[#172844] py-24 text-[#f7f3e8] lg:py-32"><div className="container"><div className="max-w-3xl"><p className="eyebrow text-[#c9a34e]">Who we serve</p><h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">One partner. Different pathways forward.</h2><p className="mt-7 text-lg leading-8 text-[#c1cad7]">The right experience depends on where you are starting, what you are responsible for, and the change you want to make.</p></div><div className="mt-16 grid gap-4 md:grid-cols-3">{audiences.map(({ title, body, icon: Icon }, index) => <ScrollReveal key={title} delay={index * 70}><article className="public-card-link group border border-[#c9a34e]/30 bg-[#1b3152]/60 p-8 backdrop-blur-sm transition-all duration-200 hover:-translate-y-1 hover:border-[#c9a34e] hover:bg-[#254263]"><div className="inline-flex h-12 w-12 items-center justify-center rounded bg-[#c9a34e]/15"><Icon size={22} className="text-[#c9a34e]" /></div><h3 className="mt-8 text-lg font-semibold leading-tight">{title}</h3><p className="mt-5 text-sm leading-7 text-[#c1cad7]">{body}</p><Link href="/contact" className="mt-7 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e] transition-colors group-hover:text-[#f7f3e8]">Find your pathway <ArrowUpRight size={14} /></Link></article></ScrollReveal>)}</div></div></section>
-    <section className="bg-[#fffaf0] py-24 lg:py-32"><div className="container"><div className="grid gap-16 lg:grid-cols-[.65fr_1.35fr] lg:gap-20"><div><p className="eyebrow text-[#a27e2e]">Our method</p><h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">Insight that becomes a way of working.</h2></div><div className="space-y-px border-y border-[#16243d]/10">{method.map((step, index) => <ScrollReveal key={step.index} delay={index * 70}><article className="group grid gap-6 border-b border-[#16243d]/10 py-8 transition-colors hover:border-[#c9a34e]/40 sm:grid-cols-[60px_1fr] sm:items-start last:border-b-0"><span className="text-xs font-black tracking-[.18em] text-[#a27e2e]">{step.index}</span><div><h3 className="text-xl font-semibold leading-tight">{step.title}</h3><p className="mt-3 max-w-2xl text-base leading-7 text-[#657084]">{step.body}</p></div></article></ScrollReveal>)}</div></div></div></section>
-    <section className="bg-[#f7f3e8] py-20"><div className="container flex flex-col items-start justify-between gap-8 border-t border-[#16243d]/10 pt-12 sm:flex-row sm:items-center"><div><p className="eyebrow text-[#a27e2e]">Ready for a clearer next step?</p><h2 className="display mt-4 text-4xl leading-tight sm:text-5xl">Make the learning visible.</h2></div><Link href="/contact" className="inline-flex shrink-0 items-center justify-center gap-3 bg-[#16243d] px-6 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition-all hover:-translate-y-1 hover:shadow-lg">Talk to our consultants <ArrowUpRight size={15} /></Link></div></section>
-  </PublicPageShell>;
+  return (
+    <PublicPageShell
+      eyebrow="01 / About Profound IQ"
+      title={
+        <>
+          Transforming potential into{" "}
+          <em className="font-normal text-[#c9a34e]">purposeful impact.</em>
+        </>
+      }
+      intro="Profound IQ Consulting is a transformational learning and education consulting partner for people, leaders, schools, and organizations navigating a rapidly changing global landscape."
+      breadcrumbs={[{ label: "About" }]}
+      cta={{ label: "Explore our services", href: "/services" }}
+    >
+      <section className="bg-[#f7f3e8] py-24 lg:py-32">
+        <ScrollReveal>
+          <div className="container grid gap-16 lg:grid-cols-[.7fr_1.3fr] lg:gap-20">
+            <div>
+              <p className="eyebrow text-[#a27e2e]">Why we exist</p>
+              <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
+                Discovery should lead somewhere.
+              </h2>
+            </div>
+            <div className="space-y-7 text-base leading-8 text-[#4a566a]">
+              <p>
+                We bridge the gap between raw potential and purposeful impact.
+                Our work brings strategic insight into the fabric of
+                professional and educational life so that every learner and
+                institution can move from understanding to action.
+              </p>
+              <p>
+                Through educational consulting, professional learning,
+                psychometric testing, research surveys, and digital learning
+                solutions, we create the conditions for deep self-actualization
+                and measurable progress.
+              </p>
+              <div className="border-l-2 border-[#c9a34e] bg-white/70 p-6 text-sm leading-7 text-[#16243d] backdrop-blur-sm">
+                <Lightbulb className="mb-3 text-[#a27e2e]" size={20} />
+                <strong className="block">Our belief</strong>
+                <span className="mt-2 block">
+                  Clarity is not a personality trait. It is a capability that
+                  can be built, practiced, and applied.
+                </span>
+              </div>
+            </div>
+          </div>
+        </ScrollReveal>
+      </section>
+      <section className="bg-[#172844] py-24 text-[#f7f3e8] lg:py-32">
+        <div className="container">
+          <div className="max-w-3xl">
+            <p className="eyebrow text-[#c9a34e]">Who we serve</p>
+            <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
+              One partner. Different pathways forward.
+            </h2>
+            <p className="mt-7 text-lg leading-8 text-[#c1cad7]">
+              The right experience depends on where you are starting, what you
+              are responsible for, and the change you want to make.
+            </p>
+          </div>
+          <div className="mt-16 grid gap-4 md:grid-cols-3">
+            {audiences.map(({ title, body, icon: Icon }, index) => (
+              <ScrollReveal key={title} delay={index * 70}>
+                <article className="public-card-link group border border-[#c9a34e]/30 bg-[#1b3152]/60 p-8 backdrop-blur-sm transition-all duration-200 hover:-translate-y-1 hover:border-[#c9a34e] hover:bg-[#254263]">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded bg-[#c9a34e]/15">
+                    <Icon size={22} className="text-[#c9a34e]" />
+                  </div>
+                  <h3 className="mt-8 text-lg font-semibold leading-tight">
+                    {title}
+                  </h3>
+                  <p className="mt-5 text-sm leading-7 text-[#c1cad7]">
+                    {body}
+                  </p>
+                  <Link
+                    href="/contact"
+                    className="mt-7 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e] transition-colors group-hover:text-[#f7f3e8]"
+                  >
+                    Find your pathway <ArrowUpRight size={14} />
+                  </Link>
+                </article>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section className="bg-[#fffaf0] py-24 lg:py-32">
+        <div className="container">
+          <div className="grid gap-16 lg:grid-cols-[.65fr_1.35fr] lg:gap-20">
+            <div>
+              <p className="eyebrow text-[#a27e2e]">Our method</p>
+              <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
+                Insight that becomes a way of working.
+              </h2>
+            </div>
+            <div className="space-y-px border-y border-[#16243d]/10">
+              {method.map((step, index) => (
+                <ScrollReveal key={step.index} delay={index * 70}>
+                  <article className="group grid gap-6 border-b border-[#16243d]/10 py-8 transition-colors hover:border-[#c9a34e]/40 sm:grid-cols-[60px_1fr] sm:items-start last:border-b-0">
+                    <span className="text-xs font-black tracking-[.18em] text-[#a27e2e]">
+                      {step.index}
+                    </span>
+                    <div>
+                      <h3 className="text-xl font-semibold leading-tight">
+                        {step.title}
+                      </h3>
+                      <p className="mt-3 max-w-2xl text-base leading-7 text-[#657084]">
+                        {step.body}
+                      </p>
+                    </div>
+                  </article>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+      <section className="bg-[#f7f3e8] py-20">
+        <div className="container flex flex-col items-start justify-between gap-8 border-t border-[#16243d]/10 pt-12 sm:flex-row sm:items-center">
+          <div>
+            <p className="eyebrow text-[#a27e2e]">
+              Ready for a clearer next step?
+            </p>
+            <h2 className="display mt-4 text-4xl leading-tight sm:text-5xl">
+              Make the learning visible.
+            </h2>
+          </div>
+          <Link
+            href="/contact"
+            className="inline-flex shrink-0 items-center justify-center gap-3 bg-[#16243d] px-6 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition-all hover:-translate-y-1 hover:shadow-lg"
+          >
+            Talk to our consultants <ArrowUpRight size={15} />
+          </Link>
+        </div>
+      </section>
+    </PublicPageShell>
+  );
 }

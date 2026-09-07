@@ -20,26 +20,46 @@ export type AchievementLeaderboardRow = {
   totalBadges: number;
 };
 
-export function normalizeLeaderboardDisplayName(name: string | null | undefined, fallback = "Respondent") {
-  const cleaned = (name ?? "").replace(/[^a-zA-Z0-9 ._-]/g, "").trim().slice(0, 80);
+export function normalizeLeaderboardDisplayName(
+  name: string | null | undefined,
+  fallback = "Respondent"
+) {
+  const cleaned = (name ?? "")
+    .replace(/[^a-zA-Z0-9 ._-]/g, "")
+    .trim()
+    .slice(0, 80);
   return cleaned || fallback;
 }
 
-export function rankAchievementLeaderboard(rows: Array<Omit<AchievementLeaderboardRow, "rank">>) {
+export function rankAchievementLeaderboard(
+  rows: Array<Omit<AchievementLeaderboardRow, "rank">>
+) {
   return [...rows]
-    .sort((a, b) => b.earnedBadges - a.earnedBadges || b.completedCourses - a.completedCourses || a.displayName.localeCompare(b.displayName))
+    .sort(
+      (a, b) =>
+        b.earnedBadges - a.earnedBadges ||
+        b.completedCourses - a.completedCourses ||
+        a.displayName.localeCompare(b.displayName)
+    )
     .map((row, index) => ({ ...row, rank: index + 1 }));
 }
 
-export function achievementBadgeFilename(badge: Pick<AchievementBadge, "courseSlug" | "moduleIndex">) {
+export function achievementBadgeFilename(
+  badge: Pick<AchievementBadge, "courseSlug" | "moduleIndex">
+) {
   return `profound-iq-${badge.courseSlug}-module-${badge.moduleIndex + 1}-badge.svg`;
 }
 
-export function achievementMiniCertificateFilename(badge: Pick<AchievementBadge, "courseSlug" | "moduleIndex">) {
+export function achievementMiniCertificateFilename(
+  badge: Pick<AchievementBadge, "courseSlug" | "moduleIndex">
+) {
   return `profound-iq-${badge.courseSlug}-module-${badge.moduleIndex + 1}-certificate.svg`;
 }
 
-export function buildAchievementBadgeSvg(badge: AchievementBadge, variant: "badge" | "certificate" = "badge") {
+export function buildAchievementBadgeSvg(
+  badge: AchievementBadge,
+  variant: "badge" | "certificate" = "badge"
+) {
   const title = escapeXml(badge.moduleTitle);
   const course = escapeXml(badge.courseTitle);
   const date = escapeXml(new Date(badge.earnedAt).toLocaleDateString());
@@ -50,5 +70,15 @@ export function buildAchievementBadgeSvg(badge: AchievementBadge, variant: "badg
 }
 
 function escapeXml(value: string) {
-  return value.replace(/[<>&'\"]/g, (character) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" })[character] ?? character);
+  return value.replace(
+    /[<>&'\"]/g,
+    character =>
+      ({
+        "<": "&lt;",
+        ">": "&gt;",
+        "&": "&amp;",
+        "'": "&apos;",
+        '"': "&quot;",
+      })[character] ?? character
+  );
 }

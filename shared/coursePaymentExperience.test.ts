@@ -29,7 +29,7 @@ describe("course payment experience contracts", () => {
 
   it("caps completed payment and learning progress at the configured maximum", () => {
     const result = summarizeCourseEnrollment({
-      stages: [1, 2, 3, 4].map((stage) => ({ stage, paymentStatus: "paid" })),
+      stages: [1, 2, 3, 4].map(stage => ({ stage, paymentStatus: "paid" })),
       lessonsCompleted: 100,
       moduleCount: 10,
     });
@@ -60,7 +60,10 @@ describe("course payment experience contracts", () => {
   });
 
   it("encodes the course and reference in the dedicated success path", () => {
-    expect(buildCoursePaymentSuccessPath("leadership & clarity", "piq-course/ref"))
-      .toBe("/courses/payment-success?course=leadership%20%26%20clarity&reference=piq-course%2Fref");
+    expect(
+      buildCoursePaymentSuccessPath("leadership & clarity", "piq-course/ref")
+    ).toBe(
+      "/courses/payment-success?course=leadership%20%26%20clarity&reference=piq-course%2Fref"
+    );
   });
 });

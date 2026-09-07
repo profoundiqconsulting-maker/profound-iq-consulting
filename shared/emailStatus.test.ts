@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { formatReportEmailSentAt, getReportEmailStatusLabel } from "./emailStatus";
+import {
+  formatReportEmailSentAt,
+  getReportEmailStatusLabel,
+} from "./emailStatus";
 
 describe("report email status helpers", () => {
   it("formats a valid sent timestamp for the dashboard", () => {

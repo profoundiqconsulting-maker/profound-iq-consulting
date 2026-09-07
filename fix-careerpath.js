@@ -17,8 +17,8 @@ result = result.replace(
 
 // 3. Add initializeInlinePayment mutation after initializePayment
 result = result.replace(
-  '  const initializePayment = trpc.careerPath.initializePayment.useMutation();',
-  '  const initializePayment = trpc.careerPath.initializePayment.useMutation();\n  const initializeInlinePayment = trpc.careerPath.initializeInlinePayment.useMutation();'
+  "  const initializePayment = trpc.careerPath.initializePayment.useMutation();",
+  "  const initializePayment = trpc.careerPath.initializePayment.useMutation();\n  const initializeInlinePayment = trpc.careerPath.initializeInlinePayment.useMutation();"
 );
 
 // 4. Update beginPayment to use inline payment

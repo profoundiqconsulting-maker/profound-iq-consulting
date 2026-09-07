@@ -5,7 +5,8 @@ const filePath = join(process.cwd(), "client/src/pages/Psychometrics.tsx");
 const content = readFileSync(filePath, "utf8");
 
 // Find the broken section and replace it with the correct structure
-const marker = "  if (!slug) return <main className=\"min-h-screen bg-[#f7f3e8] text-[#16243d]\">";
+const marker =
+  '  if (!slug) return <main className="min-h-screen bg-[#f7f3e8] text-[#16243d]">';
 const markerIndex = content.indexOf(marker);
 if (markerIndex === -1) {
   console.error("Marker not found");
@@ -17,7 +18,10 @@ const beforeMarker = content.slice(0, markerIndex);
 
 // Extract the catalog listing return (the !slug one)
 const slugReturnEnd = content.indexOf("</main>;", markerIndex);
-const slugReturn = content.slice(markerIndex, slugReturnEnd + "</main>;".length);
+const slugReturn = content.slice(
+  markerIndex,
+  slugReturnEnd + "</main>;".length
+);
 
 // Find the rest after the slug return
 const afterSlugReturn = content.slice(slugReturnEnd + "</main>;".length);

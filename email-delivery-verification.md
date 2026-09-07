@@ -4,7 +4,7 @@ Assessment completion-page verification, 2026-08-22:
 - The report page displayed the fallback copy: “Your report is available here. If email delivery was delayed, you can download a PDF copy from your dashboard.”
 - The report view remained readable with score, band, dimensions, strengths, focus signals, disclaimer, and navigation actions.
 - SMTP no-send verification passed for the latest securely configured mailbox settings.
-Mobile completion-page verification, 2026-08-22:
+  Mobile completion-page verification, 2026-08-22:
 
 At a 375px viewport, the assessment report remained readable and the email-status message appeared below the report disclaimer without clipping. The fallback wording remained accurate for an already-paid report whose email was not marked sent.
 Independent mailbox verification, 2026-08-22:

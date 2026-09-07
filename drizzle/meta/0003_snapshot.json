@@ -85,17 +85,13 @@
       "compositePrimaryKeys": {
         "assessment_attempts_id": {
           "name": "assessment_attempts_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "assessment_attempts_paystackReference_unique": {
           "name": "assessment_attempts_paystackReference_unique",
-          "columns": [
-            "paystackReference"
-          ]
+          "columns": ["paystackReference"]
         }
       },
       "checkConstraint": {}
@@ -198,17 +194,13 @@
       "compositePrimaryKeys": {
         "users_id": {
           "name": "users_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "users_openId_unique": {
           "name": "users_openId_unique",
-          "columns": [
-            "openId"
-          ]
+          "columns": ["openId"]
         }
       },
       "checkConstraint": {}

@@ -14,6 +14,8 @@ describe("Paystack checkout feedback", () => {
     expect(paystackCheckoutCopy.initializing.label).toContain("Preparing");
     expect(paystackCheckoutCopy.redirecting.description).toContain("Paystack");
     expect(paystackCheckoutCopy.paid.description).toContain("unlocked");
-    expect(paystackCheckoutCopy.error.description).toContain("No report was unlocked");
+    expect(paystackCheckoutCopy.error.description).toContain(
+      "No report was unlocked"
+    );
   });
 });

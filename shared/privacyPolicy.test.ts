@@ -4,7 +4,8 @@ vi.mock("@shared/siteOrigin", () => {
   const origin = "http://localhost:3000";
   return {
     PUBLISHED_SITE_ORIGIN: origin,
-    publishedSiteUrl: (path = "") => `${origin}${path.startsWith("/") || path.length === 0 ? path : `/${path}`}`,
+    publishedSiteUrl: (path = "") =>
+      `${origin}${path.startsWith("/") || path.length === 0 ? path : `/${path}`}`,
   };
 });
 

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { isQaFixtureEnabled, qaFixtureStorageValue, QA_FIXTURE_STORAGE_KEY } from "./qaFixture";
+import {
+  isQaFixtureEnabled,
+  qaFixtureStorageValue,
+  QA_FIXTURE_STORAGE_KEY,
+} from "./qaFixture";
 
 describe("QA fixture preference", () => {
   it("uses a single explicit storage key and opt-in value", () => {

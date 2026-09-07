@@ -3,7 +3,18 @@ import { getAuthCopy } from "./authLocalization";
 
 describe("authentication localization", () => {
   it("provides primary authentication labels for every supported locale", () => {
-    const locales = ["en", "sw", "fr", "es", "pt", "ar", "zh", "hi", "de", "ja"] as const;
+    const locales = [
+      "en",
+      "sw",
+      "fr",
+      "es",
+      "pt",
+      "ar",
+      "zh",
+      "hi",
+      "de",
+      "ja",
+    ] as const;
     for (const locale of locales) {
       const copy = getAuthCopy(locale);
       expect(copy.privateAccess).toBeTruthy();

@@ -37,14 +37,14 @@ for (const filePath of files) {
 
     while (i < lines.length) {
       const line = lines[i];
-      
+
       // Check if this line contains useQuery
       if (line.includes(".useQuery(")) {
         // Find the opening of the options object
         const queryStart = line.indexOf(".useQuery(");
         let queryEnd = line.indexOf(")", queryStart);
         let optionsStart = line.indexOf("{", queryEnd);
-        
+
         // If options start on same line
         if (optionsStart !== -1) {
           // Find matching closing brace
@@ -63,36 +63,88 @@ for (const filePath of files) {
             if (optionsEnd !== -1) break;
             j++;
           }
-          
+
           if (optionsEnd !== -1) {
             // Extract options block
-            const optionsBlock = lines.slice(optionsStart, optionsEnd + 1).join("\n");
-            
+            const optionsBlock = lines
+              .slice(optionsStart, optionsEnd + 1)
+              .join("\n");
+
             // Check if it has retry: false and doesn't have refetchInterval
-            if (optionsBlock.includes("retry: false") && !optionsBlock.includes("refetchInterval")) {
+            if (
+              optionsBlock.includes("retry: false") &&
+              !optionsBlock.includes("refetchInterval")
+            ) {
               // Determine interval based on query name
               let interval = "30000";
               const queryMatch = line.match(/trpc\.\w+\.\w+\.useQuery/);
               const queryName = queryMatch ? queryMatch[0] : "";
-              
-              if (queryName.includes("psychometricAnalytics") || queryName.includes("psychometricFailedDeliveries") || queryName.includes("deliveryLogExportJobs")) {
-                interval = queryName.includes("deliveryLogExportJobs") ? "8000" : "30000";
-              } else if (queryName.includes("psychometricWeeklySchedule") || queryName.includes("analyticsSettings") || queryName.includes("emailTemplates") || queryName.includes("certificateSettings") || queryName.includes("profile.get") || queryName.includes("profile.loginHistory") || queryName.includes("profile.sessions")) {
+
+              if (
+                queryName.includes("psychometricAnalytics") ||
+                queryName.includes("psychometricFailedDeliveries") ||
+                queryName.includes("deliveryLogExportJobs")
+              ) {
+                interval = queryName.includes("deliveryLogExportJobs")
+                  ? "8000"
+                  : "30000";
+              } else if (
+                queryName.includes("psychometricWeeklySchedule") ||
+                queryName.includes("analyticsSettings") ||
+                queryName.includes("emailTemplates") ||
+                queryName.includes("certificateSettings") ||
+                queryName.includes("profile.get") ||
+                queryName.includes("profile.loginHistory") ||
+                queryName.includes("profile.sessions")
+              ) {
                 interval = "60000";
-              } else if (queryName.includes("assignedInquiries") || queryName.includes("staff.metrics") || queryName.includes("revenueReport") || queryName.includes("recentCourseCertificates") || queryName.includes("certificateUsageAnalytics") || queryName.includes("publicCertificateShareAnalytics") || queryName.includes("contactInquiries") || queryName.includes("coursePaymentExceptions")) {
+              } else if (
+                queryName.includes("assignedInquiries") ||
+                queryName.includes("staff.metrics") ||
+                queryName.includes("revenueReport") ||
+                queryName.includes("recentCourseCertificates") ||
+                queryName.includes("certificateUsageAnalytics") ||
+                queryName.includes("publicCertificateShareAnalytics") ||
+                queryName.includes("contactInquiries") ||
+                queryName.includes("coursePaymentExceptions")
+              ) {
                 interval = "15000";
               } else if (queryName.includes("course.state")) {
                 interval = "30000";
-              } else if (queryName.includes("adminOverview") || queryName.includes("psychometricAttempts") || queryName.includes("psychometricAcknowledgementAudit") || queryName.includes("analyticsSummary") || queryName.includes("careerPathShareAnalytics") || queryName.includes("scheduledExportStatus") || queryName.includes("emailPreviewHistory") || queryName.includes("userVerificationReview") || queryName.includes("securitySettings") || queryName.includes("failedLoginEvents") || queryName.includes("loginSecurityAnalytics") || queryName.includes("failedLoginRegions") || queryName.includes("unlockAuditHistory") || queryName.includes("resetLinkRevocationHistory") || queryName.includes("organizationInvitations") || queryName.includes("organizationApprovalHistory")) {
+              } else if (
+                queryName.includes("adminOverview") ||
+                queryName.includes("psychometricAttempts") ||
+                queryName.includes("psychometricAcknowledgementAudit") ||
+                queryName.includes("analyticsSummary") ||
+                queryName.includes("careerPathShareAnalytics") ||
+                queryName.includes("scheduledExportStatus") ||
+                queryName.includes("emailPreviewHistory") ||
+                queryName.includes("userVerificationReview") ||
+                queryName.includes("securitySettings") ||
+                queryName.includes("failedLoginEvents") ||
+                queryName.includes("loginSecurityAnalytics") ||
+                queryName.includes("failedLoginRegions") ||
+                queryName.includes("unlockAuditHistory") ||
+                queryName.includes("resetLinkRevocationHistory") ||
+                queryName.includes("organizationInvitations") ||
+                queryName.includes("organizationApprovalHistory")
+              ) {
                 interval = "30000";
-              } else if (queryName.includes("teamMembers") || queryName.includes("staffInvitations") || queryName.includes("staffPerformance")) {
+              } else if (
+                queryName.includes("teamMembers") ||
+                queryName.includes("staffInvitations") ||
+                queryName.includes("staffPerformance")
+              ) {
                 interval = "30000";
               }
-              
+
               // Add refetchInterval before the last closing brace
               const lastBraceIndex = optionsBlock.lastIndexOf("}");
-              const newOptionsBlock = optionsBlock.slice(0, lastBraceIndex) + `,\n     refetchInterval: ${interval}` + optionsBlock.slice(lastBraceIndex);
-              
+              const newOptionsBlock =
+                optionsBlock.slice(0, lastBraceIndex) +
+                `,\n     refetchInterval: ${interval}` +
+                optionsBlock.slice(lastBraceIndex);
+
               // Replace the lines
               for (let k = optionsStart; k <= optionsEnd; k++) {
                 if (k === optionsStart) {
@@ -104,7 +156,7 @@ for (const filePath of files) {
                   // skip - will be replaced
                 }
               }
-              
+
               i = optionsEnd + 1;
               fileChanges++;
               continue;
@@ -112,16 +164,18 @@ for (const filePath of files) {
           }
         }
       }
-      
+
       newLines.push(line);
       i++;
     }
-    
+
     if (fileChanges > 0) {
       const newContent = newLines.join("\n");
       writeFileSync(filePath, newContent);
       totalChanges += fileChanges;
-      console.log(`Updated ${filePath.split("/").pop()}: +${fileChanges} queries`);
+      console.log(
+        `Updated ${filePath.split("/").pop()}: +${fileChanges} queries`
+      );
     }
   } catch (err) {
     console.error(`Error processing ${filePath}:`, err.message);

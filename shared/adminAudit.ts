@@ -19,10 +19,17 @@ export type AuditHistoryPage = {
   pageSize: number;
 };
 
-export function filterAuditHistoryRows(rows: VerificationRevocationAudit[], filters: AuditHistoryFilters = {}) {
+export function filterAuditHistoryRows(
+  rows: VerificationRevocationAudit[],
+  filters: AuditHistoryFilters = {}
+) {
   const search = filters.adminSearch?.trim().toLowerCase();
-  return rows.filter((row) => {
-    const adminMatches = !search || [row.actorName, row.actorEmail, row.actorOpenId].some((value) => value?.toLowerCase().includes(search));
+  return rows.filter(row => {
+    const adminMatches =
+      !search ||
+      [row.actorName, row.actorEmail, row.actorOpenId].some(value =>
+        value?.toLowerCase().includes(search)
+      );
     const fromMatches = !filters.fromDate || row.createdAt >= filters.fromDate;
     const toMatches = !filters.toDate || row.createdAt <= filters.toDate;
     return adminMatches && fromMatches && toMatches;
@@ -35,13 +42,37 @@ export function clampAuditPagination(page: number, pageSize: number) {
 }
 
 function csvCell(value: unknown) {
-  const text = value instanceof Date ? value.toISOString() : String(value ?? "");
+  const text =
+    value instanceof Date ? value.toISOString() : String(value ?? "");
   return /[",\n\r]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 
 export function buildVerificationAuditCsv(rows: VerificationRevocationAudit[]) {
-  const headers = ["Audit ID", "Target Open ID", "Target Email", "Admin Open ID", "Admin Name", "Admin Email", "Reason", "Revoked At UTC"];
+  const headers = [
+    "Audit ID",
+    "Target Open ID",
+    "Target Email",
+    "Admin Open ID",
+    "Admin Name",
+    "Admin Email",
+    "Reason",
+    "Revoked At UTC",
+  ];
   const lines = [headers.join(",")];
-  for (const row of rows) lines.push([row.id, row.targetOpenId, row.targetEmail, row.actorOpenId, row.actorName, row.actorEmail, row.reason, row.createdAt].map(csvCell).join(","));
+  for (const row of rows)
+    lines.push(
+      [
+        row.id,
+        row.targetOpenId,
+        row.targetEmail,
+        row.actorOpenId,
+        row.actorName,
+        row.actorEmail,
+        row.reason,
+        row.createdAt,
+      ]
+        .map(csvCell)
+        .join(",")
+    );
   return `${lines.join("\n")}\n`;
 }

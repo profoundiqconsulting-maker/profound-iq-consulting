@@ -5,7 +5,12 @@ import { z } from "zod";
 import { getDb } from "./db";
 import { courseCatalog } from "../shared/courseCatalog";
 import { userActivityEvents, userNavFavorites } from "../drizzle/schema";
-import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import {
+  adminProcedure,
+  protectedProcedure,
+  publicProcedure,
+  router,
+} from "./_core/trpc";
 import { isQualityControlAdmin } from "@shared/courseAccess";
 
 const MAX_RESULTS_PER_CATEGORY = 5;
@@ -20,30 +25,156 @@ type SearchResult = {
 };
 
 const STATIC_PAGE_INDEX: Array<Omit<SearchResult, "id">> = [
-  { category: "page", title: "Dashboard", description: "Workspace overview and recent activity", href: "/dashboard", icon: "LayoutDashboard" },
-  { category: "page", title: "Executive Reports", description: "Performance insights and exports", href: "/dashboard?tab=reports", icon: "BarChart3" },
-  { category: "page", title: "Team Management", description: "Organization, members, and roles", href: "/admin", icon: "Users" },
-  { category: "page", title: "My Certificates", description: "Issued credentials and downloads", href: "/dashboard/certificates", icon: "Award" },
-  { category: "page", title: "Settings", description: "Account, notifications, and preferences", href: "/settings", icon: "Settings" },
-  { category: "page", title: "Courses", description: "Course catalog and syllabi", href: "/courses", icon: "BookOpen" },
-  { category: "page", title: "Self Assessment", description: "100-question reflection", href: "/assessment", icon: "ClipboardCheck" },
-  { category: "page", title: "CareerPath", description: "Talent-fit pathways for CBE learners", href: "/careerpath", icon: "TrendingUp" },
-  { category: "page", title: "Psychometrics", description: "Structured insight tests", href: "/psychometrics", icon: "Brain" },
-  { category: "page", title: "Resources", description: "Guides and insights", href: "/resources", icon: "Library" },
-  { category: "page", title: "Blog", description: "Editorial articles", href: "/blog", icon: "FileText" },
-  { category: "page", title: "About", description: "Company background", href: "/about", icon: "Building2" },
-  { category: "page", title: "Services", description: "Consulting offerings", href: "/services", icon: "Briefcase" },
-  { category: "page", title: "School solutions", description: "Education programs", href: "/school-solutions", icon: "GraduationCap" },
-  { category: "page", title: "Contact", description: "Talk to our team", href: "/contact", icon: "Mail" },
+  {
+    category: "page",
+    title: "Dashboard",
+    description: "Workspace overview and recent activity",
+    href: "/dashboard",
+    icon: "LayoutDashboard",
+  },
+  {
+    category: "page",
+    title: "Executive Reports",
+    description: "Performance insights and exports",
+    href: "/dashboard?tab=reports",
+    icon: "BarChart3",
+  },
+  {
+    category: "page",
+    title: "Team Management",
+    description: "Organization, members, and roles",
+    href: "/admin",
+    icon: "Users",
+  },
+  {
+    category: "page",
+    title: "My Certificates",
+    description: "Issued credentials and downloads",
+    href: "/dashboard/certificates",
+    icon: "Award",
+  },
+  {
+    category: "page",
+    title: "Settings",
+    description: "Account, notifications, and preferences",
+    href: "/settings",
+    icon: "Settings",
+  },
+  {
+    category: "page",
+    title: "Courses",
+    description: "Course catalog and syllabi",
+    href: "/courses",
+    icon: "BookOpen",
+  },
+  {
+    category: "page",
+    title: "Self Assessment",
+    description: "100-question reflection",
+    href: "/assessment",
+    icon: "ClipboardCheck",
+  },
+  {
+    category: "page",
+    title: "CareerPath",
+    description: "Talent-fit pathways for CBE learners",
+    href: "/careerpath",
+    icon: "TrendingUp",
+  },
+  {
+    category: "page",
+    title: "Psychometrics",
+    description: "Structured insight tests",
+    href: "/psychometrics",
+    icon: "Brain",
+  },
+  {
+    category: "page",
+    title: "Resources",
+    description: "Guides and insights",
+    href: "/resources",
+    icon: "Library",
+  },
+  {
+    category: "page",
+    title: "Blog",
+    description: "Editorial articles",
+    href: "/blog",
+    icon: "FileText",
+  },
+  {
+    category: "page",
+    title: "About",
+    description: "Company background",
+    href: "/about",
+    icon: "Building2",
+  },
+  {
+    category: "page",
+    title: "Services",
+    description: "Consulting offerings",
+    href: "/services",
+    icon: "Briefcase",
+  },
+  {
+    category: "page",
+    title: "School solutions",
+    description: "Education programs",
+    href: "/school-solutions",
+    icon: "GraduationCap",
+  },
+  {
+    category: "page",
+    title: "Contact",
+    description: "Talk to our team",
+    href: "/contact",
+    icon: "Mail",
+  },
 ];
 
 const ADMIN_QUICK_ACTIONS: Array<Omit<SearchResult, "id">> = [
-  { category: "action", title: "New assessment report", description: "Issue a Profound IQ Self Assessment", href: "/admin?action=new-assessment", icon: "FilePlus" },
-  { category: "action", title: "New career path report", description: "Issue a CareerPath report", href: "/admin?action=new-careerpath", icon: "Compass" },
-  { category: "action", title: "New psychometric report", description: "Issue a psychometric report", href: "/admin?action=new-psychometric", icon: "Sparkles" },
-  { category: "action", title: "New contact inquiry", description: "Log an inbound inquiry manually", href: "/admin?action=new-inquiry", icon: "Inbox" },
-  { category: "action", title: "Export enrollment log", description: "Run the weekly enrollment export", href: "/admin?action=export-enrollments", icon: "Download" },
-  { category: "action", title: "Open admin observatory", description: "Jump to the admin dashboard", href: "/admin", icon: "ShieldCheck" },
+  {
+    category: "action",
+    title: "New assessment report",
+    description: "Issue a Profound IQ Self Assessment",
+    href: "/admin?action=new-assessment",
+    icon: "FilePlus",
+  },
+  {
+    category: "action",
+    title: "New career path report",
+    description: "Issue a CareerPath report",
+    href: "/admin?action=new-careerpath",
+    icon: "Compass",
+  },
+  {
+    category: "action",
+    title: "New psychometric report",
+    description: "Issue a psychometric report",
+    href: "/admin?action=new-psychometric",
+    icon: "Sparkles",
+  },
+  {
+    category: "action",
+    title: "New contact inquiry",
+    description: "Log an inbound inquiry manually",
+    href: "/admin?action=new-inquiry",
+    icon: "Inbox",
+  },
+  {
+    category: "action",
+    title: "Export enrollment log",
+    description: "Run the weekly enrollment export",
+    href: "/admin?action=export-enrollments",
+    icon: "Download",
+  },
+  {
+    category: "action",
+    title: "Open admin observatory",
+    description: "Jump to the admin dashboard",
+    href: "/admin",
+    icon: "ShieldCheck",
+  },
 ];
 
 function normalize(value: string): string {
@@ -55,7 +186,10 @@ function matches(value: string, query: string): boolean {
   return normalize(value).includes(query);
 }
 
-function score(item: { title: string; description: string }, query: string): number {
+function score(
+  item: { title: string; description: string },
+  query: string
+): number {
   if (!query) return 0;
   const q = normalize(query);
   const title = normalize(item.title);
@@ -68,21 +202,27 @@ function score(item: { title: string; description: string }, query: string): num
 
 export const searchRouter = router({
   global: publicProcedure
-    .input(z.object({
-      query: z.string().trim().max(120).default(""),
-      limit: z.number().int().min(1).max(25).default(8),
-    }))
+    .input(
+      z.object({
+        query: z.string().trim().max(120).default(""),
+        limit: z.number().int().min(1).max(25).default(8),
+      })
+    )
     .query(async ({ input }) => {
       const query = normalize(input.query);
       const limit = input.limit;
 
-      const pageResults: SearchResult[] = STATIC_PAGE_INDEX
-        .filter((item) => !query || normalize(item.title).includes(query) || normalize(item.description).includes(query))
+      const pageResults: SearchResult[] = STATIC_PAGE_INDEX.filter(
+        item =>
+          !query ||
+          normalize(item.title).includes(query) ||
+          normalize(item.description).includes(query)
+      )
         .slice(0, limit)
         .map((item, index) => ({ ...item, id: `page-${index}-${item.href}` }));
 
       const courseResults: SearchResult[] = courseCatalog
-        .filter((course) => {
+        .filter(course => {
           if (!query) return true;
           const haystack = [
             course.title,
@@ -93,7 +233,7 @@ export const searchRouter = router({
             course.skillLevel,
             ...course.outcomes,
           ]
-            .map((value) => normalize(value))
+            .map(value => normalize(value))
             .join(" \n ");
           return haystack.includes(query);
         })
@@ -107,16 +247,25 @@ export const searchRouter = router({
           icon: "BookOpen",
         }));
 
-      const actionResults: SearchResult[] = ADMIN_QUICK_ACTIONS
-        .filter((item) => !query || normalize(item.title).includes(query) || normalize(item.description).includes(query))
+      const actionResults: SearchResult[] = ADMIN_QUICK_ACTIONS.filter(
+        item =>
+          !query ||
+          normalize(item.title).includes(query) ||
+          normalize(item.description).includes(query)
+      )
         .slice(0, MAX_RESULTS_PER_CATEGORY)
-        .map((item, index) => ({ ...item, id: `action-${index}-${item.href}` }));
+        .map((item, index) => ({
+          ...item,
+          id: `action-${index}-${item.href}`,
+        }));
 
       const certificateResults: SearchResult[] = [];
       try {
         const db = await getDb();
         if (db && query) {
-          const { courseCertificates, users } = await import("../drizzle/schema");
+          const { courseCertificates, users } = await import(
+            "../drizzle/schema"
+          );
           const rows = await db
             .select({
               certificateNumber: courseCertificates.certificateNumber,
@@ -150,21 +299,32 @@ export const searchRouter = router({
         console.warn("[search] certificate lookup failed:", error);
       }
 
-      const allResults = [...pageResults, ...courseResults, ...certificateResults, ...actionResults]
-        .map((item) => ({ item, s: score(item, query) }))
+      const allResults = [
+        ...pageResults,
+        ...courseResults,
+        ...certificateResults,
+        ...actionResults,
+      ]
+        .map(item => ({ item, s: score(item, query) }))
         .sort((a, b) => b.s - a.s)
         .slice(0, limit)
-        .map((entry) => entry.item);
+        .map(entry => entry.item);
 
       return {
         query: input.query,
         results: allResults,
-        totalMatches: pageResults.length + courseResults.length + certificateResults.length + actionResults.length,
+        totalMatches:
+          pageResults.length +
+          courseResults.length +
+          certificateResults.length +
+          actionResults.length,
       };
     }),
 
   recent: protectedProcedure
-    .input(z.object({ limit: z.number().int().min(1).max(15).default(6) }).optional())
+    .input(
+      z.object({ limit: z.number().int().min(1).max(15).default(6) }).optional()
+    )
     .query(async ({ ctx, input }) => {
       const limit = input?.limit ?? 6;
       try {
@@ -179,7 +339,7 @@ export const searchRouter = router({
           .orderBy(desc(userActivityEvents.createdAt))
           .limit(limit);
         if (rows.length > 0) {
-          return rows.map((row) => ({
+          return rows.map(row => ({
             id: String(row.id),
             type: row.activityType,
             title: row.title,
@@ -196,13 +356,15 @@ export const searchRouter = router({
     }),
 
   logActivity: protectedProcedure
-    .input(z.object({
-      activityType: z.string().trim().min(2).max(32),
-      title: z.string().trim().min(2).max(200),
-      description: z.string().trim().max(500).optional(),
-      href: z.string().trim().max(255).optional(),
-      metadata: z.record(z.string(), z.unknown()).optional(),
-    }))
+    .input(
+      z.object({
+        activityType: z.string().trim().min(2).max(32),
+        title: z.string().trim().min(2).max(200),
+        description: z.string().trim().max(500).optional(),
+        href: z.string().trim().max(255).optional(),
+        metadata: z.record(z.string(), z.unknown()).optional(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       try {
         const db = await getDb();
@@ -225,14 +387,21 @@ export const searchRouter = router({
   favorites: protectedProcedure.query(async ({ ctx }) => {
     try {
       const db = await getDb();
-      if (!db) return { favorites: [] as Array<{ href: string; label: string; sortOrder: number }> };
+      if (!db)
+        return {
+          favorites: [] as Array<{
+            href: string;
+            label: string;
+            sortOrder: number;
+          }>,
+        };
       const rows = await db
         .select()
         .from(userNavFavorites)
         .where(eq(userNavFavorites.userOpenId, ctx.user.openId))
         .orderBy(userNavFavorites.sortOrder);
       return {
-        favorites: rows.map((row) => ({
+        favorites: rows.map(row => ({
           href: row.navHref,
           label: row.navLabel,
           sortOrder: row.sortOrder,
@@ -240,15 +409,23 @@ export const searchRouter = router({
       };
     } catch (error) {
       console.warn("[search] favorites lookup failed:", error);
-      return { favorites: [] as Array<{ href: string; label: string; sortOrder: number }> };
+      return {
+        favorites: [] as Array<{
+          href: string;
+          label: string;
+          sortOrder: number;
+        }>,
+      };
     }
   }),
 
   addFavorite: protectedProcedure
-    .input(z.object({
-      href: z.string().trim().min(1).max(255),
-      label: z.string().trim().min(1).max(120),
-    }))
+    .input(
+      z.object({
+        href: z.string().trim().min(1).max(255),
+        label: z.string().trim().min(1).max(120),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       try {
         const db = await getDb();
@@ -279,10 +456,12 @@ export const searchRouter = router({
         if (!db) return { removed: false as const };
         await db
           .delete(userNavFavorites)
-          .where(and(
-            eq(userNavFavorites.userOpenId, ctx.user.openId),
-            eq(userNavFavorites.navHref, input.href)
-          ));
+          .where(
+            and(
+              eq(userNavFavorites.userOpenId, ctx.user.openId),
+              eq(userNavFavorites.navHref, input.href)
+            )
+          );
         return { removed: true as const };
       } catch (error) {
         console.warn("[search] favorite remove failed:", error);
@@ -291,7 +470,10 @@ export const searchRouter = router({
     }),
 
   quickActions: adminProcedure.query(async ({ ctx }) => {
-    const actions = ADMIN_QUICK_ACTIONS.map((item, index) => ({ ...item, id: `action-${index}-${item.href}` }));
+    const actions = ADMIN_QUICK_ACTIONS.map((item, index) => ({
+      ...item,
+      id: `action-${index}-${item.href}`,
+    }));
     return {
       isAdmin: isQualityControlAdmin(ctx.user),
       actions,
@@ -303,12 +485,24 @@ async function deriveRecentFromHistory(userOpenId: string, limit: number) {
   try {
     const db = await getDb();
     if (!db) return [];
-    const { courseCertificates, courseEnrollments, assessmentAttempts, users } = await import("../drizzle/schema");
-    const userRow = await db.select({ email: users.email }).from(users).where(eq(users.openId, userOpenId)).limit(1);
+    const { courseCertificates, courseEnrollments, assessmentAttempts, users } =
+      await import("../drizzle/schema");
+    const userRow = await db
+      .select({ email: users.email })
+      .from(users)
+      .where(eq(users.openId, userOpenId))
+      .limit(1);
     const userEmail = userRow[0]?.email;
     if (!userEmail) return [];
 
-    const out: Array<{ id: string; type: string; title: string; description: string; href: string; createdAt: Date }> = [];
+    const out: Array<{
+      id: string;
+      type: string;
+      title: string;
+      description: string;
+      href: string;
+      createdAt: Date;
+    }> = [];
 
     const certs = await db
       .select()

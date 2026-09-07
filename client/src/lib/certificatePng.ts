@@ -1,4 +1,7 @@
-export async function certificatePngBlob(svg: string, scale = 2): Promise<Blob> {
+export async function certificatePngBlob(
+  svg: string,
+  scale = 2
+): Promise<Blob> {
   const svgBlob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
   const objectUrl = URL.createObjectURL(svgBlob);
   try {
@@ -7,7 +10,8 @@ export async function certificatePngBlob(svg: string, scale = 2): Promise<Blob> 
     image.src = objectUrl;
     await new Promise<void>((resolve, reject) => {
       image.onload = () => resolve();
-      image.onerror = () => reject(new Error("The certificate preview could not be rasterized."));
+      image.onerror = () =>
+        reject(new Error("The certificate preview could not be rasterized."));
     });
     const canvas = document.createElement("canvas");
     canvas.width = 2000 * scale;
@@ -19,7 +23,9 @@ export async function certificatePngBlob(svg: string, scale = 2): Promise<Blob> 
     context.fillStyle = "#ffffff";
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
-    const pngBlob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png", 1));
+    const pngBlob = await new Promise<Blob | null>(resolve =>
+      canvas.toBlob(resolve, "image/png", 1)
+    );
     if (!pngBlob) throw new Error("The certificate PNG could not be created.");
     return pngBlob;
   } finally {
@@ -27,7 +33,11 @@ export async function certificatePngBlob(svg: string, scale = 2): Promise<Blob> 
   }
 }
 
-export async function downloadCertificatePng(svg: string, filename: string, scale = 2) {
+export async function downloadCertificatePng(
+  svg: string,
+  filename: string,
+  scale = 2
+) {
   const pngBlob = await certificatePngBlob(svg, scale);
   const downloadUrl = URL.createObjectURL(pngBlob);
   const link = document.createElement("a");
