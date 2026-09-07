@@ -275,7 +275,7 @@ describe("CareerPath bookmarkable steps", () => {
     expect(careerPathSource).toMatch(/CareerPathStepIndicator/);
     expect(careerPathSource).toMatch(/href="\/careerpath\/assessment"/);
     expect(careerPathSource).toMatch(/\/careerpath\/reports/);
-    expect(careerPathSource).toMatch(/aria-label="CareerPath steps"/);
+    expect(careerPathSource).toMatch(/aria-label="CareerPath progress"/);
     expect(careerPathSource).toMatch(/Payment/);
     expect(careerPathSource).toMatch(/overallCompletion/);
   });

@@ -59,6 +59,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { ReflectionPromptCard } from "@/components/ReflectionPromptCard";
 import { ReportSectionTabs } from "@/components/ReportSectionTabs";
+import { LikertScale } from "@/components/LikertScale";
 import {
   buildReflectionExportCsv,
   type ReflectionStatus,
@@ -82,7 +83,6 @@ function getPendingReportReference() {
   );
 }
 
-const scale = [1, 2, 3, 4, 5];
 const QUESTIONS_PER_CONTENT_PAGE = 5;
 
 function AssessmentFlowPagination({
@@ -110,18 +110,18 @@ function AssessmentFlowPagination({
   return (
     <nav
       aria-label="Assessment progress"
-      className="mb-8 border-y border-[#16243d]/10 py-4 sm:mb-10"
+      className="sticky top-0 z-40 border-b border-[#16243d]/10 bg-[#f7f3e8]/95 py-3 backdrop-blur sm:py-4"
     >
       <ol className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4">
         {steps.map((step, index) => (
           <li key={step.id} className="flex min-w-0 items-center gap-3">
             <span
-              className={`grid h-7 w-7 shrink-0 place-items-center border text-[10px] font-black ${index === currentIndex ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : index < currentIndex ? "border-[#a27e2e] text-[#a27e2e]" : "border-[#16243d]/20 text-[#657084]"}`}
+              className={`grid h-7 w-7 shrink-0 place-items-center border text-[10px] font-black transition-all duration-300 ${index === currentIndex ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d] scale-110" : index < currentIndex ? "border-[#a27e2e] text-[#a27e2e]" : "border-[#16243d]/20 text-[#657084]"}`}
             >
-              {index + 1}
+              {index < currentIndex ? "✓" : index + 1}
             </span>
             <span
-              className={`truncate text-[10px] font-black uppercase tracking-[.1em] ${index === currentIndex ? "text-[#16243d]" : index < currentIndex ? "text-[#7d5e1e]" : "text-[#657084]"}`}
+              className={`truncate text-[10px] font-black uppercase tracking-[.1em] transition-colors duration-300 ${index === currentIndex ? "text-[#16243d]" : index < currentIndex ? "text-[#7d5e1e]" : "text-[#657084]"}`}
             >
               {step.label}
             </span>
@@ -2114,39 +2114,14 @@ export default function Assessment() {
               className={`mt-10 space-y-4 outline-none ${mobileReviewMode ? "mobile-review-mode sm:rounded-none sm:border-0" : ""}`}
             >
               {currentQuestions.map((question, index) => (
-                <div
+                <LikertScale
                   key={question.id}
-                  className="border border-[#16243d]/12 bg-white/55 p-5 transition-colors hover:border-[#c9a34e]/50 sm:p-7"
-                >
-                  <div className="flex gap-4">
-                    <span className="eyebrow pt-1 text-[#a27e2e]">
-                      {String(currentModuleStart + index + 1).padStart(2, "0")}
-                    </span>
-                    <div className="w-full">
-                      <p className="text-lg font-semibold leading-7">
-                        {question.prompt}
-                      </p>
-                      <div className="mt-5 grid grid-cols-5 gap-2 sm:max-w-md">
-                        {scale.map(value => (
-                          <button
-                            key={value}
-                            type="button"
-                            aria-label={`Rate ${value} out of 5`}
-                            aria-pressed={answers[question.id] === value}
-                            onClick={() => setAnswer(question.id, value)}
-                            className={`border px-2 py-3 text-sm font-bold transition-colors ${answers[question.id] === value ? "border-[#c9a34e] bg-[#c9a34e] text-[#101d35]" : "border-[#16243d]/20 hover:border-[#c9a34e]"}`}
-                          >
-                            {value}
-                          </button>
-                        ))}
-                      </div>
-                      <div className="mt-2 flex max-w-md justify-between text-[10px] font-bold uppercase tracking-[.12em] text-[#657084]">
-                        <span>Not like me</span>
-                        <span>Very like me</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  id={question.id}
+                  question={question.prompt}
+                  index={currentModuleStart + index}
+                  value={answers[question.id]}
+                  onChange={(value) => setAnswer(question.id, value)}
+                />
               ))}
             </div>
             {error && (

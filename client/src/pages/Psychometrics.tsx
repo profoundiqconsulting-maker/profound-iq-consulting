@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
+import { LikertScale } from "@/components/LikertScale";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { getPsychometricCourseRecommendations } from "@shared/psychometricRecommendations";
@@ -253,6 +254,29 @@ export default function Psychometrics() {
   return (
     <main className="min-h-screen bg-[#f7f3e8] px-4 py-8 text-[#16243d] sm:px-6">
       <div className="container max-w-5xl">
+        <nav aria-label="Psychometrics progress" className="sticky top-0 z-40 border-b border-[#16243d]/10 bg-[#f7f3e8]/95 py-3 backdrop-blur sm:py-4">
+          <ol className="flex items-center gap-2">
+            <li className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${!slug ? "text-[#16243d]" : "text-[#a27e2e]"}`}>
+              <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[10px] ${!slug ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : "border-[#a27e2e] text-[#a27e2e]"}`}>1</span>
+              <span className="hidden sm:inline">Profiles</span>
+            </li>
+            <span className="h-px flex-1 bg-[#16243d]/10" aria-hidden="true" />
+            <li className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${slug && !report ? "text-[#16243d]" : "text-[#657084]"}`}>
+              <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[10px] ${slug && !report ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : "border-[#16243d]/20"}`}>2</span>
+              <span className="hidden sm:inline">Assessment</span>
+            </li>
+            <span className="h-px flex-1 bg-[#16243d]/10" aria-hidden="true" />
+            <li className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${index === questions.length && !report ? "text-[#16243d]" : "text-[#657084]"}`}>
+              <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[10px] ${index === questions.length && !report ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : "border-[#16243d]/20"}`}>3</span>
+              <span className="hidden sm:inline">Checkout</span>
+            </li>
+            <span className="h-px flex-1 bg-[#16243d]/10" aria-hidden="true" />
+            <li className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${report ? "text-[#16243d]" : "text-[#657084]"}`}>
+              <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[10px] ${report ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : "border-[#16243d]/20"}`}>4</span>
+              <span className="hidden sm:inline">Profile</span>
+            </li>
+          </ol>
+        </nav>
         <div className="flex items-center justify-between gap-4">
           <Link href="/psychometrics">
             <Button variant="ghost">
@@ -275,14 +299,18 @@ export default function Psychometrics() {
               <div className="mt-7">
                 <p className="eyebrow text-[#a27e2e]">{current?.domainLabel}</p>
                 <h2 className="mt-3 text-xl font-semibold leading-8">{current?.prompt}</h2>
-                <div className="mt-5 grid gap-3">
-                  {current?.options.map((option: string, optionIndex: number) => (
-                    <label key={option} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${selected === optionIndex + 1 ? "border-[#c9a34e] bg-[#fcf5df]" : "border-[#16243d]/10 bg-white"}`}>
-                      <input type="radio" name={current.id} checked={selected === optionIndex + 1} onChange={() => choose(optionIndex + 1)} className="mt-1" />
-                      <span>{option}</span>
-                    </label>
-                  ))}
-                </div>
+                {current && (
+                  <LikertScale
+                    id={current.id}
+                    question={current.prompt}
+                    value={selected}
+                    onChange={choose}
+                    options={current.options.map((option, optionIndex) => ({
+                      value: optionIndex + 1,
+                      label: option,
+                    }))}
+                  />
+                )}
               </div>
               <div className="mt-6 flex flex-wrap justify-between gap-3">
                 <Button variant="outline" onClick={() => setIndex((value) => Math.max(0, value - 1))} disabled={index === 0}>

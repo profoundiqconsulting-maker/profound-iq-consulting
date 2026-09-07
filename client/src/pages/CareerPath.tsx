@@ -5,12 +5,13 @@
    4. Reports: post-purchase report generation with motivational prompts
 */
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, CheckCircle2, CreditCard, Download, Loader2, Mail, MessageCircle, Share2, ShieldCheck, Sparkles, Sun } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, CreditCard, Download, Loader2, Mail, MessageCircle, Share2, ShieldCheck, Sparkles, Sun } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { TransformationNav } from "@/components/TransformationNav";
 import { ReportSectionTabs } from "@/components/ReportSectionTabs";
+import { LikertScale } from "@/components/LikertScale";
 import { toast } from "sonner";
 import {
   buildCareerPathReport,
@@ -27,38 +28,48 @@ import PaystackInlineModal, { type PaystackInlineProduct } from "@/components/Pa
 
 type Page = "introduction" | "assessment" | "checkout" | "reports";
 
-const scale = ["1", "2", "3", "4", "5"];
-
 function CareerPathStepIndicator({ current }: { current: Page }) {
-  const steps: Array<{ id: Page; label: string }> = [
-    { id: "introduction", label: "Introduction" },
-    { id: "assessment", label: "Assessment" },
-    { id: "checkout", label: "Checkout" },
-    { id: "reports", label: "Reports" },
+  const steps: Array<{ id: Page; label: string; description: string }> = [
+    { id: "introduction", label: "Introduction", description: "Overview & readiness" },
+    { id: "assessment", label: "Assessment", description: "180 Likert items" },
+    { id: "checkout", label: "Checkout", description: "Paystack verification" },
+    { id: "reports", label: "Reports", description: "Pathways, certificate & share" },
   ];
   const currentIndex = steps.findIndex(step => step.id === current);
   return (
-    <nav aria-label="CareerPath steps" className="border-b border-[#16243d]/10 bg-[#f7f3e8] px-5 py-3 sm:px-8">
-      <ol className="mx-auto flex max-w-6xl items-center justify-between gap-2">
-        {steps.map((step, index) => (
-          <li key={step.id} className="flex min-w-0 flex-1 items-center gap-2">
-            <span className={`flex min-w-0 items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${current === step.id ? "text-[#16243d]" : index < currentIndex ? "text-[#a27e2e]" : "text-[#657084]"}`}>
-              <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[10px] ${current === step.id ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : index < currentIndex ? "border-[#a27e2e] text-[#a27e2e]" : "border-[#16243d]/20"}`}>
-                {index + 1}
+    <nav aria-label="CareerPath progress" className="sticky top-0 z-40 border-b border-[#16243d]/10 bg-[#f7f3e8]/95 px-5 py-3 sm:px-8 backdrop-blur">
+      <ol className="mx-auto flex max-w-6xl items-center gap-2">
+        {steps.map((step, index) => {
+          const isActive = current === step.id;
+          const isComplete = index < currentIndex;
+          return (
+            <li key={step.id} className="flex min-w-0 flex-1 items-center gap-2">
+              <span className={`flex min-w-0 items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${isActive ? "text-[#16243d]" : isComplete ? "text-[#a27e2e]" : "text-[#657084]"}`}>
+                <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[10px] transition-all duration-300 ${isActive ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243] scale-110" : isComplete ? "border-[#a27e2e] bg-[#a27e2e] text-white" : "border-[#16243d]/20"}`}>
+                  {isComplete ? "✓" : index + 1}
+                </span>
+                <span className="truncate">
+                  {step.label}
+                  <span className="hidden text-[9px] font-semibold normal-case tracking-normal text-[#657084] sm:inline"> — {step.description}</span>
+                </span>
               </span>
-              <span className="truncate">{step.label}</span>
-            </span>
-            {index < steps.length - 1 && <span className="h-px flex-1 bg-[#16243d]/10" aria-hidden="true" />}
-          </li>
-        ))}
+              {index < steps.length - 1 && (
+                <span className={`h-px flex-1 transition-colors duration-500 ${isComplete ? "bg-[#a27e2e]" : "bg-[#16243d]/10"}`} aria-hidden="true" />
+              )}
+            </li>
+          );
+        })}
       </ol>
     </nav>
   );
 }
 
-function IntroPage({ onStart }: { onStart: () => void }) {
+function IntroPage({ onStart, onBack }: { onStart: (data: { name: string; email: string; consent: boolean }) => void; onBack?: () => void }) {
   const { data, isLoading } = trpc.careerPath.questions.useQuery();
   const price = data?.priceKes ?? 399;
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [consent, setConsent] = useState(false);
 
   if (isLoading) {
     return (
@@ -70,53 +81,72 @@ function IntroPage({ onStart }: { onStart: () => void }) {
     );
   }
 
+  const canStart = name.trim().length >= 2 && email.trim().length > 0 && email.includes("@") && consent;
+
   return (
     <main className="container py-10 sm:py-16">
-        <div className="mx-auto max-w-3xl">
-          <p className="eyebrow text-[#a27e2e]">Discover / explore / choose / grow</p>
-          <h1 className="display mt-4 text-5xl leading-[.95] tracking-[-.04em] sm:text-7xl">
-            Career pathway & <em className="font-normal text-[#a27e2e]">talent fit</em>.
-          </h1>
-          <p className="mt-6 max-w-2xl text-base leading-7 text-[#4a566a]">
-            A developmental assessment for Competency Based Education learners. Understand your interests, abilities, learning preferences, values, talents, and aspirations before choosing your next direction.
-          </p>
-          <div className="mt-7 grid gap-3 sm:grid-cols-3">
-            <div className="border-l-2 border-[#c9a34e] px-4">
-              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">180 items</p>
-              <p className="mt-1 text-sm text-[#657084]">Across nine evidence areas</p>
-            </div>
-            <div className="border-l-2 border-[#c9a34e] px-4">
-              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">35–45 minutes</p>
-              <p className="mt-1 text-sm text-[#657084]">Complete in a quiet setting</p>
-            </div>
-            <div className="border-l-2 border-[#c9a34e] px-4">
-              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">KES {price}</p>
-              <p className="mt-1 text-sm text-[#657084]">Secure Paystack checkout</p>
-            </div>
+      <div className="mx-auto max-w-3xl">
+        <p className="eyebrow text-[#a27e2e]">Step 1 of 4</p>
+        <h1 className="display mt-4 text-5xl leading-[.95] tracking-[-.04em] sm:text-7xl">
+          Career pathway & <em className="font-normal text-[#a27e2e]">talent fit</em>.
+        </h1>
+        <p className="mt-6 max-w-2xl text-base leading-7 text-[#4a566a]">
+          A developmental assessment for Competency Based Education learners. Understand your interests, abilities, learning preferences, values, talents, and aspirations before choosing your next direction.
+        </p>
+        <div className="mt-7 grid gap-3 sm:grid-cols-3">
+          <div className="border-l-2 border-[#c9a34e] px-4">
+            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">180 items</p>
+            <p className="mt-1 text-sm text-[#657084]">Across nine evidence areas</p>
           </div>
-          <div className="mt-10 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-[#c1cad7] sm:p-7">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e]">Ready to discover your pathway?</p>
-                <p className="mt-1 text-sm">This assessment is sequential. Complete all modules in order to unlock your report.</p>
-              </div>
-              <Button type="button" onClick={onStart} className="shrink-0 bg-[#c9a34e] text-[#16243d] hover:bg-[#e1bd5b]">
-                Begin assessment <ArrowRight size={15} />
-              </Button>
-            </div>
+          <div className="border-l-2 border-[#c9a34e] px-4">
+            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">35–45 minutes</p>
+            <p className="mt-1 text-sm text-[#657084]">Complete in a quiet setting</p>
+          </div>
+          <div className="border-l-2 border-[#c9a34e] px-4">
+            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">KES {price}</p>
+            <p className="mt-1 text-sm text-[#657084]">Secure Paystack checkout</p>
           </div>
         </div>
-      </main>
-    );
-  }
 
-function AssessmentPage({ onComplete }: { onComplete: (data: { name: string; email: string; answers: Array<{ questionId: string; value: number }> }) => void }) {
+        <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
+          <p className="eyebrow text-[#a27e2e]">Participant details</p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <label className="text-xs font-bold">
+              Full name
+              <input value={name} onChange={e => setName(e.target.value)} required minLength={2} className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]" placeholder="Your name" />
+            </label>
+            <label className="text-xs font-bold">
+              Email for your report
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]" placeholder="you@example.com" />
+            </label>
+          </div>
+          <label className="mt-5 flex items-start gap-3 text-xs leading-5 text-[#657084]">
+            <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} required className="mt-1 accent-[#a27e2e]" />
+            I consent to Profound IQ processing my responses to generate this educational pathway report and sending the report to the email above.
+          </label>
+          <div className="mt-6 flex items-center justify-between gap-3">
+            {onBack && (
+              <Button type="button" variant="outline" onClick={onBack} className="border-[#16243d]/25">
+                <ArrowLeft size={15} className="rotate-180" /> Back
+              </Button>
+            )}
+            <Button type="button" onClick={() => onStart({ name: name.trim(), email: email.trim(), consent })} disabled={!canStart} className="bg-[#16243d] text-[#f7f3e8]">
+              Begin assessment <ArrowRight size={15} />
+            </Button>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function AssessmentPage({ onComplete, onBack, name, email, consent, answers, currentModule, onNameChange, onEmailChange, onConsentChange, onAnswersChange, onCurrentModuleChange }: { onComplete: (data: { name: string; email: string; answers: Array<{ questionId: string; value: number }> }) => void; onBack?: () => void; name: string; email: string; consent: boolean; answers: Record<string, number>; currentModule: number; onNameChange?: (name: string) => void; onEmailChange?: (email: string) => void; onConsentChange?: (consent: boolean) => void; onAnswersChange?: (value: Record<string, number> | ((prev: Record<string, number>) => Record<string, number>)) => void; onCurrentModuleChange?: (module: number | ((prev: number) => number)) => void }) {
   const { data, isLoading } = trpc.careerPath.questions.useQuery();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [consent, setConsent] = useState(false);
-  const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [currentModule, setCurrentModule] = useState(0);
+  const handleNameChange = (value: string) => onNameChange?.(value);
+  const handleEmailChange = (value: string) => onEmailChange?.(value);
+  const handleConsentChange = (value: boolean) => onConsentChange?.(value);
+  const handleAnswersChange = (value: Record<string, number> | ((prev: Record<string, number>) => Record<string, number>)) => onAnswersChange?.(value);
+  const handleCurrentModuleChange = (module: number | ((prev: number) => number)) => onCurrentModuleChange?.(module);
 
   const grouped = useMemo(() => {
     if (!data?.questions) return [];
@@ -163,7 +193,7 @@ function AssessmentPage({ onComplete }: { onComplete: (data: { name: string; ema
       });
       return;
     }
-    setCurrentModule(m => m + 1);
+    handleCurrentModuleChange(m => m + 1);
   };
 
   if (isLoading) {
@@ -190,22 +220,27 @@ function AssessmentPage({ onComplete }: { onComplete: (data: { name: string; ema
         </div>
 
         <section className="mx-auto mt-10 max-w-3xl border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
-          <p className="eyebrow text-[#a27e2e]">Participant details</p>
+          <p className="eyebrow text-[#a27e2e]">Step 2 of 4 — Participant details</p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <label className="text-xs font-bold">
               Full name
-              <input value={name} onChange={e => setName(e.target.value)} required minLength={2} className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]" placeholder="Your name" />
+              <input value={name} onChange={e => handleNameChange(e.target.value)} required minLength={2} className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]" placeholder="Your name" />
             </label>
             <label className="text-xs font-bold">
               Email for your report
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]" placeholder="you@example.com" />
+              <input type="email" value={email} onChange={e => handleEmailChange(e.target.value)} required className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]" placeholder="you@example.com" />
             </label>
           </div>
           <label className="mt-5 flex items-start gap-3 text-xs leading-5 text-[#657084]">
-            <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} required className="mt-1 accent-[#a27e2e]" />
+            <input type="checkbox" checked={consent} onChange={e => handleConsentChange(e.target.checked)} required className="mt-1 accent-[#a27e2e]" />
             I consent to Profound IQ processing my responses to generate this educational pathway report and sending the report to the email above.
           </label>
-          <div className="mt-6">
+          <div className="mt-6 flex items-center justify-between gap-3">
+            {onBack && (
+              <Button type="button" variant="outline" onClick={onBack} className="border-[#16243d]/25">
+                <ArrowLeft size={15} className="rotate-180" /> Back
+              </Button>
+            )}
             <Button type="button" onClick={handleNext} disabled={!canProceed} className="bg-[#16243d] text-[#f7f3e8]">
               Begin assessment <ArrowRight size={15} />
             </Button>
@@ -220,9 +255,9 @@ function AssessmentPage({ onComplete }: { onComplete: (data: { name: string; ema
       data={data}
       grouped={grouped}
       currentModule={currentModule}
-      setCurrentModule={setCurrentModule}
+      setCurrentModule={handleCurrentModuleChange}
       answers={answers}
-      setAnswers={setAnswers}
+      setAnswers={handleAnswersChange as React.Dispatch<React.SetStateAction<Record<string, number>>>}
       currentGroup={currentGroup}
       currentGroupAnswered={currentGroupAnswered}
       currentGroupComplete={currentGroupComplete}
@@ -235,23 +270,15 @@ function AssessmentPage({ onComplete }: { onComplete: (data: { name: string; ema
   );
 }
 
-function LikertQuestion({ question, value, onChange }: { question: { id: string; prompt: string }; value: number | undefined; onChange: (value: number) => void }) {
+function LikertQuestion({ question, value, onChange, index }: { question: { id: string; prompt: string }; value: number | undefined; onChange: (value: number) => void; index?: number }) {
   return (
-    <div className="border border-[#16243d]/12 bg-white/55 p-5 transition-colors hover:border-[#a27e2e]/50">
-      <p className="text-sm leading-6">
-        <span className="mr-2 text-xs font-black text-[#a27e2e]">{question.id.split("-").pop()}</span>
-        {question.prompt}
-      </p>
-      <div className="mt-3 grid grid-cols-5 gap-2">
-        {scale.map(option => (
-          <label key={option} className={`flex cursor-pointer flex-col items-center gap-1 border px-2 py-2 text-xs transition ${value === Number(option) ? "border-[#a27e2e] bg-[#f4e5bd] text-[#16243d]" : "border-[#16243d]/15 text-[#657084] hover:border-[#a27e2e]/60"}`}>
-            <input type="radio" name={question.id} value={option} checked={value === Number(option)} onChange={() => onChange(Number(option))} className="sr-only" />
-            {option}
-            <span className="text-[9px]">{option === "1" ? "Low" : option === "5" ? "High" : ""}</span>
-          </label>
-        ))}
-      </div>
-    </div>
+    <LikertScale
+      id={question.id}
+      question={question.prompt}
+      index={index}
+      value={value}
+      onChange={onChange}
+    />
   );
 }
 
@@ -271,13 +298,13 @@ function AssessmentPlayer({
   overallCompletion,
   onNext,
 }: {
-  data: { questions: Array<{ id: string; module: string }> } | undefined;
-  grouped: Array<{ name: string; questions: Array<{ id: string; module: string }> }>;
+  data: { questions: Array<{ id: string; module: string; prompt: string }> } | undefined;
+  grouped: Array<{ name: string; questions: Array<{ id: string; module: string; prompt: string }> }>;
   currentModule: number;
   setCurrentModule: (value: number | ((prev: number) => number)) => void;
   answers: Record<string, number>;
   setAnswers: React.Dispatch<React.SetStateAction<Record<string, number>>>;
-  currentGroup: { name: string; questions: Array<{ id: string; module: string }> } | undefined;
+  currentGroup: { name: string; questions: Array<{ id: string; module: string; prompt: string }> } | undefined;
   currentGroupAnswered: number;
   currentGroupComplete: boolean;
   isLastModule: boolean;
@@ -289,12 +316,12 @@ function AssessmentPlayer({
   return (
     <main className="container py-10 sm:py-16">
       <div className="mx-auto max-w-3xl">
-        <p className="eyebrow text-[#a27e2e]">Assessment in progress</p>
+        <p className="eyebrow text-[#a27e2e]">Step 2 of 4 — Assessment in progress</p>
         <h1 className="display mt-4 text-5xl leading-[.95] tracking-[-.04em] sm:text-7xl">
           Guided pathway <em className="font-normal text-[#a27e2e]">assessment</em>.
         </h1>
         <p className="mt-6 max-w-2xl text-base leading-7 text-[#4a566a]">
-          Work through each module in order. There are no right or wrong answers�choose the response that best reflects you today.
+          Work through each module in order. There are no right or wrong answers—choose the response that best reflects you today.
         </p>
       </div>
 
@@ -326,20 +353,20 @@ function AssessmentPlayer({
             <p className="mt-4 text-sm leading-6 text-[#657084]">Choose the response that best reflects you today.</p>
             <div className="mt-6 space-y-4">
               {currentGroup.questions.map(question => (
-                <LikertQuestion key={question.id} question={question} value={answers[question.id]} onChange={value => setAnswers(prev => ({ ...prev, [question.id]: value }))} />
+                <LikertQuestion key={question.id} question={question} value={answers[question.id]} onChange={value => handleAnswersChange((prev: Record<string, number>) => ({ ...prev, [question.id]: value }))} index={Number(question.id.split("-").pop()) - 1} />
               ))}
             </div>
           </section>
         )}
 
         <div className="mt-6 flex items-center justify-between gap-3">
-          <Button type="button" variant="outline" onClick={() => setCurrentModule(m => Math.max(0, m - 1))} disabled={currentModule === 0} className="border-[#16243d]/25">
+          <Button type="button" variant="outline" onClick={() => handleCurrentModuleChange(m => Math.max(0, m - 1))} disabled={currentModule === 0} className="border-[#16243d]/25">
             <ArrowRight size={15} className="rotate-180" /> Previous
           </Button>
           <span className="text-xs text-[#657084]">
-            {currentGroupComplete ? "Module complete" : `${currentGroupAnswered} of {currentGroup.questions.length} answered`}
+            {currentGroupComplete ? "Module complete" : `${currentGroupAnswered} of ${currentGroup?.questions.length ?? 0} answered`}
           </span>
-          <Button type="button" onClick={onNext} disabled={!currentGroupComplete || (!isLastModule && !allComplete)} className="bg-[#16243d] text-[#f7f3e8]">
+          <Button type="button" onClick={onNext} disabled={!currentGroupComplete} className="bg-[#16243d] text-[#f7f3e8]">
             {isLastModule ? "Complete & Checkout" : "Next module"} <ArrowRight size={15} />
           </Button>
         </div>
@@ -348,13 +375,11 @@ function AssessmentPlayer({
   );
 }
 
-function CheckoutPage({ reference, onVerified }: { reference: string; onVerified: (report: CareerPathReport) => void }) {
-function CheckoutPage({ reference, onVerified }: { reference: string; onVerified: (report: CareerPathReport) => void }) {
+function CheckoutPage({ reference, product, onVerified, onBack }: { reference: string; product?: PaystackInlineProduct | null; onVerified: (report: CareerPathReport) => void; onBack?: () => void }) {
   const [paymentState, setPaymentState] = useState<PaystackCheckoutState>("idle");
   const [inlineModalOpen, setInlineModalOpen] = useState(false);
-  const [inlineProduct, setInlineProduct] = useState<PaystackInlineProduct | null>(null);
+  const [inlineProduct, setInlineProduct] = useState<PaystackInlineProduct | null>(product ?? null);
   const [verificationError, setVerificationError] = useState("");
-  const initializePayment = trpc.careerPath.initializeInlinePayment.useMutation();
   const verifyPayment = trpc.careerPath.verifyPayment.useMutation({
     onSuccess: result => {
       setPaymentState(paystackStateAfter("success"));
@@ -369,42 +394,40 @@ function CheckoutPage({ reference, onVerified }: { reference: string; onVerified
   });
 
   useEffect(() => {
-    if (!reference) return;
-    if (paymentState === "idle") {
-      setPaymentState(paystackStateAfter("verify"));
-      verifyPayment.mutate({ reference });
-    }
-  }, [reference]);
-
-  const beginPayment = async () => {
-    try {
-      setPaymentState(paystackStateAfter("begin"));
-      const result = await initializePayment.mutateAsync({
-        name: "",
-        email: "",
-        answers: [],
-        consent: true,
-      });
-      setPaymentState(paystackStateAfter("ready"));
-      setInlineProduct({
-        accessCode: result.accessCode,
-        reference: result.reference,
-        amountKes: result.amountKes,
-        productName: result.productName,
-        productType: "careerpath",
-      });
+    if (product && !inlineModalOpen && paymentState === "idle") {
+      setInlineProduct(product);
       setInlineModalOpen(true);
-    } catch (error) {
-      setPaymentState(paystackStateAfter("failure"));
-      toast.error(error instanceof Error ? error.message : "Unable to start Paystack checkout.");
     }
+  }, [product, inlineModalOpen, paymentState]);
+
+  const handleModalSuccess = (paidReference: string) => {
+    setInlineModalOpen(false);
+    setInlineProduct(null);
+    setPaymentState("verifying");
+    verifyPayment.mutate({ reference: paidReference }, {
+      onSuccess: (result) => {
+        onVerified(result.report);
+        setPaymentState("paid");
+        toast.success("Payment verified");
+      },
+      onError: (error) => {
+        setPaymentState("error");
+        setVerificationError(error.message);
+        toast.error(error.message);
+      },
+    });
   };
 
   return (
     <>
       <main className="container py-10 sm:py-16">
         <div className="mx-auto max-w-2xl">
-          <p className="eyebrow text-[#a27e2e]">Secure checkout</p>
+          {onBack && (
+            <Button type="button" variant="ghost" onClick={onBack} className="mb-4 -ml-2 text-[#657084] hover:text-[#16243d]">
+              <ArrowLeft size={16} className="mr-2" /> Back to assessment
+            </Button>
+          )}
+          <p className="eyebrow text-[#a27e2e]">Step 3 of 4 — Secure checkout</p>
           <h1 className="display mt-4 text-5xl leading-[.95] tracking-[-.04em] sm:text-7xl">Complete your <em className="font-normal text-[#a27e2e]">CareerPath</em>.</h1>
           <p className="mt-6 max-w-2xl text-base leading-7 text-[#4a566a]">
             Finalize your payment to unlock your tailored CareerPath report, certificate, and coaching visual.
@@ -433,7 +456,7 @@ function CheckoutPage({ reference, onVerified }: { reference: string; onVerified
                   <p className="eyebrow text-[#c9a34e]">CareerPath Talent Fit</p>
                   <p className="mt-2 text-sm text-[#c1cad7]">KES 399 · Secure Paystack checkout · Report delivered by email</p>
                 </div>
-                <Button type="button" onClick={beginPayment} disabled={initializePayment.isPending} className="shrink-0 bg-[#c9a34e] text-[#16243d] hover:bg-[#e1bd5b]">
+                <Button type="button" onClick={() => setInlineModalOpen(true)} disabled={!product || verifyPayment.isPending} className="shrink-0 bg-[#c9a34e] text-[#16243d] hover:bg-[#e1bd5b]">
                   <CreditCard size={15} className="mr-2" /> Pay KES 399
                 </Button>
               </div>
@@ -454,23 +477,7 @@ function CheckoutPage({ reference, onVerified }: { reference: string; onVerified
         product={inlineProduct}
         customerEmail=""
         onClose={() => { setInlineModalOpen(false); setInlineProduct(null); }}
-        onSuccess={(reference) => {
-          setInlineModalOpen(false);
-          setInlineProduct(null);
-          setPaymentState("verifying");
-          verifyPayment.mutate({ reference }, {
-            onSuccess: (result) => {
-              onVerified(result.report);
-              setPaymentState("paid");
-              toast.success("Payment verified");
-            },
-            onError: (error) => {
-              setPaymentState("error");
-              setVerificationError(error.message);
-              toast.error(error.message);
-            },
-          });
-        }}
+        onSuccess={handleModalSuccess}
         onError={(message) => {
           setInlineModalOpen(false);
           setInlineProduct(null);
@@ -483,7 +490,7 @@ function CheckoutPage({ reference, onVerified }: { reference: string; onVerified
   );
 }
 
-function ReportsPage({ reference }: { reference?: string | null }) {
+function ReportsPage({ reference, onBack }: { reference?: string | null; onBack?: () => void }) {
   const { data: currentUser } = trpc.auth.me.useQuery();
   const { data: careerHistory = [] } = trpc.careerPath.history.useQuery(undefined, { enabled: Boolean(currentUser), retry: false });
   const { data: shareCounts = {} } = trpc.careerPath.shareCounts.useQuery(undefined, { enabled: Boolean(currentUser), retry: false });
@@ -539,11 +546,21 @@ function ReportsPage({ reference }: { reference?: string | null }) {
     }
   };
 
+  if (reportLoading) {
+    return (
+      <main className="container py-16">
+        <div className="flex items-center gap-3 text-sm" role="status" aria-live="polite">
+          <Loader2 className="animate-spin text-[#a27e2e]" size={18} /> Loading your CareerPath report...
+        </div>
+      </main>
+    );
+  }
+
   if (!report) {
     return (
       <main className="container py-16">
         <div className="mx-auto max-w-2xl border border-[#16243d]/15 bg-white/60 p-8 text-center">
-          <p className="eyebrow text-[#a27e2e]">Reports workspace</p>
+          <p className="eyebrow text-[#a27e2e]">Step 4 of 4 — Reports workspace</p>
           <h1 className="display mt-3 text-4xl">Your results are created after verification.</h1>
           <p className="mt-4 text-sm leading-6 text-[#657084]">Complete the assessment and payment verification to unlock your tailored CareerPath report.</p>
           <div className="mt-6 flex justify-center gap-3">
@@ -557,13 +574,18 @@ function ReportsPage({ reference }: { reference?: string | null }) {
 
   return (
     <main className="container py-10 sm:py-16">
-        <div className="max-w-3xl">
-          <p className="eyebrow text-[#a27e2e]">Your CareerPath profile</p>
-          <h1 className="display mt-4 text-5xl leading-none sm:text-7xl">
-            Discover. <em className="font-normal text-[#a27e2e]">Explore.</em> Choose.
-          </h1>
-          <p className="mt-5 text-base leading-7 text-[#4a566a]">{report.overallReadout}</p>
-        </div>
+      <div className="max-w-3xl">
+        {onBack && (
+          <Button type="button" variant="ghost" onClick={onBack} className="mb-4 -ml-2 text-[#657084] hover:text-[#16243d]">
+            <ArrowLeft size={16} className="mr-2" /> Back to checkout
+          </Button>
+        )}
+        <p className="eyebrow text-[#a27e2e]">Step 4 of 4 — Your CareerPath profile</p>
+        <h1 className="display mt-4 text-5xl leading-none sm:text-7xl">
+          Discover. <em className="font-normal text-[#a27e2e]">Explore.</em> Choose.
+        </h1>
+        <p className="mt-5 text-base leading-7 text-[#4a566a]">{report.overallReadout}</p>
+      </div>
 
         <div className="mt-10 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-[#f7f3e8] sm:p-7">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
@@ -732,7 +754,13 @@ export default function CareerPath() {
   const [location, setLocation] = useLocation();
   const [page, setPage] = useState<Page>("introduction");
   const [completedAssessment, setCompletedAssessment] = useState<{ name: string; email: string; answers: Array<{ questionId: string; value: number }> } | null>(null);
+  const [participantName, setParticipantName] = useState("");
+  const [participantEmail, setParticipantEmail] = useState("");
+  const [participantConsent, setParticipantConsent] = useState(false);
+  const [assessmentAnswers, setAssessmentAnswers] = useState<Record<string, number>>({});
+  const [assessmentCurrentModule, setAssessmentCurrentModule] = useState(0);
   const [checkoutReference, setCheckoutReference] = useState<string | null>(null);
+  const [checkoutProduct, setCheckoutProduct] = useState<PaystackInlineProduct | null>(null);
   const [unlockedReport, setUnlockedReport] = useState<CareerPathReport | null>(null);
   const { data: currentUser } = trpc.auth.me.useQuery();
 
@@ -741,6 +769,11 @@ export default function CareerPath() {
   const urlParams = useMemo(() => new URLSearchParams(window.location.search), [location]);
   const urlReference = urlParams.get("reference");
   const paymentSuccess = urlParams.get("payment") === "success";
+
+  const navigateTo = (next: Page, path: string) => {
+    setPage(next);
+    setLocation(path);
+  };
 
   useEffect(() => {
     const pathname = window.location.pathname;
@@ -754,12 +787,17 @@ export default function CareerPath() {
       setPage("reports");
       setReportReference(urlReference);
     }
-  }, []);
+  }, [location]);
 
   const initializeInlinePayment = trpc.careerPath.initializeInlinePayment.useMutation();
 
   const handleAssessmentComplete = async (data: { name: string; email: string; answers: Array<{ questionId: string; value: number }> }) => {
     setCompletedAssessment(data);
+    setParticipantName(data.name);
+    setParticipantEmail(data.email);
+    setParticipantConsent(true);
+    setAssessmentAnswers(data.answers.reduce((acc, answer) => ({ ...acc, [answer.questionId]: answer.value }), {} as Record<string, number>));
+    setAssessmentCurrentModule(0);
     try {
       const result = await initializeInlinePayment.mutateAsync({
         name: data.name,
@@ -767,7 +805,15 @@ export default function CareerPath() {
         answers: data.answers,
         consent: true,
       });
+      const product: PaystackInlineProduct = {
+        accessCode: result.accessCode,
+        reference: result.reference,
+        amountKes: result.amountKes,
+        productName: result.productName,
+        productType: "careerpath",
+      };
       setCheckoutReference(result.reference);
+      setCheckoutProduct(product);
       setLocation(`/careerpath/checkout?reference=${encodeURIComponent(result.reference)}`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Unable to initialize payment.");
@@ -782,7 +828,18 @@ export default function CareerPath() {
   const [reportReference, setReportReference] = useState<string | null>(urlReference);
 
   if (page === "reports" && (unlockedReport || urlReference)) {
-    return <ReportsPage reference={urlReference ?? checkoutReference ?? reportReference} />;
+    return (
+      <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
+        {qualityControlMode && (
+          <div className="border-b border-[#c9a34e]/40 bg-[#fff4c9] px-5 py-2 text-center text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]" role="status">
+            Quality Control Mode · Payment bypass active
+          </div>
+        )}
+        <TransformationNav active="careerpath" />
+        <CareerPathStepIndicator current={page} />
+        <ReportsPage reference={urlReference ?? checkoutReference ?? reportReference} onBack={() => navigateTo("checkout", "/careerpath/checkout")} />
+      </div>
+    );
   }
 
   return (
@@ -794,9 +851,11 @@ export default function CareerPath() {
       )}
       <TransformationNav active="careerpath" />
       <CareerPathStepIndicator current={page} />
-      {page === "introduction" && <IntroPage onStart={() => { setPage("assessment"); setLocation("/careerpath/assessment"); }} />}
-      {page === "assessment" && <AssessmentPage onComplete={handleAssessmentComplete} />}
-      {page === "checkout" && checkoutReference && <CheckoutPage reference={checkoutReference} onVerified={handleCheckoutSuccess} />}
+      <div className="animate-in fade-in duration-300">
+        {page === "introduction" && <IntroPage onStart={(data) => { setParticipantName(data.name); setParticipantEmail(data.email); setParticipantConsent(data.consent); navigateTo("assessment", "/careerpath/assessment"); }} onBack={undefined} />}
+        {page === "assessment" && <AssessmentPage onComplete={handleAssessmentComplete} onBack={() => navigateTo("introduction", "/careerpath")} name={participantName} email={participantEmail} consent={participantConsent} answers={assessmentAnswers} currentModule={assessmentCurrentModule} onNameChange={setParticipantName} onEmailChange={setParticipantEmail} onConsentChange={setParticipantConsent} onAnswersChange={setAssessmentAnswers} onCurrentModuleChange={setAssessmentCurrentModule} />}
+        {page === "checkout" && checkoutReference && <CheckoutPage reference={checkoutReference} product={checkoutProduct} onVerified={handleCheckoutSuccess} onBack={() => navigateTo("assessment", "/careerpath/assessment")} />}
+      </div>
     </div>
   );
 }

@@ -11,6 +11,10 @@ const careerPathPage = readFileSync(
   new URL("../client/src/pages/CareerPath.tsx", import.meta.url),
   "utf8"
 );
+const likertComponent = readFileSync(
+  new URL("../client/src/components/LikertScale.tsx", import.meta.url),
+  "utf8"
+);
 
 describe("Likert response isolation", () => {
   it("uses unique IDs for every assessment question", () => {
@@ -26,17 +30,18 @@ describe("Likert response isolation", () => {
     expect(assessmentPage).toContain(
       "const nextAnswers = { ...answers, [questionId]: value };"
     );
+    expect(assessmentPage).toContain("LikertScale");
     expect(assessmentPage).toContain(
-      "onClick={() => setAnswer(question.id, value)}"
+      "onChange={(value) => setAnswer(question.id, value)}"
     );
-    expect(assessmentPage).toContain("aria-pressed={answers[question.id] === value}");
   });
 
   it("binds each CareerPath Likert input to its owning question", () => {
-    expect(careerPathPage).toContain("name={question.id}");
-    expect(careerPathPage).toMatch(
-      /checked=\{\s*value === Number\(option\)\s*\}/
+    expect(careerPathPage).toContain("LikertScale");
+    expect(likertComponent).toContain("name={id}");
+    expect(likertComponent).toMatch(
+      /checked=\{\s*isSelected\s*\}/
     );
-    expect(careerPathPage).toContain("[question.id]: Number(option)");
+    expect(likertComponent).toContain("onChange={() => onChange(option.value)}");
   });
 });
