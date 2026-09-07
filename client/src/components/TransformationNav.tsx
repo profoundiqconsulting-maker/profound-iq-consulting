@@ -22,6 +22,7 @@ import { useLocale } from "@/contexts/LocaleContext";
 const serviceLabels = {
   assessment: "Self Assessment",
   careerpath: "CareerPath",
+  psychometrics: "Psychometrics",
 } as const;
 const searchItems = [
   {
@@ -53,12 +54,15 @@ const searchItems = [
     href: "/careerpath",
   },
   { label: "Arts and Sports", service: "CareerPath", href: "/careerpath" },
+  { label: "Psychometric testing", service: "Psychometrics", href: "/psychometrics" },
+  { label: "Career personality", service: "Psychometrics", href: "/psychometrics" },
+  { label: "Leadership potential", service: "Psychometrics", href: "/psychometrics" },
 ];
 
 export function TransformationNav({
   active,
 }: {
-  active: "assessment" | "careerpath";
+  active: "assessment" | "careerpath" | "psychometrics";
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -87,7 +91,11 @@ export function TransformationNav({
   const { theme, setTheme, switchable } = useTheme();
   const { t } = useLocale();
   const activeLabel =
-    active === "assessment" ? t("selfAssessment") : t("careerPath");
+    active === "assessment"
+      ? t("selfAssessment")
+      : active === "careerpath"
+        ? t("careerPath")
+        : t("psychometrics");
   const closeMenus = () => {
     setMenuOpen(false);
     setProfileOpen(false);
@@ -279,6 +287,17 @@ export function TransformationNav({
             }
           >
             {t("careerPath")}
+          </a>
+          <a
+            href="/psychometrics"
+            onClick={event => switchService(event, "/psychometrics")}
+            className={
+              active === "psychometrics"
+                ? "text-[#c9a34e]"
+                : "text-[#c1cad7] hover:text-[#c9a34e]"
+            }
+          >
+            {t("psychometrics")}
           </a>
           <a href="/#contact" className="text-[#c1cad7] hover:text-[#c9a34e]">
             {t("contact")}
@@ -546,6 +565,17 @@ export function TransformationNav({
               }
             >
               {t("careerPath")}
+            </a>
+            <a
+              href="/psychometrics"
+              onClick={event => switchService(event, "/psychometrics")}
+              className={
+                active === "psychometrics"
+                  ? "text-[#c9a34e]"
+                  : "text-[#c1cad7]"
+              }
+            >
+              {t("psychometrics")}
             </a>
             <a href="/#contact" onClick={closeMenus} className="text-[#c1cad7]">
               {t("contact")}

@@ -283,6 +283,7 @@ describe("assessment scoring", () => {
     );
     expect(navSource).toMatch(/Self Assessment/);
     expect(navSource).toMatch(/CareerPath/);
+    expect(navSource).toMatch(/Psychometrics/);
     expect(navSource).toMatch(/Profile/);
     expect(navSource).toMatch(/Mobile transformation services navigation/);
     expect(assessmentSource).toMatch(
