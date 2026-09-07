@@ -1,44 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
-import {
-  ArrowLeft,
-  ArrowRight,
-  CheckCircle2,
-  CreditCard,
-  Download,
-  Linkedin,
-  Loader2,
-  Mail,
-  Menu,
-  MessageCircle,
-  Moon,
-  Share2,
-  ShieldCheck,
-  Sparkles,
-  Sun,
-} from "lucide-react";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import {
-  buildSubPathwayComparisonSvg,
-  svgToDownloadUrl,
-} from "@shared/reportComparisonVisual";
-import { svgToPngBlob, triggerDownload } from "@/lib/visualDownload";
-import { CoachingVisualPreview } from "@/components/CoachingVisualPreview";
+/* Profound IQ Consulting — CareerPath 4-page sequential flow
+   1. Introduction: purpose, prerequisites, time commitment
+   2. Assessment: strict linear module player with independent Likert responses
+   3. Checkout: clean Paystack payment flow
+   4. Reports: post-purchase report generation with motivational prompts
+*/
+import { useEffect, useMemo, useState } from "react";
+import { ArrowRight, CheckCircle2, CreditCard, Download, Loader2, Mail, MessageCircle, Share2, ShieldCheck, Sparkles, Sun } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -52,78 +19,36 @@ import {
   type CareerPathwayResult,
 } from "@shared/careerPath";
 import {
-  paystackCheckoutCopy,
   paystackStateAfter,
   type PaystackCheckoutState,
 } from "@shared/paystackFeedback";
 import { useLocale } from "@/contexts/LocaleContext";
 import PaystackInlineModal, { type PaystackInlineProduct } from "@/components/PaystackInlineModal";
 
+type Page = "introduction" | "assessment" | "checkout" | "reports";
+
 const scale = ["1", "2", "3", "4", "5"];
-const QUESTIONS_PER_CONTENT_PAGE = 5;
 
-type CareerPathStep = "introduction" | "assessment" | "checkout" | "results";
-const stepForPath = (path: string): CareerPathStep =>
-  path === "/careerpath/assessment"
-    ? "assessment"
-    : path === "/careerpath/results"
-      ? "results"
-      : "introduction";
-
-function CareerPathStepIndicator({
-  current,
-  labels = {
-    introduction: "Introduction",
-    assessment: "Assessment",
-    results: "Results",
-  },
-}: {
-  current: CareerPathStep;
-  labels?: Record<Exclude<CareerPathStep, "checkout">, string> & {
-    checkout?: string;
-  };
-}) {
-  const steps: Array<{ id: CareerPathStep; label: string; href: string }> = [
-    { id: "introduction", label: labels.introduction, href: "/careerpath" },
-    {
-      id: "assessment",
-      label: labels.assessment,
-      href: "/careerpath/assessment",
-    },
-    {
-      id: "checkout",
-      label: labels.checkout ?? "Checkout",
-      href: "/careerpath/assessment",
-    },
-    { id: "results", label: labels.results, href: "/careerpath/results" },
+function CareerPathStepIndicator({ current }: { current: Page }) {
+  const steps: Array<{ id: Page; label: string }> = [
+    { id: "introduction", label: "Introduction" },
+    { id: "assessment", label: "Assessment" },
+    { id: "checkout", label: "Checkout" },
+    { id: "reports", label: "Reports" },
   ];
   const currentIndex = steps.findIndex(step => step.id === current);
   return (
-    <nav
-      aria-label="CareerPath steps"
-      className="border-b border-[#16243d]/10 bg-[#f7f3e8] px-5 py-3 sm:px-8"
-    >
+    <nav aria-label="CareerPath steps" className="border-b border-[#16243d]/10 bg-[#f7f3e8] px-5 py-3 sm:px-8">
       <ol className="mx-auto flex max-w-6xl items-center justify-between gap-2">
         {steps.map((step, index) => (
           <li key={step.id} className="flex min-w-0 flex-1 items-center gap-2">
-            <Link
-              href={step.href}
-              aria-current={current === step.id ? "step" : undefined}
-              className={`flex min-w-0 items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${current === step.id ? "text-[#16243d]" : index < currentIndex ? "text-[#a27e2e]" : "text-[#657084]"}`}
-            >
-              <span
-                className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[10px] ${current === step.id ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : index < currentIndex ? "border-[#a27e2e] text-[#a27e2e]" : "border-[#16243d]/20"}`}
-              >
+            <span className={`flex min-w-0 items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${current === step.id ? "text-[#16243d]" : index < currentIndex ? "text-[#a27e2e]" : "text-[#657084]"}`}>
+              <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[10px] ${current === step.id ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : index < currentIndex ? "border-[#a27e2e] text-[#a27e2e]" : "border-[#16243d]/20"}`}>
                 {index + 1}
               </span>
               <span className="truncate">{step.label}</span>
-            </Link>
-            {index < steps.length - 1 && (
-              <span
-                className="h-px flex-1 bg-[#16243d]/10"
-                aria-hidden="true"
-              />
-            )}
+            </span>
+            {index < steps.length - 1 && <span className="h-px flex-1 bg-[#16243d]/10" aria-hidden="true" />}
           </li>
         ))}
       </ol>
@@ -131,1584 +56,411 @@ function CareerPathStepIndicator({
   );
 }
 
-function CareerPathContentPagination({
-  currentPage,
-  pageCount,
-  questionCount,
-  hasNextModule,
-  onPageChange,
-}: {
-  currentPage: number;
-  pageCount: number;
-  questionCount: number;
-  hasNextModule: boolean;
-  onPageChange: (page: number) => void;
-}) {
-  if (pageCount <= 1) return null;
-  const firstQuestion = currentPage * QUESTIONS_PER_CONTENT_PAGE + 1;
-  const lastQuestion = Math.min(
-    questionCount,
-    (currentPage + 1) * QUESTIONS_PER_CONTENT_PAGE
-  );
-  const isFinalContentPage = currentPage === pageCount - 1;
-  return (
-    <nav
-      aria-label="Questions in this module"
-      className="mb-6 flex flex-wrap items-center justify-between gap-4 border border-[#16243d]/10 bg-white/55 px-4 py-3"
-    >
-      <p className="text-xs font-semibold text-[#657084]">
-        Questions {firstQuestion}-{lastQuestion} of {questionCount}
-      </p>
-      <div className="flex items-center gap-3">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 0}
-          className="border-[#16243d]/25"
-        >
-          Previous
-        </Button>
-        <span className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
-          Page {currentPage + 1} of {pageCount}
-        </span>
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={isFinalContentPage && !hasNextModule}
-          className="bg-[#16243d] text-[#f7f3e8]"
-        >
-          {isFinalContentPage ? "Next module" : "Next"}
-        </Button>
-      </div>
-    </nav>
-  );
-}
-
-export default function CareerPath() {
-  const [location, setLocation] = useLocation();
-  const { t } = useLocale();
-  const requestedStep = useMemo(() => stepForPath(location), [location]);
-  const urlModule = useMemo(() => {
-    const value = Number(
-      new URLSearchParams(window.location.search).get("module")
-    );
-    return Number.isInteger(value) && value > 0 ? value - 1 : null;
-  }, [location]);
+function IntroPage({ onStart }: { onStart: () => void }) {
   const { data, isLoading } = trpc.careerPath.questions.useQuery();
-  const { data: currentUser } = trpc.auth.me.useQuery();
-  const qualityControlMode =
-    currentUser?.email?.trim().toLowerCase() ===
-    "profoundiqconsulting@gmail.com";
-  const { data: persistedActiveModule } = trpc.careerPath.activeModule.useQuery(
-    undefined,
-    { enabled: Boolean(currentUser), retry: false }
-  );
-  const saveActiveModule = trpc.careerPath.saveActiveModule.useMutation();
-  const recordCertificateShare = trpc.careerPath.recordShare.useMutation();
+  const price = data?.priceKes ?? 399;
+
+  if (isLoading) {
+    return (
+      <div className="container py-16">
+        <div className="flex items-center gap-3 text-sm" role="status" aria-live="polite">
+          <Loader2 className="animate-spin text-[#a27e2e]" size={18} /> Preparing your CareerPath Assessment…
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <main className="container py-10 sm:py-16">
+        <div className="mx-auto max-w-3xl">
+          <p className="eyebrow text-[#a27e2e]">Discover / explore / choose / grow</p>
+          <h1 className="display mt-4 text-5xl leading-[.95] tracking-[-.04em] sm:text-7xl">
+            Career pathway & <em className="font-normal text-[#a27e2e]">talent fit</em>.
+          </h1>
+          <p className="mt-6 max-w-2xl text-base leading-7 text-[#4a566a]">
+            A developmental assessment for Competency Based Education learners. Understand your interests, abilities, learning preferences, values, talents, and aspirations before choosing your next direction.
+          </p>
+          <div className="mt-7 grid gap-3 sm:grid-cols-3">
+            <div className="border-l-2 border-[#c9a34e] px-4">
+              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">180 items</p>
+              <p className="mt-1 text-sm text-[#657084]">Across nine evidence areas</p>
+            </div>
+            <div className="border-l-2 border-[#c9a34e] px-4">
+              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">35–45 minutes</p>
+              <p className="mt-1 text-sm text-[#657084]">Complete in a quiet setting</p>
+            </div>
+            <div className="border-l-2 border-[#c9a34e] px-4">
+              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">KES {price}</p>
+              <p className="mt-1 text-sm text-[#657084]">Secure Paystack checkout</p>
+            </div>
+          </div>
+          <div className="mt-10 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-[#c1cad7] sm:p-7">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e]">Ready to discover your pathway?</p>
+                <p className="mt-1 text-sm">This assessment is sequential. Complete all modules in order to unlock your report.</p>
+              </div>
+              <Button type="button" onClick={onStart} className="shrink-0 bg-[#c9a34e] text-[#16243d] hover:bg-[#e1bd5b]">
+                Begin assessment <ArrowRight size={15} />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+function AssessmentPage({ onComplete }: { onComplete: (data: { name: string; email: string; answers: Array<{ questionId: string; value: number }> }) => void }) {
+  const { data, isLoading } = trpc.careerPath.questions.useQuery();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [personalNotes, setPersonalNotes] = useState("");
-  const [receiptTitle, setReceiptTitle] = useState(
-    "CareerPath coaching session"
-  );
-  const [receiptPreviewDark, setReceiptPreviewDark] = useState(false);
   const [consent, setConsent] = useState(false);
-  const [receiptPreviewOpen, setReceiptPreviewOpen] = useState(false);
   const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [modulePage, setModulePage] = useState(0);
-  const [contentPage, setContentPage] = useState(0);
-  const [contentAdvanceNotice, setContentAdvanceNotice] = useState("");
-  const [assessmentStarted, setAssessmentStarted] = useState(false);
-  const [mobileNavigatorOpen, setMobileNavigatorOpen] = useState(false);
-  const [mobileOverviewOpen, setMobileOverviewOpen] = useState(false);
-  const [saveLaterNotice, setSaveLaterNotice] = useState(false);
-  const [completionCelebration, setCompletionCelebration] = useState(false);
-  const [localDraft, setLocalDraft] = useState<{
-    name: string;
-    email: string;
-    answers: Record<string, number>;
-    currentModule: number;
-    savedAt: string;
-  } | null>(() => {
-    try {
-      const raw = window.localStorage.getItem("piq-careerpath-local-draft");
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  });
-  const [resumeConflictOpen, setResumeConflictOpen] = useState(false);
-  const [report, setReport] = useState<CareerPathReport | null>(null);
-  const [verificationError, setVerificationError] = useState("");
-  const [paymentState, setPaymentState] =
-    useState<PaystackCheckoutState>("idle");
-  const [inlineModalOpen, setInlineModalOpen] = useState(false);
-  const [inlineProduct, setInlineProduct] = useState<PaystackInlineProduct | null>(null);
-  const initializePayment = trpc.careerPath.initializePayment.useMutation();
-  const initializeInlinePayment = trpc.careerPath.initializeInlinePayment.useMutation();
-  const receiptDownload = trpc.careerPath.downloadReceipt.useMutation();
-  const downloadCareerPathReceipt = async (referenceValue: string) => {
-    try {
-      const result = await receiptDownload.mutateAsync({
-        reference: referenceValue,
-        origin: PUBLISHED_SITE_ORIGIN,
-      });
-      const anchor = document.createElement("a");
-      anchor.href = `data:${result.contentType};base64,${result.data}`;
-      anchor.download = result.filename;
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      toast.success("Receipt downloaded");
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Unable to download receipt."
-      );
-    }
-  };
-  const verifyPayment = trpc.careerPath.verifyPayment.useMutation({
-    onSuccess: result => {
-      setPaymentState(paystackStateAfter("success"));
-      setReport(result.report);
-      toast.success("Payment verified", {
-        description: "Your CareerPath report is now unlocked.",
-      });
-    },
-    onError: error => {
-      setPaymentState(paystackStateAfter("failure"));
-      setVerificationError(error.message);
-      toast.error("Payment verification needs attention", {
-        description: error.message,
-      });
-    },
-  });
-  const reference = useMemo(
-    () => new URLSearchParams(window.location.search).get("reference"),
-    []
-  );
-
-  useEffect(() => {
-    const query = new URLSearchParams(window.location.search);
-    const returnedReference = query.get("reference");
-    if (!returnedReference) return;
-    if (query.get("payment") !== "success") return;
-    if (report || verifyPayment.isPending || verifyPayment.isSuccess) return;
-    setPaymentState(paystackStateAfter("verify"));
-    verifyPayment.mutate({ reference: returnedReference });
-  }, [report, verifyPayment]);
-
-  useEffect(() => {
-    if (
-      reference &&
-      !report &&
-      !verifyPayment.isPending &&
-      !verifyPayment.isSuccess
-    ) {
-      setPaymentState(paystackStateAfter("verify"));
-      verifyPayment.mutate({ reference });
-    }
-  }, [reference, report, verifyPayment]);
-
-  useEffect(() => {
-    if (!inlineModalOpen || !inlineProduct?.reference) return;
-    let cancelled = false;
-    const tick = async () => {
-      if (cancelled) return;
-      try {
-        await new Promise<void>((resolve) => {
-          verifyPayment.mutate({ reference: inlineProduct.reference }, {
-            onSuccess: () => {
-              if (!cancelled) {
-                setInlineModalOpen(false);
-                setInlineProduct(null);
-              }
-              resolve();
-            },
-            onError: () => resolve(),
-          });
-        });
-      } catch {
-        // keep polling
-      } finally {
-        if (!cancelled) setTimeout(tick, 3000);
-      }
-    };
-    tick();
-    return () => { cancelled = true; };
-  }, [inlineModalOpen, inlineProduct?.reference, verifyPayment]);
+  const [currentModule, setCurrentModule] = useState(0);
 
   const grouped = useMemo(() => {
     if (!data?.questions) return [];
-    return data.questions.reduce<
-      Array<{ name: string; questions: typeof data.questions }>
-    >((groups, question) => {
+    return data.questions.reduce<Array<{ name: string; questions: typeof data.questions }>>((groups, question) => {
       const group = groups.find(item => item.name === question.module);
       if (group) group.questions.push(question);
       else groups.push({ name: question.module, questions: [question] });
       return groups;
     }, []);
   }, [data?.questions]);
-  const answeredCount =
-    data?.questions.filter(question => answers[question.id]).length ?? 0;
-  const complete = Boolean(
-    data?.questions.length && answeredCount === data.questions.length
-  );
-  const isAssessmentStep = requestedStep === "assessment" || assessmentStarted;
+
+  const answeredCount = data?.questions.filter(q => answers[q.id]).length ?? 0;
+  const overallCompletion = data?.questions.length ? Math.round((answeredCount / data.questions.length) * 100) : 0;
+  const currentGroup = grouped[currentModule];
+  const currentGroupAnswered = currentGroup?.questions.filter(q => answers[q.id]).length ?? 0;
+  const currentGroupComplete = currentGroup?.questions.length ? currentGroupAnswered === currentGroup.questions.length : false;
+  const isLastModule = currentModule === grouped.length - 1;
+  const allComplete = data?.questions.length ? answeredCount === data.questions.length : false;
+
   useEffect(() => {
-    if (urlModule !== null && grouped.length)
-      setModulePage(Math.min(urlModule, grouped.length - 1));
-    else if (!localDraft && persistedActiveModule && grouped.length)
-      setModulePage(
-        Math.min(persistedActiveModule.moduleIndex, grouped.length - 1)
-      );
-  }, [urlModule, grouped.length, localDraft, persistedActiveModule]);
-  const currentGroup = grouped[modulePage];
-  const contentPageCount = Math.max(
-    1,
-    Math.ceil(
-      (currentGroup?.questions.length ?? 0) / QUESTIONS_PER_CONTENT_PAGE
-    )
-  );
-  const visibleQuestions =
-    currentGroup?.questions.slice(
-      contentPage * QUESTIONS_PER_CONTENT_PAGE,
-      (contentPage + 1) * QUESTIONS_PER_CONTENT_PAGE
-    ) ?? [];
-  const currentGroupAnswered =
-    currentGroup?.questions.filter(question => Boolean(answers[question.id]))
-      .length ?? 0;
-  const currentGroupComplete = Boolean(
-    currentGroup?.questions.length &&
-      currentGroupAnswered === currentGroup.questions.length
-  );
-  const contentPageComplete = Boolean(
-    visibleQuestions.length &&
-      visibleQuestions.every(question => Boolean(answers[question.id]))
-  );
-  const overallCompletion = data?.questions.length
-    ? Math.round((answeredCount / data.questions.length) * 100)
-    : 0;
-  useEffect(() => {
-    setContentPage(0);
-  }, [modulePage]);
-  const localDraftAnsweredCount = localDraft
-    ? Object.keys(localDraft.answers).length
-    : 0;
-  const localDraftCompletion =
-    data?.questions.length && localDraft
-      ? Math.round((localDraftAnsweredCount / data.questions.length) * 100)
-      : 0;
-  const goToModule = (nextPage: number) => {
-    const next = Math.max(0, Math.min(grouped.length - 1, nextPage));
-    setModulePage(next);
-    if (currentUser) saveActiveModule.mutate({ moduleIndex: next });
-    if (requestedStep === "assessment" || assessmentStarted)
-      setLocation(`/careerpath/assessment?module=${next + 1}`);
-  };
-  const goToContentPage = (nextPage: number) => {
-    if (nextPage < contentPage) {
-      setContentPage(nextPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentModule]);
+
+  const canProceed = name.trim().length >= 2 && email.trim().length > 0 && email.includes("@") && consent;
+
+  const handleNext = () => {
+    if (!canProceed) {
+      toast.info("Complete your details", { description: "Please enter your name, email, and consent to continue." });
       return;
     }
-    if (!contentPageComplete) {
-      toast.info("Complete this page to continue", {
-        description: "Answer each visible question before moving forward.",
-      });
+    if (!currentGroupComplete && !isLastModule) {
+      toast.info("Complete this module", { description: "Answer all visible questions before moving forward." });
       return;
     }
-    if (nextPage < contentPageCount) {
-      setContentPage(nextPage);
-      setContentAdvanceNotice("Page complete. Your pathway is taking shape.");
-      window.setTimeout(() => setContentAdvanceNotice(""), 1800);
-      return;
-    }
-    if (modulePage < grouped.length - 1) goToModule(modulePage + 1);
-  };
-  const persistCareerPathDraft = (
-    nextAnswers: Record<string, number>,
-    nextModule = modulePage
-  ) => {
-    const savedAt = new Date().toISOString();
-    const draft = {
-      name,
-      email,
-      answers: nextAnswers,
-      currentModule: nextModule,
-      savedAt,
-    };
-    window.localStorage.setItem(
-      "piq-careerpath-local-draft",
-      JSON.stringify(draft)
-    );
-    setLocalDraft(draft);
-  };
-  const saveAndContinueLater = () => {
-    persistCareerPathDraft(answers);
-    setSaveLaterNotice(true);
-    toast.success("CareerPath progress saved", {
-      description:
-        "Return to CareerPath on this device to resume from this module.",
-    });
-  };
-  const applyLocalResume = () => {
-    if (!localDraft) return;
-    setName(localDraft.name);
-    setEmail(localDraft.email);
-    setAnswers(localDraft.answers);
-    setModulePage(
-      Math.min(
-        Math.max(0, localDraft.currentModule),
-        Math.max(0, grouped.length - 1)
-      )
-    );
-    setConsent(true);
-    setAssessmentStarted(true);
-    setResumeConflictOpen(false);
-    if (currentUser)
-      saveActiveModule.mutate({ moduleIndex: localDraft.currentModule });
-    toast.success("Local progress restored");
-  };
-  const applyServerResume = () => {
-    if (!persistedActiveModule) return;
-    setModulePage(
-      Math.min(
-        persistedActiveModule.moduleIndex,
-        Math.max(0, grouped.length - 1)
-      )
-    );
-    setAssessmentStarted(true);
-    setResumeConflictOpen(false);
-    setLocation(
-      `/careerpath/assessment?module=${persistedActiveModule.moduleIndex + 1}`
-    );
-    toast.success("Server progress restored");
-  };
-  const resumeLocalDraft = () => {
-    if (!localDraft) return;
-    if (
-      persistedActiveModule &&
-      persistedActiveModule.moduleIndex !== localDraft.currentModule
-    ) {
-      setResumeConflictOpen(true);
-      return;
-    }
-    applyLocalResume();
-  };
-  const clearLocalDraft = () => {
-    window.localStorage.removeItem("piq-careerpath-local-draft");
-    setLocalDraft(null);
-    setSaveLaterNotice(false);
-    toast.success("Saved CareerPath progress cleared");
-  };
-  const downloadCareerPathCertificate = () => {
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#101d35"/><rect x="36" y="36" width="1128" height="728" fill="none" stroke="#c9a34e" stroke-width="3"/><text x="600" y="180" fill="#c9a34e" text-anchor="middle" font-family="Arial" font-size="24" letter-spacing="6">PROFOUND IQ CONSULTING</text><text x="600" y="300" fill="#f7f3e8" text-anchor="middle" font-family="Georgia" font-size="62">Completion certificate</text><text x="600" y="390" fill="#c1cad7" text-anchor="middle" font-family="Arial" font-size="24">CareerPath Assessment completed</text><text x="600" y="520" fill="#c9a34e" text-anchor="middle" font-family="Georgia" font-size="42">Discover. Explore. Choose. Grow.</text><text x="600" y="620" fill="#c1cad7" text-anchor="middle" font-family="Arial" font-size="18">Issued ${new Date().toLocaleDateString()}</text></svg>`;
-    const anchor = document.createElement("a");
-    anchor.href = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-    anchor.download = "profound-iq-careerpath-completion-certificate.svg";
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    window.localStorage.setItem("piq-new-certificate-available", "true");
-    toast.success("CareerPath certificate downloaded");
-  };
-  useEffect(() => {
-    if (complete && !completionCelebration) {
-      setCompletionCelebration(true);
-      window.localStorage.setItem("piq-new-certificate-available", "true");
-      toast.success("CareerPath complete", {
-        description: "Your completion certificate is ready to download.",
-      });
-    }
-  }, [complete, completionCelebration]);
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target?.matches("input, textarea, select, [contenteditable=true]"))
+    if (isLastModule) {
+      if (!allComplete) {
+        toast.info("Complete all questions", { description: "Please answer every question before checkout." });
         return;
-      if (event.key === "ArrowLeft" && modulePage > 0) {
-        event.preventDefault();
-        goToModule(modulePage - 1);
-        toast.success(
-          `Opened ${grouped[modulePage - 1]?.name ?? "previous module"}`,
-          { description: "Previous CareerPath module opened." }
-        );
       }
-      if (
-        event.key === "ArrowRight" &&
-        modulePage < grouped.length - 1 &&
-        currentGroupComplete
-      ) {
-        event.preventDefault();
-        goToModule(modulePage + 1);
-        toast.success(
-          `Opened ${grouped[modulePage + 1]?.name ?? "next module"}`,
-          { description: "Next CareerPath module opened." }
-        );
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [modulePage, grouped, currentGroupComplete]);
-  const previewReport = useMemo(
-    () =>
-      complete && data
-        ? buildCareerPathReport(
-            data.questions.map(question => ({
-              questionId: question.id,
-              value: answers[question.id],
-            }))
-          )
-        : null,
-    [answers, complete, data]
-  );
-  const certificatePreviewUrl = useMemo(
-    () =>
-      `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600"><rect width="900" height="600" fill="#101d35"/><rect x="26" y="26" width="848" height="548" fill="none" stroke="#c9a34e" stroke-width="3"/><text x="450" y="135" fill="#c9a34e" text-anchor="middle" font-family="Arial" font-size="18" letter-spacing="4">PROFOUND IQ CONSULTING</text><text x="450" y="245" fill="#f7f3e8" text-anchor="middle" font-family="Georgia" font-size="46">Completion certificate</text><text x="450" y="320" fill="#c1cad7" text-anchor="middle" font-family="Arial" font-size="18">CareerPath Assessment completed</text><text x="450" y="415" fill="#c9a34e" text-anchor="middle" font-family="Georgia" font-size="30">Discover. Explore. Choose. Grow.</text><text x="450" y="485" fill="#c1cad7" text-anchor="middle" font-family="Arial" font-size="14">Issued ${new Date().toLocaleDateString()}</text></svg>`)} `,
-    []
-  );
-
-  const shareCareerPathToLinkedIn = () => {
-    const shareUrl = `${PUBLISHED_SITE_ORIGIN}/dashboard?tab=certificates`;
-    recordCertificateShare.mutate({
-      platform: "linkedin",
-      asset: "certificate",
-    });
-    window.open(
-      `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
-      "_blank",
-      "noopener,noreferrer"
-    );
-    toast.success("LinkedIn sharing opened", {
-      description:
-        "Add a note to your post to celebrate your CareerPath completion.",
-    });
-  };
-
-  const submit = (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!name.trim() || !email.trim() || !consent || !complete || !data) return;
-    setReceiptPreviewOpen(true);
-  };
-
-  const beginPayment = async () => {
-    if (!data || !previewReport) return;
-    try {
-      setPaymentState(paystackStateAfter("begin"));
-      const result = await initializeInlinePayment.mutateAsync({
+      onComplete({
         name: name.trim(),
         email: email.trim(),
-        personalNotes: personalNotes.trim() || undefined,
-        receiptTitle: receiptTitle.trim() || undefined,
-        consent: true,
-        answers: data.questions.map((question) => ({
-          questionId: question.id,
-          value: answers[question.id],
-        })),
+        answers: data!.questions.map(q => ({ questionId: q.id, value: answers[q.id] })),
       });
-      setReceiptPreviewOpen(false);
+      return;
+    }
+    setCurrentModule(m => m + 1);
+  };
+
+  if (isLoading) {
+    return (
+      <main className="container py-16">
+        <div className="flex items-center gap-3 text-sm" role="status" aria-live="polite">
+          <Loader2 className="animate-spin text-[#a27e2e]" size={18} /> Preparing your CareerPath Assessment...
+        </div>
+      </main>
+    );
+  }
+
+  if (!canProceed) {
+    return (
+      <main className="container py-10 sm:py-16">
+        <div className="mx-auto max-w-3xl">
+          <p className="eyebrow text-[#a27e2e]">Assessment workspace</p>
+          <h1 className="display mt-4 text-5xl leading-[.95] tracking-[-.04em] sm:text-7xl">
+            Guided pathway <em className="font-normal text-[#a27e2e]">assessment</em>.
+          </h1>
+          <p className="mt-6 max-w-2xl text-base leading-7 text-[#4a566a]">
+            Work through each module in order. There are no right or wrong answers�choose the response that best reflects you today.
+          </p>
+        </div>
+
+        <section className="mx-auto mt-10 max-w-3xl border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
+          <p className="eyebrow text-[#a27e2e]">Participant details</p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <label className="text-xs font-bold">
+              Full name
+              <input value={name} onChange={e => setName(e.target.value)} required minLength={2} className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]" placeholder="Your name" />
+            </label>
+            <label className="text-xs font-bold">
+              Email for your report
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]" placeholder="you@example.com" />
+            </label>
+          </div>
+          <label className="mt-5 flex items-start gap-3 text-xs leading-5 text-[#657084]">
+            <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} required className="mt-1 accent-[#a27e2e]" />
+            I consent to Profound IQ processing my responses to generate this educational pathway report and sending the report to the email above.
+          </label>
+          <div className="mt-6">
+            <Button type="button" onClick={handleNext} disabled={!canProceed} className="bg-[#16243d] text-[#f7f3e8]">
+              Begin assessment <ArrowRight size={15} />
+            </Button>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  return (
+    <AssessmentPlayer
+      data={data}
+      grouped={grouped}
+      currentModule={currentModule}
+      setCurrentModule={setCurrentModule}
+      answers={answers}
+      setAnswers={setAnswers}
+      currentGroup={currentGroup}
+      currentGroupAnswered={currentGroupAnswered}
+      currentGroupComplete={currentGroupComplete}
+      isLastModule={isLastModule}
+      allComplete={allComplete}
+      answeredCount={answeredCount}
+      overallCompletion={overallCompletion}
+      onNext={handleNext}
+    />
+  );
+}
+
+function LikertQuestion({ question, value, onChange }: { question: { id: string; prompt: string }; value: number | undefined; onChange: (value: number) => void }) {
+  return (
+    <div className="border border-[#16243d]/12 bg-white/55 p-5 transition-colors hover:border-[#a27e2e]/50">
+      <p className="text-sm leading-6">
+        <span className="mr-2 text-xs font-black text-[#a27e2e]">{question.id.split("-").pop()}</span>
+        {question.prompt}
+      </p>
+      <div className="mt-3 grid grid-cols-5 gap-2">
+        {scale.map(option => (
+          <label key={option} className={`flex cursor-pointer flex-col items-center gap-1 border px-2 py-2 text-xs transition ${value === Number(option) ? "border-[#a27e2e] bg-[#f4e5bd] text-[#16243d]" : "border-[#16243d]/15 text-[#657084] hover:border-[#a27e2e]/60"}`}>
+            <input type="radio" name={question.id} value={option} checked={value === Number(option)} onChange={() => onChange(Number(option))} className="sr-only" />
+            {option}
+            <span className="text-[9px]">{option === "1" ? "Low" : option === "5" ? "High" : ""}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AssessmentPlayer({
+  data,
+  grouped,
+  currentModule,
+  setCurrentModule,
+  answers,
+  setAnswers,
+  currentGroup,
+  currentGroupAnswered,
+  currentGroupComplete,
+  isLastModule,
+  allComplete,
+  answeredCount,
+  overallCompletion,
+  onNext,
+}: {
+  data: { questions: Array<{ id: string; module: string }> } | undefined;
+  grouped: Array<{ name: string; questions: Array<{ id: string; module: string }> }>;
+  currentModule: number;
+  setCurrentModule: (value: number | ((prev: number) => number)) => void;
+  answers: Record<string, number>;
+  setAnswers: React.Dispatch<React.SetStateAction<Record<string, number>>>;
+  currentGroup: { name: string; questions: Array<{ id: string; module: string }> } | undefined;
+  currentGroupAnswered: number;
+  currentGroupComplete: boolean;
+  isLastModule: boolean;
+  allComplete: boolean;
+  answeredCount: number;
+  overallCompletion: number;
+  onNext: () => void;
+}) {
+  return (
+    <main className="container py-10 sm:py-16">
+      <div className="mx-auto max-w-3xl">
+        <p className="eyebrow text-[#a27e2e]">Assessment in progress</p>
+        <h1 className="display mt-4 text-5xl leading-[.95] tracking-[-.04em] sm:text-7xl">
+          Guided pathway <em className="font-normal text-[#a27e2e]">assessment</em>.
+        </h1>
+        <p className="mt-6 max-w-2xl text-base leading-7 text-[#4a566a]">
+          Work through each module in order. There are no right or wrong answers�choose the response that best reflects you today.
+        </p>
+      </div>
+
+      <div className="mx-auto mt-8 max-w-3xl">
+        <div className="border-b border-[#16243d]/10 pb-4">
+          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">Assessment modules</p>
+          <p className="mt-1 text-sm text-[#657084]">Work through each module in order. Answer all items in a module before moving to the next.</p>
+        </div>
+        <div className="sticky top-2 z-20 -mx-2 mb-5 border-y border-[#c9a34e]/40 bg-[#f7f3e8]/95 p-3 shadow-sm backdrop-blur">
+          <div className="flex items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+            <span>Module {currentModule + 1} of {grouped.length}</span>
+            <span>{overallCompletion}% complete</span>
+            <span>{answeredCount}/{data?.questions.length ?? 0}</span>
+          </div>
+          <div className="mt-2 h-2 bg-[#16243d]/10" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={overallCompletion} aria-label={`${answeredCount} of {data?.questions.length ?? 0} CareerPath questions answered`}>
+            <div className="h-2 bg-[#c9a34e] transition-all" style={{ width: `${overallCompletion}%` }} />
+          </div>
+        </div>
+
+        {currentGroup && (
+          <section className="border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
+            <div className="flex items-end justify-between gap-4 border-b border-[#16243d]/15 pb-4">
+              <div>
+                <p className="eyebrow text-[#a27e2e]">Module {currentModule + 1}</p>
+                <h2 className="display mt-2 text-3xl">{currentGroup.name}</h2>
+              </div>
+              <span className="text-xs text-[#657084]">{currentGroup.questions.length} items � {currentGroupAnswered} answered</span>
+            </div>
+            <p className="mt-4 text-sm leading-6 text-[#657084]">Choose the response that best reflects you today.</p>
+            <div className="mt-6 space-y-4">
+              {currentGroup.questions.map(question => (
+                <LikertQuestion key={question.id} question={question} value={answers[question.id]} onChange={value => setAnswers(prev => ({ ...prev, [question.id]: value }))} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        <div className="mt-6 flex items-center justify-between gap-3">
+          <Button type="button" variant="outline" onClick={() => setCurrentModule(m => Math.max(0, m - 1))} disabled={currentModule === 0} className="border-[#16243d]/25">
+            <ArrowRight size={15} className="rotate-180" /> Previous
+          </Button>
+          <span className="text-xs text-[#657084]">
+            {currentGroupComplete ? "Module complete" : `${currentGroupAnswered} of {currentGroup.questions.length} answered`}
+          </span>
+          <Button type="button" onClick={onNext} disabled={!currentGroupComplete || (!isLastModule && !allComplete)} className="bg-[#16243d] text-[#f7f3e8]">
+            {isLastModule ? "Complete & Checkout" : "Next module"} <ArrowRight size={15} />
+          </Button>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function CheckoutPage({ reference, onVerified }: { reference: string; onVerified: (report: CareerPathReport) => void }) {
+function CheckoutPage({ reference, onVerified }: { reference: string; onVerified: (report: CareerPathReport) => void }) {
+  const [paymentState, setPaymentState] = useState<PaystackCheckoutState>("idle");
+  const [inlineModalOpen, setInlineModalOpen] = useState(false);
+  const [inlineProduct, setInlineProduct] = useState<PaystackInlineProduct | null>(null);
+  const [verificationError, setVerificationError] = useState("");
+  const initializePayment = trpc.careerPath.initializeInlinePayment.useMutation();
+  const verifyPayment = trpc.careerPath.verifyPayment.useMutation({
+    onSuccess: result => {
+      setPaymentState(paystackStateAfter("success"));
+      onVerified(result.report);
+      toast.success("Payment verified", { description: "Your CareerPath report is now unlocked." });
+    },
+    onError: error => {
+      setPaymentState(paystackStateAfter("failure"));
+      setVerificationError(error.message);
+      toast.error("Payment verification needs attention", { description: error.message });
+    },
+  });
+
+  useEffect(() => {
+    if (!reference) return;
+    if (paymentState === "idle") {
+      setPaymentState(paystackStateAfter("verify"));
+      verifyPayment.mutate({ reference });
+    }
+  }, [reference]);
+
+  const beginPayment = async () => {
+    try {
+      setPaymentState(paystackStateAfter("begin"));
+      const result = await initializePayment.mutateAsync({
+        name: "",
+        email: "",
+        answers: [],
+        consent: true,
+      });
       setPaymentState(paystackStateAfter("ready"));
       setInlineProduct({
         accessCode: result.accessCode,
         reference: result.reference,
         amountKes: result.amountKes,
         productName: result.productName,
-        productType: result.productType as "careerpath",
+        productType: "careerpath",
       });
       setInlineModalOpen(true);
     } catch (error) {
       setPaymentState(paystackStateAfter("failure"));
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Unable to start Paystack checkout."
-      );
+      toast.error(error instanceof Error ? error.message : "Unable to start Paystack checkout.");
     }
   };
 
-  if (report)
-    return (
-      <>
-        <TransformationNav active="careerpath" />
-        {qualityControlMode && (
-          <div
-            className="border-b border-[#c9a34e]/40 bg-[#fff4c9] px-5 py-2 text-center text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]"
-            role="status"
-          >
-            Quality Control Mode · Payment bypass active
-          </div>
-        )}
-        <CareerPathStepIndicator current="results" />
-        <CareerPathReportView
-          report={report}
-          reference={reference}
-          isAuthenticated={Boolean(currentUser)}
-          onDownloadReceipt={downloadCareerPathReceipt}
-          receiptLoading={receiptDownload.isPending}
-        />
-      </>
-    );
-  if (requestedStep === "results")
-    return (
-      <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-        <TransformationNav active="careerpath" />
-        {qualityControlMode && (
-          <div
-            className="border-b border-[#c9a34e]/40 bg-[#fff4c9] px-5 py-2 text-center text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]"
-            role="status"
-          >
-            Quality Control Mode · Payment bypass active
-          </div>
-        )}
-        <CareerPathStepIndicator current="results" />
-        <main className="container py-16">
-          <section className="mx-auto max-w-2xl border border-[#16243d]/15 bg-white/60 p-8 text-center">
-            {verifyPayment.isPending ? (
-              <div role="status" aria-live="polite">
-                <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#c9a34e]/20">
-                  <Loader2 className="animate-spin text-[#a27e2e]" />
-                </div>
-                <h1 className="display mt-6 text-4xl">
-                  Verifying your payment.
-                </h1>
-                <p className="mt-4 text-sm leading-6 text-[#657084]">
-                  We are confirming the Paystack transaction before unlocking
-                  your report. Please keep this window open.
-                </p>
-              </div>
-            ) : verificationError ? (
-              <div role="alert">
-                <p className="eyebrow text-[#a27e2e]">
-                  Verification needs attention
-                </p>
-                <h1 className="display mt-3 text-4xl">
-                  We could not confirm this payment.
-                </h1>
-                <p className="mt-4 border-l-2 border-red-700 bg-red-50 px-4 py-3 text-left text-sm text-red-900">
-                  {verificationError}
-                </p>
-                <div className="mt-6 flex justify-center gap-3">
-                  <a
-                    href="/dashboard"
-                    className="bg-[#c9a34e] px-5 py-3 text-sm font-bold text-[#16243d]"
-                  >
-                    Open workspace
-                  </a>
-                  <a
-                    href="/#contact"
-                    className="border border-[#16243d]/25 px-5 py-3 text-sm font-bold"
-                  >
-                    Contact support
-                  </a>
-                </div>
-              </div>
-            ) : (
-              <>
-                <p className="eyebrow text-[#a27e2e]">Results workspace</p>
-                <h1 className="display mt-3 text-4xl">
-                  Your results are created after verification.
-                </h1>
-                <p className="mt-4 text-sm leading-6 text-[#657084]">
-                  Complete the assessment and payment verification to unlock
-                  your tailored CareerPath report.
-                </p>
-                <div className="mt-6 flex justify-center gap-3">
-                  <a
-                    href="/careerpath/assessment"
-                    className="bg-[#c9a34e] px-5 py-3 text-sm font-bold text-[#16243d]"
-                  >
-                    Open assessment
-                  </a>
-                  <a
-                    href="/dashboard"
-                    className="border border-[#16243d]/25 px-5 py-3 text-sm font-bold"
-                  >
-                    Open workspace
-                  </a>
-                </div>
-              </>
-            )}
-          </section>
-        </main>
-      </div>
-    );
   return (
-    <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-      <TransformationNav active="careerpath" />
-      {qualityControlMode && (
-        <div
-          className="border-b border-[#c9a34e]/40 bg-[#fff4c9] px-5 py-2 text-center text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]"
-          role="status"
-        >
-          Quality Control Mode · Payment bypass active
-        </div>
-      )}
-      <CareerPathStepIndicator
-        current={requestedStep}
-        labels={{
-          introduction: t("orientation"),
-          assessment: t("selfAssessment"),
-          results: "Results",
-        }}
-      />
+    <>
       <main className="container py-10 sm:py-16">
-        <div className="max-w-3xl">
-          <p className="eyebrow text-[#a27e2e]">
-            Discover / explore / choose / grow
-          </p>
-          <h1 className="display mt-4 text-5xl leading-[.95] tracking-[-.04em] sm:text-7xl">
-            Career pathway &{" "}
-            <em className="font-normal text-[#a27e2e]">talent fit</em>.
-          </h1>
+        <div className="mx-auto max-w-2xl">
+          <p className="eyebrow text-[#a27e2e]">Secure checkout</p>
+          <h1 className="display mt-4 text-5xl leading-[.95] tracking-[-.04em] sm:text-7xl">Complete your <em className="font-normal text-[#a27e2e]">CareerPath</em>.</h1>
           <p className="mt-6 max-w-2xl text-base leading-7 text-[#4a566a]">
-            A developmental assessment for Competency Based Education learners.
-            Understand your interests, abilities, learning preferences, values,
-            talents, and aspirations before choosing your next direction.
+            Finalize your payment to unlock your tailored CareerPath report, certificate, and coaching visual.
           </p>
-          <div className="mt-7 grid gap-3 sm:grid-cols-3">
-            <div className="border-l-2 border-[#c9a34e] px-4">
-              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-                180 items
-              </p>
-              <p className="mt-1 text-sm text-[#657084]">
-                Across nine evidence areas
-              </p>
+
+          {paymentState === "verifying" && (
+            <div className="mt-8 flex items-center gap-3 border-l-2 border-[#c9a34e] bg-[#16243d] px-5 py-4 text-sm text-[#f7f3e8]">
+              <Loader2 className="animate-spin text-[#c9a34e]" size={18} />
+              <span><strong>Payment received.</strong> We are confirming the Paystack transaction before unlocking your report.</span>
             </div>
-            <div className="border-l-2 border-[#c9a34e] px-4">
-              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-                35–45 minutes
-              </p>
-              <p className="mt-1 text-sm text-[#657084]">
-                Complete in a quiet setting
-              </p>
+          )}
+          {paymentState === "paid" && (
+            <div className="mt-8 flex items-center gap-3 border-l-2 border-emerald-700 bg-emerald-50 px-5 py-4 text-sm text-emerald-900">
+              <CheckCircle2 size={18} />
+              <span><strong>Payment verified.</strong> Your CareerPath report is unlocked.</span>
             </div>
-            <div className="border-l-2 border-[#c9a34e] px-4">
-              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-                KES {data?.priceKes ?? 20}
-              </p>
-              <p className="mt-1 text-sm text-[#657084]">
-                Secure Paystack checkout
-              </p>
-            </div>
-          </div>
-        </div>
-        {paymentState === "verifying" && (
-          <div className="mt-8 flex items-center gap-3 border-l-2 border-[#c9a34e] bg-[#16243d] px-5 py-4 text-sm text-[#f7f3e8]">
-            <Loader2 className="animate-spin text-[#c9a34e]" size={18} />
-            <span>
-              <strong>Payment received.</strong> We are verifying the Paystack
-              transaction before unlocking your report.
-            </span>
-          </div>
-        )}
-        {paymentState === "paid" && (
-          <div className="mt-8 flex items-center gap-3 border-l-2 border-emerald-700 bg-emerald-50 px-5 py-4 text-sm text-emerald-900">
-            <CheckCircle2 size={18} />
-            <span>
-              <strong>Payment verified.</strong> Your CareerPath report is
-              unlocked.
-            </span>
-          </div>
-        )}
-        {verificationError && (
-          <div className="mt-8 border-l-2 border-red-700 bg-red-50 px-5 py-4 text-sm text-red-900">
-            {verificationError}
-          </div>
-        )}
-        {isLoading ? (
-          <div
-            className="mt-12 flex items-center gap-3 text-sm"
-            role="status"
-            aria-live="polite"
-          >
-            <Loader2 className="animate-spin text-[#a27e2e]" size={18} />{" "}
-            Preparing your CareerPath Assessment…
-          </div>
-        ) : (
-          <>
-            {localDraft && localDraftAnsweredCount > 0 && (
-              <section
-                className="mt-10 border-l-2 border-[#c9a34e] bg-white/65 p-5"
-                aria-label="Resume previous CareerPath session"
-              >
-                <p className="eyebrow text-[#a27e2e]">
-                  Previous CareerPath session found
-                </p>
-                <p className="mt-2 text-sm leading-6">
-                  {localDraftCompletion}% complete · {localDraftAnsweredCount}{" "}
-                  responses saved in{" "}
-                  <strong>
-                    {grouped[localDraft.currentModule]?.name ??
-                      "your last module"}
-                  </strong>
-                  .
-                </p>
-                <div className="mt-3 h-2 bg-[#16243d]/10">
-                  <div
-                    className="h-2 bg-[#c9a34e]"
-                    style={{ width: `${localDraftCompletion}%` }}
-                  />
-                </div>
-                <div className="mt-4 flex flex-wrap gap-3">
-                  <Button
-                    type="button"
-                    onClick={resumeLocalDraft}
-                    className="bg-[#c9a34e] text-[#16243d]"
-                  >
-                    Resume previous session
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={clearLocalDraft}
-                    className="border-[#16243d]/25"
-                  >
-                    Start fresh
-                  </Button>
-                </div>
-              </section>
-            )}
-            <section className="mt-10 border border-[#16243d]/15 bg-[#16243d] p-6 text-[#f7f3e8] sm:p-8">
+          )}
+          {paymentState === "error" && verificationError && (
+            <div className="mt-8 border-l-2 border-red-700 bg-red-50 px-5 py-4 text-sm text-red-900">{verificationError}</div>
+          )}
+
+          {paymentState !== "paid" && (
+            <div className="mt-8 border border-[#16243d]/15 bg-[#16243d] p-5 text-[#f7f3e8] sm:p-7">
               <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="eyebrow text-[#c9a34e]">Your next step</p>
-                  <h2 className="display mt-2 text-3xl">
-                    Begin the guided pathway assessment.
-                  </h2>
-                  <p className="mt-2 max-w-xl text-sm leading-6 text-[#c1cad7]">
-                    The introduction above explains the purpose and format.
-                    Continue to the dedicated assessment space when you are
-                    ready to enter your details and work through each module.
-                  </p>
+                  <p className="eyebrow text-[#c9a34e]">CareerPath Talent Fit</p>
+                  <p className="mt-2 text-sm text-[#c1cad7]">KES 399 · Secure Paystack checkout · Report delivered by email</p>
                 </div>
-                <Button
-                  type="button"
-                  onClick={() => {
-                    setAssessmentStarted(true);
-                    setLocation("/careerpath/assessment");
-                  }}
-                  className="shrink-0 bg-[#c9a34e] text-[#16243d] hover:bg-[#e1bd5b]"
-                >
-                  Start assessment <ArrowRight size={15} />
+                <Button type="button" onClick={beginPayment} disabled={initializePayment.isPending} className="shrink-0 bg-[#c9a34e] text-[#16243d] hover:bg-[#e1bd5b]">
+                  <CreditCard size={15} className="mr-2" /> Pay KES 399
                 </Button>
-              </div>
-            </section>
-            {isAssessmentStep && (
-              <aside
-                className="fixed right-6 top-32 z-20 hidden w-64 border border-[#16243d]/15 bg-[#16243d] p-5 text-[#f7f3e8] shadow-lg lg:block"
-                aria-label="CareerPath progress summary"
-              >
-                <p className="eyebrow text-[#c9a34e]">Live overview</p>
-                <h2 className="display mt-2 text-2xl">Your pathway</h2>
-                <div className="mt-5 space-y-4 text-sm">
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-[#c1cad7]">Progress</span>
-                      <strong>{overallCompletion}%</strong>
-                    </div>
-                    <div className="mt-2 h-2 bg-[#f7f3e8]/15">
-                      <div
-                        className="h-2 bg-[#c9a34e]"
-                        style={{ width: `${overallCompletion}%` }}
-                      />
-                    </div>
-                    <p className="mt-2 text-xs text-[#c1cad7]">
-                      {answeredCount} of {data?.questions.length ?? 0} responses
-                    </p>
-                  </div>
-                  <div className="border-t border-[#f7f3e8]/15 pt-4">
-                    <p className="text-xs uppercase tracking-[.1em] text-[#c1cad7]">
-                      Payment
-                    </p>
-                    <p className="mt-1 font-semibold">
-                      {paymentState === "paid"
-                        ? "Verified"
-                        : paymentState === "verifying"
-                          ? "Verifying"
-                          : paymentState === "error"
-                            ? "Needs attention"
-                            : "Not started"}
-                    </p>
-                    <p className="mt-1 text-xs text-[#c1cad7]">
-                      Secure Paystack checkout
-                    </p>
-                  </div>
-                </div>
-              </aside>
-            )}
-            {isAssessmentStep && (
-              <form onSubmit={submit} className="mt-12 space-y-10">
-                <div className="flex items-center justify-between gap-4">
-                  <p className="eyebrow text-[#a27e2e]">Assessment workspace</p>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setAssessmentStarted(false);
-                      setLocation("/careerpath");
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                    className="border-[#16243d]/25 text-[10px] font-black uppercase tracking-[.12em]"
-                  >
-                    Back to introduction
-                  </Button>
-                </div>
-                <section className="border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
-                  <p className="eyebrow text-[#a27e2e]">Participant details</p>
-                  <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                    <label className="text-xs font-bold">
-                      Full name
-                      <input
-                        value={name}
-                        onChange={event => setName(event.target.value)}
-                        required
-                        minLength={2}
-                        className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]"
-                        placeholder="Your name"
-                      />
-                    </label>
-                    <label className="text-xs font-bold">
-                      Email for your report
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={event => setEmail(event.target.value)}
-                        required
-                        className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]"
-                        placeholder="you@example.com"
-                      />
-                    </label>
-                  </div>
-                  <label className="mt-5 block text-xs font-bold">
-                    Personal note for your receipt{" "}
-                    <span className="font-normal text-[#657084]">
-                      (optional)
-                    </span>
-                    <textarea
-                      value={personalNotes}
-                      onChange={event =>
-                        setPersonalNotes(event.target.value.slice(0, 1000))
-                      }
-                      maxLength={1000}
-                      rows={3}
-                      className="mt-2 block w-full resize-y border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]"
-                      placeholder="Add a reminder, question, or coaching context to include in your receipt email."
-                    />
-                    <span className="mt-1 block text-[10px] font-normal text-[#657084]">
-                      {personalNotes.length}/1000 characters · This note is
-                      included only in your receipt email.
-                    </span>
-                  </label>
-                  <label className="mt-5 flex items-start gap-3 text-xs leading-5 text-[#657084]">
-                    <input
-                      type="checkbox"
-                      checked={consent}
-                      onChange={event => setConsent(event.target.checked)}
-                      required
-                      className="mt-1 accent-[#a27e2e]"
-                    />
-                    I consent to Profound IQ processing my responses to generate
-                    this educational pathway report and sending the report to
-                    the email above. I understand this does not determine my
-                    career or replace qualified guidance.
-                  </label>
-                </section>
-                {currentGroup && (
-                  <>
-                    {complete && completionCelebration && (
-                      <section
-                        className="resume-celebration border border-[#c9a34e]/60 bg-[#fffaf0] p-5 text-center text-[#16243d]"
-                        aria-live="polite"
-                      >
-                        <span
-                          style={
-                            { "--confetti-index": 0 } as React.CSSProperties
-                          }
-                        />
-                        <span
-                          style={
-                            { "--confetti-index": 1 } as React.CSSProperties
-                          }
-                        />
-                        <span
-                          style={
-                            { "--confetti-index": 2 } as React.CSSProperties
-                          }
-                        />
-                        <span
-                          style={
-                            { "--confetti-index": 3 } as React.CSSProperties
-                          }
-                        />
-                        <span
-                          style={
-                            { "--confetti-index": 4 } as React.CSSProperties
-                          }
-                        />
-                        <span
-                          style={
-                            { "--confetti-index": 5 } as React.CSSProperties
-                          }
-                        />
-                        <span
-                          style={
-                            { "--confetti-index": 6 } as React.CSSProperties
-                          }
-                        />
-                        <span
-                          style={
-                            { "--confetti-index": 7 } as React.CSSProperties
-                          }
-                        />
-                        <span
-                          style={
-                            { "--confetti-index": 8 } as React.CSSProperties
-                          }
-                        />
-                        <span
-                          style={
-                            { "--confetti-index": 9 } as React.CSSProperties
-                          }
-                        />
-                        <div className="relative">
-                          <p className="eyebrow text-[#a27e2e]">
-                            CareerPath complete
-                          </p>
-                          <h2 className="display mt-2 text-3xl">
-                            Your pathway assessment is complete.
-                          </h2>
-                          <p className="mt-2 text-sm text-[#657084]">
-                            All modules are finished. Your completion
-                            certificate is ready.
-                          </p>
-                          <img
-                            src={certificatePreviewUrl}
-                            alt="Preview of the CareerPath completion certificate"
-                            className="mx-auto mt-4 w-full max-w-sm border border-[#c9a34e]/60 shadow-md"
-                          />
-                          <div className="mt-4 flex flex-wrap justify-center gap-2">
-                            <Button
-                              type="button"
-                              onClick={downloadCareerPathCertificate}
-                              className="bg-[#c9a34e] text-[#16243d] hover:bg-[#e1bd5b]"
-                            >
-                              <Download size={15} /> Download Certificate
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={shareCareerPathToLinkedIn}
-                              className="border-[#16243d]/25"
-                            >
-                              <Linkedin size={15} /> Share to LinkedIn
-                            </Button>
-                          </div>
-                        </div>
-                      </section>
-                    )}
-                    <div
-                      className="sticky top-2 z-20 -mx-2 mb-5 border-y border-[#c9a34e]/40 bg-[#f7f3e8]/95 p-3 shadow-sm backdrop-blur"
-                      aria-label="CareerPath module progress"
-                    >
-                      <div className="flex items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
-                        <span>
-                          Module {modulePage + 1} of {grouped.length}
-                        </span>
-                        <span>{overallCompletion}% complete</span>
-                        <span>
-                          {answeredCount}/{data?.questions.length ?? 0}
-                        </span>
-                      </div>
-                      <div
-                        className="mt-2 h-2 bg-[#16243d]/10"
-                        role="progressbar"
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                        aria-valuenow={overallCompletion}
-                        aria-label={`${answeredCount} of ${data?.questions.length ?? 0} CareerPath questions answered`}
-                      >
-                        <div
-                          className="h-2 bg-[#c9a34e] transition-all"
-                          style={{ width: `${overallCompletion}%` }}
-                        />
-                      </div>
-                    </div>
-                    <div className="mb-5 flex items-center justify-between gap-3 sm:hidden">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setMobileNavigatorOpen(true)}
-                        className="border-[#16243d]/25"
-                      >
-                        <Menu size={15} /> Browse modules
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={saveAndContinueLater}
-                        className="border-[#16243d]/25"
-                      >
-                        Save & continue later
-                      </Button>
-                    </div>
-                    <div className="fixed inset-x-3 bottom-3 z-30 lg:hidden">
-                      <button
-                        type="button"
-                        onClick={() => setMobileOverviewOpen(open => !open)}
-                        aria-expanded={mobileOverviewOpen}
-                        className="flex w-full items-center justify-between border border-[#c9a34e] bg-[#16243d] px-4 py-3 text-left text-xs font-black uppercase tracking-[.1em] text-[#f7f3e8] shadow-lg"
-                      >
-                        <span>Progress & payment</span>
-                        <span>
-                          {overallCompletion}% ·{" "}
-                          {paymentState === "paid" ? "Paid" : "Pending"}
-                        </span>
-                      </button>
-                      {mobileOverviewOpen && (
-                        <div className="border-x border-b border-[#c9a34e] bg-[#f7f3e8] p-4 text-sm shadow-lg">
-                          <div className="flex justify-between">
-                            <span>Assessment progress</span>
-                            <strong>{overallCompletion}%</strong>
-                          </div>
-                          <div className="mt-2 h-2 bg-[#16243d]/10">
-                            <div
-                              className="h-2 bg-[#c9a34e]"
-                              style={{ width: `${overallCompletion}%` }}
-                            />
-                          </div>
-                          <p className="mt-2 text-xs text-[#657084]">
-                            {answeredCount} of {data?.questions.length ?? 0}{" "}
-                            responses ·{" "}
-                            {paymentState === "paid"
-                              ? "Payment verified"
-                              : "Checkout pending"}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                    <Sheet
-                      open={mobileNavigatorOpen}
-                      onOpenChange={setMobileNavigatorOpen}
-                    >
-                      <SheetContent
-                        side="bottom"
-                        className="max-h-[80vh] bg-[#f7f3e8] text-[#16243d]"
-                      >
-                        <div
-                          className="careerpath-drawer-handle mx-auto mb-3 h-1.5 w-12 rounded-full bg-[#c9a34e]"
-                          aria-hidden="true"
-                        />
-                        <SheetHeader>
-                          <SheetTitle className="display text-3xl">
-                            CareerPath modules
-                          </SheetTitle>
-                          <SheetDescription>
-                            Swipe or select a module to move through your
-                            pathway assessment.
-                          </SheetDescription>
-                        </SheetHeader>
-                        <div className="mt-5 space-y-2.5 overflow-y-auto">
-                          {grouped.map((item, index) => (
-                            <button
-                              key={item.name}
-                              type="button"
-                              onClick={() => {
-                                goToModule(index);
-                                setMobileNavigatorOpen(false);
-                              }}
-                              aria-current={
-                                index === modulePage ? "step" : undefined
-                              }
-                              className={`flex w-full items-center justify-between border p-4 text-left transition-colors ${index === modulePage ? "border-[#c9a34e] bg-[#16243d] text-[#f7f3e8]" : "border-[#16243d]/15 bg-white/60 hover:border-[#c9a34e]/60"}`}
-                            >
-                              <span>
-                                <span className="block text-[10px] font-black uppercase tracking-[.1em]">
-                                  {index + 1}. {item.name}
-                                </span>
-                                <span className="mt-1 block text-xs opacity-75">
-                                  {
-                                    item.questions.filter(question =>
-                                      Boolean(answers[question.id])
-                                    ).length
-                                  }
-                                  /{item.questions.length} answered
-                                </span>
-                              </span>
-                              {item.questions.every(question =>
-                                Boolean(answers[question.id])
-                              ) && (
-                                <CheckCircle2
-                                  size={18}
-                                  className="text-[#c9a34e]"
-                                />
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      </SheetContent>
-                    </Sheet>
-                    <div
-                      className="mb-5 hidden flex-wrap gap-2.5 sm:flex"
-                      aria-label="CareerPath module navigation"
-                    >
-                      {grouped.map((item, index) => (
-                        <button
-                          key={item.name}
-                          type="button"
-                          onClick={() => goToModule(index)}
-                          aria-current={
-                            index === modulePage ? "step" : undefined
-                          }
-                          className={`flex-1 border px-3.5 py-2.5 text-left text-[10px] font-black uppercase tracking-[.08em] transition-all sm:min-w-[8rem] ${index === modulePage ? "border-[#c9a34e] bg-[#16243d] text-[#f7f3e8] shadow-sm" : "border-[#16243d]/15 bg-white/50 text-[#657084] hover:-translate-y-0.5 hover:border-[#c9a34e] hover:shadow-sm"}`}
-                        >
-                          <span className="block">
-                            {index + 1}. {item.name}
-                          </span>
-                          <span className="mt-1 block text-[9px] font-normal normal-case tracking-normal">
-                            {
-                              item.questions.filter(question =>
-                                Boolean(answers[question.id])
-                              ).length
-                            }
-                            /{item.questions.length} answered
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                    <section
-                      key={currentGroup.name}
-                      className="border border-[#16243d]/15 bg-white/55 p-5 sm:p-8"
-                    >
-                      <div className="flex items-end justify-between gap-4 border-b border-[#16243d]/15 pb-4">
-                        <div>
-                          <p className="eyebrow text-[#a27e2e]">
-                            Module {modulePage + 1}
-                          </p>
-                          <h2 className="display mt-2 text-3xl">
-                            {currentGroup.name}
-                          </h2>
-                        </div>
-                        <span className="text-xs text-[#657084]">
-                          {currentGroup.questions.length} items ·{" "}
-                          {currentGroupAnswered} answered
-                        </span>
-                      </div>
-                      <p className="mt-4 text-sm leading-6 text-[#657084]">
-                        Choose the response that best reflects you today. There
-                        are no right or wrong answers.
-                      </p>
-                      <CareerPathContentPagination
-                        currentPage={contentPage}
-                        pageCount={contentPageCount}
-                        questionCount={currentGroup.questions.length}
-                        hasNextModule={modulePage < grouped.length - 1}
-                        onPageChange={goToContentPage}
-                      />
-                      {contentAdvanceNotice && (
-                        <p
-                          role="status"
-                          className="mb-6 animate-pulse border-l-2 border-[#c9a34e] bg-[#fffaf0] px-4 py-3 text-sm font-semibold text-[#7d5e1e]"
-                        >
-                          {contentAdvanceNotice}
-                        </p>
-                      )}
-                      <div
-                        key={contentPage}
-                        className="mt-6 space-y-4 animate-in fade-in slide-in-from-right-2 duration-300"
-                      >
-                        {visibleQuestions.map((question, index) => (
-                          <div
-                            key={question.id}
-                            className="border border-[#16243d]/12 bg-white/55 p-5 transition-colors hover:border-[#a27e2e]/50"
-                          >
-                            <p className="text-sm leading-6">
-                              <span className="mr-2 text-xs font-black text-[#a27e2e]">
-                                {modulePage + 1}.
-                                {contentPage * QUESTIONS_PER_CONTENT_PAGE +
-                                  index +
-                                  1}
-                              </span>
-                              {question.prompt}
-                            </p>
-                            <div className="mt-3 grid grid-cols-5 gap-2">
-                              {scale.map(value => (
-                                <label
-                                  key={value}
-                                  className={`flex cursor-pointer flex-col items-center gap-1 border px-2 py-2 text-xs transition ${answers[question.id] === Number(value) ? "border-[#a27e2e] bg-[#f4e5bd] text-[#16243d]" : "border-[#16243d]/15 text-[#657084] hover:border-[#a27e2e]/60"}`}
-                                >
-                                  <input
-                                    type="radio"
-                                    name={question.id}
-                                    value={value}
-                                    checked={
-                                      answers[question.id] === Number(value)
-                                    }
-                                    onChange={() => {
-                                      const nextAnswers = {
-                                        ...answers,
-                                        [question.id]: Number(value),
-                                      };
-                                      setAnswers(nextAnswers);
-                                      persistCareerPathDraft(nextAnswers);
-                                    }}
-                                    className="sr-only"
-                                  />
-                                  {value}
-                                  <span className="text-[9px]">
-                                    {value === "1"
-                                      ? "Low"
-                                      : value === "5"
-                                        ? "High"
-                                        : ""}
-                                  </span>
-                                </label>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </section>
-                    <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => goToModule(modulePage - 1)}
-                        disabled={modulePage === 0}
-                        className="border-[#16243d]/25"
-                      >
-                        <ArrowLeft size={15} /> Previous module
-                      </Button>
-                      <span className="text-xs text-[#657084]">
-                        {currentGroupComplete
-                          ? "Module complete"
-                          : `${currentGroupAnswered} of ${currentGroup.questions.length} answered`}
-                      </span>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={saveAndContinueLater}
-                        className="border-[#16243d]/25"
-                      >
-                        Save & continue later
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={() => goToModule(modulePage + 1)}
-                        disabled={
-                          !currentGroupComplete ||
-                          modulePage === grouped.length - 1
-                        }
-                        className="bg-[#16243d] text-[#f7f3e8]"
-                      >
-                        Next module <ArrowRight size={15} />
-                      </Button>
-                    </div>
-                  </>
-                )}
-                <section className="border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-[#c1cad7] sm:p-7">
-                  <div className="flex items-start gap-3">
-                    <ShieldCheck
-                      size={19}
-                      className="mt-0.5 shrink-0 text-[#c9a34e]"
-                    />
-                    <div>
-                      <p className="font-bold text-[#f7f3e8]">
-                        A multidimensional guidance signal
-                      </p>
-                      <p className="mt-2 text-sm leading-6">
-                        Your result will compare relative fit across STEM,
-                        Social Sciences, and Arts & Sports Science. It is not a
-                        diagnosis, a fixed label, or a decision made on your
-                        behalf.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mt-5 flex flex-col gap-4 border-t border-[#c1cad7]/20 pt-5 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e]">
-                        Ready to discover your pathway?
-                      </p>
-                      <p className="mt-1 text-sm">
-                        {answeredCount} of {data?.questions.length ?? 180}{" "}
-                        responses complete
-                      </p>
-                    </div>
-                    <Button
-                      type="submit"
-                      disabled={
-                        !complete || !consent ||                         initializeInlinePayment.isPending
-                      }
-                      className="bg-[#c9a34e] px-5 py-3 text-[#16243d] hover:bg-[#e1bd5b]"
-                    >
-                      {initializeInlinePayment.isPending ? (
-                        <>
-                          <Loader2 className="mr-2 animate-spin" size={16} />{" "}
-                          {paystackCheckoutCopy.initializing.label}
-                        </>
-                      ) : paymentState === "error" ? (
-                        <>
-                          <CreditCard className="mr-2" size={16} />{" "}
-                          {paystackCheckoutCopy.error.label}
-                        </>
-                      ) : (
-                        <>
-                          <CreditCard className="mr-2" size={16} /> Pay KES{" "}
-                          {data?.priceKes ?? 20}
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </section>
-              </form>
-            )}
-          </>
-        )}
-        <Dialog open={resumeConflictOpen} onOpenChange={setResumeConflictOpen}>
-          <DialogContent className="max-w-2xl border-[#c9a34e] bg-[#f7f3e8] text-[#16243d]">
-            <DialogHeader>
-              <DialogTitle className="display text-3xl">
-                Choose your latest progress
-              </DialogTitle>
-              <DialogDescription>
-                We found different CareerPath progress on this device and in
-                your account. Choose which version should become your active
-                assessment.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="border border-[#c9a34e] bg-white/70 p-4">
-                <p className="eyebrow text-[#a27e2e]">This device</p>
-                <p className="mt-3 text-sm font-bold">
-                  {localDraft
-                    ? `${localDraftAnsweredCount} responses · ${localDraftCompletion}% complete`
-                    : "No local responses"}
-                </p>
-                <p className="mt-2 text-xs text-[#657084]">
-                  Module {localDraft ? localDraft.currentModule + 1 : 1}:{" "}
-                  {localDraft
-                    ? (grouped[localDraft.currentModule]?.name ??
-                      "Saved module")
-                    : "Not available"}
-                </p>
-                <p className="mt-2 text-xs text-[#657084]">
-                  Saved{" "}
-                  {localDraft
-                    ? new Date(localDraft.savedAt).toLocaleString()
-                    : "—"}
-                </p>
-              </div>
-              <div className="border border-[#16243d]/20 bg-white/70 p-4">
-                <p className="eyebrow text-[#a27e2e]">Your account</p>
-                <p className="mt-3 text-sm font-bold">
-                  Module{" "}
-                  {persistedActiveModule
-                    ? persistedActiveModule.moduleIndex + 1
-                    : 1}{" "}
-                  · server position
-                </p>
-                <p className="mt-2 text-xs text-[#657084]">
-                  {persistedActiveModule
-                    ? (grouped[persistedActiveModule.moduleIndex]?.name ??
-                      "Saved module")
-                    : "No server position"}
-                </p>
-                <p className="mt-2 text-xs text-[#657084]">
-                  Saved{" "}
-                  {persistedActiveModule && "updatedAt" in persistedActiveModule
-                    ? new Date(
-                        String(
-                          (
-                            persistedActiveModule as {
-                              updatedAt: string | Date;
-                            }
-                          ).updatedAt
-                        )
-                      ).toLocaleString()
-                    : "Timestamp unavailable"}
-                </p>
-                <p className="mt-2 text-xs text-[#657084]">
-                  Response total is available after the server draft is
-                  restored.
-                </p>
               </div>
             </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="border-[#16243d]/25"
-                >
-                  Cancel
-                </Button>
-              </DialogClose>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={applyServerResume}
-                className="border-[#16243d]/25"
-              >
-                Keep account version
-              </Button>
-              <Button
-                type="button"
-                onClick={applyLocalResume}
-                className="bg-[#c9a34e] text-[#16243d]"
-              >
-                Keep this device
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-        <Dialog open={receiptPreviewOpen} onOpenChange={setReceiptPreviewOpen}>
-          <DialogContent
-            className={`max-w-xl border-[#c9a34e] ${receiptPreviewDark ? "bg-[#101d35] text-[#f7f3e8]" : "bg-[#f7f3e8] text-[#16243d]"}`}
-          >
-            <DialogHeader>
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <DialogTitle className="display text-3xl">
-                    Review your receipt
-                  </DialogTitle>
-                  <DialogDescription
-                    className={
-                      receiptPreviewDark ? "text-[#c1cad7]" : "text-[#657084]"
-                    }
-                  >
-                    Confirm the delivery details and the personal note that will
-                    accompany your CareerPath report after Paystack verifies
-                    payment.
-                  </DialogDescription>
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setReceiptPreviewDark(current => !current)}
-                  className={
-                    receiptPreviewDark
-                      ? "border-[#c9a34e]/60 bg-transparent text-[#f7f3e8]"
-                      : "border-[#16243d]/20 bg-transparent text-[#16243d]"
-                  }
-                  aria-label={
-                    receiptPreviewDark
-                      ? "Use light preview theme"
-                      : "Use dark preview theme"
-                  }
-                >
-                  {receiptPreviewDark ? <Sun size={15} /> : <Moon size={15} />}
-                </Button>
-              </div>
-            </DialogHeader>
-            {previewReport && (
-              <div className="space-y-5">
-                <label
-                  className={`block text-[10px] font-black uppercase tracking-[.12em] ${receiptPreviewDark ? "text-[#c1cad7]" : "text-[#657084]"}`}
-                >
-                  Receipt subject / coaching session title
-                  <input
-                    value={receiptTitle}
-                    onChange={event =>
-                      setReceiptTitle(event.target.value.slice(0, 160))
-                    }
-                    maxLength={160}
-                    className={`mt-2 block w-full border px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e] ${receiptPreviewDark ? "border-[#c1cad7]/30 bg-[#16243d] text-[#f7f3e8]" : "border-[#16243d]/20 bg-white text-[#16243d]"}`}
-                    placeholder="CareerPath coaching session"
-                  />
-                  <span className="mt-1 block text-[10px] font-normal opacity-70">
-                    {receiptTitle.length}/160 characters · Used as the email
-                    subject.
-                  </span>
-                </label>
-                <div
-                  className={`grid gap-3 text-sm sm:grid-cols-2 ${receiptPreviewDark ? "text-[#f7f3e8]" : "text-[#16243d]"}`}
-                >
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
-                      Receipt email
-                    </p>
-                    <p className="mt-1 break-words font-semibold">{email}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
-                      Assessment fee
-                    </p>
-                    <p className="mt-1 font-semibold">
-                      KES {data?.priceKes ?? 20}
-                    </p>
-                  </div>
-                </div>
-                <div
-                  className={`border border-[#16243d]/15 p-4 ${receiptPreviewDark ? "bg-[#16243d]" : "bg-white/60"}`}
-                >
-                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
-                    Personal note
-                  </p>
-                  <p className="mt-2 whitespace-pre-wrap text-sm leading-6">
-                    {personalNotes.trim() || "No personal note added."}
-                  </p>
-                </div>
-                <p
-                  className={`text-xs leading-5 ${receiptPreviewDark ? "text-[#c1cad7]" : "text-[#657084]"}`}
-                >
-                  Your report and coaching visual will be emailed after
-                  successful payment verification. The note is sent only to the
-                  receipt email shown above.
-                </p>
-              </div>
-            )}
-            <DialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-              <DialogClose asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className={
-                    receiptPreviewDark
-                      ? "border-[#c1cad7]/30 bg-transparent text-[#f7f3e8]"
-                      : "border-[#16243d]/25"
-                  }
-                >
-                  Back to assessment
-                </Button>
-              </DialogClose>
-              <Button
-                type="button"
-                onClick={beginPayment}
-                disabled={initializeInlinePayment.isPending}
-                className="bg-[#16243d] text-[#f7f3e8] hover:bg-[#243657]"
-              >
-                {initializeInlinePayment.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 animate-spin" size={15} />{" "}
-                    Preparing checkout…
-                  </>
-                ) : (
-                  <>
-                    <CreditCard className="mr-2" size={15} /> Proceed to
-                    Paystack
-                  </>
-                )}
-              </Button>
-            </DialogFooter>
-            </DialogContent>
-        </Dialog>
+          )}
+
+          {paymentState === "paid" && (
+            <div className="mt-8">
+              <Link href={`/careerpath/reports?reference=${encodeURIComponent(reference)}`} className="inline-flex items-center gap-3 bg-[#c9a34e] px-5 py-4 text-sm font-bold text-[#16243d] hover:bg-[#e1bd5b]">
+                Open your report <ArrowRight size={15} />
+              </Link>
+            </div>
+          )}
+        </div>
       </main>
       <PaystackInlineModal
         open={inlineModalOpen}
         product={inlineProduct}
-        customerEmail={currentUser?.email ?? ""}
-        onClose={() => {
-          setInlineModalOpen(false);
-          setInlineProduct(null);
-        }}
+        customerEmail=""
+        onClose={() => { setInlineModalOpen(false); setInlineProduct(null); }}
         onSuccess={(reference) => {
           setInlineModalOpen(false);
           setInlineProduct(null);
           setPaymentState("verifying");
           verifyPayment.mutate({ reference }, {
             onSuccess: (result) => {
-              setReport(result.report);
+              onVerified(result.report);
               setPaymentState("paid");
               toast.success("Payment verified");
             },
@@ -1727,75 +479,34 @@ export default function CareerPath() {
           toast.error("Payment failed", { description: message });
         }}
       />
-    </div>
+    </>
   );
 }
-function CareerPathReportView({
-  report,
-  reference,
-  isAuthenticated,
-  onDownloadReceipt,
-  receiptLoading,
-}: {
-  report: CareerPathReport;
-  reference?: string | null;
-  isAuthenticated: boolean;
-  onDownloadReceipt?: (reference: string) => void;
-  receiptLoading?: boolean;
-}) {
-  const { data: careerHistory = [] } = trpc.careerPath.history.useQuery(
-    undefined,
-    { enabled: isAuthenticated, retry: false }
-  );
-  const { data: shareCounts = {} } = trpc.careerPath.shareCounts.useQuery(
-    undefined,
-    { enabled: isAuthenticated, retry: false }
-  );
-  const recordShare = trpc.careerPath.recordShare.useMutation();
-  const [linkedinShareCount, setLinkedinShareCount] = useState(() =>
-    Number(window.localStorage.getItem("piq-careerpath-linkedin-shares") || 0)
-  );
+
+function ReportsPage({ reference }: { reference?: string | null }) {
+  const { data: currentUser } = trpc.auth.me.useQuery();
+  const { data: careerHistory = [] } = trpc.careerPath.history.useQuery(undefined, { enabled: Boolean(currentUser), retry: false });
+  const { data: shareCounts = {} } = trpc.careerPath.shareCounts.useQuery(undefined, { enabled: Boolean(currentUser), retry: false });
+  const [report, setReport] = useState<CareerPathReport | null>(null);
+  const [reportReference, setReportReference] = useState<string | null>(reference ?? null);
   const [pngDownloading, setPngDownloading] = useState(false);
-  const buildVisual = () =>
-    buildSubPathwayComparisonSvg({
-      rows: report.subPathways.map(item => ({
-        label: item.label,
-        score: item.score,
-      })),
-      generatedAt: new Date().toLocaleDateString(),
-    });
-  const downloadSubPathwayVisual = () => {
-    const anchor = document.createElement("a");
-    anchor.href = svgToDownloadUrl(buildVisual());
-    anchor.download = "profound-iq-careerpath-sub-pathways.svg";
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    toast.success("SVG coaching visual downloaded");
-  };
-  const downloadSubPathwayPng = async () => {
-    setPngDownloading(true);
-    try {
-      triggerDownload(
-        await svgToPngBlob(buildVisual()),
-        "profound-iq-careerpath-sub-pathways.png"
-      );
-      toast.success("PNG coaching visual downloaded", {
-        description: "A broadly compatible coaching image is ready to share.",
-      });
-    } catch (error) {
-      toast.error("PNG export unavailable", {
-        description:
-          error instanceof Error
-            ? error.message
-            : "Please try the SVG download instead.",
-      });
-    } finally {
-      setPngDownloading(false);
+  const recordShare = trpc.careerPath.recordShare.useMutation();
+
+  const { data: reportData, isLoading: reportLoading } = trpc.careerPath.getReport.useQuery({ reference: reportReference ?? "" }, { enabled: Boolean(reportReference), retry: false });
+
+  useEffect(() => {
+    if (reportData?.report && !report) {
+      setReport(reportData.report as CareerPathReport);
     }
+  }, [reportData]);
+
+  const buildVisual = () => {
+    if (!report) return "";
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600"><rect width="900" height="600" fill="#101d35"/><rect x="26" y="26" width="848" height="548" fill="none" stroke="#c9a34e" stroke-width="3"/><text x="450" y="135" fill="#c9a34e" text-anchor="middle" font-family="Arial" font-size="18" letter-spacing="4">PROFOUND IQ CONSULTING</text><text x="450" y="245" fill="#f7f3e8" text-anchor="middle" font-family="Georgia" font-size="46">Completion certificate</text><text x="450" y="320" fill="#c1cad7" text-anchor="middle" font-family="Arial" font-size="18">CareerPath Assessment completed</text><text x="450" y="415" fill="#c9a34e" text-anchor="middle" font-family="Georgia" font-size="30">${report.primary.label}</text><text x="450" y="485" fill="#c1cad7" text-anchor="middle" font-family="Arial" font-size="14">Issued ${new Date().toLocaleDateString()}</text></svg>`)}`;
   };
-  const downloadCompletionCertificate = () => {
-    const escapedName = report.primary.label.replace(/[<&>\"]/g, "");
+
+  const downloadCertificate = () => {
+    const escapedName = report?.primary.label.replace(/[<&>\"]/g, "") ?? "CareerPath";
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#101d35"/><rect x="36" y="36" width="1128" height="728" fill="none" stroke="#c9a34e" stroke-width="3"/><text x="600" y="180" fill="#c9a34e" text-anchor="middle" font-family="Arial" font-size="24" letter-spacing="6">PROFOUND IQ CONSULTING</text><text x="600" y="300" fill="#f7f3e8" text-anchor="middle" font-family="Georgia" font-size="62">Completion certificate</text><text x="600" y="390" fill="#c1cad7" text-anchor="middle" font-family="Arial" font-size="24">CareerPath Assessment completed</text><text x="600" y="500" fill="#c9a34e" text-anchor="middle" font-family="Georgia" font-size="42">Primary pathway: ${escapedName}</text><text x="600" y="620" fill="#c1cad7" text-anchor="middle" font-family="Arial" font-size="18">Issued ${new Date().toLocaleDateString()}</text></svg>`;
     const anchor = document.createElement("a");
     anchor.href = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
@@ -1805,58 +516,78 @@ function CareerPathReportView({
     anchor.remove();
     toast.success("Completion certificate downloaded");
   };
-  const shareResult = (
-    channel: "whatsapp" | "email" | "linkedin" | "facebook" | "x"
-  ) => {
+
+  const shareResult = (channel: "whatsapp" | "email" | "linkedin" | "facebook" | "x") => {
+    if (!report) return;
     const message = `I completed my Profound IQ CareerPath Assessment. My primary pathway is ${report.primary.label}.`;
-    const shareUrl = `${PUBLISHED_SITE_ORIGIN}/careerpath/results`;
+    const shareUrl = `${window.location.origin}/careerpath/reports?reference=${encodeURIComponent(reportReference ?? "")}`;
     if (channel === "whatsapp") {
       recordShare.mutate({ platform: "whatsapp", asset: "report" });
-      window.open(
-        `https://wa.me/?text=${encodeURIComponent(message)}`,
-        "_blank",
-        "noopener,noreferrer"
-      );
+      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
     } else if (channel === "linkedin") {
       recordShare.mutate({ platform: "linkedin", asset: "report" });
-      window.open(
-        `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
-        "_blank",
-        "noopener,noreferrer"
-      );
+      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`, "_blank", "noopener,noreferrer");
     } else if (channel === "facebook") {
       recordShare.mutate({ platform: "facebook", asset: "report" });
-      window.open(
-        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
-        "_blank",
-        "noopener,noreferrer"
-      );
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, "_blank", "noopener,noreferrer");
     } else if (channel === "x") {
       recordShare.mutate({ platform: "x", asset: "report" });
-      window.open(
-        `https://x.com/intent/post?text=${encodeURIComponent(message)}&url=${encodeURIComponent(shareUrl)}`,
-        "_blank",
-        "noopener,noreferrer"
-      );
+      window.open(`https://x.com/intent/post?text=${encodeURIComponent(message)}&url=${encodeURIComponent(shareUrl)}`, "_blank", "noopener,noreferrer");
     } else {
       recordShare.mutate({ platform: "email", asset: "report" });
       window.location.href = `mailto:?subject=${encodeURIComponent("My Profound IQ CareerPath result")}&body=${encodeURIComponent(message)}`;
     }
   };
+
+  if (!report) {
+    return (
+      <main className="container py-16">
+        <div className="mx-auto max-w-2xl border border-[#16243d]/15 bg-white/60 p-8 text-center">
+          <p className="eyebrow text-[#a27e2e]">Reports workspace</p>
+          <h1 className="display mt-3 text-4xl">Your results are created after verification.</h1>
+          <p className="mt-4 text-sm leading-6 text-[#657084]">Complete the assessment and payment verification to unlock your tailored CareerPath report.</p>
+          <div className="mt-6 flex justify-center gap-3">
+            <Link href="/careerpath/assessment" className="bg-[#c9a34e] px-5 py-3 text-sm font-bold text-[#16243d]">Open assessment</Link>
+            <Link href="/dashboard" className="border border-[#16243d]/25 px-5 py-3 text-sm font-bold">Open workspace</Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-      <TransformationNav active="careerpath" />
-      <main className="container py-10 sm:py-16">
+    <main className="container py-10 sm:py-16">
         <div className="max-w-3xl">
           <p className="eyebrow text-[#a27e2e]">Your CareerPath profile</p>
           <h1 className="display mt-4 text-5xl leading-none sm:text-7xl">
-            Discover. <em className="font-normal text-[#a27e2e]">Explore.</em>{" "}
-            Choose.
+            Discover. <em className="font-normal text-[#a27e2e]">Explore.</em> Choose.
           </h1>
-          <p className="mt-5 text-base leading-7 text-[#4a566a]">
-            {report.overallReadout}
-          </p>
+          <p className="mt-5 text-base leading-7 text-[#4a566a]">{report.overallReadout}</p>
         </div>
+
+        <div className="mt-10 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-[#f7f3e8] sm:p-7">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="eyebrow text-[#c9a34e]">Keep the momentum visible.</p>
+              <h2 className="display mt-2 text-3xl">Retake periodically to track your progress.</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#c1cad7]">
+                Interests and strengths evolve. Revisit this assessment each term to see how your pathway signal changes.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" onClick={downloadCertificate} className="bg-[#c9a34e] text-[#16243d]">
+                <Download size={15} /> Certificate
+              </Button>
+              <Button type="button" variant="outline" onClick={() => shareResult("whatsapp")} className="border-[#c1cad7]/30 bg-transparent text-[#f7f3e8]">
+                <MessageCircle size={15} /> WhatsApp
+              </Button>
+              <Button type="button" variant="outline" onClick={() => shareResult("linkedin")} className="border-[#c1cad7]/30 bg-transparent text-[#f7f3e8]">
+                LinkedIn
+              </Button>
+            </div>
+          </div>
+        </div>
+
         <ReportSectionTabs
           sections={[
             ...(careerHistory.length > 0
@@ -1865,66 +596,26 @@ function CareerPathReportView({
                     id: "history",
                     label: "Your History",
                     content: (
-                      <section
-                        className="mt-8 border border-[#16243d]/15 bg-white/55 p-5 sm:p-7"
-                        aria-label="Past CareerPath reports and certificates"
-                      >
+                      <section className="mt-8 border border-[#16243d]/15 bg-white/55 p-5 sm:p-7" aria-label="Past CareerPath reports and certificates">
                         <p className="eyebrow text-[#a27e2e]">Your history</p>
                         <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                          {careerHistory
-                            .slice(0, 4)
-                            .map(
-                              (item: {
-                                id: number;
-                                receiptTitle: string | null;
-                                createdAt: Date;
-                                paymentStatus: string;
-                                report: unknown;
-                                paystackReference: string | null;
-                              }) => (
-                                <article
-                                  key={item.id}
-                                  className="border border-[#16243d]/12 bg-[#f7f3e8] p-4"
-                                >
-                                  <div className="mb-3 overflow-hidden border border-[#c9a34e]/60 bg-[#16243d] p-3 text-[#f7f3e8]">
-                                    <p className="text-[9px] font-black uppercase tracking-[.16em] text-[#c9a34e]">
-                                      Profound IQ Consulting
-                                    </p>
-                                    <p className="display mt-2 text-xl">
-                                      Certificate
-                                    </p>
-                                    <p className="mt-2 text-[9px] uppercase tracking-[.1em] text-[#c1cad7]">
-                                      CareerPath achievement
-                                    </p>
-                                  </div>
-                                  <p className="text-sm font-bold">
-                                    {item.receiptTitle ||
-                                      "CareerPath Assessment"}
-                                  </p>
-                                  <p className="mt-1 text-xs text-[#657084]">
-                                    {new Date(
-                                      item.createdAt
-                                    ).toLocaleDateString()}{" "}
-                                    · {item.paymentStatus}
-                                  </p>
-                                  {Boolean(item.report) && (
-                                    <a
-                                      href={`/careerpath/results?reference=${encodeURIComponent(item.paystackReference ?? "")}`}
-                                      className="mt-3 inline-block text-xs font-black uppercase tracking-[.1em] text-[#7d5e1e]"
-                                    >
-                                      View report
-                                    </a>
-                                  )}
-                                </article>
-                              )
-                            )}
+                          {careerHistory.slice(0, 4).map((item: { id: number; receiptTitle: string | null; createdAt: Date; paymentStatus: string; report: unknown; paystackReference: string | null }) => (
+                            <article key={item.id} className="border border-[#16243d]/12 bg-[#f7f3e8] p-4">
+                              <div className="mb-3 overflow-hidden border border-[#c9a34e]/60 bg-[#16243d] p-3 text-[#f7f3e8]">
+                                <p className="text-[9px] font-black uppercase tracking-[.16em] text-[#c9a34e]">Profound IQ Consulting</p>
+                                <p className="display mt-2 text-xl">Certificate</p>
+                                <p className="mt-2 text-[9px] uppercase tracking-[.1em] text-[#c1cad7]">CareerPath achievement</p>
+                              </div>
+                              <p className="text-sm font-bold">{item.receiptTitle || "CareerPath Assessment"}</p>
+                              <p className="mt-1 text-xs text-[#657084]">{new Date(item.createdAt).toLocaleDateString()} · {item.paymentStatus}</p>
+                              {Boolean(item.report) && (
+                                <Link href={`/careerpath/reports?reference=${encodeURIComponent(item.paystackReference ?? "")}`} className="mt-3 inline-block text-xs font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+                                  View report
+                                </Link>
+                              )}
+                            </article>
+                          ))}
                         </div>
-                        <a
-                          href="/dashboard"
-                          className="mt-4 inline-block text-xs font-black uppercase tracking-[.1em] text-[#7d5e1e]"
-                        >
-                          Open reports & certificates in workspace
-                        </a>
                       </section>
                     ),
                   },
@@ -1935,34 +626,18 @@ function CareerPathReportView({
               label: "Pathways",
               content: (
                 <section className="mt-10 grid gap-6 md:grid-cols-3">
-                  {report.pathways.map(
-                    (pathway: CareerPathwayResult, index: number) => (
-                      <article
-                        key={pathway.key}
-                        className={`border p-5 transition-transform sm:p-7 hover:-translate-y-1 ${index === 0 ? "border-[#a27e2e] bg-[#16243d] text-[#f7f3e8] shadow-sm" : "border-[#16243d]/15 bg-white/55"}`}
-                      >
-                        <p className="text-[10px] font-black uppercase tracking-[.16em] opacity-70">
-                          {index === 0
-                            ? "Primary pathway"
-                            : index === 1
-                              ? "Secondary pathway"
-                              : "Alternative pathway"}
-                        </p>
-                        <h2 className="display mt-4 text-3xl">
-                          {pathway.label}
-                        </h2>
-                        <p
-                          className={`mt-4 text-5xl ${index === 0 ? "text-[#c9a34e]" : "text-[#a27e2e]"}`}
-                        >
-                          {pathway.score}
-                          <span className="text-base"> / 100</span>
-                        </p>
-                        <p className="mt-3 text-xs font-bold uppercase tracking-[.12em]">
-                          {pathway.band}
-                        </p>
-                      </article>
-                    )
-                  )}
+                  {report.pathways.map((pathway: CareerPathwayResult, index: number) => (
+                    <article key={pathway.key} className={`border p-5 transition-transform sm:p-7 hover:-translate-y-1 ${index === 0 ? "border-[#a27e2e] bg-[#16243d] text-[#f7f3e8] shadow-sm" : "border-[#16243d]/15 bg-white/55"}`}>
+                      <p className="text-[10px] font-black uppercase tracking-[.16em] opacity-70">
+                        {index === 0 ? "Primary pathway" : index === 1 ? "Secondary pathway" : "Alternative pathway"}
+                      </p>
+                      <h2 className="display mt-4 text-3xl">{pathway.label}</h2>
+                      <p className={`mt-4 text-5xl ${index === 0 ? "text-[#c9a34e]" : "text-[#a27e2e]"}`}>
+                        {pathway.score}<span className="text-base"> / 100</span>
+                      </p>
+                      <p className="mt-3 text-xs font-bold uppercase tracking-[.12em]">{pathway.band}</p>
+                    </article>
+                  ))}
                 </section>
               ),
             },
@@ -1972,43 +647,15 @@ function CareerPathReportView({
               content: (
                 <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
                   <p className="eyebrow text-[#a27e2e]">Sub-pathway readout</p>
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                      <h2 className="display mt-3 text-3xl">
-                        Subjects and talent domains to explore.
-                      </h2>
-                      <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
-                        Use this visual as a conversation aid with a parent,
-                        teacher, or career counsellor.
-                      </p>
-                    </div>
-                    <CoachingVisualPreview
-                      svg={buildVisual()}
-                      pngLoading={pngDownloading}
-                      onDownloadSvg={downloadSubPathwayVisual}
-                      onDownloadPng={downloadSubPathwayPng}
-                    />
-                  </div>
                   <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {report.subPathways.map(subPathway => (
-                      <article
-                        key={subPathway.key}
-                        className="border border-[#16243d]/12 bg-[#f7f3e8] p-5 transition-transform hover:-translate-y-0.5"
-                      >
+                      <article key={subPathway.key} className="border border-[#16243d]/12 bg-[#f7f3e8] p-5 transition-transform hover:-translate-y-0.5">
                         <div className="flex items-start justify-between gap-3">
-                          <h3 className="text-sm font-bold">
-                            {subPathway.label}
-                          </h3>
-                          <span className="text-lg font-semibold text-[#a27e2e]">
-                            {subPathway.score}
-                          </span>
+                          <h3 className="text-sm font-bold">{subPathway.label}</h3>
+                          <span className="text-lg font-semibold text-[#a27e2e]">{subPathway.score}</span>
                         </div>
-                        <p className="mt-2 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
-                          {subPathway.band}
-                        </p>
-                        <p className="mt-3 text-xs leading-5 text-[#657084]">
-                          {subPathway.rationale}
-                        </p>
+                        <p className="mt-2 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">{subPathway.band}</p>
+                        <p className="mt-3 text-xs leading-5 text-[#657084]">{subPathway.rationale}</p>
                       </article>
                     ))}
                   </div>
@@ -2022,83 +669,21 @@ function CareerPathReportView({
                 <section className="mt-10 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-[#f7f3e8] sm:p-7">
                   <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <p className="eyebrow text-[#c9a34e]">
-                        A completed development signal
-                      </p>
-                      <h2 className="display mt-2 text-3xl">
-                        Keep the momentum visible.
-                      </h2>
+                      <p className="eyebrow text-[#c9a34e]">A completed development signal</p>
+                      <h2 className="display mt-2 text-3xl">Keep the momentum visible.</h2>
                       <p className="mt-2 max-w-2xl text-sm leading-6 text-[#c1cad7]">
-                        Download a coaching-ready certificate or share a concise
-                        achievement note through WhatsApp or email.
+                        Download a coaching-ready certificate or share a concise achievement note through WhatsApp or email.
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      <Button
-                        type="button"
-                        onClick={downloadCompletionCertificate}
-                        className="bg-[#c9a34e] text-[#16243d]"
-                      >
+                      <Button type="button" onClick={downloadCertificate} className="bg-[#c9a34e] text-[#16243d]">
                         <Download size={15} /> Certificate
                       </Button>
-                      {reference && onDownloadReceipt && (
-                        <Button
-                          type="button"
-                          onClick={() => onDownloadReceipt(reference)}
-                          disabled={receiptLoading}
-                          variant="outline"
-                          className="border-[#c1cad7]/30 bg-transparent text-[#f7f3e8]"
-                        >
-                          {receiptLoading ? (
-                            <Loader2 className="animate-spin" size={15} />
-                          ) : (
-                            <Download size={15} />
-                          )}{" "}
-                          Receipt
-                        </Button>
-                      )}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => shareResult("whatsapp")}
-                        className="border-[#c1cad7]/30 bg-transparent text-[#f7f3e8]"
-                      >
+                      <Button type="button" variant="outline" onClick={() => shareResult("whatsapp")} className="border-[#c1cad7]/30 bg-transparent text-[#f7f3e8]">
                         <MessageCircle size={15} /> WhatsApp
                       </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => shareResult("email")}
-                        className="border-[#c1cad7]/30 bg-transparent text-[#f7f3e8]"
-                      >
-                        <Mail size={15} /> Email
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => shareResult("linkedin")}
-                        className="border-[#c1cad7d7]/30 bg-transparent text-[#f7f3e8]"
-                      >
-                        <Linkedin size={15} /> LinkedIn{" "}
-                        <span className="ml-1 text-[10px] opacity-70">
-                          ({shareCounts.linkedin ?? 0})
-                        </span>
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => shareResult("facebook")}
-                        className="border-[#c1cad7]/30 bg-transparent text-[#f7f3e8]"
-                      >
-                        Facebook
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => shareResult("x")}
-                        className="border-[#c1cad7]/30 bg-transparent text-[#f7f3e8]"
-                      >
-                        X
+                      <Button type="button" variant="outline" onClick={() => shareResult("linkedin")} className="border-[#c1cad7]/30 bg-transparent text-[#f7f3e8]">
+                        LinkedIn
                       </Button>
                     </div>
                   </div>
@@ -2111,49 +696,28 @@ function CareerPathReportView({
               content: (
                 <section className="mt-10 grid gap-6 lg:grid-cols-[1.1fr_.9fr]">
                   <article className="border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
-                    <p className="eyebrow text-[#a27e2e]">
-                      Why this signal matters
-                    </p>
-                    <h2 className="display mt-3 text-3xl">
-                      Evidence to explore.
-                    </h2>
+                    <p className="eyebrow text-[#a27e2e]">Why this signal matters</p>
+                    <h2 className="display mt-3 text-3xl">Evidence to explore.</h2>
                     {report.primary.evidence.map((item: string) => (
-                      <div
-                        key={item}
-                        className="mt-5 flex gap-3 text-sm leading-6"
-                      >
-                        <CheckCircle2
-                          size={17}
-                          className="mt-1 shrink-0 text-[#a27e2e]"
-                        />
+                      <div key={item} className="mt-5 flex gap-3 text-sm leading-6">
+                        <CheckCircle2 size={17} className="mt-1 shrink-0 text-[#a27e2e]" />
                         <span>{item}</span>
                       </div>
                     ))}
-                    <h3 className="mt-8 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-                      Recommended next steps
-                    </h3>
+                    <h3 className="mt-8 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">Recommended next steps</h3>
                     {report.explorationPlan.map((item: string) => (
-                      <p
-                        key={item}
-                        className="mt-3 border-l border-[#c9a34e] pl-3 text-sm leading-6 text-[#657084]"
-                      >
+                      <p key={item} className="mt-3 border-l border-[#c9a34e] pl-3 text-sm leading-6 text-[#657084]">
                         {item}
                       </p>
                     ))}
                   </article>
                   <article className="border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-[#c1cad7] sm:p-8">
                     <Sparkles size={19} className="text-[#c9a34e]" />
-                    <h2 className="display mt-3 text-3xl text-[#f7f3e8]">
-                      Important context.
-                    </h2>
+                    <h2 className="display mt-3 text-3xl text-[#f7f3e8]">Important context.</h2>
                     {report.importantContext.map((item: string) => (
-                      <p key={item} className="mt-4 text-sm leading-6">
-                        {item}
-                      </p>
+                      <p key={item} className="mt-4 text-sm leading-6">{item}</p>
                     ))}
-                    <p className="mt-7 border-t border-[#c1cad7]/20 pt-5 text-xs leading-5 text-[#c1cad7]">
-                      {report.disclaimer}
-                    </p>
+                    <p className="mt-7 border-t border-[#c1cad7]/20 pt-5 text-xs leading-5 text-[#c1cad7]">{report.disclaimer}</p>
                   </article>
                 </section>
               ),
@@ -2161,6 +725,78 @@ function CareerPathReportView({
           ]}
         />
       </main>
+    );
+  }
+
+export default function CareerPath() {
+  const [location, setLocation] = useLocation();
+  const [page, setPage] = useState<Page>("introduction");
+  const [completedAssessment, setCompletedAssessment] = useState<{ name: string; email: string; answers: Array<{ questionId: string; value: number }> } | null>(null);
+  const [checkoutReference, setCheckoutReference] = useState<string | null>(null);
+  const [unlockedReport, setUnlockedReport] = useState<CareerPathReport | null>(null);
+  const { data: currentUser } = trpc.auth.me.useQuery();
+
+  const qualityControlMode = currentUser?.email?.trim().toLowerCase() === "profoundiqconsulting@gmail.com";
+
+  const urlParams = useMemo(() => new URLSearchParams(window.location.search), [location]);
+  const urlReference = urlParams.get("reference");
+  const paymentSuccess = urlParams.get("payment") === "success";
+
+  useEffect(() => {
+    const pathname = window.location.pathname;
+    if (pathname === "/careerpath/assessment" || (pathname === "/careerpath" && page === "introduction")) {
+      setPage("assessment");
+    } else if (pathname === "/careerpath/checkout") {
+      setPage("checkout");
+    } else if (pathname === "/careerpath/reports") {
+      setPage("reports");
+    } else if (paymentSuccess && urlReference) {
+      setPage("reports");
+      setReportReference(urlReference);
+    }
+  }, []);
+
+  const initializeInlinePayment = trpc.careerPath.initializeInlinePayment.useMutation();
+
+  const handleAssessmentComplete = async (data: { name: string; email: string; answers: Array<{ questionId: string; value: number }> }) => {
+    setCompletedAssessment(data);
+    try {
+      const result = await initializeInlinePayment.mutateAsync({
+        name: data.name,
+        email: data.email,
+        answers: data.answers,
+        consent: true,
+      });
+      setCheckoutReference(result.reference);
+      setLocation(`/careerpath/checkout?reference=${encodeURIComponent(result.reference)}`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to initialize payment.");
+    }
+  };
+
+  const handleCheckoutSuccess = (report: CareerPathReport) => {
+    setUnlockedReport(report);
+    setPage("reports");
+  };
+
+  const [reportReference, setReportReference] = useState<string | null>(urlReference);
+
+  if (page === "reports" && (unlockedReport || urlReference)) {
+    return <ReportsPage reference={urlReference ?? checkoutReference ?? reportReference} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
+      {qualityControlMode && (
+        <div className="border-b border-[#c9a34e]/40 bg-[#fff4c9] px-5 py-2 text-center text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]" role="status">
+          Quality Control Mode · Payment bypass active
+        </div>
+      )}
+      <TransformationNav active="careerpath" />
+      <CareerPathStepIndicator current={page} />
+      {page === "introduction" && <IntroPage onStart={() => { setPage("assessment"); setLocation("/careerpath/assessment"); }} />}
+      {page === "assessment" && <AssessmentPage onComplete={handleAssessmentComplete} />}
+      {page === "checkout" && checkoutReference && <CheckoutPage reference={checkoutReference} onVerified={handleCheckoutSuccess} />}
     </div>
   );
 }

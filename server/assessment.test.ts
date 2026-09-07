@@ -148,10 +148,10 @@ describe("assessment scoring", () => {
     expect(homePageSource).toMatch(/Transformation services/);
     expect(homePageSource).toMatch(/Self Assessment/);
     expect(homePageSource).toMatch(/CareerPath/);
-    expect(careerPathSource).toMatch(/downloadCompletionCertificate/);
+    expect(careerPathSource).toMatch(/downloadCertificate/);
     expect(careerPathSource).toMatch(/shareResult/);
     expect(careerPathSource).toMatch(/WhatsApp/);
-    expect(careerPathSource).toMatch(/Email/);
+    expect(careerPathSource).toMatch(/LinkedIn/);
   });
 
   it("uses one shared navigation across Transformation Services", () => {
@@ -235,51 +235,47 @@ describe("assessment scoring", () => {
 
 
 describe("CareerPath learner navigation", () => {
-  it("supports resumable local progress and responsive module navigation", () => {
+  it("supports strict sequential pages without local drafts, module browsing, or keyboard navigation", () => {
     const careerPathSource = readFileSync(resolve(process.cwd(), "client/src/pages/CareerPath.tsx"), "utf8");
-    expect(careerPathSource).toMatch(/piq-careerpath-local-draft/);
-    expect(careerPathSource).toMatch(/Save & continue later/);
-    expect(careerPathSource).toMatch(/Resume previous session/);
-    expect(careerPathSource).toMatch(/CheckCircle2/);
-    expect(careerPathSource).toMatch(/SheetContent/);
-    expect(careerPathSource).toMatch(/Browse modules/);
-    expect(careerPathSource).toMatch(/currentGroupComplete/);
-    expect(careerPathSource).toMatch(/event\.key === "ArrowLeft"/);
-    expect(careerPathSource).toMatch(/event\.key === "ArrowRight"/);
+    expect(careerPathSource).toMatch(/page === "assessment"/);
+    expect(careerPathSource).toMatch(/setPage\("assessment"\)/);
+    expect(careerPathSource).toMatch(/setPage\("checkout"\)/);
+    expect(careerPathSource).toMatch(/setPage\("reports"\)/);
+    expect(careerPathSource).not.toMatch(/piq-careerpath-local-draft/);
+    expect(careerPathSource).not.toMatch(/Save & continue later/);
+    expect(careerPathSource).not.toMatch(/Resume previous session/);
+    expect(careerPathSource).not.toMatch(/Browse modules/);
+    expect(careerPathSource).not.toMatch(/event\.key === "ArrowLeft"/);
+    expect(careerPathSource).not.toMatch(/event\.key === "ArrowRight"/);
   });
 });
 
 
 describe("CareerPath completion celebration", () => {
-  it("exposes the final-completion certificate and drawer swipe affordance", () => {
+  it("exposes certificate download and share actions on the reports page", () => {
     const careerPathSource = readFileSync(resolve(process.cwd(), "client/src/pages/CareerPath.tsx"), "utf8");
-    const stylesSource = readFileSync(resolve(process.cwd(), "client/src/index.css"), "utf8");
-    expect(careerPathSource).toMatch(/CareerPath complete/);
-    expect(careerPathSource).toMatch(/Download Certificate/);
-    expect(careerPathSource).toMatch(/certificatePreviewUrl/);
-    expect(careerPathSource).toMatch(/Preview of the CareerPath completion certificate/);
-    expect(careerPathSource).toMatch(/shareCareerPathToLinkedIn/);
-    expect(careerPathSource).toMatch(/Share to LinkedIn/);
+    expect(careerPathSource).toMatch(/const downloadCertificate =/);
+    expect(careerPathSource).toMatch(/const shareResult =/);
+    expect(careerPathSource).toMatch(/Certificate/);
+    expect(careerPathSource).toMatch(/LinkedIn/);
     expect(careerPathSource).toMatch(/linkedin\.com\/sharing\/share-offsite/);
-    expect(careerPathSource).toMatch(/downloadCareerPathCertificate/);
-    expect(careerPathSource).toMatch(/careerpath-drawer-handle/);
-    expect(stylesSource).toMatch(/piqDrawerHandleBounce/);
-    expect(stylesSource).toMatch(/prefers-reduced-motion: reduce/);
+    expect(careerPathSource).toMatch(/overallCompletion/);
   });
 });
 
 
 describe("CareerPath bookmarkable steps", () => {
-  it("exposes introduction, assessment, and results routes with a progress summary", () => {
+  it("exposes introduction, assessment, checkout, and reports routes with a progress summary", () => {
     const appSource = readFileSync(resolve(process.cwd(), "client/src/App.tsx"), "utf8");
     const careerPathSource = readFileSync(resolve(process.cwd(), "client/src/pages/CareerPath.tsx"), "utf8");
     expect(appSource).toMatch(/path="\/careerpath\/assessment"/);
-    expect(appSource).toMatch(/path="\/careerpath\/results"/);
+    expect(appSource).toMatch(/path="\/careerpath\/checkout"/);
+    expect(appSource).toMatch(/path="\/careerpath\/reports"/);
     expect(appSource).toMatch(/path="\/careerpath"/);
     expect(careerPathSource).toMatch(/CareerPathStepIndicator/);
-    expect(careerPathSource).toMatch(/href: "\/careerpath\/assessment"/);
-    expect(careerPathSource).toMatch(/href: "\/careerpath\/results"/);
-    expect(careerPathSource).toMatch(/aria-label="CareerPath progress summary"/);
+    expect(careerPathSource).toMatch(/href="\/careerpath\/assessment"/);
+    expect(careerPathSource).toMatch(/\/careerpath\/reports/);
+    expect(careerPathSource).toMatch(/aria-label="CareerPath steps"/);
     expect(careerPathSource).toMatch(/Payment/);
     expect(careerPathSource).toMatch(/overallCompletion/);
   });

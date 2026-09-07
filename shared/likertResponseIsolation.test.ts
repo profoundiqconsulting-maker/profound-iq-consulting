@@ -35,8 +35,8 @@ describe("Likert response isolation", () => {
   it("binds each CareerPath Likert input to its owning question", () => {
     expect(careerPathPage).toContain("name={question.id}");
     expect(careerPathPage).toMatch(
-      /checked=\{\s*answers\[question\.id\] === Number\(value\)\s*\}/
+      /checked=\{\s*value === Number\(option\)\s*\}/
     );
-    expect(careerPathPage).toContain("[question.id]: Number(value)");
+    expect(careerPathPage).toContain("[question.id]: Number(option)");
   });
 });

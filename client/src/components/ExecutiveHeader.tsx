@@ -13,6 +13,10 @@ import { LanguageSelector } from "@/components/LanguageSelector";
 
 const primaryNavItems = [
   { label: "Home", href: "/" },
+  { label: "Courses", href: "/courses" },
+  { label: "Psychometrics", href: "/psychometrics" },
+  { label: "CareerPath", href: "/careerpath" },
+  { label: "Self Assessment", href: "/assessment" },
   { label: "About", href: "/about" },
   { label: "School Solutions", href: "/school-solutions" },
   { label: "Resources", href: "/resources" },
@@ -20,10 +24,6 @@ const primaryNavItems = [
 ];
 
 const subMenuItems = [
-  { label: "Courses", href: "/courses" },
-  { label: "Psychometrics", href: "/psychometrics" },
-  { label: "CareerPath", href: "/careerpath" },
-  { label: "Self Assessment", href: "/assessment" },
   { label: "Sign in", href: "/auth?mode=login" },
   { label: "Enroll", href: "/auth?mode=register" },
 ];
@@ -116,46 +116,27 @@ export function ExecutiveHeader({ variant = "public", dark = true }: ExecutiveHe
               </span>
             </Link>
 
-            {/* Sub menu */}
-            <nav className="hidden lg:flex items-center gap-1 ml-2 pl-2 border-l border-white/10" aria-label="Sub menu">
-              {subMenuItems.map((item) => {
-                const active = isItemActive(item.href);
-                const isAuth = item.href.startsWith("/auth");
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "inline-flex h-8 items-center rounded-md px-3 text-[11px] font-semibold tracking-tight transition-colors duration-150",
-                      isAuth && !isAuthenticated ? (dark ? "bg-[#c9a34e] text-[#0a1426] hover:bg-[#d4b35c]" : "bg-[#0a1426] text-white hover:bg-[#16243d]") : active ? (dark ? "text-[#c9a34e]" : "text-[#a27e2e]") : (dark ? "text-[#c1cad7] hover:text-[#f7f3e8]" : "text-[#4a566a] hover:text-[#16243d]")
-                    )}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
+            {variant !== "home" && (
+              <nav className="hidden lg:flex items-center gap-1 ml-2 pl-2 border-l border-white/10" aria-label="Sub menu">
+                {subMenuItems.map((item) => {
+                  const active = isItemActive(item.href);
+                  const isAuth = item.href.startsWith("/auth");
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        "inline-flex h-8 items-center rounded-md px-3 text-[11px] font-semibold tracking-tight transition-colors duration-150",
+                        isAuth && !isAuthenticated ? (dark ? "bg-[#c9a34e] text-[#0a1426] hover:bg-[#d4b35c]" : "bg-[#0a1426] text-white hover:bg-[#16243d]") : active ? (dark ? "text-[#c9a34e]" : "text-[#a27e2e]") : (dark ? "text-[#c1cad7] hover:text-[#f7f3e8]" : "text-[#4a566a] hover:text-[#16243d]")
+                      )}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </nav>
+            )}
           </div>
-        </nav>
-
-        {/* Sub menu */}
-        <nav className="hidden lg:flex items-center gap-1" aria-label="Sub menu">
-          {subMenuItems.map((item) => {
-            const active = isItemActive(item.href);
-            const isAuth = item.href.startsWith("/auth");
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "inline-flex h-8 items-center rounded-md px-3 text-[11px] font-semibold tracking-tight transition-colors duration-150",
-                  isAuth && !isAuthenticated ? (dark ? "bg-[#c9a34e] text-[#0a1426] hover:bg-[#d4b35c]" : "bg-[#0a1426] text-white hover:bg-[#16243d]") : active ? (dark ? "text-[#c9a34e]" : "text-[#a27e2e]") : (dark ? "text-[#c1cad7] hover:text-[#f7f3e8]" : "text-[#4a566a] hover:text-[#16243d]")
-                )}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
         </nav>
 
         <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
@@ -240,29 +221,31 @@ export function ExecutiveHeader({ variant = "public", dark = true }: ExecutiveHe
             })}
           </nav>
 
-          <div className="mt-3">
-            <p className={cn("mb-2 px-1 text-[10px] font-semibold uppercase tracking-[0.14em]", dark ? "text-[#8f9db3]" : "text-[#657084]")}>
-              Quick links
-            </p>
-            <nav className="grid grid-cols-1 gap-1" aria-label="Sub menu mobile">
-              {subMenuItems.map((item) => {
-                const active = isItemActive(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={cn(
-                      "flex h-12 items-center gap-3 rounded-md px-3.5 text-sm font-medium tracking-tight transition-colors duration-150",
-                      active ? (dark ? "border-[#c9a34e]/50 bg-[#c9a34e]/10 text-[#c9a34e]" : "border-[#a27e2e]/50 bg-[#a27e2e]/10 text-[#a27e2e]") : (dark ? "border border-white/8 text-[#c1cad7] hover:border-white/20 hover:bg-white/5 hover:text-[#f7f3e8]" : "border border-[#16243d]/10 text-[#4a566a] hover:border-[#16243d]/25 hover:bg-white hover:text-[#16243d]")
-                    )}
-                  >
-                    <span className="truncate">{item.label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
+          {variant !== "home" && (
+            <div className="mt-3">
+              <p className={cn("mb-2 px-1 text-[10px] font-semibold uppercase tracking-[0.14em]", dark ? "text-[#8f9db3]" : "text-[#657084]")}>
+                Quick links
+              </p>
+              <nav className="grid grid-cols-1 gap-1" aria-label="Sub menu mobile">
+                {subMenuItems.map((item) => {
+                  const active = isItemActive(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={cn(
+                        "flex h-12 items-center gap-3 rounded-md px-3.5 text-sm font-medium tracking-tight transition-colors duration-150",
+                        active ? (dark ? "border-[#c9a34e]/50 bg-[#c9a34e]/10 text-[#c9a34e]" : "border-[#a27e2e]/50 bg-[#a27e2e]/10 text-[#a27e2e]") : (dark ? "border border-white/8 text-[#c1cad7] hover:border-white/20 hover:bg-white/5 hover:text-[#f7f3e8]" : "border border-[#16243d]/10 text-[#4a566a] hover:border-[#16243d]/25 hover:bg-white hover:text-[#16243d]")
+                      )}
+                    >
+                      <span className="truncate">{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+          )}
 
           <div className="mt-3">
             <Link
