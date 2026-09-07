@@ -45,14 +45,16 @@ export function registerSocialOAuthRoutes(app: Express) {
       if (!origin || !config.clientId() || !config.clientSecret()) { redirectError(res, origin, `${provider}_not_configured`); return; }
       const nonce = crypto.randomBytes(32).toString("base64url");
       const state = encodeState({ provider, nonce, origin, returnTo });
-      res.cookie(STATE_COOKIE, `${provider}.${nonce}`, { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 600000 });
+      const cookieOptions = getSessionCookieOptions(req);
+      res.cookie(STATE_COOKIE, `${provider}.${nonce}`, { httpOnly: true, ...cookieOptions, path: "/", maxAge: 600000 });
       res.redirect(buildSocialAuthorizationUrl(provider, origin, state, nonce));
     });
 
     app.get(`/api/oauth/${provider}/callback`, async (req, res) => {
       const code = getParam(req, "code"); const stateValue = getParam(req, "state"); const state = decodeState(stateValue); const origin = safeOrigin(state.origin); const cookie = parseCookie(req.headers.cookie ?? "")[STATE_COOKIE];
       if (!code || state.provider !== provider || !state.nonce || cookie !== `${provider}.${state.nonce}` || !origin) { redirectError(res, origin, "invalid_social_oauth_state"); return; }
-      res.clearCookie(STATE_COOKIE, { httpOnly: true, secure: true, sameSite: "lax", path: "/" });
+      const cookieOptions = getSessionCookieOptions(req);
+      res.clearCookie(STATE_COOKIE, { ...cookieOptions, path: "/" });
       const config = providers[provider];
       try {
         const redirectUri = socialOAuthRedirectUri(provider, origin);

@@ -53,7 +53,7 @@ describe("Google social OAuth flow", () => {
     const routes = registeredRoutes();
     const startRedirect = vi.fn();
     const startResponse = { cookie: vi.fn(), redirect: startRedirect };
-    await routes.get("/api/oauth/google/start")?.({ query: { origin } }, startResponse);
+    await routes.get("/api/oauth/google/start")?.({ protocol: "http", headers: {}, query: { origin } }, startResponse);
     const authUrl = new URL(startRedirect.mock.calls[0][0]);
     const state = authUrl.searchParams.get("state")!;
     const nonce = authUrl.searchParams.get("nonce")!;
@@ -61,7 +61,7 @@ describe("Google social OAuth flow", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce(response({ access_token: "access-token", id_token: "id-token" })).mockResolvedValueOnce(response({ sub: "google-sub", email: "person@example.com", name: "Person Example", email_verified: true, picture: "https://example.com/avatar.png" })));
     const callbackRedirect = vi.fn();
     const callbackResponse = { clearCookie: vi.fn(), cookie: vi.fn(), redirect: callbackRedirect };
-    await routes.get("/api/oauth/google/callback")?.({ query: { code: "google-code", state }, headers: { cookie: `__Host-social_oauth_state=google.${nonce}` } }, callbackResponse);
+    await routes.get("/api/oauth/google/callback")?.({ protocol: "http", headers: { cookie: `__Host-social_oauth_state=google.${nonce}` }, query: { code: "google-code", state } }, callbackResponse);
     expect(mocks.upsertUser).toHaveBeenCalledWith(expect.objectContaining({ openId: "social:google:google-sub", email: "person@example.com", loginMethod: "google" }));
     expect(mocks.createSessionToken).toHaveBeenCalledWith("social:google:google-sub", expect.objectContaining({ name: "Person Example" }));
     expect(callbackResponse.cookie).toHaveBeenCalledWith(expect.any(String), "session-token", expect.any(Object));
@@ -72,14 +72,14 @@ describe("Google social OAuth flow", () => {
     mocks.findUserByLocalIdentifier.mockResolvedValue({ openId: "local-person", name: "Local Person", email: "person@example.com", username: "person", passwordHash: "preserved-hash", avatarUrl: null });
     const routes = registeredRoutes();
     const startRedirect = vi.fn();
-    await routes.get("/api/oauth/google/start")?.({ query: { origin, returnTo: "/dashboard" } }, { cookie: vi.fn(), redirect: startRedirect });
+    await routes.get("/api/oauth/google/start")?.({ protocol: "http", headers: {}, query: { origin, returnTo: "/dashboard" } }, { cookie: vi.fn(), redirect: startRedirect });
     const authUrl = new URL(startRedirect.mock.calls[0][0]);
     const state = authUrl.searchParams.get("state")!;
     const nonce = authUrl.searchParams.get("nonce")!;
     mocks.jwtVerify.mockResolvedValue({ payload: { nonce } });
     vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce(response({ access_token: "access-token", id_token: "id-token" })).mockResolvedValueOnce(response({ sub: "google-sub", email: "PERSON@example.com", name: "Provider Person", email_verified: true })));
     const redirect = vi.fn();
-    await routes.get("/api/oauth/google/callback")?.({ query: { code: "google-code", state }, headers: { cookie: `__Host-social_oauth_state=google.${nonce}` } }, { clearCookie: vi.fn(), cookie: vi.fn(), redirect });
+    await routes.get("/api/oauth/google/callback")?.({ protocol: "http", headers: { cookie: `__Host-social_oauth_state=google.${nonce}` }, query: { code: "google-code", state } }, { clearCookie: vi.fn(), cookie: vi.fn(), redirect });
     expect(mocks.upsertUser).toHaveBeenCalledWith(expect.objectContaining({ openId: "local-person", email: "person@example.com", loginMethod: "google" }));
     expect(mocks.createSessionToken).toHaveBeenCalledWith("local-person", expect.objectContaining({ name: "Provider Person" }));
     expect(redirect).toHaveBeenCalledWith(`${origin}/dashboard`);
@@ -88,7 +88,7 @@ describe("Google social OAuth flow", () => {
   it("rejects a callback with a mismatched state cookie before token exchange", async () => {
     const routes = registeredRoutes();
     const redirect = vi.fn();
-    await routes.get("/api/oauth/google/callback")?.({ query: { code: "code", state: "bad-state" }, headers: { cookie: "__Host-social_oauth_state=google.wrong" } }, { redirect });
+    await routes.get("/api/oauth/google/callback")?.({ protocol: "http", headers: { cookie: "__Host-social_oauth_state=google.wrong" }, query: { code: "code", state: "bad-state" } }, { redirect });
     expect(redirect).toHaveBeenCalledWith("/auth?error=invalid_social_oauth_state");
     expect(mocks.createSessionToken).not.toHaveBeenCalled();
   });
@@ -96,7 +96,7 @@ describe("Google social OAuth flow", () => {
   it("returns malformed state to the local auth route without exchanging a code", async () => {
     const routes = registeredRoutes();
     const redirect = vi.fn();
-    await routes.get("/api/oauth/google/callback")?.({ query: { code: "code", state: "not-valid-base64" }, headers: { cookie: "" } }, { redirect });
+    await routes.get("/api/oauth/google/callback")?.({ protocol: "http", headers: { cookie: "" }, query: { code: "code", state: "not-valid-base64" } }, { redirect });
     expect(redirect).toHaveBeenCalledWith("/auth?error=invalid_social_oauth_state");
     expect(mocks.createSessionToken).not.toHaveBeenCalled();
   });
