@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 interface SectionProps {
+  id?: string;
   eyebrow?: string;
   title?: string;
   description?: string;
@@ -16,6 +17,7 @@ interface SectionProps {
 }
 
 export function Section({
+  id,
   eyebrow,
   title,
   description,
@@ -31,6 +33,7 @@ export function Section({
 }: SectionProps) {
   return (
     <section
+      id={id}
       className={`reveal mb-8 border border-[#16243d]/15 bg-white/60 dark:bg-[#16243d]/95 backdrop-blur-sm rounded-xl overflow-hidden ${className}`}
     >
       {(eyebrow || title || description || actions) && (

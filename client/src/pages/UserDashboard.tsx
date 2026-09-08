@@ -3,6 +3,29 @@ import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 import { useEffect, useMemo, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { BrandLogo } from "@/components/BrandLogo";
+import DashboardLayout from "@/components/DashboardLayout";
+import { DashboardQuickNav } from "@/components/DashboardQuickNav";
+import { DashboardPagination } from "@/components/DashboardPagination";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import {
+  DashboardHero,
+  Section,
+  StatCard,
+  FilterBar,
+  AnalyticsBarChart,
+  AnalyticsLineChart,
+} from "@/components/dashboard";
 import { formatReportEmailSentAt } from "@shared/emailStatus";
 import {
   roleLensOptions,
@@ -59,8 +82,6 @@ import { isQaFixtureEnabled, QA_FIXTURE_STORAGE_KEY } from "@shared/qaFixture";
 import { courseCatalog, COURSE_PASS_MARK } from "@shared/courseCatalog";
 import { localizeCourseMetadata } from "@shared/courseMetadataLocalization";
 import { LanguageSelector } from "@/components/LanguageSelector";
-import { DashboardPagination } from "@/components/DashboardPagination";
-import { DashboardQuickNav } from "@/components/DashboardQuickNav";
 import { paginateDashboardItems } from "@/components/dashboardNavigation";
 import { summarizeQuizAnalytics } from "@shared/quizAnalytics";
 import { buildCourseCompletionShareSvg } from "@shared/courseCompletionVisual";
@@ -1195,49 +1216,14 @@ export default function UserDashboard() {
   if (!user) return <AccessState />;
 
   return (
-    <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-      <header className="border-b border-[#16243d]/15 bg-[#101d35] text-[#f7f3e8]">
-        <div className="container flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-5">
-          <Link href="/" className="flex items-center gap-3">
-            <BrandLogo context="my space" compactOnMobile />
-            <span className="text-[11px] font-extrabold tracking-[.18em]">
-              / MY SPACE
-            </span>
-            {isQualityControlAdmin(user) && (
-              <span
-                aria-label="Quality Control Mode active"
-                title="Quality Control Mode active"
-                className="inline-flex items-center gap-1 rounded-full border border-[#c9a34e]/50 bg-[#c9a34e]/10 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#d7b762]"
-              >
-                <ShieldCheck size={12} aria-hidden="true" /> QC Mode
-              </span>
-            )}
-          </Link>
-          <div className="flex w-full flex-wrap items-center gap-x-3 gap-y-2 sm:w-auto sm:justify-end">
-            <LanguageSelector compact />
-            <button
-              type="button"
-              onClick={() => logout()}
-              className="text-[10px] font-black uppercase tracking-[.16em] text-[#c1cad7] hover:text-[#c9a34e]"
-            >
-              Sign out
-            </button>
-            <Link
-              href="/settings"
-              className="text-[10px] font-black uppercase tracking-[.16em] text-[#c1cad7] hover:text-[#c9a34e]"
-            >
-              Settings
-            </Link>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.16em] text-[#c1cad7] hover:text-[#c9a34e]"
-            >
-              <ArrowLeft size={14} /> Back to site
-            </Link>
-          </div>
-        </div>
-      </header>
-      <main className="container py-10 sm:py-14 lg:py-20">
+    <DashboardLayout role="user">
+      <DashboardHero
+        eyebrow="Your space"
+        title="Your dashboard"
+        description="Review your assessment history, saved pathways, and recommendations."
+        badge={user?.role === "quality_control_admin" ? { label: "QC Mode", variant: "secondary" } : undefined}
+      />
+      <main className="min-w-0 flex-1 p-3 sm:p-4 lg:p-6">
         <DashboardQuickNav role={user.role} className="mb-8" />
         <section className="reveal mb-8 border border-[#16243d]/15 bg-[#fffaf0] p-5 sm:p-7">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -4611,7 +4597,7 @@ export default function UserDashboard() {
           <span className="text-lg leading-none">+</span> New self-assessment
         </Link>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
 

@@ -1,11 +1,8 @@
 /* Profound IQ Consulting — Executive Observatory admin workspace. Keep operational tools private, editorial, and calm. */
 
 import { startLogin } from "@/const";
-
 import { useAuth } from "@/_core/hooks/useAuth";
-
 import { trpc } from "@/lib/trpc";
-
 import {
   AlertCircle,
   ArrowLeft,
@@ -36,7 +33,6 @@ import {
   Users,
   X,
 } from "lucide-react";
-
 import {
   Bar,
   BarChart,
@@ -48,55 +44,56 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-
 import { useEffect, useMemo, useRef, useState } from "react";
-
 import { Link } from "wouter";
-
 import { BrandLogo } from "@/components/BrandLogo";
-
-import AdminInquiryPanel from "@/components/AdminInquiryPanel";
-
-import AdminTranslationSuggestionsPanel from "@/components/AdminTranslationSuggestionsPanel";
-
-import AdminRevenuePanel from "@/components/AdminRevenuePanel";
-
-import AdminStaffPanel from "@/components/AdminStaffPanel";
-
-import AdminCatalogPanel from "@/components/AdminCatalogPanel";
-
-import AdminCourseDeliveryPanel from "@/components/AdminCourseDeliveryPanel";
-
-import AdminPaymentExceptionsPanel from "@/components/AdminPaymentExceptionsPanel";
-
-import AdminNewsletterPanel from "@/components/AdminNewsletterPanel";
-
-import AdminInsightsPanel from "@/components/AdminInsightsPanel";
-
-import { AdminCourseAccessAudit } from "@/components/AdminCourseAccessAudit";
-
-import { AdminCertificatePreview } from "@/components/AdminCertificatePreview";
-
-import { AdminRecentQCCertificates } from "@/components/AdminRecentQCCertificates";
-
-import AdminSocialPreviewSettings from "@/components/AdminSocialPreviewSettings";
-
-import AdminCourseShareAnalytics from "@/components/AdminCourseShareAnalytics";
-
-import { buildFunnelComparison } from "@shared/adminAnalytics";
-
-import { renderEmailTemplate } from "@shared/emailTemplate";
-
-import { Streamdown } from "streamdown";
-
-import { toast } from "sonner";
-
-import { useLocale } from "@/contexts/LocaleContext";
-
+import DashboardLayout from "@/components/DashboardLayout";
 import { DashboardQuickNav } from "@/components/DashboardQuickNav";
-
 import { DashboardPagination } from "@/components/DashboardPagination";
-
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import {
+  DashboardHero,
+  Section,
+  StatCard,
+  FilterBar,
+  AnalyticsBarChart,
+  AnalyticsLineChart,
+} from "@/components/dashboard";
+import AdminInquiryPanel from "@/components/AdminInquiryPanel";
+import AdminTranslationSuggestionsPanel from "@/components/AdminTranslationSuggestionsPanel";
+import AdminRevenuePanel from "@/components/AdminRevenuePanel";
+import AdminStaffPanel from "@/components/AdminStaffPanel";
+import AdminCatalogPanel from "@/components/AdminCatalogPanel";
+import AdminCourseDeliveryPanel from "@/components/AdminCourseDeliveryPanel";
+import AdminPaymentExceptionsPanel from "@/components/AdminPaymentExceptionsPanel";
+import AdminNewsletterPanel from "@/components/AdminNewsletterPanel";
+import AdminInsightsPanel from "@/components/AdminInsightsPanel";
+import { AdminCourseAccessAudit } from "@/components/AdminCourseAccessAudit";
+import { AdminCertificatePreview } from "@/components/AdminCertificatePreview";
+import { AdminRecentQCCertificates } from "@/components/AdminRecentQCCertificates";
+import AdminSocialPreviewSettings from "@/components/AdminSocialPreviewSettings";
+import AdminCourseShareAnalytics from "@/components/AdminCourseShareAnalytics";
+import { buildFunnelComparison } from "@shared/adminAnalytics";
+import { renderEmailTemplate } from "@shared/emailTemplate";
+import { Streamdown } from "streamdown";
+import { toast } from "sonner";
+import { useLocale } from "@/contexts/LocaleContext";
 import { isQualityControlAdmin } from "@shared/courseAccess";
 
 function statusLabel(status: string) {
@@ -1241,119 +1238,56 @@ export default function AdminDashboard() {
     );
 
   return (
-    <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-      <header className="border-b border-[#16243d]/15 bg-[#101d35] text-[#f7f3e8]">
-        <div className="container flex items-center justify-between py-5">
-          <Link href="/" className="flex items-center gap-3">
-            <BrandLogo context="admin" compactOnMobile />
-
-            <span className="text-[11px] font-extrabold tracking-[.18em]">
-              / ADMIN
-            </span>
-
-            {isQualityControlAdmin(user) && (
-              <span
-                aria-label="Quality Control Mode active"
-                title="Quality Control Mode active"
-                className="inline-flex items-center gap-1 rounded-full border border-[#c9a34e]/50 bg-[#c9a34e]/10 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#d7b762]"
-              >
-                <ShieldCheck size={12} aria-hidden="true" /> QC Mode
-              </span>
-            )}
-          </Link>
-
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.16em] text-[#c1cad7] hover:text-[#c9a34e]"
+    <DashboardLayout role="admin" title="Admin Observatory">
+      <DashboardHero
+        eyebrow="Assessment intelligence"
+        title="The signal room"
+        description="Manage assessment records, follow up on course interest, and keep future communications on-brand."
+        badge={{ label: "Admin only", variant: "secondary" }}
+      />
+      <div
+        className="mt-8 flex flex-wrap gap-2"
+        role="tablist"
+        aria-label="Admin sections"
+      >
+        {[
+          { id: "overview", label: "Overview" },
+          { id: "psychometrics", label: "Psychometrics" },
+          { id: "inquiries", label: "Inquiries" },
+          { id: "revenue", label: "Revenue" },
+          { id: "staff", label: "Staff & Catalog" },
+          { id: "learning", label: "Learning" },
+          { id: "communications", label: "Communications" },
+          { id: "security", label: "Security" },
+          { id: "organization", label: "Organization" },
+        ].map(tab => (
+          <Button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            onClick={() => setActiveTab(tab.id as any)}
+            variant={activeTab === tab.id ? "default" : "outline"}
+            size="sm"
+            className="text-[10px] font-black uppercase tracking-[.12em]"
           >
-            <ArrowLeft size={14} /> Back to site
-          </Link>
-        </div>
-      </header>
-
-      <main className="container py-10 sm:py-14 lg:py-20">
-        <div className="flex flex-col justify-between gap-6 border-b border-[#16243d]/20 pb-8 sm:flex-row sm:items-end">
-          <div>
-            <p className="eyebrow text-[#a27e2e]">Assessment intelligence</p>
-            <h1 className="display mt-4 text-5xl leading-none tracking-[-.04em] sm:text-6xl">
-              The <em className="font-normal text-[#a27e2e]">signal</em> room.
-            </h1>
-
-            <p className="mt-5 max-w-xl text-base leading-7 text-[#4a566a]">
-              Manage assessment records, follow up on course interest, and keep
-              future communications on-brand.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.12em] text-[#657084]">
-            <LockKeyhole size={15} className="text-[#a27e2e]" /> Admin only
-          </div>
-        </div>
-
-        <DashboardQuickNav role="admin" className="mt-8" />
-        <div
-          className="mt-8 flex flex-wrap gap-2"
-          role="tablist"
-          aria-label="Admin sections"
-        >
-          {[
-            { id: "overview", label: "Overview" },
-            { id: "psychometrics", label: "Psychometrics" },
-            { id: "inquiries", label: "Inquiries" },
-            { id: "revenue", label: "Revenue" },
-            { id: "staff", label: "Staff & Catalog" },
-            { id: "learning", label: "Learning" },
-            { id: "communications", label: "Communications" },
-            { id: "security", label: "Security" },
-            { id: "organization", label: "Organization" },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={activeTab === tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`border px-4 py-2 text-[10px] font-black uppercase tracking-[.12em] transition-all ${
-                activeTab === tab.id
-                  ? "border-[#16243d] bg-[#16243d] text-[#f7f3e8]"
-                  : "border-[#16243d]/15 bg-white/50 text-[#657084] hover:border-[#c9a34e] hover:text-[#16243d]"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+            {tab.label}
+          </Button>
+        ))}
+      </div>
+      <div className="mt-8 space-y-8">
         {activeTab === "overview" && (
-          <>
-            <div id="share-observatory" className="scroll-mt-8">
+          <Section
+            id="share-observatory"
+            eyebrow="Share observatory"
+            title="Brand preview and share analytics"
+            description="Manage social preview settings and track how candidates share their results."
+          >
+            <div className="grid gap-6 lg:grid-cols-2">
               <AdminSocialPreviewSettings />
-
               <AdminCourseShareAnalytics />
             </div>
-
-            {overview.isLoading && (
-              <div className="mt-10 flex items-center gap-3 border-l-2 border-[#c9a34e] bg-white/50 px-5 py-4 text-sm">
-                <RefreshCw size={16} className="animate-spin text-[#a27e2e]" />{" "}
-                Loading assessment records…
-              </div>
-            )}
-
-            {overview.isError && (
-              <div className="mt-10 flex items-start gap-3 border-l-2 border-red-700 bg-red-50 px-5 py-4 text-sm text-red-900">
-                <AlertCircle size={18} className="mt-0.5 shrink-0" />
-
-                <div>
-                  <p className="font-bold">
-                    Unable to load assessment records.
-                  </p>
-
-                  <p className="mt-1">
-                    Check the database connection and try again.
-                  </p>
-                </div>
-              </div>
-            )}
-          </>
+          </Section>
         )}
 
         {activeTab === "revenue" && (
@@ -4602,8 +4536,8 @@ export default function AdminDashboard() {
             follow-up.
           </p>
         </div>
-      </main>
-    </div>
+      </div>
+      </DashboardLayout>
   );
 }
 
@@ -4729,9 +4663,9 @@ function AccessState({ title, message }: { title: string; message: string }) {
           >
             Return to site <ArrowLeft size={15} />
           </Link>
+          </div>
         </div>
       </div>
-    </div>
   );
 }
 
