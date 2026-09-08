@@ -1,4 +1,4 @@
-import DashboardLayout from "@/components/DashboardLayout";
+﻿import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
 import { useMemo, useState } from "react";
 import {
@@ -152,7 +152,7 @@ function InquiryDesk() {
       <DashboardSectionFilters>
         <div className="flex flex-col gap-3 md:flex-row">
           <div className="relative flex-1">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#657084]" />
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#16243d]" />
             <input
               value={search}
               onChange={event => setFilter(setSearch, event.target.value)}
@@ -185,7 +185,7 @@ function InquiryDesk() {
       </DashboardSectionFilters>
       <DashboardSectionContent>
         {inquiries.isLoading ? (
-          <div className="flex items-center gap-2 py-12 text-sm text-[#657084]">
+          <div className="flex items-center gap-2 py-12 text-sm text-[#16243d]">
             <RefreshCw size={15} className="animate-spin" /> Loading your assigned inquiries…
           </div>
         ) : inquiries.isError ? (
@@ -193,7 +193,7 @@ function InquiryDesk() {
             Unable to load your assigned inquiries. Please refresh and try again.
           </div>
         ) : rows.length === 0 ? (
-          <div className="py-12 text-center text-sm text-[#657084]">
+          <div className="py-12 text-center text-sm text-[#16243d]">
             No inquiries match your current view.
           </div>
         ) : (
@@ -204,10 +204,10 @@ function InquiryDesk() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <h2 className="text-base font-semibold text-[#16243d] dark:text-[#f7f3e8]">{inquiry.name}</h2>
-                      <span className="rounded-full border border-[#c9a34e]/60 px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e] dark:text-[#c9a34e]">
+                      <span className="rounded-full border border-[#c9a34e]/60 px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e] dark:text-[#7d5e1e]">
                         {inquiry.category.replaceAll("-", " ")}
                       </span>
-                      <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] ${inquiry.priority === "urgent" ? "bg-red-700 text-white" : inquiry.priority === "high" ? "bg-[#c9a34e] text-[#16243d]" : "border border-[#16243d]/15 text-[#657084]"}`}>
+                      <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] ${inquiry.priority === "urgent" ? "bg-red-700 text-white" : inquiry.priority === "high" ? "bg-[#c9a34e] text-[#16243d]" : "border border-[#16243d]/15 text-[#16243d]"}`}>
                         {inquiry.priority ?? "normal"}
                       </span>
                       {isInquiryOverdue(inquiry) && (
@@ -216,14 +216,14 @@ function InquiryDesk() {
                         </span>
                       )}
                     </div>
-                    <a href={`mailto:${inquiry.email}`} className="mt-2 inline-flex items-center gap-1.5 text-sm text-[#a27e2e] hover:text-[#7d5e1e] transition-colors">
+                    <a href={`mailto:${inquiry.email}`} className="mt-2 inline-flex items-center gap-1.5 text-sm text-[#7d5e1e] hover:text-[#7d5e1e] transition-colors">
                       <Mail size={13} />
                       {inquiry.email}
                     </a>
                     <p className="mt-3 text-sm leading-6 text-[#16243d]/80 dark:text-[#f7f3e8]/80">
                       {inquiry.message}
                     </p>
-                    <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[.1em] text-[#657084]">
+                    <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[.1em] text-[#16243d]">
                       <span>Received {new Date(inquiry.createdAt).toLocaleString()}</span>
                       {inquiry.dueDate && (
                         <span className={isInquiryOverdue(inquiry) ? "font-bold text-red-800 dark:text-red-400" : ""}>
@@ -369,7 +369,7 @@ function InstructorReviewPanel() {
       <DashboardSectionFilters>
         <div className="flex flex-col gap-3 md:flex-row">
           <div className="relative flex-1">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#657084]" />
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#16243d]" />
             <input
               value={search}
               onChange={event => setFilter(event.target.value)}
@@ -409,7 +409,7 @@ function InstructorReviewPanel() {
       </DashboardSectionFilters>
       <DashboardSectionContent>
         {responses.isLoading ? (
-          <div className="flex items-center gap-2 py-12 text-sm text-[#657084]">
+          <div className="flex items-center gap-2 py-12 text-sm text-[#16243d]">
             <RefreshCw size={15} className="animate-spin" /> Loading responses…
           </div>
         ) : responses.isError ? (
@@ -417,7 +417,7 @@ function InstructorReviewPanel() {
             Unable to load responses.
           </div>
         ) : responseRows.length === 0 ? (
-          <div className="py-12 text-center text-sm text-[#657084]">
+          <div className="py-12 text-center text-sm text-[#16243d]">
             No responses match your current view.
           </div>
         ) : (
@@ -431,7 +431,7 @@ function InstructorReviewPanel() {
                 <div key={row.response.id} className="rounded-xl border border-[#16243d]/10 bg-white/80 dark:bg-[#16243d]/60 p-5 transition-all hover:border-[#c9a34e]/40 hover:shadow-lg">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm font-semibold text-[#16243d] dark:text-[#f7f3e8]">{learnerName}</span>
-                    <span className="rounded-full border border-[#c9a34e]/60 px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e] dark:text-[#c9a34e]">
+                    <span className="rounded-full border border-[#c9a34e]/60 px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e] dark:text-[#7d5e1e]">
                       {courseTitle}
                     </span>
                     <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] ${reviewStatus === "reviewed" ? "border border-emerald-700/30 text-emerald-800 dark:text-emerald-400" : "border border-[#7d5e1e]/30 text-[#7d5e1e]"}`}>
@@ -481,3 +481,6 @@ function InstructorReviewPanel() {
 function stripResponseHtml(value: string) {
   return value.replace(/<br\s*\/?\s*>/gi, "\n").replace(/<\/p>/gi, "\n").replace(/<[^>]+>/g, "").replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").trim();
 }
+
+
+

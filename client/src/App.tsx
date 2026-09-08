@@ -31,6 +31,9 @@ const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const StaffDashboard = lazy(() => import("./pages/StaffDashboard"));
 const SavedPathwaysPrint = lazy(() => import("./pages/SavedPathwaysPrint"));
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
+const DashboardAssessment = lazy(() => import("./pages/DashboardAssessment"));
+const DashboardCareerPath = lazy(() => import("./pages/DashboardCareerPath"));
+const DashboardPsychometrics = lazy(() => import("./pages/DashboardPsychometrics"));
 const MyCertificates = lazy(() => import("./pages/MyCertificates"));
 const MyIllustrations = lazy(() => import("./pages/MyIllustrations"));
 const Settings = lazy(() => import("./pages/Settings"));
@@ -143,6 +146,9 @@ function Router() {
           component={SavedPathwaysPrint}
         />
         <Route path="/dashboard" component={UserDashboard} />
+        <Route path="/dashboard/assessment" component={DashboardAssessment} />
+        <Route path="/dashboard/careerpath" component={DashboardCareerPath} />
+        <Route path="/dashboard/psychometrics" component={DashboardPsychometrics} />
         <Route path="/dashboard/certificates" component={MyCertificates} />
         <Route path="/dashboard/settings" component={Settings} />
         <Route path="/myspace" component={MySpace} />

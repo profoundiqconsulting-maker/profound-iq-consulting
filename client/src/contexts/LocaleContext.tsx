@@ -119,6 +119,7 @@ const english = {
     "No courses match that search. Try a broader term or reset the filters.",
   discussItem: "Discuss item",
   overview: "Overview",
+  certificates: "My Certificates",
   adminObservatory: "Admin observatory",
   staffWorkspace: "Staff workspace",
   settings: "Settings",

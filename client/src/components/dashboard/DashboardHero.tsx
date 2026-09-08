@@ -1,4 +1,4 @@
-import { useAuth } from "@/_core/hooks/useAuth";
+﻿import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocale } from "@/contexts/LocaleContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ export function DashboardHero({
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div className="min-w-0">
           <div className="flex items-center gap-3 mb-2">
-            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e] dark:text-[#c9a34e]">
+            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e] dark:text-[#7d5e1e]">
               {eyebrow}
             </p>
             {badge && (
@@ -43,12 +43,12 @@ export function DashboardHero({
             {title}
           </h1>
           {description && (
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#657084] dark:text-[#c1cad7]">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#16243d] dark:text-[#f7f3e8]">
               {description}
             </p>
           )}
           {user && (
-            <p className="mt-2 text-xs text-[#657084] dark:text-[#c1cad7]">
+            <p className="mt-2 text-xs text-[#16243d] dark:text-[#f7f3e8]">
               Welcome back, <span className="font-semibold text-[#16243d] dark:text-[#f7f3e8]">{displayName}</span>
             </p>
           )}
@@ -60,10 +60,10 @@ export function DashboardHero({
       {stats && stats.length > 0 && (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat, index) => (
-            <Card key={index} className="border border-[#16243d]/10 dark:border-[#657084]/20 bg-white/80 dark:bg-[#16243d]/60 backdrop-blur-sm p-4">
-              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084] dark:text-[#c1cad7]">
-                {stat.label}
-              </p>
+              <Card key={index} className="border border-[#16243d]/10 dark:border-[#657084]/20 bg-white/80 dark:bg-[#16243d]/60 backdrop-blur-sm p-4">
+                <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] dark:text-[#f7f3e8]">
+                  {stat.label}
+                </p>
               <p className="mt-2 text-2xl font-bold tracking-tight text-[#16243d] dark:text-[#f7f3e8]">
                 {stat.value}
               </p>
@@ -79,3 +79,5 @@ export function DashboardHero({
     </div>
   );
 }
+
+

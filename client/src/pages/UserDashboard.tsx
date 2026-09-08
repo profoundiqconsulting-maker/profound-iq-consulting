@@ -1,10 +1,9 @@
-import { useAuth } from "@/_core/hooks/useAuth";
+﻿import { useAuth } from "@/_core/hooks/useAuth";
 import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 import { useEffect, useMemo, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { BrandLogo } from "@/components/BrandLogo";
 import DashboardLayout from "@/components/DashboardLayout";
-import { DashboardQuickNav } from "@/components/DashboardQuickNav";
 import { DashboardPagination } from "@/components/DashboardPagination";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -39,6 +38,8 @@ import {
   ArrowLeft,
   ArrowUpRight,
   Award,
+  BarChart3,
+  BrainCircuit,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -1224,15 +1225,72 @@ export default function UserDashboard() {
         badge={user?.role === "quality_control_admin" ? { label: "QC Mode", variant: "secondary" } : undefined}
       />
       <main className="min-w-0 flex-1 p-3 sm:p-4 lg:p-6">
-        <DashboardQuickNav role={user.role} className="mb-8" />
+        
+        {/* Stats Overview */}
+        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            label="Assessments"
+            value={history.data?.length ?? 0}
+            icon={<BarChart3 size={18} />}
+            href="/dashboard/assessment"
+          />
+          <StatCard
+            label="CareerPath reports"
+            value={careerPathHistory.data?.length ?? 0}
+            icon={<Users size={18} />}
+            href="/dashboard/careerpath"
+          />
+          <StatCard
+            label="Psychometrics"
+            value={psychometricHistory.data?.length ?? 0}
+            icon={<BrainCircuit size={18} />}
+            href="/dashboard/psychometrics"
+          />
+          <StatCard
+            label="Certificates"
+            value={achievements.data?.earnedBadges ?? 0}
+            icon={<Award size={18} />}
+            href="/dashboard/certificates"
+          />
+        </div>
+
+        {/* Recent Recommendations */}
+        {recommendations.data?.hasAssessment && (
+          <div className="mb-8">
+            <h2 className="display text-2xl text-[#16243d]">
+              Recommended for you
+            </h2>
+            <p className="mt-1 text-sm text-[#16243d]">
+              Based on your latest assessment results.
+            </p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {recommendations.data.recommendations.slice(0, 3).map(rec => (
+                <a
+                  key={rec.course.slug}
+                  href={`/courses/${rec.course.slug}`}
+                  className="rounded-xl border border-[#16243d]/10 bg-white/80 p-5 transition-all hover:border-[#c9a34e]/40 hover:shadow-lg"
+                >
+                  <p className="text-sm font-semibold text-[#16243d]">
+                    {rec.course.title}
+                  </p>
+                  <p className="mt-1 text-xs text-[#16243d]">
+                    {rec.rationale}
+                  </p>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Original dashboard sections continue below */}
         <section className="reveal mb-8 border border-[#16243d]/15 bg-[#fffaf0] p-5 sm:p-7">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
-              <p className="eyebrow text-[#a27e2e]">SAVED PATHWAYS</p>
+              <p className="eyebrow text-[#7d5e1e]">SAVED PATHWAYS</p>
               <h2 className="display mt-2 text-3xl">
                 Keep your next move close.
               </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
                 Courses saved from syllabus previews appear here for quick
                 return. Your course-finder preferences help shape future
                 recommendations.
@@ -1246,19 +1304,19 @@ export default function UserDashboard() {
                 <button
                   type="button"
                   onClick={() => setSavedPathwaysLayout("summary")}
-                  className={`px-2 py-1 text-[9px] font-black uppercase tracking-[.08em] ${savedPathwaysLayout === "summary" ? "bg-[#16243d] text-[#f7f3e8]" : "text-[#657084]"}`}
+                  className={`px-2 py-1 text-[9px] font-black uppercase tracking-[.08em] ${savedPathwaysLayout === "summary" ? "bg-[#16243d] text-[#f7f3e8]" : "text-[#16243d]"}`}
                 >
                   {pdfLayoutCopy.summary}
                 </button>
                 <button
                   type="button"
                   onClick={() => setSavedPathwaysLayout("detailed")}
-                  className={`px-2 py-1 text-[9px] font-black uppercase tracking-[.08em] ${savedPathwaysLayout === "detailed" ? "bg-[#16243d] text-[#f7f3e8]" : "text-[#657084]"}`}
+                  className={`px-2 py-1 text-[9px] font-black uppercase tracking-[.08em] ${savedPathwaysLayout === "detailed" ? "bg-[#16243d] text-[#f7f3e8]" : "text-[#16243d]"}`}
                 >
                   {pdfLayoutCopy.detailed}
                 </button>
               </div>
-              <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#657084]">
+              <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#16243d]">
                 Page size{" "}
                 <select
                   value={savedPathwaysPageSize}
@@ -1279,7 +1337,7 @@ export default function UserDashboard() {
                   <option value="LETTER">Letter</option>
                 </select>
               </label>
-              <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#657084]">
+              <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#16243d]">
                 Cover style{" "}
                 <select
                   value={savedPathwaysCoverTemplate}
@@ -1304,7 +1362,7 @@ export default function UserDashboard() {
                   <option value="signal">Signal</option>
                 </select>
               </label>
-              <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#657084]">
+              <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#16243d]">
                 Logo{" "}
                 <input
                   type="file"
@@ -1326,7 +1384,7 @@ export default function UserDashboard() {
                   className="w-32 text-[9px]"
                 />
               </label>
-              <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#657084]">
+              <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#16243d]">
                 <input
                   type="checkbox"
                   checked={savedPathwaysWatermark}
@@ -1344,7 +1402,7 @@ export default function UserDashboard() {
                 />{" "}
                 Watermark
               </label>
-              <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#657084]">
+              <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#16243d]">
                 <input
                   type="checkbox"
                   checked={savedPathwaysCoverPage}
@@ -1389,7 +1447,7 @@ export default function UserDashboard() {
               </button>
               <Link
                 href="/courses"
-                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.13em] text-[#a27e2e] transition hover:-translate-y-0.5"
+                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e] transition hover:-translate-y-0.5"
               >
                 Explore catalog <ArrowUpRight size={14} />
               </Link>
@@ -1420,13 +1478,13 @@ export default function UserDashboard() {
                           href={`/courses/${saved.courseSlug}`}
                           className="min-w-0 flex-1"
                         >
-                          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                             {course?.category ?? "Saved course"}
                           </p>
                           <h3 className="display mt-2 text-2xl leading-tight">
                             {course?.title ?? saved.courseSlug}
                           </h3>
-                          <p className="mt-2 text-xs leading-5 text-[#657084]">
+                          <p className="mt-2 text-xs leading-5 text-[#16243d]">
                             {course?.strapline ??
                               "Return to your saved learning pathway."}
                           </p>
@@ -1447,7 +1505,7 @@ export default function UserDashboard() {
                             })
                           }
                           disabled={unsaveCourse.isPending}
-                          className="shrink-0 border border-[#16243d]/20 px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#657084] hover:border-red-700 hover:text-red-700 disabled:opacity-50"
+                          className="shrink-0 border border-[#16243d]/20 px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] hover:border-red-700 hover:text-red-700 disabled:opacity-50"
                           aria-label={`Remove ${course?.title ?? saved.courseSlug} from saved pathways`}
                         >
                           Remove
@@ -1459,7 +1517,7 @@ export default function UserDashboard() {
               </div>
               {savedCourses.data.pageCount > 1 && (
                 <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#16243d]/10 pt-4">
-                  <p className="text-xs text-[#657084]">
+                  <p className="text-xs text-[#16243d]">
                     Showing page {savedCourses.data.page} of{" "}
                     {savedCourses.data.pageCount} · {savedCourses.data.total}{" "}
                     saved pathway{savedCourses.data.total === 1 ? "" : "s"}
@@ -1495,7 +1553,7 @@ export default function UserDashboard() {
               )}
             </>
           ) : (
-            <div className="mt-5 border-l-2 border-[#c9a34e] bg-white/70 p-4 text-sm text-[#657084]">
+            <div className="mt-5 border-l-2 border-[#c9a34e] bg-white/70 p-4 text-sm text-[#16243d]">
               No saved courses yet. Open a syllabus preview in the{" "}
               <Link
                 href="/courses"
@@ -1508,7 +1566,7 @@ export default function UserDashboard() {
           )}
           {recommendationAnswers?.careerGoal && (
             <>
-              <p className="mt-5 border-t border-[#16243d]/10 pt-4 text-xs leading-5 text-[#657084]">
+              <p className="mt-5 border-t border-[#16243d]/10 pt-4 text-xs leading-5 text-[#16243d]">
                 Course finder profile:{" "}
                 <span className="font-semibold text-[#16243d]">
                   {recommendationAnswers.careerGoal}
@@ -1520,7 +1578,7 @@ export default function UserDashboard() {
                 level.
               </p>
               <div className="mt-5 border-t border-[#16243d]/10 pt-4">
-                <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                   Suggested follow-up
                 </p>
                 <div className="mt-3 grid gap-2 md:grid-cols-3">
@@ -1533,7 +1591,7 @@ export default function UserDashboard() {
                       <p className="text-xs font-bold leading-4">
                         {course.title}
                       </p>
-                      <p className="mt-2 text-[10px] leading-4 text-[#657084]">
+                      <p className="mt-2 text-[10px] leading-4 text-[#16243d]">
                         {course.skillLevel} pathway
                       </p>
                     </Link>
@@ -1558,7 +1616,7 @@ export default function UserDashboard() {
             >
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                     Course finder history
                   </p>
                   <h3
@@ -1567,7 +1625,7 @@ export default function UserDashboard() {
                   >
                     Your evolving direction.
                   </h3>
-                  <p className="mt-2 text-xs leading-5 text-[#657084]">
+                  <p className="mt-2 text-xs leading-5 text-[#16243d]">
                     Review previous goal and skill snapshots, then retake the
                     finder whenever your priorities change.
                   </p>
@@ -1590,13 +1648,13 @@ export default function UserDashboard() {
                         {item.careerGoal}
                       </p>
                       <time
-                        className="text-[10px] text-[#657084]"
+                        className="text-[10px] text-[#16243d]"
                         dateTime={new Date(item.createdAt).toISOString()}
                       >
                         {new Date(item.createdAt).toLocaleDateString()}
                       </time>
                     </div>
-                    <p className="mt-1 text-[10px] uppercase tracking-[.1em] text-[#657084]">
+                    <p className="mt-1 text-[10px] uppercase tracking-[.1em] text-[#16243d]">
                       {item.skillLevel} skill level
                     </p>
                   </div>
@@ -1658,21 +1716,21 @@ export default function UserDashboard() {
           />
         )}
         <div className="border-b border-[#16243d]/20 pb-8">
-          <p className="eyebrow text-[#a27e2e]">
+          <p className="eyebrow text-[#7d5e1e]">
             Private workspace / personal development
           </p>
-          <p className="text-sm font-semibold text-[#657084]">
+          <p className="text-sm font-semibold text-[#16243d]">
             Welcome back, {user.name?.split(" ")[0] || "there"}.
           </p>
           <h1 className="display mt-3 text-5xl leading-none tracking-[-.04em] sm:text-6xl">
-            Your <em className="font-normal text-[#a27e2e]">pathway</em>.
+            Your <em className="font-normal text-[#7d5e1e]">pathway</em>.
           </h1>
           <div className="mt-6 max-w-2xl border-l-2 border-[#c9a34e] bg-white/55 p-4">
             <div className="flex items-center justify-between gap-4">
-              <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#657084]">
+              <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
                 Progress summary
               </span>
-              <span className="text-sm font-bold text-[#a27e2e]">
+              <span className="text-sm font-bold text-[#7d5e1e]">
                 {displayHistory.length
                   ? `${Math.round((paidVersions.length / Math.max(displayHistory.length, 1)) * 100)}% unlocked`
                   : "Ready to begin"}
@@ -1686,7 +1744,7 @@ export default function UserDashboard() {
                 }}
               />
             </div>
-            <p className="mt-2 text-xs text-[#657084]">
+            <p className="mt-2 text-xs text-[#16243d]">
               {paidVersions.length} paid report
               {paidVersions.length === 1 ? "" : "s"} available from{" "}
               {displayHistory.length} assessment
@@ -1700,7 +1758,7 @@ export default function UserDashboard() {
         </div>
         {history.isLoading && (
           <div className="mt-10 flex items-center gap-3 border-l-2 border-[#c9a34e] bg-white/50 px-5 py-4 text-sm">
-            <RefreshCw size={16} className="animate-spin text-[#a27e2e]" />{" "}
+            <RefreshCw size={16} className="animate-spin text-[#7d5e1e]" />{" "}
             Loading your assessment history…
           </div>
         )}
@@ -1742,11 +1800,11 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#c9a34e]/55 bg-[#fffaf0] p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">Course investment</p>
+                  <p className="eyebrow text-[#7d5e1e]">Course investment</p>
                   <h2 className="display mt-2 text-2xl">
                     Track your access stage.
                   </h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
                     Each professional course has a transparent four-stage
                     payment plan, shown against your selected course below.
                     Resume an incomplete enrollment whenever you are ready.
@@ -1760,10 +1818,10 @@ export default function UserDashboard() {
                 </Link>
               </div>
               {courseHistory.isLoading ? (
-                <div className="mt-5 flex items-center gap-2 text-sm text-[#657084]">
+                <div className="mt-5 flex items-center gap-2 text-sm text-[#16243d]">
                   <RefreshCw
                     size={15}
-                    className="animate-spin text-[#a27e2e]"
+                    className="animate-spin text-[#7d5e1e]"
                   />{" "}
                   Loading course enrollments…
                 </div>
@@ -1802,7 +1860,7 @@ export default function UserDashboard() {
                         >
                           <div className="flex items-start justify-between gap-4">
                             <div>
-                              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                                 Incomplete enrollment
                               </p>
                               <h3 className="display mt-2 text-2xl">
@@ -1819,7 +1877,7 @@ export default function UserDashboard() {
                               style={{ width: `${rollup.paymentPercent}%` }}
                             />
                           </div>
-                          <div className="mt-3 flex flex-wrap justify-between gap-2 text-xs text-[#657084]">
+                          <div className="mt-3 flex flex-wrap justify-between gap-2 text-xs text-[#16243d]">
                             <span>
                               KES {rollup.paidAmountKes.toLocaleString()} paid
                             </span>
@@ -1850,7 +1908,7 @@ export default function UserDashboard() {
                               <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                                 Module badges
                               </p>
-                              <span className="text-xs font-bold text-[#a27e2e]">
+                              <span className="text-xs font-bold text-[#7d5e1e]">
                                 {earnedBadges.length}/{badges.length} earned
                               </span>
                             </div>
@@ -1865,14 +1923,14 @@ export default function UserDashboard() {
                                 ))}
                               </div>
                             ) : (
-                              <p className="mt-2 text-xs leading-5 text-[#657084]">
+                              <p className="mt-2 text-xs leading-5 text-[#16243d]">
                                 Complete all seven lessons and pass a module
                                 quiz to earn your first badge.
                               </p>
                             )}
                           </div>
                           <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#16243d]/10 pt-4">
-                            <p className="text-xs text-[#657084]">
+                            <p className="text-xs text-[#16243d]">
                               {rollup.completedModules} of{" "}
                               {course?.modules.length ?? 10} modules ·{" "}
                               {rollup.learningPercent}% learning progress
@@ -1904,7 +1962,7 @@ export default function UserDashboard() {
                     <p className="text-sm font-bold">
                       No incomplete course enrollments.
                     </p>
-                    <p className="mt-1 text-xs leading-5 text-[#657084]">
+                    <p className="mt-1 text-xs leading-5 text-[#16243d]">
                       Your staged payment progress will appear here after you
                       begin a course enrollment.
                     </p>
@@ -1922,11 +1980,11 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">Psychometric suite</p>
+                  <p className="eyebrow text-[#7d5e1e]">Psychometric suite</p>
                   <h2 className="display mt-2 text-2xl">
                     Your professional profiles.
                   </h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
                     Paid profiles remain available here for review. Pending
                     attempts can be resumed from their secure checkout journey.
                   </p>
@@ -1939,15 +1997,15 @@ export default function UserDashboard() {
                 </Link>
               </div>
               {psychometricHistory.isLoading ? (
-                <div className="mt-5 flex items-center gap-2 text-sm text-[#657084]">
+                <div className="mt-5 flex items-center gap-2 text-sm text-[#16243d]">
                   <RefreshCw
                     size={15}
-                    className="animate-spin text-[#a27e2e]"
+                    className="animate-spin text-[#7d5e1e]"
                   />{" "}
                   Loading psychometric profiles…
                 </div>
               ) : psychometricHistory.isError ? (
-                <div className="mt-5 border border-dashed border-[#16243d]/20 bg-white/60 p-5 text-sm text-[#657084]">
+                <div className="mt-5 border border-dashed border-[#16243d]/20 bg-white/60 p-5 text-sm text-[#16243d]">
                   Psychometric history is temporarily unavailable. Please try
                   again later.
                 </div>
@@ -1961,7 +2019,7 @@ export default function UserDashboard() {
                       >
                         <div className="flex items-start justify-between gap-4">
                           <div>
-                            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                               {item.testTitle ?? item.testSlug}
                             </p>
                             <h3 className="display mt-1 text-xl">
@@ -1978,7 +2036,7 @@ export default function UserDashboard() {
                               : item.paymentStatus}
                           </span>
                         </div>
-                        <p className="mt-2 text-xs leading-5 text-[#657084]">
+                        <p className="mt-2 text-xs leading-5 text-[#16243d]">
                           {item.paymentStatus === "paid" && item.report
                             ? item.report.overallBand
                             : "Complete the KES 699 checkout to unlock your report."}
@@ -2021,7 +2079,7 @@ export default function UserDashboard() {
                         </div>
                         {item.paymentStatus === "paid" && item.report && (
                           <div className="mt-5 border-t border-[#16243d]/10 pt-4">
-                            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                               Recommended next steps
                             </p>
                             <div className="mt-3 grid gap-2">
@@ -2048,7 +2106,7 @@ export default function UserDashboard() {
                                     <span className="block text-sm font-bold">
                                       {course.title}
                                     </span>
-                                    <span className="mt-1 block text-xs leading-5 text-[#657084]">
+                                    <span className="mt-1 block text-xs leading-5 text-[#16243d]">
                                       {course.reason}
                                     </span>
                                     {course.scoreSignal && (
@@ -2079,7 +2137,7 @@ export default function UserDashboard() {
                     <p className="text-sm font-bold">
                       No psychometric profiles yet.
                     </p>
-                    <p className="mt-1 text-xs leading-5 text-[#657084]">
+                    <p className="mt-1 text-xs leading-5 text-[#16243d]">
                       Choose a profile to receive a structured, non-diagnostic
                       development report.
                     </p>
@@ -2097,11 +2155,11 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#c9a34e]/45 bg-[#fffaf0] p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">Quiz analytics</p>
+                  <p className="eyebrow text-[#7d5e1e]">Quiz analytics</p>
                   <h2 className="display mt-2 text-2xl">
                     Learn from your attempts.
                   </h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
                     Track truthful performance trends from your submitted
                     quizzes and identify the modules that deserve another
                     focused review.
@@ -2116,7 +2174,7 @@ export default function UserDashboard() {
                 <>
                   <div className="mt-5 grid gap-3 sm:grid-cols-3">
                     <div className="border border-[#16243d]/10 bg-white/70 p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
                         Average score
                       </p>
                       <p className="display mt-2 text-3xl">
@@ -2124,7 +2182,7 @@ export default function UserDashboard() {
                       </p>
                     </div>
                     <div className="border border-[#16243d]/10 bg-white/70 p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
                         Pass rate
                       </p>
                       <p className="display mt-2 text-3xl">
@@ -2132,7 +2190,7 @@ export default function UserDashboard() {
                       </p>
                     </div>
                     <div className="border border-[#16243d]/10 bg-white/70 p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
                         Passed attempts
                       </p>
                       <p className="display mt-2 text-3xl">
@@ -2142,7 +2200,7 @@ export default function UserDashboard() {
                   </div>
                   <div className="mt-5 grid gap-5 lg:grid-cols-[1.1fr_.9fr]">
                     <div className="border border-[#16243d]/10 bg-white/70 p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
                         Recent score trend
                       </p>
                       <div className="mt-3 h-44">
@@ -2169,7 +2227,7 @@ export default function UserDashboard() {
                       </div>
                     </div>
                     <div className="border border-[#16243d]/10 bg-white/70 p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
                         Areas to improve
                       </p>
                       {quizImprovementAreas.length ? (
@@ -2195,7 +2253,7 @@ export default function UserDashboard() {
                           ))}
                         </div>
                       ) : (
-                        <p className="mt-3 text-xs leading-5 text-[#657084]">
+                        <p className="mt-3 text-xs leading-5 text-[#16243d]">
                           No improvement areas yet. Keep practising and review
                           the explanations after each attempt.
                         </p>
@@ -2204,7 +2262,7 @@ export default function UserDashboard() {
                   </div>
                 </>
               ) : (
-                <div className="mt-5 border border-dashed border-[#16243d]/20 bg-white/60 p-5 text-sm text-[#657084]">
+                <div className="mt-5 border border-dashed border-[#16243d]/20 bg-white/60 p-5 text-sm text-[#16243d]">
                   Complete a module quiz to start building your personal
                   performance history. Scores shown here come only from your
                   submitted attempts.
@@ -2214,13 +2272,13 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">
+                  <p className="eyebrow text-[#7d5e1e]">
                     Student course dashboard
                   </p>
                   <h2 className="display mt-2 text-2xl">
                     Your learning ledger.
                   </h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
                     See learning progress, quiz performance, and the next
                     installment milestone for every course you have started.
                   </p>
@@ -2233,10 +2291,10 @@ export default function UserDashboard() {
                 </Link>
               </div>
               {courseHistory.isLoading ? (
-                <div className="mt-5 flex items-center gap-2 text-sm text-[#657084]">
+                <div className="mt-5 flex items-center gap-2 text-sm text-[#16243d]">
                   <RefreshCw
                     size={15}
-                    className="animate-spin text-[#a27e2e]"
+                    className="animate-spin text-[#7d5e1e]"
                   />{" "}
                   Loading your learning ledger…
                 </div>
@@ -2283,7 +2341,7 @@ export default function UserDashboard() {
                       >
                         <div className="flex items-start justify-between gap-4">
                           <div>
-                            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                               {course?.index ?? "Course"} · {rollup.paidStages}/
                               {rollup.totalStages} installments paid
                             </p>
@@ -2301,7 +2359,7 @@ export default function UserDashboard() {
                             style={{ width: `${rollup.learningPercent}%` }}
                           />
                         </div>
-                        <div className="mt-3 flex flex-wrap justify-between gap-2 text-xs text-[#657084]">
+                        <div className="mt-3 flex flex-wrap justify-between gap-2 text-xs text-[#16243d]">
                           <span>
                             {rollup.completedModules} of{" "}
                             {course?.modules.length ?? 10} modules ·{" "}
@@ -2314,7 +2372,7 @@ export default function UserDashboard() {
                         </div>
                         <div className="mt-5 grid gap-3 sm:grid-cols-2">
                           <div className="border border-[#16243d]/10 bg-white/60 p-3">
-                            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+                            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
                               Quiz performance
                             </p>
                             {latestScores.length ? (
@@ -2324,14 +2382,14 @@ export default function UserDashboard() {
                                     key={module.id}
                                     className="flex items-center justify-between gap-2 text-xs"
                                   >
-                                    <span className="truncate text-[#657084]">
+                                    <span className="truncate text-[#16243d]">
                                       {module.title.replace(/^\\d+\\. /, "")}
                                     </span>
                                     <span
                                       className={
                                         attempt?.passed
                                           ? "font-bold text-emerald-700"
-                                          : "font-bold text-[#a27e2e]"
+                                          : "font-bold text-[#7d5e1e]"
                                       }
                                     >
                                       {attempt?.score}%
@@ -2340,13 +2398,13 @@ export default function UserDashboard() {
                                 ))}
                               </div>
                             ) : (
-                              <p className="mt-2 text-xs leading-5 text-[#657084]">
+                              <p className="mt-2 text-xs leading-5 text-[#16243d]">
                                 No module quiz attempts yet.
                               </p>
                             )}
                           </div>
                           <div className="border border-[#16243d]/10 bg-white/60 p-3">
-                            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+                            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
                               Upcoming installment
                             </p>
                             {nextStage ? (
@@ -2354,7 +2412,7 @@ export default function UserDashboard() {
                                 <p className="mt-2 text-lg font-bold text-[#16243d]">
                                   KES {nextStage.amountKes.toLocaleString()}
                                 </p>
-                                <p className="mt-1 text-xs leading-5 text-[#657084]">
+                                <p className="mt-1 text-xs leading-5 text-[#16243d]">
                                   Stage {nextStage.stage} · {milestone}
                                 </p>
                               </>
@@ -2366,7 +2424,7 @@ export default function UserDashboard() {
                           </div>
                         </div>
                         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#16243d]/10 pt-4">
-                          <span className="text-xs text-[#657084]">
+                          <span className="text-xs text-[#16243d]">
                             Paid KES {rollup.paidAmountKes.toLocaleString()} ·
                             Remaining KES{" "}
                             {rollup.remainingAmountKes.toLocaleString()}
@@ -2399,7 +2457,7 @@ export default function UserDashboard() {
                   })}
                 </div>
               ) : (
-                <div className="mt-5 border border-dashed border-[#16243d]/20 p-5 text-sm leading-6 text-[#657084]">
+                <div className="mt-5 border border-dashed border-[#16243d]/20 p-5 text-sm leading-6 text-[#16243d]">
                   Start a course to see your progress, quiz scores, and staged
                   payment schedule here.
                 </div>
@@ -2408,22 +2466,22 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">Profile completion</p>
+                  <p className="eyebrow text-[#7d5e1e]">Profile completion</p>
                   <h2 className="display mt-2 text-2xl">
                     Make your workspace yours.
                   </h2>
-                  <p className="mt-2 text-sm text-[#657084]">
+                  <p className="mt-2 text-sm text-[#16243d]">
                     Complete your profile to keep account settings and
                     notifications ready.
                   </p>
                 </div>
                 <div className="min-w-48">
-                  <div className="flex justify-between text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                  <div className="flex justify-between text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                     <span>{profileCompletion}% complete</span>
                     <button
                       type="button"
                       onClick={() => setProfileModalOpen(true)}
-                      className="text-[#a27e2e] underline-offset-4 hover:underline"
+                      className="text-[#7d5e1e] underline-offset-4 hover:underline"
                     >
                       Complete profile
                     </button>
@@ -2438,13 +2496,13 @@ export default function UserDashboard() {
               </div>
               <div className="mt-10 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">Recent activity</p>
+                  <p className="eyebrow text-[#7d5e1e]">Recent activity</p>
                   <h2 className="display mt-2 text-2xl">
                     Your latest movement.
                   </h2>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-[#657084]">
+                  <span className="text-xs text-[#16243d]">
                     Completed work and unlocked reports
                   </span>
                   <select
@@ -2464,7 +2522,7 @@ export default function UserDashboard() {
                 </div>
               </div>
               {recentActivity.length === 0 ? (
-                <p className="mt-5 text-sm text-[#657084]">
+                <p className="mt-5 text-sm text-[#16243d]">
                   Your latest completed assessments and unlocked reports will
                   appear here.
                 </p>
@@ -2482,7 +2540,7 @@ export default function UserDashboard() {
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                             {item.paymentStatus === "paid"
                               ? "Report unlocked"
                               : "Assessment started"}
@@ -2495,7 +2553,7 @@ export default function UserDashboard() {
                           className={`h-2 w-2 rounded-full ${item.paymentStatus === "paid" ? "bg-emerald-600" : "bg-[#c9a34e]"}`}
                         />
                       </div>
-                      <p className="mt-3 text-xs text-[#657084]">
+                      <p className="mt-3 text-xs text-[#16243d]">
                         {new Date(item.createdAt).toLocaleDateString()} ·{" "}
                         {item.paymentStatus === "paid"
                           ? `${item.overallScore ?? 0}/100 available`
@@ -2555,20 +2613,20 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">
+                  <p className="eyebrow text-[#7d5e1e]">
                     CareerPath recommendations
                   </p>
                   <h2 className="display mt-2 text-2xl">
                     A pathway shaped by your Self Assessment.
                   </h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
                     These suggestions use your latest unlocked Self Assessment
                     signals to prioritize a practical next step. They are
                     guidance, not a fixed label.
                   </p>
                 </div>
                 {recommendations.data?.basedOn && (
-                  <span className="text-xs text-[#657084]">
+                  <span className="text-xs text-[#16243d]">
                     Based on {recommendations.data.basedOn.overallScore ?? 0}
                     /100 ·{" "}
                     {new Date(
@@ -2578,10 +2636,10 @@ export default function UserDashboard() {
                 )}
               </div>
               {recommendations.isLoading ? (
-                <div className="mt-5 flex items-center gap-2 text-sm text-[#657084]">
+                <div className="mt-5 flex items-center gap-2 text-sm text-[#16243d]">
                   <RefreshCw
                     size={15}
-                    className="animate-spin text-[#a27e2e]"
+                    className="animate-spin text-[#7d5e1e]"
                   />{" "}
                   Reading your assessment signals…
                 </div>
@@ -2593,7 +2651,7 @@ export default function UserDashboard() {
                       className="border border-[#16243d]/12 bg-[#f7f3e8] p-5 transition hover:-translate-y-0.5 hover:border-[#c9a34e]"
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+                        <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                           Priority {index + 1}
                         </span>
                         <span className="text-xs font-bold text-[#7d5e1e]">
@@ -2606,7 +2664,7 @@ export default function UserDashboard() {
                       <p className="mt-2 text-sm font-semibold text-[#4a566a]">
                         {item.course.strapline}
                       </p>
-                      <p className="mt-3 text-xs leading-6 text-[#657084]">
+                      <p className="mt-3 text-xs leading-6 text-[#16243d]">
                         {item.rationale}
                       </p>
                       <div className="mt-4 flex flex-wrap gap-2">
@@ -2629,7 +2687,7 @@ export default function UserDashboard() {
                   ))}
                 </div>
               ) : (
-                <div className="mt-5 border-l-2 border-[#c9a34e] bg-[#fffaf0] p-4 text-sm leading-6 text-[#657084]">
+                <div className="mt-5 border-l-2 border-[#c9a34e] bg-[#fffaf0] p-4 text-sm leading-6 text-[#16243d]">
                   <p className="font-semibold text-[#16243d]">
                     Complete and unlock your self-assessment to receive course
                     recommendations.
@@ -2649,7 +2707,7 @@ export default function UserDashboard() {
               )}
             </section>
             <section className="mt-10 border border-[#c9a34e]/50 bg-[#16243d] p-5 text-[#f7f3e8] sm:p-6">
-              <p className="eyebrow text-[#c9a34e]">Recommended next step</p>
+              <p className="eyebrow text-[#7d5e1e]">Recommended next step</p>
               <h2 className="display mt-2 text-2xl">
                 A useful signal to explore.
               </h2>
@@ -2663,13 +2721,13 @@ export default function UserDashboard() {
                   href="/assessment"
                   className="border border-[#c9a34e]/60 bg-[#f7f3e8] p-4 text-[#16243d] transition hover:-translate-y-0.5"
                 >
-                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                     Recommended for you
                   </p>
                   <p className="mt-2 text-sm font-bold">
                     Self Assessment refresh
                   </p>
-                  <p className="mt-1 text-xs text-[#657084]">
+                  <p className="mt-1 text-xs text-[#16243d]">
                     Revisit your strengths and create a new paid report version.
                   </p>
                   <button
@@ -2690,7 +2748,7 @@ export default function UserDashboard() {
                   href="/careerpath"
                   className="border border-white/20 p-4 transition hover:-translate-y-0.5"
                 >
-                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#c9a34e]">
+                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                     Explore next
                   </p>
                   <p className="mt-2 text-sm font-bold">
@@ -2705,7 +2763,7 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#c9a34e] bg-[#16243d] p-5 text-[#f7f3e8] sm:p-6">
               <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#c9a34e]">
+                  <p className="eyebrow text-[#7d5e1e]">
                     Completion delivery queue
                   </p>
                   <h2 className="display mt-2 text-2xl">
@@ -2721,8 +2779,8 @@ export default function UserDashboard() {
                   size={18}
                   className={
                     courseHistory.isFetching
-                      ? "animate-spin text-[#c9a34e]"
-                      : "text-[#c9a34e]"
+                      ? "animate-spin text-[#7d5e1e]"
+                      : "text-[#7d5e1e]"
                   }
                   aria-label="Course completion status refreshes automatically"
                 />
@@ -2755,7 +2813,7 @@ export default function UserDashboard() {
                     <div className="mt-6 border border-white/15 bg-white/5 p-4 sm:p-5">
                       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
                         <div>
-                          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e]">
+                          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                             {activeCertificate.courseTitle}
                           </p>
                           <p className="mt-2 text-sm font-bold">
@@ -2825,7 +2883,7 @@ export default function UserDashboard() {
                           <button
                             type="button"
                             onClick={() => setDeliveryStep("organization")}
-                            className="mt-3 border border-[#c9a34e] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#c9a34e]"
+                            className="mt-3 border border-[#c9a34e] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]"
                           >
                             Continue to organization
                           </button>
@@ -2874,7 +2932,7 @@ export default function UserDashboard() {
                               type="button"
                               onClick={submitOrganizationRequest}
                               disabled={requestOrganizationReview.isPending}
-                              className="border border-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-[#c9a34e] disabled:opacity-50"
+                              className="border border-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e] disabled:opacity-50"
                             >
                               {requestOrganizationReview.isPending
                                 ? "Sending request…"
@@ -2899,7 +2957,7 @@ export default function UserDashboard() {
                             onClick={() =>
                               void sendCourseCompletionImage("native")
                             }
-                            className="border border-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-[#c9a34e]"
+                            className="border border-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]"
                           >
                             Share image
                           </button>
@@ -2931,20 +2989,20 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">Delivery history</p>
+                  <p className="eyebrow text-[#7d5e1e]">Delivery history</p>
                   <h2 className="display mt-2 text-2xl">Your outward trail.</h2>
-                  <p className="mt-2 text-sm leading-6 text-[#657084]">
+                  <p className="mt-2 text-sm leading-6 text-[#16243d]">
                     Track learner email, organization-review, and social-image
                     actions across devices.
                   </p>
                 </div>
-                <span className="text-xs text-[#657084]">
+                <span className="text-xs text-[#16243d]">
                   {courseDeliveryHistory.data?.length ?? 0} recorded action
                   {(courseDeliveryHistory.data?.length ?? 0) === 1 ? "" : "s"}
                 </span>
               </div>
               {courseDeliveryHistory.isLoading ? (
-                <p className="mt-5 text-sm text-[#657084]">
+                <p className="mt-5 text-sm text-[#16243d]">
                   Loading delivery history…
                 </p>
               ) : courseDeliveryHistory.data?.length ? (
@@ -2955,40 +3013,40 @@ export default function UserDashboard() {
                       className="flex flex-col justify-between gap-2 border border-[#16243d]/10 bg-[#f7f3e8] p-4 sm:flex-row sm:items-center"
                     >
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                        <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                           {event.step} · {event.status}
                         </p>
-                        <p className="mt-1 text-xs text-[#657084]">
+                        <p className="mt-1 text-xs text-[#16243d]">
                           {event.organizationName ||
                             event.recipientEmail ||
                             "Personal delivery"}
                         </p>
                       </div>
-                      <time className="text-xs text-[#657084]">
+                      <time className="text-xs text-[#16243d]">
                         {new Date(event.createdAt).toLocaleString()}
                       </time>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="mt-5 border border-dashed border-[#16243d]/15 p-4 text-sm text-[#657084]">
+                <p className="mt-5 border border-dashed border-[#16243d]/15 p-4 text-sm text-[#16243d]">
                   Your delivery actions will appear here after you send,
                   request, download, or share a completed course result.
                 </p>
               )}
             </section>
             <section className="mt-12">
-              <p className="eyebrow text-[#a27e2e]">Report versions</p>
+              <p className="eyebrow text-[#7d5e1e]">Report versions</p>
               <h2 className="display mt-3 text-3xl">
                 See your movement over time.
               </h2>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#657084]">
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#16243d]">
                 Each paid assessment is preserved as a dated report version.
                 Compare your latest result with an earlier version to discuss
                 meaningful changes, not just scores.
               </p>
               <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-end">
-                <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                   PDF lens
                   <select
                     value={exportLens}
@@ -3002,7 +3060,7 @@ export default function UserDashboard() {
                     <option value="teamDevelopment">Team development</option>
                   </select>
                 </label>
-                <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                   Share expires
                   <select
                     value={shareExpiry}
@@ -3016,7 +3074,7 @@ export default function UserDashboard() {
                     <option value={30}>30 days</option>
                   </select>
                 </label>
-                <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                   Shared lens
                   <select
                     value={shareLens}
@@ -3031,7 +3089,7 @@ export default function UserDashboard() {
                     <option value="teamDevelopment">Team development</option>
                   </select>
                 </label>
-                <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                   Recipient purpose
                   <select
                     value={sharePurpose}
@@ -3047,7 +3105,7 @@ export default function UserDashboard() {
                     <option value="manager">Manager conversation</option>
                   </select>
                 </label>
-                <label className="flex max-w-sm items-start gap-2 text-xs leading-5 text-[#657084] sm:col-span-2">
+                <label className="flex max-w-sm items-start gap-2 text-xs leading-5 text-[#16243d] sm:col-span-2">
                   <input
                     type="checkbox"
                     checked={shareConsent}
@@ -3066,10 +3124,10 @@ export default function UserDashboard() {
                   <div className="mt-4 w-full border-t border-[#16243d]/15 pt-4 sm:col-span-2">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                        <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                           Share-link audit history
                         </p>
-                        <p className="mt-1 text-xs text-[#657084]">
+                        <p className="mt-1 text-xs text-[#16243d]">
                           Consent, creation, and revocation events stay visible
                           only to you.
                         </p>
@@ -3130,7 +3188,7 @@ export default function UserDashboard() {
                           <span className="font-semibold capitalize">
                             {event.eventType}
                           </span>
-                          <span className="text-[#657084]">
+                          <span className="text-[#16243d]">
                             {event.recipientPurpose
                               ? `${event.recipientPurpose} · `
                               : ""}
@@ -3140,7 +3198,7 @@ export default function UserDashboard() {
                       ))}
                     </div>
                     {shareAudit.data.length === 0 && (
-                      <p className="mt-3 text-xs text-[#657084]">
+                      <p className="mt-3 text-xs text-[#16243d]">
                         No share events match these filters.
                       </p>
                     )}
@@ -3148,7 +3206,7 @@ export default function UserDashboard() {
                 )}
                 {shares.data && shares.data.length > 0 && (
                   <div className="mt-4 w-full border-t border-[#16243d]/15 pt-4 sm:col-span-2">
-                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                       Active private links
                     </p>
                     <div className="mt-3 space-y-2">
@@ -3183,7 +3241,7 @@ export default function UserDashboard() {
               {paidVersions.length > 1 && (
                 <div className="mt-6 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                    <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                       Compare latest with
                       <select
                         value={compareWithId ?? ""}
@@ -3216,7 +3274,7 @@ export default function UserDashboard() {
                   </div>
                   {comparisonData && (
                     <div className="mt-6 h-56 w-full">
-                      <p className="mb-3 text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                      <p className="mb-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                         Overall score trend
                       </p>
                       <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -3248,7 +3306,7 @@ export default function UserDashboard() {
                               )
                             )
                           }
-                          className="border border-[#16243d]/15 px-2 py-1 text-[9px] font-black uppercase tracking-[.08em] text-[#657084]"
+                          className="border border-[#16243d]/15 px-2 py-1 text-[9px] font-black uppercase tracking-[.08em] text-[#16243d]"
                         >
                           Hide all
                         </button>
@@ -3321,7 +3379,7 @@ export default function UserDashboard() {
                           className="border-t border-[#16243d]/15 pt-3"
                         >
                           <p className="text-xs font-bold">{dimension.label}</p>
-                          <p className="mt-2 text-xs text-[#657084]">
+                          <p className="mt-2 text-xs text-[#16243d]">
                             {dimension.previousScore} → {dimension.currentScore}{" "}
                             <span
                               className={`font-black ${dimension.delta >= 0 ? "text-emerald-800" : "text-red-800"}`}
@@ -3337,36 +3395,36 @@ export default function UserDashboard() {
                 </div>
               )}{" "}
               {paidVersions.length <= 1 && (
-                <div className="mt-6 border border-dashed border-[#16243d]/25 p-6 text-sm leading-6 text-[#657084]">
+                <div className="mt-6 border border-dashed border-[#16243d]/25 p-6 text-sm leading-6 text-[#16243d]">
                   Complete another paid assessment to create a second report
                   version for comparison.
                 </div>
               )}
             </section>
             <section className="mt-12">
-              <p className="eyebrow text-[#a27e2e]">
+              <p className="eyebrow text-[#7d5e1e]">
                 Self Assessment results history
               </p>
               <h2 className="display mt-3 text-3xl">Keep the signal moving.</h2>
               {currentVersion && currentVersion.paymentStatus === "paid" && (
                 <div className="mt-6 grid gap-4 border border-[#c9a34e]/45 bg-[#fffaf0] p-5 sm:grid-cols-3">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                       Latest score
                     </p>
                     <p className="display mt-2 text-4xl text-[#16243d]">
                       {currentVersion.overallScore ?? 0}
-                      <span className="text-base text-[#657084]"> / 100</span>
+                      <span className="text-base text-[#16243d]"> / 100</span>
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                       Readout
                     </p>
                     <p className="mt-2 text-sm font-semibold text-[#16243d]">
                       {currentVersion.overallBand ?? "Development signal"}
                     </p>
-                    <p className="mt-1 text-xs text-[#657084]">
+                    <p className="mt-1 text-xs text-[#16243d]">
                       Recorded{" "}
                       {new Date(currentVersion.createdAt).toLocaleDateString()}
                     </p>
@@ -3388,25 +3446,25 @@ export default function UserDashboard() {
               >
                 <div className="flex flex-wrap items-end justify-between gap-3">
                   <div>
-                    <p className="eyebrow text-[#a27e2e]">Results</p>
+                    <p className="eyebrow text-[#7d5e1e]">Results</p>
                     <h2
                       id="report-history-title"
                       className="display mt-1 text-2xl"
                     >
                       Report history
                     </h2>
-                    <p className="mt-1 text-xs text-[#657084]">
+                    <p className="mt-1 text-xs text-[#16243d]">
                       Filter paid and pending assessment records by course and
                       completion date.
                     </p>
                   </div>
-                  <span className="text-xs text-[#657084]">
+                  <span className="text-xs text-[#16243d]">
                     {filteredReportHistory.length} record
                     {filteredReportHistory.length === 1 ? "" : "s"}
                   </span>
                 </div>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+                  <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
                     Course
                     <select
                       value={reportHistoryCourse}
@@ -3423,7 +3481,7 @@ export default function UserDashboard() {
                       ))}
                     </select>
                   </label>
-                  <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+                  <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
                     Completed from
                     <input
                       type="date"
@@ -3434,7 +3492,7 @@ export default function UserDashboard() {
                       className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs tracking-normal text-[#16243d]"
                     />
                   </label>
-                  <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+                  <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
                     Completed to
                     <input
                       type="date"
@@ -3457,7 +3515,7 @@ export default function UserDashboard() {
                 </div>
               </section>
               <div
-                className="mt-4 flex items-center justify-between gap-3 text-xs text-[#657084]"
+                className="mt-4 flex items-center justify-between gap-3 text-xs text-[#16243d]"
                 aria-label="Report history pagination"
               >
                 <span>
@@ -3490,7 +3548,7 @@ export default function UserDashboard() {
                 </span>
               </div>
               {displayHistory.length === 0 ? (
-                <div className="mt-6 border border-dashed border-[#16243d]/25 p-8 text-sm leading-6 text-[#657084]">
+                <div className="mt-6 border border-dashed border-[#16243d]/25 p-8 text-sm leading-6 text-[#16243d]">
                   No assessment is linked to {user.email}. Start the KES{" "}
                   {ASSESSMENT_PRICE_KES.toLocaleString()} self-assessment to
                   create your first development signal.
@@ -3504,22 +3562,22 @@ export default function UserDashboard() {
                     >
                       <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
                         <div>
-                          <p className="text-xs font-black uppercase tracking-[.14em] text-[#657084]">
+                          <p className="text-xs font-black uppercase tracking-[.14em] text-[#16243d]">
                             {item.version ?? `Version ${item.id}`} · Assessment
                             #{item.id} ·{" "}
                             {new Date(item.createdAt).toLocaleDateString()}
                           </p>
                           {item.paymentStatus === "paid" ? (
                             <div className="mt-3 flex items-baseline gap-3">
-                              <span className="display text-4xl text-[#a27e2e]">
+                              <span className="display text-4xl text-[#7d5e1e]">
                                 {item.overallScore}
                               </span>
-                              <span className="text-sm text-[#657084]">
+                              <span className="text-sm text-[#16243d]">
                                 {item.overallBand}
                               </span>
                             </div>
                           ) : (
-                            <p className="mt-3 text-sm font-semibold text-[#657084]">
+                            <p className="mt-3 text-sm font-semibold text-[#16243d]">
                               Report locked until payment is verified.
                             </p>
                           )}
@@ -3531,7 +3589,7 @@ export default function UserDashboard() {
                               Paid
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] text-[#a27e2e]">
+                            <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] text-[#7d5e1e]">
                               <span className="h-2 w-2 rounded-full bg-[#c9a34e]" />{" "}
                               Pending
                             </span>
@@ -3633,7 +3691,7 @@ export default function UserDashboard() {
             <div className="mt-10 flex items-start gap-3 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-sm leading-6 text-[#c1cad7]">
               <ShieldCheck
                 size={18}
-                className="mt-0.5 shrink-0 text-[#c9a34e]"
+                className="mt-0.5 shrink-0 text-[#7d5e1e]"
               />
               <p>
                 <strong className="text-[#f7f3e8]">Your privacy.</strong> This
@@ -3647,11 +3705,11 @@ export default function UserDashboard() {
         <section className="mt-12 border-t border-[#16243d]/20 pt-10">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="eyebrow text-[#a27e2e]">Professional courses</p>
+              <p className="eyebrow text-[#7d5e1e]">Professional courses</p>
               <h2 className="display mt-3 text-3xl">
                 Your learning and certificates.
               </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
                 Resume enrolled courses, review verified payment stages, and
                 re-download certificates whenever you need a professional copy.
               </p>
@@ -3664,8 +3722,8 @@ export default function UserDashboard() {
             </Link>
           </div>
           {courseHistory.isLoading && (
-            <div className="mt-6 flex items-center gap-2 text-sm text-[#657084]">
-              <RefreshCw className="animate-spin text-[#a27e2e]" size={16} />{" "}
+            <div className="mt-6 flex items-center gap-2 text-sm text-[#16243d]">
+              <RefreshCw className="animate-spin text-[#7d5e1e]" size={16} />{" "}
               Loading course history…
             </div>
           )}
@@ -3684,14 +3742,14 @@ export default function UserDashboard() {
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+                          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                             Course enrollment
                           </p>
                           <h3 className="display mt-2 text-2xl">
                             {item.enrollment.courseSlug.replace(/-/g, " ")}
                           </h3>
                         </div>
-                        <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                        <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                           {paidStages}/4 stages paid
                         </span>
                       </div>
@@ -3703,7 +3761,7 @@ export default function UserDashboard() {
                           }}
                         />
                       </div>
-                      <p className="mt-3 text-xs text-[#657084]">
+                      <p className="mt-3 text-xs text-[#16243d]">
                         {item.lessons.length} of 70 lessons completed ·{" "}
                         {
                           new Set(
@@ -3725,14 +3783,14 @@ export default function UserDashboard() {
                             <Download size={13} /> Download certificate
                           </a>
                         ) : (
-                          <span className="inline-flex items-center gap-2 text-xs text-[#657084]">
+                          <span className="inline-flex items-center gap-2 text-xs text-[#16243d]">
                             <Clock3 size={13} /> Certificate unlocks after
                             completion
                           </span>
                         )}
                         <Link
                           href={`/courses/${item.enrollment.courseSlug}`}
-                          className="inline-flex items-center gap-2 border-b border-[#16243d]/25 pb-1 text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]"
+                          className="inline-flex items-center gap-2 border-b border-[#16243d]/25 pb-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]"
                         >
                           Open course{" "}
                           <ArrowLeft className="rotate-180" size={13} />
@@ -3743,18 +3801,18 @@ export default function UserDashboard() {
                 })}
               </div>
             ) : (
-              <div className="mt-6 border border-dashed border-[#16243d]/20 bg-white/35 p-6 text-sm text-[#657084]">
+              <div className="mt-6 border border-dashed border-[#16243d]/20 bg-white/35 p-6 text-sm text-[#16243d]">
                 No course enrollments yet. Choose a professional course to begin
                 your learning path.
               </div>
             ))}
         </section>
         <section className="mt-12 border-t border-[#16243d]/20 pt-10">
-          <p className="eyebrow text-[#a27e2e]">CareerPath / talent fit</p>
+          <p className="eyebrow text-[#7d5e1e]">CareerPath / talent fit</p>
           <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="display text-3xl">Your pathway history.</h2>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-[#657084]">
+              <p className="mt-2 max-w-xl text-sm leading-6 text-[#16243d]">
                 Paid CareerPath reports are preserved here so you can revisit
                 your sub-pathway signals and download a branded copy when
                 needed.
@@ -3769,8 +3827,8 @@ export default function UserDashboard() {
             </Link>
           </div>
           {careerPathHistory.isLoading && (
-            <div className="mt-6 flex items-center gap-2 text-sm text-[#657084]">
-              <RefreshCw className="animate-spin text-[#a27e2e]" size={16} />{" "}
+            <div className="mt-6 flex items-center gap-2 text-sm text-[#16243d]">
+              <RefreshCw className="animate-spin text-[#7d5e1e]" size={16} />{" "}
               Loading CareerPath history…
             </div>
           )}
@@ -3789,7 +3847,7 @@ export default function UserDashboard() {
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+                        <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                           CareerPath report #{item.id}
                         </p>
                         <p className="mt-2 text-sm font-bold">
@@ -3800,7 +3858,7 @@ export default function UserDashboard() {
                         </p>
                       </div>
                       <span
-                        className={`text-[10px] font-black uppercase tracking-[.12em] ${item.paymentStatus === "paid" ? "text-emerald-800" : "text-[#a27e2e]"}`}
+                        className={`text-[10px] font-black uppercase tracking-[.12em] ${item.paymentStatus === "paid" ? "text-emerald-800" : "text-[#7d5e1e]"}`}
                       >
                         {item.paymentStatus === "paid"
                           ? "Paid"
@@ -3810,16 +3868,16 @@ export default function UserDashboard() {
                     {item.paymentStatus === "paid" && Boolean(item.report) && (
                       <>
                         <div className="mt-5 border-t border-[#16243d]/10 pt-4">
-                          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                             Primary pathway
                           </p>
-                          <p className="mt-1 text-xl font-semibold text-[#a27e2e]">
+                          <p className="mt-1 text-xl font-semibold text-[#7d5e1e]">
                             {(
                               item.report as {
                                 primary?: { label: string; score: number };
                               }
                             ).primary?.label ?? "CareerPath signal"}{" "}
-                            <span className="text-sm font-normal text-[#657084]">
+                            <span className="text-sm font-normal text-[#16243d]">
                               /{" "}
                               {(
                                 item.report as {
@@ -3856,7 +3914,7 @@ export default function UserDashboard() {
                             onDownloadSvg={downloadSubPathwayVisual}
                             onDownloadPng={downloadSubPathwayPng}
                           />
-                          <span className="inline-flex items-center gap-2 text-xs text-[#657084]">
+                          <span className="inline-flex items-center gap-2 text-xs text-[#16243d]">
                             <Mail size={13} />{" "}
                             {item.reportEmailStatus === "sent"
                               ? `Report emailed${item.reportEmailSentAt ? ` · ${new Date(item.reportEmailSentAt).toLocaleDateString()}` : ""}`
@@ -3869,7 +3927,7 @@ export default function UserDashboard() {
                 ))}
               </div>
             ) : (
-              <div className="mt-6 border border-dashed border-[#16243d]/20 bg-white/35 p-6 text-sm text-[#657084]">
+              <div className="mt-6 border border-dashed border-[#16243d]/20 bg-white/35 p-6 text-sm text-[#16243d]">
                 No CareerPath reports yet. Complete the assessment to create
                 your first learner pathway profile.
               </div>
@@ -3878,7 +3936,7 @@ export default function UserDashboard() {
         <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
           <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[#16243d]/15 pb-5">
             <div>
-              <p className="eyebrow text-[#a27e2e]">Saved for later</p>
+              <p className="eyebrow text-[#7d5e1e]">Saved for later</p>
               <h2 className="display mt-2 text-3xl">My Bookmarks</h2>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -3902,7 +3960,7 @@ export default function UserDashboard() {
                   </option>
                 ))}
               </select>
-              <span className="self-center text-xs text-[#657084]">
+              <span className="self-center text-xs text-[#16243d]">
                 {filteredBookmarks.length} saved
               </span>
             </div>
@@ -3915,11 +3973,11 @@ export default function UserDashboard() {
                     key={`${bookmark.course.slug}-${bookmark.key}`}
                     className="flex flex-wrap items-center gap-4 border border-[#16243d]/10 bg-[#f7f3e8] p-4"
                   >
-                    <div className="grid h-10 w-10 shrink-0 place-items-center bg-[#16243d] text-[#c9a34e]">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center bg-[#16243d] text-[#7d5e1e]">
                       {bookmark.kind === "simulation" ? "S" : "§"}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                         {bookmark.course.title} ·{" "}
                         {bookmark.kind === "simulation"
                           ? "Decision simulation"
@@ -3931,7 +3989,7 @@ export default function UserDashboard() {
                     </div>
                     <Link
                       href={`/courses/${bookmark.course.slug}`}
-                      className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e] hover:text-[#a27e2e]"
+                      className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e] hover:text-[#7d5e1e]"
                     >
                       Open lesson →
                     </Link>
@@ -3943,7 +4001,7 @@ export default function UserDashboard() {
                           bookmark.key
                         )
                       }
-                      className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084] hover:text-red-700"
+                      className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] hover:text-red-700"
                     >
                       Remove
                     </button>
@@ -3960,7 +4018,7 @@ export default function UserDashboard() {
               />
             </>
           ) : (
-            <p className="mt-5 border border-dashed border-[#16243d]/15 p-5 text-sm leading-6 text-[#657084]">
+            <p className="mt-5 border border-dashed border-[#16243d]/15 p-5 text-sm leading-6 text-[#16243d]">
               Save a lesson section or simulation in the interactive player and
               it will appear here for quick access.
             </p>
@@ -3969,9 +4027,9 @@ export default function UserDashboard() {
         <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
           <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[#16243d]/15 pb-5">
             <div>
-              <p className="eyebrow text-[#a27e2e]">Study archive</p>
+              <p className="eyebrow text-[#7d5e1e]">Study archive</p>
               <h2 className="display mt-2 text-3xl">My Notes</h2>
-              <p className="mt-2 text-sm text-[#657084]">
+              <p className="mt-2 text-sm text-[#16243d]">
                 Review lesson takeaways and generated summaries in one place.
               </p>
             </div>
@@ -3992,12 +4050,12 @@ export default function UserDashboard() {
                     key={`${item.course.slug}-${item.lesson.id}`}
                     className="border border-[#16243d]/10 bg-[#f7f3e8] p-4"
                   >
-                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                       {item.course.title}
                     </p>
                     <Link
                       href={`/courses/${item.course.slug}`}
-                      className="mt-1 block text-sm font-bold text-[#16243d] underline-offset-4 hover:text-[#a27e2e] hover:underline"
+                      className="mt-1 block text-sm font-bold text-[#16243d] underline-offset-4 hover:text-[#7d5e1e] hover:underline"
                     >
                       {item.lesson.title} →
                     </Link>
@@ -4024,7 +4082,7 @@ export default function UserDashboard() {
               />
             </>
           ) : (
-            <p className="mt-5 border border-dashed border-[#16243d]/15 p-5 text-sm leading-6 text-[#657084]">
+            <p className="mt-5 border border-dashed border-[#16243d]/15 p-5 text-sm leading-6 text-[#16243d]">
               Notes you save in a lesson player will be collected here.
             </p>
           )}
@@ -4034,11 +4092,11 @@ export default function UserDashboard() {
         <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
           <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#16243d]/15 pb-5">
             <div>
-              <p className="eyebrow text-[#a27e2e]">
+              <p className="eyebrow text-[#7d5e1e]">
                 Personal achievement gallery
               </p>
               <h2 className="display mt-2 text-3xl">Earned, remembered.</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
                 Keep a visual record of the modules you have completed. Every
                 badge is earned through seven finished lessons and a passed
                 module quiz.
@@ -4057,20 +4115,20 @@ export default function UserDashboard() {
                   className="border border-[#c9a34e]/60 bg-[#fffaf0] p-4 shadow-sm"
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="grid h-11 w-11 place-items-center rounded-full bg-[#16243d] text-[#c9a34e]">
+                    <div className="grid h-11 w-11 place-items-center rounded-full bg-[#16243d] text-[#7d5e1e]">
                       <Award className="h-5 w-5" aria-hidden="true" />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+                    <span className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
                       {badge.certificateLabel}
                     </span>
                   </div>
-                  <p className="mt-4 text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                  <p className="mt-4 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                     {badge.courseTitle}
                   </p>
                   <h3 className="mt-1 text-lg font-bold text-[#16243d]">
                     {badge.moduleTitle}
                   </h3>
-                  <p className="mt-2 text-xs leading-5 text-[#657084]">
+                  <p className="mt-2 text-xs leading-5 text-[#16243d]">
                     Earned {new Date(badge.earnedAt).toLocaleDateString()} ·
                     Quiz {badge.quizScore}%
                   </p>
@@ -4134,14 +4192,14 @@ export default function UserDashboard() {
               ))}
             </div>
           ) : (
-            <div className="mt-6 border border-dashed border-[#16243d]/15 p-5 text-sm leading-6 text-[#657084]">
+            <div className="mt-6 border border-dashed border-[#16243d]/15 p-5 text-sm leading-6 text-[#16243d]">
               Your first module badge will appear here after you complete its
               seven lessons and pass its quiz.
             </div>
           )}
           <div className="mt-8 border-t border-[#16243d]/15 pt-6">
             <div className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-[#a27e2e]" aria-hidden="true" />
+              <Trophy className="h-5 w-5 text-[#7d5e1e]" aria-hidden="true" />
               <h3 className="text-lg font-bold text-[#16243d]">
                 Badge history
               </h3>
@@ -4156,14 +4214,14 @@ export default function UserDashboard() {
                     <span className="font-semibold text-[#16243d]">
                       {badge.moduleTitle} · {badge.courseTitle}
                     </span>
-                    <span className="text-[#657084]">
+                    <span className="text-[#16243d]">
                       {new Date(badge.earnedAt).toLocaleDateString()}
                     </span>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="mt-3 text-sm text-[#657084]">
+              <p className="mt-3 text-sm text-[#16243d]">
                 No earned badge history yet.
               </p>
             )}
@@ -4183,7 +4241,7 @@ export default function UserDashboard() {
               you from the board.
             </p>
           </div>
-          <Users className="h-7 w-7 text-[#c9a34e]" aria-hidden="true" />
+          <Users className="h-7 w-7 text-[#7d5e1e]" aria-hidden="true" />
         </div>
         <div className="mt-6 flex flex-col gap-4 border border-white/15 bg-white/5 p-4 sm:flex-row sm:items-end sm:justify-between">
           <label className="flex flex-1 items-center gap-3 text-sm">
@@ -4240,7 +4298,7 @@ export default function UserDashboard() {
               <tbody>
                 {(leaderboard.data?.rows ?? []).map(row => (
                   <tr key={row.rank} className="border-b border-white/10">
-                    <td className="py-3 font-bold text-[#c9a34e]">
+                    <td className="py-3 font-bold text-[#7d5e1e]">
                       #{row.rank}
                     </td>
                     <td className="py-3">{row.displayName}</td>
@@ -4272,14 +4330,14 @@ export default function UserDashboard() {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="eyebrow text-[#a27e2e]">Saved pathways</p>
+                <p className="eyebrow text-[#7d5e1e]">Saved pathways</p>
                 <h2
                   id="saved-pathways-preview-title"
                   className="display mt-2 text-3xl"
                 >
                   Review your PDF.
                 </h2>
-                <p className="mt-2 text-sm text-[#657084]">
+                <p className="mt-2 text-sm text-[#16243d]">
                   Check the offline reference before downloading{" "}
                   {savedPathwaysPreview.count} pathway
                   {savedPathwaysPreview.count === 1 ? "" : "s"}.
@@ -4303,7 +4361,7 @@ export default function UserDashboard() {
               </div>
             </div>
             <div className="mt-5 flex items-center justify-between gap-3 border border-[#16243d]/10 bg-white/70 px-3 py-2">
-              <span className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+              <span className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
                 {Math.round(savedPathwaysZoom * 100)}%
               </span>
               <div className="flex items-center gap-2">
@@ -4356,7 +4414,7 @@ export default function UserDashboard() {
                     alt=""
                     className="mx-auto mb-3 h-12 max-w-28 object-contain"
                   />
-                  <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#c9a34e]">
+                  <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#7d5e1e]">
                     PROFOUND IQ / CONSULTING
                   </p>
                   <p className="mt-3 font-serif text-2xl">
@@ -4425,7 +4483,7 @@ export default function UserDashboard() {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="eyebrow text-[#c9a34e]">
+                <p className="eyebrow text-[#7d5e1e]">
                   Certificate print preview
                 </p>
                 <h2
@@ -4455,7 +4513,7 @@ export default function UserDashboard() {
               />
             </div>
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-              <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#c9a34e]">
+              <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                 Paper size
                 <select
                   value={certificatePrintPageSize}
@@ -4494,7 +4552,7 @@ export default function UserDashboard() {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="eyebrow text-[#a27e2e]">Workspace setup</p>
+                <p className="eyebrow text-[#7d5e1e]">Workspace setup</p>
                 <h2
                   id="profile-complete-title"
                   className="display mt-2 text-3xl"
@@ -4505,7 +4563,7 @@ export default function UserDashboard() {
               <button
                 type="button"
                 onClick={() => setProfileModalOpen(false)}
-                className="text-xs font-black uppercase tracking-[.12em] text-[#657084]"
+                className="text-xs font-black uppercase tracking-[.12em] text-[#16243d]"
               >
                 Close
               </button>
@@ -4567,7 +4625,7 @@ export default function UserDashboard() {
           className="inline-flex items-center gap-2 border border-[#16243d]/20 bg-[#f7f3e8] px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] shadow-lg transition hover:-translate-y-0.5 hover:border-[#c9a34e]"
           title={t("paymentHistoryShortcutDescription")}
         >
-          <CreditCard size={14} className="text-[#a27e2e]" />{" "}
+          <CreditCard size={14} className="text-[#7d5e1e]" />{" "}
           {t("paymentHistoryShortcut")}
         </Link>
         <div
@@ -4668,11 +4726,11 @@ function PaymentHistoryTab({
     >
       <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 lg:flex-row lg:items-start">
         <div>
-          <p className="eyebrow text-[#a27e2e]">
+          <p className="eyebrow text-[#7d5e1e]">
             {t("paymentHistoryShortcut")}
           </p>
           <h2 className="display mt-2 text-3xl">{t("enrollmentStatus")}</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
             {t("paymentHistoryDescription")}
           </p>
         </div>
@@ -4680,18 +4738,18 @@ function PaymentHistoryTab({
           href="/settings#payment-history"
           className="inline-flex h-fit items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] hover:border-[#c9a34e]"
         >
-          <CreditCard size={14} className="text-[#a27e2e]" />{" "}
+          <CreditCard size={14} className="text-[#7d5e1e]" />{" "}
           {t("paymentHistoryShortcut")}
         </Link>
       </div>
       {!hasEnrollments && !isLoading && !isError ? (
-        <p className="mt-6 border border-dashed border-[#16243d]/20 bg-white/60 p-5 text-sm text-[#657084]">
+        <p className="mt-6 border border-dashed border-[#16243d]/20 bg-white/60 p-5 text-sm text-[#16243d]">
           {t("noEnrollments")}
         </p>
       ) : (
         <>
           <div className="mt-6 grid gap-3 border border-[#16243d]/10 bg-white/55 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
               {t("filterByCourse")}
               <select
                 value={filters.courseSlug}
@@ -4708,7 +4766,7 @@ function PaymentHistoryTab({
                 ))}
               </select>
             </label>
-            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
               {t("filterByStage")}
               <select
                 value={filters.stage}
@@ -4723,7 +4781,7 @@ function PaymentHistoryTab({
                 ))}
               </select>
             </label>
-            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
               {t("filterByStatus")}
               <select
                 value={filters.status}
@@ -4735,7 +4793,7 @@ function PaymentHistoryTab({
                 <option value="pending">{t("paymentPending")}</option>
               </select>
             </label>
-            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
               {t("fromDate")}
               <input
                 type="date"
@@ -4744,7 +4802,7 @@ function PaymentHistoryTab({
                 className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2.5 text-xs font-normal normal-case tracking-normal text-[#16243d]"
               />
             </label>
-            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
               {t("toDate")}
               <input
                 type="date"
@@ -4753,7 +4811,7 @@ function PaymentHistoryTab({
                 className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2.5 text-xs font-normal normal-case tracking-normal text-[#16243d]"
               />
             </label>
-            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
               {t("sortTransactions")}
               <select
                 value={filters.sort}
@@ -4776,7 +4834,7 @@ function PaymentHistoryTab({
             </label>
           </div>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-xs text-[#657084]">
+            <p className="text-xs text-[#16243d]">
               {t("showingTransactions")
                 .replace("{count}", String(rows.length))
                 .replace("{total}", String(page?.total ?? 0))}
@@ -4791,13 +4849,13 @@ function PaymentHistoryTab({
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             <div className="border-t-2 border-[#c9a34e] bg-white/65 p-4">
-              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
                 {t("filteredTransactions")}
               </p>
               <p className="display mt-2 text-3xl">{page?.total ?? 0}</p>
             </div>
             <div className="border-t-2 border-emerald-700/60 bg-white/65 p-4">
-              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
                 {t("paidTotal")}
               </p>
               <p className="display mt-2 text-3xl">
@@ -4805,7 +4863,7 @@ function PaymentHistoryTab({
               </p>
             </div>
             <div className="border-t-2 border-[#a27e2e]/50 bg-white/65 p-4">
-              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
                 {t("pendingTotal")}
               </p>
               <p className="display mt-2 text-3xl">
@@ -4814,8 +4872,8 @@ function PaymentHistoryTab({
             </div>
           </div>
           {isLoading ? (
-            <div className="mt-5 flex items-center gap-2 border border-dashed border-[#16243d]/20 bg-white/60 p-8 text-sm text-[#657084]">
-              <RefreshCw size={16} className="animate-spin text-[#a27e2e]" />{" "}
+            <div className="mt-5 flex items-center gap-2 border border-dashed border-[#16243d]/20 bg-white/60 p-8 text-sm text-[#16243d]">
+              <RefreshCw size={16} className="animate-spin text-[#7d5e1e]" />{" "}
               {t("loadingPaymentHistory")}
             </div>
           ) : isError ? (
@@ -4826,13 +4884,13 @@ function PaymentHistoryTab({
               {t("paymentHistoryUnavailable")}
             </div>
           ) : !rows.length ? (
-            <div className="mt-5 border border-dashed border-[#16243d]/20 bg-white/60 p-8 text-center text-sm text-[#657084]">
+            <div className="mt-5 border border-dashed border-[#16243d]/20 bg-white/60 p-8 text-center text-sm text-[#16243d]">
               {t("noPaymentMatch")}
             </div>
           ) : (
             <div className="mt-5 overflow-x-auto border border-[#16243d]/10 bg-white/70">
               <table className="min-w-full text-left text-sm">
-                <thead className="border-b border-[#16243d]/10 bg-[#f7f3e8] text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+                <thead className="border-b border-[#16243d]/10 bg-[#f7f3e8] text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
                   <tr>
                     <th className="px-4 py-3">{t("course")}</th>
                     <th className="px-4 py-3">{t("paymentStage")}</th>
@@ -4848,7 +4906,7 @@ function PaymentHistoryTab({
                       <td className="px-4 py-4 font-semibold">
                         {courseLabel(row.courseSlug)}
                       </td>
-                      <td className="px-4 py-4 text-[#657084]">
+                      <td className="px-4 py-4 text-[#16243d]">
                         {t("paymentStage")} {row.stage}
                       </td>
                       <td className="whitespace-nowrap px-4 py-4">
@@ -4859,11 +4917,11 @@ function PaymentHistoryTab({
                       >
                         {statusLabel(row.paymentStatus)}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-[#657084]">
+                      <td className="whitespace-nowrap px-4 py-4 text-[#16243d]">
                         {dateLabel(row.transactionDate)}
                       </td>
                       <td
-                        className="max-w-[12rem] truncate px-4 py-4 text-xs text-[#657084]"
+                        className="max-w-[12rem] truncate px-4 py-4 text-xs text-[#16243d]"
                         title={row.paystackReference ?? undefined}
                       >
                         {row.paystackReference ?? t("notAvailable")}
@@ -4907,7 +4965,7 @@ function ReportEmailStatus({
       >
         <MailCheck size={14} aria-hidden="true" /> Email sent
         {formattedSentAt && (
-          <span className="inline-flex items-center gap-1 font-medium normal-case tracking-normal text-[#657084]">
+          <span className="inline-flex items-center gap-1 font-medium normal-case tracking-normal text-[#16243d]">
             <Mail size={12} aria-hidden="true" /> Last emailed {formattedSentAt}
           </span>
         )}
@@ -4919,7 +4977,7 @@ function ReportEmailStatus({
   if (status === "sending")
     return (
       <span
-        className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] text-[#a27e2e]"
+        className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] text-[#7d5e1e]"
         title="Report email is being prepared"
       >
         <Clock3 size={14} aria-hidden="true" /> Email in progress
@@ -4927,7 +4985,7 @@ function ReportEmailStatus({
     );
   return (
     <span
-      className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] text-[#a27e2e]"
+      className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] text-[#7d5e1e]"
       title="Report email is pending and will be retried"
     >
       <MailWarning size={14} aria-hidden="true" /> Email pending
@@ -4951,9 +5009,9 @@ function Metric({
     >
       <Icon
         size={18}
-        className={accent ? "text-[#a27e2e]" : "text-[#657084]"}
+        className={accent ? "text-[#7d5e1e]" : "text-[#16243d]"}
       />
-      <p className="mt-6 text-xs font-black uppercase tracking-[.14em] text-[#657084]">
+      <p className="mt-6 text-xs font-black uppercase tracking-[.14em] text-[#16243d]">
         {label}
       </p>
       <p className="display mt-2 text-4xl">{value}</p>
@@ -4963,7 +5021,7 @@ function Metric({
 function LoadingState() {
   return (
     <div className="grid min-h-screen place-items-center bg-[#f7f3e8] text-[#16243d]">
-      <RefreshCw className="animate-spin text-[#a27e2e]" />
+      <RefreshCw className="animate-spin text-[#7d5e1e]" />
     </div>
   );
 }
@@ -4971,9 +5029,9 @@ function AccessState() {
   return (
     <div className="grid min-h-screen place-items-center bg-[#f7f3e8] px-6 text-[#16243d]">
       <div className="max-w-md border-t-2 border-[#c9a34e] bg-white/50 p-8 text-center">
-        <LockKeyhole className="mx-auto text-[#a27e2e]" />
+        <LockKeyhole className="mx-auto text-[#7d5e1e]" />
         <h1 className="display mt-5 text-4xl">Sign in to continue</h1>
-        <p className="mt-4 text-sm leading-6 text-[#657084]">
+        <p className="mt-4 text-sm leading-6 text-[#16243d]">
           Your personal assessment history is private to your authenticated
           account.
         </p>
@@ -4995,3 +5053,7 @@ function AccessState() {
     </div>
   );
 }
+
+
+
+

@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+﻿import { Card } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 interface StatCardProps {
@@ -6,6 +6,7 @@ interface StatCardProps {
   value: string | number;
   icon?: React.ReactNode;
   trend?: { value: number; label: string };
+  href?: string;
   className?: string;
 }
 
@@ -14,6 +15,7 @@ export function StatCard({
   value,
   icon,
   trend,
+  href,
   className = "",
 }: StatCardProps) {
   const TrendIcon = trend
@@ -24,16 +26,16 @@ export function StatCard({
         : Minus
     : null;
 
-  return (
+  const content = (
     <Card
       className={`border border-[#16243d]/10 dark:border-[#657084]/20 bg-white/80 dark:bg-[#16243d]/60 backdrop-blur-sm p-5 ${className}`}
     >
       <div className="flex items-center justify-between">
-        <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084] dark:text-[#c1cad7]">
+        <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] dark:text-[#f7f3e8]">
           {label}
         </p>
         {icon && (
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#c9a34e]/10 dark:bg-[#c9a34e]/20 text-[#7d5e1e] dark:text-[#c9a34e]">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#c9a34e]/10 dark:bg-[#c9a34e]/20 text-[#7d5e1e] dark:text-[#7d5e1e]">
             {icon}
           </div>
         )}
@@ -49,7 +51,7 @@ export function StatCard({
                 ? "text-emerald-600 dark:text-emerald-400"
                 : trend.value < 0
                   ? "text-red-600 dark:text-red-400"
-                  : "text-[#657084]"
+                  : "text-[#16243d]"
             }`}
           />
           <span
@@ -58,7 +60,7 @@ export function StatCard({
                 ? "text-emerald-700 dark:text-emerald-400"
                 : trend.value < 0
                   ? "text-red-700 dark:text-red-400"
-                  : "text-[#657084]"
+                  : "text-[#16243d]"
             }
           >
             {trend.value > 0 ? "+" : ""}
@@ -68,4 +70,16 @@ export function StatCard({
       )}
     </Card>
   );
+
+  if (href) {
+    return (
+      <a href={href} className="group block">
+        {content}
+      </a>
+    );
+  }
+
+  return content;
 }
+
+

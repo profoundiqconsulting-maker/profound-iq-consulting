@@ -1,4 +1,4 @@
-import {
+﻿import {
   type ChartConfig,
   ChartContainer,
   ChartTooltip,
@@ -103,3 +103,4 @@ export function AnalyticsLineChart({
     </ChartContainer>
   );
 }
+

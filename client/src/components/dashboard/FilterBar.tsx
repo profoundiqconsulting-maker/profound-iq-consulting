@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+﻿import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -114,3 +114,5 @@ export function FilterBar({ filters, onReset, className = "" }: FilterBarProps) 
     </div>
   );
 }
+
+

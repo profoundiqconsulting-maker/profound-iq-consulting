@@ -1,5 +1,4 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { startLogin } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { BrandLogo } from "@/components/BrandLogo";
 import {
@@ -31,6 +30,18 @@ import {
   SUPPORTED_LOCALES,
   useLocale,
 } from "@/contexts/LocaleContext";
+import DashboardLayout from "@/components/DashboardLayout";
+import { DashboardHero, Section } from "@/components/dashboard";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const defaults = {
   assessmentUpdates: true,
@@ -313,516 +324,462 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-      <header className="border-b border-[#16243d]/15 bg-[#101d35] text-[#f7f3e8]">
-        <div className="container flex items-center justify-between py-5">
-          <Link href="/dashboard" className="flex items-center gap-3">
-            <BrandLogo context="settings" compactOnMobile />
-          </Link>
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.16em] text-[#c1cad7] hover:text-[#c9a34e]"
+    <DashboardLayout role="user" title="Settings">
+      <DashboardHero
+        eyebrow="Workspace"
+        title="Settings"
+        description="Keep your account details current and choose the development signals you want to receive."
+      />
+      <main className="min-w-0 flex-1 p-3 sm:p-4 lg:p-6">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <Section
+            eyebrow="Profile"
+            title="Profile details"
+            description="Your sign-in email is managed by your account provider."
           >
-            <ArrowLeft size={14} />
-            {t("myWorkspace")}
-          </Link>
-        </div>
-      </header>
-      <main className="container max-w-4xl py-10 sm:py-14 lg:py-20">
-        <div className="border-b border-[#16243d]/20 pb-8">
-          <p className="eyebrow text-[#a27e2e]">{t("settings")}</p>
-          <h1 className="display mt-4 text-5xl leading-none tracking-[-.04em] sm:text-6xl">
-            {t("settings")}.
-          </h1>
-          <p className="mt-5 max-w-xl text-base leading-7 text-[#4a566a]">
-            Keep your account details current and choose the development signals
-            you want to receive.
-          </p>
-        </div>
-        {profile.isLoading ? (
-          <div className="mt-10 flex items-center gap-3 border-l-2 border-[#c9a34e] bg-white/50 px-5 py-4 text-sm">
-            <RefreshCw size={16} className="animate-spin text-[#a27e2e]" />{" "}
-            Loading your profile…
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="mt-10 space-y-8">
-            <section className="border border-[#16243d]/15 bg-white/45 p-6 sm:p-8">
-              <div className="flex items-start gap-3 border-b border-[#16243d]/15 pb-5">
-                <ShieldCheck size={20} className="mt-0.5 text-[#a27e2e]" />
-                <div>
-                  <h2 className="display text-2xl">Profile details</h2>
-                  <p className="mt-1 text-sm text-[#657084]">
-                    Your sign-in email is managed by your account provider.
-                  </p>
-                </div>
+            <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-start">
+              <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full border border-[#16243d]/20 bg-[#f7f3e8] text-xl font-black text-[#16243d]">
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt="Profile avatar"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span>
+                    {(name || user.name || "P").slice(0, 1).toUpperCase()}
+                  </span>
+                )}
               </div>
-              <div className="mt-7 flex flex-col gap-4 sm:flex-row sm:items-start">
-                <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full border border-[#c9a34e]/70 bg-[#16243d] text-xl font-black text-[#c9a34e]">
-                  {avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt="Profile avatar"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <span>
-                      {(name || user.name || "P").slice(0, 1).toUpperCase()}
-                    </span>
-                  )}
-                </div>
-                <div>
-                  <label
-                    className={`inline-flex items-center gap-2 border border-[#16243d]/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] ${uploadAvatar.isPending ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
+              <div className="flex-1">
+                <label
+                  className={`inline-flex items-center gap-2 border border-[#16243d]/20 px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] ${uploadAvatar.isPending ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
+                >
+                  Choose avatar
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    className="sr-only"
+                    onChange={handleAvatarFile}
+                  />
+                </label>
+                {avatarUrl && (
+                  <button
+                    type="button"
+                    onClick={() => removeAvatar.mutate()}
+                    disabled={removeAvatar.isPending}
+                    className="ml-2 border border-red-800/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] text-red-800 disabled:opacity-50"
                   >
-                    Choose avatar
-                    <input
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp"
-                      className="sr-only"
-                      onChange={handleAvatarFile}
-                    />
-                  </label>
-                  {avatarUrl && (
-                    <button
-                      type="button"
-                      onClick={() => removeAvatar.mutate()}
-                      disabled={removeAvatar.isPending}
-                      className="ml-2 border border-red-800/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] text-red-800 disabled:opacity-50"
-                    >
-                      {removeAvatar.isPending ? "Removing…" : "Remove picture"}
-                    </button>
-                  )}
-                  <p className="mt-2 text-xs text-[#657084]">
-                    PNG, JPEG, or WebP. Maximum 2MB. Remove the current picture
-                    to hide it from navigation.
+                    {removeAvatar.isPending ? "Removing…" : "Remove picture"}
+                  </button>
+                )}
+                <p className="mt-2 text-xs text-[#16243d]">
+                  PNG, JPEG, or WebP. Maximum 2MB. Remove the current picture
+                  to hide it from navigation.
+                </p>
+                {cropError && (
+                  <p className="mt-2 text-xs font-semibold text-red-800">
+                    {cropError}
                   </p>
-                  {cropError && (
-                    <p className="mt-2 text-xs font-semibold text-red-800">
-                      {cropError}
-                    </p>
-                  )}
-                  {cropSrc && (
-                    <div className="mt-5 max-w-sm border border-[#16243d]/15 bg-[#f7f3e8] p-4">
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs font-black uppercase tracking-[.14em]">
-                          Crop preview
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => setCropSrc(null)}
-                          className="text-xs font-bold text-[#657084] hover:text-[#16243d]"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                      <img
-                        ref={cropImageRef}
-                        src={cropSrc}
-                        alt="Selected avatar source"
-                        className="sr-only"
-                        onLoad={() => setCropZoom(1)}
+                )}
+                {cropSrc && (
+                  <Card className="mt-5 max-w-sm border border-[#16243d]/15 bg-[#f7f3e8] p-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-black uppercase tracking-[.14em] text-[#16243d]">
+                        Crop preview
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setCropSrc(null)}
+                        className="text-xs font-bold text-[#16243d] hover:text-[#7d5e1e]"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                    <img
+                      ref={cropImageRef}
+                      src={cropSrc}
+                      alt="Selected avatar source"
+                      className="sr-only"
+                      onLoad={() => setCropZoom(1)}
+                    />
+                    <canvas
+                      ref={cropCanvasRef}
+                      className="mt-4 aspect-square w-full border border-[#16243d]/15 bg-[#16243d]"
+                      aria-label="Square avatar crop preview"
+                    />
+                    <label className="mt-4 block text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
+                      Zoom
+                      <input
+                        type="range"
+                        min="1"
+                        max="3"
+                        step="0.05"
+                        value={cropZoom}
+                        onChange={event =>
+                          setCropZoom(Number(event.target.value))
+                        }
+                        className="mt-2 block w-full accent-[#a27e2e]"
                       />
-                      <canvas
-                        ref={cropCanvasRef}
-                        className="mt-4 aspect-square w-full border border-[#16243d]/15 bg-[#16243d]"
-                        aria-label="Square avatar crop preview"
-                      />
-                      <label className="mt-4 block text-[10px] font-black uppercase tracking-[.14em] text-[#657084]">
-                        Zoom
+                    </label>
+                    <div className="mt-3 grid grid-cols-2 gap-3">
+                      <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
+                        Horizontal
                         <input
                           type="range"
-                          min="1"
-                          max="3"
+                          min="-1"
+                          max="1"
                           step="0.05"
-                          value={cropZoom}
+                          value={cropX}
                           onChange={event =>
-                            setCropZoom(Number(event.target.value))
+                            setCropX(Number(event.target.value))
                           }
                           className="mt-2 block w-full accent-[#a27e2e]"
                         />
                       </label>
-                      <div className="mt-3 grid grid-cols-2 gap-3">
-                        <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#657084]">
-                          Horizontal
-                          <input
-                            type="range"
-                            min="-1"
-                            max="1"
-                            step="0.05"
-                            value={cropX}
-                            onChange={event =>
-                              setCropX(Number(event.target.value))
-                            }
-                            className="mt-2 block w-full accent-[#a27e2e]"
-                          />
-                        </label>
-                        <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#657084]">
-                          Vertical
-                          <input
-                            type="range"
-                            min="-1"
-                            max="1"
-                            step="0.05"
-                            value={cropY}
-                            onChange={event =>
-                              setCropY(Number(event.target.value))
-                            }
-                            className="mt-2 block w-full accent-[#a27e2e]"
-                          />
-                        </label>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={confirmCrop}
-                        disabled={uploadAvatar.isPending}
-                        className="mt-4 w-full bg-[#16243d] px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] disabled:opacity-60"
-                      >
-                        {uploadAvatar.isPending ? (
-                          <>
-                            <Loader2
-                              size={14}
-                              className="animate-spin"
-                              aria-hidden="true"
-                            />{" "}
-                            Uploading…
-                          </>
-                        ) : (
-                          "Use this crop"
-                        )}
-                      </button>
+                      <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
+                        Vertical
+                        <input
+                          type="range"
+                          min="-1"
+                          max="1"
+                          step="0.05"
+                          value={cropY}
+                          onChange={event =>
+                            setCropY(Number(event.target.value))
+                          }
+                          className="mt-2 block w-full accent-[#a27e2e]"
+                        />
+                      </label>
                     </div>
-                  )}
-                </div>
+                    <button
+                      type="button"
+                      onClick={confirmCrop}
+                      disabled={uploadAvatar.isPending}
+                      className="mt-4 w-full bg-[#16243d] px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] disabled:opacity-60"
+                    >
+                      {uploadAvatar.isPending ? (
+                        <>
+                          <Loader2
+                            size={14}
+                            className="animate-spin"
+                            aria-hidden="true"
+                          />{" "}
+                          Uploading…
+                        </>
+                      ) : (
+                        "Use this crop"
+                      )}
+                    </button>
+                  </Card>
+                )}
               </div>
-              <label className="mt-7 block text-xs font-black uppercase tracking-[.14em] text-[#657084]">
+            </div>
+            <div className="mt-6">
+              <label className="block text-xs font-black uppercase tracking-[.14em] text-[#16243d]">
                 Full name
-                <input
+                <Input
                   value={name}
                   onChange={event => setName(event.target.value)}
                   minLength={2}
                   maxLength={160}
                   required
-                  className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-4 py-3 text-base font-normal normal-case tracking-normal outline-none transition focus:border-[#a27e2e]"
+                  className="mt-2"
                 />
               </label>
-              <label className="mt-6 block text-xs font-black uppercase tracking-[.14em] text-[#657084]">
+            </div>
+            <div className="mt-6">
+              <label className="block text-xs font-black uppercase tracking-[.14em] text-[#16243d]">
                 Account email
-                <input
+                <Input
                   value={user.email ?? ""}
                   readOnly
-                  className="mt-2 block w-full cursor-not-allowed border border-[#16243d]/10 bg-[#ebe7dc] px-4 py-3 text-base font-normal normal-case tracking-normal text-[#657084]"
+                  className="mt-2 cursor-not-allowed border border-[#16243d]/10 bg-[#ebe7dc] text-[#16243d]"
                 />
               </label>
-              <div className="mt-6 border border-[#16243d]/10 bg-[#ebe7dc]/60 p-4">
-                <div className="flex items-start gap-3">
-                  <Globe2 size={17} className="mt-0.5 text-[#a27e2e]" />
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
-                      {t("connectedAccount")}
-                    </p>
-                    <p className="mt-2 text-sm font-semibold text-[#16243d]">
-                      {user.loginMethod === "google"
-                        ? t("googleAccountConnected")
-                        : user.loginMethod
-                          ? `${user.loginMethod} ${t("providerAccountConnected")}`
-                          : t("emailPasswordAccount")}
-                    </p>
-                    <p className="mt-1 text-xs leading-5 text-[#657084]">
-                      {user.loginMethod === "google"
-                        ? t("googleAccountDescription")
-                        : t("currentSignInMethodDescription")}
-                    </p>
-                  </div>
+            </div>
+            <Card className="mt-6 border border-[#16243d]/10 bg-[#ebe7dc]/60 p-4">
+              <div className="flex items-start gap-3">
+                <Globe2 size={17} className="mt-0.5 text-[#7d5e1e]" />
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
+                    {t("connectedAccount")}
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-[#16243d]">
+                    {user.loginMethod === "google"
+                      ? t("googleAccountConnected")
+                      : user.loginMethod
+                        ? `${user.loginMethod} ${t("providerAccountConnected")}`
+                        : t("emailPasswordAccount")}
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-[#16243d]">
+                    {user.loginMethod === "google"
+                      ? t("googleAccountDescription")
+                      : t("currentSignInMethodDescription")}
+                  </p>
                 </div>
               </div>
-              <label className="mt-6 block text-xs font-black uppercase tracking-[.14em] text-[#657084]">
+            </Card>
+            <div className="mt-6">
+              <label className="block text-xs font-black uppercase tracking-[.14em] text-[#16243d]">
                 Timezone
-                <select
-                  value={timezone}
-                  onChange={event => setTimezone(event.target.value)}
-                  className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-4 py-3 text-base font-normal normal-case tracking-normal outline-none transition focus:border-[#a27e2e]"
-                >
-                  {timezoneOptions.map(option => (
-                    <option key={option} value={option}>
-                      {option.replace("_", " ")}
-                    </option>
-                  ))}
-                </select>
+                <Select value={timezone} onValueChange={setTimezone}>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue placeholder="Select timezone" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {timezoneOptions.map(option => (
+                      <SelectItem key={option} value={option}>
+                        {option.replace("_", " ")}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </label>
-              <label className="mt-6 block text-xs font-black uppercase tracking-[.14em] text-[#657084]">
+            </div>
+            <div className="mt-6">
+              <label className="block text-xs font-black uppercase tracking-[.14em] text-[#16243d]">
                 {t("preferredLanguage")}
-                <select
-                  value={locale}
-                  onChange={event =>
-                    handleLocaleChange(event.target.value as LocaleCode)
-                  }
-                  className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-4 py-3 text-base font-normal normal-case tracking-normal outline-none transition focus:border-[#a27e2e]"
-                >
-                  {SUPPORTED_LOCALES.map(option => (
-                    <option key={option.code} value={option.code}>
-                      {option.nativeLabel} · {option.label}
-                    </option>
-                  ))}
-                </select>
-                <span className="mt-2 block text-xs font-normal normal-case tracking-normal text-[#657084]">
+                <Select value={locale} onValueChange={handleLocaleChange}>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue placeholder="Select language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SUPPORTED_LOCALES.map(option => (
+                      <SelectItem key={option.code} value={option.code}>
+                        {option.nativeLabel} · {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <span className="mt-2 block text-xs font-normal normal-case tracking-normal text-[#16243d]">
                   {t("preferredLanguageDescription")}
                 </span>
               </label>
-            </section>
-            <section className="border border-[#16243d]/15 bg-white/45 p-6 sm:p-8">
-              <div className="flex items-start gap-3 border-b border-[#16243d]/15 pb-5">
-                <Target size={20} className="mt-0.5 text-[#a27e2e]" />
-                <div>
-                  <h2 className="display text-2xl">Learning goals</h2>
-                  <p className="mt-1 text-sm text-[#657084]">
-                    Select up to five priorities to make psychometric course
-                    recommendations more relevant.
-                  </p>
-                </div>
-              </div>
-              <div className="mt-6 flex flex-wrap gap-2">
-                {learningGoalOptions.map(goal => {
-                  const selected = learningGoals.includes(goal.value);
-                  return (
-                    <button
-                      key={goal.value}
-                      type="button"
-                      onClick={() =>
-                        setLearningGoals(current =>
-                          selected
-                            ? current.filter(item => item !== goal.value)
-                            : current.length < 5
-                              ? [...current, goal.value]
-                              : current
-                        )
-                      }
-                      className={`border px-3 py-2 text-[10px] font-black uppercase tracking-[.08em] ${selected ? "border-[#c9a34e] bg-[#ead9ae]/60 text-[#7d5e1e]" : "border-[#16243d]/20 text-[#657084]"}`}
-                      aria-pressed={selected}
-                    >
-                      {goal.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-            <section className="border border-[#16243d]/15 bg-white/45 p-6 sm:p-8">
-              <div className="flex items-start gap-3 border-b border-[#16243d]/15 pb-5">
-                <Monitor size={20} className="mt-0.5 text-[#a27e2e]" />
-                <div>
-                  <h2 className="display text-2xl">Display preference</h2>
-                  <p className="mt-1 text-sm text-[#657084]">
-                    Choose light, dark, or automatic system-synced appearance.
-                  </p>
-                </div>
-              </div>
-              <div className="mt-6 grid grid-cols-3 border border-[#16243d]/15 p-1">
-                <button
-                  type="button"
-                  onClick={() => setTheme("light")}
-                  className={`px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] ${theme === "light" ? "bg-[#16243d] text-[#f7f3e8]" : "text-[#657084]"}`}
-                >
-                  Light
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTheme("dark")}
-                  className={`px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] ${theme === "dark" ? "bg-[#16243d] text-[#f7f3e8]" : "text-[#657084]"}`}
-                >
-                  Dark
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTheme("auto")}
-                  className={`px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] ${theme === "auto" ? "bg-[#c9a34e] text-[#16243d]" : "text-[#657084]"}`}
-                >
-                  Auto
-                </button>
-              </div>
-            </section>
-            <section className="border border-[#16243d]/15 bg-white/45 p-6 sm:p-8">
-              <div className="flex items-start gap-3 border-b border-[#16243d]/15 pb-5">
-                <Bell size={20} className="mt-0.5 text-[#a27e2e]" />
-                <div>
-                  <h2 className="display text-2xl">Notification preferences</h2>
-                  <p className="mt-1 text-sm text-[#657084]">
-                    Choose what is useful. You can change these preferences at
-                    any time.
-                  </p>
-                </div>
-              </div>
-              <div className="mt-6 space-y-3">
-                <Preference
-                  label="Assessment updates"
-                  description="Payment confirmations and report availability."
-                  checked={preferences.assessmentUpdates}
-                  onChange={checked =>
-                    setPreferences(current => ({
-                      ...current,
-                      assessmentUpdates: checked,
-                    }))
-                  }
-                />
-                <Preference
-                  label="Course announcements"
-                  description="New professional courses and enrollment windows."
-                  checked={preferences.courseAnnouncements}
-                  onChange={checked =>
-                    setPreferences(current => ({
-                      ...current,
-                      courseAnnouncements: checked,
-                    }))
-                  }
-                />
-                <Preference
-                  label="Instructor feedback by email"
-                  description="Receive an email when a staff reviewer posts new feedback on one of your lesson responses."
-                  checked={preferences.instructorFeedbackEmail}
-                  onChange={checked =>
-                    setPreferences(current => ({
-                      ...current,
-                      instructorFeedbackEmail: checked,
-                    }))
-                  }
-                />
-                <Preference
-                  label="Instructor feedback in workspace"
-                  description="Show new feedback alerts and unread status inside your course workspace."
-                  checked={preferences.instructorFeedbackInApp}
-                  onChange={checked =>
-                    setPreferences(current => ({
-                      ...current,
-                      instructorFeedbackInApp: checked,
-                    }))
-                  }
-                />
-                <Preference
-                  label="Monthly insights"
-                  description="Occasional prompts for reflective professional development."
-                  checked={preferences.monthlyInsights}
-                  onChange={checked =>
-                    setPreferences(current => ({
-                      ...current,
-                      monthlyInsights: checked,
-                    }))
-                  }
-                />
-                <Preference
-                  label="Show Google profile picture"
-                  description="Your Google image is stored on your account and shown only in authenticated navigation when enabled. Turn this off to use initials without deleting it; use Remove picture to permanently clear the stored image."
-                  checked={preferences.showAvatar !== false}
-                  onChange={checked =>
-                    setPreferences(current => ({
-                      ...current,
-                      showAvatar: checked,
-                    }))
-                  }
-                />
-              </div>
-            </section>
-            {import.meta.env.DEV && (
-              <section className="border border-dashed border-[#a27e2e]/60 bg-[#fffaf0] p-6 sm:p-8">
-                <div className="flex items-start gap-3">
-                  <FlaskConical size={20} className="mt-0.5 text-[#a27e2e]" />
-                  <div>
-                    <p className="eyebrow text-[#a27e2e]">Reviewer tools</p>
-                    <h2 className="display mt-2 text-2xl">QA fixture mode</h2>
-                    <p className="mt-1 text-sm leading-6 text-[#657084]">
-                      Use three local-only paid report versions to verify trend
-                      charts and legend toggles. No database records are created
-                      and this control is unavailable in production.
-                    </p>
-                  </div>
-                </div>
-                <label className="mt-5 flex items-start gap-3 text-sm font-semibold">
-                  <input
-                    type="checkbox"
-                    checked={qaFixtureEnabled}
-                    onChange={event => toggleQaFixture(event.target.checked)}
-                    className="mt-1 h-4 w-4 accent-[#a27e2e]"
-                  />
-                  Enable populated version preview on My dashboard
-                </label>
-              </section>
-            )}
-            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <button
-                type="submit"
-                disabled={update.isPending}
-                className="inline-flex items-center gap-2 bg-[#16243d] px-6 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#f7f3e8] disabled:opacity-60"
-              >
-                {update.isPending ? (
-                  <RefreshCw size={15} className="animate-spin" />
-                ) : (
-                  <Save size={15} />
-                )}{" "}
-                {update.isPending ? "Saving…" : t("savePreferences")}
-              </button>
-              {saved && (
-                <span className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-800">
-                  <Check size={16} /> Changes saved
-                </span>
-              )}
-              {update.isError && (
-                <span className="text-sm font-semibold text-red-800">
-                  Could not save changes. Please try again.
-                </span>
-              )}
             </div>
-          </form>
-        )}
-        {courseState.isLoading ? (
-          <section
-            id="payment-history"
-            className="mt-8 border border-[#16243d]/15 bg-white/45 p-6 sm:p-8"
+          </Section>
+
+          <Section
+            eyebrow="Growth"
+            title="Learning goals"
+            description="Select up to five priorities to make psychometric course recommendations more relevant."
           >
-            <div className="flex items-center gap-3 text-sm text-[#657084]">
-              <Loader2 size={16} className="animate-spin text-[#a27e2e]" />{" "}
+            <div className="mt-6 flex flex-wrap gap-2">
+              {learningGoalOptions.map(goal => {
+                const selected = learningGoals.includes(goal.value);
+                return (
+                  <button
+                    key={goal.value}
+                    type="button"
+                    onClick={() =>
+                      setLearningGoals(current =>
+                        selected
+                          ? current.filter(item => item !== goal.value)
+                          : current.length < 5
+                            ? [...current, goal.value]
+                            : current
+                      )
+                    }
+                    className={`border px-3 py-2 text-[10px] font-black uppercase tracking-[.08em] ${selected ? "border-[#16243d] bg-[#16243d] text-[#f7f3e8]" : "border-[#16243d]/20 text-[#16243d] hover:border-[#16243d]"}`}
+                    aria-pressed={selected}
+                  >
+                    {goal.label}
+                  </button>
+                );
+              })}
+            </div>
+          </Section>
+
+          <Section
+            eyebrow="Display"
+            title="Display preference"
+            description="Choose light, dark, or automatic system-synced appearance."
+          >
+            <div className="mt-6 grid grid-cols-3 border border-[#16243d]/15 p-1">
+              <button
+                type="button"
+                onClick={() => setTheme("light")}
+                className={`px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] ${theme === "light" ? "bg-[#16243d] text-[#f7f3e8]" : "text-[#16243d]"}`}
+              >
+                Light
+              </button>
+              <button
+                type="button"
+                onClick={() => setTheme("dark")}
+                className={`px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] ${theme === "dark" ? "bg-[#16243d] text-[#f7f3e8]" : "text-[#16243d]"}`}
+              >
+                Dark
+              </button>
+              <button
+                type="button"
+                onClick={() => setTheme("auto")}
+                className={`px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] ${theme === "auto" ? "bg-[#c9a34e] text-[#16243d]" : "text-[#16243d]"}`}
+              >
+                Auto
+              </button>
+            </div>
+          </Section>
+
+          <Section
+            eyebrow="Notifications"
+            title="Notification preferences"
+            description="Choose what is useful. You can change these preferences at any time."
+          >
+            <div className="mt-6 space-y-3">
+              <Preference
+                label="Assessment updates"
+                description="Payment confirmations and report availability."
+                checked={preferences.assessmentUpdates}
+                onChange={checked =>
+                  setPreferences(current => ({
+                    ...current,
+                    assessmentUpdates: checked,
+                  }))
+                }
+              />
+              <Preference
+                label="Course announcements"
+                description="New professional courses and enrollment windows."
+                checked={preferences.courseAnnouncements}
+                onChange={checked =>
+                  setPreferences(current => ({
+                    ...current,
+                    courseAnnouncements: checked,
+                  }))
+                }
+              />
+              <Preference
+                label="Instructor feedback by email"
+                description="Receive an email when a staff reviewer posts new feedback on one of your lesson responses."
+                checked={preferences.instructorFeedbackEmail}
+                onChange={checked =>
+                  setPreferences(current => ({
+                    ...current,
+                    instructorFeedbackEmail: checked,
+                  }))
+                }
+              />
+              <Preference
+                label="Instructor feedback in workspace"
+                description="Show new feedback alerts and unread status inside your course workspace."
+                checked={preferences.instructorFeedbackInApp}
+                onChange={checked =>
+                  setPreferences(current => ({
+                    ...current,
+                    instructorFeedbackInApp: checked,
+                  }))
+                }
+              />
+              <Preference
+                label="Monthly insights"
+                description="Occasional prompts for reflective professional development."
+                checked={preferences.monthlyInsights}
+                onChange={checked =>
+                  setPreferences(current => ({
+                    ...current,
+                    monthlyInsights: checked,
+                  }))
+                }
+              />
+              <Preference
+                label="Show Google profile picture"
+                description="Your Google image is stored on your account and shown only in authenticated navigation when enabled. Turn this off to use initials without deleting it; use Remove picture to permanently clear the stored image."
+                checked={preferences.showAvatar !== false}
+                onChange={checked =>
+                  setPreferences(current => ({
+                    ...current,
+                    showAvatar: checked,
+                  }))
+                }
+              />
+            </div>
+          </Section>
+
+          {import.meta.env.DEV && (
+            <Section
+              eyebrow="Reviewer tools"
+              title="QA fixture mode"
+              description="Use three local-only paid report versions to verify trend charts and legend toggles. No database records are created and this control is unavailable in production."
+            >
+              <label className="mt-5 flex items-start gap-3 text-sm font-semibold text-[#16243d]">
+                <input
+                  type="checkbox"
+                  checked={qaFixtureEnabled}
+                  onChange={event => toggleQaFixture(event.target.checked)}
+                  className="mt-1 h-4 w-4 accent-[#a27e2e]"
+                />
+                Enable populated version preview on My dashboard
+              </label>
+            </Section>
+          )}
+
+          <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+            <Button
+              type="submit"
+              disabled={update.isPending}
+              className="text-[11px] font-black uppercase tracking-[.15em]"
+            >
+              {update.isPending ? (
+                <>
+                  <RefreshCw size={15} className="animate-spin" /> Saving…
+                </>
+              ) : (
+                <>
+                  <Save size={15} /> {t("savePreferences")}
+                </>
+              )}
+            </Button>
+            {saved && (
+              <span className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-800">
+                <Check size={16} /> Changes saved
+              </span>
+            )}
+            {update.isError && (
+              <span className="text-sm font-semibold text-red-800">
+                Could not save changes. Please try again.
+              </span>
+            )}
+          </div>
+        </form>
+
+        <Section
+          id="payment-history"
+          eyebrow="Enrollment"
+          title={
+            courseState.data?.length
+              ? `${courseState.data.length} active course${courseState.data.length === 1 ? "" : "s"}`
+              : t("noEnrollments")
+          }
+          description={t("paymentHistoryDescription")}
+        >
+          {courseState.isLoading ? (
+            <div className="flex items-center gap-3 text-sm text-[#16243d]">
+              <Loader2 size={16} className="animate-spin text-[#7d5e1e]" />{" "}
               {t("enrollmentStatus")}…
             </div>
-          </section>
-        ) : (
-          <section
-            id="payment-history"
-            className="mt-8 border border-[#16243d]/15 bg-white/45 p-6 sm:p-8"
-          >
-            <div className="flex items-start gap-3 border-b border-[#16243d]/15 pb-5">
-              <Target size={20} className="mt-0.5 text-[#a27e2e]" />
-              <div>
-                <p className="eyebrow text-[#a27e2e]">
-                  {t("enrollmentStatus")}
-                </p>
-                <h2 className="display mt-2 text-2xl">
-                  {courseState.data?.length
-                    ? `${courseState.data.length} active course${courseState.data.length === 1 ? "" : "s"}`
-                    : t("noEnrollments")}
-                </h2>
-                <p className="mt-1 text-sm text-[#657084]">
-                  {t("paymentHistoryDescription")}
-                </p>
-              </div>
-            </div>
+          ) : (
             <div className="mt-6 space-y-5">
               {courseState.data?.map(record => {
                 const paid = record.stages.filter(
                   stage => stage.paymentStatus === "paid"
                 ).length;
                 return (
-                  <article
+                  <Card
                     key={record.enrollment.id}
-                    className="border border-[#16243d]/15 bg-[#f7f3e8] p-5"
+                    className="border border-[#16243d]/10 bg-[#f7f3e8] p-5"
                   >
                     <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
                       <div>
-                        <h3 className="text-base font-bold">
+                        <h3 className="text-base font-bold text-[#16243d]">
                           {record.enrollment.courseSlug}
                         </h3>
-                        <p className="mt-1 text-xs text-[#657084]">
+                        <p className="mt-1 text-xs text-[#16243d]">
                           {paid} / {record.stages.length} staged payments
                           complete
                         </p>
                       </div>
                       <span
-                        className={`inline-flex w-fit items-center gap-2 border px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] ${paid > 0 ? "border-emerald-800/30 text-emerald-800" : "border-[#a27e2e]/40 text-[#7d5e1e]"}`}
+                        className={`inline-flex w-fit items-center gap-2 border px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] ${paid > 0 ? "border-emerald-800/30 text-emerald-800" : "border-[#7d5e1e]/40 text-[#7d5e1e]"}`}
                       >
                         {paid > 0 ? t("paymentPaid") : t("paymentPending")}
                       </span>
@@ -833,7 +790,7 @@ export default function Settings() {
                           key={stage.id}
                           className="flex items-center justify-between border-t border-[#16243d]/10 pt-2 text-xs"
                         >
-                          <span>
+                          <span className="text-[#16243d]">
                             {t("paymentStage")} {stage.stage} · KES{" "}
                             {stage.amountKes.toLocaleString()}
                           </span>
@@ -841,7 +798,7 @@ export default function Settings() {
                             className={
                               stage.paymentStatus === "paid"
                                 ? "font-bold text-emerald-800"
-                                : "text-[#657084]"
+                                : "text-[#16243d]"
                             }
                           >
                             {stage.paymentStatus === "paid"
@@ -851,78 +808,69 @@ export default function Settings() {
                         </div>
                       ))}
                     </div>
-                  </article>
+                  </Card>
                 );
               })}
             </div>
-          </section>
-        )}
-        {courseState.isError ? (
-          <p className="mt-3 text-xs text-red-800">
-            Could not load course payment history. Please refresh and try again.
-          </p>
-        ) : null}
-        <section className="mt-8 border border-[#16243d]/15 bg-white/45 p-6 sm:p-8">
-          <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/15 pb-5 sm:flex-row sm:items-start">
-            <div className="flex items-start gap-3">
-              <ShieldCheck size={20} className="mt-0.5 text-[#a27e2e]" />
-              <div>
-                <p className="eyebrow text-[#a27e2e]">Security observatory</p>
-                <h2 className="display mt-2 text-2xl">Recent activity</h2>
-                <p className="mt-1 text-sm text-[#657084]">
-                  Review your own sign-in history, check device and location
-                  signals, and revoke any session you do not recognize.
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {currentSessionId && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setPendingRevoke({ kind: "current", label: "this device" })
-                  }
-                  disabled={revokeCurrentSession.isPending}
-                  className="inline-flex items-center justify-center gap-2 border border-red-800/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-red-800 disabled:opacity-50"
-                >
-                  {revokeCurrentSession.isPending ? (
-                    <RefreshCw size={12} className="animate-spin" />
-                  ) : (
-                    <LogOut size={12} />
-                  )}{" "}
-                  Sign out this device
-                </button>
-              )}
-              {(sessions.data?.sessions.length ?? 0) > 1 && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setPendingRevoke({
-                      kind: "others",
-                      label: "all other active sessions",
-                    })
-                  }
-                  disabled={revokeOtherSessions.isPending}
-                  className="inline-flex items-center justify-center gap-2 border border-red-800/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-red-800 disabled:opacity-50"
-                >
-                  {revokeOtherSessions.isPending ? (
-                    <RefreshCw size={12} className="animate-spin" />
-                  ) : (
-                    <LogOut size={12} />
-                  )}{" "}
-                  Sign out other sessions
-                </button>
-              )}
-            </div>
+          )}
+        </Section>
+
+        <Section
+          eyebrow="Security"
+          title="Recent activity"
+          description="Review your own sign-in history, check device and location signals, and revoke any session you do not recognize."
+        >
+          <div className="mt-6 flex flex-wrap gap-2">
+            {currentSessionId && (
+              <Button
+                type="button"
+                onClick={() =>
+                  setPendingRevoke({ kind: "current", label: "this device" })
+                }
+                disabled={revokeCurrentSession.isPending}
+                variant="outline"
+                size="sm"
+                className="text-[10px] font-black uppercase tracking-[.1em] text-red-800 hover:text-red-800"
+              >
+                {revokeCurrentSession.isPending ? (
+                  <RefreshCw size={12} className="animate-spin" />
+                ) : (
+                  <LogOut size={12} />
+                )}{" "}
+                Sign out this device
+              </Button>
+            )}
+            {(sessions.data?.sessions.length ?? 0) > 1 && (
+              <Button
+                type="button"
+                onClick={() =>
+                  setPendingRevoke({
+                    kind: "others",
+                    label: "all other active sessions",
+                  })
+                }
+                disabled={revokeOtherSessions.isPending}
+                variant="outline"
+                size="sm"
+                className="text-[10px] font-black uppercase tracking-[.1em] text-red-800 hover:text-red-800"
+              >
+                {revokeOtherSessions.isPending ? (
+                  <RefreshCw size={12} className="animate-spin" />
+                ) : (
+                  <LogOut size={12} />
+                )}{" "}
+                Sign out other sessions
+              </Button>
+            )}
           </div>
           <div className="mt-6 grid gap-6 lg:grid-cols-2">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                 Active sessions · revoke unrecognized access
               </p>
               <div className="mt-3 divide-y divide-[#16243d]/10 border-y border-[#16243d]/10">
                 {(sessions.data?.sessions.length ?? 0) === 0 ? (
-                  <p className="py-4 text-sm text-[#657084]">
+                  <p className="py-4 text-sm text-[#16243d]">
                     No active session records yet.
                   </p>
                 ) : (
@@ -932,20 +880,20 @@ export default function Settings() {
                       className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between"
                     >
                       <div className="flex items-start gap-3">
-                        <Monitor size={16} className="mt-0.5 text-[#a27e2e]" />
+                        <Monitor size={16} className="mt-0.5 text-[#7d5e1e]" />
                         <div>
-                          <p className="text-sm font-bold">
+                          <p className="text-sm font-bold text-[#16243d]">
                             {session.id === currentSessionId
                               ? "This device"
                               : sessionLabel(session.userAgent)}
                           </p>
-                          <p className="mt-1 text-xs capitalize text-[#657084]">
+                          <p className="mt-1 text-xs capitalize text-[#16243d]">
                             {session.deviceType ?? "unknown"} device
                             {session.estimatedLocation
                               ? ` · estimated location ${session.estimatedLocation}`
                               : " · location unavailable"}
                           </p>
-                          <p className="mt-1 text-xs text-[#657084]">
+                          <p className="mt-1 text-xs text-[#16243d]">
                             Last active{" "}
                             {new Date(session.lastSeenAt).toLocaleString()}
                           </p>
@@ -961,7 +909,7 @@ export default function Settings() {
                           Current
                         </span>
                       ) : (
-                        <button
+                        <Button
                           type="button"
                           onClick={() =>
                             setPendingRevoke({
@@ -971,12 +919,14 @@ export default function Settings() {
                             })
                           }
                           disabled={revokeSession.isPending}
-                          className="self-start border border-red-800/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-red-800 disabled:opacity-50"
+                          variant="outline"
+                          size="sm"
+                          className="self-start text-[10px] font-black uppercase tracking-[.1em] text-red-800 hover:text-red-800"
                         >
                           {revokeSession.isPending
                             ? "Revoking…"
                             : "Revoke access"}
-                        </button>
+                        </Button>
                       )}
                     </div>
                   ))
@@ -986,50 +936,56 @@ export default function Settings() {
             <div>
               <div className="flex flex-col gap-3 border-b border-[#16243d]/10 pb-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                     Recent login history
                   </p>
-                  <p className="mt-1 text-xs text-[#657084]">
+                  <p className="mt-1 text-xs text-[#16243d]">
                     Search by the device classification or estimated location
                     recorded at sign-in.
                   </p>
                 </div>
                 <div className="grid gap-2 sm:grid-cols-2">
-                  <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
-                    Device
-                    <select
-                      value={activityDevice}
-                      onChange={event =>
-                        setActivityDevice(
-                          event.target.value as typeof activityDevice
-                        )
-                      }
-                      className="mt-1 block border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs font-normal normal-case tracking-normal outline-none focus:border-[#a27e2e]"
-                    >
-                      <option value="all">All devices</option>
-                      <option value="desktop">Desktop</option>
-                      <option value="mobile">Mobile</option>
-                      <option value="tablet">Tablet</option>
-                      <option value="unknown">Unknown</option>
-                    </select>
-                  </label>
-                  <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
-                    Location
-                    <input
-                      value={activityLocation}
-                      onChange={event =>
-                        setActivityLocation(event.target.value)
-                      }
-                      placeholder="e.g. KE"
-                      maxLength={80}
-                      className="mt-1 block w-full min-w-0 border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs font-normal normal-case tracking-normal outline-none placeholder:text-[#657084]/60 focus:border-[#a27e2e]"
-                    />
-                  </label>
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
+                      Device
+                      <Select
+                        value={activityDevice}
+                        onValueChange={value =>
+                          setActivityDevice(value as typeof activityDevice)
+                        }
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="All devices" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All devices</SelectItem>
+                          <SelectItem value="desktop">Desktop</SelectItem>
+                          <SelectItem value="mobile">Mobile</SelectItem>
+                          <SelectItem value="tablet">Tablet</SelectItem>
+                          <SelectItem value="unknown">Unknown</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </label>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
+                      Location
+                      <Input
+                        value={activityLocation}
+                        onChange={event =>
+                          setActivityLocation(event.target.value)
+                        }
+                        placeholder="e.g. KE"
+                        maxLength={80}
+                        className="mt-1"
+                      />
+                    </label>
+                  </div>
                 </div>
               </div>
               <div className="mt-3 divide-y divide-[#16243d]/10 border-y border-[#16243d]/10">
                 {(loginHistory.data?.length ?? 0) === 0 ? (
-                  <p className="py-4 text-sm text-[#657084]">
+                  <p className="py-4 text-sm text-[#16243d]">
                     No recent login events to display.
                   </p>
                 ) : (
@@ -1039,24 +995,24 @@ export default function Settings() {
                       className="flex items-start justify-between gap-3 py-4"
                     >
                       <div>
-                        <p className="text-sm font-bold">
+                        <p className="text-sm font-bold text-[#16243d]">
                           {event.success
                             ? "Successful sign-in"
                             : "Sign-in blocked"}
                         </p>
-                        <p className="mt-1 text-xs capitalize text-[#657084]">
+                        <p className="mt-1 text-xs capitalize text-[#16243d]">
                           {event.identifierType} ·{" "}
                           {event.failureCode?.replaceAll("_", " ") ??
                             "Authenticated"}
                         </p>
-                        <p className="mt-1 text-xs text-[#657084]">
+                        <p className="mt-1 text-xs text-[#16243d]">
                           {event.deviceType ?? "Unknown device"} ·{" "}
                           {event.estimatedLocation
                             ? `estimated location ${event.estimatedLocation}`
                             : "location unavailable"}
                         </p>
                       </div>
-                      <time className="shrink-0 text-right text-[11px] text-[#657084]">
+                      <time className="shrink-0 text-right text-[11px] text-[#16243d]">
                         {new Date(event.createdAt).toLocaleString()}
                       </time>
                     </div>
@@ -1065,21 +1021,25 @@ export default function Settings() {
               </div>
             </div>
           </div>
-        </section>
-        <div className="mt-10 flex items-start gap-3 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-sm leading-6 text-[#c1cad7]">
-          <LockKeyhole size={18} className="mt-0.5 shrink-0 text-[#c9a34e]" />
-          <p>
-            <strong className="text-[#f7f3e8]">Account privacy.</strong> Your
-            preferences are saved to your authenticated account and are not
-            visible to other participants.
-          </p>
-        </div>
+        </Section>
+
+        <Card className="mt-8 border-l-4 border-[#c9a34e] bg-[#16243d] p-5 text-sm leading-6 text-[#f7f3e8]">
+          <div className="flex items-start gap-3">
+            <LockKeyhole size={18} className="mt-0.5 shrink-0 text-[#c9a34e]" />
+            <p>
+              <strong className="text-[#f7f3e8]">Account privacy.</strong> Your
+              preferences are saved to your authenticated account and are not
+              visible to other participants.
+            </p>
+          </div>
+        </Card>
+
         {pendingRevoke && (
           <div
             className="fixed inset-0 z-50 grid place-items-center bg-[#101d35]/75 p-4"
             role="presentation"
           >
-            <div
+            <Card
               role="dialog"
               aria-modal="true"
               aria-labelledby="revoke-dialog-title"
@@ -1089,15 +1049,15 @@ export default function Settings() {
               <div className="flex items-start gap-3">
                 <ShieldCheck
                   size={22}
-                  className="mt-0.5 shrink-0 text-[#a27e2e]"
+                  className="mt-0.5 shrink-0 text-[#7d5e1e]"
                 />
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">
+                  <p className="eyebrow text-[#7d5e1e]">
                     Security confirmation
                   </p>
                   <h2
                     id="revoke-dialog-title"
-                    className="display mt-2 text-2xl"
+                    className="display mt-2 text-2xl text-[#16243d]"
                   >
                     Revoke {pendingRevoke.label}?
                   </h2>
@@ -1105,14 +1065,14 @@ export default function Settings() {
               </div>
               <p
                 id="revoke-dialog-copy"
-                className="mt-5 text-sm leading-7 text-[#4a566a]"
+                className="mt-5 text-sm leading-7 text-[#16243d]"
               >
                 This will immediately end access for the selected session. The
                 device will need to sign in again, and this action cannot be
                 undone.
               </p>
               <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                <button
+                <Button
                   type="button"
                   onClick={() => setPendingRevoke(null)}
                   disabled={
@@ -1120,11 +1080,12 @@ export default function Settings() {
                     revokeOtherSessions.isPending ||
                     revokeCurrentSession.isPending
                   }
-                  className="border border-[#16243d]/20 px-4 py-3 text-[10px] font-black uppercase tracking-[.12em]"
+                  variant="outline"
+                  className="text-[10px] font-black uppercase tracking-[.12em]"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   onClick={confirmPendingRevoke}
                   disabled={
@@ -1132,7 +1093,7 @@ export default function Settings() {
                     revokeOtherSessions.isPending ||
                     revokeCurrentSession.isPending
                   }
-                  className="inline-flex items-center justify-center gap-2 bg-red-800 px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8] disabled:opacity-60"
+                  className="bg-red-800 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8] hover:bg-red-800/90"
                 >
                   {revokeSession.isPending ||
                   revokeOtherSessions.isPending ||
@@ -1144,13 +1105,13 @@ export default function Settings() {
                   revokeCurrentSession.isPending
                     ? "Revoking…"
                     : "Yes, revoke access"}
-                </button>
+                </Button>
               </div>
-            </div>
+            </Card>
           </div>
         )}
       </main>
-    </div>
+    </DashboardLayout>
   );
 }
 
@@ -1166,26 +1127,26 @@ function Preference({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <label className="flex cursor-pointer items-start gap-4 border border-[#16243d]/10 bg-[#f7f3e8]/75 p-4">
+    <Card className="flex cursor-pointer items-start gap-4 border border-[#16243d]/10 bg-[#f7f3e8]/75 p-4">
       <input
         type="checkbox"
         checked={checked}
         onChange={event => onChange(event.target.checked)}
-        className="mt-1 h-4 w-4 accent-[#a27e2e]"
+        className="mt-1 h-4 w-4 accent-[#7d5e1e]"
       />
       <span>
-        <span className="block text-sm font-bold">{label}</span>
-        <span className="mt-1 block text-sm leading-6 text-[#657084]">
+        <span className="block text-sm font-bold text-[#16243d]">{label}</span>
+        <span className="mt-1 block text-sm leading-6 text-[#16243d]">
           {description}
         </span>
       </span>
-    </label>
+    </Card>
   );
 }
 function LoadingState() {
   return (
     <div className="grid min-h-screen place-items-center bg-[#f7f3e8] text-[#16243d]">
-      <RefreshCw className="animate-spin text-[#a27e2e]" />
+      <RefreshCw className="animate-spin text-[#7d5e1e]" />
     </div>
   );
 }
@@ -1193,26 +1154,7 @@ function AccessState() {
   return (
     <div className="grid min-h-screen place-items-center bg-[#f7f3e8] px-6 text-[#16243d]">
       <div className="max-w-md border-t-2 border-[#c9a34e] bg-white/50 p-8 text-center">
-        <LockKeyhole className="mx-auto text-[#a27e2e]" />
-        <h1 className="display mt-5 text-4xl">Sign in to continue</h1>
-        <p className="mt-4 text-sm leading-6 text-[#657084]">
-          Your profile and preferences are private to your authenticated
-          account.
-        </p>
-        <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-          <button
-            onClick={() => startLogin()}
-            className="bg-[#16243d] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#f7f3e8]"
-          >
-            Sign in →
-          </button>
-          <Link
-            href="/"
-            className="border border-[#16243d]/25 px-5 py-4 text-[11px] font-black uppercase tracking-[.15em]"
-          >
-            Return to site
-          </Link>
-        </div>
+        <LockKeyhole className="mx-auto text-[#7d5e1e]" />
       </div>
     </div>
   );

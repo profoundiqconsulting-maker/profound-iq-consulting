@@ -1,4 +1,4 @@
-/* Profound IQ Consulting — Executive Observatory admin workspace. Keep operational tools private, editorial, and calm. */
+﻿/* Profound IQ Consulting — Executive Observatory admin workspace. Keep operational tools private, editorial, and calm. */
 
 import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -48,7 +48,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "wouter";
 import { BrandLogo } from "@/components/BrandLogo";
 import DashboardLayout from "@/components/DashboardLayout";
-import { DashboardQuickNav } from "@/components/DashboardQuickNav";
 import { DashboardPagination } from "@/components/DashboardPagination";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -1217,7 +1216,7 @@ export default function AdminDashboard() {
   if (authLoading)
     return (
       <div className="grid min-h-screen place-items-center bg-[#f7f3e8] text-[#16243d]">
-        <RefreshCw className="animate-spin text-[#a27e2e]" />
+        <RefreshCw className="animate-spin text-[#7d5e1e]" />
       </div>
     );
 
@@ -1347,13 +1346,13 @@ export default function AdminDashboard() {
             >
               <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">
+                  <p className="eyebrow text-[#7d5e1e]">
                     Psychometric suite / conversion intelligence
                   </p>
                   <h2 className="display mt-2 text-2xl">
                     From start to delivered report.
                   </h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
                     Track real attempts, verified payments, and report-email
                     outcomes by profile and selected date range.
                   </p>
@@ -1422,30 +1421,29 @@ export default function AdminDashboard() {
                 </div>
               )}
               {psychometricAnalytics.isLoading ? (
-                <p className="mt-5 text-sm text-[#657084]">
+                <p className="mt-5 text-sm text-[#16243d]">
                   Loading psychometric analytics…
                 </p>
               ) : (
                 <>
                   <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    <Metric
-                      icon={FileText}
+                    <StatCard
+                      icon={<FileText size={18} />}
                       label="Starts"
                       value={psychometricAnalytics.data?.totals.started ?? 0}
                     />
-                    <Metric
-                      icon={CheckCircle2}
+                    <StatCard
+                      icon={<CheckCircle2 size={18} />}
                       label="Paid conversion"
                       value={`${psychometricAnalytics.data?.totals.conversionRate ?? 0}%`}
-                      accent
                     />
-                    <Metric
-                      icon={MailCheck}
+                    <StatCard
+                      icon={<MailCheck size={18} />}
                       label="Email delivery"
                       value={`${psychometricAnalytics.data?.totals.emailRate ?? 0}%`}
                     />
-                    <Metric
-                      icon={MailWarning}
+                    <StatCard
+                      icon={<MailWarning size={18} />}
                       label="Pending / failed"
                       value={
                         (psychometricAnalytics.data?.totals.pending ?? 0) +
@@ -1455,7 +1453,7 @@ export default function AdminDashboard() {
                   </div>
                   <div className="mt-6 grid gap-5 lg:grid-cols-[1.1fr_.9fr]">
                     <div className="border border-[#16243d]/10 bg-[#fffaf0] p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                         Profile conversion
                       </p>
                       <div className="mt-3 space-y-3">
@@ -1483,14 +1481,14 @@ export default function AdminDashboard() {
                           )
                         )}
                         {!psychometricAnalytics.data?.byProfile?.length && (
-                          <p className="text-sm text-[#657084]">
+                          <p className="text-sm text-[#16243d]">
                             No psychometric attempts in this range.
                           </p>
                         )}
                       </div>
                     </div>
                     <div className="border border-[#16243d]/10 bg-[#fffaf0] p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                         Recent funnel trend
                       </p>
                       <div className="mt-4 space-y-2">
@@ -1501,7 +1499,7 @@ export default function AdminDashboard() {
                               key={point.date}
                               className="grid grid-cols-[75px_1fr] items-center gap-3 text-xs"
                             >
-                              <span className="text-[#657084]">
+                              <span className="text-[#16243d]">
                                 {point.date.slice(5)}
                               </span>
                               <div className="flex h-5 overflow-hidden bg-[#16243d]/10">
@@ -1522,7 +1520,7 @@ export default function AdminDashboard() {
                             </div>
                           ))}
                         {!psychometricAnalytics.data?.trend?.length && (
-                          <p className="text-sm text-[#657084]">
+                          <p className="text-sm text-[#16243d]">
                             Trend data will appear after attempts are recorded.
                           </p>
                         )}
@@ -1536,13 +1534,13 @@ export default function AdminDashboard() {
             <section className="mt-10 border border-[#c9a34e]/45 bg-[#fffaf0] p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">
+                  <p className="eyebrow text-[#7d5e1e]">
                     Psychometric suite / operations
                   </p>
                   <h2 className="display mt-2 text-2xl">
                     Profile attempts and delivery.
                   </h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
                     Review payment state, report readiness, and email delivery
                     without exposing raw responses or report payloads.
                   </p>
@@ -1582,7 +1580,7 @@ export default function AdminDashboard() {
                 />
               </div>
               {psychometricAttempts.isLoading ? (
-                <p className="mt-5 text-sm text-[#657084]">
+                <p className="mt-5 text-sm text-[#16243d]">
                   Loading psychometric attempts…
                 </p>
               ) : psychometricAttempts.isError ? (
@@ -1592,7 +1590,7 @@ export default function AdminDashboard() {
               ) : psychometricAttempts.data?.length ? (
                 <div className="mt-5 overflow-x-auto">
                   <table className="w-full min-w-[760px] text-left text-sm">
-                    <thead className="border-b border-[#16243d]/15 text-[10px] uppercase tracking-[.12em] text-[#657084]">
+                    <thead className="border-b border-[#16243d]/15 text-[10px] uppercase tracking-[.12em] text-[#16243d]">
                       <tr>
                         <th className="py-3">Participant</th>
                         <th className="py-3">Profile</th>
@@ -1610,7 +1608,7 @@ export default function AdminDashboard() {
                         >
                           <td className="py-3">
                             <strong>{attempt.name}</strong>
-                            <span className="block text-xs text-[#657084]">
+                            <span className="block text-xs text-[#16243d]">
                               {attempt.email}
                             </span>
                           </td>
@@ -1633,7 +1631,7 @@ export default function AdminDashboard() {
                           <td className="py-3 text-xs">
                             {attempt.reportEmailStatus ?? "pending"}
                           </td>
-                          <td className="py-3 text-xs text-[#657084]">
+                          <td className="py-3 text-xs text-[#16243d]">
                             {new Date(attempt.createdAt).toLocaleString()}
                           </td>
                         </tr>
@@ -1642,7 +1640,7 @@ export default function AdminDashboard() {
                   </table>
                 </div>
               ) : (
-                <p className="mt-5 border border-dashed border-[#16243d]/20 bg-white/60 p-5 text-sm text-[#657084]">
+                <p className="mt-5 border border-dashed border-[#16243d]/20 bg-white/60 p-5 text-sm text-[#16243d]">
                   No psychometric attempts match the current filters.
                 </p>
               )}
@@ -1651,11 +1649,11 @@ export default function AdminDashboard() {
             <section className="mt-10 border border-[#c9a34e]/45 bg-[#fffaf0] p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">Weekly delivery</p>
+                  <p className="eyebrow text-[#7d5e1e]">Weekly delivery</p>
                   <h2 className="display mt-2 text-2xl">
                     Keep the signal moving.
                   </h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
                     Email the branded psychometric analytics PDF to verified
                     administrators every Monday at 09:00 UTC.
                   </p>
@@ -1712,7 +1710,7 @@ export default function AdminDashboard() {
               </div>
               <div className="mt-5 grid gap-3 sm:grid-cols-3">
                 <div className="border border-[#16243d]/10 bg-white/70 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+                  <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
                     Status
                   </p>
                   <p className="mt-2 text-sm font-bold">
@@ -1724,7 +1722,7 @@ export default function AdminDashboard() {
                   </p>
                 </div>
                 <div className="border border-[#16243d]/10 bg-white/70 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+                  <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
                     Last run
                   </p>
                   <p className="mt-2 text-sm font-bold">
@@ -1736,7 +1734,7 @@ export default function AdminDashboard() {
                   </p>
                 </div>
                 <div className="border border-[#16243d]/10 bg-white/70 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+                  <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
                     Saved reports
                   </p>
                   <p className="mt-2 text-sm font-bold">
@@ -1747,10 +1745,10 @@ export default function AdminDashboard() {
               <div className="mt-6 border-t border-[#16243d]/10 pt-5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+                    <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
                       Failure acknowledgement
                     </p>
-                    <p className="mt-1 text-xs text-[#657084]">
+                    <p className="mt-1 text-xs text-[#16243d]">
                       Record which administrator has taken ownership of a failed
                       delivery.
                     </p>
@@ -1806,7 +1804,7 @@ export default function AdminDashboard() {
                   {!(failedPsychometricDeliveries.data ?? []).some(
                     item => !item.deliveryAcknowledgedAt
                   ) && (
-                    <p className="text-sm text-[#657084]">
+                    <p className="text-sm text-[#16243d]">
                       No open delivery failures require acknowledgement.
                     </p>
                   )}
@@ -1820,13 +1818,13 @@ export default function AdminDashboard() {
             <section className="mt-6 border border-[#16243d]/15 bg-white/55 p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">
+                  <p className="eyebrow text-[#7d5e1e]">
                     Acknowledgement audit
                   </p>
                   <h3 className="display mt-2 text-xl">
                     Operational notes, preserved.
                   </h3>
-                  <p className="mt-1 text-xs text-[#657084]">
+                  <p className="mt-1 text-xs text-[#16243d]">
                     Recent administrator actions on failed report deliveries.
                   </p>
                 </div>
@@ -1849,20 +1847,20 @@ export default function AdminDashboard() {
                     >
                       <div className="flex flex-wrap justify-between gap-2 text-xs">
                         <strong>{entry.actorName}</strong>
-                        <span className="text-[#657084]">
+                        <span className="text-[#16243d]">
                           {new Date(entry.createdAt).toLocaleString()}
                         </span>
                       </div>
                       <p className="mt-1 text-sm text-[#16243d]">
                         {entry.note}
                       </p>
-                      <p className="mt-1 text-[10px] uppercase tracking-[.08em] text-[#657084]">
+                      <p className="mt-1 text-[10px] uppercase tracking-[.08em] text-[#16243d]">
                         Attempt #{entry.attemptId}
                       </p>
                     </div>
                   ))}
                 {!psychometricAcknowledgementAudit.data?.length && (
-                  <p className="text-sm text-[#657084]">
+                  <p className="text-sm text-[#16243d]">
                     No acknowledgement actions have been recorded yet.
                   </p>
                 )}
@@ -1879,26 +1877,25 @@ export default function AdminDashboard() {
         )}
         {overview.data && (
           <>
-            <section className="mt-10 grid gap-4 sm:grid-cols-3">
-              <Metric
-                icon={Users}
+            <div className="mt-10 grid gap-4 sm:grid-cols-3">
+              <StatCard
+                icon={<Users size={18} />}
                 label="Matching attempts"
                 value={filteredSummary.total}
               />
 
-              <Metric
-                icon={CheckCircle2}
+              <StatCard
+                icon={<CheckCircle2 size={18} />}
                 label="Verified payments"
                 value={filteredSummary.paid}
-                accent
               />
 
-              <Metric
-                icon={Clock3}
+              <StatCard
+                icon={<Clock3 size={18} />}
                 label="Awaiting payment"
                 value={filteredSummary.pending}
               />
-            </section>
+            </div>
 
             <section
               id="assessment-intelligence"
@@ -1906,7 +1903,7 @@ export default function AdminDashboard() {
             >
               <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow flex items-center gap-2 text-[#a27e2e]">
+                  <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
                     <BarChart3 size={13} /> Platform signals
                   </p>
 
@@ -1914,7 +1911,7 @@ export default function AdminDashboard() {
                     Momentum, at a glance.
                   </h2>
 
-                  <p className="mt-2 text-sm text-[#657084]">
+                  <p className="mt-2 text-sm text-[#16243d]">
                     Tracked events across the assessment and enrollment
                     journeys.
                   </p>
@@ -2037,11 +2034,11 @@ export default function AdminDashboard() {
                       key={item.label}
                       className="border-t border-[#16243d]/20 bg-[#f7f3e8] p-4"
                     >
-                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
                         {item.label}
                       </p>
 
-                      <p className="display mt-3 text-3xl text-[#a27e2e]">
+                      <p className="display mt-3 text-3xl text-[#7d5e1e]">
                         {item.value}
                       </p>
                     </div>
@@ -2056,18 +2053,18 @@ export default function AdminDashboard() {
             >
               <div className="flex items-end justify-between gap-4">
                 <div>
-                  <p className="eyebrow flex items-center gap-2 text-[#a27e2e]">
+                  <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
                     <Share2 size={13} /> Share observatory
                   </p>
 
                   <h2 className="display mt-3 text-3xl">Credential reach</h2>
 
-                  <p className="mt-2 text-sm text-[#657084]">
+                  <p className="mt-2 text-sm text-[#16243d]">
                     Authenticated share events by platform across all users.
                   </p>
                 </div>
 
-                <span className="text-xs font-bold uppercase tracking-[.1em] text-[#657084]">
+                <span className="text-xs font-bold uppercase tracking-[.1em] text-[#16243d]">
                   {(shareAnalytics.data ?? []).reduce(
                     (sum, item) => sum + item.count,
 
@@ -2091,11 +2088,11 @@ export default function AdminDashboard() {
                       className="border-t border-[#16243d]/20 bg-[#f7f3e8] p-4"
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+                        <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
                           {item.platform}
                         </p>
 
-                        <span className="text-lg font-semibold text-[#a27e2e]">
+                        <span className="text-lg font-semibold text-[#7d5e1e]">
                           {item.count}
                         </span>
                       </div>
@@ -2114,7 +2111,7 @@ export default function AdminDashboard() {
               </div>
 
               {(shareAnalytics.data?.length ?? 0) === 0 && (
-                <p className="mt-5 text-sm text-[#657084]">
+                <p className="mt-5 text-sm text-[#16243d]">
                   No certificate or report shares have been recorded yet.
                 </p>
               )}
@@ -2122,9 +2119,9 @@ export default function AdminDashboard() {
 
             <section className="mt-6 border border-[#16243d]/15 bg-[#16243d] p-5 text-[#f7f3e8]">
               <div className="flex items-center gap-2">
-                <BarChart3 size={14} className="text-[#c9a34e]" />
+                <BarChart3 size={14} className="text-[#7d5e1e]" />
 
-                <p className="eyebrow text-[#c9a34e]">Assessment funnel</p>
+                <p className="eyebrow text-[#7d5e1e]">Assessment funnel</p>
               </div>
 
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -2146,7 +2143,7 @@ export default function AdminDashboard() {
                     </p>
 
                     <p
-                      className={`mt-2 text-[10px] uppercase tracking-[.1em] ${stage.rate >= stage.benchmark ? "text-[#c9a34e]" : "text-red-300"}`}
+                      className={`mt-2 text-[10px] uppercase tracking-[.1em] ${stage.rate >= stage.benchmark ? "text-[#7d5e1e]" : "text-red-300"}`}
                     >
                       {stage.rate >= stage.benchmark
                         ? `Benchmark ${stage.benchmark}% · on track`
@@ -2221,7 +2218,7 @@ export default function AdminDashboard() {
             >
               <div className="flex flex-col justify-between gap-4 border-b border-[#c9a34e]/35 pb-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#c9a34e]">Security observatory</p>
+                  <p className="eyebrow text-[#7d5e1e]">Security observatory</p>
 
                   <h2 className="display mt-3 text-3xl">
                     Login signals over time
@@ -2260,7 +2257,7 @@ export default function AdminDashboard() {
                   </div>
 
                   <ShieldCheck
-                    className="hidden text-[#c9a34e] sm:block"
+                    className="hidden text-[#7d5e1e] sm:block"
                     size={24}
                   />
                 </div>
@@ -2270,7 +2267,7 @@ export default function AdminDashboard() {
                 <div className="border border-[#c1cad7]/15 bg-[#101d35]/70 p-4 sm:p-5">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e]">
+                      <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                         Access outcomes
                       </p>
 
@@ -2281,7 +2278,7 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="flex gap-3 text-[10px] font-black uppercase tracking-[.1em]">
-                      <span className="text-[#c9a34e]">Success</span>
+                      <span className="text-[#7d5e1e]">Success</span>
 
                       <span className="text-red-300">Blocked</span>
                     </div>
@@ -2369,7 +2366,7 @@ export default function AdminDashboard() {
 
                 <div className="border border-[#c1cad7]/15 bg-[#101d35]/70 p-4 sm:p-5">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e]">
+                    <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                       Device classifications
                     </p>
 
@@ -2484,30 +2481,22 @@ export default function AdminDashboard() {
               </div>
             </section>
 
-            <section className="mt-10 border-y border-[#16243d]/15 bg-white/35 p-5 sm:p-6">
-              <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
-                <div>
-                  <p className="eyebrow flex items-center gap-2 text-[#a27e2e]">
-                    <Filter size={13} /> Refine the register
-                  </p>
-
-                  <p className="mt-2 text-sm text-[#657084]">
-                    Filters apply to attempt date, payment state, and verified
-                    overall score.
-                  </p>
-                </div>
-
-                {hasFilters && (
+            <Section
+              eyebrow="Refine the register"
+              description="Filters apply to attempt date, payment state, and verified overall score."
+              actions={
+                hasFilters && (
                   <button
                     onClick={resetFilters}
-                    className="inline-flex items-center gap-2 self-start text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]"
+                    className="inline-flex items-center gap-2 self-start text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]"
                   >
                     <X size={14} /> Clear filters
                   </button>
-                )}
-              </div>
-
-              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                )
+              }
+              className="mt-10"
+            >
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <SelectField
                   label="Payment status"
                   value={paymentFilter}
@@ -2550,24 +2539,21 @@ export default function AdminDashboard() {
                   onChange={setToDate}
                 />
               </div>
-            </section>
+            </Section>
 
-            <section className="mt-12">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="eyebrow text-[#a27e2e]">Attempt register</p>
-
-                  <h2 className="display mt-3 text-3xl">Recent participants</h2>
-                </div>
-
-                <span className="text-xs font-bold uppercase tracking-[.12em] text-[#657084]">
+            <Section
+              eyebrow="Attempt register"
+              title="Recent participants"
+              actions={
+                <span className="text-xs font-bold uppercase tracking-[.12em] text-[#16243d]">
                   Showing {filteredAttempts.length} of{" "}
                   {overview.data.attempts.length}
                 </span>
-              </div>
-
+              }
+              className="mt-12"
+            >
               {filteredAttempts.length === 0 ? (
-                <div className="mt-6 border border-dashed border-[#16243d]/25 p-8 text-sm text-[#657084]">
+                <div className="mt-6 border border-dashed border-[#16243d]/25 p-8 text-sm text-[#16243d]">
                   No attempts match the current filters.
                 </div>
               ) : (
@@ -2606,7 +2592,7 @@ export default function AdminDashboard() {
                             <td className="px-5 py-5">
                               <p className="font-bold">{attempt.name}</p>
 
-                              <p className="mt-1 text-xs text-[#657084]">
+                              <p className="mt-1 text-xs text-[#16243d]">
                                 {attempt.email}
                               </p>
                             </td>
@@ -2617,7 +2603,7 @@ export default function AdminDashboard() {
 
                             <td className="px-5 py-5">
                               <span
-                                className={`inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] ${attempt.paymentStatus === "paid" ? "text-emerald-800" : "text-[#a27e2e]"}`}
+                                className={`inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] ${attempt.paymentStatus === "paid" ? "text-emerald-800" : "text-[#7d5e1e]"}`}
                               >
                                 <span
                                   className={`h-2 w-2 rounded-full ${attempt.paymentStatus === "paid" ? "bg-emerald-600" : "bg-[#c9a34e]"}`}
@@ -2629,23 +2615,23 @@ export default function AdminDashboard() {
 
                             <td className="px-5 py-5">
                               {attempt.overallScore === null ? (
-                                <span className="text-sm text-[#657084]">
+                                <span className="text-sm text-[#16243d]">
                                   Locked
                                 </span>
                               ) : (
                                 <div>
-                                  <span className="display text-2xl text-[#a27e2e]">
+                                  <span className="display text-2xl text-[#7d5e1e]">
                                     {attempt.overallScore}
                                   </span>
 
-                                  <span className="ml-2 text-xs text-[#657084]">
+                                  <span className="ml-2 text-xs text-[#16243d]">
                                     {attempt.overallBand}
                                   </span>
                                 </div>
                               )}
                             </td>
 
-                            <td className="max-w-[180px] truncate px-5 py-5 font-mono text-xs text-[#657084]">
+                            <td className="max-w-[180px] truncate px-5 py-5 font-mono text-xs text-[#16243d]">
                               {attempt.paystackReference ?? "—"}
                             </td>
                           </tr>
@@ -2659,35 +2645,22 @@ export default function AdminDashboard() {
           </>
         )}
 
-        <section className="mt-14 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6">
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-            <div>
-              <p className="eyebrow flex items-center gap-2 text-[#a27e2e]">
-                <UserCheck size={13} /> Identity controls
-              </p>
-
-              <h2 className="display mt-3 text-3xl">
-                Email-verification eligibility.
-              </h2>
-
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
-                Review which accounts can receive scheduled admin alerts.
-                Revoking an account removes its eligibility immediately; the
-                account can become eligible again after its next trusted OAuth
-                sign-in.
-              </p>
-            </div>
-
-            <span className="text-xs font-bold uppercase tracking-[.12em] text-[#657084]">
+        <Section
+          eyebrow="Identity controls"
+          title="Email-verification eligibility."
+          description="Review which accounts can receive scheduled admin alerts. Revoking an account removes its eligibility immediately; the account can become eligible again after its next trusted OAuth sign-in."
+          actions={
+            <span className="text-xs font-bold uppercase tracking-[.12em] text-[#16243d]">
               {userVerificationReview.data?.total ?? 0} accounts
             </span>
-          </div>
-
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          }
+          className="mt-14"
+        >
+          <div className="grid gap-3 sm:grid-cols-3">
             <label className="relative">
               <Search
                 size={13}
-                className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[#657084]"
+                className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[#16243d]"
               />
 
               <span className="sr-only">Search users</span>
@@ -2725,14 +2698,14 @@ export default function AdminDashboard() {
               <option value="unverified">Unverified only</option>
             </select>
 
-            <div className="flex items-center justify-end text-xs text-[#657084]">
+            <div className="flex items-center justify-end text-xs text-[#16243d]">
               Page {userVerificationReview.data?.page ?? 1} of{" "}
               {userVerificationReview.data?.totalPages ?? 1}
             </div>
           </div>
 
           {(userVerificationReview.data?.rows.length ?? 0) === 0 ? (
-            <div className="mt-4 border border-dashed border-[#16243d]/20 p-4 text-sm text-[#657084]">
+            <div className="mt-4 border border-dashed border-[#16243d]/20 p-4 text-sm text-[#16243d]">
               No users match this search and eligibility filter.
             </div>
           ) : (
@@ -2745,16 +2718,16 @@ export default function AdminDashboard() {
                   <div>
                     <p className="font-bold">
                       {account.name || "Unnamed account"}{" "}
-                      <span className="ml-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+                      <span className="ml-2 text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
                         {account.role}
                       </span>
                     </p>
 
-                    <p className="mt-1 text-xs text-[#657084]">
+                    <p className="mt-1 text-xs text-[#16243d]">
                       {account.email || "No email address"}
                     </p>
 
-                    <p className="mt-1 text-[10px] uppercase tracking-[.1em] text-[#657084]">
+                    <p className="mt-1 text-[10px] uppercase tracking-[.1em] text-[#16243d]">
                       Last sign-in{" "}
                       {new Date(account.lastSignedIn).toLocaleString()}
                     </p>
@@ -2762,7 +2735,7 @@ export default function AdminDashboard() {
 
                   <div className="flex flex-wrap items-center gap-3">
                     <span
-                      className={`inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${account.emailVerifiedAt ? "text-emerald-800" : "text-[#a27e2e]"}`}
+                      className={`inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${account.emailVerifiedAt ? "text-emerald-800" : "text-[#7d5e1e]"}`}
                     >
                       <span
                         className={`h-2 w-2 rounded-full ${account.emailVerifiedAt ? "bg-emerald-600" : "bg-[#c9a34e]"}`}
@@ -2809,23 +2782,13 @@ export default function AdminDashboard() {
             onPageChange={setVerificationPage}
             itemLabel="verification records"
           />
-        </section>
+        </Section>
 
-        <section className="mt-10 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6">
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-            <div>
-              <p className="eyebrow text-[#a27e2e]">Account history</p>
-
-              <h2 className="display mt-3 text-3xl">
-                Verification revocation audit.
-              </h2>
-
-              <p className="mt-2 text-sm text-[#657084]">
-                Compliance-ready history of eligibility changes, with the acting
-                administrator and recorded reason.
-              </p>
-            </div>
-
+        <Section
+          eyebrow="Account history"
+          title="Verification revocation audit."
+          description="Compliance-ready history of eligibility changes, with the acting administrator and recorded reason."
+          actions={
             <button
               type="button"
               onClick={handleAuditExport}
@@ -2844,13 +2807,14 @@ export default function AdminDashboard() {
                 ? "Preparing…"
                 : "Export compliance CSV"}
             </button>
-          </div>
-
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          }
+          className="mt-10"
+        >
+          <div className="grid gap-3 sm:grid-cols-3">
             <label className="relative">
               <Search
                 size={13}
-                className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[#657084]"
+                className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[#16243d]"
               />
 
               <span className="sr-only">Filter by administrator</span>
@@ -2888,7 +2852,7 @@ export default function AdminDashboard() {
             />
           </div>
 
-          <div className="mt-3 flex items-center justify-between text-xs text-[#657084]">
+          <div className="mt-3 flex items-center justify-between text-xs text-[#16243d]">
             <span>{revocationAudits.data?.total ?? 0} matching records</span>
 
             <span>
@@ -2898,7 +2862,7 @@ export default function AdminDashboard() {
           </div>
 
           {(revocationAudits.data?.rows.length ?? 0) === 0 ? (
-            <p className="mt-4 border border-dashed border-[#16243d]/20 p-4 text-sm text-[#657084]">
+            <p className="mt-4 border border-dashed border-[#16243d]/20 p-4 text-sm text-[#16243d]">
               No verification revocations match these filters.
             </p>
           ) : (
@@ -2923,11 +2887,11 @@ export default function AdminDashboard() {
                   </div>
 
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+                    <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
                       By {audit.actorName || audit.actorOpenId}
                     </p>
 
-                    <p className="mt-1 text-xs text-[#657084]">
+                    <p className="mt-1 text-xs text-[#16243d]">
                       {audit.actorEmail || "No actor email"}
                     </p>
                   </div>
@@ -2944,96 +2908,92 @@ export default function AdminDashboard() {
             onPageChange={setAuditPage}
             itemLabel="revocation audit records"
           />
-        </section>
+        </Section>
 
-        <section className="mt-14 grid gap-8 lg:grid-cols-[.8fr_1.2fr]">
-          <div>
-            <p className="eyebrow text-[#a27e2e]">Course interest</p>
+        <Section
+          eyebrow="Course interest"
+          title="Export the enrollment register."
+          description="Download a CSV of submitted course inquiries for legitimate follow-up. The export includes consent and submission timestamps."
+          className="mt-14"
+        >
+          <div className="grid gap-8 lg:grid-cols-[.8fr_1.2fr]">
+            <div>
+              <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                <DateField
+                  label="From date"
+                  value={exportFrom}
+                  onChange={setExportFrom}
+                />
 
-            <h2 className="display mt-3 text-3xl">
-              Export the enrollment register.
-            </h2>
+                <DateField
+                  label="To date"
+                  value={exportTo}
+                  onChange={setExportTo}
+                />
 
-            <p className="mt-4 max-w-md text-sm leading-7 text-[#657084]">
-              Download a CSV of submitted course inquiries for legitimate
-              follow-up. The export includes consent and submission timestamps.
-            </p>
+                <SelectField
+                  label="Enrollment status"
+                  value={exportStatus}
+                  onChange={setExportStatus}
+                  options={[
+                    ["all", "All statuses"],
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-3">
-              <DateField
-                label="From date"
-                value={exportFrom}
-                onChange={setExportFrom}
-              />
+                    ["new", "New"],
 
-              <DateField
-                label="To date"
-                value={exportTo}
-                onChange={setExportTo}
-              />
+                    ["contacted", "Contacted"],
 
-              <SelectField
-                label="Enrollment status"
-                value={exportStatus}
-                onChange={setExportStatus}
-                options={[
-                  ["all", "All statuses"],
+                    ["enrolled", "Enrolled"],
+                  ]}
+                />
+              </div>
 
-                  ["new", "New"],
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleExport}
+                  disabled={exportEnrollments.isFetching}
+                  className="mt-6 inline-flex items-center gap-2 bg-[#16243d] px-5 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] disabled:opacity-60"
+                >
+                  {exportEnrollments.isFetching ? (
+                    <RefreshCw size={15} className="animate-spin" />
+                  ) : (
+                    <Download size={15} />
+                  )}{" "}
+                  {exportEnrollments.isFetching
+                    ? "Preparing CSV…"
+                    : "Download enrollments CSV"}
+                </button>
 
-                  ["contacted", "Contacted"],
+                <button
+                  type="button"
+                  onClick={handleEnableWeeklyExport}
+                  disabled={
+                    enableWeeklyExport.isPending || enableWeeklyExport.isSuccess
+                  }
+                  className="inline-flex items-center gap-2 border border-[#16243d]/25 px-5 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] disabled:opacity-60"
+                >
+                  {enableWeeklyExport.isPending ? (
+                    <RefreshCw size={15} className="animate-spin" />
+                  ) : (
+                    <CalendarClock size={15} />
+                  )}{" "}
+                  {enableWeeklyExport.isSuccess
+                    ? "Weekly export enabled"
+                    : "Enable weekly export"}
+                </button>
+              </div>
 
-                  ["enrolled", "Enrolled"],
-                ]}
-              />
+              {enableWeeklyExport.isSuccess && (
+                <p className="mt-3 text-xs font-semibold text-emerald-800">
+                  Runs Mondays at 09:00 UTC and stores the report securely.
+                </p>
+              )}
             </div>
-
-            <div className="mt-4 flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={handleExport}
-                disabled={exportEnrollments.isFetching}
-                className="mt-6 inline-flex items-center gap-2 bg-[#16243d] px-5 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] disabled:opacity-60"
-              >
-                {exportEnrollments.isFetching ? (
-                  <RefreshCw size={15} className="animate-spin" />
-                ) : (
-                  <Download size={15} />
-                )}{" "}
-                {exportEnrollments.isFetching
-                  ? "Preparing CSV…"
-                  : "Download enrollments CSV"}
-              </button>
-
-              <button
-                type="button"
-                onClick={handleEnableWeeklyExport}
-                disabled={
-                  enableWeeklyExport.isPending || enableWeeklyExport.isSuccess
-                }
-                className="inline-flex items-center gap-2 border border-[#16243d]/25 px-5 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] disabled:opacity-60"
-              >
-                {enableWeeklyExport.isPending ? (
-                  <RefreshCw size={15} className="animate-spin" />
-                ) : (
-                  <CalendarClock size={15} />
-                )}{" "}
-                {enableWeeklyExport.isSuccess
-                  ? "Weekly export enabled"
-                  : "Enable weekly export"}
-              </button>
-            </div>
-
-            {enableWeeklyExport.isSuccess && (
-              <p className="mt-3 text-xs font-semibold text-emerald-800">
-                Runs Mondays at 09:00 UTC and stores the report securely.
-              </p>
-            )}
 
             <div className="border border-[#16243d]/15 bg-white/45 p-6 sm:p-8">
               <div className="flex items-start justify-between gap-5">
                 <div>
-                  <p className="eyebrow flex items-center gap-2 text-[#a27e2e]">
+                  <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
                     <Mail size={13} /> Branded communications
                   </p>
 
@@ -3042,18 +3002,18 @@ export default function AdminDashboard() {
                   </h2>
                 </div>
 
-                <span className="text-[10px] font-black uppercase tracking-[.13em] text-[#657084]">
+                <span className="text-[10px] font-black uppercase tracking-[.13em] text-[#16243d]">
                   Admin only
                 </span>
               </div>
 
-              <p className="mt-4 text-sm leading-6 text-[#657084]">
+              <p className="mt-4 text-sm leading-6 text-[#16243d]">
                 Prepare reusable copy for future report delivery and course
                 follow-up. Supported fields:{" "}
-                <code className="text-[#a27e2e]">{"{{name}}"}</code>,{" "}
-                <code className="text-[#a27e2e]">{"{{email}}"}</code>,{" "}
-                <code className="text-[#a27e2e]">{"{{date}}"}</code>, and{" "}
-                <code className="text-[#a27e2e]">{"{{course}}"}</code>.
+                <code className="text-[#7d5e1e]">{"{{name}}"}</code>,{" "}
+                <code className="text-[#7d5e1e]">{"{{email}}"}</code>,{" "}
+                <code className="text-[#7d5e1e]">{"{{date}}"}</code>, and{" "}
+                <code className="text-[#7d5e1e]">{"{{course}}"}</code>.
               </p>
 
               <div className="mt-6 grid gap-4">
@@ -3068,7 +3028,7 @@ export default function AdminDashboard() {
                   ]}
                 />
 
-                <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#657084]">
+                <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
                   Label
                   <input
                     value={templateLabel}
@@ -3077,7 +3037,7 @@ export default function AdminDashboard() {
                   />
                 </label>
 
-                <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#657084]">
+                <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
                   Subject
                   <input
                     value={templateSubject}
@@ -3086,7 +3046,7 @@ export default function AdminDashboard() {
                   />
                 </label>
 
-                <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#657084]">
+                <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
                   Body
                   <div className="mt-2 flex flex-wrap gap-2 border border-b-0 border-[#16243d]/20 bg-[#ebe7dc] p-2">
                     <button
@@ -3127,7 +3087,7 @@ export default function AdminDashboard() {
               </div>
 
               <div className="border-l-2 border-[#c9a34e] bg-[#16243d] p-4 text-sm leading-6 text-[#c1cad7]">
-                <p className="eyebrow text-[#c9a34e]">Live preview</p>
+                <p className="eyebrow text-[#7d5e1e]">Live preview</p>
 
                 <div className="prose prose-sm prose-invert mt-3 max-w-none">
                   <Streamdown>{previewBody}</Streamdown>
@@ -3180,13 +3140,13 @@ export default function AdminDashboard() {
 
               <div className="mt-6 border-t border-[#16243d]/15 pt-5">
                 <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-                  <p className="eyebrow text-[#a27e2e]">Preview history</p>
+                  <p className="eyebrow text-[#7d5e1e]">Preview history</p>
 
                   <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                     <label className="relative">
                       <Search
                         size={13}
-                        className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[#657084]"
+                        className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[#16243d]"
                       />
 
                       <span className="sr-only">Search delivery history</span>
@@ -3242,7 +3202,7 @@ export default function AdminDashboard() {
                   </div>
 
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                    <span className="text-xs text-[#657084]">
+                    <span className="text-xs text-[#16243d]">
                       {emailPreviewHistory.data?.total ?? 0} matching delivery
                       attempts
                     </span>
@@ -3281,7 +3241,7 @@ export default function AdminDashboard() {
                     </button>
                   </div>
 
-                  <p className="mt-2 text-[10px] uppercase tracking-[.1em] text-[#657084]">
+                  <p className="mt-2 text-[10px] uppercase tracking-[.1em] text-[#16243d]">
                     Queued exports are processed in the background once per
                     minute after the worker is enabled.
                   </p>
@@ -3296,7 +3256,7 @@ export default function AdminDashboard() {
                           <span>
                             <strong>Export #{job.id}</strong>
 
-                            <span className="ml-2 uppercase tracking-[.1em] text-[#657084]">
+                            <span className="ml-2 uppercase tracking-[.1em] text-[#16243d]">
                               {job.status}
                             </span>
                           </span>
@@ -3305,12 +3265,12 @@ export default function AdminDashboard() {
                             <a
                               href={job.fileUrl}
                               download
-                              className="font-black uppercase tracking-[.1em] text-[#a27e2e]"
+                              className="font-black uppercase tracking-[.1em] text-[#7d5e1e]"
                             >
                               Download
                             </a>
                           ) : (
-                            <span className="text-[#657084]">
+                            <span className="text-[#16243d]">
                               {job.rowCount ?? 0} rows
                             </span>
                           )}
@@ -3321,7 +3281,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {filteredPreviewHistory.length === 0 ? (
-                  <div className="mt-4 border border-dashed border-[#16243d]/20 p-4 text-sm text-[#657084]">
+                  <div className="mt-4 border border-dashed border-[#16243d]/20 p-4 text-sm text-[#16243d]">
                     No delivery attempts match this search and status filter.
                   </div>
                 ) : (
@@ -3334,7 +3294,7 @@ export default function AdminDashboard() {
                         <div>
                           <p className="font-bold">{delivery.subject}</p>
 
-                          <p className="mt-1 text-[#657084]">
+                          <p className="mt-1 text-[#16243d]">
                             {delivery.recipientEmail} ·{" "}
                             {new Date(delivery.createdAt).toLocaleString()}
                           </p>
@@ -3356,7 +3316,7 @@ export default function AdminDashboard() {
                                 })
                               }
                               disabled={retryTemplateTestEmail.isPending}
-                              className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]"
+                              className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]"
                             >
                               {retryTemplateTestEmail.isPending ? (
                                 <RefreshCw size={12} className="animate-spin" />
@@ -3382,7 +3342,7 @@ export default function AdminDashboard() {
             </div>
 
             <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#16243d]/10 pt-4">
-              <span className="text-xs text-[#657084]">
+              <span className="text-xs text-[#16243d]">
                 Page {emailPreviewHistory.data?.page ?? 1} of{" "}
                 {emailPreviewHistory.data?.totalPages ?? 1}
               </span>
@@ -3423,35 +3383,26 @@ export default function AdminDashboard() {
               )}
             </div>
           </div>
-        </section>
+        </Section>
 
-        <section className="mt-10 border border-[#16243d]/15 bg-white/45 p-6">
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-            <div>
-              <p className="eyebrow flex items-center gap-2 text-[#a27e2e]">
-                <CalendarClock size={13} /> Export schedule
-              </p>
-
-              <h2 className="display mt-3 text-3xl">Weekly report status.</h2>
-
-              <p className="mt-2 text-sm text-[#657084]">
-                Securely generated enrollment reports remain available here for
-                admin download.
-              </p>
-            </div>
-
+        <Section
+          eyebrow="Export schedule"
+          title="Weekly report status."
+          description="Securely generated enrollment reports remain available here for admin download."
+          actions={
             <span
-              className={`text-[10px] font-black uppercase tracking-[.13em] ${scheduleStatus.data?.config?.scheduleTaskUid ? "text-emerald-800" : "text-[#a27e2e]"}`}
+              className={`text-[10px] font-black uppercase tracking-[.13em] ${scheduleStatus.data?.config?.scheduleTaskUid ? "text-emerald-800" : "text-[#7d5e1e]"}`}
             >
               {scheduleStatus.data?.config?.scheduleTaskUid
                 ? "Enabled"
                 : "Not enabled"}
             </span>
-          </div>
-
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          }
+          className="mt-10"
+        >
+          <div className="grid gap-4 sm:grid-cols-3">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                 Last run
               </p>
 
@@ -3465,28 +3416,28 @@ export default function AdminDashboard() {
             </div>
 
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                 Reports saved
               </p>
 
-              <p className="mt-2 text-2xl font-bold text-[#a27e2e]">
+              <p className="mt-2 text-2xl font-bold text-[#7d5e1e]">
                 {scheduleStatus.data?.runs.length ?? 0}
               </p>
             </div>
 
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                 Latest rows
               </p>
 
-              <p className="mt-2 text-2xl font-bold text-[#a27e2e]">
+              <p className="mt-2 text-2xl font-bold text-[#7d5e1e]">
                 {scheduleStatus.data?.runs[0]?.rowCount ?? 0}
               </p>
             </div>
           </div>
 
           <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-[#16243d]/10 pt-5">
-            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
               Retention days
               <input
                 type="number"
@@ -3512,7 +3463,7 @@ export default function AdminDashboard() {
               Save policy
             </button>
 
-            <span className="text-xs text-[#657084]">
+            <span className="text-xs text-[#16243d]">
               Reports older than this are unlinked from admin history; the
               storage layer does not expose an object-delete endpoint.
             </span>
@@ -3530,7 +3481,7 @@ export default function AdminDashboard() {
                       Week ending {new Date(run.createdAt).toLocaleDateString()}
                     </p>
 
-                    <p className="mt-1 text-xs text-[#657084]">
+                    <p className="mt-1 text-xs text-[#16243d]">
                       {run.rowCount} enrollment rows
                     </p>
                   </div>
@@ -3538,7 +3489,7 @@ export default function AdminDashboard() {
                   <a
                     href={run.fileUrl}
                     download
-                    className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.13em] text-[#a27e2e] hover:text-[#16243d]"
+                    className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e] hover:text-[#16243d]"
                   >
                     <Download size={14} /> Download CSV
                   </a>
@@ -3546,42 +3497,31 @@ export default function AdminDashboard() {
               ))}
             </div>
           )}
-        </section>
+        </Section>
 
-        <section className="mt-8 border border-[#16243d]/15 bg-white/45 p-6 sm:p-8">
-          <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/15 pb-5 sm:flex-row sm:items-start">
-            <div className="flex items-start gap-3">
-              <ShieldCheck size={20} className="mt-0.5 text-[#a27e2e]" />
-
-              <div>
-                <p className="eyebrow text-[#a27e2e]">Security observatory</p>
-
-                <h2 className="display mt-2 text-2xl">Failed-login activity</h2>
-
-                <p className="mt-1 text-sm text-[#657084]">
-                  Review recent failed attempts and control when verified admins
-                  receive alerts.
-                </p>
-              </div>
-            </div>
-
+        <Section
+          eyebrow="Security observatory"
+          title="Failed-login activity"
+          description="Review recent failed attempts and control when verified admins receive alerts."
+          actions={
             <div className="text-right">
-              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8]">
                 Events in view
               </p>
 
-              <p className="mt-1 text-2xl font-bold text-[#a27e2e]">
+              <p className="mt-1 text-2xl font-bold text-[#7d5e1e]">
                 {failedLoginEvents.data?.total ?? 0}
               </p>
             </div>
-          </div>
-
+          }
+          className="mt-8 bg-[#16243d] text-[#f7f3e8]"
+        >
           <div className="mt-5 border border-[#a27e2e]/30 bg-[#f7f3e8] p-4">
-            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
               SMTP fallback
             </p>
 
-            <p className="mt-1 text-xs leading-5 text-[#657084]">
+            <p className="mt-1 text-xs leading-5 text-[#16243d]">
               Generate a single-use reset link for an administrator when SMTP
               delivery is unavailable. The link expires in 10 minutes.
             </p>
@@ -3641,7 +3581,7 @@ export default function AdminDashboard() {
                   >
                     Revoke link
                   </button>
-                  <span className="text-[11px] text-[#657084]">
+                  <span className="text-[11px] text-[#16243d]">
                     {adminResetRemaining > 0
                       ? `Expires in ${Math.floor(adminResetRemaining / 60)}:${String(adminResetRemaining % 60).padStart(2, "0")}`
                       : "Expired — generate a new link."}
@@ -3652,7 +3592,7 @@ export default function AdminDashboard() {
           </div>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto]">
-            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
               IP address
               <input
                 type="search"
@@ -3667,7 +3607,7 @@ export default function AdminDashboard() {
               />
             </label>
 
-            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
               Geographic location
               <input
                 type="search"
@@ -3682,7 +3622,7 @@ export default function AdminDashboard() {
               />
             </label>
 
-            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
               From
               <input
                 type="date"
@@ -3696,7 +3636,7 @@ export default function AdminDashboard() {
               />
             </label>
 
-            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
               To
               <input
                 type="date"
@@ -3730,7 +3670,7 @@ export default function AdminDashboard() {
           </div>
 
           <div className="mt-5 grid gap-4 border-t border-[#16243d]/10 pt-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
               Alert after failed attempts
               <input
                 type="number"
@@ -3744,7 +3684,7 @@ export default function AdminDashboard() {
               />
             </label>
 
-            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
               Review window (days)
               <input
                 type="number"
@@ -3758,7 +3698,7 @@ export default function AdminDashboard() {
               />
             </label>
 
-            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
               Lockout duration (seconds)
               <input
                 type="number"
@@ -3770,12 +3710,12 @@ export default function AdminDashboard() {
                 }
                 className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm font-bold normal-case tracking-normal text-[#16243d]"
               />
-              <span className="mt-1 block text-[10px] font-normal normal-case tracking-normal text-[#657084]">
+              <span className="mt-1 block text-[10px] font-normal normal-case tracking-normal text-[#16243d]">
                 Allowed range: 1 minute to 24 hours.
               </span>
             </label>
 
-            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
               Log retention (days)
               <input
                 type="number"
@@ -3824,7 +3764,7 @@ export default function AdminDashboard() {
             </button>
           </div>
 
-          <p className="mt-3 text-xs leading-5 text-[#657084]">
+          <p className="mt-3 text-xs leading-5 text-[#16243d]">
             Failed-login events older than {loginEventRetentionDays} days are
             removed when this panel is viewed. The export includes the current
             filtered window within that retention period.
@@ -3839,7 +3779,7 @@ export default function AdminDashboard() {
 
           <div className="mt-6 grid gap-5 lg:grid-cols-2">
             <div className="border border-[#16243d]/10 bg-[#16243d] p-5 text-[#f7f3e8]">
-              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e]">
+              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                 Regional threat signal
               </p>
 
@@ -3903,10 +3843,10 @@ export default function AdminDashboard() {
             <div className="border border-[#16243d]/10 bg-white/60 p-5">
               <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+                  <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                     Unlock audit history
                   </p>
-                  <p className="mt-1 text-xs text-[#657084]">
+                  <p className="mt-1 text-xs text-[#16243d]">
                     Manual unlock actions recorded with actor and cleared
                     attempts.
                   </p>
@@ -3954,7 +3894,7 @@ export default function AdminDashboard() {
               <div className="mt-4 overflow-x-auto">
                 <table className="w-full min-w-[520px] text-left text-xs">
                   <thead>
-                    <tr className="border-b border-[#16243d]/10 text-[9px] font-black uppercase tracking-[.12em] text-[#657084]">
+                    <tr className="border-b border-[#16243d]/10 text-[9px] font-black uppercase tracking-[.12em] text-[#16243d]">
                       <th className="py-2 pr-3">When</th>
                       <th className="py-2 pr-3">Account</th>
                       <th className="py-2 pr-3">Admin</th>
@@ -3982,13 +3922,13 @@ export default function AdminDashboard() {
                   </tbody>
                 </table>
                 {!unlockAuditHistory.data?.rows.length && (
-                  <p className="py-5 text-sm text-[#657084]">
+                  <p className="py-5 text-sm text-[#16243d]">
                     No unlock actions recorded.
                   </p>
                 )}
               </div>
 
-              <div className="mt-3 flex items-center justify-between text-[10px] uppercase tracking-[.1em] text-[#657084]">
+              <div className="mt-3 flex items-center justify-between text-[10px] uppercase tracking-[.1em] text-[#16243d]">
                 <span>
                   Page {unlockAuditHistory.data?.page ?? 1} of{" "}
                   {unlockAuditHistory.data?.pageCount ?? 1}
@@ -4021,10 +3961,10 @@ export default function AdminDashboard() {
                   <div>
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                        <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                           CSV download history
                         </p>
-                        <p className="mt-1 text-xs text-[#657084]">
+                        <p className="mt-1 text-xs text-[#16243d]">
                           Track which administrators downloaded unlock-audit
                           records.
                         </p>
@@ -4088,7 +4028,7 @@ export default function AdminDashboard() {
                 <div className="mt-3 overflow-x-auto">
                   <table className="w-full min-w-[520px] text-left text-xs">
                     <thead>
-                      <tr className="border-b border-[#16243d]/10 text-[9px] font-black uppercase tracking-[.12em] text-[#657084]">
+                      <tr className="border-b border-[#16243d]/10 text-[9px] font-black uppercase tracking-[.12em] text-[#16243d]">
                         <th className="py-2 pr-3">Downloaded</th>
                         <th className="py-2 pr-3">Administrator</th>
                         <th className="py-2 pr-3">File</th>
@@ -4116,12 +4056,12 @@ export default function AdminDashboard() {
                     </tbody>
                   </table>
                   {!unlockAuditExportHistory.data?.rows.length && (
-                    <p className="py-4 text-sm text-[#657084]">
+                    <p className="py-4 text-sm text-[#16243d]">
                       No CSV downloads match the current filters.
                     </p>
                   )}
                 </div>
-                <div className="mt-3 flex items-center justify-between text-[10px] uppercase tracking-[.1em] text-[#657084]">
+                <div className="mt-3 flex items-center justify-between text-[10px] uppercase tracking-[.1em] text-[#16243d]">
                   <span>
                     Page {unlockAuditExportHistory.data?.page ?? 1} of{" "}
                     {unlockAuditExportHistory.data?.pageCount ?? 1}
@@ -4155,10 +4095,10 @@ export default function AdminDashboard() {
           <div className="mt-6 border-t border-[#16243d]/10 pt-5">
             <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                   Reset-link revocation audit
                 </p>
-                <p className="mt-1 text-xs text-[#657084]">
+                <p className="mt-1 text-xs text-[#16243d]">
                   Every manual invalidation is recorded with the target account,
                   acting administrator, and UTC event time.
                 </p>
@@ -4228,7 +4168,7 @@ export default function AdminDashboard() {
             <div className="mt-3 overflow-x-auto">
               <table className="w-full min-w-[620px] text-left text-xs">
                 <thead>
-                  <tr className="border-b border-[#16243d]/10 text-[9px] font-black uppercase tracking-[.12em] text-[#657084]">
+                  <tr className="border-b border-[#16243d]/10 text-[9px] font-black uppercase tracking-[.12em] text-[#16243d]">
                     <th className="py-2 pr-3">Revoked at</th>
                     <th className="py-2 pr-3">Target account</th>
                     <th className="py-2">Administrator</th>
@@ -4249,12 +4189,12 @@ export default function AdminDashboard() {
                 </tbody>
               </table>
               {!resetLinkRevocationHistory.data?.rows.length && (
-                <p className="py-4 text-sm text-[#657084]">
+                <p className="py-4 text-sm text-[#16243d]">
                   No reset-link revocations match the current filters.
                 </p>
               )}
             </div>
-            <div className="mt-3 flex items-center justify-between text-[10px] uppercase tracking-[.1em] text-[#657084]">
+            <div className="mt-3 flex items-center justify-between text-[10px] uppercase tracking-[.1em] text-[#16243d]">
               <span>
                 Page {resetLinkRevocationHistory.data?.page ?? 1} of{" "}
                 {resetLinkRevocationHistory.data?.pageCount ?? 1}
@@ -4287,7 +4227,7 @@ export default function AdminDashboard() {
             <div className="mt-5 overflow-x-auto border-t border-[#16243d]/10">
               <table className="w-full min-w-[620px] text-left text-sm">
                 <thead>
-                  <tr className="border-b border-[#16243d]/10 text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                  <tr className="border-b border-[#16243d]/10 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                     <th className="py-3 pr-4">When</th>
 
                     <th className="py-3 pr-4">Identifier type</th>
@@ -4313,7 +4253,7 @@ export default function AdminDashboard() {
                         {event.failureCode?.replaceAll("_", " ")}
                       </td>
 
-                      <td className="py-3 pr-4 text-xs text-[#657084]">
+                      <td className="py-3 pr-4 text-xs text-[#16243d]">
                         <span className="block">
                           {event.networkAddress ?? "Unknown network"}
                         </span>
@@ -4323,7 +4263,7 @@ export default function AdminDashboard() {
                         </span>
                       </td>
 
-                      <td className="max-w-[260px] py-3 text-xs text-[#657084]">
+                      <td className="max-w-[260px] py-3 text-xs text-[#16243d]">
                         <span className="block truncate">
                           {event.userAgent ?? "Unknown device"}
                         </span>
@@ -4352,12 +4292,12 @@ export default function AdminDashboard() {
               </table>
             </div>
           ) : (
-            <div className="mt-5 border-t border-[#16243d]/10 pt-5 text-sm text-[#657084]">
+            <div className="mt-5 border-t border-[#16243d]/10 pt-5 text-sm text-[#16243d]">
               No failed-login events match these filters.
             </div>
           )}
 
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#16243d]/10 pt-4 text-xs text-[#657084]">
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#16243d]/10 pt-4 text-xs text-[#16243d]">
             <span>
               Page {failedLoginEvents.data?.page ?? securityPage} of{" "}
               {failedLoginEvents.data?.pageCount ?? 1}
@@ -4442,7 +4382,7 @@ export default function AdminDashboard() {
             <div className="w-full max-w-lg border-t-2 border-[#c9a34e] bg-[#f7f3e8] p-6 text-[#16243d] shadow-2xl sm:p-8">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">Verification control</p>
+                  <p className="eyebrow text-[#7d5e1e]">Verification control</p>
 
                   <h2
                     id="revoke-dialog-title"
@@ -4462,7 +4402,7 @@ export default function AdminDashboard() {
                 </button>
               </div>
 
-              <p className="mt-4 text-sm leading-6 text-[#657084]">
+              <p className="mt-4 text-sm leading-6 text-[#16243d]">
                 This will stop{" "}
                 <strong className="text-[#16243d]">
                   {revokeTarget.email || revokeTarget.openId}
@@ -4471,7 +4411,7 @@ export default function AdminDashboard() {
                 audit trail.
               </p>
 
-              <label className="mt-6 block text-[10px] font-black uppercase tracking-[.14em] text-[#657084]">
+              <label className="mt-6 block text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
                 Reason
                 <textarea
                   autoFocus
@@ -4483,7 +4423,7 @@ export default function AdminDashboard() {
                 />
               </label>
 
-              <p className="mt-2 text-xs text-[#657084]">
+              <p className="mt-2 text-xs text-[#16243d]">
                 Minimum 5 characters. This reason is visible to administrators
                 in the audit log.
               </p>
@@ -4527,7 +4467,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="mt-10 flex items-start gap-3 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-sm leading-6 text-[#c1cad7]">
-          <ShieldCheck size={18} className="mt-0.5 shrink-0 text-[#c9a34e]" />
+          <ShieldCheck size={18} className="mt-0.5 shrink-0 text-[#7d5e1e]" />
 
           <p>
             <strong className="text-[#f7f3e8]">Privacy boundary.</strong> This
@@ -4559,7 +4499,7 @@ function SelectField({
   options: Array<[string, string]>;
 }) {
   return (
-    <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#657084]">
+    <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
       {label}
 
       <select
@@ -4591,7 +4531,7 @@ function DateField({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#657084]">
+    <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
       {label}
 
       <input
@@ -4604,50 +4544,15 @@ function DateField({
   );
 }
 
-function Metric({
-  icon: Icon,
-
-  label,
-
-  value,
-
-  accent = false,
-}: {
-  icon: typeof Users;
-
-  label: string;
-
-  value: number | string;
-
-  accent?: boolean;
-}) {
-  return (
-    <div
-      className={`border-t-2 ${accent ? "border-[#c9a34e]" : "border-[#16243d]/30"} bg-white/45 p-5`}
-    >
-      <Icon
-        size={18}
-        className={accent ? "text-[#a27e2e]" : "text-[#657084]"}
-      />
-
-      <p className="mt-6 text-xs font-black uppercase tracking-[.14em] text-[#657084]">
-        {label}
-      </p>
-
-      <p className="display mt-2 text-4xl">{value}</p>
-    </div>
-  );
-}
-
 function AccessState({ title, message }: { title: string; message: string }) {
   return (
     <div className="grid min-h-screen place-items-center bg-[#f7f3e8] px-6 text-[#16243d]">
       <div className="max-w-md border-t-2 border-[#c9a34e] bg-white/50 p-8 text-center">
-        <LockKeyhole className="mx-auto text-[#a27e2e]" />
+        <LockKeyhole className="mx-auto text-[#7d5e1e]" />
 
         <h1 className="display mt-5 text-4xl">{title}</h1>
 
-        <p className="mt-4 text-sm leading-6 text-[#657084]">{message}</p>
+        <p className="mt-4 text-sm leading-6 text-[#16243d]">{message}</p>
 
         <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
           <button
@@ -4778,9 +4683,9 @@ function OrganizationApprovalQueue() {
     <section className="mt-14 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow text-[#a27e2e]">Organization review queue</p>
+          <p className="eyebrow text-[#7d5e1e]">Organization review queue</p>
           <h2 className="display mt-3 text-3xl">Approve with confidence.</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
             Monitor forwarded report requests, respond before invitations
             expire, and export a filtered compliance history.
           </p>
@@ -4831,10 +4736,10 @@ function OrganizationApprovalQueue() {
       </div>
       <div className="mt-6 border border-[#16243d]/10 bg-[#f7f3e8] p-4">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
             Approval trend · last 30 days
           </p>
-          <span className="text-[10px] text-[#657084]">
+          <span className="text-[10px] text-[#16243d]">
             {trendByDay.length} active days
           </span>
         </div>
@@ -4861,20 +4766,20 @@ function OrganizationApprovalQueue() {
             />
           </svg>
         </div>
-        <div className="mt-2 flex justify-between text-[10px] text-[#657084]">
+        <div className="mt-2 flex justify-between text-[10px] text-[#16243d]">
           <span>{trendByDay[0]?.[0] ?? "No events yet"}</span>
           <span>{trendByDay.at(-1)?.[0] ?? ""}</span>
         </div>
       </div>
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
         <div className="border-t-2 border-[#c9a34e] bg-white/55 p-4">
-          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
             Approval events
           </p>
           <p className="mt-2 text-2xl font-bold">{history.data?.total ?? 0}</p>
         </div>
         <div className="border-t-2 border-emerald-700 bg-white/55 p-4">
-          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
             Approved
           </p>
           <p className="mt-2 text-2xl font-bold text-emerald-800">
@@ -4882,7 +4787,7 @@ function OrganizationApprovalQueue() {
           </p>
         </div>
         <div className="border-t-2 border-red-700 bg-white/55 p-4">
-          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
             Rejected
           </p>
           <p className="mt-2 text-2xl font-bold text-red-800">
@@ -4907,13 +4812,13 @@ function OrganizationApprovalQueue() {
                   <p className="text-sm font-bold">
                     {invitation.organizationName}
                   </p>
-                  <p className="mt-1 text-xs text-[#657084]">
+                  <p className="mt-1 text-xs text-[#16243d]">
                     {invitation.organizationEmail} · {invitation.reportType} #
                     {invitation.reportId}
                   </p>
                 </div>
                 <span
-                  className={`inline-flex w-fit items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] ${invitation.status === "approved" ? "text-emerald-800" : invitation.status === "rejected" ? "text-red-800" : urgent ? "text-red-800" : "text-[#a27e2e]"}`}
+                  className={`inline-flex w-fit items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] ${invitation.status === "approved" ? "text-emerald-800" : invitation.status === "rejected" ? "text-red-800" : urgent ? "text-red-800" : "text-[#7d5e1e]"}`}
                 >
                   <Clock3 size={13} />{" "}
                   {invitation.status === "pending"
@@ -4965,7 +4870,7 @@ function OrganizationApprovalQueue() {
         })}
       </div>
       {(history.data?.rows.length ?? 0) === 0 && (
-        <p className="mt-5 text-sm text-[#657084]">
+        <p className="mt-5 text-sm text-[#16243d]">
           No approval events match the current filters.
         </p>
       )}
@@ -5018,7 +4923,7 @@ function AdminSectionMenu() {
       className="mt-4 overflow-x-auto border border-[#16243d]/10 bg-white/55 p-2"
     >
       <div className="flex min-w-max items-center gap-1">
-        <span className="px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+        <span className="px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
           Jump to
         </span>
 
@@ -5035,3 +4940,6 @@ function AdminSectionMenu() {
     </nav>
   );
 }
+
+
+

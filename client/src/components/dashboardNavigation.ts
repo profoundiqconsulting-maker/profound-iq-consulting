@@ -17,6 +17,7 @@ export type DashboardNavItem = {
   labelKey:
     | "overview"
     | "settings"
+    | "certificates"
     | "selfAssessment"
     | "psychometrics"
     | "careerPath"
@@ -42,19 +43,43 @@ export const dashboardNavItems: DashboardNavItem[] = [
     group: "workspace",
   },
   {
+    id: "dashboard-assessment",
+    labelKey: "selfAssessment",
+    fallbackLabel: "Assessment",
+    path: "/dashboard/assessment",
+    icon: ClipboardCheck,
+    group: "growth",
+  },
+  {
+    id: "dashboard-careerpath",
+    labelKey: "careerPath",
+    fallbackLabel: "CareerPath",
+    path: "/dashboard/careerpath",
+    icon: Users,
+    group: "growth",
+  },
+  {
+    id: "dashboard-psychometrics",
+    labelKey: "psychometrics",
+    fallbackLabel: "Psychometrics",
+    path: "/dashboard/psychometrics",
+    icon: BrainCircuit,
+    group: "growth",
+  },
+  {
+    id: "my-certificates",
+    labelKey: "certificates",
+    fallbackLabel: "My Certificates",
+    path: "/dashboard/certificates",
+    icon: Award,
+    group: "workspace",
+  },
+  {
     id: "settings",
     labelKey: "settings",
     fallbackLabel: "Settings",
     path: "/dashboard/settings",
     icon: Settings,
-    group: "workspace",
-  },
-  {
-    id: "my-certificates",
-    labelKey: "settings",
-    fallbackLabel: "My Certificates",
-    path: "/dashboard/certificates",
-    icon: Award,
     group: "workspace",
   },
   {

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
 
 interface SectionProps {
   id?: string;
@@ -41,7 +41,7 @@ export function Section({
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div className="min-w-0">
               {eyebrow && (
-                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e] dark:text-[#c9a34e]">
+                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e] dark:text-[#7d5e1e]">
                   {eyebrow}
                 </p>
               )}
@@ -51,7 +51,7 @@ export function Section({
                 </h2>
               )}
               {description && (
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084] dark:text-[#c1cad7]">
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d] dark:text-[#f7f3e8]">
                   {description}
                 </p>
               )}
@@ -71,7 +71,7 @@ export function Section({
           </div>
         ) : isEmpty ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <p className="text-sm text-[#657084] dark:text-[#c1cad7]">{emptyMessage}</p>
+            <p className="text-sm text-[#16243d] dark:text-[#f7f3e8]">{emptyMessage}</p>
           </div>
         ) : (
           children
@@ -81,3 +81,5 @@ export function Section({
     </section>
   );
 }
+
+
