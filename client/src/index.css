@@ -28,6 +28,10 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-accent-on-dark: var(--accent-on-dark);
+  --color-gold-on-light: var(--gold-on-light);
+  --color-muted-on-dark: var(--muted-on-dark);
+  --color-muted-on-light: var(--muted-on-light);
 }
 
 :root {
@@ -43,14 +47,19 @@
   --secondary: oklch(0.94 0.025 90);
   --secondary-foreground: oklch(0.16 0.03 255);
   --muted: oklch(0.31 0.04 255);
-  --muted-foreground: oklch(0.76 0.025 90);
+  --muted-foreground: oklch(0.82 0.015 90);
   --accent: oklch(0.74 0.12 78);
   --accent-foreground: oklch(0.16 0.03 255);
-  --destructive: oklch(0.6 0.2 25);
+  --destructive: oklch(0.55 0.18 25);
   --destructive-foreground: oklch(0.98 0 0);
   --border: oklch(1 0 0 / 16%);
   --input: oklch(1 0 0 / 18%);
   --ring: oklch(0.74 0.12 78);
+  --gold-on-light: oklch(0.55 0.12 78);
+  --success-on-light: oklch(0.45 0.15 155);
+  --accent-on-dark: oklch(0.82 0.12 78);
+  --muted-on-dark: oklch(0.78 0.015 90);
+  --muted-on-light: oklch(0.45 0.03 255);
 }
 
 * {

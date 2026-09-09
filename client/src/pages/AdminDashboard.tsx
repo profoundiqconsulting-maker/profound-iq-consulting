@@ -1709,38 +1709,30 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                <div className="border border-[#16243d]/10 bg-white/70 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
-                    Status
-                  </p>
-                  <p className="mt-2 text-sm font-bold">
-                    {psychometricSchedule.data?.config?.pausedAt
+                <StatCard
+                  label="Status"
+                  value={
+                    psychometricSchedule.data?.config?.pausedAt
                       ? "Paused"
                       : psychometricSchedule.data?.config?.scheduleTaskUid
                         ? "Active"
-                        : "Not enabled"}
-                  </p>
-                </div>
-                <div className="border border-[#16243d]/10 bg-white/70 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
-                    Last run
-                  </p>
-                  <p className="mt-2 text-sm font-bold">
-                    {psychometricSchedule.data?.config?.lastRunAt
+                        : "Not enabled"
+                  }
+                />
+                <StatCard
+                  label="Last run"
+                  value={
+                    psychometricSchedule.data?.config?.lastRunAt
                       ? new Date(
                           psychometricSchedule.data.config.lastRunAt
                         ).toLocaleString()
-                      : "No report yet"}
-                  </p>
-                </div>
-                <div className="border border-[#16243d]/10 bg-white/70 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
-                    Saved reports
-                  </p>
-                  <p className="mt-2 text-sm font-bold">
-                    {psychometricSchedule.data?.runs?.length ?? 0}
-                  </p>
-                </div>
+                      : "No report yet"
+                  }
+                />
+                <StatCard
+                  label="Saved reports"
+                  value={psychometricSchedule.data?.runs?.length ?? 0}
+                />
               </div>
               <div className="mt-6 border-t border-[#16243d]/10 pt-5">
                 <div className="flex items-center justify-between gap-3">
@@ -2641,7 +2633,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               )}
-            </section>
+            </Section>
           </>
         )}
 
@@ -4325,7 +4317,7 @@ export default function AdminDashboard() {
               </button>
             </div>
           </div>
-        </section>
+        </Section>
 
         {confirmResetRevocation && (
           <div
@@ -4680,16 +4672,11 @@ function OrganizationApprovalQueue() {
     .join(" ");
 
   return (
-    <section className="mt-14 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="eyebrow text-[#7d5e1e]">Organization review queue</p>
-          <h2 className="display mt-3 text-3xl">Approve with confidence.</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
-            Monitor forwarded report requests, respond before invitations
-            expire, and export a filtered compliance history.
-          </p>
-        </div>
+    <Section
+      eyebrow="Organization review queue"
+      title="Approve with confidence."
+      description="Monitor forwarded report requests, respond before invitations expire, and export a filtered compliance history."
+      actions={
         <button
           type="button"
           onClick={downloadCsv}
@@ -4699,8 +4686,10 @@ function OrganizationApprovalQueue() {
           <Download size={14} />{" "}
           {exportHistory.isFetching ? "Preparing…" : "Export history"}
         </button>
-      </div>
-      <div className="mt-6 grid gap-3 md:grid-cols-4">
+      }
+      className="mt-14"
+    >
+      <div className="grid gap-3 md:grid-cols-4">
         <input
           value={search}
           onChange={event => setSearch(event.target.value)}
@@ -4882,7 +4871,7 @@ function OrganizationApprovalQueue() {
         onPageChange={setHistoryPage}
         itemLabel="organization approval records"
       />
-    </section>
+    </Section>
   );
 }
 

@@ -1283,20 +1283,13 @@ export default function UserDashboard() {
         )}
 
         {/* Original dashboard sections continue below */}
-        <section className="reveal mb-8 border border-[#16243d]/15 bg-[#fffaf0] p-5 sm:p-7">
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-            <div>
-              <p className="eyebrow text-[#7d5e1e]">SAVED PATHWAYS</p>
-              <h2 className="display mt-2 text-3xl">
-                Keep your next move close.
-              </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
-                Courses saved from syllabus previews appear here for quick
-                return. Your course-finder preferences help shape future
-                recommendations.
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-3">
+        <Section
+          eyebrow="SAVED PATHWAYS"
+          title="Keep your next move close."
+          description="Courses saved from syllabus previews appear here for quick return. Your course-finder preferences help shape future recommendations."
+          className="bg-[#fffaf0]"
+        >
+          <div className="flex flex-wrap items-center gap-3">
               <div
                 className="flex items-center gap-1 border border-[#16243d]/15 p-1"
                 aria-label="PDF layout"
@@ -1452,7 +1445,6 @@ export default function UserDashboard() {
                 Explore catalog <ArrowUpRight size={14} />
               </Link>
             </div>
-          </div>
           {savedCourses.isLoading ? (
             <div
               className="mt-5 grid gap-3 md:grid-cols-2"
@@ -1670,8 +1662,8 @@ export default function UserDashboard() {
                 Retake course finder <ArrowUpRight size={13} />
               </Link>
             </div>
-          ) : null}
-        </section>
+            ) : null}
+        </Section>
         <div
           role="tablist"
           aria-label="Dashboard sections"
@@ -1716,7 +1708,7 @@ export default function UserDashboard() {
           />
         )}
         <div className="border-b border-[#16243d]/20 pb-8">
-          <p className="eyebrow text-[#7d5e1e]">
+          <p className="eyebrow text-accent dark:text-accent-on-dark">
             Private workspace / personal development
           </p>
           <p className="text-sm font-semibold text-[#16243d]">
@@ -1751,7 +1743,7 @@ export default function UserDashboard() {
               {displayHistory.length === 1 ? "" : "s"}.
             </p>
           </div>
-          <p className="mt-5 max-w-xl text-base leading-7 text-[#4a566a]">
+          <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">
             Review your Profound IQ assessment activity and return to any report
             unlocked through verified payment.
           </p>
@@ -1774,22 +1766,21 @@ export default function UserDashboard() {
         {(history.data || previewMode) && (
           <>
             <section className="mt-10 grid gap-4 sm:grid-cols-3">
-              <Metric
-                icon={FileText}
+              <StatCard
+                icon={<FileText size={18} />}
                 label="Assessments"
                 value={displayHistory.length}
               />
-              <Metric
-                icon={CheckCircle2}
+              <StatCard
+                icon={<CheckCircle2 size={18} />}
                 label="Reports unlocked"
                 value={
                   displayHistory.filter(item => item.paymentStatus === "paid")
                     .length
                 }
-                accent
               />
-              <Metric
-                icon={Clock3}
+              <StatCard
+                icon={<Clock3 size={18} />}
                 label="Pending payment"
                 value={
                   displayHistory.filter(item => item.paymentStatus !== "paid")
@@ -1800,7 +1791,7 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#c9a34e]/55 bg-[#fffaf0] p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#7d5e1e]">Course investment</p>
+                  <p className="eyebrow text-accent dark:text-accent-on-dark">Course investment</p>
                   <h2 className="display mt-2 text-2xl">
                     Track your access stage.
                   </h2>
@@ -1980,7 +1971,7 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#7d5e1e]">Psychometric suite</p>
+                  <p className="eyebrow text-accent dark:text-accent-on-dark">Psychometric suite</p>
                   <h2 className="display mt-2 text-2xl">
                     Your professional profiles.
                   </h2>
@@ -2155,7 +2146,7 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#c9a34e]/45 bg-[#fffaf0] p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#7d5e1e]">Quiz analytics</p>
+                  <p className="eyebrow text-accent dark:text-accent-on-dark">Quiz analytics</p>
                   <h2 className="display mt-2 text-2xl">
                     Learn from your attempts.
                   </h2>
@@ -2272,7 +2263,7 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#7d5e1e]">
+                  <p className="eyebrow text-accent dark:text-accent-on-dark">
                     Student course dashboard
                   </p>
                   <h2 className="display mt-2 text-2xl">
@@ -2466,7 +2457,7 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#7d5e1e]">Profile completion</p>
+                  <p className="eyebrow text-accent dark:text-accent-on-dark">Profile completion</p>
                   <h2 className="display mt-2 text-2xl">
                     Make your workspace yours.
                   </h2>
@@ -2496,7 +2487,7 @@ export default function UserDashboard() {
               </div>
               <div className="mt-10 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#7d5e1e]">Recent activity</p>
+                  <p className="eyebrow text-accent dark:text-accent-on-dark">Recent activity</p>
                   <h2 className="display mt-2 text-2xl">
                     Your latest movement.
                   </h2>
@@ -2613,7 +2604,7 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#7d5e1e]">
+                  <p className="eyebrow text-accent dark:text-accent-on-dark">
                     CareerPath recommendations
                   </p>
                   <h2 className="display mt-2 text-2xl">
@@ -2661,7 +2652,7 @@ export default function UserDashboard() {
                       <h3 className="display mt-3 text-2xl">
                         {item.course.title}
                       </h3>
-                      <p className="mt-2 text-sm font-semibold text-[#4a566a]">
+                      <p className="mt-2 text-sm font-semibold text-muted-foreground">
                         {item.course.strapline}
                       </p>
                       <p className="mt-3 text-xs leading-6 text-[#16243d]">
@@ -2707,7 +2698,7 @@ export default function UserDashboard() {
               )}
             </section>
             <section className="mt-10 border border-[#c9a34e]/50 bg-[#16243d] p-5 text-[#f7f3e8] sm:p-6">
-              <p className="eyebrow text-[#7d5e1e]">Recommended next step</p>
+              <p className="eyebrow text-accent dark:text-accent-on-dark">Recommended next step</p>
               <h2 className="display mt-2 text-2xl">
                 A useful signal to explore.
               </h2>
@@ -2763,7 +2754,7 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#c9a34e] bg-[#16243d] p-5 text-[#f7f3e8] sm:p-6">
               <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#7d5e1e]">
+                  <p className="eyebrow text-accent dark:text-accent-on-dark">
                     Completion delivery queue
                   </p>
                   <h2 className="display mt-2 text-2xl">
@@ -2989,7 +2980,7 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#7d5e1e]">Delivery history</p>
+                  <p className="eyebrow text-accent dark:text-accent-on-dark">Delivery history</p>
                   <h2 className="display mt-2 text-2xl">Your outward trail.</h2>
                   <p className="mt-2 text-sm leading-6 text-[#16243d]">
                     Track learner email, organization-review, and social-image
@@ -3036,7 +3027,7 @@ export default function UserDashboard() {
               )}
             </section>
             <section className="mt-12">
-              <p className="eyebrow text-[#7d5e1e]">Report versions</p>
+              <p className="eyebrow text-accent dark:text-accent-on-dark">Report versions</p>
               <h2 className="display mt-3 text-3xl">
                 See your movement over time.
               </h2>
@@ -3401,11 +3392,7 @@ export default function UserDashboard() {
                 </div>
               )}
             </section>
-            <section className="mt-12">
-              <p className="eyebrow text-[#7d5e1e]">
-                Self Assessment results history
-              </p>
-              <h2 className="display mt-3 text-3xl">Keep the signal moving.</h2>
+            <Section eyebrow="Self Assessment results history" title="Keep the signal moving." className="mt-12">
               {currentVersion && currentVersion.paymentStatus === "paid" && (
                 <div className="mt-6 grid gap-4 border border-[#c9a34e]/45 bg-[#fffaf0] p-5 sm:grid-cols-3">
                   <div>
@@ -3446,7 +3433,7 @@ export default function UserDashboard() {
               >
                 <div className="flex flex-wrap items-end justify-between gap-3">
                   <div>
-                    <p className="eyebrow text-[#7d5e1e]">Results</p>
+                    <p className="eyebrow text-accent dark:text-accent-on-dark">Results</p>
                     <h2
                       id="report-history-title"
                       className="display mt-1 text-2xl"
@@ -3686,12 +3673,12 @@ export default function UserDashboard() {
                     </article>
                   ))}
                 </div>
-              )}
-            </section>
-            <div className="mt-10 flex items-start gap-3 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-sm leading-6 text-[#c1cad7]">
+            )}
+          </Section>
+          <div className="mt-10 flex items-start gap-3 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-sm leading-6 text-[#c1cad7]">
               <ShieldCheck
                 size={18}
-                className="mt-0.5 shrink-0 text-[#7d5e1e]"
+                className="mt-0.5 shrink-0 text-accent dark:text-accent-on-dark"
               />
               <p>
                 <strong className="text-[#f7f3e8]">Your privacy.</strong> This
@@ -3705,7 +3692,7 @@ export default function UserDashboard() {
         <section className="mt-12 border-t border-[#16243d]/20 pt-10">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="eyebrow text-[#7d5e1e]">Professional courses</p>
+              <p className="eyebrow text-accent dark:text-accent-on-dark">Professional courses</p>
               <h2 className="display mt-3 text-3xl">
                 Your learning and certificates.
               </h2>
@@ -3808,7 +3795,7 @@ export default function UserDashboard() {
             ))}
         </section>
         <section className="mt-12 border-t border-[#16243d]/20 pt-10">
-          <p className="eyebrow text-[#7d5e1e]">CareerPath / talent fit</p>
+          <p className="eyebrow text-accent dark:text-accent-on-dark">CareerPath / talent fit</p>
           <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="display text-3xl">Your pathway history.</h2>
@@ -3933,38 +3920,7 @@ export default function UserDashboard() {
               </div>
             ))}
         </section>
-        <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
-          <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[#16243d]/15 pb-5">
-            <div>
-              <p className="eyebrow text-[#7d5e1e]">Saved for later</p>
-              <h2 className="display mt-2 text-3xl">My Bookmarks</h2>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <input
-                value={bookmarkSearch}
-                onChange={event => setBookmarkSearch(event.target.value)}
-                placeholder="Search saved lessons"
-                aria-label="Search bookmarks"
-                className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs"
-              />
-              <select
-                value={bookmarkCourse}
-                onChange={event => setBookmarkCourse(event.target.value)}
-                aria-label="Filter bookmarks by course"
-                className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs"
-              >
-                <option value="all">All courses</option>
-                {courseCatalog.map(course => (
-                  <option key={course.slug} value={course.slug}>
-                    {course.title}
-                  </option>
-                ))}
-              </select>
-              <span className="self-center text-xs text-[#16243d]">
-                {filteredBookmarks.length} saved
-              </span>
-            </div>
-          </div>
+        <Section eyebrow="Saved for later" title="My Bookmarks" actions={<div className="flex flex-wrap gap-2">{/* search and filter inputs */}</div>} className="border-t border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
           {filteredBookmarks.length ? (
             <>
               <div className="mt-5 grid gap-3">
@@ -3973,7 +3929,7 @@ export default function UserDashboard() {
                     key={`${bookmark.course.slug}-${bookmark.key}`}
                     className="flex flex-wrap items-center gap-4 border border-[#16243d]/10 bg-[#f7f3e8] p-4"
                   >
-                    <div className="grid h-10 w-10 shrink-0 place-items-center bg-[#16243d] text-[#7d5e1e]">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center bg-[#16243d] text-accent-on-dark">
                       {bookmark.kind === "simulation" ? "S" : "§"}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -4023,25 +3979,8 @@ export default function UserDashboard() {
               it will appear here for quick access.
             </p>
           )}
-        </section>
-        <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
-          <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[#16243d]/15 pb-5">
-            <div>
-              <p className="eyebrow text-[#7d5e1e]">Study archive</p>
-              <h2 className="display mt-2 text-3xl">My Notes</h2>
-              <p className="mt-2 text-sm text-[#16243d]">
-                Review lesson takeaways and generated summaries in one place.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={exportAllNotes}
-              disabled={!dashboardNotes.length}
-              className="border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-50"
-            >
-              Export Markdown
-            </button>
-          </div>
+        </Section>
+        <Section eyebrow="Study archive" title="My Notes" description="Review lesson takeaways and generated summaries in one place." actions={<button type="button" onClick={exportAllNotes} disabled={!dashboardNotes.length} className="border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-50">Export Markdown</button>} className="border-t border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
           {dashboardNotes.length ? (
             <>
               <div className="mt-5 space-y-4">
@@ -4059,7 +3998,7 @@ export default function UserDashboard() {
                     >
                       {item.lesson.title} →
                     </Link>
-                    <p className="mt-3 whitespace-pre-wrap text-xs leading-6 text-[#4a566a]">
+                    <p className="mt-3 whitespace-pre-wrap text-xs leading-6 text-muted-foreground">
                       {item.note
                         .replace(/<[^>]+>/g, "")
                         .replace(/&nbsp;/g, " ")}
@@ -4085,14 +4024,14 @@ export default function UserDashboard() {
             <p className="mt-5 border border-dashed border-[#16243d]/15 p-5 text-sm leading-6 text-[#16243d]">
               Notes you save in a lesson player will be collected here.
             </p>
-          )}
-        </section>
-      </main>
+            )}
+          </Section>
+        </main>
       {achievements.data && (
         <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
           <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#16243d]/15 pb-5">
             <div>
-              <p className="eyebrow text-[#7d5e1e]">
+              <p className="eyebrow text-accent dark:text-accent-on-dark">
                 Personal achievement gallery
               </p>
               <h2 className="display mt-2 text-3xl">Earned, remembered.</h2>
@@ -4115,14 +4054,14 @@ export default function UserDashboard() {
                   className="border border-[#c9a34e]/60 bg-[#fffaf0] p-4 shadow-sm"
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="grid h-11 w-11 place-items-center rounded-full bg-[#16243d] text-[#7d5e1e]">
+                    <div className="grid h-11 w-11 place-items-center rounded-full bg-[#16243d] text-accent-on-dark">
                       <Award className="h-5 w-5" aria-hidden="true" />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+                    <span className="text-[10px] font-black uppercase tracking-[.1em] text-accent dark:text-accent-on-dark">
                       {badge.certificateLabel}
                     </span>
                   </div>
-                  <p className="mt-4 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
+                  <p className="mt-4 text-[10px] font-black uppercase tracking-[.12em] text-accent dark:text-accent-on-dark">
                     {badge.courseTitle}
                   </p>
                   <h3 className="mt-1 text-lg font-bold text-[#16243d]">
@@ -4330,7 +4269,7 @@ export default function UserDashboard() {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="eyebrow text-[#7d5e1e]">Saved pathways</p>
+                <p className="eyebrow text-accent dark:text-accent-on-dark">Saved pathways</p>
                 <h2
                   id="saved-pathways-preview-title"
                   className="display mt-2 text-3xl"
@@ -4483,7 +4422,7 @@ export default function UserDashboard() {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="eyebrow text-[#7d5e1e]">
+                <p className="eyebrow text-accent dark:text-accent-on-dark">
                   Certificate print preview
                 </p>
                 <h2
@@ -4552,7 +4491,7 @@ export default function UserDashboard() {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="eyebrow text-[#7d5e1e]">Workspace setup</p>
+                <p className="eyebrow text-accent dark:text-accent-on-dark">Workspace setup</p>
                 <h2
                   id="profile-complete-title"
                   className="display mt-2 text-3xl"
@@ -4568,7 +4507,7 @@ export default function UserDashboard() {
                 Close
               </button>
             </div>
-            <p className="mt-5 text-sm leading-7 text-[#4a566a]">
+            <p className="mt-5 text-sm leading-7 text-muted-foreground">
               Add the details below to make your workspace more personal and
               keep notifications relevant.
             </p>
@@ -4726,7 +4665,7 @@ function PaymentHistoryTab({
     >
       <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 lg:flex-row lg:items-start">
         <div>
-          <p className="eyebrow text-[#7d5e1e]">
+          <p className="eyebrow text-accent dark:text-accent-on-dark">
             {t("paymentHistoryShortcut")}
           </p>
           <h2 className="display mt-2 text-3xl">{t("enrollmentStatus")}</h2>
@@ -4990,32 +4929,6 @@ function ReportEmailStatus({
     >
       <MailWarning size={14} aria-hidden="true" /> Email pending
     </span>
-  );
-}
-function Metric({
-  icon: Icon,
-  label,
-  value,
-  accent = false,
-}: {
-  icon: typeof FileText;
-  label: string;
-  value: number;
-  accent?: boolean;
-}) {
-  return (
-    <div
-      className={`border-t-2 ${accent ? "border-[#c9a34e]" : "border-[#16243d]/30"} bg-white/45 p-5`}
-    >
-      <Icon
-        size={18}
-        className={accent ? "text-[#7d5e1e]" : "text-[#16243d]"}
-      />
-      <p className="mt-6 text-xs font-black uppercase tracking-[.14em] text-[#16243d]">
-        {label}
-      </p>
-      <p className="display mt-2 text-4xl">{value}</p>
-    </div>
   );
 }
 function LoadingState() {

@@ -28,14 +28,14 @@ export function StatCard({
 
   const content = (
     <Card
-      className={`border border-[#16243d]/10 dark:border-[#657084]/20 bg-white/80 dark:bg-[#16243d]/60 backdrop-blur-sm p-5 ${className}`}
+      className={`border border-[#16243d]/15 dark:border-[#657084]/25 bg-white/90 dark:bg-[#16243d]/70 backdrop-blur-sm p-5 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 focus-within:shadow-md ${className}`}
     >
       <div className="flex items-center justify-between">
         <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] dark:text-[#f7f3e8]">
           {label}
         </p>
         {icon && (
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#c9a34e]/10 dark:bg-[#c9a34e]/20 text-[#7d5e1e] dark:text-[#7d5e1e]">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#c9a34e]/10 dark:bg-[#c9a34e]/20 text-accent dark:text-accent-on-dark">
             {icon}
           </div>
         )}
@@ -48,10 +48,10 @@ export function StatCard({
           <TrendIcon
             className={`h-3.5 w-3.5 ${
               trend.value > 0
-                ? "text-emerald-600 dark:text-emerald-400"
+                ? "text-emerald-700 dark:text-emerald-400"
                 : trend.value < 0
                   ? "text-red-600 dark:text-red-400"
-                  : "text-[#16243d]"
+                  : "text-foreground"
             }`}
           />
           <span
@@ -60,7 +60,7 @@ export function StatCard({
                 ? "text-emerald-700 dark:text-emerald-400"
                 : trend.value < 0
                   ? "text-red-700 dark:text-red-400"
-                  : "text-[#16243d]"
+                  : "text-foreground"
             }
           >
             {trend.value > 0 ? "+" : ""}
@@ -73,7 +73,10 @@ export function StatCard({
 
   if (href) {
     return (
-      <a href={href} className="group block">
+      <a
+        href={href}
+        className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a34e] focus-visible:ring-offset-2 rounded-xl"
+      >
         {content}
       </a>
     );

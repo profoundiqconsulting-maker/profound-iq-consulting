@@ -34,7 +34,7 @@ export default function DashboardCareerPath() {
 
   if (history.isLoading) {
     return (
-      <DashboardLayout role="user" title="CareerPath">
+      <DashboardLayout role="user" title="CareerPath Reports">
         <div className="flex items-center justify-center py-20">
           <RefreshCw className="animate-spin text-[#7d5e1e]" />
         </div>
@@ -44,7 +44,7 @@ export default function DashboardCareerPath() {
 
   if (history.isError) {
     return (
-      <DashboardLayout role="user" title="CareerPath">
+      <DashboardLayout role="user" title="CareerPath Reports">
         <div className="border-l-2 border-red-700 bg-red-50 p-5 text-sm text-red-900">
           Unable to load CareerPath history.
         </div>
@@ -53,7 +53,7 @@ export default function DashboardCareerPath() {
   }
 
   return (
-    <DashboardLayout role="user" title="CareerPath">
+    <DashboardLayout role="user" title="CareerPath Reports">
       <DashboardHero
         eyebrow="Transformation"
         title="CareerPath reports"
@@ -72,7 +72,7 @@ export default function DashboardCareerPath() {
             return (
               <Card
                 key={attempt.id}
-                className="border border-[#16243d]/10 bg-white/80 p-5"
+                className="border border-[#16243d]/20 bg-white/90 p-5"
               >
                 <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                   <div>
@@ -84,7 +84,7 @@ export default function DashboardCareerPath() {
                         className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] ${
                           attempt.paymentStatus === "paid"
                             ? "bg-emerald-100 text-emerald-800"
-                            : "border border-[#16243d]/15 text-[#657084]"
+                            : "border border-[#16243d]/15 text-muted-foreground"
                         }`}
                       >
                         {attempt.paymentStatus}

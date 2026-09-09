@@ -34,6 +34,7 @@ const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const DashboardAssessment = lazy(() => import("./pages/DashboardAssessment"));
 const DashboardCareerPath = lazy(() => import("./pages/DashboardCareerPath"));
 const DashboardPsychometrics = lazy(() => import("./pages/DashboardPsychometrics"));
+const DashboardEnrolledCourses = lazy(() => import("./pages/DashboardEnrolledCourses"));
 const MyCertificates = lazy(() => import("./pages/MyCertificates"));
 const MyIllustrations = lazy(() => import("./pages/MyIllustrations"));
 const Settings = lazy(() => import("./pages/Settings"));
@@ -151,6 +152,7 @@ function Router() {
         <Route path="/dashboard/psychometrics" component={DashboardPsychometrics} />
         <Route path="/dashboard/certificates" component={MyCertificates} />
         <Route path="/dashboard/settings" component={Settings} />
+        <Route path="/dashboard/enrolled-courses" component={DashboardEnrolledCourses} />
         <Route path="/myspace" component={MySpace} />
         <Route path="/my-illustrations" component={MyIllustrations} />
         <Route path="/settings" component={Settings} />

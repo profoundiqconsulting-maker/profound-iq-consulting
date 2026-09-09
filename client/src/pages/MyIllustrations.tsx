@@ -1,3 +1,5 @@
+import DashboardLayout from "@/components/DashboardLayout";
+import { trpc } from "@/lib/trpc";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import {
   ArrowUpRight,
@@ -18,13 +20,9 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import { toast } from "sonner";
-import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { DashboardQuickNav } from "@/components/DashboardQuickNav";
-import { TransformationNav } from "@/components/TransformationNav";
 import { useLocale } from "@/contexts/LocaleContext";
-import { trpc } from "@/lib/trpc";
 import {
   downloadIllustrationStudySheet,
   downloadIllustrationStudySheetPng,
@@ -34,6 +32,21 @@ import {
   getLessonIllustrationCopy,
   localizeCourseDefinition,
 } from "@shared/contentLocalization";
+import {
+  DashboardHero,
+  Section,
+  StatCard,
+  FilterBar,
+} from "@/components/dashboard";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type IllustrationMode = "explanatory" | "applicational" | "experiential";
 type GalleryCard = {
@@ -64,17 +77,17 @@ const modeStyles: Record<
   explanatory: {
     border: "border-[#c9a34e]/50",
     tint: "bg-[#fffaf0]",
-    accent: "text-[#8a681e]",
+    accent: "text-[#7d5e1e]",
   },
   applicational: {
     border: "border-[#2f6f78]/35",
     tint: "bg-[#edf4ee]",
-    accent: "text-[#2f6f78]",
+    accent: "text-[#1d5a6e]",
   },
   experiential: {
     border: "border-[#8b4f63]/35",
     tint: "bg-[#fff3f5]",
-    accent: "text-[#8b4f63]",
+    accent: "text-[#6b3a4d]",
   },
 };
 const findLesson = (course: CourseDefinition | undefined, lessonId: string) =>
@@ -132,12 +145,12 @@ function IllustrationCard({
     filename: `${card.courseSlug}-${card.lessonId}-study-sheet.svg`,
   };
   return (
-    <article
+    <Card
       draggable
       onDragStart={() => onDragStart(card.id)}
       onDragOver={event => onDragOver(event, card.id)}
       onDrop={() => onDrop(card.id)}
-      className={`overflow-hidden border ${style.border} ${style.tint} shadow-[0_12px_30px_rgba(22,36,61,0.06)] ${selected ? "ring-2 ring-[#c9a34e]" : ""}`}
+      className={`overflow-hidden border transition-all duration-200 hover:shadow-lg ${selected ? "ring-2 ring-[#c9a34e]" : ""} ${style.border} ${style.tint}`}
     >
       <div className="relative">
         {card.visualUrl ? (
@@ -159,7 +172,7 @@ function IllustrationCard({
           </button>
         ) : (
           <div className="grid aspect-[16/9] place-items-center bg-[#16243d] p-6 text-center text-[#f7f3e8]">
-            <BookOpen size={25} className="text-[#c9a34e]" aria-hidden="true" />
+            <BookOpen size={25} className="text-[#8b6914]" aria-hidden="true" />
             <p className="mt-3 max-w-xs text-sm leading-6">
               {card.modeLabel} learning prompt
             </p>
@@ -182,7 +195,7 @@ function IllustrationCard({
               >
                 {card.modeLabel}
               </p>
-              <h2 className="display mt-2 text-2xl leading-tight">
+              <h2 className="display mt-2 text-2xl leading-tight text-[#16243d]">
                 {card.lessonTitle}
               </h2>
             </span>
@@ -191,17 +204,17 @@ function IllustrationCard({
             type="button"
             onClick={() => onDelete(card)}
             aria-label={`Remove ${card.lessonTitle}`}
-            className="shrink-0 text-[#8a681e] transition hover:text-[#8b4f63]"
+            className="shrink-0 text-[#7d5e1e] transition hover:text-[#6b3a4d]"
           >
             <Bookmark size={18} fill="currentColor" />
           </button>
         </div>
-        <p className="mt-2 text-xs font-semibold text-[#657084]">
+        <p className="mt-2 text-xs font-semibold text-muted-foreground">
           {card.courseTitle}
         </p>
-        <p className="mt-4 text-sm leading-6 text-[#4a566a]">{card.content}</p>
-        <div className="mt-4 flex items-center gap-2 text-xs text-[#657084]">
-          <Folder size={13} className="text-[#a27e2e]" />
+        <p className="mt-2 text-sm leading-6 text-[#16243d]">{card.content}</p>
+        <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+          <Folder size={13} className="text-[#7d5e1e]" />
           <span>{card.folder}</span>
           <button
             type="button"
@@ -214,7 +227,7 @@ function IllustrationCard({
         {editingFolderId === card.id && (
           <div className="mt-3 border border-[#c9a34e]/40 bg-white/70 p-3">
             <label
-              className="block text-[10px] font-black uppercase tracking-[.12em] text-[#657084]"
+              className="block text-[10px] font-black uppercase tracking-[.12em] text-muted-foreground"
               htmlFor={`folder-${card.id}`}
             >
               Create or move to folder
@@ -242,7 +255,7 @@ function IllustrationCard({
                 {updateLabel}
               </button>
             </div>
-            <p className="mt-2 text-[11px] text-[#657084]">
+            <p className="mt-2 text-[11px] text-muted-foreground">
               Type a new name to create a folder, or reuse an existing one.
             </p>
           </div>
@@ -250,7 +263,7 @@ function IllustrationCard({
         <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-[#16243d]/10 pt-4">
           <Link
             href={`/courses/${card.courseSlug}`}
-            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.11em] text-[#16243d] hover:text-[#a27e2e]"
+            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.11em] text-[#16243d] hover:text-[#7d5e1e]"
           >
             Open lesson <ArrowUpRight size={13} />
           </Link>
@@ -259,7 +272,7 @@ function IllustrationCard({
               <button
                 type="button"
                 onClick={() => downloadIllustrationStudySheet(studySheetInput)}
-                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.11em] text-[#16243d] hover:text-[#a27e2e]"
+                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.11em] text-[#16243d] hover:text-[#7d5e1e]"
               >
                 <Download size={13} /> SVG
               </button>
@@ -267,7 +280,7 @@ function IllustrationCard({
                 type="button"
                 onClick={() => onDownloadPng(card)}
                 disabled={pngBusy}
-                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.11em] text-[#16243d] hover:text-[#a27e2e] disabled:opacity-50"
+                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.11em] text-[#16243d] hover:text-[#7d5e1e] disabled:opacity-50"
               >
                 {pngBusy ? (
                   <Loader2 size={13} className="animate-spin" />
@@ -281,7 +294,7 @@ function IllustrationCard({
         </div>
         <div className="mt-4 flex items-center justify-between border-t border-[#16243d]/10 pt-3">
           <span
-            className="cursor-grab text-[10px] font-black uppercase tracking-[.1em] text-[#8f9db3]"
+            className="cursor-grab text-[10px] font-black uppercase tracking-[.1em] text-muted-foreground"
             title="Drag to reorder within this folder"
           >
             Drag to reorder
@@ -291,7 +304,7 @@ function IllustrationCard({
               type="button"
               onClick={() => onMove(card.id, -1)}
               aria-label={`Move ${card.lessonTitle} earlier`}
-              className="border border-[#16243d]/15 p-1 text-[#657084] hover:text-[#16243d]"
+              className="border border-[#16243d]/15 p-1 text-muted-foreground hover:text-[#16243d] transition-colors"
             >
               <ChevronUp size={15} />
             </button>
@@ -299,17 +312,17 @@ function IllustrationCard({
               type="button"
               onClick={() => onMove(card.id, 1)}
               aria-label={`Move ${card.lessonTitle} later`}
-              className="border border-[#16243d]/15 p-1 text-[#657084] hover:text-[#16243d]"
+              className="border border-[#16243d]/15 p-1 text-muted-foreground hover:text-[#16243d] transition-colors"
             >
               <ChevronDown size={15} />
             </button>
           </div>
         </div>
-        <p className="mt-3 text-[10px] text-[#8f9db3]">
+        <p className="mt-3 text-[10px] text-muted-foreground">
           Saved {new Date(card.updatedAt).toLocaleDateString()}
         </p>
       </div>
-    </article>
+    </Card>
   );
 }
 const updateLabel = "Save";
@@ -396,7 +409,6 @@ export default function MyIllustrations() {
   });
   const deleteFolder = trpc.course.deleteIllustrationFolder.useMutation({
     onSuccess: result => {
-      setFolderFilter("all");
       setFolderManageName("");
       void bookmarksQuery.refetch();
       toast.success("Folder deleted", {
@@ -563,225 +575,174 @@ export default function MyIllustrations() {
 
   if (loading)
     return (
-      <div className="grid min-h-screen place-items-center bg-[#f7f3e8] text-[#16243d]">
-        <Loader2
-          className="animate-spin text-[#a27e2e]"
-          aria-label="Loading workspace"
-        />
-      </div>
+      <DashboardLayout role="user" title="My Illustrations">
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="animate-spin text-[#7d5e1e]" />
+        </div>
+      </DashboardLayout>
     );
   if (!isAuthenticated || !user)
     return (
-      <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-        <TransformationNav active="assessment" />
-        <main className="container py-16">
-          <div className="mx-auto max-w-xl border-l-2 border-[#c9a34e] bg-[#16243d] p-8 text-[#f7f3e8] shadow-xl">
-            <p className="eyebrow text-[#c9a34e]">{t("myWorkspace")}</p>
-            <h1 className="display mt-3 text-4xl">{t("signInToContinue")}</h1>
-            <p className="mt-4 text-sm leading-6 text-[#c1cad7]">
-              Sign in to view the visual learning cards you have saved across
-              your courses.
-            </p>
-            <Button
-              type="button"
-              onClick={() => startLogin()}
-              className="mt-6 bg-[#c9a34e] text-[#16243d]"
-            >
-              {t("signIn")}
-            </Button>
-          </div>
-        </main>
-      </div>
+      <DashboardLayout role="user" title="My Illustrations">
+        <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
+          <BookOpen size={48} className="text-[#16243d]/20" />
+          <p className="text-sm text-[#16243d]">Sign in to view your saved illustrations.</p>
+        </div>
+      </DashboardLayout>
     );
 
   return (
-    <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-      <TransformationNav active="assessment" />
-      <main className="container py-7 sm:py-12">
-        <div className="mx-auto max-w-7xl">
-          <DashboardQuickNav role={user.role} className="mb-8" />
-          <div className="flex flex-wrap items-end justify-between gap-5 border-b border-[#16243d]/15 pb-7">
-            <div>
-              <div className="flex items-center gap-2 text-xs text-[#657084]">
-                <Link
-                  href="/dashboard"
-                  className="transition hover:text-[#a27e2e]"
-                >
-                  {t("myWorkspace")}
-                </Link>
-                <span aria-hidden="true">/</span>
-                <span className="font-semibold text-[#16243d]">
-                  {t("myIllustrations")}
-                </span>
-              </div>
-              <p className="eyebrow mt-7 text-[#a27e2e]">
-                Visual study library
-              </p>
-              <h1 className="display mt-3 max-w-3xl text-5xl leading-[.95] tracking-[-.045em] sm:text-7xl">
-                {t("myIllustrations")}
-              </h1>
-              <p className="mt-5 max-w-2xl text-base leading-7 text-[#4a566a]">
-                {t("myIllustrationsDescription")}
-              </p>
-            </div>
-            <div className="border border-[#c9a34e]/45 bg-[#fffaf0] px-5 py-4 text-right">
-              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#8a681e]">
-                Saved collection
-              </p>
-              <p className="display mt-2 text-4xl">
-                {bookmarksQuery.data?.total ?? 0}
-              </p>
-              <p className="text-xs text-[#657084]">visual cards</p>
-            </div>
-          </div>
-          <section
-            className="mt-7 border border-[#16243d]/12 bg-white/55 p-4 sm:p-5"
-            aria-label="Illustration filters"
-          >
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <label className="flex min-w-0 flex-1 items-center gap-3 border-b border-[#16243d]/20 pb-2 text-sm text-[#657084] lg:max-w-xl">
-                <Search size={17} className="shrink-0 text-[#a27e2e]" />
-                <span className="sr-only">Search saved illustrations</span>
-                <input
+    <DashboardLayout role="user" title="My Illustrations">
+      <DashboardHero
+        eyebrow="Growth"
+        title="My Illustrations"
+        description={t("myIllustrationsDescription")}
+        stats={[
+          { label: "Saved cards", value: bookmarksQuery.data?.total ?? 0 },
+          { label: "Folders", value: allFolders.length },
+          { label: "Modes", value: "3" },
+        ]}
+      />
+
+      <Section
+        eyebrow="Library"
+        title="Filter illustrations"
+        description="Search by course, lesson, or content. Filter by mode or folder."
+        className="mb-8"
+      >
+        <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
                   value={query}
                   onChange={event => setQuery(event.target.value)}
                   placeholder="Search courses, lessons, or illustration notes"
-                  className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-[#8f9db3]"
+                  className="pl-9 h-9 bg-white dark:bg-[#16243d]"
                 />
-              </label>
+              </div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
-                  <Filter size={14} /> Filter
-                </span>
-                {(
-                  [
-                    "all",
-                    "explanatory",
-                    "applicational",
-                    "experiential",
-                  ] as const
-                ).map(mode => (
-                  <button
+                {(["all", "explanatory", "applicational", "experiential"] as const).map(mode => (
+                  <Button
                     key={mode}
-                    type="button"
+                    variant={modeFilter === mode ? "default" : "outline"}
+                    size="sm"
                     onClick={() => setModeFilter(mode)}
-                    className={`border px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] transition ${modeFilter === mode ? "border-[#16243d] bg-[#16243d] text-[#f7f3e8]" : "border-[#16243d]/15 bg-transparent text-[#657084] hover:border-[#c9a34e] hover:text-[#16243d]"}`}
+                    className={
+                      modeFilter === mode
+                        ? "bg-[#16243d] text-[#f7f3e8]"
+                        : "border-[#16243d]/25"
+                    }
                   >
-                    {mode === "all"
-                      ? "All modes"
-                      : getLessonIllustrationCopy(locale)[mode]}
-                  </button>
+                    {mode === "all" ? "All modes" : getLessonIllustrationCopy(locale)[mode]}
+                  </Button>
                 ))}
-                <label className="inline-flex items-center gap-2 border border-[#16243d]/15 bg-white/60 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
-                  <Folder size={13} className="text-[#a27e2e]" />
-                  <span className="sr-only">Filter by folder</span>
-                  <select
-                    value={folderFilter}
-                    onChange={event => setFolderFilter(event.target.value)}
-                    className="max-w-[10rem] bg-transparent outline-none"
-                  >
-                    <option value="all">All folders</option>
-                    {folders.map(folder => (
-                      <option key={folder} value={folder}>
+                <Select value={folderFilter} onValueChange={setFolderFilter}>
+                  <SelectTrigger className="h-9 min-w-[140px] bg-white dark:bg-[#16243d]">
+                    <SelectValue placeholder="All folders" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All folders</SelectItem>
+                    {allFolders.map(folder => (
+                      <SelectItem key={folder} value={folder}>
                         {folder}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </select>
-                </label>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-            <div className="mt-4 flex flex-col gap-3 border-t border-[#16243d]/10 pt-4 sm:flex-row sm:items-center">
-              <label className="flex min-w-0 flex-1 items-center gap-2 text-xs text-[#657084]">
-                <Search size={14} className="text-[#a27e2e]" />
-                <span className="sr-only">Search folders</span>
-                <input
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
                   value={folderQuery}
                   onChange={event => setFolderQuery(event.target.value)}
                   placeholder="Search custom folders"
-                  className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-[#8f9db3]"
+                  className="pl-9 h-9 bg-white dark:bg-[#16243d]"
                 />
-              </label>
-              <p className="text-[11px] text-[#657084]">
-                {folders.length} matching folder
-                {folders.length === 1 ? "" : "s"}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {folders.length} matching folder{folders.length === 1 ? "" : "s"}
               </p>
             </div>
-          </section>
-          {folderFilter !== "all" && (
-            <section
-              className="mt-5 border border-[#16243d]/15 bg-white/55 p-4 sm:p-5"
-              aria-label="Folder management"
-            >
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[.13em] text-[#a27e2e]">
-                    Manage folder
-                  </p>
-                  <p className="mt-2 text-sm text-[#657084]">
-                    Rename{" "}
-                    <strong className="text-[#16243d]">{folderFilter}</strong>,
-                    or delete it and safely move its illustrations to Unsorted.
-                  </p>
-                </div>
-                <div className="flex w-full flex-col gap-2 sm:flex-row lg:max-w-xl">
-                  <label className="sr-only" htmlFor="folder-management-name">
-                    New folder name
-                  </label>
-                  <input
-                    id="folder-management-name"
-                    value={folderManageName}
-                    onChange={event => setFolderManageName(event.target.value)}
-                    maxLength={80}
-                    className="min-w-0 flex-1 border border-[#16243d]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#c9a34e]"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const next = folderManageName.trim();
-                      if (!next || next === folderFilter) {
-                        toast.error("Enter a different folder name");
-                        return;
-                      }
-                      renameFolder.mutate({
-                        fromFolder: folderFilter,
-                        toFolder: next,
-                      });
-                    }}
-                    disabled={renameFolder.isPending || deleteFolder.isPending}
-                    className="border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] disabled:opacity-40"
-                  >
-                    {renameFolder.isPending ? (
-                      <Loader2 size={14} className="mx-auto animate-spin" />
-                    ) : (
-                      "Rename"
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          `Delete ${folderFilter}? Its illustrations will move to Unsorted.`
-                        )
+          </div>
+        </div>
+      </Section>
+
+      {folderFilter !== "all" && (
+        <Section
+          eyebrow="Organization"
+          title={`Manage folder: ${folderFilter}`}
+          description="Rename this folder or delete it and safely move its illustrations to Unsorted."
+          className="mb-8"
+        >
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex-1">
+              <div className="flex flex-col gap-2 sm:flex-row sm:max-w-xl">
+                <Input
+                  value={folderManageName}
+                  onChange={event => setFolderManageName(event.target.value)}
+                  placeholder="New folder name"
+                  className="bg-white dark:bg-[#16243d]"
+                />
+                <Button
+                  onClick={() => {
+                    const next = folderManageName.trim();
+                    if (!next || next === folderFilter) {
+                      toast.error("Enter a different folder name");
+                      return;
+                    }
+                    renameFolder.mutate({
+                      fromFolder: folderFilter,
+                      toFolder: next,
+                    });
+                  }}
+                  disabled={renameFolder.isPending || deleteFolder.isPending}
+                  className="bg-[#16243d] text-[#f7f3e8]"
+                >
+                  {renameFolder.isPending ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    "Rename"
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        `Delete ${folderFilter}? Its illustrations will move to Unsorted.`
                       )
-                        deleteFolder.mutate({ folder: folderFilter });
-                    }}
-                    disabled={renameFolder.isPending || deleteFolder.isPending}
-                    className="border border-[#8b4f63]/35 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#8b4f63] disabled:opacity-40"
-                  >
-                    {deleteFolder.isPending ? (
-                      <Loader2 size={14} className="mx-auto animate-spin" />
-                    ) : (
-                      "Delete"
-                    )}
-                  </button>
-                </div>
+                    )
+                      deleteFolder.mutate({ folder: folderFilter });
+                  }}
+                  disabled={renameFolder.isPending || deleteFolder.isPending}
+                  className="border-red-300 text-red-700 hover:bg-red-50"
+                >
+                  {deleteFolder.isPending ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    "Delete"
+                  )}
+                </Button>
               </div>
-            </section>
-          )}
-          {cards.length > 0 && (
-            <section className="mt-5 flex flex-col gap-3 border border-[#c9a34e]/35 bg-[#fffaf0] p-4 sm:flex-row sm:items-center">
-              <label className="flex items-center gap-3 text-xs font-bold">
+            </div>
+          </div>
+        </Section>
+      )}
+
+      {cards.length > 0 && (
+        <Section
+          eyebrow="Bulk actions"
+          title="Organize illustrations"
+          description="Select multiple cards to move them to a folder at once."
+          className="mb-8"
+        >
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-wrap items-center gap-3">
+              <label className="flex items-center gap-2 text-xs font-bold">
                 <input
                   type="checkbox"
                   checked={
@@ -793,189 +754,203 @@ export default function MyIllustrations() {
                 />{" "}
                 Select page
               </label>
-              <span className="text-xs text-[#657084]">
+              <span className="text-xs text-muted-foreground">
                 {selectedIds.length} selected
                 {allMatchingIds.length > cards.length
                   ? ` of ${allMatchingIds.length} matching`
                   : ""}
               </span>
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={selectAllMatches}
-                  disabled={
-                    allMatchingIdsQuery.isLoading || !allMatchingIds.length
-                  }
-                  className="border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] disabled:opacity-40"
-                >
-                  {allMatchingSelected ? "Deselect all" : "Select all results"}
-                </button>
-                <button
-                  type="button"
-                  onClick={clearSelection}
-                  disabled={!selectedIds.length}
-                  className="border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084] disabled:opacity-40"
-                >
-                  Clear selection
-                </button>
-              </div>
-              <div className="flex min-w-0 flex-1 gap-2 sm:ml-auto sm:max-w-xl">
-                <input
-                  value={bulkFolder}
-                  onChange={event => setBulkFolder(event.target.value)}
-                  list="bulk-folders"
-                  placeholder="Folder for selected illustrations"
-                  maxLength={80}
-                  className="min-w-0 flex-1 border border-[#16243d]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#c9a34e]"
-                />
-                <datalist id="bulk-folders">
-                  {bookmarksQuery.data?.folders?.map(folder => (
-                    <option key={folder} value={folder} />
-                  ))}
-                </datalist>
-                <button
-                  type="button"
-                  onClick={submitBulkMove}
-                  disabled={!selectedIds.length || bulkMove.isPending}
-                  className="inline-flex items-center gap-2 bg-[#16243d] px-4 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] disabled:opacity-50"
-                >
-                  {bulkMove.isPending ? (
-                    <Loader2 size={14} className="animate-spin" />
-                  ) : (
-                    <Folder size={14} />
-                  )}{" "}
-                  Move selected
-                </button>
-              </div>
-            </section>
-          )}
-          {moveCelebration && (
-            <div
-              role="status"
-              aria-live="polite"
-              className="mt-5 flex items-center gap-3 border border-[#2f6f78]/35 bg-[#edf4ee] px-4 py-3 text-sm font-semibold text-[#2f6f78] motion-safe:animate-[pulse_650ms_ease-out]"
-            >
-              <CheckCircle2 size={18} /> Illustrations moved into their folder.
             </div>
-          )}
-          {bookmarksQuery.isLoading ? (
-            <div className="grid place-items-center py-20 text-[#657084]">
-              <Loader2 className="animate-spin text-[#a27e2e]" />
-            </div>
-          ) : (bookmarksQuery.data?.total ?? 0) === 0 ? (
-            <div className="mt-8 border border-dashed border-[#16243d]/20 bg-white/40 px-6 py-16 text-center">
-              <Bookmark className="mx-auto text-[#c9a34e]" size={30} />
-              <h2 className="display mt-5 text-3xl">{t("noIllustrations")}</h2>
-              <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-[#657084]">
-                Open a course lesson, choose an illustration that helps you
-                learn, and select Save to build this collection.
-              </p>
-              <Link
-                href="/courses"
-                className="mt-6 inline-flex items-center gap-2 border border-[#16243d] px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] transition hover:bg-[#16243d] hover:text-[#f7f3e8]"
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={selectAllMatches}
+                disabled={
+                  allMatchingIdsQuery.isLoading || !allMatchingIds.length
+                }
+                className="border-[#16243d]/20"
               >
-                {t("courses")} <ArrowUpRight size={14} />
-              </Link>
+                {allMatchingSelected ? "Deselect all" : "Select all results"}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearSelection}
+                disabled={!selectedIds.length}
+                className="border-[#16243d]/20"
+              >
+                Clear selection
+              </Button>
             </div>
-          ) : (
-            <>
-              <p className="mt-7 text-xs text-[#657084]">
-                Reordering is available when one custom folder is selected. Drag
-                a card or use the arrow controls; changes are saved across
-                devices.
-              </p>
-              <div className="mt-3 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                {cards.map(card => (
-                  <IllustrationCard
-                    key={card.id}
-                    card={card}
-                    selected={visibleSelectedIds.includes(card.id)}
-                    folders={bookmarksQuery.data?.folders ?? []}
-                    editingFolderId={editingFolderId}
-                    folderDraft={folderDraft}
-                    pngBusy={pngBusyId === card.id}
-                    onToggleSelect={toggleSelect}
-                    onZoom={setZoomed}
-                    onDelete={item =>
-                      deleteBookmark.mutate({
-                        courseSlug: item.courseSlug,
-                        lessonId: item.lessonId,
-                        illustrationMode: item.mode,
-                      })
-                    }
-                    onStartFolderEdit={item => {
-                      setEditingFolderId(item.id);
-                      setFolderDraft(item.folder);
-                    }}
-                    onFolderDraftChange={setFolderDraft}
-                    onSaveFolder={item => {
-                      const folder = folderDraft.trim();
-                      if (!folder) {
-                        toast.error("Enter a folder name");
-                        return;
-                      }
-                      updateFolder.mutate({ bookmarkId: item.id, folder });
-                    }}
-                    onDownloadPng={item => void downloadPng(item)}
-                    onDragStart={setDraggedId}
-                    onDragOver={(event, id) => {
-                      event.preventDefault();
-                      if (draggedId !== null && draggedId !== id)
-                        event.dataTransfer.dropEffect = "move";
-                    }}
-                    onDrop={id => {
-                      if (draggedId !== null) reorderCards(draggedId, id);
-                      setDraggedId(null);
-                    }}
-                    onMove={moveCard}
-                  />
+            <div className="flex min-w-0 flex-1 gap-2 sm:ml-auto sm:max-w-xl">
+              <Input
+                value={bulkFolder}
+                onChange={event => setBulkFolder(event.target.value)}
+                list="bulk-folders"
+                placeholder="Folder for selected illustrations"
+                maxLength={80}
+                className="bg-white dark:bg-[#16243d]"
+              />
+              <datalist id="bulk-folders">
+                {bookmarksQuery.data?.folders?.map(folder => (
+                  <option key={folder} value={folder} />
                 ))}
-              </div>
-              <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[#16243d]/15 pt-5">
-                <p className="text-xs text-[#657084]">
-                  Showing {(page - 1) * pageSize + 1}–
-                  {Math.min(page * pageSize, bookmarksQuery.data?.total ?? 0)}{" "}
-                  of {bookmarksQuery.data?.total ?? 0} saved illustrations
-                </p>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPage(current => Math.max(1, current - 1))}
-                    disabled={page <= 1 || bookmarksQuery.isFetching}
-                    className="inline-flex items-center gap-1 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-40"
-                  >
-                    <ChevronLeft size={14} /> Previous
-                  </button>
-                  <span className="px-2 text-xs font-bold text-[#657084]">
-                    Page {page} of {bookmarksQuery.data?.pageCount ?? 1}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setPage(current =>
-                        Math.min(
-                          bookmarksQuery.data?.pageCount ?? current,
-                          current + 1
-                        )
-                      )
-                    }
-                    disabled={
-                      page >= (bookmarksQuery.data?.pageCount ?? 1) ||
-                      bookmarksQuery.isFetching
-                    }
-                    className="inline-flex items-center gap-1 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-40"
-                  >
-                    Next <ChevronRight size={14} />
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
-          <p className="mt-8 text-xs leading-5 text-[#657084]">
-            Your collection is available across every course workspace.
-          </p>
+              </datalist>
+              <Button
+                onClick={submitBulkMove}
+                disabled={!selectedIds.length || bulkMove.isPending}
+                className="bg-[#16243d] text-[#f7f3e8]"
+              >
+                {bulkMove.isPending ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Folder size={14} />
+                )}{" "}
+                Move selected
+              </Button>
+            </div>
+          </div>
+        </Section>
+      )}
+
+      {moveCelebration && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="mb-6 flex items-center gap-3 border border-[#2f6f78]/35 bg-[#edf4ee] px-4 py-3 text-sm font-semibold text-[#1d5a6e]"
+        >
+          <CheckCircle2 size={18} /> Illustrations moved into their folder.
         </div>
-      </main>
+      )}
+
+      {bookmarksQuery.isLoading ? (
+        <Section title="Loading illustrations" isEmpty>
+          <div className="flex flex-col items-center justify-center gap-3 py-12">
+            <Loader2 className="animate-spin text-[#7d5e1e]" size={24} />
+            <p className="text-sm text-muted-foreground">Loading your illustrations...</p>
+          </div>
+        </Section>
+      ) : cards.length === 0 ? (
+        <Section
+          eyebrow="Library"
+          title={t("noIllustrations")}
+          description="Open a course lesson, choose an illustration that helps you learn, and select Save to build this collection."
+        >
+          <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#f7f3e8] transition-transform hover:scale-110">
+              <Bookmark size={28} className="text-[#16243d]/40" />
+            </div>
+            <p className="text-sm text-[#16243d] max-w-sm">
+              You have not saved any illustrations yet. Explore courses to start building your visual study library.
+            </p>
+            <Link href="/courses">
+              <Button className="bg-[#16243d] text-[#f7f3e8] hover:bg-[#0f1a2e] transition-colors">
+                {t("courses")} <ArrowUpRight size={14} />
+              </Button>
+            </Link>
+          </div>
+        </Section>
+      ) : (
+        <>
+          <p className="mb-4 text-xs text-muted-foreground">
+            Reordering is available when one custom folder is selected. Drag
+            a card or use the arrow controls; changes are saved across
+            devices.
+          </p>
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {cards.map(card => (
+              <IllustrationCard
+                key={card.id}
+                card={card}
+                selected={visibleSelectedIds.includes(card.id)}
+                folders={bookmarksQuery.data?.folders ?? []}
+                editingFolderId={editingFolderId}
+                folderDraft={folderDraft}
+                pngBusy={pngBusyId === card.id}
+                onToggleSelect={toggleSelect}
+                onZoom={setZoomed}
+                onDelete={item =>
+                  deleteBookmark.mutate({
+                    courseSlug: item.courseSlug,
+                    lessonId: item.lessonId,
+                    illustrationMode: item.mode,
+                  })
+                }
+                onStartFolderEdit={item => {
+                  setEditingFolderId(item.id);
+                  setFolderDraft(item.folder);
+                }}
+                onFolderDraftChange={setFolderDraft}
+                onSaveFolder={item => {
+                  const folder = folderDraft.trim();
+                  if (!folder) {
+                    toast.error("Enter a folder name");
+                    return;
+                  }
+                  updateFolder.mutate({ bookmarkId: item.id, folder });
+                }}
+                onDownloadPng={item => void downloadPng(item)}
+                onDragStart={setDraggedId}
+                onDragOver={(event, id) => {
+                  event.preventDefault();
+                  if (draggedId !== null && draggedId !== id)
+                    event.dataTransfer.dropEffect = "move";
+                }}
+                onDrop={id => {
+                  if (draggedId !== null) reorderCards(draggedId, id);
+                  setDraggedId(null);
+                }}
+                onMove={moveCard}
+              />
+            ))}
+          </div>
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[#16243d]/15 pt-5">
+            <p className="text-xs text-muted-foreground">
+              Showing {(page - 1) * pageSize + 1}–
+              {Math.min(page * pageSize, bookmarksQuery.data?.total ?? 0)}{" "}
+              of {bookmarksQuery.data?.total ?? 0} saved illustrations
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(current => Math.max(1, current - 1))}
+                disabled={page <= 1 || bookmarksQuery.isFetching}
+                className="border-[#16243d]/20"
+              >
+                <ChevronLeft size={14} /> Previous
+              </Button>
+              <span className="px-2 text-xs font-bold text-muted-foreground">
+                Page {page} of {bookmarksQuery.data?.pageCount ?? 1}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setPage(current =>
+                    Math.min(
+                      bookmarksQuery.data?.pageCount ?? current,
+                      current + 1
+                    )
+                  )
+                }
+                disabled={
+                  page >= (bookmarksQuery.data?.pageCount ?? 1) ||
+                  bookmarksQuery.isFetching
+                }
+                className="border-[#16243d]/20"
+              >
+                Next <ChevronRight size={14} />
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
+      <p className="mt-8 text-xs text-muted-foreground">
+        Your collection is available across every course workspace.
+      </p>
+
       {zoomed && (
         <div
           className="fixed inset-0 z-[70] grid place-items-center bg-[#071225]/85 p-4"
@@ -992,25 +967,25 @@ export default function MyIllustrations() {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="eyebrow text-[#c9a34e]">{zoomed.modeLabel}</p>
+                <p className="eyebrow text-[#8b6914]">{zoomed.modeLabel}</p>
                 <h2
                   id="gallery-artwork-title"
                   className="display mt-2 text-3xl"
                 >
                   {zoomed.lessonTitle}
                 </h2>
-                <p className="mt-1 text-xs text-[#c1cad7]">
+                <p className="mt-1 text-xs text-muted-foreground">
                   {zoomed.courseTitle}
                 </p>
               </div>
-              <button
-                type="button"
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setZoomed(null)}
-                aria-label="Close artwork preview"
-                className="inline-flex items-center gap-2 border border-white/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8]"
+                className="border-white/20 text-[#f7f3e8] hover:bg-white/10"
               >
                 <X size={14} /> {t("close")}
-              </button>
+              </Button>
             </div>
             {zoomed.visualUrl && (
               <img
@@ -1019,14 +994,14 @@ export default function MyIllustrations() {
                 className="mt-6 max-h-[64vh] w-full object-contain"
               />
             )}
-            <p className="mt-5 max-w-3xl text-sm leading-7 text-[#c1cad7]">
+            <p className="mt-5 max-w-3xl text-sm leading-7 text-muted-foreground">
               {zoomed.content}
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               {zoomed.visualUrl && (
                 <>
-                  <button
-                    type="button"
+                  <Button
+                    variant="outline"
                     onClick={() =>
                       downloadIllustrationStudySheet({
                         imageUrl: zoomed.visualUrl ?? "",
@@ -1037,15 +1012,14 @@ export default function MyIllustrations() {
                         filename: `${zoomed.courseSlug}-${zoomed.lessonId}-study-sheet.svg`,
                       })
                     }
-                    className="inline-flex items-center gap-2 border border-white/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8]"
+                    className="border-white/25 text-[#f7f3e8] hover:bg-white/10"
                   >
                     <Download size={14} /> SVG
-                  </button>
-                  <button
-                    type="button"
+                  </Button>
+                  <Button
                     onClick={() => void downloadPng(zoomed)}
                     disabled={pngBusyId === zoomed.id}
-                    className="inline-flex items-center gap-2 bg-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] disabled:opacity-50"
+                    className="bg-[#c9a34e] text-[#16243d] hover:bg-[#b18d3d]"
                   >
                     {pngBusyId === zoomed.id ? (
                       <Loader2 size={14} className="animate-spin" />
@@ -1053,20 +1027,24 @@ export default function MyIllustrations() {
                       <Download size={14} />
                     )}{" "}
                     PNG
-                  </button>
+                  </Button>
                 </>
               )}
               <Link
                 href={`/courses/${zoomed.courseSlug}`}
                 onClick={() => setZoomed(null)}
-                className="inline-flex items-center gap-2 border border-white/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8]"
               >
-                Open lesson <ArrowUpRight size={14} />
+                <Button
+                  variant="outline"
+                  className="border-white/25 text-[#f7f3e8] hover:bg-white/10"
+                >
+                  Open lesson <ArrowUpRight size={14} />
+                </Button>
               </Link>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </DashboardLayout>
   );
 }

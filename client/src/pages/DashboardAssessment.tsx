@@ -41,7 +41,7 @@ export default function DashboardAssessment() {
 
   if (history.isLoading) {
     return (
-      <DashboardLayout role="user" title="Assessment">
+      <DashboardLayout role="user" title="Assessment Reports">
         <div className="flex items-center justify-center py-20">
           <RefreshCw className="animate-spin text-[#7d5e1e]" />
         </div>
@@ -51,7 +51,7 @@ export default function DashboardAssessment() {
 
   if (history.isError) {
     return (
-      <DashboardLayout role="user" title="Assessment">
+      <DashboardLayout role="user" title="Assessment Reports">
         <div className="border-l-2 border-red-700 bg-red-50 p-5 text-sm text-red-900">
           Unable to load assessment history.
         </div>
@@ -60,7 +60,7 @@ export default function DashboardAssessment() {
   }
 
   return (
-    <DashboardLayout role="user" title="Assessment">
+    <DashboardLayout role="user" title="Assessment Reports">
       <DashboardHero
         eyebrow="Transformation"
         title="Assessment history"
@@ -79,7 +79,7 @@ export default function DashboardAssessment() {
             return (
               <Card
                 key={attempt.id}
-                className="border border-[#16243d]/10 bg-white/80 p-5"
+                className="border border-[#16243d]/20 bg-white/90 p-5"
               >
                 <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                   <div>
@@ -91,7 +91,7 @@ export default function DashboardAssessment() {
                         className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] ${
                           attempt.paymentStatus === "paid"
                             ? "bg-emerald-100 text-emerald-800"
-                            : "border border-[#16243d]/15 text-[#657084]"
+                            : "border border-[#16243d]/15 text-muted-foreground"
                         }`}
                       >
                         {attempt.paymentStatus}
@@ -107,7 +107,7 @@ export default function DashboardAssessment() {
                         <p className="display text-2xl text-[#16243d]">
                           {attempt.overallScore}
                         </p>
-                        <p className="text-[10px] uppercase tracking-[.1em] text-[#657084]">
+                          <p className="text-[10px] uppercase tracking-[.1em] text-muted-foreground">
                           Score
                         </p>
                       </div>

@@ -19,9 +19,13 @@ export type DashboardNavItem = {
     | "settings"
     | "certificates"
     | "selfAssessment"
+    | "selfAssessmentReports"
     | "psychometrics"
+    | "psychometricReports"
     | "careerPath"
+    | "careerPathReports"
     | "courses"
+    | "enrolledCourses"
     | "myIllustrations"
     | "adminObservatory"
     | "staffWorkspace";
@@ -44,24 +48,24 @@ export const dashboardNavItems: DashboardNavItem[] = [
   },
   {
     id: "dashboard-assessment",
-    labelKey: "selfAssessment",
-    fallbackLabel: "Assessment",
+    labelKey: "selfAssessmentReports",
+    fallbackLabel: "Assessment Reports",
     path: "/dashboard/assessment",
     icon: ClipboardCheck,
     group: "growth",
   },
   {
     id: "dashboard-careerpath",
-    labelKey: "careerPath",
-    fallbackLabel: "CareerPath",
+    labelKey: "careerPathReports",
+    fallbackLabel: "CareerPath Reports",
     path: "/dashboard/careerpath",
     icon: Users,
     group: "growth",
   },
   {
     id: "dashboard-psychometrics",
-    labelKey: "psychometrics",
-    fallbackLabel: "Psychometrics",
+    labelKey: "psychometricReports",
+    fallbackLabel: "Psychometric Reports",
     path: "/dashboard/psychometrics",
     icon: BrainCircuit,
     group: "growth",
@@ -113,6 +117,14 @@ export const dashboardNavItems: DashboardNavItem[] = [
     path: "/courses",
     icon: BookOpen,
     group: "growth",
+  },
+  {
+    id: "dashboard-enrolled-courses",
+    labelKey: "enrolledCourses",
+    fallbackLabel: "Enrolled Courses",
+    path: "/dashboard/enrolled-courses",
+    icon: BookOpen,
+    group: "workspace",
   },
   {
     id: "my-illustrations",
