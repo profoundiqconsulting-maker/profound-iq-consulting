@@ -77,17 +77,17 @@ const modeStyles: Record<
   explanatory: {
     border: "border-[#c9a34e]/50",
     tint: "bg-[#fffaf0]",
-    accent: "text-[#7d5e1e]",
+    accent: "text-accent dark:text-accent-on-dark",
   },
   applicational: {
     border: "border-[#2f6f78]/35",
     tint: "bg-[#edf4ee]",
-    accent: "text-[#1d5a6e]",
+    accent: "text-[#1d5a6e] dark:text-accent-on-dark",
   },
   experiential: {
     border: "border-[#8b4f63]/35",
     tint: "bg-[#fff3f5]",
-    accent: "text-[#6b3a4d]",
+    accent: "text-[#6b3a4d] dark:text-accent-on-dark",
   },
 };
 const findLesson = (course: CourseDefinition | undefined, lessonId: string) =>
@@ -172,7 +172,7 @@ function IllustrationCard({
           </button>
         ) : (
           <div className="grid aspect-[16/9] place-items-center bg-[#16243d] p-6 text-center text-[#f7f3e8]">
-            <BookOpen size={25} className="text-[#8b6914]" aria-hidden="true" />
+            <BookOpen size={25} className="text-accent-on-dark" aria-hidden="true" />
             <p className="mt-3 max-w-xs text-sm leading-6">
               {card.modeLabel} learning prompt
             </p>

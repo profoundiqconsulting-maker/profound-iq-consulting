@@ -233,7 +233,7 @@ export default function DashboardEnrolledCourses() {
     return (
       <DashboardLayout role="user" title="Enrolled Courses">
         <div className="flex flex-col items-center justify-center gap-3 py-20">
-          <RefreshCw className="animate-spin text-[#7d5e1e]" size={24} />
+          <RefreshCw className="animate-spin text-accent" size={24} />
           <p className="text-sm font-semibold text-muted-foreground">Loading your enrolled courses...</p>
         </div>
       </DashboardLayout>
@@ -375,28 +375,28 @@ export default function DashboardEnrolledCourses() {
                         <Progress value={rollup.learningPercent} className="h-1.5 transition-all duration-300" />
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2 mb-4">
+                        <div className="grid grid-cols-3 gap-2 mb-4">
                         <div className="text-center p-2 bg-[#f7f3e8] rounded-lg transition-colors hover:bg-[#f0e8d0]">
-                          <p className="text-[10px] font-black uppercase tracking-[.08em] text-[#7d5e1e]">
+                          <p className="text-[10px] font-black uppercase tracking-[.08em] text-accent dark:text-accent-on-dark">
                             Lessons
                           </p>
-                          <p className="mt-1 text-sm font-bold text-[#16243d]">
+                          <p className="mt-1 text-sm font-bold text-foreground">
                             {record.lessons?.length ?? 0}
                           </p>
                         </div>
                         <div className="text-center p-2 bg-[#f7f3e8] rounded-lg transition-colors hover:bg-[#f0e8d0]">
-                          <p className="text-[10px] font-black uppercase tracking-[.08em] text-[#7d5e1e]">
+                          <p className="text-[10px] font-black uppercase tracking-[.08em] text-accent dark:text-accent-on-dark">
                             Badges
                           </p>
-                          <p className="mt-1 text-sm font-bold text-[#16243d]">
+                          <p className="mt-1 text-sm font-bold text-foreground">
                             {earnedBadges}/{badges.length}
                           </p>
                         </div>
                         <div className="text-center p-2 bg-[#f7f3e8] rounded-lg transition-colors hover:bg-[#f0e8d0]">
-                          <p className="text-[10px] font-black uppercase tracking-[.08em] text-[#7d5e1e]">
+                          <p className="text-[10px] font-black uppercase tracking-[.08em] text-accent dark:text-accent-on-dark">
                             Payment
                           </p>
-                          <p className="mt-1 text-sm font-bold text-[#16243d]">
+                          <p className="mt-1 text-sm font-bold text-foreground">
                             {rollup.paidStages}/{rollup.totalStages}
                           </p>
                         </div>
@@ -485,7 +485,7 @@ export default function DashboardEnrolledCourses() {
         >
           <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#f7f3e8] dark:bg-[#16243d] transition-transform hover:scale-110">
-              <BookOpen size={28} className="text-[#16243d]/40" />
+              <BookOpen size={28} className="text-muted-foreground" />
             </div>
             <p className="text-sm text-[#16243d] max-w-sm">
               You have not enrolled in any courses yet. Explore our professional courses to begin your learning journey.
