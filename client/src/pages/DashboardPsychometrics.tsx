@@ -36,7 +36,7 @@ export default function DashboardPsychometrics() {
     return (
       <DashboardLayout role="user" title="Psychometric Reports">
         <div className="flex items-center justify-center py-20">
-          <RefreshCw className="animate-spin text-[#7d5e1e]" />
+          <RefreshCw className="animate-spin text-accent" />
         </div>
       </DashboardLayout>
     );
@@ -145,9 +145,9 @@ export default function DashboardPsychometrics() {
             </Card>
           ))}
           {(history.data ?? []).length === 0 && (
-            <div className="py-12 text-center text-sm text-[#16243d]">
+            <div className="py-12 text-center text-sm text-foreground">
               No psychometric tests yet.{" "}
-              <a href="/psychometrics" className="text-[#7d5e1e] underline">
+              <a href="/psychometrics" className="text-accent underline">
                 Start a psychometric assessment
               </a>
             </div>

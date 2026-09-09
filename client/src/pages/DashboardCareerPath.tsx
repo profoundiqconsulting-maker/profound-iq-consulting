@@ -36,7 +36,7 @@ export default function DashboardCareerPath() {
     return (
       <DashboardLayout role="user" title="CareerPath Reports">
         <div className="flex items-center justify-center py-20">
-          <RefreshCw className="animate-spin text-[#7d5e1e]" />
+          <RefreshCw className="animate-spin text-accent" />
         </div>
       </DashboardLayout>
     );
@@ -138,9 +138,9 @@ export default function DashboardCareerPath() {
             );
           })}
           {(history.data ?? []).length === 0 && (
-            <div className="py-12 text-center text-sm text-[#16243d]">
+            <div className="py-12 text-center text-sm text-foreground">
               No CareerPath reports yet.{" "}
-              <a href="/careerpath" className="text-[#7d5e1e] underline">
+              <a href="/careerpath" className="text-accent underline">
                 Start your CareerPath analysis
               </a>
             </div>

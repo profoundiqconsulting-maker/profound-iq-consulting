@@ -43,7 +43,7 @@ export default function DashboardAssessment() {
     return (
       <DashboardLayout role="user" title="Assessment Reports">
         <div className="flex items-center justify-center py-20">
-          <RefreshCw className="animate-spin text-[#7d5e1e]" />
+          <RefreshCw className="animate-spin text-accent" />
         </div>
       </DashboardLayout>
     );
@@ -185,9 +185,9 @@ export default function DashboardAssessment() {
             );
           })}
           {(history.data ?? []).length === 0 && (
-            <div className="py-12 text-center text-sm text-[#16243d]">
+            <div className="py-12 text-center text-sm text-foreground">
               No assessments yet.{" "}
-              <a href="/assessment" className="text-[#7d5e1e] underline">
+              <a href="/assessment" className="text-accent underline">
                 Take your first assessment
               </a>
             </div>

@@ -1257,10 +1257,10 @@ export default function UserDashboard() {
         {/* Recent Recommendations */}
         {recommendations.data?.hasAssessment && (
           <div className="mb-8">
-            <h2 className="display text-2xl text-[#16243d]">
+            <h2 className="display text-2xl text-foreground">
               Recommended for you
             </h2>
-            <p className="mt-1 text-sm text-[#16243d]">
+            <p className="mt-1 text-sm text-foreground">
               Based on your latest assessment results.
             </p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -1711,11 +1711,11 @@ export default function UserDashboard() {
           <p className="eyebrow text-accent dark:text-accent-on-dark">
             Private workspace / personal development
           </p>
-          <p className="text-sm font-semibold text-[#16243d]">
+          <p className="text-sm font-semibold text-foreground">
             Welcome back, {user.name?.split(" ")[0] || "there"}.
           </p>
           <h1 className="display mt-3 text-5xl leading-none tracking-[-.04em] sm:text-6xl">
-            Your <em className="font-normal text-[#7d5e1e]">pathway</em>.
+            Your <em className="font-normal text-accent-on-dark">pathway</em>.
           </h1>
           <div className="mt-6 max-w-2xl border-l-2 border-[#c9a34e] bg-white/55 p-4">
             <div className="flex items-center justify-between gap-4">
@@ -1809,10 +1809,10 @@ export default function UserDashboard() {
                 </Link>
               </div>
               {courseHistory.isLoading ? (
-                <div className="mt-5 flex items-center gap-2 text-sm text-[#16243d]">
+                <div className="mt-5 flex items-center gap-2 text-sm text-foreground">
                   <RefreshCw
                     size={15}
-                    className="animate-spin text-[#7d5e1e]"
+                    className="animate-spin text-accent-on-dark"
                   />{" "}
                   Loading course enrollments…
                 </div>
@@ -1988,10 +1988,10 @@ export default function UserDashboard() {
                 </Link>
               </div>
               {psychometricHistory.isLoading ? (
-                <div className="mt-5 flex items-center gap-2 text-sm text-[#16243d]">
+                <div className="mt-5 flex items-center gap-2 text-sm text-foreground">
                   <RefreshCw
                     size={15}
-                    className="animate-spin text-[#7d5e1e]"
+                    className="animate-spin text-accent-on-dark"
                   />{" "}
                   Loading psychometric profiles…
                 </div>
@@ -2282,10 +2282,10 @@ export default function UserDashboard() {
                 </Link>
               </div>
               {courseHistory.isLoading ? (
-                <div className="mt-5 flex items-center gap-2 text-sm text-[#16243d]">
+                <div className="mt-5 flex items-center gap-2 text-sm text-foreground">
                   <RefreshCw
                     size={15}
-                    className="animate-spin text-[#7d5e1e]"
+                    className="animate-spin text-accent-on-dark"
                   />{" "}
                   Loading your learning ledger…
                 </div>
@@ -2448,7 +2448,7 @@ export default function UserDashboard() {
                   })}
                 </div>
               ) : (
-                <div className="mt-5 border border-dashed border-[#16243d]/20 p-5 text-sm leading-6 text-[#16243d]">
+                <div className="mt-5 border border-dashed border-[#16243d]/20 p-5 text-sm leading-6 text-foreground">
                   Start a course to see your progress, quiz scores, and staged
                   payment schedule here.
                 </div>
@@ -2627,10 +2627,10 @@ export default function UserDashboard() {
                 )}
               </div>
               {recommendations.isLoading ? (
-                <div className="mt-5 flex items-center gap-2 text-sm text-[#16243d]">
+                <div className="mt-5 flex items-center gap-2 text-sm text-foreground">
                   <RefreshCw
                     size={15}
-                    className="animate-spin text-[#7d5e1e]"
+                    className="animate-spin text-accent-on-dark"
                   />{" "}
                   Reading your assessment signals…
                 </div>
@@ -3535,7 +3535,7 @@ export default function UserDashboard() {
                 </span>
               </div>
               {displayHistory.length === 0 ? (
-                <div className="mt-6 border border-dashed border-[#16243d]/25 p-8 text-sm leading-6 text-[#16243d]">
+                <div className="mt-6 border border-dashed border-[#16243d]/25 p-8 text-sm leading-6 text-foreground">
                   No assessment is linked to {user.email}. Start the KES{" "}
                   {ASSESSMENT_PRICE_KES.toLocaleString()} self-assessment to
                   create your first development signal.

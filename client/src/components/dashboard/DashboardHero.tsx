@@ -39,17 +39,17 @@ export function DashboardHero({
               </Badge>
             )}
           </div>
-          <h1 className="display text-3xl sm:text-4xl lg:text-5xl text-[#16243d] dark:text-[#f7f3e8]">
+          <h1 className="display text-3xl sm:text-4xl lg:text-5xl text-foreground">
             {title}
           </h1>
           {description && (
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#16243d] dark:text-[#f7f3e8]">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-foreground">
               {description}
             </p>
           )}
           {user && (
-            <p className="mt-2 text-xs text-[#16243d] dark:text-[#f7f3e8]">
-              Welcome back, <span className="font-semibold text-[#16243d] dark:text-[#f7f3e8]">{displayName}</span>
+            <p className="mt-2 text-xs text-foreground">
+              Welcome back, <span className="font-semibold text-foreground">{displayName}</span>
             </p>
           )}
         </div>
