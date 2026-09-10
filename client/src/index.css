@@ -32,6 +32,11 @@
   --color-gold-on-light: var(--gold-on-light);
   --color-muted-on-dark: var(--muted-on-dark);
   --color-muted-on-light: var(--muted-on-light);
+  --color-gold-soft: var(--gold-soft);
+  --color-navy-deep: var(--navy-deep);
+  --color-ivory-soft: var(--ivory-soft);
+  --color-muted-deep: var(--muted-deep);
+  --color-text-on-dark: var(--text-on-dark);
 }
 
 :root {
@@ -60,6 +65,11 @@
   --accent-on-dark: oklch(0.82 0.12 78);
   --muted-on-dark: oklch(0.78 0.015 90);
   --muted-on-light: oklch(0.40 0.03 255);
+  --gold-soft: oklch(0.44 0.12 78);
+  --navy-deep: oklch(0.16 0.03 255);
+  --ivory-soft: oklch(0.96 0.015 78);
+  --muted-deep: oklch(0.32 0.03 255);
+  --text-on-dark: oklch(0.95 0.02 90);
 }
 
 .dark {
@@ -87,6 +97,11 @@
   --accent-on-dark: oklch(0.82 0.12 78);
   --muted-on-dark: oklch(0.78 0.015 90);
   --muted-on-light: oklch(0.40 0.03 255);
+  --gold-soft: oklch(0.44 0.12 78);
+  --navy-deep: oklch(0.16 0.03 255);
+  --ivory-soft: oklch(0.96 0.015 78);
+  --muted-deep: oklch(0.32 0.03 255);
+  --text-on-dark: oklch(0.95 0.02 90);
 }
 
 * {
@@ -110,12 +125,18 @@ textarea {
   font: inherit;
 }
 button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-textarea:focus-visible {
-  outline: 2px solid #c9a34e;
-  outline-offset: 4px;
-}
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  [role="button"]:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid #c9a34e;
+    outline-offset: 4px;
+  }
+
+  .focus-ring {
+    @apply focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c9a34e];
+  }
 ::selection {
   background: #c9a34e;
   color: #101d35;
@@ -322,6 +343,49 @@ textarea:focus-visible {
       max-width: 1280px;
       padding: 0 3.5rem;
     }
+  }
+
+  /* Course typography scale — consistent hierarchy */
+  .text-display {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+  }
+  .text-section {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+  }
+  .text-body {
+    line-height: 1.75;
+  }
+  .text-secondary {
+    line-height: 1.6;
+  }
+  .text-caption {
+    line-height: 1.5;
+  }
+
+  /* Paragraph spacing for scanability */
+  .prose-course p {
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .prose-course > p + p {
+    margin-top: 1rem;
+  }
+  .space-y-course > * + * {
+    margin-top: 0.75rem;
+  }
+
+  /* Focus ring utility */
+  .focus-gold {
+    @apply focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c9a34e];
+  }
+  .focus-gold-ring {
+    @apply focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30 focus:outline-none;
   }
 }
 

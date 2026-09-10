@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { CalendarDays, Search, ShieldCheck } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { courseCatalog } from "@shared/courseCatalog";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 const inputClass =
   "border border-[#16243d]/20 bg-white px-3 py-2 text-xs text-[#16243d] outline-none transition focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30";
@@ -12,6 +14,7 @@ export function AdminRecentQCCertificates() {
   const [search, setSearch] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [qcEnrollmentId, setQcEnrollmentId] = useState("");
   const queryInput = useMemo(
     () => ({
       courseSlug,
@@ -27,6 +30,20 @@ export function AdminRecentQCCertificates() {
     queryInput,
     { retry: false, refetchInterval: 30000 }
   );
+  const generateQc = trpc.admin.generateQcCertificate.useMutation({
+    onSuccess: data => {
+      toast.success("QC certificate generated", {
+        description: data.certificateNumber,
+      });
+      setQcEnrollmentId("");
+      certificates.refetch();
+    },
+    onError: error => {
+      toast.error("Could not generate QC certificate", {
+        description: error.message,
+      });
+    },
+  });
   const rows = certificates.data ?? [];
 
   return (
@@ -63,6 +80,38 @@ export function AdminRecentQCCertificates() {
         </div>
       </div>
       <div className="mt-5 grid gap-3 border-y border-[#16243d]/10 py-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="sm:col-span-2 lg:col-span-5">
+          <p className="eyebrow text-[#7d5e1e]">Generate QC certificate</p>
+          <p className="mt-1 text-xs leading-5 text-[#657084]">
+            Issue a quality-control review certificate for an existing enrollment
+            without requiring completion or payment.
+          </p>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+            <input
+              type="number"
+              min={1}
+              value={qcEnrollmentId}
+              onChange={event => setQcEnrollmentId(event.target.value)}
+              placeholder="Enrollment ID"
+              className={`${inputClass} sm:w-48`}
+            />
+            <Button
+              type="button"
+              onClick={() => {
+                const id = Number(qcEnrollmentId);
+                if (!Number.isFinite(id) || id <= 0) {
+                  toast.error("Enter a valid enrollment ID");
+                  return;
+                }
+                generateQc.mutate({ enrollmentId: id });
+              }}
+              disabled={generateQc.isPending}
+              className="bg-[#16243d] text-[#f7f3e8]"
+            >
+              {generateQc.isPending ? "Generating…" : "Generate QC certificate"}
+            </Button>
+          </div>
+        </div>
         <label className="flex flex-col gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
           <span>Search</span>
           <span className="relative">

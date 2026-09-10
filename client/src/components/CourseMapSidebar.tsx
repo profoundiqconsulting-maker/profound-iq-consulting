@@ -50,7 +50,7 @@ export function CourseMapSidebar({
           {courseNavOpen && (
             <div>
               <p className="eyebrow text-[#a27e2e]">Course map</p>
-              <p className="mt-1 text-xs text-[#657084]">
+              <p className="mt-1 text-xs text-muted-foreground">
                 Jump to a module or lesson
               </p>
             </div>
@@ -114,7 +114,7 @@ export function CourseMapSidebar({
                       <span className="block truncate font-bold">
                         {module.title}
                       </span>
-                      <span className="mt-0.5 block text-[10px] text-[#657084]">
+                      <span className="mt-0.5 block text-[10px] text-muted-foreground">
                         {module.lessons.length} lessons
                         {locked ? " · Payment required" : ""}
                       </span>
@@ -122,7 +122,7 @@ export function CourseMapSidebar({
                     {locked ? (
                       <LockKeyhole
                         size={13}
-                        className="shrink-0 text-[#657084]"
+                        className="shrink-0 text-muted-foreground"
                       />
                     ) : (
                       <ChevronDown
@@ -145,7 +145,7 @@ export function CourseMapSidebar({
                               type="button"
                               onClick={() => onSelectLesson(lesson.id, index)}
                               aria-current={active ? "step" : undefined}
-                              className={`flex w-full items-start gap-2 border-l-2 px-2 py-2 text-left text-[11px] leading-4 transition-colors hover:border-[#c9a34e] hover:bg-[#fffaf0] ${active ? "border-[#c9a34e] bg-[#fffaf0] font-bold text-[#7d5e1e]" : completed ? "border-[#c9a34e]/60 text-[#4a566a]" : "border-[#16243d]/10 text-[#657084]"}`}
+                              className={`flex w-full items-start gap-2 border-l-2 px-2 py-2 text-left text-[11px] leading-4 transition-colors hover:border-[#c9a34e] hover:bg-[#fffaf0] ${active ? "border-[#c9a34e] bg-[#fffaf0] font-bold text-[#7d5e1e]" : completed ? "border-[#c9a34e]/60 text-[#4a566a]" : "border-[#16243d]/10 text-muted-foreground"}`}
                             >
                               <span className="mt-0.5 w-5 shrink-0 font-black text-[#a27e2e]">
                                 {completed ? "✓" : `${lessonIndex + 1}.`}
@@ -164,7 +164,7 @@ export function CourseMapSidebar({
             })}
           </nav>
         ) : (
-          <div className="hidden p-2 text-center text-[9px] font-black uppercase tracking-[.12em] text-[#657084] lg:block">
+          <div className="hidden p-2 text-center text-[9px] font-black uppercase tracking-[.12em] text-muted-foreground lg:block">
             <span className="[writing-mode:vertical-rl]">Course map</span>
           </div>
         )}

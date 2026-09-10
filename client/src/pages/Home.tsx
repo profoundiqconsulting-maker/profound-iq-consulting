@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
 import { ExecutiveHeader } from "@/components/ExecutiveHeader";
+import { CourseShareActions } from "@/components/CourseShareActions";
 import { trpc } from "@/lib/trpc";
 import {
   Tooltip,
@@ -354,7 +355,7 @@ export default function Home() {
               <div>
                 <p className="eyebrow text-[#a27e2e]">02 / POSITION</p>
                 <div className="mt-8 h-px w-14 bg-[#c9a34e]" />
-                <p className="mt-5 text-sm leading-6 text-[#657084]">
+                <p className="mt-5 text-sm leading-6 text-[#4a566a]">
                   For the modern achiever who wants their next step to be
                   intentional.
                 </p>
@@ -384,19 +385,19 @@ export default function Home() {
                 <div className="mt-8 space-y-7">
                   <div>
                     <p className="display text-4xl">KES 10k–20k</p>
-                    <p className="mt-1 text-xs font-bold uppercase tracking-[.12em] text-[#657084]">
+                    <p className="mt-1 text-xs font-bold uppercase tracking-[.12em] text-[#4a566a]">
                       Course investment range
                     </p>
                   </div>
                   <div>
                     <p className="display text-4xl">Mon–Sat</p>
-                    <p className="mt-1 text-xs font-bold uppercase tracking-[.12em] text-[#657084]">
+                    <p className="mt-1 text-xs font-bold uppercase tracking-[.12em] text-[#4a566a]">
                       Office hours, online
                     </p>
                   </div>
                   <div>
                     <p className="display text-4xl">4 ways</p>
-                    <p className="mt-1 text-xs font-bold uppercase tracking-[.12em] text-[#657084]">
+                    <p className="mt-1 text-xs font-bold uppercase tracking-[.12em] text-[#4a566a]">
                       To move insight forward
                     </p>
                   </div>
@@ -516,7 +517,7 @@ export default function Home() {
                   giving you a practical path from reflection to measurable
                   progress.
                 </p>
-                <p className="mt-8 text-xs font-bold uppercase tracking-[.14em] text-[#657084]">
+                <p className="mt-8 text-xs font-bold uppercase tracking-[.14em] text-[#4a566a]">
                   All enrollment inquiries are answered online.
                 </p>
               </div>
@@ -594,7 +595,7 @@ export default function Home() {
                             {course.format}
                           </span>
                         </div>
-                        <p className="mt-3 max-w-2xl text-sm leading-7 text-[#657084]">
+                        <p className="mt-3 max-w-2xl text-sm leading-7 text-[#4a566a]">
                           {course.body}
                         </p>
                         <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
@@ -618,10 +619,16 @@ export default function Home() {
                             </>
                           )}
                         </div>
-                        <p className="mt-3 max-w-2xl text-xs leading-5 text-[#657084]">
-                          {course.outcomes.join(" · ")}
-                        </p>
-                        {course.modules.length ? (
+                         <p className="mt-3 max-w-2xl text-xs leading-5 text-[#4a566a]">
+                           {course.outcomes.join(" · ")}
+                         </p>
+                         <div className="mt-4">
+                           <CourseShareActions
+                             courseSlug={course.slug}
+                             courseTitle={course.title}
+                           />
+                         </div>
+                         {course.modules.length ? (
                           <details className="mt-5 border-t border-[#16243d]/10 pt-4">
                             <summary className="cursor-pointer text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                               View the 10-module curriculum
@@ -635,7 +642,7 @@ export default function Home() {
                                   <p className="text-xs font-bold">
                                     {module.title}
                                   </p>
-                                  <p className="mt-1 text-[11px] leading-5 text-[#657084]">
+                                  <p className="mt-1 text-[11px] leading-5 text-[#4a566a]">
                                     {module.promise}
                                   </p>
                                   <p className="mt-1 text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
@@ -669,7 +676,7 @@ export default function Home() {
                                 ? `/courses/${course.slug}`
                                 : "#contact"
                             }
-                            className="inline-flex items-center gap-2 border-b border-[#16243d]/25 pb-1 text-[10px] font-black uppercase tracking-[.15em] text-[#657084] hover:border-[#a27e2e] hover:text-[#a27e2e]"
+                            className="inline-flex items-center gap-2 border-b border-[#16243d]/25 pb-1 text-[10px] font-black uppercase tracking-[.15em] text-[#4a566a] hover:border-[#a27e2e] hover:text-[#a27e2e]"
                           >
                             {course.modules.length
                               ? "Open syllabus"
@@ -694,7 +701,7 @@ export default function Home() {
                   </div>
                 )}
                 {filteredCatalog.length === 0 && (
-                  <p className="py-12 text-center text-sm text-[#657084]">
+                  <p className="py-12 text-center text-sm text-[#4a566a]">
                     No courses match the selected filters.
                   </p>
                 )}
@@ -760,7 +767,7 @@ export default function Home() {
                       </span>
                       <div>
                         <h3 className="text-lg font-extrabold">{step.t}</h3>
-                        <p className="mt-1 text-sm leading-6 text-[#657084]">
+                        <p className="mt-1 text-sm leading-6 text-[#4a566a]">
                           {step.d}
                         </p>
                       </div>
@@ -928,7 +935,7 @@ export default function Home() {
                   />
                   <span
                     id="inquiry-verification-help"
-                    className="mt-2 block text-[11px] font-normal normal-case tracking-normal text-[#657084]"
+                    className="mt-2 block text-[11px] font-normal normal-case tracking-normal text-[#4a566a]"
                   >
                     This helps us keep automated submissions out.
                   </span>
@@ -1030,7 +1037,7 @@ export default function Home() {
                     type="text"
                     autoComplete="name"
                     placeholder="Name"
-                    className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent px-0 py-3 text-base font-semibold outline-none placeholder:text-[#657084] focus:border-[#c9a34e]"
+                    className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent px-0 py-3 text-base font-semibold outline-none placeholder:text-[#4a566a] focus:border-[#c9a34e]"
                   />
                 </label>
                 <label className="mt-7 block text-xs font-black uppercase tracking-[.14em]">
@@ -1041,7 +1048,7 @@ export default function Home() {
                     type="email"
                     autoComplete="email"
                     placeholder="you@example.com"
-                    className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent px-0 py-3 text-base font-semibold outline-none placeholder:text-[#657084] focus:border-[#c9a34e]"
+                    className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent px-0 py-3 text-base font-semibold outline-none placeholder:text-[#4a566a] focus:border-[#c9a34e]"
                   />
                 </label>
                 <div className="mt-7 flex items-start gap-3">
@@ -1069,7 +1076,7 @@ export default function Home() {
                 </div>
                 <p
                   id="privacy-note"
-                  className="mt-4 text-[11px] leading-5 text-[#657084]"
+                  className="mt-4 text-[11px] leading-5 text-[#4a566a]"
                 >
                   Disclaimer: submitting this form records your interest only;
                   course availability, schedule, and final enrollment details

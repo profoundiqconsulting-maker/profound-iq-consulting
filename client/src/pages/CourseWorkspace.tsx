@@ -183,20 +183,20 @@ function IllustrationCard({
   };
   return (
     <article className={`border-l-2 p-3 ${toneClasses[tone]}`}>
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-[9px] font-black uppercase tracking-[.14em] text-[#c1cad7]">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[9px] font-black uppercase tracking-[.14em] text-muted-on-dark">
           {label}
         </p>
-        <div className="grid grid-cols-3 items-stretch gap-2 sm:flex sm:items-center sm:gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-1">
           {onZoom && (
             <button
               type="button"
               onClick={onZoom}
               aria-label={`Zoom ${label}`}
               title="Zoom artwork"
-              className="inline-flex min-h-8 items-center justify-center gap-1 rounded-sm px-1 text-center text-[9px] font-black uppercase tracking-[.1em] text-[#ead9ae] transition-colors hover:bg-white/10 hover:text-white"
+              className="inline-flex h-6 min-w-[3.2rem] items-center justify-center gap-0.5 rounded-sm px-1 text-center text-[7px] font-black uppercase tracking-[.05em] text-accent-on-dark transition-colors hover:bg-white/10 hover:text-white"
             >
-              <Expand size={13} /> Zoom
+              <Expand size={11} /> Zoom
             </button>
           )}
           {onDownloadStudySheet && (
@@ -205,9 +205,9 @@ function IllustrationCard({
               onClick={onDownloadStudySheet}
               aria-label={`Download ${label} study sheet`}
               title="Download study sheet"
-              className="inline-flex min-h-8 items-center justify-center gap-1 rounded-sm px-1 text-center text-[9px] font-black uppercase tracking-[.1em] text-[#ead9ae] transition-colors hover:bg-white/10 hover:text-white"
+              className="inline-flex h-6 min-w-[3.2rem] items-center justify-center gap-0.5 rounded-sm px-1 text-center text-[7px] font-black uppercase tracking-[.05em] text-accent-on-dark transition-colors hover:bg-white/10 hover:text-white"
             >
-              <Download size={13} /> Sheet
+              <Download size={11} /> Sheet
             </button>
           )}
           {onToggleBookmark && (
@@ -218,9 +218,9 @@ function IllustrationCard({
                 bookmarked ? `Remove ${label} bookmark` : `Bookmark ${label}`
               }
               title={bookmarked ? "Remove bookmark" : "Save illustration"}
-              className="inline-flex min-h-8 items-center justify-center gap-1 rounded-sm px-1 text-center text-[9px] font-black uppercase tracking-[.1em] text-[#ead9ae] transition-colors hover:bg-white/10 hover:text-white"
+              className="inline-flex h-6 min-w-[3.2rem] items-center justify-center gap-0.5 rounded-sm px-1 text-center text-[7px] font-black uppercase tracking-[.05em] text-accent-on-dark transition-colors hover:bg-white/10 hover:text-white"
             >
-              <Bookmark size={13} fill={bookmarked ? "currentColor" : "none"} />{" "}
+              <Bookmark size={11} fill={bookmarked ? "currentColor" : "none"} />{" "}
               {bookmarked ? "Saved" : "Save"}
             </button>
           )}
@@ -290,7 +290,7 @@ export default function CourseWorkspace() {
   if (!course)
     return (
       <div className="min-h-screen bg-[#f7f3e8] p-8 text-[#16243d]">
-        <p className="eyebrow text-[#a27e2e]">Course not found</p>
+        <p className="eyebrow text-[#5d4613]">Course not found</p>
         <Link
           href="/#courses"
           className="mt-5 inline-flex border-b border-[#16243d] pb-1 text-sm"
@@ -316,12 +316,12 @@ function CourseWorkspaceContent({ course }: { course: CourseDefinition }) {
         <main className="container grid min-h-[70vh] place-items-center py-16">
           <div className="text-center">
             <Loader2
-              className="mx-auto animate-spin text-[#a27e2e]"
+              className="mx-auto animate-spin text-[#5d4613]"
               size={32}
             />
-            <p className="eyebrow mt-5 text-[#a27e2e]">Secure course access</p>
+            <p className="eyebrow mt-5 text-[#5d4613]">Secure course access</p>
             <h1 className="display mt-3 text-4xl">Checking your workspace.</h1>
-            <p className="mt-3 text-sm text-[#657084]">
+            <p className="mt-3 text-sm text-muted-foreground">
               Your lessons remain protected while we confirm your signed-in
               session.
             </p>
@@ -496,10 +496,10 @@ function FirstStageCheckout({ course }: { course: CourseDefinition }) {
       onSubmit={submit}
       className="mt-6 max-w-xl border border-white/15 bg-white/5 p-5 sm:p-6"
     >
-      <p className="text-xs font-black uppercase tracking-[.14em] text-[#c9a34e]">
+      <p className="text-xs font-black uppercase tracking-[.14em] text-gold-on-light">
         First step · unlock Module 1
       </p>
-      <p className="mt-2 text-sm leading-6 text-[#c1cad7]">
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">
         Create or refresh your enrollment, then pay the first staged installment
         of{" "}
         <strong className="text-[#f7f3e8]">
@@ -508,28 +508,28 @@ function FirstStageCheckout({ course }: { course: CourseDefinition }) {
         through Paystack. Lesson access opens only after payment verification.
       </p>
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        <label className="grid gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#c1cad7]">
+        <label className="grid gap-2 text-[10px] font-black uppercase tracking-[.12em] text-muted-foreground">
           {enrollmentCopy.yourName}
           <input
             required
             minLength={2}
             value={name}
             onChange={event => setName(event.target.value)}
-            className="border border-white/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none focus:border-[#c9a34e]"
+            className="border border-white/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
           />
         </label>
-        <label className="grid gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#c1cad7]">
+        <label className="grid gap-2 text-[10px] font-black uppercase tracking-[.12em] text-muted-foreground">
           {enrollmentCopy.emailAddress}
           <input
             required
             type="email"
             value={email}
             onChange={event => setEmail(event.target.value)}
-            className="border border-white/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none focus:border-[#c9a34e]"
+            className="border border-white/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
           />
         </label>
       </div>
-      <label className="mt-4 flex items-start gap-3 text-xs leading-5 text-[#c1cad7]">
+      <label className="mt-4 flex items-start gap-3 text-xs leading-5 text-muted-foreground">
         <input
           type="checkbox"
           required
@@ -561,13 +561,13 @@ function FirstStageCheckout({ course }: { course: CourseDefinition }) {
           <button
             type="button"
             onClick={() => setMockOpen(open => !open)}
-            className="text-[10px] font-black uppercase tracking-[.13em] text-[#c9a34e] underline underline-offset-4"
+            className="text-[10px] font-black uppercase tracking-[.13em] text-gold-on-light underline underline-offset-4"
           >
             {t("mockCheckout")}
           </button>
           {mockOpen && (
             <div className="mt-3 border border-[#c9a34e]/50 bg-[#101d35] p-4">
-              <p className="text-xs leading-5 text-[#c1cad7]">
+              <p className="text-xs leading-5 text-muted-on-dark">
                 {t("mockCheckoutDescription")}
               </p>
               <button
@@ -622,7 +622,7 @@ function FirstStageCheckout({ course }: { course: CourseDefinition }) {
                     );
                   }}
                   disabled={pending}
-                  className="mt-3 text-[10px] font-black uppercase tracking-[.12em] text-[#c1cad7] underline underline-offset-4 disabled:opacity-60"
+                  className="mt-3 text-[10px] font-black uppercase tracking-[.12em] text-muted-foreground underline underline-offset-4 disabled:opacity-60"
                 >
                   Reset mock payments
                 </button>
@@ -694,17 +694,17 @@ function CourseAccessGate({
         <div className="mx-auto max-w-4xl">
           <Link
             href="/courses"
-            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]"
+            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#5d4613]"
           >
             <ArrowLeft size={14} /> {t("courses")}
           </Link>
-          <p className="eyebrow mt-10 text-[#a27e2e]">
+          <p className="eyebrow mt-10 text-[#5d4613]">
             Course highlights · {course.duration}
           </p>
           <h1 className="display mt-4 max-w-3xl text-5xl leading-[.95] tracking-[-.045em] sm:text-7xl">
             {course.title}
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-[#4a566a]">
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-[#16243d]">
             {course.description}
           </p>
           <CourseShareActions
@@ -713,21 +713,21 @@ function CourseAccessGate({
           />
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             <div className="border border-[#16243d]/15 bg-white/55 p-5">
-              <p className="eyebrow text-[#a27e2e]">For</p>
+              <p className="eyebrow text-[#5d4613]">For</p>
               <p className="mt-3 text-sm leading-6">{course.audience}</p>
             </div>
             <div className="border border-[#16243d]/15 bg-white/55 p-5">
-              <p className="eyebrow text-[#a27e2e]">Outcomes</p>
+              <p className="eyebrow text-[#5d4613]">Outcomes</p>
               <p className="mt-3 text-sm leading-6">
                 {course.outcomes.join(" · ")}
               </p>
             </div>
             <div className="border border-[#16243d]/15 bg-white/55 p-5">
-              <p className="eyebrow text-[#a27e2e]">Investment</p>
+              <p className="eyebrow text-[#5d4613]">Investment</p>
               <p className="mt-3 display text-2xl">
                 KES {course.priceKes.toLocaleString()}
               </p>
-              <p className="mt-1 text-xs text-[#657084]">
+              <p className="mt-1 text-xs text-muted-foreground">
                 4 staged payments · KES{" "}
                 {course.stageAmountsKes
                   .map(amount => amount.toLocaleString())
@@ -736,7 +736,7 @@ function CourseAccessGate({
             </div>
           </div>
           <div className="mt-8 border-l-2 border-[#c9a34e] bg-[#16243d] p-6 text-[#f7f3e8] sm:p-8">
-            <p className="eyebrow text-[#c9a34e]">
+            <p className="eyebrow text-accent-on-dark">
               Detailed lessons are protected
             </p>
             <h2 className="display mt-3 text-3xl">
@@ -744,7 +744,7 @@ function CourseAccessGate({
                 ? "Unlock the learning workspace."
                 : "Create your learner account to begin."}
             </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#c1cad7]">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
               {courseAccessReason({
                 isAuthenticated,
                 paidStages,
@@ -773,14 +773,14 @@ function CourseAccessGate({
               {isAuthenticated && (
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#c1cad7] underline underline-offset-4 hover:text-[#c9a34e]"
+                  className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.15em] text-muted-foreground underline underline-offset-4 hover:text-accent-on-dark"
                 >
                   {t("myWorkspace")} <ArrowUpRight size={14} />
                 </Link>
               )}
               <Link
                 href="/courses"
-                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#c1cad7] underline underline-offset-4 hover:text-[#c9a34e]"
+                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.15em] text-muted-foreground underline underline-offset-4 hover:text-accent-on-dark"
               >
                 {t("courses")} <ArrowUpRight size={14} />
               </Link>
@@ -1933,17 +1933,17 @@ function CourseWorkspaceUnlocked({
           <section>
             <Link
               href="/#courses"
-              className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]"
+              className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#5d4613]"
             >
               <ArrowLeft size={14} /> {t("courses")}
             </Link>
-            <p className="eyebrow mt-10 text-[#a27e2e]">
+            <p className="eyebrow mt-10 text-[#5d4613]">
               {t("myWorkspace")} · {course.duration}
             </p>
             <h1 className="display mt-4 max-w-3xl text-5xl leading-[.95] tracking-[-.045em] sm:text-7xl">
               {course.title}
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-[#4a566a]">
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-[#16243d]">
               {course.description}
             </p>
             {qualityControl && (
@@ -1951,7 +1951,7 @@ function CourseWorkspaceUnlocked({
                 role="status"
                 className="mt-5 border-l-2 border-[#c9a34e] bg-[#fff5cf] px-4 py-3 text-sm text-[#5d4613]"
               >
-                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
+                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#5d4613]">
                   Quality Control Mode
                 </p>
                 <p className="mt-1 leading-6">
@@ -1972,7 +1972,7 @@ function CourseWorkspaceUnlocked({
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[.14em] text-[#7d5e1e]">
+                  <p className="text-xs font-black uppercase tracking-[.14em] text-[#5d4613]">
                     Course progress
                   </p>
                   <h2
@@ -1982,13 +1982,13 @@ function CourseWorkspaceUnlocked({
                     Your learning signal
                   </h2>
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                <span className="text-[10px] font-black uppercase tracking-[.12em] text-muted-foreground">
                   Lessons + quizzes
                 </span>
               </div>
               <div className="mt-3 flex items-end justify-between gap-4">
                 <p className="display text-4xl">{courseProgress}%</p>
-                <p className="text-right text-xs leading-5 text-[#657084]">
+                <p className="text-right text-xs leading-5 text-muted-foreground">
                   {completedLessons} of 70 lessons
                   <br />
                   {passedQuizzes} of 10 quizzes passed
@@ -2007,7 +2007,7 @@ function CourseWorkspaceUnlocked({
                   style={{ width: `${courseProgress}%` }}
                 />
               </div>
-              <p className="mt-2 text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+              <p className="mt-2 text-[10px] font-black uppercase tracking-[.12em] text-muted-foreground">
                 {courseProgress}% complete · progress saves automatically
               </p>
             </section>
@@ -2049,7 +2049,7 @@ function CourseWorkspaceUnlocked({
                       <p className="mt-1 text-sm leading-6 text-[#315c4b]">
                         {notification.body}
                       </p>
-                      <p className="mt-2 text-[11px] text-[#657084]">
+                      <p className="mt-2 text-[11px] text-muted-foreground">
                         Open lesson response ·{" "}
                         {new Date(notification.createdAt).toLocaleDateString()}
                       </p>
@@ -2059,7 +2059,7 @@ function CourseWorkspaceUnlocked({
               </section>
             )}
             {unreadFeedbackNotifications.length > 3 && (
-              <p className="mt-3 text-xs text-[#657084]">
+              <p className="mt-3 text-xs text-muted-foreground">
                 {unreadFeedbackNotifications.length - 3} more feedback notes are
                 available across your lessons.
               </p>
@@ -2067,14 +2067,14 @@ function CourseWorkspaceUnlocked({
             <section className="mt-10 border border-[#c9a34e]/45 bg-[#fffaf0] p-5 sm:p-6">
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">
+                  <p className="eyebrow text-[#5d4613]">
                     Your module milestones
                   </p>
                   <h2 className="display mt-2 text-2xl">
                     Earn a badge for each complete module.
                   </h2>
                 </div>
-                <p className="text-xs text-[#657084]">
+                <p className="text-xs text-muted-foreground">
                   Finish 7 lessons and pass the 15-question quiz.
                 </p>
               </div>
@@ -2104,14 +2104,14 @@ function CourseWorkspaceUnlocked({
             <div className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
               <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#16243d]/15 pb-5">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">
+                  <p className="eyebrow text-[#5d4613]">
                     Module {moduleIndex + 1} of {course.modules.length}
                   </p>
                   <h2 className="display mt-2 text-3xl">
                     {currentModule.title}
                   </h2>
                 </div>
-                <span className="text-xs text-[#657084]">
+                <span className="text-xs text-muted-foreground">
                   {currentModule.promise}
                 </span>
               </div>
@@ -2129,7 +2129,7 @@ function CourseWorkspaceUnlocked({
                       }
                     }}
                     aria-disabled={quizOpen}
-                    className={`cursor-pointer border p-4 transition hover:border-[#c9a34e] ${quizOpen ? "cursor-not-allowed opacity-60" : ""} ${progress.lessons.includes(lesson.id) ? "border-[#c9a34e] bg-[#fffaf0]" : "border-[#16243d]/10 bg-[#f7f3e8]"}`}
+                    className={`cursor-pointer border p-4 transition hover:border-[#c9a34e] hover:shadow-md ${quizOpen ? "cursor-not-allowed opacity-60" : ""} ${progress.lessons.includes(lesson.id) ? "border-[#c9a34e] bg-[#fffaf0]" : "border-[#16243d]/10 bg-[#f7f3e8]"}`}
                   >
                     <label className="flex cursor-pointer items-start gap-3">
                       <input
@@ -2144,14 +2144,14 @@ function CourseWorkspaceUnlocked({
                         className="mt-1 accent-[#a27e2e] disabled:cursor-not-allowed disabled:opacity-40"
                       />
                       <span>
-                        <span className="block text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                        <span className="block text-[10px] font-black uppercase tracking-[.12em] text-[#5d4613]">
                           Lesson {index + 1}
                         </span>
                         <span className="mt-1 block text-sm font-bold">
                           {lesson.title}
                         </span>
                         {!moduleLocked && (
-                          <span className="mt-2 block text-xs leading-5 text-[#657084]">
+                          <span className="mt-2 block text-xs leading-5 text-muted-foreground">
                             {lesson.summary} {lesson.outcome}
                           </span>
                         )}
@@ -2163,13 +2163,13 @@ function CourseWorkspaceUnlocked({
               {isModuleReady && !moduleLocked && (
                 <div className="mt-6 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-[#f7f3e8]">
                   <div className="flex items-start gap-3">
-                    <Sparkles size={18} className="mt-0.5 text-[#c9a34e]" />
+                    <Sparkles size={18} className="mt-0.5 text-accent-on-dark" />
                     <div>
                       <p className="font-bold">{lessonCopy.quizReady}</p>
-                      <p className="mt-1 text-sm leading-6 text-[#c1cad7]">
-                        {lessonCopy.quizReadyDescription} {COURSE_PASS_MARK}%
-                        pass mark; unlimited retries are available.
-                      </p>
+                       <p className="mt-1 text-sm leading-6 text-muted-on-dark">
+                         {lessonCopy.quizReadyDescription} {COURSE_PASS_MARK}%
+                         pass mark; unlimited retries are available.
+                       </p>
                       <Button
                         type="button"
                         onClick={openQuiz}
@@ -2203,7 +2203,7 @@ function CourseWorkspaceUnlocked({
               >
                 <ArrowLeft size={15} /> {assessmentCopy.previousModule}
               </Button>
-              <span className="text-xs text-[#657084]">
+              <span className="text-xs text-muted-foreground">
                 Progress saves automatically on this device.
               </span>
               <Button
@@ -2227,11 +2227,11 @@ function CourseWorkspaceUnlocked({
           </section>
           <aside className="space-y-5">
             <div className="border border-[#16243d]/15 bg-[#16243d] p-5 text-[#f7f3e8]">
-              <p className="eyebrow text-[#c9a34e]">{enrollmentCopy.payment}</p>
+              <p className="eyebrow text-accent-on-dark">{enrollmentCopy.payment}</p>
               <p className="display mt-3 text-3xl">
                 KES {course.priceKes.toLocaleString()}
               </p>
-              <p className="mt-2 text-sm leading-6 text-[#c1cad7]">
+              <p className="mt-2 text-sm leading-6 text-muted-on-dark">
                 Four staged payments of KES{" "}
                 {course.stageAmountsKes
                   .map(amount => amount.toLocaleString())
@@ -2245,12 +2245,12 @@ function CourseWorkspaceUnlocked({
                     className="flex items-center gap-3 text-xs"
                   >
                     <span
-                      className={`grid h-6 w-6 place-items-center rounded-full border ${stage.complete ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : "border-[#c1cad7]/40 text-[#c1cad7]"}`}
+                      className={`grid h-6 w-6 place-items-center rounded-full border ${stage.complete ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : "border-[#c1cad7]/40 text-muted-foreground"}`}
                     >
                       {stage.complete ? <CheckCircle2 size={14} /> : index + 1}
                     </span>
-                    <span className="flex-1 text-[#c1cad7]">{stage.label}</span>
-                    <span className="font-bold text-[#c9a34e]">
+                    <span className="flex-1 text-muted-foreground">{stage.label}</span>
+                    <span className="font-bold text-accent-on-dark">
                       {stage.complete
                         ? accessOverride
                           ? "Bypassed"
@@ -2279,16 +2279,16 @@ function CourseWorkspaceUnlocked({
                     : `Pay KES ${(course.stageAmountsKes[Math.min(3, progress.stageCount)] ?? course.stageAmountsKes[0] ?? 0).toLocaleString()} · stage ${Math.min(4, progress.stageCount + 1)} of 4`}
                 </Button>
               )}
-              <p className="mt-3 text-[10px] leading-4 text-[#8f9db3]">
+              <p className="mt-3 text-[10px] leading-4 text-muted-foreground">
                 Payment verification and stage unlocking are handled securely
                 before access is granted.
               </p>
             </div>
             <div className="border-l-2 border-[#c9a34e] bg-white/60 p-5">
-              <p className="eyebrow text-[#a27e2e]">
+              <p className="eyebrow text-[#5d4613]">
                 {enrollmentCopy.certificate}
               </p>
-              <p className="mt-2 text-sm leading-6 text-[#657084]">
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 After all modules and quizzes are passed, request your branded
                 certificate. Quality Control Mode can generate a review
                 certificate without payment or completion blockers. It will be
@@ -2322,7 +2322,7 @@ function CourseWorkspaceUnlocked({
               >
                 Share completion
               </Button>
-              <label className="mt-3 block text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+              <label className="mt-3 block text-[10px] font-black uppercase tracking-[.12em] text-muted-foreground">
                 Share message
                 <textarea
                   value={certificateShareMessage}
@@ -2450,7 +2450,7 @@ function CourseWorkspaceUnlocked({
                     ))}
                 </div>
               ) : (
-                <p className="mt-3 text-xs leading-5 text-[#657084]">
+                <p className="mt-3 text-xs leading-5 text-muted-foreground">
                   Use Save on any lesson illustration to build your collection.
                 </p>
               )}
@@ -2460,7 +2460,7 @@ function CourseWorkspaceUnlocked({
               {course.outcomes.map(outcome => (
                 <p
                   key={outcome}
-                  className="mt-3 border-l border-[#c9a34e] pl-3 text-xs leading-5 text-[#657084]"
+                  className="mt-3 border-l border-[#c9a34e] pl-3 text-xs leading-5 text-muted-foreground"
                 >
                   {outcome}
                 </p>
@@ -2477,23 +2477,23 @@ function CourseWorkspaceUnlocked({
             aria-labelledby="payment-required-title"
             className="w-full max-w-lg border border-[#c9a34e]/70 bg-[#f7f3e8] p-6 text-[#16243d] shadow-2xl sm:p-8"
           >
-            <p className="eyebrow text-[#a27e2e]">Payment required</p>
+            <p className="eyebrow text-[#5d4613]">Payment required</p>
             <h2 id="payment-required-title" className="display mt-3 text-3xl">
               Unlock the next learning stage.
             </h2>
-            <p className="mt-3 text-sm leading-6 text-[#4a566a]">
+            <p className="mt-3 text-sm leading-6 text-[#16243d]">
               This lesson is protected until the matching installment is
               verified. Your existing progress remains safe.
             </p>
             <div className="mt-6 border-l-2 border-[#c9a34e] bg-white/60 p-4">
-              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#5d4613]">
                 Required installment
               </p>
               <p className="mt-2 text-lg font-bold">
                 Stage {paymentRequiredStage} ·{" "}
                 {stageLabels[paymentRequiredStage - 1] ?? "Course access"}
               </p>
-              <p className="mt-1 text-sm text-[#657084]">
+              <p className="mt-1 text-sm text-muted-foreground">
                 KES{" "}
                 {(
                   course.stageAmountsKes[paymentRequiredStage - 1] ??
@@ -2519,7 +2519,7 @@ function CourseWorkspaceUnlocked({
                     }}
                   />
                 </div>
-                <p className="mt-2 text-[11px] leading-5 text-[#657084]">
+                <p className="mt-2 text-[11px] leading-5 text-muted-foreground">
                   This payment unlocks access through the corresponding learning
                   stage.
                 </p>
@@ -2560,13 +2560,13 @@ function CourseWorkspaceUnlocked({
           >
             <div className="flex items-start justify-between gap-5 border-b border-[#16243d]/15 pb-6">
               <div>
-                <p className="eyebrow text-[#a27e2e]">
+                <p className="eyebrow text-[#5d4613]">
                   Interactive lesson · {activeLesson.durationMinutes} minutes
                 </p>
                 <h2 id="lesson-player-title" className="display mt-3 text-4xl">
                   {activeLesson.title}
                 </h2>
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-[#657084]">
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
                   {activeLesson.summary}
                 </p>
               </div>
@@ -2590,14 +2590,14 @@ function CourseWorkspaceUnlocked({
                 <div className="border border-[#c9a34e]/60 bg-[#16243d] p-4 text-[#f7f3e8]">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e]">
+                      <p className="text-[10px] font-black uppercase tracking-[.14em] text-accent-on-dark">
                         {enrollmentCopy.details} · 30-minute study timer
                       </p>
-                      <p className="mt-1 text-xs leading-5 text-[#c1cad7]">
-                        {activeLessonTimerComplete
-                          ? "Time complete — the next lesson is unlocked."
-                          : "Stay in this lesson until the timer reaches zero."}
-                      </p>
+                       <p className="mt-1 text-xs leading-5 text-muted-on-dark">
+                         {activeLessonTimerComplete
+                           ? "Time complete — the next lesson is unlocked."
+                           : "Stay in this lesson until the timer reaches zero."}
+                       </p>
                     </div>
                     <span
                       role="timer"
@@ -2607,7 +2607,7 @@ function CourseWorkspaceUnlocked({
                           ? "Lesson timer complete"
                           : `${formatCountdown(activeLessonSecondsRemaining)} remaining`
                       }
-                      className="font-mono text-2xl font-bold text-[#c9a34e]"
+                      className="font-mono text-2xl font-bold text-accent-on-dark"
                     >
                       {activeLessonTimerComplete
                         ? "00:00"
@@ -2626,10 +2626,10 @@ function CourseWorkspaceUnlocked({
                 <div className="mt-6">
                   <div className="flex items-center justify-between gap-4">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+                      <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#5d4613]">
                         {assessmentCopy.lessonProgress}
                       </p>
-                      <p className="mt-1 text-xs text-[#657084]">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         {lessonStage < 1
                           ? "Orienting"
                           : lessonStage < 2
@@ -2642,7 +2642,7 @@ function CourseWorkspaceUnlocked({
                         minutes
                       </p>
                     </div>
-                    <span className="text-sm font-bold text-[#a27e2e]">
+                    <span className="text-sm font-bold text-[#5d4613]">
                       {Math.round((lessonStage / 3) * 100)}%
                     </span>
                   </div>
@@ -2661,13 +2661,13 @@ function CourseWorkspaceUnlocked({
                       {activeLesson.objectives.map(objective => (
                         <div
                           key={objective}
-                          className="border-l-2 border-[#c9a34e] bg-white/60 p-3 text-xs leading-5 text-[#4a566a]"
+                          className="border-l-2 border-[#c9a34e] bg-white/60 p-3 text-xs leading-5 text-[#16243d]"
                         >
                           {objective}
                         </div>
                       ))}
                     </div>
-                    <div className="mt-6 border-l-2 border-[#2f6f78] bg-white/60 p-4 text-sm leading-7 text-[#4a566a]">
+                    <div className="mt-6 border-l-2 border-[#2f6f78] bg-white/60 p-4 text-sm leading-7 text-[#16243d]">
                       <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#2f6f78]">
                         Deep-dive practice
                       </p>
@@ -2680,7 +2680,7 @@ function CourseWorkspaceUnlocked({
                           className="border-t border-[#16243d]/15 pt-5"
                         >
                           <div className="flex items-start justify-between gap-3">
-                            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+                            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#5d4613]">
                               {section.heading}
                             </p>
                             <button
@@ -2690,7 +2690,7 @@ function CourseWorkspaceUnlocked({
                                   `${activeLesson.id}:section:${sectionIndex}`
                                 )
                               }
-                              className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]"
+                               className="text-[10px] font-black uppercase tracking-[.1em] text-accent-on-dark"
                             >
                               {bookmarks.includes(
                                 `${activeLesson.id}:section:${sectionIndex}`
@@ -2699,11 +2699,11 @@ function CourseWorkspaceUnlocked({
                                 : assessmentCopy.saveForLater}
                             </button>
                           </div>
-                          <p className="mt-2 text-sm leading-7 text-[#4a566a]">
+                          <p className="mt-2 text-sm leading-7 text-[#16243d]">
                             {section.body}
                           </p>
                           {section.callout && (
-                            <p className="mt-3 border-l-2 border-[#c9a34e] bg-[#fffaf0] p-3 text-xs font-semibold leading-5 text-[#7d5e1e]">
+                            <p className="mt-3 border-l-2 border-[#c9a34e] bg-[#fffaf0] p-3 text-xs font-semibold leading-5 text-[#5d4613]">
                               {section.callout}
                             </p>
                           )}
@@ -2712,7 +2712,7 @@ function CourseWorkspaceUnlocked({
                     </div>
                     <div className="mt-7 border border-[#c9a34e]/60 bg-[#16243d] p-5 text-[#f7f3e8]">
                       <div className="flex items-start justify-between gap-3">
-                        <p className="eyebrow text-[#c9a34e]">
+                        <p className="eyebrow text-accent-on-dark">
                           Decision simulation
                         </p>
                         <button
@@ -2720,16 +2720,16 @@ function CourseWorkspaceUnlocked({
                           onClick={() =>
                             toggleBookmark(`${activeLesson.id}:simulation`)
                           }
-                          className="text-[10px] font-black uppercase tracking-[.1em] text-[#ead9ae]"
+                           className="text-[10px] font-black uppercase tracking-[.1em] text-accent-on-dark"
                         >
                           {bookmarks.includes(`${activeLesson.id}:simulation`)
                             ? assessmentCopy.saved
                             : assessmentCopy.saveForLater}
                         </button>
                       </div>
-                      <p className="mt-2 text-sm leading-6 text-[#c1cad7]">
-                        {activeLesson.simulation.prompt}
-                      </p>
+                       <p className="mt-2 text-sm leading-6 text-muted-on-dark">
+                         {activeLesson.simulation.prompt}
+                       </p>
                       <div className="mt-4 grid gap-2">
                         {activeLesson.simulation.options.map(
                           (option, index) => (
@@ -2740,7 +2740,7 @@ function CourseWorkspaceUnlocked({
                                 setSimulationChoice(index);
                                 setLessonStage(2);
                               }}
-                              className={`border p-3 text-left text-xs leading-5 ${simulationChoice === index ? "border-[#c9a34e] bg-[#c9a34e]/20" : "border-white/20 hover:border-[#c9a34e]"}`}
+                              className={`border p-3 text-left text-xs leading-5 ${simulationChoice === index ? "border-[#c9a34e] bg-[#c9a34e]/20" : "border-white/20 hover:border-[#c9a34e] hover:shadow-md"}`}
                             >
                               {option}
                             </button>
@@ -2748,16 +2748,16 @@ function CourseWorkspaceUnlocked({
                         )}
                       </div>
                       {simulationChoice !== null && (
-                        <p className="mt-4 text-xs leading-5 text-[#ead9ae]">
+                        <p className="mt-4 text-xs leading-5 text-accent-on-dark">
                           {activeLesson.simulation.feedback[simulationChoice]}
                         </p>
                       )}
                     </div>
                     <div className="mt-6 border border-[#16243d]/15 bg-white/60 p-5">
-                      <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+                      <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#5d4613]">
                         Reflection prompt
                       </p>
-                      <p className="mt-2 text-sm leading-6 text-[#4a566a]">
+                      <p className="mt-2 text-sm leading-6 text-[#16243d]">
                         {activeLesson.reflectionPrompt}
                       </p>
                       <div className="mt-4 flex flex-wrap gap-2 border border-[#16243d]/15 bg-[#f7f3e8] p-2">
@@ -2788,7 +2788,7 @@ function CourseWorkspaceUnlocked({
                           type="button"
                           onClick={() => void summarizeNotes()}
                           disabled={summarizeNotesMutation.isPending}
-                          className="border border-[#a27e2e] px-3 py-1 text-xs font-bold text-[#7d5e1e]"
+                          className="border border-[#a27e2e] px-3 py-1 text-xs font-bold text-[#5d4613]"
                         >
                           {summarizeNotesMutation.isPending
                             ? "Summarizing…"
@@ -2818,17 +2818,17 @@ function CourseWorkspaceUnlocked({
                       >
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div>
-                            <p className="eyebrow text-[#a27e2e]">
+                            <p className="eyebrow text-[#5d4613]">
                               Required learning responses
                             </p>
-                            <p className="mt-2 text-sm leading-6 text-[#4a566a]">
+                            <p className="mt-2 text-sm leading-6 text-[#16243d]">
                               Respond to every prompt before completing this
                               lesson. Your work saves as you type and can be
                               formatted for clearer thinking.
                             </p>
                           </div>
                           <span
-                            className={`text-xs font-bold ${lessonResponsesComplete ? "text-emerald-800" : "text-[#7d5e1e]"}`}
+                            className={`text-xs font-bold ${lessonResponsesComplete ? "text-emerald-800" : "text-[#5d4613]"}`}
                           >
                             {lessonResponsesComplete
                               ? "All responses saved"
@@ -2843,7 +2843,7 @@ function CourseWorkspaceUnlocked({
                           </span>
                           <span
                             aria-live="polite"
-                            className={`text-xs font-bold ${responseSaveStatus === "error" ? "text-red-800" : responseSaveStatus === "saved" ? "text-emerald-800" : "text-[#7d5e1e]"}`}
+                            className={`text-xs font-bold ${responseSaveStatus === "error" ? "text-red-800" : responseSaveStatus === "saved" ? "text-emerald-800" : "text-[#5d4613]"}`}
                           >
                             {responseSaveStatus === "saving"
                               ? assessmentCopy.saving
@@ -2866,7 +2866,7 @@ function CourseWorkspaceUnlocked({
                                   htmlFor={`response-${task.id}`}
                                 >
                                   {task.prompt}
-                                  <span className="ml-1 text-[#a27e2e]">*</span>
+                                  <span className="ml-1 text-[#5d4613]">*</span>
                                 </label>
                                 <div className="mt-2 flex flex-wrap gap-2 border border-b-0 border-[#16243d]/20 bg-white/70 p-2">
                                   <button
@@ -2912,7 +2912,7 @@ function CourseWorkspaceUnlocked({
                                     setLessonStage(3);
                                   }}
                                   data-placeholder={task.placeholder}
-                                  className="min-h-24 w-full border border-[#16243d]/20 bg-[#f7f3e8] p-3 text-sm leading-6 outline-none empty:before:text-[#657084] empty:before:content-[attr(data-placeholder)] focus:border-[#c9a34e]"
+                                  className="min-h-24 w-full border border-[#16243d]/20 bg-[#f7f3e8] p-3 text-sm leading-6 outline-none empty:before:text-muted-foreground empty:before:content-[attr(data-placeholder)] focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
                                 ></div>
                                 {review?.status === "reviewed" && (
                                   <div className="mt-3 border-l-2 border-[#2f6f78] bg-[#edf4ee] p-3 text-sm leading-6 text-[#315c4b]">
@@ -2922,7 +2922,7 @@ function CourseWorkspaceUnlocked({
                                     <p className="mt-1 whitespace-pre-wrap">
                                       {review.feedback}
                                     </p>
-                                    <p className="mt-2 text-[11px] text-[#657084]">
+                                    <p className="mt-2 text-[11px] text-muted-foreground">
                                       Reviewed{" "}
                                       {new Date(
                                         review.updatedAt
@@ -2948,12 +2948,12 @@ function CourseWorkspaceUnlocked({
                           setLessonStage(3);
                         }}
                         data-placeholder="Write a brief field note for yourself…"
-                        className="mt-0 min-h-28 w-full border border-t-0 border-[#16243d]/20 bg-[#f7f3e8] p-3 text-sm outline-none empty:before:text-[#657084] empty:before:content-[attr(data-placeholder)] focus:border-[#c9a34e]"
+                        className="mt-0 min-h-28 w-full border border-t-0 border-[#16243d]/20 bg-[#f7f3e8] p-3 text-sm outline-none empty:before:text-muted-foreground empty:before:content-[attr(data-placeholder)] focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
                       />
                       {studyAid && (
                         <div className="mt-5 border-l-2 border-[#c9a34e] bg-[#fffaf0] p-4">
                           <div className="flex items-center justify-between gap-3">
-                            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
+                            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#5d4613]">
                               AI{" "}
                               {studyAid.mode === "quiz"
                                 ? "practice quiz"
@@ -2962,12 +2962,12 @@ function CourseWorkspaceUnlocked({
                             <button
                               type="button"
                               onClick={() => setStudyAid(null)}
-                              className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]"
+                              className="text-[10px] font-black uppercase tracking-[.1em] text-muted-foreground"
                             >
                               Close
                             </button>
                           </div>
-                          <p className="mt-3 whitespace-pre-wrap text-xs leading-6 text-[#4a566a]">
+                          <p className="mt-3 whitespace-pre-wrap text-xs leading-6 text-[#16243d]">
                             {studyAid.content}
                           </p>
                         </div>
@@ -2977,11 +2977,11 @@ function CourseWorkspaceUnlocked({
                   <aside className="h-fit border border-[#c9a34e]/60 bg-[#101d35] p-5 text-[#f7f3e8]">
                     <div className="grid h-40 place-items-center border border-[#c9a34e]/40 bg-gradient-to-br from-[#c9a34e]/30 via-[#2f6f78]/20 to-[#8b4f63]/30">
                       <div className="text-center">
-                        <p className="text-[10px] font-black uppercase tracking-[.16em] text-[#c9a34e]">
+                        <p className="text-[10px] font-black uppercase tracking-[.16em] text-accent-on-dark">
                           {activeLesson.illustration.label}
                         </p>
                         <div className="mx-auto mt-4 h-14 w-14 rotate-45 border border-[#c9a34e]" />
-                        <p className="mt-4 text-xs text-[#c1cad7]">
+                        <p className="mt-4 text-xs text-muted-on-dark">
                           {activeLesson.illustration.caption}
                         </p>
                       </div>
@@ -3098,7 +3098,7 @@ function CourseWorkspaceUnlocked({
                       <h3 className="display mt-2 text-2xl text-[#16243d]">
                         Turn the story into a lived response.
                       </h3>
-                      <p className="mt-2 text-sm leading-6 text-[#4a566a]">
+                      <p className="mt-2 text-sm leading-6 text-[#16243d]">
                         {activeLesson.illustration.experientialQuestion}
                       </p>
                       <div className="mt-4 grid gap-2">
@@ -3115,7 +3115,7 @@ function CourseWorkspaceUnlocked({
                                 );
                                 setLessonStage(2);
                               }}
-                              className={`border p-3 text-left text-xs leading-5 transition ${experientialChoice === index ? "border-[#8b4f63] bg-[#8b4f63]/10 text-[#16243d]" : "border-[#16243d]/15 bg-white/70 hover:border-[#8b4f63]"}`}
+                               className={`border p-3 text-left text-xs leading-5 transition ${experientialChoice === index ? "border-[#8b4f63] bg-[#fff0f3] text-[#8b4f63]" : "border-[#16243d]/15 bg-white/70 hover:border-[#8b4f63] hover:bg-[#8b4f63]/5"}`}
                             >
                               <span className="mr-2 font-black text-[#8b4f63]">
                                 {String.fromCharCode(65 + index)}.
@@ -3126,7 +3126,7 @@ function CourseWorkspaceUnlocked({
                         )}
                       </div>
                       {experientialChoice !== null && (
-                        <p className="mt-3 border-l-2 border-[#8b4f63] pl-3 text-xs leading-5 text-[#4a566a]">
+                        <p className="mt-3 border-l-2 border-[#8b4f63] pl-3 text-xs leading-5 text-[#16243d]">
                           {
                             activeLesson.illustration.experientialFeedback[
                               experientialChoice
@@ -3134,7 +3134,7 @@ function CourseWorkspaceUnlocked({
                           }
                         </p>
                       )}
-                      <p className="mt-5 text-sm leading-6 text-[#4a566a]">
+                      <p className="mt-5 text-sm leading-6 text-[#16243d]">
                         {activeLesson.illustration.experientialReflectionPrompt}
                       </p>
                       <div
@@ -3153,7 +3153,7 @@ function CourseWorkspaceUnlocked({
                         className="mt-3 min-h-24 border border-[#16243d]/15 bg-white px-3 py-3 text-sm leading-6 outline-none focus:border-[#8b4f63]"
                       />
                     </section>
-                    <p className="mt-4 text-xs leading-5 text-[#c1cad7]">
+                    <p className="mt-4 text-xs leading-5 text-muted-on-dark">
                       Work in one uninterrupted 30-minute block: orient,
                       practise, respond, reflect, and record your next action.
                     </p>
@@ -3161,7 +3161,7 @@ function CourseWorkspaceUnlocked({
                 </div>
                 <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[#16243d]/15 pt-6">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-xs text-[#657084]">
+                    <p className="text-xs text-muted-foreground">
                       Complete the lesson after reviewing the example,
                       simulation, and all required responses.
                     </p>
@@ -3222,19 +3222,19 @@ function CourseWorkspaceUnlocked({
           >
             <div className="flex items-start justify-between gap-5">
               <div>
-                <p className="eyebrow text-[#a27e2e]">
+                <p className="eyebrow text-[#5d4613]">
                   Module quiz · 15 questions
                 </p>
                 <h2 id="course-quiz-title" className="display mt-3 text-4xl">
                   Show your understanding.
                 </h2>
-                <p className="mt-3 text-sm text-[#657084]">
+                <p className="mt-3 text-sm text-muted-foreground">
                   50% is the pass mark. You can repeat this quiz as many times
                   as needed.
                 </p>
                 <div
                   role="status"
-                  className="mt-4 flex items-center gap-2 border border-[#c9a34e]/50 bg-[#ead9ae]/35 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]"
+                  className="mt-4 flex items-center gap-2 border border-[#c9a34e]/60 bg-[#ead9ae]/40 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#5d4613]"
                 >
                   <Sparkles size={14} /> New randomized attempt · #
                   {quizAttemptNumber}
@@ -3258,7 +3258,7 @@ function CourseWorkspaceUnlocked({
                   <legend className="text-sm font-bold">
                     {index + 1}. {question.prompt}
                   </legend>
-                  <p className="mt-1 text-[10px] uppercase tracking-[.12em] text-[#a27e2e]">
+                  <p className="mt-1 text-[10px] uppercase tracking-[.12em] text-[#5d4613]">
                     Aligned lesson: {question.sourceLessonTitle}
                   </p>
                   <div className="mt-3 grid gap-2">
@@ -3292,12 +3292,12 @@ function CourseWorkspaceUnlocked({
               >
                 <div className="flex flex-wrap items-end justify-between gap-3">
                   <div>
-                    <p className="eyebrow text-[#a27e2e]">Learning review</p>
+                    <p className="eyebrow text-[#5d4613]">Learning review</p>
                     <h3 className="display mt-2 text-2xl">
                       {quizResult.score}% · {quizResult.correct}/
                       {currentModule.quiz.length} correct
                     </h3>
-                    <p className="mt-2 text-sm text-[#657084]">
+                    <p className="mt-2 text-sm text-muted-foreground">
                       Read each explanation, then try another randomized attempt
                       whenever you are ready.
                     </p>
@@ -3350,10 +3350,10 @@ function CourseWorkspaceUnlocked({
                                 {question.options[question.correctOption]}
                               </p>
                             )}
-                            <p className="mt-2 text-xs leading-5 text-[#4a566a]">
+                            <p className="mt-2 text-xs leading-5 text-[#16243d]">
                               {explanation}
                             </p>
-                            <p className="mt-2 border-t border-current/10 pt-2 text-xs leading-5 text-[#657084]">
+                            <p className="mt-2 border-t border-current/10 pt-2 text-xs leading-5 text-muted-foreground">
                               Lesson connection: {question.explanation}
                             </p>
                           </div>
@@ -3395,7 +3395,7 @@ function CourseWorkspaceUnlocked({
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="eyebrow text-[#a27e2e]">
+                <p className="eyebrow text-[#5d4613]">
                   {enrollmentCopy.payment} · {enrollmentCopy.details} 01
                 </p>
                 <h2
@@ -3409,12 +3409,12 @@ function CourseWorkspaceUnlocked({
                 type="button"
                 aria-label={enrollmentCopy.close + " checkout details"}
                 onClick={() => setIdentityOpen(false)}
-                className="text-xs font-black uppercase tracking-[.12em] text-[#657084]"
+                className="text-xs font-black uppercase tracking-[.12em] text-muted-foreground"
               >
                 Close
               </button>
             </div>
-            <p className="mt-4 text-sm leading-6 text-[#4a566a]">
+            <p className="mt-4 text-sm leading-6 text-[#16243d]">
               These details will personalize your payment receipt, course
               certificate, and completion emails.
             </p>
@@ -3482,7 +3482,7 @@ function CourseWorkspaceUnlocked({
                   value={identityName}
                   onChange={event => setIdentityName(event.target.value)}
                   autoComplete="name"
-                  className="mt-2 w-full border-b border-[#16243d]/30 bg-transparent py-3 text-base outline-none focus:border-[#c9a34e]"
+                  className="mt-2 w-full border-b border-[#16243d]/30 bg-transparent py-3 text-base outline-none focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
                 />
               </label>
               <label className="block text-xs font-black uppercase tracking-[.14em]">
@@ -3493,15 +3493,15 @@ function CourseWorkspaceUnlocked({
                   value={identityEmail}
                   onChange={event => setIdentityEmail(event.target.value)}
                   autoComplete="email"
-                  className="mt-2 w-full border-b border-[#16243d]/30 bg-transparent py-3 text-base outline-none focus:border-[#c9a34e]"
+                  className="mt-2 w-full border-b border-[#16243d]/30 bg-transparent py-3 text-base outline-none focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
                 />
               </label>
-              <p className="text-[11px] leading-5 text-[#657084]">
+              <p className="text-[11px] leading-5 text-muted-foreground">
                 Your email must be the address associated with this
                 authenticated account so payment and course records stay
                 together.
               </p>
-              <label className="flex items-start gap-3 text-[11px] leading-5 text-[#4a566a]">
+              <label className="flex items-start gap-3 text-[11px] leading-5 text-[#16243d]">
                 <input
                   type="checkbox"
                   checked={identityConsent}
@@ -3552,14 +3552,14 @@ function CourseWorkspaceUnlocked({
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="eyebrow text-[#c9a34e]">Certificate preview</p>
+                <p className="eyebrow text-accent-on-dark">Certificate preview</p>
                 <h2
                   id="certificate-print-preview-title"
                   className="display mt-2 text-2xl sm:text-3xl"
                 >
                   Check your print layout
                 </h2>
-                <p className="mt-2 text-sm leading-6 text-[#c1cad7]">
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   Review the branded certificate before printing. Choose the
                   paper size that matches your printer.
                 </p>
@@ -3580,7 +3580,7 @@ function CourseWorkspaceUnlocked({
               />
             </div>
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-              <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#c9a34e]">
+              <label className="text-[10px] font-black uppercase tracking-[.12em] text-accent-on-dark">
                 Paper size
                 <select
                   value={certificatePrintPageSize}
@@ -3623,7 +3623,7 @@ function CourseWorkspaceUnlocked({
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="eyebrow text-[#c9a34e]">
+                <p className="eyebrow text-accent-on-dark">
                   {zoomedIllustration.label}
                 </p>
                 <h2
@@ -3646,7 +3646,7 @@ function CourseWorkspaceUnlocked({
               alt={zoomedIllustration.visualAlt ?? zoomedIllustration.label}
               className="mt-5 max-h-[65vh] w-full object-contain"
             />
-            <p className="mt-4 max-w-3xl text-sm leading-6 text-[#c1cad7]">
+            <p className="mt-4 max-w-3xl text-sm leading-6 text-muted-foreground">
               {zoomedIllustration.text}
             </p>
             <div className="mt-5 flex flex-wrap gap-3">

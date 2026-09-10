@@ -51,10 +51,8 @@ export default function Auth() {
   const [phone, setPhone] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [trustDevice, setTrustDevice] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [inviteToken] = useState(
     () => new URLSearchParams(window.location.search).get("invite") ?? ""
   );
@@ -68,17 +66,6 @@ export default function Auth() {
       !requested.includes("\\")
       ? requested
       : "/dashboard";
-  });
-  const [socialOAuthError] = useState(() => {
-    const error = new URLSearchParams(window.location.search).get("error");
-    return [
-      "invalid_social_oauth_state",
-      "social_sign_in_failed",
-      "google_not_configured",
-      "linkedin_not_configured",
-    ].includes(error ?? "")
-      ? error
-      : null;
   });
   const [lockedUntil, setLockedUntil] = useState<number | null>(null);
   const [googleSignInPending, setGoogleSignInPending] = useState(false);
@@ -147,7 +134,7 @@ export default function Auth() {
       return login.mutate({
         identifier: identifier.trim(),
         password,
-        trustDevice: trustDevice || rememberMe,
+        trustDevice: true,
       });
     }
     if (mode === "forgot") {
@@ -233,15 +220,6 @@ export default function Auth() {
               </h2>
             </div>
           </div>
-          {socialOAuthError && (
-            <div
-              role="alert"
-              className="mt-6 border-l-2 border-red-600 bg-red-50 px-4 py-3 text-sm leading-6 text-red-900"
-            >
-              <p className="font-bold">Social sign-in could not be verified.</p>
-              <p>Start Google or LinkedIn sign-in again from this page.</p>
-            </div>
-          )}
           {loading ? (
             <p className="mt-8 text-sm text-[#657084]">{authCopy.checking}</p>
           ) : user ? (
@@ -319,7 +297,7 @@ export default function Auth() {
                         value={phone}
                         onChange={event => setPhone(event.target.value)}
                         autoComplete="tel"
-                        placeholder="+254â€¦"
+                         placeholder="+254..."
                         className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
                       />
                     </label>
@@ -392,39 +370,6 @@ export default function Auth() {
                       </div>
                     )}
                   </label>
-                )}
-                {mode === "login" && (
-                  <div className="space-y-3 border border-[#16243d]/10 bg-white/60 p-3">
-                    <label className="flex items-start gap-3 text-xs leading-5 text-[#4a566a]">
-                      <input
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={event => setRememberMe(event.target.checked)}
-                        className="mt-1 h-4 w-4 accent-[#a27e2e]"
-                      />{" "}
-                      <span>
-                        <strong className="text-[#16243d]">Remember me</strong>
-                        <br />
-                        Keep this account signed in across future visits on this
-                        device.
-                      </span>
-                    </label>
-                    <label className="flex items-start gap-3 text-xs leading-5 text-[#4a566a]">
-                      <input
-                        type="checkbox"
-                        checked={trustDevice}
-                        onChange={event => setTrustDevice(event.target.checked)}
-                        className="mt-1 h-4 w-4 accent-[#a27e2e]"
-                      />{" "}
-                      <span>
-                        <strong className="text-[#16243d]">
-                          Trust this device for one year
-                        </strong>
-                        <br />
-                        Only select this on a private device you control.
-                      </span>
-                    </label>
-                  </div>
                 )}
                 <button
                   disabled={pending || loginLocked}
@@ -515,7 +460,7 @@ export default function Auth() {
                         aria-hidden="true"
                       />
                     ) : null}
-                    {googleSignInPending ? "Opening Googleâ€¦" : "Google"}{" "}
+                    {googleSignInPending ? "Opening Google..." : "Google"}{" "}
                     {!googleSignInPending && <ArrowRight size={14} />}
                   </button>
                   <button
@@ -539,16 +484,9 @@ export default function Auth() {
                       className="animate-spin text-[#a27e2e]"
                       aria-hidden="true"
                     />{" "}
-                    Redirecting securely to Google. Keep this window openâ€¦
+                     Redirecting securely to Google. Keep this window open...
                   </p>
                 )}
-                <button
-                  type="button"
-                  onClick={() => startLogin(returnTo)}
-                  className="mt-2 inline-flex w-full items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#657084] underline-offset-4 hover:text-[#a27e2e] hover:underline"
-                >
-                  Continue with secure Manus OAuth <ArrowRight size={14} />
-                </button>
               </div>
             </>
           )}

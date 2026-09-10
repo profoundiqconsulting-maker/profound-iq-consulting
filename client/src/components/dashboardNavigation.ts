@@ -25,6 +25,7 @@ export type DashboardNavItem = {
     | "careerPath"
     | "careerPathReports"
     | "courses"
+    | "myWorkspace"
     | "enrolledCourses"
     | "myIllustrations"
     | "adminObservatory"
@@ -117,6 +118,14 @@ export const dashboardNavItems: DashboardNavItem[] = [
     path: "/courses",
     icon: BookOpen,
     group: "growth",
+  },
+  {
+    id: "my-workspaces",
+    labelKey: "myWorkspace",
+    fallbackLabel: "My Workspaces",
+    path: "/dashboard/my-workspaces",
+    icon: BookOpen,
+    group: "workspace",
   },
   {
     id: "dashboard-enrolled-courses",

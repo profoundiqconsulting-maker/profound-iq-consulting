@@ -113,7 +113,9 @@ import {
   upsertCourseActivePosition,
   createCourseCertificate,
   findPublicCourseCertificate,
+  getCourseCertificateByEnrollmentId,
   listCourseCertificatesForAdmin,
+  getCourseEnrollmentById,
   recordResetLinkRevocationAudit,
   getResetLinkRevocationAudits,
   updateUserExportPreferences,
@@ -3979,6 +3981,109 @@ export const appRouter = router({
           limit: input?.limit ?? 25,
         })
       ),
+    generateQcCertificate: adminProcedure
+      .input(z.object({ enrollmentId: z.number().int().positive() }))
+      .mutation(async ({ ctx, input }) => {
+        if (!isQualityControlAdmin(ctx.user)) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message:
+              "Only quality control administrators can generate QC certificates.",
+          });
+        }
+        const record = await getCourseEnrollmentById(input.enrollmentId);
+        if (!record) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Enrollment not found.",
+          });
+        }
+        const course = courseCatalog.find(
+          item => item.slug === record.courseSlug
+        );
+        if (!course) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Course not found.",
+          });
+        }
+        const existing = await getCourseCertificateByEnrollmentId(
+          input.enrollmentId
+        );
+        if (existing) {
+          return {
+            certificateNumber: existing.certificateNumber,
+            fileUrl: existing.fileUrl,
+            status: existing.status,
+          };
+        }
+        const certificateNumber = `PIQ-${new Date().getFullYear()}-${randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
+        const verificationUrl = `${PUBLIC_SITE_ORIGIN}/verify/certificate?certificate=${encodeURIComponent(certificateNumber)}`;
+        const certificateSettings = await getAdminCertificateSettings(
+          ENV.ownerOpenId || ctx.user.openId
+        );
+        const certificateSvg = renderCourseCertificateSvg({
+          recipientName: record.name,
+          recipientEmail: record.email,
+          courseTitle: course.title,
+          certificateNumber,
+          issuedOn: new Date(),
+          verificationUrl,
+          locale: "en",
+          trainerName: certificateSettings.trainerName,
+          trainerTitle: certificateSettings.trainerTitle,
+          signatureDataUri: certificateSettings.signatureDataUri,
+          customElements:
+            (
+              certificateSettings as typeof certificateSettings & {
+                customElements?: Record<string, string>;
+              }
+            ).customElements ?? undefined,
+          fieldLayout: certificateSettings.fieldLayout as
+            | Record<
+                string,
+                {
+                  x?: number;
+                  y?: number;
+                  width?: number;
+                  height?: number;
+                  visible?: boolean;
+                  text?: string;
+                }
+              >
+            | undefined,
+        });
+        const artifactHash = createHash("sha256")
+          .update(certificateSvg)
+          .digest("hex");
+        const uploaded = await storagePut(
+          `course-certificates/${certificateNumber}.svg`,
+          certificateSvg,
+          "image/svg+xml"
+        );
+        const certificate = await createCourseCertificate({
+          enrollmentId: input.enrollmentId,
+          recipientName: record.name,
+          courseTitle: course.title,
+          certificateNumber,
+          fileKey: uploaded.key,
+          fileUrl: uploaded.url,
+          artifactHash,
+        });
+        await sendCourseCertificateEmail({
+          recipientName: record.name,
+          email: record.email,
+          courseTitle: course.title,
+          certificateNumber,
+          certificateSvg,
+          locale: "en",
+        });
+        return {
+          certificateNumber: certificate?.certificateNumber,
+          fileUrl: certificate?.fileUrl,
+          status: certificate?.status,
+        };
+      }),
     setCourseAccessGrant: adminProcedure
       .input(
         z.object({

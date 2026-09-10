@@ -10,7 +10,7 @@ interface DashboardHeroProps {
   description?: string;
   actions?: React.ReactNode;
   badge?: { label: string; variant?: "default" | "secondary" | "outline" | "destructive" };
-  stats?: Array<{ label: string; value: string | number; trend?: { value: number; label: string } }>;
+  stats?: Array<{ label: string; value: string | number; trend?: { value: number; label: string }; icon?: React.ReactNode }>;
 }
 
 export function DashboardHero({

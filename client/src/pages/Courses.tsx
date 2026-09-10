@@ -453,28 +453,28 @@ export default function Courses() {
         <section className="container py-16 lg:py-24">
           <div className="mb-10 flex flex-col justify-between gap-5 border-b border-[#16243d]/15 pb-8 sm:flex-row sm:items-end">
             <div>
-              <p className="eyebrow text-[#a27e2e]">02 / SELECT YOUR PATH</p>
+              <p className="eyebrow text-[#7d5e1e]">02 / SELECT YOUR PATH</p>
               <h2 className="display mt-3 text-4xl sm:text-5xl">
                 Choose the next capability.
               </h2>
             </div>
-            <p className="max-w-sm text-sm leading-6 text-[#657084]">
-              Every course includes an applied curriculum, interactive lessons,
-              repeatable practice, and a clear completion path.
-            </p>
+<p className="max-w-sm text-sm leading-6 text-[#4a566a]">
+                Every course includes an applied curriculum, interactive lessons,
+                repeatable practice, and a clear completion path.
+              </p>
           </div>
           {liveCatalog.isLoading && (
-            <div className="flex items-center gap-3 border border-[#16243d]/15 p-5 text-sm text-[#657084]">
-              <Loader2 size={16} className="animate-spin text-[#a27e2e]" />{" "}
+            <div className="flex items-center gap-3 border border-[#16243d]/15 p-5 text-sm text-[#4a566a]">
+              <Loader2 size={16} className="animate-spin text-[#7d5e1e]" />{" "}
               Loading the current catalog…
             </div>
           )}
           {!liveCatalog.isLoading && !courses.length && (
-            <div className="border-l-2 border-[#c9a34e] bg-white/40 p-6 text-sm text-[#657084]">
+            <div className="border-l-2 border-[#c9a34e] bg-white/40 p-6 text-sm text-[#4a566a]">
               New courses are being prepared.{" "}
               <Link
                 href="/#contact"
-                className="font-bold text-[#a27e2e] underline"
+                className="font-bold text-[#7d5e1e] underline"
               >
                 Talk to the team
               </Link>{" "}
@@ -484,7 +484,7 @@ export default function Courses() {
           <div className="mb-8 grid gap-3 border border-[#16243d]/15 bg-white/55 p-4 sm:grid-cols-[1fr_220px] sm:items-center">
             <label className="relative block">
               <Search
-                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#a27e2e]"
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7d5e1e]"
                 aria-hidden="true"
               />
               <span className="sr-only">Search courses</span>
@@ -495,7 +495,7 @@ export default function Courses() {
                 className="w-full border border-[#16243d]/20 bg-[#f7f3e8] py-3 pl-10 pr-3 text-sm outline-none focus:border-[#c9a34e]"
               />
             </label>
-            <label className="text-xs font-black uppercase tracking-[.1em] text-[#657084]">
+            <label className="text-xs font-black uppercase tracking-[.1em] text-[#4a566a]">
               <span className="sr-only">Filter by category</span>
               <select
                 value={category}
@@ -509,7 +509,7 @@ export default function Courses() {
                 ))}
               </select>
             </label>
-            <label className="text-xs font-black uppercase tracking-[.1em] text-[#657084]">
+            <label className="text-xs font-black uppercase tracking-[.1em] text-[#4a566a]">
               <span className="sr-only">Filter by skill level</span>
               <select
                 value={skillLevel}
@@ -525,7 +525,7 @@ export default function Courses() {
                 ))}
               </select>
             </label>
-            <label className="text-xs font-black uppercase tracking-[.1em] text-[#657084]">
+            <label className="text-xs font-black uppercase tracking-[.1em] text-[#4a566a]">
               <span className="sr-only">Sort courses</span>
               <select
                 value={sortBy}
@@ -538,7 +538,7 @@ export default function Courses() {
                 <option value="price">Price: low to high</option>
               </select>
             </label>
-            <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[#657084] sm:col-span-2">
+            <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[#4a566a] sm:col-span-2">
               <p>
                 Showing {filteredCourses.length} of {courses.length} courses
               </p>
@@ -567,7 +567,7 @@ export default function Courses() {
           {!liveCatalog.isLoading &&
             courses.length > 0 &&
             !filteredCourses.length && (
-              <div className="mb-8 border-l-2 border-[#c9a34e] bg-[#fffaf0] p-6 text-sm leading-6 text-[#657084]">
+              <div className="mb-8 border-l-2 border-[#c9a34e] bg-[#fffaf0] p-6 text-sm leading-6 text-[#4a566a]">
                 No courses match that search. Try a broader term or reset the
                 filters.
                 <button
@@ -591,7 +591,7 @@ export default function Courses() {
                 className="border-t border-[#16243d]/20 py-7 transition-colors hover:border-[#c9a34e] lg:py-9"
               >
                 <div className="grid gap-7 lg:grid-cols-[64px_1fr_190px] lg:items-start">
-                  <span className="eyebrow text-[#a27e2e]">{course.index}</span>
+                  <span className="eyebrow text-[#7d5e1e]">{course.index}</span>
                   <div>
                     <img
                       src={course.coverImage}
@@ -603,17 +603,17 @@ export default function Courses() {
                       <h3 className="display text-3xl sm:text-4xl">
                         {course.title}
                       </h3>
-                      <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+                      <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                         {course.format}
                       </span>
-                      <span className="border border-[#16243d]/20 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#657084]">
+                      <span className="border border-[#16243d]/20 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#4a566a]">
                         {localizeCourseCategory(locale, course.category)}
                       </span>
                       <span className="border border-[#c9a34e]/60 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                         {localizeCourseCategory(locale, course.skillLevel)}
                       </span>
                       {course.isDatabaseItem && (
-                        <span className="border border-[#c9a34e]/60 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                        <span className="border border-[#c9a34e]/60 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                           New
                         </span>
                       )}
@@ -621,15 +621,15 @@ export default function Courses() {
                     <p className="mt-4 max-w-3xl text-base leading-7 text-[#4a566a]">
                       {course.body}
                     </p>
-                    <div className="mt-6 grid gap-4 text-xs text-[#657084] sm:grid-cols-3">
+                    <div className="mt-6 grid gap-4 text-xs text-[#4a566a] sm:grid-cols-3">
                       <div>
-                        <p className="font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                        <p className="font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                           For
                         </p>
                         <p className="mt-1 leading-5">{course.audience}</p>
                       </div>
                       <div>
-                        <p className="font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                        <p className="font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                           Outcomes
                         </p>
                         <p className="mt-1 leading-5">
@@ -637,7 +637,7 @@ export default function Courses() {
                         </p>
                       </div>
                       <div>
-                        <p className="font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                        <p className="font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                           Format
                         </p>
                         <p className="mt-1 leading-5">{course.duration}</p>
@@ -657,7 +657,7 @@ export default function Courses() {
                               <p className="text-xs font-bold">
                                 {module.title}
                               </p>
-                              <p className="mt-1 text-[11px] leading-5 text-[#657084]">
+                              <p className="mt-1 text-[11px] leading-5 text-[#4a566a]">
                                 {module.promise}
                               </p>
                             </div>
@@ -699,7 +699,7 @@ export default function Courses() {
                     <button
                       type="button"
                       onClick={() => setPreviewCourse(course)}
-                      className="mt-4 inline-flex items-center gap-2 border-b border-[#16243d]/25 pb-1 text-[10px] font-black uppercase tracking-[.12em] text-[#657084] hover:text-[#a27e2e]"
+                      className="mt-4 inline-flex items-center gap-2 border-b border-[#16243d]/25 pb-1 text-[10px] font-black uppercase tracking-[.12em] text-[#4a566a] hover:text-[#7d5e1e]"
                     >
                       <Eye size={13} /> Preview syllabus
                     </button>
@@ -710,7 +710,7 @@ export default function Courses() {
                         setSelectedCourse(course);
                         setSubmitted(false);
                       }}
-                      className="mt-4 inline-flex items-center gap-2 border-b border-[#a27e2e] pb-1 text-[10px] font-black uppercase tracking-[.15em] text-[#a27e2e]"
+                      className="mt-4 inline-flex items-center gap-2 border-b border-[#a27e2e] pb-1 text-[10px] font-black uppercase tracking-[.15em] text-[#7d5e1e]"
                     >
                       {t("enrollNow")} <ArrowUpRight size={14} />
                     </button>
@@ -720,7 +720,7 @@ export default function Courses() {
                           ? `/courses/${course.slug}?workspace=1`
                           : "/#contact"
                       }
-                      className="mt-4 flex items-center justify-end gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#657084] hover:text-[#a27e2e]"
+                      className="mt-4 flex items-center justify-end gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#4a566a] hover:text-[#7d5e1e]"
                     >
                       {course.modules.length
                         ? t("openSyllabus")
@@ -768,11 +768,11 @@ export default function Courses() {
           >
             <div className="flex items-start justify-between gap-6">
               <div>
-                <p className="eyebrow text-[#a27e2e]">COURSE FINDER</p>
+                <p className="eyebrow text-[#7d5e1e]">COURSE FINDER</p>
                 <h2 id="recommendation-title" className="display mt-3 text-4xl">
                   Find your next capability.
                 </h2>
-                <p className="mt-3 max-w-xl text-sm leading-6 text-[#657084]">
+                <p className="mt-3 max-w-xl text-sm leading-6 text-[#4a566a]">
                   Answer two quick questions and we’ll surface pathways that fit
                   your direction and current confidence.
                 </p>
@@ -787,7 +787,7 @@ export default function Courses() {
               </button>
             </div>
             <div className="mt-8 grid gap-5 sm:grid-cols-2">
-              <label className="text-xs font-black uppercase tracking-[.1em] text-[#657084]">
+              <label className="text-xs font-black uppercase tracking-[.1em] text-[#4a566a]">
                 Career direction
                 <select
                   value={careerGoal}
@@ -806,7 +806,7 @@ export default function Courses() {
                   <option value="personal">Personal development</option>
                 </select>
               </label>
-              <label className="text-xs font-black uppercase tracking-[.1em] text-[#657084]">
+              <label className="text-xs font-black uppercase tracking-[.1em] text-[#4a566a]">
                 Current skill level
                 <select
                   value={currentLevel}
@@ -830,7 +830,7 @@ export default function Courses() {
             <div className="mt-8 border-t border-[#16243d]/15 pt-6">
               <div className="flex items-end justify-between gap-4">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">YOUR SHORTLIST</p>
+                  <p className="eyebrow text-[#7d5e1e]">YOUR SHORTLIST</p>
                   <h3 className="display mt-2 text-3xl">
                     Start with these three.
                   </h3>
@@ -838,7 +838,7 @@ export default function Courses() {
                 <Compass className="text-[#c9a34e]" size={28} />
               </div>
               <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border border-[#16243d]/10 bg-white/60 p-4">
-                <p className="text-xs leading-5 text-[#657084]">
+                <p className="text-xs leading-5 text-[#4a566a]">
                   Save these answers to personalize future suggestions in your
                   workspace.
                 </p>
@@ -878,7 +878,7 @@ export default function Courses() {
                       <h4 className="display text-2xl leading-tight">
                         {course.title}
                       </h4>
-                      <p className="mt-1 text-xs leading-5 text-[#657084]">
+                      <p className="mt-1 text-xs leading-5 text-[#4a566a]">
                         {course.outcomes.slice(0, 2).join(" · ")}
                       </p>
                     </div>
@@ -888,7 +888,7 @@ export default function Courses() {
                         setPreviewCourse(course);
                         setRecommendOpen(false);
                       }}
-                      className="inline-flex shrink-0 items-center gap-2 border-b border-[#a27e2e] pb-1 text-[10px] font-black uppercase tracking-[.13em] text-[#a27e2e]"
+                      className="inline-flex shrink-0 items-center gap-2 border-b border-[#a27e2e] pb-1 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e]"
                     >
                       Preview <Eye size={13} />
                     </button>
@@ -921,7 +921,7 @@ export default function Courses() {
             <div className="p-6 sm:p-10">
               <div className="flex items-start justify-between gap-6">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">SYLLABUS PREVIEW</p>
+                  <p className="eyebrow text-[#7d5e1e]">SYLLABUS PREVIEW</p>
                   <h2
                     id="syllabus-preview-title"
                     className="display mt-3 text-4xl leading-tight"
@@ -929,13 +929,13 @@ export default function Courses() {
                     {previewCourse.title}
                   </h2>
                   <div className="mt-4 flex flex-wrap gap-2 text-[9px] font-black uppercase tracking-[.1em]">
-                    <span className="border border-[#16243d]/20 px-2 py-1 text-[#657084]">
+                    <span className="border border-[#16243d]/20 px-2 py-1 text-[#4a566a]">
                       {localizeCourseCategory(locale, previewCourse.category)}
                     </span>
                     <span className="border border-[#c9a34e]/60 px-2 py-1 text-[#7d5e1e]">
                       {localizeCourseCategory(locale, previewCourse.skillLevel)}
                     </span>
-                    <span className="border border-[#16243d]/20 px-2 py-1 text-[#657084]">
+                    <span className="border border-[#16243d]/20 px-2 py-1 text-[#4a566a]">
                       {previewCourse.duration}
                     </span>
                   </div>
@@ -954,7 +954,7 @@ export default function Courses() {
               </p>
               <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_280px]">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">
+                  <p className="eyebrow text-[#7d5e1e]">
                     FIRST SIX MODULE HIGHLIGHTS
                   </p>
                   <div className="mt-4 grid gap-3">
@@ -964,7 +964,7 @@ export default function Courses() {
                         className="border-l-2 border-[#c9a34e] pl-4"
                       >
                         <p className="text-sm font-bold">{module.title}</p>
-                        <p className="mt-1 text-xs leading-5 text-[#657084]">
+                        <p className="mt-1 text-xs leading-5 text-[#4a566a]">
                           {module.promise}
                         </p>
                       </div>
@@ -972,7 +972,7 @@ export default function Courses() {
                   </div>
                 </div>
                 <div className="border-t border-[#16243d]/15 pt-5 lg:border-l lg:border-t-0 lg:pl-6">
-                  <p className="eyebrow text-[#a27e2e]">OUTCOMES</p>
+                  <p className="eyebrow text-[#7d5e1e]">OUTCOMES</p>
                   <div className="mt-4 space-y-3 text-sm leading-5">
                     {previewCourse.outcomes.map(outcome => (
                       <p
@@ -1045,14 +1045,14 @@ export default function Courses() {
           >
             <div className="flex items-start justify-between gap-6">
               <div>
-                <p className="eyebrow text-[#a27e2e]">COURSE COMPARISON</p>
+                <p className="eyebrow text-[#7d5e1e]">COURSE COMPARISON</p>
                 <h2
                   id="course-comparison-title"
                   className="display mt-3 text-4xl"
                 >
                   Choose with confidence.
                 </h2>
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-[#657084]">
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-[#4a566a]">
                   Compare up to three pathways by the outcomes they build, the
                   time they require, and the staged investment.
                 </p>
@@ -1076,7 +1076,7 @@ export default function Courses() {
               </div>
             </div>
             {comparisonSlugs.length === 0 ? (
-              <div className="mt-8 border-l-2 border-[#c9a34e] bg-white/60 p-6 text-sm text-[#657084]">
+              <div className="mt-8 border-l-2 border-[#c9a34e] bg-white/60 p-6 text-sm text-[#4a566a]">
                 Select up to three courses using the Compare button on each
                 course card, then return here to review them side by side.
               </div>
@@ -1108,13 +1108,13 @@ export default function Courses() {
                             )
                           }
                           aria-label={`Remove ${course.title} from comparison`}
-                          className="text-[#657084] hover:text-[#a27e2e]"
+                          className="text-[#4a566a] hover:text-[#7d5e1e]"
                         >
                           <X size={15} />
                         </button>
                       </div>
                       <div className="mt-4 flex flex-wrap gap-2 text-[9px] font-black uppercase tracking-[.1em]">
-                        <span className="border border-[#16243d]/20 px-2 py-1 text-[#657084]">
+                        <span className="border border-[#16243d]/20 px-2 py-1 text-[#4a566a]">
                           {localizeCourseCategory(locale, course.category)}
                         </span>
                         <span className="border border-[#c9a34e]/60 px-2 py-1 text-[#7d5e1e]">
@@ -1123,24 +1123,24 @@ export default function Courses() {
                       </div>
                       <dl className="mt-5 space-y-4 text-sm">
                         <div>
-                          <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                          <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                             Duration
                           </dt>
                           <dd className="mt-1 leading-5">{course.duration}</dd>
                         </div>
                         <div>
-                          <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                          <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                             Investment
                           </dt>
                           <dd className="mt-1 leading-5">
                             {course.price}
-                            <span className="block text-xs text-[#657084]">
+                            <span className="block text-xs text-[#4a566a]">
                               {course.stagePlan}
                             </span>
                           </dd>
                         </div>
                         <div>
-                          <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                          <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                             Outcomes
                           </dt>
                           <dd className="mt-2 space-y-2">
@@ -1162,7 +1162,7 @@ export default function Courses() {
                             : "/#contact"
                         }
                         onClick={() => setComparisonOpen(false)}
-                        className="mt-6 inline-flex items-center gap-2 border-b border-[#a27e2e] pb-1 text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]"
+                        className="mt-6 inline-flex items-center gap-2 border-b border-[#a27e2e] pb-1 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]"
                       >
                         Explore pathway <Eye size={14} />
                       </Link>
@@ -1189,7 +1189,7 @@ export default function Courses() {
           >
             <div className="flex items-start justify-between gap-6">
               <div>
-                <p className="eyebrow text-[#a27e2e]">
+                <p className="eyebrow text-[#7d5e1e]">
                   {enrollmentCopy.enrollmentNextStep}
                 </p>
                 <h2
@@ -1245,7 +1245,7 @@ export default function Courses() {
               </div>
             ) : (
               <form onSubmit={submit} className="mt-8">
-                <div className="mb-7 grid grid-cols-3 gap-2 text-[9px] font-black uppercase tracking-[.12em] text-[#657084]">
+                <div className="mb-7 grid grid-cols-3 gap-2 text-[9px] font-black uppercase tracking-[.12em] text-[#4a566a]">
                   <span className="border-t-2 border-[#c9a34e] pt-2 text-[#7d5e1e]">{`01 ${enrollmentCopy.details}`}</span>
                   <span className="border-t-2 border-[#16243d]/20 pt-2">{`02 ${enrollmentCopy.payment}`}</span>
                   <span className="border-t-2 border-[#16243d]/20 pt-2">{`03 ${enrollmentCopy.access}`}</span>
@@ -1302,14 +1302,14 @@ export default function Courses() {
                   <p className="text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e]">
                     What happens next
                   </p>
-                  <p className="mt-2 text-[11px] leading-5 text-[#657084]">
+                  <p className="mt-2 text-[11px] leading-5 text-[#4a566a]">
                     Save your details, continue to the secure course workspace,
                     and complete the four staged payments shown for your
                     selected course. Your first payment unlocks the detailed
                     learning experience.
                   </p>
                 </div>
-                <p className="mt-5 text-[11px] leading-5 text-[#657084]">
+                <p className="mt-5 text-[11px] leading-5 text-[#4a566a]">
                   By submitting, you consent to Profound IQ Consulting using
                   your details to respond to this enrollment inquiry.
                   Availability and next steps will be confirmed by our team.

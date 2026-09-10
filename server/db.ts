@@ -6136,6 +6136,22 @@ export async function findPublicCourseCertificate(certificateNumber: string) {
   );
 }
 
+export async function getCourseCertificateByEnrollmentId(
+  enrollmentId: number
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return (
+    (
+      await db
+        .select()
+        .from(courseCertificates)
+        .where(eq(courseCertificates.enrollmentId, enrollmentId))
+        .limit(1)
+    )[0] ?? null
+  );
+}
+
 export async function listCourseCertificatesForAdmin(
   input: {
     courseSlug?: string;
