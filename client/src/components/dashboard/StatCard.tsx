@@ -28,19 +28,19 @@ export function StatCard({
 
   const content = (
     <Card
-      className={`border border-[#16243d]/15 dark:border-[#657084]/25 bg-white/90 dark:bg-[#16243d]/70 backdrop-blur-sm p-5 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 focus-within:shadow-md ${className}`}
+      className={`border border-border bg-card backdrop-blur-sm p-5 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 focus-within:shadow-md ${className}`}
     >
       <div className="flex items-center justify-between">
-        <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] dark:text-[#f7f3e8]">
+        <p className="text-[10px] font-black uppercase tracking-[.12em] text-foreground">
           {label}
         </p>
         {icon && (
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#c9a34e]/10 dark:bg-[#c9a34e]/20 text-accent dark:text-accent-on-dark">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
             {icon}
           </div>
         )}
       </div>
-      <p className="mt-3 text-3xl font-bold tracking-tight text-[#16243d] dark:text-[#f7f3e8]">
+      <p className="mt-3 text-3xl font-bold tracking-tight text-foreground">
         {value}
       </p>
       {trend && TrendIcon && (
@@ -51,7 +51,7 @@ export function StatCard({
                 ? "text-emerald-700 dark:text-emerald-400"
                 : trend.value < 0
                   ? "text-red-600 dark:text-red-400"
-                  : "text-foreground"
+                  : "text-muted-foreground"
             }`}
           />
           <span
@@ -60,7 +60,7 @@ export function StatCard({
                 ? "text-emerald-700 dark:text-emerald-400"
                 : trend.value < 0
                   ? "text-red-700 dark:text-red-400"
-                  : "text-foreground"
+                  : "text-muted-foreground"
             }
           >
             {trend.value > 0 ? "+" : ""}
@@ -75,7 +75,7 @@ export function StatCard({
     return (
       <a
         href={href}
-        className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a34e] focus-visible:ring-offset-2 rounded-xl"
+        className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl"
       >
         {content}
       </a>

@@ -1,4 +1,4 @@
-﻿import DashboardLayout from "@/components/DashboardLayout";
+import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
 import { useMemo } from "react";
 import {
@@ -28,7 +28,7 @@ export default function DashboardCareerPath() {
       total: reports.length,
       latest: reports[0]?.createdAt
         ? new Date(reports[0].createdAt).toLocaleDateString()
-        : "—",
+        : "�",
     };
   }, [history.data]);
 
@@ -45,7 +45,7 @@ export default function DashboardCareerPath() {
   if (history.isError) {
     return (
       <DashboardLayout role="user" title="CareerPath Reports">
-        <div className="border-l-2 border-red-700 bg-red-50 p-5 text-sm text-red-900">
+        <div className="border-l-2 border-red-700 bg-red-50 p-5 text-sm text-red-900 dark:bg-red-950/40 dark:text-red-200">
           Unable to load CareerPath history.
         </div>
       </DashboardLayout>
@@ -72,29 +72,29 @@ export default function DashboardCareerPath() {
             return (
               <Card
                 key={attempt.id}
-                className="border border-[#16243d]/20 bg-white/90 p-5"
+                className="border border-border bg-card p-5"
               >
                 <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-base font-semibold text-[#16243d]">
+                      <h3 className="text-base font-semibold text-foreground">
                         {primary?.label ?? `CareerPath report #${attempt.id}`}
                       </h3>
                       <span
                         className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] ${
                           attempt.paymentStatus === "paid"
-                            ? "bg-emerald-100 text-emerald-800"
-                            : "border border-[#16243d]/15 text-muted-foreground"
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
+                            : "border border-border text-muted-foreground"
                         }`}
                       >
                         {attempt.paymentStatus}
                       </span>
                     </div>
-                    <p className="mt-1 text-xs text-[#16243d]">
+                    <p className="mt-1 text-xs text-foreground">
                       {new Date(attempt.createdAt).toLocaleString()}
                     </p>
                     {primary && (
-                      <p className="mt-2 text-sm font-semibold text-[#16243d]">
+                      <p className="mt-2 text-sm font-semibold text-foreground">
                         Primary pathway: {primary.label} ({primary.band})
                       </p>
                     )}

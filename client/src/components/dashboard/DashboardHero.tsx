@@ -26,7 +26,7 @@ export function DashboardHero({
   const displayName = user?.name?.split(" ")[0] || "there";
 
   return (
-    <div className="mb-8">
+<div className="mb-8">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div className="min-w-0">
           <div className="flex items-center gap-3 mb-2">
@@ -60,11 +60,11 @@ export function DashboardHero({
       {stats && stats.length > 0 && (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat, index) => (
-              <Card key={index} className="border border-[#16243d]/15 dark:border-[#657084]/25 bg-white/90 dark:bg-[#16243d]/70 backdrop-blur-sm p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-                <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] dark:text-[#f7f3e8]">
+              <Card key={index} className="border border-border bg-card backdrop-blur-sm p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+                <p className="text-[10px] font-black uppercase tracking-[.12em] text-foreground">
                   {stat.label}
                 </p>
-              <p className="mt-2 text-2xl font-bold tracking-tight text-[#16243d] dark:text-[#f7f3e8]">
+              <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">
                 {stat.value}
               </p>
               {stat.trend && (

@@ -50,7 +50,7 @@ export function FilterBar({ filters, onReset, className = "" }: FilterBarProps) 
                 placeholder={filter.placeholder || "Search..."}
                 value={filter.value}
                 onChange={e => filter.onChange(e.target.value)}
-                className="pl-9 h-9 bg-white dark:bg-[#16243d] transition-colors focus-visible:ring-2 focus-visible:ring-[#c9a34e]"
+                className="pl-9 h-9 bg-background transition-colors focus-visible:ring-2 focus-visible:ring-ring"
               />
             </div>
           );
@@ -58,7 +58,7 @@ export function FilterBar({ filters, onReset, className = "" }: FilterBarProps) 
         if (filter.type === "select") {
           return (
             <Select value={filter.value} onValueChange={filter.onChange}>
-              <SelectTrigger className="h-9 min-w-[140px] bg-white dark:bg-[#16243d] transition-colors focus:ring-2 focus:ring-[#c9a34e]">
+              <SelectTrigger className="h-9 min-w-[140px] bg-background transition-colors focus:ring-2 focus:ring-ring">
                 <SelectValue placeholder={filter.label} />
               </SelectTrigger>
               <SelectContent>
@@ -78,7 +78,7 @@ export function FilterBar({ filters, onReset, className = "" }: FilterBarProps) 
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className={`h-9 min-w-[140px] justify-start text-left font-normal bg-white dark:bg-[#16243d] transition-colors ${!filter.value && "text-muted-foreground"}`}
+                  className={`h-9 min-w-[140px] justify-start text-left font-normal bg-background transition-colors ${!filter.value && "text-muted-foreground"}`}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {filter.value ? format(filter.value, "PPP") : <span>{filter.label}</span>}

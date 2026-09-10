@@ -8,10 +8,11 @@ import { LanguageSelector } from "@/components/LanguageSelector";
 export const siteNavItems = [
   { label: "About", href: "/about" },
   { label: "Services", href: "/services" },
-  { label: "School solutions", href: "/school-solutions" },
   { label: "Courses", href: "/courses" },
   { label: "Self Assessment", href: "/assessment" },
+  { label: "Psychometrics", href: "/psychometrics" },
   { label: "CareerPath", href: "/careerpath" },
+  { label: "School solutions", href: "/school-solutions" },
   { label: "Resources", href: "/resources" },
   { label: "Contact", href: "/contact" },
 ];

@@ -8,7 +8,6 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { LocaleProvider } from "./contexts/LocaleContext";
 import { CookieConsent } from "./components/CookieConsent";
 import { WhatsAppSupportWidget } from "./components/WhatsAppSupportWidget";
-import { TranslationFeedback } from "./components/TranslationFeedback";
 import { SeoHead } from "./components/SeoHead";
 
 const Home = lazy(() => import("./pages/Home"));
@@ -184,7 +183,6 @@ export default function App() {
             <SeoHead />
             <Router />
             <WhatsAppSupportWidget />
-            <TranslationFeedback />
             <CookieConsent />
           </TooltipProvider>
         </LocaleProvider>

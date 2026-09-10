@@ -75,7 +75,6 @@ import {
   AnalyticsLineChart,
 } from "@/components/dashboard";
 import AdminInquiryPanel from "@/components/AdminInquiryPanel";
-import AdminTranslationSuggestionsPanel from "@/components/AdminTranslationSuggestionsPanel";
 import AdminRevenuePanel from "@/components/AdminRevenuePanel";
 import AdminStaffPanel from "@/components/AdminStaffPanel";
 import AdminCatalogPanel from "@/components/AdminCatalogPanel";
@@ -1861,9 +1860,6 @@ export default function AdminDashboard() {
             \n{" "}
             <div id="inquiries" className="scroll-mt-8">
               <AdminInquiryPanel />
-            </div>
-            <div id="translations" className="scroll-mt-8">
-              <AdminTranslationSuggestionsPanel />
             </div>
           </>
         )}

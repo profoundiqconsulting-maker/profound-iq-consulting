@@ -114,6 +114,10 @@ export default function Home() {
   const [inquiryError, setInquiryError] = useState<string | null>(null);
   const [mathA, setMathA] = useState(() => Math.floor(Math.random() * 9) + 2);
   const [mathB, setMathB] = useState(() => Math.floor(Math.random() * 9) + 2);
+  const [catalogLevel, setCatalogLevel] = useState<string>("All levels");
+  const [catalogCategory, setCatalogCategory] = useState<string>("All categories");
+  const [catalogPage, setCatalogPage] = useState(1);
+  const CATALOG_PAGE_SIZE = 6;
   const [selectedCourse, setSelectedCourse] = useState<
     (typeof courses)[number] | null
   >(null);
@@ -141,6 +145,8 @@ export default function Home() {
       format: item.duration,
       body: item.description,
       isDatabaseItem: true,
+      skillLevel: (item as any).skillLevel ?? "Practitioner",
+      category: (item as any).category ?? "Professional development",
     }));
     const bySlug = new Map(overlays.map(item => [item.slug, item]));
     const merged = baseCourses.map(course => {
@@ -154,8 +160,34 @@ export default function Home() {
         isDatabaseItem: true,
       };
     });
-    return [...merged, ...Array.from(bySlug.values())];
+    return [...merged, ...Array.from(bySlug.values())] as (typeof baseCourses)[number][];
   }, [liveCatalog.data]);
+
+  const uniqueLevels = Array.from(
+    new Set(courses.map(course => course.skillLevel).filter(Boolean))
+  );
+  const uniqueCategories = Array.from(
+    new Set(courses.map(course => course.category).filter(Boolean))
+  ).sort();
+  const filteredCatalog = courses.filter(course => {
+    if (catalogLevel !== "All levels" && course.skillLevel !== catalogLevel)
+      return false;
+    if (catalogCategory !== "All categories" && course.category !== catalogCategory)
+      return false;
+    return true;
+  });
+  const catalogPageCount = Math.max(
+    1,
+    Math.ceil(filteredCatalog.length / CATALOG_PAGE_SIZE)
+  );
+  const pagedCatalog = filteredCatalog.slice(
+    (catalogPage - 1) * CATALOG_PAGE_SIZE,
+    catalogPage * CATALOG_PAGE_SIZE
+  );
+
+  useEffect(() => {
+    setCatalogPage(1);
+  }, [catalogLevel, catalogCategory]);
 
   useEffect(() => {
     if (!selectedCourse) return;
@@ -268,6 +300,12 @@ export default function Home() {
                     className="inline-flex items-center gap-3 border border-[#c9a34e] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#f7f3e8] transition-all hover:bg-[#c9a34e] hover:text-[#101d35]"
                   >
                     {t("takeAssessment")} <Sparkles size={16} />
+                  </a>
+                  <a
+                    href="/psychometrics"
+                    className="inline-flex items-center gap-3 border border-[#c9a34e]/70 px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#c9a34e] transition-all hover:bg-[#c9a34e] hover:text-[#101d35]"
+                  >
+                    Psychometrics <ArrowUpRight size={16} />
                   </a>
                   <a
                     href="/careerpath"
@@ -482,8 +520,63 @@ export default function Home() {
                   All enrollment inquiries are answered online.
                 </p>
               </div>
-              <div className="space-y-4">
-                {courses.map(course => (
+              <div>
+                <div className="mb-5 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCatalogLevel("All levels")}
+                    className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-[.12em] transition-colors ${
+                      catalogLevel === "All levels"
+                        ? "border-[#c9a34e] bg-[#c9a34e] text-[#101d35]"
+                        : "border-[#16243d]/20 text-[#4a566a] hover:border-[#c9a34e] hover:text-[#c9a34e]"
+                    }`}
+                  >
+                    All levels
+                  </button>
+                  {uniqueLevels.map(level => (
+                    <button
+                      key={level}
+                      type="button"
+                      onClick={() => setCatalogLevel(level)}
+                      className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-[.12em] transition-colors ${
+                        catalogLevel === level
+                          ? "border-[#c9a34e] bg-[#c9a34e] text-[#101d35]"
+                          : "border-[#16243d]/20 text-[#4a566a] hover:border-[#c9a34e] hover:text-[#c9a34e]"
+                      }`}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+                <div className="mb-5 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCatalogCategory("All categories")}
+                    className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-[.12em] transition-colors ${
+                      catalogCategory === "All categories"
+                        ? "border-[#c9a34e] bg-[#c9a34e] text-[#101d35]"
+                        : "border-[#16243d]/20 text-[#4a566a] hover:border-[#c9a34e] hover:text-[#c9a34e]"
+                    }`}
+                  >
+                    All categories
+                  </button>
+                  {uniqueCategories.map(category => (
+                    <button
+                      key={category}
+                      type="button"
+                      onClick={() => setCatalogCategory(category)}
+                      className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-[.12em] transition-colors ${
+                        catalogCategory === category
+                          ? "border-[#c9a34e] bg-[#c9a34e] text-[#101d35]"
+                          : "border-[#16243d]/20 text-[#4a566a] hover:border-[#c9a34e] hover:text-[#c9a34e]"
+                      }`}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+                <div className="space-y-4">
+                {pagedCatalog.map(course => (
                   <article
                     key={course.index}
                     className="group border-t border-[#16243d]/20 py-6 transition-all hover:border-[#c9a34e] sm:py-7"
@@ -588,6 +681,23 @@ export default function Home() {
                     </div>
                   </article>
                 ))}
+                </div>
+                {catalogPage < catalogPageCount && (
+                  <div className="mt-8 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => setCatalogPage(page => page + 1)}
+                      className="inline-flex items-center gap-3 border border-[#c9a34e] px-6 py-3.5 text-[10px] font-black uppercase tracking-[.15em] text-[#16243d] transition-all hover:bg-[#c9a34e]"
+                    >
+                      Load more <ChevronRight size={14} />
+                    </button>
+                  </div>
+                )}
+                {filteredCatalog.length === 0 && (
+                  <p className="py-12 text-center text-sm text-[#657084]">
+                    No courses match the selected filters.
+                  </p>
+                )}
               </div>
             </div>
           </div>

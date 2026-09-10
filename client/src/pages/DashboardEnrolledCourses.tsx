@@ -243,7 +243,7 @@ export default function DashboardEnrolledCourses() {
   if (courseHistory.isError) {
     return (
       <DashboardLayout role="user" title="Enrolled Courses">
-        <div className="border-l-2 border-red-700 bg-red-50 p-5 text-sm text-red-900">
+        <div className="border-l-2 border-red-700 bg-red-50 p-5 text-sm text-red-900 dark:bg-red-950/40 dark:text-red-200">
           Unable to load your enrolled courses. Please try again.
         </div>
       </DashboardLayout>
@@ -365,7 +365,7 @@ export default function DashboardEnrolledCourses() {
                     <div className="p-4">
                       <div className="mb-3">
                         <div className="flex items-center justify-between text-xs mb-1">
-                          <span className="font-semibold text-[#16243d]">
+                          <span className="font-semibold text-foreground">
                             {rollup.learningPercent}% complete
                           </span>
                           <span className="text-muted-foreground">
@@ -438,7 +438,7 @@ export default function DashboardEnrolledCourses() {
                               variant="ghost"
                               size="sm"
                               onClick={() => downloadCertificate(record)}
-                              className="h-8 w-8 p-0 text-muted-foreground hover:text-[#16243d] transition-colors"
+                              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground transition-colors"
                               aria-label="Download certificate"
                             >
                               <Download size={14} />
@@ -447,7 +447,7 @@ export default function DashboardEnrolledCourses() {
                               variant="ghost"
                               size="sm"
                               onClick={() => shareCertificate(record)}
-                              className="h-8 w-8 p-0 text-muted-foreground hover:text-[#16243d] transition-colors"
+                              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground transition-colors"
                               aria-label="Share certificate"
                             >
                               <Share2 size={14} />
@@ -487,7 +487,7 @@ export default function DashboardEnrolledCourses() {
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#f7f3e8] dark:bg-[#16243d] transition-transform hover:scale-110">
               <BookOpen size={28} className="text-muted-foreground" />
             </div>
-            <p className="text-sm text-[#16243d] max-w-sm">
+            <p className="text-sm text-foreground max-w-sm">
               You have not enrolled in any courses yet. Explore our professional courses to begin your learning journey.
             </p>
             <Link href="/courses">
