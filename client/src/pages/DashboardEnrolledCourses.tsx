@@ -21,6 +21,7 @@ import {
   StatCard,
   FilterBar,
 } from "@/components/dashboard";
+import { CourseCoverImage } from "@/components/CourseCoverImage";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -328,7 +329,7 @@ export default function DashboardEnrolledCourses() {
                   >
                     <div className="relative h-36 overflow-hidden bg-gradient-to-br from-[#16243d] to-[#101d35]">
                       {course.coverImage && (
-                        <img
+                        <CourseCoverImage
                           src={course.coverImage}
                           alt={course.title}
                           className="h-full w-full object-cover opacity-80 transition-transform duration-300 group-hover:scale-105"

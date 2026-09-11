@@ -696,6 +696,14 @@ export const siteSeoSettings = mysqlTable("site_seo_settings", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+export const adminSystemSettings = mysqlTable("admin_system_settings", {
+  settingKey: varchar("settingKey", { length: 80 }).primaryKey(),
+  settingValue: text("settingValue").notNull(),
+  masked: varchar("masked", { length: 20 }).default("plain").notNull(),
+  updatedByOpenId: varchar("updatedByOpenId", { length: 64 }).notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 export const reportShares = mysqlTable("report_shares", {
   id: int("id").autoincrement().primaryKey(),
   attemptId: int("attemptId").notNull(),
@@ -922,6 +930,7 @@ export type DeliveryLogExportJob = typeof deliveryLogExportJobs.$inferSelect;
 export type AdminAnalyticsSettings = typeof adminAnalyticsSettings.$inferSelect;
 export type UnlockAuditExportDownload =
   typeof unlockAuditExportDownloads.$inferSelect;
+export type AdminSystemSettings = typeof adminSystemSettings.$inferSelect;
 
 /* ---------------------------------------------------------------------------
  * Header navigation: pinned favorites and recent activity
@@ -970,3 +979,47 @@ export type UserNavFavorite = typeof userNavFavorites.$inferSelect;
 export type InsertUserNavFavorite = typeof userNavFavorites.$inferInsert;
 export type UserActivityEvent = typeof userActivityEvents.$inferSelect;
 export type InsertUserActivityEvent = typeof userActivityEvents.$inferInsert;
+
+export const conversations = mysqlTable("conversations", {
+  id: int("id").autoincrement().primaryKey(),
+  participantOpenIds: json("participantOpenIds").notNull(),
+  subject: varchar("subject", { length: 200 }),
+  contextType: varchar("contextType", { length: 32 }).notNull(),
+  contextId: varchar("contextId", { length: 120 }),
+  status: varchar("status", { length: 20 }).default("active").notNull(),
+  createdByOpenId: varchar("createdByOpenId", { length: 64 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  lastMessageAt: timestamp("lastMessageAt"),
+});
+
+export const messages = mysqlTable("messages", {
+  id: int("id").autoincrement().primaryKey(),
+  conversationId: int("conversationId").notNull(),
+  senderOpenId: varchar("senderOpenId", { length: 64 }).notNull(),
+  senderName: varchar("senderName", { length: 160 }).notNull(),
+  senderRole: varchar("senderRole", { length: 20 }).notNull(),
+  body: text("body").notNull(),
+  htmlBody: text("htmlBody"),
+  attachmentUrls: json("attachmentUrls").$type<string[]>().default([]),
+  readBy: json("readBy").$type<Record<string, string>>().default({}),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const messageNotifications = mysqlTable("messageNotifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userOpenId: varchar("userOpenId", { length: 64 }).notNull(),
+  messageId: int("messageId").notNull(),
+  conversationId: int("conversationId").notNull(),
+  type: varchar("type", { length: 20 }).notNull(),
+  sentEmail: boolean("sentEmail").default(false).notNull(),
+  emailSentAt: timestamp("emailSentAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Conversation = typeof conversations.$inferSelect;
+export type InsertConversation = typeof conversations.$inferInsert;
+export type Message = typeof messages.$inferSelect;
+export type InsertMessage = typeof messages.$inferInsert;
+export type MessageNotification = typeof messageNotifications.$inferSelect;
+export type InsertMessageNotification = typeof messageNotifications.$inferInsert;

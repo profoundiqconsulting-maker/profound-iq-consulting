@@ -2588,3 +2588,13 @@
 - [x] Confirm the Amplitude editor warning remains external to the application and does not mask OAuth failures.
 - [x] Run full tests, TypeScript validation, production build, restart, and sign-in route QA.
 - [x] Save and publish the verified OAuth-state fix.
+
+# Communication Workflow
+
+- [x] Add a dedicated communication workspace for authenticated users.
+- [x] Add conversation listing, creation, and messaging procedures.
+- [x] Add real-time message notifications with read-state tracking.
+- [x] Add admin communication oversight and broadcast controls.
+- [x] Add authorization, behavior, and responsive regression coverage.
+- [x] Run type checks, tests, production build, and responsive verification.
+- [x] Save a checkpoint for the communication workflow.

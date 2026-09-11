@@ -29,6 +29,7 @@ import {
   adminCertificateSettings,
   certificateUsageEvents,
   adminSecuritySettings,
+  adminSystemSettings,
   siteSeoSettings,
   analyticsEvents,
   assessmentAttempts,
@@ -81,6 +82,12 @@ import {
   resetLinkRevocationAudits,
   newsletterSubscribers,
   insightArticles as insightArticlesTable,
+  conversations,
+  messages,
+  messageNotifications,
+  type Conversation,
+  type Message,
+  type MessageNotification,
 } from "../drizzle/schema";
 import { compareReports, type AssessmentReport } from "../shared/assessment";
 import {
@@ -480,6 +487,170 @@ export async function saveAdminSecuritySettings(
     .values({ adminOpenId, ...input })
     .onDuplicateKeyUpdate({ set: input });
   return getAdminSecuritySettings(adminOpenId);
+}
+
+export async function getAdminSystemSettings(adminOpenId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db
+    .select()
+    .from(adminSystemSettings)
+    .where(eq(adminSystemSettings.updatedByOpenId, adminOpenId));
+}
+
+export async function upsertAdminSystemSetting(
+  adminOpenId: string,
+  settingKey: string,
+  settingValue: string,
+  masked = "plain"
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db
+    .insert(adminSystemSettings)
+    .values({ settingKey, settingValue, masked, updatedByOpenId: adminOpenId })
+    .onDuplicateKeyUpdate({
+      set: { settingValue, masked, updatedByOpenId: adminOpenId },
+    });
+  return { settingKey, settingValue, masked };
+}
+
+export async function createConversation(input: {
+  participantOpenIds: string[];
+  subject?: string;
+  contextType: string;
+  contextId?: string;
+  createdByOpenId: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const [conversation] = await db
+    .insert(conversations)
+    .values({
+      participantOpenIds: input.participantOpenIds,
+      subject: input.subject ?? null,
+      contextType: input.contextType,
+      contextId: input.contextId ?? null,
+      createdByOpenId: input.createdByOpenId,
+    })
+    .$returningId();
+  return conversation;
+}
+
+export async function getConversation(id: number, openId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const conversation = (
+    await db.select().from(conversations).where(eq(conversations.id, id)).limit(1)
+  )[0] as Conversation | undefined;
+  if (!conversation || !(conversation.participantOpenIds as string[]).includes(openId)) return null;
+  const conversationMessages = await db
+    .select()
+    .from(messages)
+    .where(eq(messages.conversationId, id))
+    .orderBy(messages.createdAt);
+  return { ...conversation, messages: conversationMessages };
+}
+
+export async function createMessage(input: {
+  conversationId: number;
+  senderOpenId: string;
+  senderName: string;
+  senderRole: string;
+  body: string;
+  htmlBody?: string;
+  attachmentUrls?: string[];
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const [message] = await db
+    .insert(messages)
+    .values({
+      conversationId: input.conversationId,
+      senderOpenId: input.senderOpenId,
+      senderName: input.senderName,
+      senderRole: input.senderRole,
+      body: input.body,
+      htmlBody: input.htmlBody ?? null,
+      attachmentUrls: input.attachmentUrls ?? [],
+    })
+    .$returningId();
+  await db
+    .update(conversations)
+    .set({ lastMessageAt: new Date() })
+    .where(eq(conversations.id, input.conversationId));
+  return message;
+}
+
+export async function listConversationsForUser(
+  openId: string,
+  filters?: { contextType?: string; status?: string }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const all = await db
+    .select()
+    .from(conversations)
+    .orderBy(desc(conversations.lastMessageAt ?? conversations.createdAt)) as Conversation[];
+  return all.filter((conversation) => {
+    if (!(conversation.participantOpenIds as string[]).includes(openId)) return false;
+    if (filters?.contextType && conversation.contextType !== filters.contextType) return false;
+    if (filters?.status && conversation.status !== filters.status) return false;
+    return true;
+  });
+}
+
+export async function getUnreadMessageCount(openId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const userConversations = (await db
+    .select({ id: conversations.id, participantOpenIds: conversations.participantOpenIds })
+    .from(conversations)) as Pick<Conversation, "id" | "participantOpenIds">[];
+  let count = 0;
+  for (const conversation of userConversations) {
+    if (!(conversation.participantOpenIds as string[]).includes(openId)) continue;
+    const unread = await db
+      .select()
+      .from(messages)
+      .where(and(eq(messages.conversationId, conversation.id), sql`NOT JSON_CONTAINS(${messages.readBy}, JSON_OBJECT(?, true), '$')`));
+    count += unread.filter(message => message.senderOpenId !== openId).length;
+  }
+  return count;
+}
+
+export async function markMessageRead(messageId: number, openId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db
+    .update(messages)
+    .set({ readBy: sql`JSON_SET(COALESCE(${messages.readBy}, '{}'), ?, true)` })
+    .where(eq(messages.id, messageId));
+}
+
+export async function createMessageNotification(input: {
+  userOpenId: string;
+  messageId: number;
+  conversationId: number;
+  type: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(messageNotifications).values(input);
+}
+
+export async function listMessageNotifications(openId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(messageNotifications).where(eq(messageNotifications.userOpenId, openId)).orderBy(desc(messageNotifications.createdAt));
+}
+
+export async function markNotificationRead(notificationId: number, openId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db
+    .update(messageNotifications)
+    .set({ sentEmail: true, emailSentAt: new Date() })
+    .where(and(eq(messageNotifications.id, notificationId), eq(messageNotifications.userOpenId, openId)));
 }
 
 export async function createUserSession(input: {

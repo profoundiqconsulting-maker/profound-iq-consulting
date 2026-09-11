@@ -27,7 +27,7 @@ describe("profile and Google sign-in UX contracts", () => {
     expect(settingsSource).toContain('t("connectedAccount")');
     expect(settingsSource).toContain("SUPPORTED_LOCALES.map");
     expect(settingsSource).toContain(
-      "handleLocaleChange(event.target.value as LocaleCode)"
+      "const handleLocaleChange = (nextLocale: LocaleCode) =>"
     );
     expect(settingsSource).toContain('toast.success(t("languageUpdated")');
     expect(settingsSource).toContain("trpc.course.state.useQuery");

@@ -3,6 +3,7 @@ import { ArrowLeft, Copy, Share2, X } from "lucide-react";
 import { Link } from "wouter";
 import { toast } from "sonner";
 import { BrandLogo } from "@/components/BrandLogo";
+import { CourseCoverImage } from "@/components/CourseCoverImage";
 import { CourseShareActions } from "@/components/CourseShareActions";
 import { courseCatalog } from "@shared/courseCatalog";
 import { localizeCourseCategory } from "@shared/courseCategoryLocalization";
@@ -184,7 +185,7 @@ export default function CourseComparison() {
                         key={course.slug}
                         className="border border-[#16243d]/15 bg-white/70 shadow-sm"
                       >
-                        <img
+                        <CourseCoverImage
                           src={course.coverImage}
                           alt=""
                           className="h-40 w-full object-cover"

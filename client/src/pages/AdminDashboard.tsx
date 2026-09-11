@@ -77,6 +77,7 @@ import {
 import AdminInquiryPanel from "@/components/AdminInquiryPanel";
 import AdminRevenuePanel from "@/components/AdminRevenuePanel";
 import AdminStaffPanel from "@/components/AdminStaffPanel";
+import AdminSystemSettings from "@/components/AdminSystemSettings";
 import AdminCatalogPanel from "@/components/AdminCatalogPanel";
 import AdminCourseDeliveryPanel from "@/components/AdminCourseDeliveryPanel";
 import AdminPaymentExceptionsPanel from "@/components/AdminPaymentExceptionsPanel";
@@ -1255,6 +1256,7 @@ export default function AdminDashboard() {
           { id: "revenue", label: "Revenue" },
           { id: "staff", label: "Staff & Catalog" },
           { id: "learning", label: "Learning" },
+          { id: "system", label: "System Settings" },
           { id: "communications", label: "Communications" },
           { id: "security", label: "Security" },
           { id: "organization", label: "Organization" },
@@ -1304,6 +1306,12 @@ export default function AdminDashboard() {
               <AdminCatalogPanel />
             </div>
           </>
+        )}
+
+        {activeTab === "system" && (
+          <div id="system-settings" className="scroll-mt-8">
+            <AdminSystemSettings />
+          </div>
         )}
 
         {activeTab === "learning" && (

@@ -32,7 +32,7 @@ describe("Likert response isolation", () => {
     );
     expect(assessmentPage).toContain("LikertScale");
     expect(assessmentPage).toContain(
-      "onChange={(value) => setAnswer(question.id, value)}"
+      "onChange={value => setAnswer(question.id, value)}"
     );
   });
 

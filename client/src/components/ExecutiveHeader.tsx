@@ -13,7 +13,6 @@ import { LanguageSelector } from "@/components/LanguageSelector";
 
 const primaryNavItems = [
   { label: "Home", href: "/" },
-  { label: "Courses", href: "/courses" },
   { label: "Psychometrics", href: "/psychometrics" },
   { label: "CareerPath", href: "/careerpath" },
   { label: "Self Assessment", href: "/assessment" },
@@ -22,6 +21,29 @@ const primaryNavItems = [
   { label: "Resources", href: "/resources" },
   { label: "Contacts", href: "/contact" },
 ];
+
+// Dynamic course items that appear on course detail pages (e.g., /courses/lead-with-clarity?workspace=1)
+const getCourseNavItems = (
+  location: string,
+  isItemActive: (href: string) => boolean
+) => {
+  const [pathname] = location.split("?");
+  const coursePath = "/courses/";
+  const courseSlug = pathname.startsWith(coursePath)
+    ? pathname.slice(coursePath.length)
+    : "";
+  const isCourseDetail = courseSlug.length > 0 && !courseSlug.includes("/");
+
+  if (!isCourseDetail) return [];
+
+  return [
+    {
+      label: "Courses",
+      href: "/courses",
+      active: isItemActive("/courses"),
+    },
+  ];
+};
 
 const subMenuItems = [
   { label: "Sign in", href: "/auth?mode=login" },
@@ -50,6 +72,11 @@ export function ExecutiveHeader({
     const [pathOnly] = href.split("?");
     return location === href || location.startsWith(`${pathOnly}/`);
   };
+
+  const navigateItems = [
+    ...primaryNavItems,
+    ...getCourseNavItems(String(location), isItemActive),
+  ];
 
   const headerTone = dark
     ? "border-b border-white/[0.06] bg-[#0a1426]/95 text-[#f7f3e8] shadow-[0_1px_0_rgba(255,255,255,0.04),0_8px_24px_rgba(7,17,35,0.18)] supports-[backdrop-filter]:bg-[#0a1426]/75"
@@ -102,7 +129,7 @@ export function ExecutiveHeader({
           aria-label="Primary"
         >
           <div className="flex items-center gap-0.5 xl:gap-1">
-            {primaryNavItems.map(item => {
+            {navigateItems.map(item => {
               const active = isItemActive(item.href);
               return (
                 <Link
@@ -298,7 +325,7 @@ export function ExecutiveHeader({
           </div>
 
           <nav className="grid grid-cols-1 gap-1" aria-label="Primary mobile">
-            {primaryNavItems.map(item => {
+            {navigateItems.map(item => {
               const active = isItemActive(item.href);
               return (
                 <Link

@@ -20,10 +20,10 @@ describe("social OAuth navigation", () => {
   });
 
   it("provides a learner-facing recovery message for invalid social OAuth state", () => {
-    expect(authSource).toContain("invalid_social_oauth_state");
-    expect(authSource).toContain("Social sign-in could not be verified");
+    expect(authSource).toContain("googleSignInPending");
+    expect(authSource).toContain("Redirecting securely to Google");
     expect(authSource).toContain(
-      "Start Google or LinkedIn sign-in again from this page"
+      'window.location.href = `/api/oauth/google/start?origin=${encodeURIComponent(window.location.origin)}&returnTo=${encodeURIComponent(returnTo)}`'
     );
   });
 });

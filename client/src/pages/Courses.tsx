@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { Link } from "wouter";
 import { BrandLogo } from "@/components/BrandLogo";
 import { trpc } from "@/lib/trpc";
+import { CourseCoverImage } from "@/components/CourseCoverImage";
 import { courseCatalog } from "@shared/courseCatalog";
 import { useLocale } from "@/contexts/LocaleContext";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -593,12 +594,12 @@ export default function Courses() {
                 <div className="grid gap-7 lg:grid-cols-[64px_1fr_190px] lg:items-start">
                   <span className="eyebrow text-[#7d5e1e]">{course.index}</span>
                   <div>
-                    <img
-                      src={course.coverImage}
-                      alt=""
-                      loading="lazy"
-                      className="mb-5 h-36 w-full object-cover grayscale-[.15] transition duration-300 hover:grayscale-0 sm:h-44"
-                    />
+                      <CourseCoverImage
+                        src={course.coverImage}
+                        alt=""
+                        loading="lazy"
+                        className="h-40 w-full object-cover"
+                      />
                     <div className="flex flex-wrap items-baseline gap-3">
                       <h3 className="display text-3xl sm:text-4xl">
                         {course.title}
@@ -913,7 +914,7 @@ export default function Courses() {
             aria-labelledby="syllabus-preview-title"
             className="max-h-[90vh] w-full max-w-4xl overflow-y-auto border border-[#c9a34e]/70 bg-[#f7f3e8] shadow-2xl"
           >
-            <img
+            <CourseCoverImage
               src={previewCourse.coverImage}
               alt=""
               className="h-40 w-full object-cover sm:h-56"
@@ -1089,7 +1090,7 @@ export default function Courses() {
                       key={course.slug}
                       className="border border-[#16243d]/15 bg-white/65 p-5"
                     >
-                      <img
+                      <CourseCoverImage
                         src={course.coverImage}
                         alt=""
                         className="h-28 w-full object-cover"

@@ -272,7 +272,7 @@ export default function Home() {
       <main id="top">
         <section className="grain relative min-h-[720px] border-b border-white/10 bg-[#101d35]">
           <img
-            src="/manus-storage/profound-hero-f95a7f36_76e0eb6f.webp"
+            src="/profound-hero-f95a7f36_76e0eb6f.svg"
             alt=""
             aria-hidden="true"
             className="absolute inset-0 h-full w-full object-cover object-center opacity-85"
@@ -716,7 +716,7 @@ export default function Home() {
               <div className="relative">
                 <div className="absolute -left-5 -top-5 h-20 w-20 border-l border-t border-[#c9a34e]" />
                 <img
-                  src="/manus-storage/profound-pathway_8ea985fc.jpg"
+                  src="/profound-pathway_8ea985fc.svg"
                   alt="Abstract paper forms representing the journey from insight to action"
                   className="relative aspect-square w-full max-w-md object-cover object-center"
                 />

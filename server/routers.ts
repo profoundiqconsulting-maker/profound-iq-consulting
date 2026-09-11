@@ -34,6 +34,8 @@ import { PUBLISHED_SITE_ORIGIN } from "../shared/siteOrigin";
 import { parse as parseCookie } from "cookie";
 
 const PUBLIC_SITE_ORIGIN = PUBLISHED_SITE_ORIGIN;
+import { eq } from "drizzle-orm";
+import { conversations } from "../drizzle/schema";
 import {
   getAssessmentAttempt,
   createAssessmentAttempt,
@@ -120,6 +122,16 @@ import {
   getResetLinkRevocationAudits,
   updateUserExportPreferences,
   updateUserExportLogo,
+  getDb,
+  createConversation,
+  getConversation,
+  createMessage,
+  listConversationsForUser,
+  markMessageRead,
+  createMessageNotification,
+  listMessageNotifications,
+  markNotificationRead,
+  getUnreadMessageCount,
 } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { sdk } from "./_core/sdk";
@@ -164,6 +176,8 @@ import {
   upsertSiteSeoSetting,
   getAdminNotificationRecipients,
   getAdminSecuritySettings,
+  getAdminSystemSettings,
+  upsertAdminSystemSetting,
   getEffectiveLoginEventRetentionDays,
   getEffectiveLoginLockoutWindowSeconds,
   getLoginSecurityAnalytics,
@@ -450,6 +464,101 @@ function getIdentifierType(value: string) {
 export const appRouter = router({
   system: systemRouter,
   search: searchRouter,
+  communication: router({
+    conversations: router({
+      list: protectedProcedure
+        .input(
+          z
+            .object({
+              contextType: z.string().optional(),
+              status: z.string().optional(),
+            })
+            .optional()
+        )
+        .query(async ({ ctx, input }) =>
+          listConversationsForUser(ctx.user.openId, input)
+        ),
+      get: protectedProcedure
+        .input(z.object({ id: z.number() }))
+        .query(async ({ ctx, input }) =>
+          getConversation(input.id, ctx.user.openId)
+        ),
+      create: protectedProcedure
+        .input(
+          z.object({
+            participantOpenIds: z.array(z.string()),
+            subject: z.string().optional(),
+            contextType: z.string().min(1),
+            contextId: z.string().optional(),
+          })
+        )
+        .mutation(async ({ ctx, input }) =>
+          createConversation({
+            ...input,
+            createdByOpenId: ctx.user.openId,
+          })
+        ),
+    }),
+    messages: router({
+      send: protectedProcedure
+        .input(
+          z.object({
+            conversationId: z.number(),
+            body: z.string().min(1),
+            htmlBody: z.string().optional(),
+            attachmentUrls: z.array(z.string()).optional(),
+          })
+        )
+        .mutation(async ({ ctx, input }) => {
+          const db = await getDb();
+          if (!db) throw new Error("Database is not available");
+          const conversation = (
+            await db
+              .select()
+              .from(conversations)
+              .where(eq(conversations.id, input.conversationId))
+              .limit(1)
+          )[0] as typeof conversations.$inferSelect | undefined;
+          if (!conversation) throw new Error("Conversation not found");
+          const message = await createMessage({
+            ...input,
+            senderOpenId: ctx.user.openId,
+            senderName: ctx.user.name ?? "",
+            senderRole: ctx.user.role,
+          });
+          const others = (conversation.participantOpenIds as string[]).filter(
+            (id: string) => id !== ctx.user.openId
+          );
+          for (const openId of others) {
+            await createMessageNotification({
+              userOpenId: openId,
+              messageId: message.id,
+              conversationId: input.conversationId,
+              type: "new_message",
+            });
+          }
+          return message;
+        }),
+      read: protectedProcedure
+        .input(z.object({ messageId: z.number() }))
+        .mutation(({ ctx, input }) =>
+          markMessageRead(input.messageId, ctx.user.openId)
+        ),
+    }),
+    notifications: router({
+      list: protectedProcedure.query(async ({ ctx }) =>
+        listMessageNotifications(ctx.user.openId)
+      ),
+      read: protectedProcedure
+        .input(z.object({ notificationId: z.number() }))
+        .mutation(({ ctx, input }) =>
+          markNotificationRead(input.notificationId, ctx.user.openId)
+        ),
+      unreadCount: protectedProcedure.query(async ({ ctx }) =>
+        getUnreadMessageCount(ctx.user.openId)
+      ),
+    }),
+  }),
   sharedReport: router({
     get: publicProcedure
       .input(z.object({ token: z.string().min(32).max(128) }))
@@ -5662,6 +5771,25 @@ export const appRouter = router({
       )
       .mutation(({ ctx, input }) =>
         saveAdminSecuritySettings(ctx.user.openId, input)
+      ),
+    systemSettings: adminProcedure.query(({ ctx }) =>
+      getAdminSystemSettings(ctx.user.openId)
+    ),
+    upsertSystemSetting: adminProcedure
+      .input(
+        z.object({
+          settingKey: z.string().min(1).max(80),
+          settingValue: z.string().min(1),
+          masked: z.string().min(1).max(20).default("plain"),
+        })
+      )
+      .mutation(({ ctx, input }) =>
+        upsertAdminSystemSetting(
+          ctx.user.openId,
+          input.settingKey,
+          input.settingValue,
+          input.masked
+        )
       ),
     failedLoginEvents: adminProcedure
       .input(
