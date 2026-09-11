@@ -39,7 +39,7 @@ describe("report identity personalization", () => {
       "Professional Certificate in International Curriculum Pedagogy"
     );
     expect(svg).toContain("PIQ-2026-ABC123");
-    expect(svg).toContain("SCAN TO VERIFY");
+    expect(svg).toContain("VERIFY THIS CREDENTIAL");
     expect(svg).toContain("verify/certificate?certificate=PIQ-2026-ABC123");
   });
 });

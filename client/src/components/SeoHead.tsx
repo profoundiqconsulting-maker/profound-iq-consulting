@@ -1,6 +1,5 @@
 import { useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
-import { useLocale, type LocaleCode } from "@/contexts/LocaleContext";
 import { getInsightArticle } from "@shared/insightsArticles";
 import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 
@@ -10,18 +9,6 @@ const PUBLIC_IMAGE_ORIGIN = PUBLISHED_SITE_ORIGIN;
 const DEFAULT_IMAGE = `${PUBLIC_IMAGE_ORIGIN}/profound-iq-social-preview.svg`;
 const courseSocialImageUrl = (slug: string) =>
   `${PUBLIC_IMAGE_ORIGIN}/og/course/${encodeURIComponent(slug)}.png`;
-const SEO_LOCALES = [
-  "en",
-  "sw",
-  "fr",
-  "es",
-  "pt",
-  "ar",
-  "zh",
-  "hi",
-  "de",
-  "ja",
-] as const;
 
 type SeoConfig = {
   title: string;
@@ -373,147 +360,6 @@ function getSeo(pathname: string): SeoConfig {
   };
 }
 
-const localizedSeoCopy: Partial<
-  Record<LocaleCode, Record<string, { title: string; description: string }>>
-> = {
-  sw: {
-    "/": {
-      title: "Profound IQ Consulting — Uwazi ni uwezo.",
-      description:
-        "Kujifunza kwa mabadiliko, ushauri, utafiti na maarifa ya kisaikometria kwa watu na mashirika.",
-    },
-    "/courses": {
-      title: "Kozi za kitaalamu | Profound IQ Consulting",
-      description:
-        "Gundua kozi za kitaalamu zenye masomo shirikishi, mazoezi na vyeti vya kukamilisha.",
-    },
-    "/assessment": {
-      title: "Tathmini binafsi | Profound IQ Consulting",
-      description:
-        "Fahamu nguvu zako, vipaumbele vya maendeleo na hatua zako zinazofuata.",
-    },
-    "/privacy-policy": {
-      title: "Sera ya faragha | Profound IQ Consulting",
-      description:
-        "Jifunze jinsi Profound IQ Consulting inavyoshughulikia taarifa zako.",
-    },
-    "/terms-of-service": {
-      title: "Masharti ya huduma | Profound IQ Consulting",
-      description:
-        "Masharti yanayosimamia kozi, tathmini, ripoti, vyeti na huduma za Profound IQ Consulting.",
-    },
-  },
-  fr: {
-    "/": {
-      title: "Profound IQ Consulting — La clarté est une capacité.",
-      description:
-        "Apprentissage transformateur, conseil, recherche et expertise psychométrique pour les personnes et les organisations.",
-    },
-    "/courses": {
-      title: "Cours professionnels | Profound IQ Consulting",
-      description:
-        "Découvrez des cours professionnels avec apprentissage interactif, pratique appliquée et certificats.",
-    },
-    "/assessment": {
-      title: "Auto-évaluation | Profound IQ Consulting",
-      description:
-        "Clarifiez vos forces, vos priorités de développement et vos prochaines étapes.",
-    },
-    "/privacy-policy": {
-      title: "Politique de confidentialité | Profound IQ Consulting",
-      description:
-        "Découvrez comment Profound IQ Consulting traite vos informations.",
-    },
-    "/terms-of-service": {
-      title: "Conditions d’utilisation | Profound IQ Consulting",
-      description:
-        "Conditions régissant les cours, évaluations, rapports, certificats et services.",
-    },
-  },
-  es: {
-    "/": {
-      title: "Profound IQ Consulting — La claridad es una capacidad.",
-      description:
-        "Aprendizaje transformador, consultoría, investigación e inteligencia psicométrica para personas y organizaciones.",
-    },
-    "/courses": {
-      title: "Cursos profesionales | Profound IQ Consulting",
-      description:
-        "Explora cursos profesionales con aprendizaje interactivo, práctica aplicada y certificados.",
-    },
-    "/assessment": {
-      title: "Autoevaluación | Profound IQ Consulting",
-      description:
-        "Aclara tus fortalezas, prioridades de desarrollo y próximos pasos.",
-    },
-    "/privacy-policy": {
-      title: "Política de privacidad | Profound IQ Consulting",
-      description:
-        "Conoce cómo Profound IQ Consulting gestiona tu información.",
-    },
-    "/terms-of-service": {
-      title: "Términos del servicio | Profound IQ Consulting",
-      description:
-        "Términos que rigen cursos, evaluaciones, informes, certificados y servicios.",
-    },
-  },
-  ar: {
-    "/": {
-      title: "Profound IQ Consulting — الوضوح قدرة.",
-      description: "تعلم تحويلي واستشارات وبحث ورؤى نفسية للأفراد والمؤسسات.",
-    },
-    "/courses": {
-      title: "الدورات المهنية | Profound IQ Consulting",
-      description:
-        "اكتشف دورات مهنية مع تعلم تفاعلي وتطبيق عملي وشهادات إكمال.",
-    },
-    "/assessment": {
-      title: "التقييم الذاتي | Profound IQ Consulting",
-      description: "اكتشف نقاط قوتك وأولويات تطويرك وخطواتك القادمة.",
-    },
-    "/privacy-policy": {
-      title: "سياسة الخصوصية | Profound IQ Consulting",
-      description: "تعرف على كيفية تعامل Profound IQ Consulting مع معلوماتك.",
-    },
-    "/terms-of-service": {
-      title: "شروط الخدمة | Profound IQ Consulting",
-      description:
-        "الشروط المنظمة للدورات والتقييمات والتقارير والشهادات والخدمات.",
-    },
-  },
-  zh: {
-    "/": {
-      title: "Profound IQ Consulting — 清晰是一种能力。",
-      description: "为个人和组织提供转型学习、咨询、研究和心理测评洞察。",
-    },
-    "/courses": {
-      title: "专业课程 | Profound IQ Consulting",
-      description: "探索包含互动学习、实践练习和完成证书的专业课程。",
-    },
-    "/assessment": {
-      title: "自我评估 | Profound IQ Consulting",
-      description: "了解您的优势、发展重点和下一步方向。",
-    },
-    "/privacy-policy": {
-      title: "隐私政策 | Profound IQ Consulting",
-      description: "了解 Profound IQ Consulting 如何处理您的信息。",
-    },
-    "/terms-of-service": {
-      title: "服务条款 | Profound IQ Consulting",
-      description: "适用于课程、评估、报告、证书和服务的条款。",
-    },
-  },
-};
-
-function localizeSeo(
-  seo: SeoConfig,
-  path: string,
-  locale: LocaleCode
-): SeoConfig {
-  const copy = localizedSeoCopy[locale]?.[path];
-  return copy ? { ...seo, ...copy } : seo;
-}
-
 function setMeta(name: string, content: string) {
   let element = document.head.querySelector<HTMLMetaElement>(
     `meta[name="${name}"]`
@@ -540,16 +386,7 @@ function setProperty(property: string, content: string) {
 
 export function SeoHead() {
   const [location] = useLocation();
-  const { locale } = useLocale();
-  const seo = useMemo(
-    () =>
-      localizeSeo(
-        getSeo(location.split("?")[0]),
-        location.split("?")[0],
-        locale
-      ),
-    [location, locale]
-  );
+  const seo = useMemo(() => getSeo(location.split("?")[0]), [location]);
   useEffect(() => {
     document.title = seo.title;
     setMeta("description", seo.description);
@@ -557,7 +394,7 @@ export function SeoHead() {
     setProperty("og:title", seo.title);
     setProperty("og:description", seo.description);
     setProperty("og:type", seo.type ?? "website");
-    setProperty("og:locale", locale === "en" ? "en_US" : locale);
+    setProperty("og:locale", "en_US");
     setProperty("og:url", `${SITE_ORIGIN}${seo.canonical ?? "/"}`);
     setProperty("og:image", seo.image ?? DEFAULT_IMAGE);
     setProperty("og:image:secure_url", seo.image ?? DEFAULT_IMAGE);
@@ -578,17 +415,6 @@ export function SeoHead() {
       document.head.appendChild(canonical);
     }
     canonical.href = `${SITE_ORIGIN}${seo.canonical ?? "/"}`;
-    document.head
-      .querySelectorAll<HTMLLinkElement>('link[data-locale-alternate="true"]')
-      .forEach(link => link.remove());
-    for (const alternateLocale of SEO_LOCALES) {
-      const link = document.createElement("link");
-      link.rel = "alternate";
-      link.hreflang = alternateLocale === "en" ? "en" : alternateLocale;
-      link.href = `${SITE_ORIGIN}${seo.canonical ?? "/"}${(seo.canonical ?? "/").includes("?") ? "&" : "?"}lang=${alternateLocale}`;
-      link.dataset.localeAlternate = "true";
-      document.head.appendChild(link);
-    }
     let structuredData = document.head.querySelector<HTMLScriptElement>(
       'script[data-seo-jsonld="true"]'
     );
@@ -607,7 +433,7 @@ export function SeoHead() {
         url: `${SITE_ORIGIN}${seo.canonical ?? "/"}`,
       }
     );
-  }, [seo, locale]);
+  }, [seo]);
   return null;
 }
 

@@ -1,39 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { courseCatalog } from "./courseCatalog";
-import {
-  courseTitleTranslationsComplete,
-  localizeCourseMetadata,
-} from "./courseMetadataLocalization";
+import { localizeCourseMetadata } from "./courseMetadataLocalization";
 
 describe("course metadata localization", () => {
-  it("covers every catalog course title", () => {
-    expect(courseTitleTranslationsComplete()).toBe(courseCatalog.length);
-  });
-
-  it("returns localized title and description for every supported locale", () => {
-    const locales = [
-      "en",
-      "sw",
-      "fr",
-      "es",
-      "pt",
-      "ar",
-      "zh",
-      "hi",
-      "de",
-      "ja",
-    ] as const;
+  it("returns English title and description for every course", () => {
     for (const course of courseCatalog) {
-      for (const locale of locales) {
-        const metadata = localizeCourseMetadata(
-          locale,
-          course.slug,
-          course.title,
-          course.description
-        );
-        expect(metadata.title.length).toBeGreaterThan(0);
-        expect(metadata.description.length).toBeGreaterThan(0);
-      }
+      const metadata = localizeCourseMetadata(
+        "en",
+        course.slug,
+        course.title,
+        course.description
+      );
+      expect(metadata.title).toBe(course.title);
+      expect(metadata.description).toBe(course.description);
+      expect(metadata.title.length).toBeGreaterThan(0);
+      expect(metadata.description.length).toBeGreaterThan(0);
     }
   });
 
@@ -49,7 +30,7 @@ describe("course metadata localization", () => {
     ).toEqual({ title: course.title, description: course.description });
     expect(
       localizeCourseMetadata(
-        "fr",
+        "en",
         "unknown-course",
         course.title,
         course.description

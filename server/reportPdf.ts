@@ -9,8 +9,7 @@ import {
 import type { CareerPathReport } from "../shared/careerPath";
 import {
   getGeneratedCopy,
-  type GeneratedLocale,
-} from "../shared/generatedLocalization";
+} from "../shared/generatedCopy";
 
 type ReportPdfInput = {
   attemptId: number;
@@ -19,28 +18,18 @@ type ReportPdfInput = {
   createdAt: Date | string;
   report: AssessmentReport;
   lens?: RoleLensReadout;
-  locale?: GeneratedLocale;
-};
+  };
 const NAVY = "#16243d";
 const GOLD = "#a27e2e";
 const MUTED = "#5f6a7b";
 const LOGO_PATH = join(process.cwd(), "client/public/ProfoundIQLogo.png");
 const PDF_FONT_DIR = "/usr/share/fonts";
-function pdfFont(locale: GeneratedLocale, bold = false): string {
-  const code = String(locale ?? "en").split("-")[0];
+function pdfFont(bold = false): string {
   const candidates =
-    code === "ar"
-      ? [
-          `${PDF_FONT_DIR}/truetype/noto/NotoNaskhArabic-${bold ? "Bold" : "Regular"}.ttf`,
-        ]
-      : code === "hi"
-        ? [
-            `${PDF_FONT_DIR}/truetype/noto/NotoSansDevanagari-${bold ? "Bold" : "Regular"}.ttf`,
-          ]
-        : [
-            `${PDF_FONT_DIR}/opentype/noto/NotoSansCJKsc-${bold ? "Bold" : "Regular"}.otf`,
-            `${PDF_FONT_DIR}/truetype/noto/NotoSans-${bold ? "Bold" : "Regular"}.ttf`,
-          ];
+    [
+      `${PDF_FONT_DIR}/opentype/noto/NotoSansCJKsc-${bold ? "Bold" : "Regular"}.otf`,
+      `${PDF_FONT_DIR}/truetype/noto/NotoSans-${bold ? "Bold" : "Regular"}.ttf`,
+    ];
   return (
     candidates.find(candidate => existsSync(candidate)) ??
     (bold ? "Helvetica-Bold" : "Helvetica")
@@ -82,13 +71,12 @@ type CareerPathPdfInput = {
   email?: string;
   createdAt: Date | string;
   report: CareerPathReport;
-  locale?: GeneratedLocale;
-};
+  };
 
 export async function renderCareerPathReportPdf(
   input: CareerPathPdfInput
 ): Promise<Buffer> {
-  const copy = getGeneratedCopy(input.locale);
+  const copy = getGeneratedCopy();
   const doc = new PDFDocument({
     size: "A4",
     compress: false,
@@ -276,7 +264,7 @@ export async function renderCareerPathReportPdf(
 export async function renderAssessmentReportPdf(
   input: ReportPdfInput
 ): Promise<Buffer> {
-  const copy = getGeneratedCopy(input.locale);
+  const copy = getGeneratedCopy();
   const doc = new PDFDocument({
     size: "A4",
     compress: false,
@@ -615,9 +603,8 @@ function addFooter(doc: PDFKit.PDFDocument): void {
     .fontSize(8)
     .text(`Page ${pageNumber}`, 450, 746, { width: 93, align: "right" });
 }
-function formatDate(value: Date | string, locale?: GeneratedLocale): string {
-  const code = String(locale ?? "en-KE").split("-")[0];
-  const language = code === "sw" ? "sw-KE" : code;
+function formatDate(value: Date | string): string {
+  const language = "en-KE";
   try {
     return new Date(value).toLocaleDateString(language, {
       year: "numeric",
@@ -636,8 +623,7 @@ function formatDate(value: Date | string, locale?: GeneratedLocale): string {
 type SavedCoursePathwayPdfInput = {
   participantName: string;
   email?: string;
-  locale?: GeneratedLocale;
-  layout?: "summary" | "detailed";
+    layout?: "summary" | "detailed";
   pageSize?: "A4" | "LETTER";
   watermark?: boolean;
   coverPage?: boolean;
@@ -656,7 +642,7 @@ type SavedCoursePathwayPdfInput = {
 export async function renderSavedCoursePathwaysPdf(
   input: SavedCoursePathwayPdfInput
 ): Promise<Buffer> {
-  const copy = getGeneratedCopy(input.locale);
+  const copy = getGeneratedCopy();
   const labels = {
     savedPathways: {
       en: "Your saved learning pathways",
@@ -732,16 +718,9 @@ export async function renderSavedCoursePathwaysPdf(
       ja: "後で参照できるようコースカタログに戻ってパスを保存してください。",
     },
   };
-  const localeKey = (
-    input.locale &&
-    ["en", "sw", "fr", "es", "pt", "ar", "zh", "hi", "de", "ja"].includes(
-      input.locale
-    )
-      ? input.locale
-      : "en"
-  ) as keyof typeof labels.savedPathways;
-  const regularFont = pdfFont(input.locale);
-  const boldFont = pdfFont(input.locale, true);
+  const localeKey = "en" as keyof typeof labels.savedPathways;
+  const regularFont = pdfFont();
+  const boldFont = pdfFont(true);
   const doc = new PDFDocument({
     size: input.pageSize ?? "A4",
     compress: false,
@@ -826,7 +805,7 @@ export async function renderSavedCoursePathwaysPdf(
       .font(regularFont)
       .fontSize(10)
       .text(
-        `${copy.generated} ${formatDate(new Date(), input.locale)}`,
+        `${copy.generated} ${formatDate(new Date())}`,
         coverX,
         382,
         { width: doc.page.width - 104, align: coverAlign }
@@ -894,7 +873,7 @@ export async function renderSavedCoursePathwaysPdf(
     );
   doc
     .font(regularFont)
-    .text(`${copy.generated} ${formatDate(new Date(), input.locale)}`, 52, 196);
+    .text(`${copy.generated} ${formatDate(new Date())}`, 52, 196);
   doc.strokeColor(GOLD).lineWidth(2).moveTo(52, 224).lineTo(543, 224).stroke();
   let y = 252;
   if (!input.courses.length) {
@@ -979,8 +958,7 @@ export async function renderAssessmentScoreSummaryPdf(input: {
   participantName: string;
   email?: string;
   createdAt: Date | string;
-  locale?: GeneratedLocale;
-  reports: Array<{
+    reports: Array<{
     version?: string | null;
     createdAt: Date | string;
     overallScore?: number | null;
@@ -988,7 +966,7 @@ export async function renderAssessmentScoreSummaryPdf(input: {
     dimensionScores?: Array<{ label: string; score: number }>;
   }>;
 }): Promise<Buffer> {
-  const copy = getGeneratedCopy(input.locale);
+  const copy = getGeneratedCopy();
   const doc = new PDFDocument({
     size: "A4",
     compress: false,
@@ -1133,9 +1111,8 @@ export async function renderPaymentReceiptPdf(input: {
   amountKes: number;
   paidAt?: Date | string;
   verificationUrl: string;
-  locale?: GeneratedLocale;
-}): Promise<Buffer> {
-  const copy = getGeneratedCopy(input.locale);
+  }): Promise<Buffer> {
+  const copy = getGeneratedCopy();
   const doc = new PDFDocument({
     size: "A4",
     compress: false,
@@ -1288,13 +1265,12 @@ type PsychometricPdfInput = {
   createdAt: Date | string;
   report: PsychometricReport;
   verificationUrl: string;
-  locale?: GeneratedLocale;
-};
+  };
 
 export async function renderPsychometricReportPdf(
   input: PsychometricPdfInput
 ): Promise<Buffer> {
-  const copy = getGeneratedCopy(input.locale);
+  const copy = getGeneratedCopy();
   const doc = new PDFDocument({
     size: "A4",
     compress: false,

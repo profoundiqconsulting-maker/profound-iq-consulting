@@ -27,7 +27,7 @@ import {
 } from "./db";
 import { notifyOwner } from "./_core/notification";
 import type { PsychometricReport } from "../shared/psychometrics";
-import { getGeneratedCopy } from "../shared/generatedLocalization";
+import { getGeneratedCopy } from "../shared/generatedCopy";
 import { PUBLISHED_SITE_ORIGIN } from "../shared/siteOrigin";
 
 type SmtpEnv = {
@@ -496,7 +496,7 @@ export async function sendCourseCertificateEmail(input: {
   certificateSvg: string;
   locale?: string;
 }) {
-  const copy = getGeneratedCopy(input.locale);
+  const copy = getGeneratedCopy();
   const config = getSmtpConfig();
   const safeName = escapeHtml(input.recipientName);
   const safeCourse = escapeHtml(input.courseTitle);

@@ -45,68 +45,6 @@
     background-color 200ms ease;
 }
 
-/* Pulsing gold indicator dot for notifications */
-@keyframes executiveHeaderPing {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  75%,
-  100% {
-    transform: scale(2.4);
-    opacity: 0;
-  }
-}
-[data-executive-header] [aria-label="Notifications"] .absolute {
-  animation: executiveHeaderPing 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
-  transform-origin: center;
-}
-@media (prefers-reduced-motion: reduce) {
-  [data-executive-header] [aria-label="Notifications"] .absolute {
-    animation: none;
-  }
-}
-
-/* Refined dropdown enter animation */
-@keyframes executiveDropdownEnter {
-  from {
-    opacity: 0;
-    transform: translateY(-4px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-[data-executive-header] [role="menu"] {
-  animation: executiveDropdownEnter 160ms cubic-bezier(0.23, 1, 0.32, 1) both;
-}
-@media (prefers-reduced-motion: reduce) {
-  [data-executive-header] [role="menu"] {
-    animation: none;
-  }
-}
-
-/* Search panel subtle entrance */
-@keyframes executiveSearchEnter {
-  from {
-    opacity: 0;
-    transform: translateY(-2px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-[data-executive-header] [role="dialog"][aria-label="Global search"] {
-  animation: executiveSearchEnter 180ms cubic-bezier(0.23, 1, 0.32, 1) both;
-}
-@media (prefers-reduced-motion: reduce) {
-  [data-executive-header] [role="dialog"][aria-label="Global search"] {
-    animation: none;
-  }
-}
-
 /* Focus ring refinement for executive accessibility */
 [data-executive-header] button:focus-visible,
 [data-executive-header] a:focus-visible,
@@ -120,34 +58,4 @@
 [data-executive-header][data-compact="true"] {
   backdrop-filter: saturate(140%) blur(16px);
   -webkit-backdrop-filter: saturate(140%) blur(16px);
-}
-
-/* Responsive density — tighter on small screens */
-@media (max-width: 1280px) {
-  [data-executive-header] #primary-navigation {
-    gap: 0;
-  }
-  [data-executive-header] #primary-navigation a,
-  [data-executive-header] #primary-navigation button {
-    padding-left: 0.625rem;
-    padding-right: 0.625rem;
-    font-size: 12.5px;
-  }
-}
-
-/* Tablet — hide primary nav, rely on More + mobile sheet */
-@media (max-width: 1279px) and (min-width: 1024px) {
-  [data-executive-header] #primary-navigation {
-    display: none;
-  }
-}
-
-/* Mobile: keep search accessible via icon + sheet */
-@media (max-width: 1023px) {
-  [data-executive-header] [aria-label="Notifications"] {
-    display: none;
-  }
-  [data-executive-header] #primary-navigation {
-    display: none;
-  }
 }

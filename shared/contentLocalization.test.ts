@@ -1,111 +1,41 @@
 import { describe, expect, it } from "vitest";
 import {
-  localizeAssessmentPrompt,
-  localizeContentText,
   localizeCourseDefinition,
+  getLessonInteractiveCopy,
+  getLessonIllustrationCopy,
 } from "./contentLocalization";
 import { courseCatalog } from "./courseCatalog";
 
 describe("content localization", () => {
-  it("localizes recurring course material labels", () => {
-    expect(localizeContentText("fr", "Build the mental model")).toBe(
-      "Construire le modèle mental"
-    );
-    expect(localizeContentText("en", "Build the mental model")).toBe(
-      "Build the mental model"
-    );
-  });
-
-  it("localizes assessment dimension prompt suffixes without changing prompt identity", () => {
-    expect(
-      localizeAssessmentPrompt(
-        "ar",
-        "I can explain the priority that matters most (clarity)",
-        "clarity"
-      )
-    ).toContain("(الوضوح)");
-    expect(
-      localizeAssessmentPrompt("de", "A prompt without a suffix", "clarity")
-    ).toBe("A prompt without a suffix");
-  });
-
-  it("adds course-specific examples in each supported locale", () => {
-    const locales = [
-      "en",
-      "sw",
-      "fr",
-      "es",
-      "pt",
-      "ar",
-      "zh",
-      "hi",
-      "de",
-      "ja",
-    ] as const;
+  it("returns English course definitions", () => {
     const leadership = courseCatalog.find(
-      course => course.slug === "lead-with-clarity"
+      (course) => course.slug === "lead-with-clarity"
     )!;
-    const finance = courseCatalog.find(
-      course => course.slug === "personal-finance-management-essentials"
-    )!;
-    for (const locale of locales) {
-      const localizedLeadership = localizeCourseDefinition(locale, leadership)
-        .modules[0].lessons[0].example;
-      const localizedFinance = localizeCourseDefinition(locale, finance)
-        .modules[0].lessons[0].example;
-      expect(localizedLeadership.context).toContain(
-        locale === "en"
-          ? "Nairobi"
-          : locale === "ar"
-            ? "نيروبي"
-            : locale === "zh"
-              ? "内罗毕"
-              : locale === "hi"
-                ? "नैरोबी"
-                : locale === "ja"
-                  ? "ナイロビ"
-                  : locale === "de"
-                    ? "Nairobi"
-                    : "Nairobi"
-      );
-      expect(localizedLeadership.context).not.toBe(localizedFinance.context);
-      expect(localizedLeadership.move.length).toBeGreaterThan(30);
-      expect(localizedLeadership.result.length).toBeGreaterThan(30);
-    }
+    const localized = localizeCourseDefinition("en", leadership);
+    expect(localized.title).toBe(leadership.title);
+    expect(localized.description).toBe(leadership.description);
+    expect(localized.modules).toEqual(leadership.modules);
   });
 
-  it("projects substantial lesson and quiz copy for every supported locale", () => {
-    const source = courseCatalog[0];
-    const sourceLesson = source.modules[0].lessons[0];
-    const sourceQuiz = source.modules[0].quiz[0];
-    const locales = [
-      "sw",
-      "fr",
-      "es",
-      "pt",
-      "ar",
-      "zh",
-      "hi",
-      "de",
-      "ja",
-    ] as const;
-    for (const locale of locales) {
-      const localized = localizeCourseDefinition(locale, source);
-      const lesson = localized.modules[0].lessons[0];
-      const quiz = localized.modules[0].quiz[0];
-      expect(lesson.sections).toHaveLength(sourceLesson.sections.length);
-      expect(
-        lesson.sections.reduce(
-          (total, section) => total + section.body.length,
-          0
-        )
-      ).toBeGreaterThan(400);
-      expect(lesson.sections[0].body).not.toBe(sourceLesson.sections[0].body);
-      expect(lesson.simulation?.options).toHaveLength(3);
-      expect(quiz.prompt).not.toBe(sourceQuiz.prompt);
-      expect(quiz.optionExplanations).toHaveLength(4);
-      expect(quiz.correctOption).toBeGreaterThanOrEqual(0);
-      expect(quiz.correctOption).toBeLessThan(quiz.options.length);
-    }
+  it("returns English interactive copy", () => {
+    const copy = getLessonInteractiveCopy("en");
+    expect(copy.lessonComplete).toBe("Lesson complete");
+    expect(copy.responsePrompts).toHaveLength(3);
+    expect(copy.responsePlaceholders).toHaveLength(3);
+  });
+
+  it("returns English illustration copy", () => {
+    const copy = getLessonIllustrationCopy("en");
+    expect(copy.explanatory).toBe("Explanatory lens");
+    expect(copy.applicational).toBe("Everyday application");
+    expect(copy.experiential).toBe("Experiential moment");
+  });
+
+  it("returns consistent English copy regardless of locale parameter", () => {
+    const copy1 = getLessonInteractiveCopy("en");
+    const copy2 = getLessonInteractiveCopy("fr");
+    const copy3 = getLessonInteractiveCopy("sw");
+    expect(copy1).toEqual(copy2);
+    expect(copy2).toEqual(copy3);
   });
 });

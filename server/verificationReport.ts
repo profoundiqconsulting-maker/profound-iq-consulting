@@ -3,8 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   getGeneratedCopy,
-  type GeneratedLocale,
-} from "../shared/generatedLocalization";
+} from "../shared/generatedCopy";
 
 const NAVY = "#16243d";
 const GOLD = "#a27e2e";
@@ -12,21 +11,11 @@ const MUTED = "#5f6a7b";
 const LOGO_PATH = join(process.cwd(), "client/public/ProfoundIQLogo.png");
 const PDF_FONT_DIR = "/usr/share/fonts";
 
-function pdfFont(locale: GeneratedLocale, bold = false): string {
-  const code = String(locale ?? "en").split("-")[0];
-  const candidates =
-    code === "ar"
-      ? [
-          `${PDF_FONT_DIR}/truetype/noto/NotoNaskhArabic-${bold ? "Bold" : "Regular"}.ttf`,
-        ]
-      : code === "hi"
-        ? [
-            `${PDF_FONT_DIR}/truetype/noto/NotoSansDevanagari-${bold ? "Bold" : "Regular"}.ttf`,
-          ]
-        : [
-            `${PDF_FONT_DIR}/opentype/noto/NotoSansCJKsc-${bold ? "Bold" : "Regular"}.otf`,
-            `${PDF_FONT_DIR}/truetype/noto/NotoSans-${bold ? "Bold" : "Regular"}.ttf`,
-          ];
+function pdfFont(bold = false): string {
+  const candidates = [
+    `${PDF_FONT_DIR}/opentype/noto/NotoSansCJKsc-${bold ? "Bold" : "Regular"}.otf`,
+    `${PDF_FONT_DIR}/truetype/noto/NotoSans-${bold ? "Bold" : "Regular"}.ttf`,
+  ];
   return (
     candidates.find(candidate => existsSync(candidate)) ??
     (bold ? "Helvetica-Bold" : "Helvetica")
@@ -53,14 +42,13 @@ type VerificationReportInput = {
   credentialTitle: string;
   issuedAt: Date | string;
   verificationUrl: string;
-  locale?: GeneratedLocale;
   artifactHash?: string;
 };
 
 export async function renderVerificationReportPdf(
   input: VerificationReportInput
 ): Promise<Buffer> {
-  const copy = getGeneratedCopy(input.locale);
+  const copy = getGeneratedCopy();
   const verifiedAt = new Date();
   const verificationId = `VR-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
   const doc = new PDFDocument({

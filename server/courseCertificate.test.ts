@@ -71,7 +71,7 @@ describe("course certificate renderer", () => {
     expect(svg).not.toContain(
       '<text x="1000" y="825" text-anchor="middle" fill="#111827" font-family="Arial,sans-serif" font-size="34" font-weight="700">Ada <Admin>'
     );
-    expect(svg).toContain("SCAN TO VERIFY");
+    expect(svg).toContain("VERIFY THIS CREDENTIAL");
     expect(svg).toContain("PIQ-2026-ESCAPE");
   });
 });

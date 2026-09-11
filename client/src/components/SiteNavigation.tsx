@@ -3,7 +3,6 @@ import { ArrowUp, ArrowUpRight, Menu, X } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { BrandLogo } from "@/components/BrandLogo";
-import { LanguageSelector } from "@/components/LanguageSelector";
 
 export const siteNavItems = [
   { label: "About", href: "/about" },
@@ -105,7 +104,6 @@ export function SiteNavigation({
           </nav>
 
           <div className="hidden items-center gap-3 md:flex">
-            <LanguageSelector compact />
             {variant === "home" ? (
               <>
                 {isAuthenticated ? (
@@ -180,7 +178,6 @@ export function SiteNavigation({
               ))}
 
               <div className="mt-4 flex flex-wrap items-center gap-3">
-                <LanguageSelector compact onSelect={() => setMenuOpen(false)} />
                 {variant === "home" && isAuthenticated ? (
                   <Link
                     href="/dashboard"

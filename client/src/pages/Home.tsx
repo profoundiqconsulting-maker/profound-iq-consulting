@@ -31,7 +31,6 @@ import { courseCatalog, COURSE_PRICE_KES } from "@shared/courseCatalog";
 import { ASSESSMENT_PRICE_KES } from "@shared/assessment";
 import { CAREER_PATH_PRICE_KES } from "@shared/careerPath";
 import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
-import { useLocale } from "@/contexts/LocaleContext";
 
 const baseCourses = courseCatalog.map(course => ({
   ...course,
@@ -126,7 +125,6 @@ export default function Home() {
   const enrollment = trpc.enrollment.create.useMutation();
   const inquiry = trpc.inquiry.create.useMutation();
   const { user, isAuthenticated } = useAuth();
-  const { t } = useLocale();
   const liveCatalog = trpc.catalog.listPublished.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: true,
@@ -282,51 +280,30 @@ export default function Home() {
             <div className="grid max-w-6xl grid-cols-1 gap-12 lg:grid-cols-[1fr_270px] lg:items-end">
               <div className="max-w-3xl">
                 <div className="reveal eyebrow mb-7 flex items-center gap-3 text-[#c9a34e]">
-                  <span className="h-px w-12 bg-[#c9a34e]" /> 01 /{" "}
-                  {t("orientation").toUpperCase()}
+                  <span className="h-px w-12 bg-[#c9a34e]" /> 01 / ORIENTATION
                 </div>
                 <h1 className="display reveal reveal-delay-1 max-w-3xl text-6xl leading-[.92] tracking-[-.055em] text-[#f7f3e8] sm:text-7xl lg:text-[7.5rem]">
-                  {t("clarityIs")}
+                  Clarity is
                   <br />
                   <em className="font-normal text-[#c9a34e]">
-                    {t("aCapability")}
+                    a capability.
                   </em>
                 </h1>
                 <p className="reveal reveal-delay-2 mt-8 max-w-xl text-lg leading-8 text-[#d6dce6] sm:text-xl">
-                  {t("heroDescription")}
+                  Profound IQ Consulting helps people and organizations move from raw potential to purposeful impact—through learning that changes how you think, lead, and act.
                 </p>
                 <div className="reveal reveal-delay-3 mt-10 flex flex-wrap items-center gap-4">
                   <a
                     href="/assessment"
                     className="inline-flex items-center gap-3 border border-[#c9a34e] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#f7f3e8] transition-all hover:bg-[#c9a34e] hover:text-[#101d35]"
                   >
-                    {t("takeAssessment")} <Sparkles size={16} />
-                  </a>
-                  <a
-                    href="/psychometrics"
-                    className="inline-flex items-center gap-3 border border-[#c9a34e]/70 px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#c9a34e] transition-all hover:bg-[#c9a34e] hover:text-[#101d35]"
-                  >
-                    Psychometrics <ArrowUpRight size={16} />
-                  </a>
-                  <a
-                    href="/careerpath"
-                    className="inline-flex items-center gap-3 border border-[#f7f3e8]/40 px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#f7f3e8] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e]"
-                  >
-                    {t("careerPath")} · KES{" "}
-                    {CAREER_PATH_PRICE_KES.toLocaleString()}{" "}
-                    <ArrowUpRight size={16} />
+                    Take the KES 399 assessment <Sparkles size={16} />
                   </a>
                   <a
                     href="#offerings"
-                    className="inline-flex items-center gap-3 bg-[#c9a34e] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#101d35] transition-all hover:-translate-y-1"
+                    className="inline-flex items-center gap-3 border border-[#f7f3e8]/40 px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#f7f3e8] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e]"
                   >
-                    {t("exploreTheWork")} <ArrowDownRight size={16} />
-                  </a>
-                  <a
-                    href="#contact"
-                    className="inline-flex items-center gap-3 border border-white/35 px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#f7f3e8] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e]"
-                  >
-                    {t("talkToUs")} <ChevronRight size={16} />
+                    Explore the work <ArrowDownRight size={16} />
                   </a>
                 </div>
               </div>
@@ -341,7 +318,7 @@ export default function Home() {
             </div>
           </div>
           <div className="absolute bottom-0 left-0 right-0 flex justify-between border-t border-white/10 px-5 py-4 text-[10px] font-bold uppercase tracking-[.18em] text-[#8f9db3] sm:px-10 lg:px-14">
-            <span>{t("transformationalLearning")} / 2026</span>
+            <span>Transformational learning / 2026</span>
             <span className="hidden sm:block">Online / Global reach</span>
           </div>
         </section>
@@ -1103,7 +1080,7 @@ export default function Home() {
           <div>
             <BrandLogo context="footer" />
             <p className="mt-4 max-w-xs text-xs leading-5 text-[#8f9db3]">
-              {t("transformationalLearning")} — people ready to move from
+              Transformational learning — people ready to move from
               understanding to action.
             </p>
             <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-[10px] font-black uppercase tracking-[.12em] text-[#c9a34e]">
@@ -1132,13 +1109,13 @@ export default function Home() {
               href="/privacy-policy"
               className="inline-flex h-9 items-center border border-white/15 px-3 text-[10px] font-bold uppercase tracking-[.12em] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#c9a34e] hover:text-[#c9a34e] active:scale-95"
             >
-              {t("privacyPolicy")}
+              Privacy Policy
             </a>
             <a
               href="/terms-of-service"
               className="inline-flex h-9 items-center border border-white/15 px-3 text-[10px] font-bold uppercase tracking-[.12em] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#c9a34e] hover:text-[#c9a34e] active:scale-95"
             >
-              {t("termsOfService")}
+              Terms of Service
             </a>
             <a
               href="https://www.facebook.com/profoundIQ"
@@ -1191,7 +1168,7 @@ export default function Home() {
                 >
                   <MessageCircle size={16} />{" "}
                   <span className="hidden sm:inline">
-                    {t("whatsappSupport")}
+                    WhatsApp support
                   </span>
                 </a>
               </TooltipTrigger>

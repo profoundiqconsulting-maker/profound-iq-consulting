@@ -41,8 +41,8 @@ describe("My Space workspace navigation", () => {
     const user = readFileSync("client/src/pages/UserDashboard.tsx", "utf8");
     expect(quickNav).toContain("dashboardNavGroups.map");
     expect(quickNav).toContain("lg:grid-cols-3");
-    expect(staff).toContain('<DashboardQuickNav role="staff"');
-    expect(user).toContain("<DashboardQuickNav");
+    expect(staff).toContain('<DashboardLayout role="staff"');
+    expect(user).toContain("<DashboardLayout");
     expect(user).toContain("report-history-title");
     expect(user).toContain("reportHistoryFrom");
     expect(user).toContain("reportHistoryTo");

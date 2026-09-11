@@ -315,7 +315,6 @@ import { WEEKLY_EXPORT_KEY } from "./scheduledEnrollmentExport";
 import { BIWEEKLY_NEWSLETTER_KEY } from "./scheduledNewsletter";
 import { PSYCHOMETRIC_WEEKLY_EXPORT_KEY } from "./scheduledPsychometricAnalytics";
 import { COURSE_REVIEW_WEEKLY_EXPORT_KEY } from "./scheduledCourseLessonReviewAnalytics";
-import { getRequestLocale } from "./requestLocale";
 import { localizeCourseMetadata } from "../shared/courseMetadataLocalization";
 import { DELIVERY_LOG_EXPORT_KEY } from "./deliveryLogExport";
 import { createHash, randomUUID } from "node:crypto";
@@ -1364,7 +1363,6 @@ export const appRouter = router({
             "research-surveys",
             "organizational-development",
             "general",
-            "translation-feedback",
           ]),
           message: z.string().trim().min(10).max(4000),
           mathA: z.number().int().min(1).max(20),
@@ -1645,7 +1643,6 @@ export const appRouter = router({
           issuedAt: input.issuedAt,
           verificationUrl,
           artifactHash: input.artifactHash,
-          locale: getRequestLocale(ctx.req),
         });
         return {
           filename: `profound-iq-verification-${input.type}-${Date.now()}.pdf`,
@@ -1804,7 +1801,6 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const saved = await listSavedCourses(ctx.user.openId);
         const profile = await getUserProfile(ctx.user.openId);
-        const locale = input.locale ?? getRequestLocale(ctx.req);
         const courses = saved
           .map(item =>
             courseCatalog.find(course => course.slug === item.courseSlug)
@@ -1815,7 +1811,6 @@ export const appRouter = router({
         const pdf = await renderSavedCoursePathwaysPdf({
           participantName: ctx.user.name || "Respondent",
           email: ctx.user.email ?? undefined,
-          locale,
           layout: input.layout,
           pageSize: input.pageSize,
           watermark: input.watermark,
@@ -1824,7 +1819,7 @@ export const appRouter = router({
           customLogoUrl: profile?.exportLogoUrl ?? undefined,
           courses: courses.map(course => ({
             title: localizeCourseMetadata(
-              locale,
+              "en",
               course.slug,
               course.title,
               course.description
@@ -2639,7 +2634,6 @@ export const appRouter = router({
                 certificateNumber,
                 issuedOn: new Date(),
                 verificationUrl,
-                locale: getRequestLocale(ctx.req),
                 trainerName: certificateSettings.trainerName,
                 trainerTitle: certificateSettings.trainerTitle,
                 signatureDataUri: certificateSettings.signatureDataUri,
@@ -2687,7 +2681,6 @@ export const appRouter = router({
                   courseTitle: course.title,
                   certificateNumber,
                   certificateSvg,
-                  locale: getRequestLocale(ctx.req),
                 });
               } catch (error) {
                 console.error(
@@ -2776,7 +2769,6 @@ export const appRouter = router({
               certificateNumber,
               issuedOn: new Date(),
               verificationUrl,
-              locale: getRequestLocale(ctx.req),
               trainerName: certificateSettings.trainerName,
               trainerTitle: certificateSettings.trainerTitle,
               signatureDataUri: certificateSettings.signatureDataUri,
@@ -2824,7 +2816,6 @@ export const appRouter = router({
                 courseTitle: course.title,
                 certificateNumber,
                 certificateSvg,
-                locale: getRequestLocale(ctx.req),
               });
             } catch (error) {
               console.error(
@@ -2904,7 +2895,6 @@ export const appRouter = router({
           certificateNumber,
           issuedOn: new Date(),
           verificationUrl,
-          locale: getRequestLocale(ctx.req),
           trainerName: certificateSettings.trainerName,
           trainerTitle: certificateSettings.trainerTitle,
           signatureDataUri: certificateSettings.signatureDataUri,
@@ -2951,7 +2941,6 @@ export const appRouter = router({
           courseTitle: course.title,
           certificateNumber,
           certificateSvg,
-          locale: getRequestLocale(ctx.req),
         });
         return {
           certificateNumber: certificate?.certificateNumber,
@@ -3012,7 +3001,6 @@ export const appRouter = router({
           certificateNumber: certificate.certificateNumber,
           issuedOn: certificate.createdAt,
           verificationUrl: `${origin}/verify/certificate?certificate=${encodeURIComponent(certificate.certificateNumber)}`,
-          locale: getRequestLocale(ctx.req),
           trainerName: settings.trainerName,
           trainerTitle: settings.trainerTitle,
           signatureDataUri: settings.signatureDataUri,
@@ -3110,7 +3098,6 @@ export const appRouter = router({
           learnerName: record.enrollment.name,
           courseTitle: certificate.courseTitle,
           certificateNumber: certificate.certificateNumber,
-          locale: getRequestLocale(ctx.req),
         });
         return {
           invitationId: invitation.id,
@@ -4138,7 +4125,6 @@ export const appRouter = router({
           certificateNumber,
           issuedOn: new Date(),
           verificationUrl,
-          locale: "en",
           trainerName: certificateSettings.trainerName,
           trainerTitle: certificateSettings.trainerTitle,
           signatureDataUri: certificateSettings.signatureDataUri,
@@ -4185,7 +4171,6 @@ export const appRouter = router({
           courseTitle: course.title,
           certificateNumber,
           certificateSvg,
-          locale: "en",
         });
         return {
           certificateNumber: certificate?.certificateNumber,
@@ -4544,29 +4529,28 @@ export const appRouter = router({
           .object({
             page: z.number().int().min(1).default(1),
             pageSize: z.number().int().min(1).max(50).default(10),
-            search: z.string().trim().max(160).optional(),
-            category: z
-              .enum([
-                "all",
-                "professional-courses",
-                "educational-consulting",
-                "psychometric-testing",
-                "research-surveys",
-                "organizational-development",
-                "general",
-                "translation-feedback",
-              ])
-              .default("all"),
-            status: z
-              .enum(["all", "new", "contacted", "closed"])
-              .default("all"),
-            assignedToOpenId: z.string().max(64).default("all"),
-            fromDate: z.string().optional(),
-            toDate: z.string().optional(),
-          })
-          .optional()
-      )
-      .query(({ input }) =>
+             search: z.string().trim().max(160).optional(),
+             category: z
+               .enum([
+                 "all",
+                 "professional-courses",
+                 "educational-consulting",
+                 "psychometric-testing",
+                 "research-surveys",
+                 "organizational-development",
+                 "general",
+               ])
+               .default("all"),
+             status: z
+               .enum(["all", "new", "contacted", "closed"])
+               .default("all"),
+             assignedToOpenId: z.string().max(64).default("all"),
+             fromDate: z.string().optional(),
+             toDate: z.string().optional(),
+           })
+           .optional()
+       )
+       .query(({ input }) =>
         listContactInquiries({
           page: input?.page ?? 1,
           pageSize: input?.pageSize ?? 10,
@@ -4879,7 +4863,6 @@ export const appRouter = router({
                 "research-surveys",
                 "organizational-development",
                 "general",
-                "translation-feedback",
               ])
               .default("all"),
             status: z
@@ -6872,7 +6855,6 @@ export const appRouter = router({
           createdAt: attempt.createdAt,
           report,
           verificationUrl,
-          locale: getRequestLocale(ctx.req),
         });
         await recordAnalyticsEvent({
           eventName: "report_downloaded",
@@ -7124,7 +7106,6 @@ export const appRouter = router({
           email: attempt.email,
           createdAt: attempt.createdAt,
           report: attempt.report as CareerPathReport,
-          locale: getRequestLocale(ctx.req),
         });
         return {
           filename: `profound-iq-careerpath-${attempt.id}.pdf`,
@@ -7157,7 +7138,6 @@ export const appRouter = router({
           amountKes: CAREER_PATH_PRICE_KES,
           paidAt: attempt.paidAt ?? attempt.createdAt,
           verificationUrl,
-          locale: getRequestLocale(ctx.req),
         });
         return {
           filename: `profound-iq-payment-receipt-${attempt.id}.pdf`,
@@ -7453,7 +7433,6 @@ export const appRouter = router({
           certificateNumber,
           issuedOn: attempt.paidAt ?? attempt.createdAt,
           verificationUrl: `${PUBLIC_SITE_ORIGIN}/verify/assessment?reference=${encodeURIComponent(input.reference)}`,
-          locale: getRequestLocale(ctx.req),
           trainerName: settings.trainerName,
           trainerTitle: settings.trainerTitle,
           signatureDataUri: settings.signatureDataUri,
@@ -7519,7 +7498,6 @@ export const appRouter = router({
           certificateNumber,
           issuedOn: attempt.paidAt ?? attempt.createdAt,
           verificationUrl: `${origin}/verify/assessment?reference=${encodeURIComponent(input.reference)}`,
-          locale: getRequestLocale(ctx.req),
           trainerName: settings.trainerName,
           trainerTitle: settings.trainerTitle,
           signatureDataUri: settings.signatureDataUri,
@@ -7586,7 +7564,6 @@ export const appRouter = router({
           certificateNumber: `PIQ-AS-${attempt.id}`,
           issuedOn: attempt.paidAt ?? attempt.createdAt,
           verificationUrl: `${origin}/verify/assessment?reference=${encodeURIComponent(input.reference)}`,
-          locale: getRequestLocale(ctx.req),
           trainerName: settings.trainerName,
           trainerTitle: settings.trainerTitle,
           signatureDataUri: settings.signatureDataUri,
@@ -7801,7 +7778,6 @@ export const appRouter = router({
           issuedAt: input.issuedAt,
           verificationUrl,
           artifactHash: input.artifactHash,
-          locale: getRequestLocale(ctx.req),
         });
         return {
           filename: `profound-iq-verification-${input.type}-${Date.now()}.pdf`,

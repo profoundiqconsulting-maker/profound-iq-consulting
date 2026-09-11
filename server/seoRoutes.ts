@@ -14,18 +14,6 @@ import { PUBLISHED_SITE_ORIGIN } from "../shared/siteOrigin";
 const SITE_ORIGIN = PUBLISHED_SITE_ORIGIN;
 const PUBLIC_IMAGE_ORIGIN = PUBLISHED_SITE_ORIGIN;
 const DEFAULT_SOCIAL_IMAGE_URL = `${PUBLIC_IMAGE_ORIGIN}/profound-iq-social-preview.svg`;
-const SEO_LOCALES = [
-  "en",
-  "sw",
-  "fr",
-  "es",
-  "pt",
-  "ar",
-  "zh",
-  "hi",
-  "de",
-  "ja",
-] as const;
 
 function escapeHtml(value: unknown) {
   return String(value ?? "").replace(
@@ -155,18 +143,10 @@ export function buildSitemapXml(courses: Array<{ slug: string }>) {
       ...courses.map(course => `/courses/${course.slug}`),
     ])
   );
-  const localizedUrl = (path: string, locale: (typeof SEO_LOCALES)[number]) =>
-    `${SITE_ORIGIN}${path}${path.includes("?") ? "&" : "?"}lang=${locale}`;
-  const entries = paths.flatMap(path =>
-    SEO_LOCALES.map(locale => {
-      const alternates = SEO_LOCALES.map(
-        alternate =>
-          `<xhtml:link rel="alternate" hreflang="${alternate === "en" ? "en" : alternate}" href="${escapeHtml(localizedUrl(path, alternate))}"/>`
-      ).join("");
-      return `  <url><loc>${escapeHtml(localizedUrl(path, locale))}</loc>${alternates}</url>`;
-    })
+  const entries = paths.map(
+    path => `  <url><loc>${escapeHtml(SITE_ORIGIN)}${escapeHtml(path)}</loc></url>`
   );
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${entries.join("\n")}\n</urlset>\n`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join("\n")}\n</urlset>\n`;
 }
 
 function findClientScript() {

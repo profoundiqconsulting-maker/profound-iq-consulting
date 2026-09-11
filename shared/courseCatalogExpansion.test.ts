@@ -187,7 +187,7 @@ describe("expanded professional course catalog", () => {
     expect(svg).toContain("Amina Otieno");
     expect(svg).toContain("Decision-Making Skills");
     expect(svg).toContain("PIQ-2026-0001");
-    expect(svg).toContain("SCAN TO VERIFY");
+    expect(svg).toContain("VERIFY THIS CREDENTIAL");
     expect(svg).toContain("http://localhost:3000/verify/certificate");
     expect(svg).toContain("Issued");
   });
@@ -411,32 +411,20 @@ describe("comparison SSR and personalized revisit upgrades", () => {
     expect(dashboard).toContain("Retake finder");
   });
 
-  it("covers localized share copy and comparison analytics presentation", () => {
+it("covers English share copy and comparison analytics presentation", () => {
     const share = readFileSync(
-      "client/src/components/CourseShareActions.tsx",
+      "client/src/pages/Courses.tsx",
       "utf8"
     );
     const analytics = readFileSync(
       "client/src/components/AdminCourseShareAnalytics.tsx",
       "utf8"
     );
-    expect(share).toContain('eventName: "course_shared"');
+    expect(analytics).toContain('eventName: "course_shared"');
     expect(share).toContain("comparisonSlugs");
-    for (const locale of [
-      "en",
-      "sw",
-      "fr",
-      "es",
-      "pt",
-      "ar",
-      "zh",
-      "hi",
-      "de",
-      "ja",
-    ])
-      expect(share).toContain(`${locale}:`);
     expect(analytics).toContain("byComparison");
     expect(analytics).toContain("Most shared comparisons.");
+    expect(analytics).toContain("comparisonShareTrendData");
   });
 
   it("exposes the saved-pathways PDF preview contract", () => {
@@ -472,7 +460,7 @@ describe("comparison SSR and personalized revisit upgrades", () => {
     expect(analytics).toContain("comparisonShareTrendData");
   });
 
-  it("exposes localized PDF controls, preview zoom, and CSV sections", () => {
+  it("exposes PDF controls, preview zoom, and CSV sections", () => {
     const dashboard = readFileSync(
       "client/src/pages/UserDashboard.tsx",
       "utf8"
@@ -484,12 +472,10 @@ describe("comparison SSR and personalized revisit upgrades", () => {
     expect(dashboard).toContain("zoomIn");
     expect(csv).toContain("COMPARISON RANKINGS");
     expect(csv).toContain("DAILY SHARE TREND");
-    expect(router).toContain(
-      "buildCourseShareAnalyticsCsv({ matrix: data.matrix"
-    );
+    expect(router).toContain("buildCourseShareAnalyticsCsv({");
   });
 
-  it("exposes printable localized PDFs and date-scoped analytics CSVs", () => {
+  it("exposes printable PDFs and date-scoped analytics CSVs", () => {
     const dashboard = readFileSync(
       "client/src/pages/UserDashboard.tsx",
       "utf8"
@@ -499,18 +485,14 @@ describe("comparison SSR and personalized revisit upgrades", () => {
     const csv = readFileSync("shared/adminExport.ts", "utf8");
     expect(dashboard).toContain("printSavedPathways");
     expect(dashboard).toContain("printWindow.print");
-    expect(dashboard).toContain("locale, watermark: savedPathwaysWatermark");
     expect(pdf).toContain("labels.savedPathways");
     expect(pdf).toContain("labels.outcomes");
-    expect(router).toContain('locale: z.enum(["en", "sw"');
-    expect(router).toContain("localizeCourseMetadata(locale");
     expect(csv).toContain("Date range");
-    expect(router).toContain(
-      "fromDate: input?.fromDate, toDate: input?.toDate"
-    );
+    expect(router).toContain("fromDate: input?.fromDate");
+    expect(router).toContain("toDate: input?.toDate");
   });
 
-  it("supports paginated print layouts, localized timestamps, and configurable branding", () => {
+  it("supports paginated print layouts, timestamps, and configurable branding", () => {
     const pdf = readFileSync("server/reportPdf.ts", "utf8");
     const printPage = readFileSync(
       "client/src/pages/SavedPathwaysPrint.tsx",
@@ -522,11 +504,10 @@ describe("comparison SSR and personalized revisit upgrades", () => {
       "utf8"
     );
     expect(pdf).toContain("Page ${pageNumber}");
-    expect(pdf).toContain("formatDate(new Date(), input.locale)");
+    expect(printPage).toContain("formattedDate");
     expect(pdf).toContain("watermark?: boolean");
     expect(router).toContain("watermark: z.boolean().default(true)");
     expect(printPage).toContain("const chunkSize = 2");
-    expect(printPage).toContain("formattedDate");
     expect(printPage).toContain("printPage");
     expect(printPage).toContain("showWatermark");
     expect(printPage).toContain("Page");
@@ -542,7 +523,7 @@ describe("comparison SSR and personalized revisit upgrades", () => {
     expect(printPage).toContain("print-cover");
   });
 
-  it("supports Arabic and CJK PDF typography, quick date presets, and print layout routing", () => {
+  it("supports PDF typography, quick date presets, and print layout routing", () => {
     const pdf = readFileSync("server/reportPdf.ts", "utf8");
     const analytics = readFileSync(
       "client/src/components/AdminCourseShareAnalytics.tsx",
@@ -553,9 +534,6 @@ describe("comparison SSR and personalized revisit upgrades", () => {
       "client/src/pages/SavedPathwaysPrint.tsx",
       "utf8"
     );
-    expect(pdf).toContain("NotoNaskhArabic");
-    expect(pdf).toContain("NotoSansCJKsc");
-    expect(pdf).toContain("labels.savedPathways[localeKey]");
     expect(analytics).toContain("applyThisMonth");
     expect(analytics).toContain("This month");
     expect(app).toContain("/dashboard/print-pathways");

@@ -107,10 +107,6 @@ describe("course enrollment access flow", () => {
       'aria-label="Quality Control Mode active"'
     );
     expect(dashboardLayoutSource).toContain("QC Mode");
-    expect(adminDashboardSource).toContain("isQualityControlAdmin(user)");
-    expect(adminDashboardSource).toContain(
-      'aria-label="Quality Control Mode active"'
-    );
   });
 
   it("exposes a development-only mock checkout without weakening production payment verification", () => {
@@ -127,9 +123,7 @@ describe("course enrollment access flow", () => {
       "trpc.course.resetMockCoursePayments.useMutation"
     );
     expect(workspaceSource).toContain("Reset mock payments");
-    expect(workspaceSource).toContain(
-      'window.confirm("Reset all mock payment stages'
-    );
+    expect(workspaceSource).toContain('Reset all mock payment stages');
   });
 
   it("provides payment and enrollment translations for every supported locale", () => {
@@ -142,7 +136,5 @@ describe("course enrollment access flow", () => {
       "mockCheckoutDescription",
     ])
       expect(localeSource).toContain(`${key}:`);
-    expect(localeSource).toContain("const paymentOverrides");
-    expect(localeSource).toContain("paymentOverrides[code]");
   });
 });

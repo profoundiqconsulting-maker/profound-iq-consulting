@@ -82,7 +82,6 @@ import { svgToPngBlob, triggerDownload } from "@/lib/visualDownload";
 import { isQaFixtureEnabled, QA_FIXTURE_STORAGE_KEY } from "@shared/qaFixture";
 import { courseCatalog, COURSE_PASS_MARK } from "@shared/courseCatalog";
 import { localizeCourseMetadata } from "@shared/courseMetadataLocalization";
-import { LanguageSelector } from "@/components/LanguageSelector";
 import { paginateDashboardItems } from "@/components/dashboardNavigation";
 import { summarizeQuizAnalytics } from "@shared/quizAnalytics";
 import { buildCourseCompletionShareSvg } from "@shared/courseCompletionVisual";

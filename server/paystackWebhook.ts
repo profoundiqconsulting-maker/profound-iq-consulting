@@ -47,7 +47,6 @@ import {
 } from "./email";
 import { renderCourseCertificateSvg } from "./courseCertificate";
 import { storagePut } from "./storage";
-import { getRequestLocale } from "./requestLocale";
 import {
   createHash,
   createHmac,
@@ -169,7 +168,6 @@ async function reconcileCoursePayment(
               certificateNumber,
               issuedOn: new Date(),
               verificationUrl,
-              locale: req ? getRequestLocale(req) : "en",
               trainerName: certificateSettings.trainerName,
               trainerTitle: certificateSettings.trainerTitle,
               signatureDataUri: certificateSettings.signatureDataUri,
@@ -217,7 +215,6 @@ async function reconcileCoursePayment(
                 courseTitle: course.title,
                 certificateNumber,
                 certificateSvg,
-                locale: req ? getRequestLocale(req) : "en",
               });
             } catch (error) {
               console.error(

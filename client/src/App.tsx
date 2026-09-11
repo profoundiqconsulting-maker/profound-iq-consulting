@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { LocaleProvider } from "./contexts/LocaleContext";
 import { CookieConsent } from "./components/CookieConsent";
 import { WhatsAppSupportWidget } from "./components/WhatsAppSupportWidget";
 import { SeoHead } from "./components/SeoHead";
@@ -179,15 +178,13 @@ export default function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light" switchable>
-        <LocaleProvider>
-          <TooltipProvider>
-            <Toaster />
-            <SeoHead />
-            <Router />
-            <WhatsAppSupportWidget />
-            <CookieConsent />
-          </TooltipProvider>
-        </LocaleProvider>
+        <TooltipProvider>
+          <Toaster />
+          <SeoHead />
+          <Router />
+          <WhatsAppSupportWidget />
+          <CookieConsent />
+        </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

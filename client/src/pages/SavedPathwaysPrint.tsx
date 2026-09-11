@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { BrandLogo } from "@/components/BrandLogo";
-import { LanguageSelector } from "@/components/LanguageSelector";
 import { trpc } from "@/lib/trpc";
 import { courseCatalog } from "@shared/courseCatalog";
 import { localizeCourseMetadata } from "@shared/courseMetadataLocalization";
@@ -222,7 +221,7 @@ export default function SavedPathwaysPrint() {
     (_, index) => courses.slice(index * chunkSize, (index + 1) * chunkSize)
   );
   const formattedDate = new Date().toLocaleString(
-    locale === "sw" ? "sw-KE" : locale,
+    "en-KE",
     { dateStyle: "medium", timeStyle: "short" }
   );
 
@@ -253,7 +252,7 @@ export default function SavedPathwaysPrint() {
     <>
       <style>{`@page { size: ${pageSize}; margin: 0.45in; } @media print { .print-page { break-after: page; min-height: 9.35in; } .print-page:last-child { break-after: auto; } .print-cover { break-after: page; min-height: 9.35in; } }`}</style>
       <main
-        dir={locale === "ar" ? "rtl" : "ltr"}
+        dir="ltr"
         className="min-h-screen bg-[#f7f3e8] text-[#16243d] print:bg-white"
       >
         <header className="border-b border-[#16243d]/15 bg-[#101d35] text-[#f7f3e8] print:hidden">
@@ -265,7 +264,6 @@ export default function SavedPathwaysPrint() {
               </span>
             </Link>
             <div className="flex items-center gap-3">
-              <LanguageSelector compact />
               <Link
                 href="/dashboard"
                 className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#c1cad7]"

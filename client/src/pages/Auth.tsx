@@ -21,7 +21,6 @@ import {
   LOGIN_LOCKOUT_WINDOW_MS,
   passwordStrength,
 } from "../../../shared/localAuth";
-import { useLocale } from "@/contexts/LocaleContext";
 import { getAuthCopy } from "../../../shared/authLocalization";
 
 type Mode = "login" | "register" | "forgot";
@@ -29,8 +28,7 @@ type Mode = "login" | "register" | "forgot";
 export default function Auth() {
   const { user, loading } = useAuth();
   const utils = trpc.useUtils();
-  const { t, locale } = useLocale();
-  const authCopy = getAuthCopy(locale);
+  const authCopy = getAuthCopy();
   const [, navigate] = useLocation();
 
   useEffect(() => {
