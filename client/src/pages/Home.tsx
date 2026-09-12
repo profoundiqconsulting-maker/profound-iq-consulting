@@ -93,7 +93,7 @@ const services = [
     title: "Research surveys",
     body: "Turn questions into evidence with focused surveys that help institutions and teams listen, learn, and act with precision.",
     tag: "Evidence",
-    href: "/contact",
+    href: "/surveys",
     icon: Mail,
   },
 ];

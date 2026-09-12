@@ -137,15 +137,8 @@ export default function Psychometrics() {
   }, [inlineModalOpen, inlineProduct?.reference, verify]);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("piq-psychometric-answers");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setAnswers(parsed);
-      } catch {
-        // ignore corrupt storage
-      }
-    }
+    setAnswers({});
+    window.localStorage.removeItem("piq-psychometric-answers");
   }, [slug]);
 
   useEffect(() => {
@@ -583,10 +576,10 @@ export default function Psychometrics() {
             </li>
             <span className="h-px flex-1 bg-[#16243d]/10" aria-hidden="true" />
             <li
-              className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${index === questions.length && !report ? "text-[#16243d]" : "text-[#657084]"}`}
+              className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${index === questions.length && questions.length > 0 && !report ? "text-[#16243d]" : "text-[#657084]"}`}
             >
               <span
-                className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[10px] ${index === questions.length && !report ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : "border-[#16243d]/20"}`}
+                className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[10px] ${index === questions.length && questions.length > 0 && !report ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : "border-[#16243d]/20"}`}
               >
                 3
               </span>

@@ -4,6 +4,13 @@ import { LogOut, Menu, Search, X } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { BrandLogo } from "@/components/BrandLogo";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const primaryNavItems = [
   { label: "Home", href: "/" },
@@ -126,25 +133,36 @@ export function ExecutiveHeader({
             })}
 
             {isAuthenticated ? (
-              <div
-                className="hidden xl:flex items-center gap-2 ml-2 pl-2 border-l border-white/10"
-                aria-label="Account"
-              >
-                <span className="text-[11px] text-[#8f9db3]">
-                  Signed in as{" "}
-                  <span className="font-semibold text-[#c9a34e]">
-                    {user?.name ?? "User"}
-                  </span>
-                </span>
-                <button
-                  type="button"
-                  onClick={() => logout()}
-                  className="inline-flex h-8 items-center rounded-md px-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#c1cad7] transition-colors duration-150 hover:text-[#f7f3e8]"
-                >
-                  <LogOut size={12} strokeWidth={2} aria-hidden="true" />
-                  Sign Out
-                </button>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className="hidden xl:flex items-center gap-2 ml-2 pl-2 border-l border-white/10 text-left"
+                  >
+                    <span className="text-[11px] text-[#8f9db3]">
+                      Signed in as{" "}
+                      <span className="font-semibold text-[#c9a34e]">
+                        {user?.name ?? "User"}
+                      </span>
+                    </span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-[12rem]">
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard" className="cursor-pointer">
+                      Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onSelect={() => logout()}
+                    className="cursor-pointer"
+                  >
+                    <LogOut size={14} className="mr-2" aria-hidden="true" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <nav
                 className="hidden xl:flex items-center gap-1 ml-2 pl-2 border-l border-white/10"
@@ -254,30 +272,44 @@ export function ExecutiveHeader({
             }}
           >
             {isAuthenticated ? (
-              <>
-                <span className="text-[11px] text-[#8f9db3]">
-                  Signed in as{" "}
-                  <span className="font-semibold text-[#c9a34e]">
-                    {user?.name ?? "User"}
-                  </span>
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    logout();
-                  }}
-                  className={cn(
-                    "inline-flex h-11 items-center gap-2 rounded-md px-4 text-sm font-semibold tracking-tight",
-                    dark
-                      ? "border border-white/15 text-[#f7f3e8] hover:bg-white/5"
-                      : "border border-[#16243d]/20 text-[#16243d] hover:bg-[#16243d]/[0.04]"
-                  )}
-                >
-                  <LogOut size={14} strokeWidth={2} aria-hidden="true" />
-                  Sign Out
-                </button>
-              </>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className={cn(
+                      "inline-flex h-11 items-center gap-2 rounded-md px-4 text-sm font-semibold tracking-tight",
+                      dark
+                        ? "border border-white/15 text-[#f7f3e8] hover:bg-white/5"
+                        : "border border-[#16243d]/20 text-[#16243d] hover:bg-[#16243d]/[0.04]"
+                    )}
+                  >
+                    <span className="text-[11px] text-[#8f9db3]">
+                      Signed in as{" "}
+                      <span className="font-semibold text-[#c9a34e]">
+                        {user?.name ?? "User"}
+                      </span>
+                    </span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-[12rem]">
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard" className="cursor-pointer">
+                      Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      setMobileMenuOpen(false);
+                      logout();
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <LogOut size={14} className="mr-2" aria-hidden="true" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <>
                 <Link

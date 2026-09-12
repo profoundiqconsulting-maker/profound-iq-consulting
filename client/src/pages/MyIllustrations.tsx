@@ -585,7 +585,7 @@ export default function MyIllustrations() {
     return (
       <DashboardLayout role="user" title="My Illustrations">
         <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-          <BookOpen size={48} className="text-[#16243d]/20" />
+          <BookOpen size={48} className="text-[#16243d]/60" />
           <p className="text-sm text-[#16243d]">Sign in to view your saved illustrations.</p>
         </div>
       </DashboardLayout>
@@ -614,7 +614,7 @@ export default function MyIllustrations() {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#16243d]/60" />
                 <Input
                   value={query}
                   onChange={event => setQuery(event.target.value)}
@@ -655,7 +655,7 @@ export default function MyIllustrations() {
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#16243d]/60" />
                 <Input
                   value={folderQuery}
                   onChange={event => setFolderQuery(event.target.value)}
@@ -839,7 +839,7 @@ export default function MyIllustrations() {
         >
           <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#f7f3e8] transition-transform hover:scale-110">
-              <Bookmark size={28} className="text-[#16243d]/40" />
+              <Bookmark size={28} className="text-[#16243d]/70" />
             </div>
             <p className="text-sm text-[#16243d] max-w-sm">
               You have not saved any illustrations yet. Explore courses to start building your visual study library.

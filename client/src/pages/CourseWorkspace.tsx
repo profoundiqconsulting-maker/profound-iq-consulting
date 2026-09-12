@@ -739,12 +739,12 @@ function CourseAccessGate({
             <p className="eyebrow text-accent-on-dark">
               Detailed lessons are protected
             </p>
-            <h2 className="display mt-3 text-3xl">
+            <h2 className="display mt-3 text-3xl text-[#f7f3e8]">
               {isAuthenticated
                 ? "Unlock the learning workspace."
                 : "Create your learner account to begin."}
             </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#d7deea]">
               {courseAccessReason({
                 isAuthenticated,
                 paidStages,
@@ -773,14 +773,14 @@ function CourseAccessGate({
               {isAuthenticated && (
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.15em] text-muted-foreground underline underline-offset-4 hover:text-accent-on-dark"
+                  className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#c1cad7] underline underline-offset-4 hover:text-[#f7f3e8]"
                 >
                   {t("myWorkspace")} <ArrowUpRight size={14} />
                 </Link>
               )}
               <Link
                 href="/courses"
-                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.15em] text-muted-foreground underline underline-offset-4 hover:text-accent-on-dark"
+                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#c1cad7] underline underline-offset-4 hover:text-[#f7f3e8]"
               >
                 {t("courses")} <ArrowUpRight size={14} />
               </Link>
@@ -1034,8 +1034,8 @@ function CourseWorkspaceUnlocked({
     if (accessOverride || progress.lessons.includes(lessonId)) return 0;
     const startedAt = progress.lessonTimers[lessonId]?.startedAt;
     return startedAt
-      ? Math.max(0, 1800 - Math.floor((timerNow - startedAt) / 1000))
-      : 1800;
+      ? Math.max(0, 1500 - Math.floor((timerNow - startedAt) / 1000))
+      : 1500;
   };
   const activeLessonSecondsRemaining = activeLesson
     ? lessonSecondsRemaining(activeLesson.id)
@@ -1053,7 +1053,7 @@ function CourseWorkspaceUnlocked({
   const continueToNextLesson = () => {
     if (!activeLessonTimerComplete) {
       toast.info("Keep studying before continuing", {
-        description: `The next lesson unlocks when the 30-minute timer reaches zero. ${formatCountdown(activeLessonSecondsRemaining)} remaining.`,
+        description: `The next lesson unlocks when the 25-minute timer reaches zero. ${formatCountdown(activeLessonSecondsRemaining)} remaining.`,
       });
       return;
     }
@@ -1196,7 +1196,7 @@ function CourseWorkspaceUnlocked({
     if (previousLesson && !progress.lessons.includes(previousLesson.id)) {
       toast.info("Finish the previous lesson first", {
         description:
-          "Lessons unlock in sequence after the previous 30-minute study block is complete.",
+          "Lessons unlock in sequence after the previous 25-minute study block is complete.",
       });
       return;
     }
@@ -1955,7 +1955,7 @@ function CourseWorkspaceUnlocked({
                   Quality Control Mode
                 </p>
                 <p className="mt-1 leading-6">
-                  Payments and 30-minute lesson timers are bypassed. Quiz
+                  Payments and 25-minute lesson timers are bypassed. Quiz
                   submissions are recorded at 100% so the complete course and
                   certificate flow can be reviewed.
                 </p>
@@ -2226,64 +2226,64 @@ function CourseWorkspaceUnlocked({
             </div>
           </section>
           <aside className="space-y-5">
-            <div className="border border-[#16243d]/15 bg-[#16243d] p-5 text-[#f7f3e8]">
-              <p className="eyebrow text-accent-on-dark">{enrollmentCopy.payment}</p>
-              <p className="display mt-3 text-3xl">
-                KES {course.priceKes.toLocaleString()}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-muted-on-dark">
-                Four staged payments of KES{" "}
-                {course.stageAmountsKes
-                  .map(amount => amount.toLocaleString())
-                  .join(" / ")}{" "}
-                keep access aligned to your learning journey.
-              </p>
-              <div className="mt-5 space-y-3">
-                {stageAmounts.map((stage, index) => (
-                  <div
-                    key={stage.label}
-                    className="flex items-center gap-3 text-xs"
-                  >
-                    <span
-                      className={`grid h-6 w-6 place-items-center rounded-full border ${stage.complete ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : "border-[#c1cad7]/40 text-muted-foreground"}`}
+              <div className="border border-[#16243d]/15 bg-[#16243d] p-5 text-[#f7f3e8]">
+                <p className="eyebrow text-accent-on-dark">{enrollmentCopy.payment}</p>
+                <p className="display mt-3 text-3xl text-[#f7f3e8]">
+                  KES {course.priceKes.toLocaleString()}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-[#d7deea]">
+                  Four staged payments of KES{" "}
+                  {course.stageAmountsKes
+                    .map(amount => amount.toLocaleString())
+                    .join(" / ")}{" "}
+                  keep access aligned to your learning journey.
+                </p>
+                <div className="mt-5 space-y-3">
+                  {stageAmounts.map((stage, index) => (
+                    <div
+                      key={stage.label}
+                      className="flex items-center gap-3 text-xs"
                     >
-                      {stage.complete ? <CheckCircle2 size={14} /> : index + 1}
-                    </span>
-                    <span className="flex-1 text-muted-foreground">{stage.label}</span>
-                    <span className="font-bold text-accent-on-dark">
-                      {stage.complete
-                        ? accessOverride
-                          ? "Bypassed"
-                          : "Paid"
-                        : "25%"}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              {accessOverride ? (
-                <div className="mt-6 border border-[#c9a34e]/60 bg-[#fff5cf] p-3 text-xs leading-5 text-[#5d4613]">
-                  <strong>Payment bypass active.</strong> This workspace is open
-                  for quality review without checkout.
+                      <span
+                        className={`grid h-6 w-6 place-items-center rounded-full border ${stage.complete ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : "border-[#c1cad7]/60 text-[#c1cad7]"}`}
+                      >
+                        {stage.complete ? <CheckCircle2 size={14} /> : index + 1}
+                      </span>
+                      <span className="flex-1 text-[#d7deea]">{stage.label}</span>
+                      <span className="font-bold text-accent-on-dark">
+                        {stage.complete
+                          ? accessOverride
+                            ? "Bypassed"
+                            : "Paid"
+                          : "25%"}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ) : (
-                <Button
-                  type="button"
-                  onClick={() => startCheckout()}
-                  disabled={
-                    enrollMutation.isPending || checkoutMutation.isPending
-                  }
-                  className="mt-6 w-full bg-[#c9a34e] text-[#16243d]"
-                >
-                  {checkoutMutation.isPending || enrollMutation.isPending
-                    ? "Preparing secure checkout…"
-                    : `Pay KES ${(course.stageAmountsKes[Math.min(3, progress.stageCount)] ?? course.stageAmountsKes[0] ?? 0).toLocaleString()} · stage ${Math.min(4, progress.stageCount + 1)} of 4`}
-                </Button>
-              )}
-              <p className="mt-3 text-[10px] leading-4 text-muted-foreground">
-                Payment verification and stage unlocking are handled securely
-                before access is granted.
-              </p>
-            </div>
+                {accessOverride ? (
+                  <div className="mt-6 border border-[#c9a34e]/60 bg-[#fff5cf] p-3 text-xs leading-5 text-[#5d4613]">
+                    <strong>Payment bypass active.</strong> This workspace is open
+                    for quality review without checkout.
+                  </div>
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={() => startCheckout()}
+                    disabled={
+                      enrollMutation.isPending || checkoutMutation.isPending
+                    }
+                    className="mt-6 w-full bg-[#c9a34e] text-[#16243d]"
+                  >
+                    {checkoutMutation.isPending || enrollMutation.isPending
+                      ? "Preparing secure checkout…"
+                      : `Pay KES ${(course.stageAmountsKes[Math.min(3, progress.stageCount)] ?? course.stageAmountsKes[0] ?? 0).toLocaleString()} · stage ${Math.min(4, progress.stageCount + 1)} of 4`}
+                  </Button>
+                )}
+                <p className="mt-3 text-[10px] leading-4 text-[#c1cad7]">
+                  Payment verification and stage unlocking are handled securely
+                  before access is granted.
+                </p>
+              </div>
             <div className="border-l-2 border-[#c9a34e] bg-white/60 p-5">
               <p className="eyebrow text-[#5d4613]">
                 {enrollmentCopy.certificate}
@@ -2591,7 +2591,7 @@ function CourseWorkspaceUnlocked({
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-[.14em] text-accent-on-dark">
-                        {enrollmentCopy.details} · 30-minute study timer
+                         {enrollmentCopy.details} · 25-minute study timer
                       </p>
                        <p className="mt-1 text-xs leading-5 text-muted-on-dark">
                          {activeLessonTimerComplete
@@ -2617,9 +2617,9 @@ function CourseWorkspaceUnlocked({
                   <div className="mt-3 h-2 overflow-hidden bg-white/15">
                     <div
                       className="h-full bg-[#c9a34e] transition-[width] duration-1000"
-                      style={{
-                        width: `${Math.min(100, Math.round(((1800 - activeLessonSecondsRemaining) / 1800) * 100))}%`,
-                      }}
+                       style={{
+                         width: `${Math.min(100, Math.round(((1500 - activeLessonSecondsRemaining) / 1500) * 100))}%`,
+                       }}
                     />
                   </div>
                 </div>
@@ -3154,7 +3154,7 @@ function CourseWorkspaceUnlocked({
                       />
                     </section>
                     <p className="mt-4 text-xs leading-5 text-muted-on-dark">
-                      Work in one uninterrupted 30-minute block: orient,
+                       Work in one uninterrupted 25-minute block: orient,
                       practise, respond, reflect, and record your next action.
                     </p>
                   </aside>
@@ -3178,7 +3178,7 @@ function CourseWorkspaceUnlocked({
                     onClick={() => {
                       if (!activeLessonTimerComplete) {
                         toast.info("Lesson timer still running", {
-                          description: `The lesson must remain open for 30 minutes and every response must be saved. ${formatCountdown(activeLessonSecondsRemaining)} remaining.`,
+                           description: `The lesson must remain open for 25 minutes and every response must be saved. ${formatCountdown(activeLessonSecondsRemaining)} remaining.`,
                         });
                         return;
                       }
