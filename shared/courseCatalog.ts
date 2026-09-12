@@ -2261,15 +2261,6 @@ const additionalCourseSeeds = [
   stageAmountsKes: STANDARD_COURSE_STAGE_AMOUNTS_KES,
 }));
 
-const courseCoverByCategory: Record<CourseCategory, string> = {
-  "AI & Digital": "/cover-ai-learning_e7060957.svg",
-  "Business & Analytics": "/cover-insight-analytics_3177ed26.svg",
-  "Education & Research": "/cover-people-practice_342ff6e3.svg",
-  "Communication & Career": "/cover-digital-growth_c45a2cd5.svg",
-  "Leadership & Workplace": "/cover-customer-value_969a689e.svg",
-  "Personal Development": "/cover-people-practice_342ff6e3.svg",
-};
-
 const skillLevelOverrides: Record<string, CourseSkillLevel> = {
   "artificial-intelligence-for-educators": "Practitioner",
   "artificial-intelligence-generative-ai": "Foundation",
@@ -2370,7 +2361,7 @@ export const courseCatalog: CourseDefinition[] = [
         : buildModules(course),
     category,
     skillLevel: courseSkillLevelFor(course),
-    coverImage: courseCoverByCategory[category],
+    coverImage: `/cover-${course.slug}`,
   };
 });
 export const getCourseBySlug = (slug: string) =>

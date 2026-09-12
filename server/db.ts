@@ -85,6 +85,8 @@ import {
   conversations,
   messages,
   messageNotifications,
+  resources,
+  surveys,
   type Conversation,
   type Message,
   type MessageNotification,
@@ -3385,6 +3387,23 @@ export async function getAdminTeamMembers() {
     .from(users)
     .where(or(eq(users.role, "admin"), eq(users.role, "staff")))
     .orderBy(users.name);
+}
+
+export async function listAllUsers() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db
+    .select({
+      openId: users.openId,
+      name: users.name,
+      email: users.email,
+      role: users.role,
+      loginMethod: users.loginMethod,
+      createdAt: users.createdAt,
+      lastSignedIn: users.lastSignedIn,
+    })
+    .from(users)
+    .orderBy(desc(users.createdAt));
 }
 
 export async function getContactInquiryAuditHistory(inquiryId: number) {
@@ -7233,4 +7252,134 @@ export async function updateUserExportLogo(
   if (!db) throw new Error("Database is not available");
   await db.update(users).set({ exportLogoUrl }).where(eq(users.openId, openId));
   return getUserProfile(openId);
+}
+
+export async function listResources() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(resources).orderBy(desc(resources.sortOrder), desc(resources.createdAt));
+}
+
+export async function getResource(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select().from(resources).where(eq(resources.id, id)).limit(1);
+  return rows[0] ?? null;
+}
+
+export async function createResource(input: {
+  title: string;
+  description: string;
+  category: string;
+  fileUrl?: string;
+  fileType?: string;
+  fileSize?: number;
+  coverImageUrl?: string;
+  createdByOpenId: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db.insert(resources).values({
+    ...input,
+    fileUrl: input.fileUrl ?? null,
+    fileType: input.fileType ?? null,
+    fileSize: input.fileSize ?? null,
+    coverImageUrl: input.coverImageUrl ?? null,
+  }).$returningId();
+  return rows[0];
+}
+
+export async function updateResource(id: number, input: {
+  title?: string;
+  description?: string;
+  category?: string;
+  fileUrl?: string;
+  fileType?: string;
+  fileSize?: number;
+  coverImageUrl?: string;
+  status?: string;
+  sortOrder?: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(resources).set(input as any).where(eq(resources.id, id));
+  return getResource(id);
+}
+
+export async function deleteResource(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.delete(resources).where(eq(resources.id, id));
+  return true;
+}
+
+export async function listSurveys() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(surveys).orderBy(desc(surveys.createdAt));
+}
+
+export async function getSurvey(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select().from(surveys).where(eq(surveys.id, id)).limit(1);
+  return rows[0] ?? null;
+}
+
+export async function createSurvey(input: {
+  title: string;
+  description: string;
+  type: string;
+  options: any[];
+  createdByOpenId: string;
+  startsAt?: Date;
+  endsAt?: Date;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db.insert(surveys).values({
+    ...input,
+    responses: {},
+    totalResponses: 0,
+    startsAt: input.startsAt ?? null,
+    endsAt: input.endsAt ?? null,
+  }).$returningId();
+  return rows[0];
+}
+
+export async function updateSurvey(id: number, input: {
+  title?: string;
+  description?: string;
+  type?: string;
+  options?: any[];
+  status?: string;
+  startsAt?: Date | null;
+  endsAt?: Date | null;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(surveys).set(input as any).where(eq(surveys.id, id));
+  return getSurvey(id);
+}
+
+export async function deleteSurvey(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.delete(surveys).where(eq(surveys.id, id));
+  return true;
+}
+
+export async function submitSurveyResponse(id: number, optionIndex: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const survey = await getSurvey(id);
+  if (!survey) throw new Error("Survey not found");
+  const responses = { ...(survey.responses as Record<string, number>) };
+  const key = String(optionIndex);
+  responses[key] = (responses[key] ?? 0) + 1;
+  await db.update(surveys).set({ 
+    responses,
+    totalResponses: survey.totalResponses + 1,
+  }).where(eq(surveys.id, id));
+  return getSurvey(id);
 }

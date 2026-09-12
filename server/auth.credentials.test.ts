@@ -11,35 +11,17 @@ const {
   createLocalUser,
   setPasswordResetToken,
   consumePasswordResetToken,
-  checkLoginRateLimit,
-  recordFailedLogin,
-  clearLoginFailures,
-  getEffectiveLoginAlertThreshold,
   recordLoginEvent,
   createUserSession,
-  getAdminNotificationRecipients,
   sendPasswordResetEmail,
-  sendFailedLoginAlert,
 } = vi.hoisted(() => ({
   findUserByLocalIdentifier: vi.fn(),
   createLocalUser: vi.fn(),
   setPasswordResetToken: vi.fn(),
   consumePasswordResetToken: vi.fn(),
-  checkLoginRateLimit: vi
-    .fn()
-    .mockResolvedValue({ blocked: false, failedCount: 0 }),
-  recordFailedLogin: vi
-    .fn()
-    .mockResolvedValue({ failedCount: 1, shouldAlert: false }),
-  clearLoginFailures: vi.fn().mockResolvedValue(undefined),
-  getEffectiveLoginAlertThreshold: vi.fn().mockResolvedValue(5),
   recordLoginEvent: vi.fn().mockResolvedValue(undefined),
   createUserSession: vi.fn().mockResolvedValue(undefined),
-  getAdminNotificationRecipients: vi
-    .fn()
-    .mockResolvedValue(["admin@example.com"]),
   sendPasswordResetEmail: vi.fn(),
-  sendFailedLoginAlert: vi.fn().mockResolvedValue(undefined),
 }));
 
 const mockCreateSessionToken = vi.fn().mockResolvedValue("fake-session-token");
@@ -53,18 +35,12 @@ vi.mock("./db", async importOriginal => ({
   createLocalUser,
   setPasswordResetToken,
   consumePasswordResetToken,
-  checkLoginRateLimit,
-  recordFailedLogin,
-  clearLoginFailures,
-  getEffectiveLoginAlertThreshold,
   recordLoginEvent,
   createUserSession,
-  getAdminNotificationRecipients,
 }));
 vi.mock("./email", async importOriginal => ({
   ...(await importOriginal<typeof import("./email")>()),
   sendPasswordResetEmail,
-  sendFailedLoginAlert,
 }));
 const { appRouter } = await import("./routers");
 
@@ -105,14 +81,8 @@ const localUser = {
 describe("local credential auth procedures", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    checkLoginRateLimit.mockResolvedValue({ blocked: false, failedCount: 0 });
-    recordFailedLogin.mockResolvedValue({ failedCount: 1, shouldAlert: false });
-    clearLoginFailures.mockResolvedValue(undefined);
-    getEffectiveLoginAlertThreshold.mockResolvedValue(5);
     recordLoginEvent.mockResolvedValue(undefined);
     createUserSession.mockResolvedValue(undefined);
-    getAdminNotificationRecipients.mockResolvedValue(["admin@example.com"]);
-    sendFailedLoginAlert.mockResolvedValue(undefined);
   });
 
   it("registers and issues the existing session cookie", async () => {
@@ -177,10 +147,22 @@ describe("local credential auth procedures", () => {
     await expect(
       appRouter
         .createCaller(ctx)
-        .auth.login({ identifier: "amina", password: "not-the-hash" })
+        .auth.login({ identifier: "amina", password: "not-the-hash", mathA: 1, mathB: 2, mathAnswer: 3 })
     ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
     expect(findUserByLocalIdentifier).toHaveBeenCalledWith("amina");
-    expect(recordFailedLogin).toHaveBeenCalledTimes(3);
+  });
+
+  it("rejects an incorrect math verification on login", async () => {
+    findUserByLocalIdentifier.mockResolvedValue({
+      ...localUser,
+      passwordHash: hashPassword("securePassword123"),
+    });
+    const { ctx } = context();
+    await expect(
+      appRouter
+        .createCaller(ctx)
+        .auth.login({ identifier: "amina", password: "securePassword123", mathA: 5, mathB: 3, mathAnswer: 9 })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 
   it("signs in with username and password without contacting an OAuth provider", async () => {
@@ -191,7 +173,7 @@ describe("local credential auth procedures", () => {
     const { ctx, cookies } = context();
     const result = await appRouter
       .createCaller(ctx)
-      .auth.login({ identifier: "Amina", password: "securePassword123" });
+      .auth.login({ identifier: "Amina", password: "securePassword123", mathA: 2, mathB: 3, mathAnswer: 5 });
     expect(result.user.username).toBe("amina");
     expect(cookies).toHaveLength(1);
     expect(recordLoginEvent).toHaveBeenCalledWith(
@@ -199,38 +181,6 @@ describe("local credential auth procedures", () => {
         identifierType: "username",
         success: true,
         openId: "local_user-12",
-      })
-    );
-  });
-
-  it("blocks a rate-limited login and alerts administrators at the threshold", async () => {
-    checkLoginRateLimit.mockResolvedValue({ blocked: true, failedCount: 5 });
-    const { ctx } = context();
-    await expect(
-      appRouter
-        .createCaller(ctx)
-        .auth.login({ identifier: "amina", password: "wrongPassword123" })
-    ).rejects.toMatchObject({ code: "TOO_MANY_REQUESTS" });
-    expect(findUserByLocalIdentifier).not.toHaveBeenCalled();
-
-    checkLoginRateLimit.mockResolvedValue({ blocked: false, failedCount: 0 });
-    findUserByLocalIdentifier.mockResolvedValue(undefined);
-    recordFailedLogin
-      .mockResolvedValueOnce({ failedCount: 5, shouldAlert: true })
-      .mockResolvedValue({ failedCount: 5, shouldAlert: false });
-    await expect(
-      appRouter
-        .createCaller(ctx)
-        .auth.login({
-          identifier: "unknown@example.com",
-          password: "wrongPassword123",
-        })
-    ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
-    await new Promise(resolve => setTimeout(resolve, 0));
-    expect(sendFailedLoginAlert).toHaveBeenCalledWith(
-      expect.objectContaining({
-        recipients: ["admin@example.com"],
-        failedCount: 5,
       })
     );
   });
@@ -247,6 +197,9 @@ describe("local credential auth procedures", () => {
         identifier: "amina",
         password: "securePassword123",
         trustDevice: true,
+        mathA: 2,
+        mathB: 3,
+        mathAnswer: 5,
       });
     expect(cookies).toHaveLength(1);
     expect(createUserSession).toHaveBeenCalledWith(

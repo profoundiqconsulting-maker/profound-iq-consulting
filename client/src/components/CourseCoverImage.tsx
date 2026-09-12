@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { CourseCoverGenerator } from "@/components/CourseCoverGenerator";
 
 const PLACEHOLDER = "/cover-placeholder_e7060957.svg";
 
@@ -7,6 +8,7 @@ type CourseCoverImageProps = {
   alt?: string;
   className?: string;
   loading?: "lazy" | "eager";
+  title?: string;
 };
 
 export function CourseCoverImage({
@@ -14,10 +16,27 @@ export function CourseCoverImage({
   alt = "Course cover",
   className,
   loading,
+  title,
 }: CourseCoverImageProps) {
   const [error, setError] = useState(false);
+  const [useGenerated, setUseGenerated] = useState(false);
 
-  if (!src || error) {
+  const generatedSlug = useMemo(() => {
+    if (!src) return "";
+    const match = src.match(/\/cover-([^_/]+)/);
+    return match ? match[1] : "";
+  }, [src]);
+
+  if (!src || error || useGenerated) {
+    if (generatedSlug) {
+      return (
+        <CourseCoverGenerator
+          slug={generatedSlug}
+          title={title}
+          className={className}
+        />
+      );
+    }
     return (
       <img
         src={PLACEHOLDER}
@@ -35,7 +54,7 @@ export function CourseCoverImage({
       alt={alt}
       className={className}
       loading={loading}
-      onError={() => setError(true)}
+      onError={() => setUseGenerated(true)}
     />
   );
 }

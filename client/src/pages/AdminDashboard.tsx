@@ -88,6 +88,8 @@ import { AdminCertificatePreview } from "@/components/AdminCertificatePreview";
 import { AdminRecentQCCertificates } from "@/components/AdminRecentQCCertificates";
 import AdminSocialPreviewSettings from "@/components/AdminSocialPreviewSettings";
 import AdminCourseShareAnalytics from "@/components/AdminCourseShareAnalytics";
+import AdminResourcesPanel from "@/components/AdminResourcesPanel";
+import AdminSurveysPanel from "@/components/AdminSurveysPanel";
 import { buildFunnelComparison } from "@shared/adminAnalytics";
 import { renderEmailTemplate } from "@shared/emailTemplate";
 import { Streamdown } from "streamdown";
@@ -1256,6 +1258,8 @@ export default function AdminDashboard() {
           { id: "revenue", label: "Revenue" },
           { id: "staff", label: "Staff & Catalog" },
           { id: "learning", label: "Learning" },
+          { id: "resources", label: "Resources" },
+          { id: "surveys", label: "Surveys" },
           { id: "system", label: "System Settings" },
           { id: "communications", label: "Communications" },
           { id: "security", label: "Security" },
@@ -1276,6 +1280,18 @@ export default function AdminDashboard() {
         ))}
       </div>
       <div className="mt-8 space-y-8">
+        {activeTab === "surveys" && (
+          <div id="surveys" className="scroll-mt-8">
+            <AdminSurveysPanel />
+          </div>
+        )}
+
+        {activeTab === "resources" && (
+          <div id="resources" className="scroll-mt-8">
+            <AdminResourcesPanel />
+          </div>
+        )}
+
         {activeTab === "overview" && (
           <Section
             id="share-observatory"

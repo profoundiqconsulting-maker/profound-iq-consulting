@@ -11,6 +11,7 @@ export type AuthCopy = {
   sendReset: string;
   forgot: string;
   optionalSocial: string;
+  backToSite: string;
 };
 
 export const authCopy: AuthCopy = {
@@ -26,6 +27,7 @@ export const authCopy: AuthCopy = {
   sendReset: "Send reset link",
   forgot: "Forgot password?",
   optionalSocial: "Optional social sign-in",
+  backToSite: "Back to site",
 };
 
 export function getAuthCopy(_locale?: string): AuthCopy {

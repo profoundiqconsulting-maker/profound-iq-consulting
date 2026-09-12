@@ -25,7 +25,6 @@ import { isQualityControlAdmin } from "@shared/courseAccess";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
-import { useLocale } from "@/contexts/LocaleContext";
 import { Button } from "./ui/button";
 import {
   dashboardNavGroups,
@@ -51,7 +50,6 @@ export default function DashboardLayout({
     return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
   });
   const { loading, user } = useAuth();
-  const { t } = useLocale();
 
   useEffect(() => {
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
@@ -63,13 +61,13 @@ export default function DashboardLayout({
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
         <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
           <div className="flex flex-col items-center gap-6">
-            <h1 className="text-2xl font-semibold tracking-tight text-center">
-              {t("signInToContinue")}
+            <h1 className="text-2xl font-semibold tracking-tight text-center text-slate-900">
+              Sign in to continue
             </h1>
-            <p className="text-sm text-muted-foreground text-center max-w-sm">
+            <p className="text-sm text-slate-600 text-center max-w-sm">
               Access to this dashboard requires authentication. Continue to
               launch the login flow.
             </p>
@@ -77,10 +75,10 @@ export default function DashboardLayout({
           <Button
             asChild
             size="lg"
-            className="w-full shadow-lg hover:shadow-xl transition-all"
+            className="w-full bg-slate-900 text-white shadow-lg hover:bg-slate-800 hover:shadow-xl transition-all"
           >
             <Link href="/auth?mode=login&returnTo=%2Fdashboard">
-              {t("signIn")}
+              Sign in
             </Link>
           </Button>
         </div>
@@ -121,7 +119,6 @@ function DashboardLayoutContent({
   role,
 }: DashboardLayoutContentProps) {
   const { user, logout } = useAuth();
-  const { t } = useLocale();
   const [location, setLocation] = useLocation();
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
@@ -130,11 +127,8 @@ function DashboardLayoutContent({
   const isMobile = useIsMobile();
 
   const userRole = role || user?.role || "user";
-  const localizedMenuItems = visibleDashboardNavItems(userRole).map(item => ({
-    ...item,
-    label: t(item.labelKey) || item.fallbackLabel,
-  }));
-  const activeMenuItem = localizedMenuItems.find(
+  const menuItems = visibleDashboardNavItems(userRole);
+  const activeMenuItem = menuItems.find(
     item => location === item.path || location.startsWith(`${item.path}/`)
   );
 
@@ -179,28 +173,28 @@ function DashboardLayoutContent({
       <div className="relative" ref={sidebarRef}>
         <Sidebar
           collapsible="icon"
-          className="border-r-0"
+          className="border-r-0 bg-slate-900 text-white"
           disableTransition={isResizing}
         >
-          <SidebarHeader className="h-16 justify-center">
-            <div className="flex items-center gap-3 px-2 transition-all w-full">
+          <SidebarHeader className="h-16 border-b border-slate-800 bg-slate-900">
+            <div className="flex items-center gap-3 px-4 transition-all w-full">
               <button
                 onClick={toggleSidebar}
-                className="h-8 w-8 flex items-center justify-center hover:bg-accent rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
+                className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-slate-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 shrink-0"
                 aria-label="Toggle navigation"
               >
-                <PanelLeft className="h-4 w-4 text-muted-foreground" />
+                <PanelLeft className="h-4 w-4 text-slate-400" />
               </button>
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-semibold tracking-tight truncate">
-                    {title || t("navigation")}
+                  <span className="font-semibold tracking-tight truncate text-white">
+                    {title || "Navigation"}
                   </span>
                   {isQualityControlAdmin(user) ? (
                     <span
                       aria-label="Quality Control Mode active"
                       title="Quality Control Mode active"
-                      className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary"
+                      className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-400"
                     >
                       <ShieldCheck className="h-3 w-3" aria-hidden="true" />
                       <span>QC Mode</span>
@@ -211,18 +205,20 @@ function DashboardLayoutContent({
             </div>
           </SidebarHeader>
 
-          <SidebarContent className="gap-0">
-            <SidebarMenu className="gap-1 px-2 py-2">
+          <SidebarContent className="gap-0 bg-slate-900">
+            <SidebarMenu className="gap-1 px-3 py-4">
               {dashboardNavGroups.map(group => {
-                const groupItems = localizedMenuItems.filter(
+                const groupItems = menuItems.filter(
                   item => item.group === group.id
                 );
                 if (!groupItems.length) return null;
                 return (
-                  <div key={group.id} className="mb-2 last:mb-0">
-                    <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground group-data-[collapsible=icon]:sr-only">
-                      {group.fallbackLabel}
-                    </p>
+                  <div key={group.id} className="mb-4 last:mb-0">
+                    {!isCollapsed && (
+                      <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+                        {group.fallbackLabel}
+                      </p>
+                    )}
                     {groupItems.map(item => {
                       const isActive =
                         location === item.path ||
@@ -232,13 +228,23 @@ function DashboardLayoutContent({
                           <SidebarMenuButton
                             isActive={isActive}
                             onClick={() => setLocation(item.path)}
-                            tooltip={item.label}
-                            className="h-10 font-normal transition-all hover:bg-accent/80 data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:font-semibold"
+                            tooltip={item.fallbackLabel}
+                            className={`h-11 font-medium transition-all rounded-lg ${
+                              isActive
+                                ? "bg-amber-500 text-slate-900 font-semibold shadow-lg shadow-amber-500/20"
+                                : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                            }`}
                           >
                             <item.icon
-                              className={`h-4 w-4 ${isActive ? "text-primary" : "text-muted-foreground"}`}
+                              className={`h-5 w-5 ${
+                                isActive
+                                  ? "text-slate-900"
+                                  : "text-slate-400"
+                              }`}
                             />
-                            <span>{item.label}</span>
+                            <span className={isActive ? "font-semibold" : ""}>
+                              {item.fallbackLabel}
+                            </span>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
                       );
@@ -249,11 +255,11 @@ function DashboardLayoutContent({
             </SidebarMenu>
           </SidebarContent>
 
-          <SidebarFooter className="space-y-3 p-3">
+          <SidebarFooter className="border-t border-slate-800 bg-slate-900 p-3">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                  <Avatar className="h-9 w-9 border shrink-0">
+                <button className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-slate-800 transition-colors w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500">
+                  <Avatar className="h-9 w-9 border-2 border-amber-500/30">
                     {user?.avatarUrl &&
                       (
                         user.notificationPreferences as
@@ -265,34 +271,36 @@ function DashboardLayoutContent({
                           alt={`${user.name ?? "User"} profile picture`}
                         />
                       )}
-                    <AvatarFallback className="text-xs font-medium">
+                    <AvatarFallback className="bg-slate-800 text-amber-400 text-xs font-bold">
                       {user?.name?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
-                    <p className="text-sm font-medium truncate leading-none">
-                      {user?.name || "-"}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate mt-1.5">
-                      {user?.email || "-"}
-                    </p>
-                  </div>
+                  {!isCollapsed && (
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold truncate text-white">
+                        {user?.name || "-"}
+                      </p>
+                      <p className="text-xs text-slate-400 truncate">
+                        {user?.email || "-"}
+                      </p>
+                    </div>
+                  )}
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-48 bg-slate-900 border-slate-800 text-white">
                 <DropdownMenuItem
                   onClick={logout}
-                  className="cursor-pointer text-destructive focus:text-destructive"
+                  className="cursor-pointer text-red-400 focus:text-red-400 focus:bg-slate-800"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>{t("signOut")}</span>
+                  <span>Sign out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarFooter>
         </Sidebar>
         <div
-          className={`absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-primary/20 transition-colors ${isCollapsed ? "hidden" : ""}`}
+          className={`absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-amber-500/30 transition-colors ${isCollapsed ? "hidden" : ""}`}
           onMouseDown={() => {
             if (isCollapsed) return;
             setIsResizing(true);
@@ -301,29 +309,29 @@ function DashboardLayoutContent({
         />
       </div>
 
-      <SidebarInset>
+      <SidebarInset className="bg-slate-50">
         {isMobile && (
-          <div className="flex border-b h-14 items-center justify-between bg-background/95 px-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
+          <div className="flex border-b border-slate-200 h-14 items-center justify-between bg-white/95 px-4 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
+            <div className="flex items-center gap-3">
+              <SidebarTrigger className="h-9 w-9 rounded-lg bg-slate-100 hover:bg-slate-200" />
               <Link
                 href="/"
-                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.16em] text-muted-foreground hover:text-foreground"
+                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.16em] text-slate-600 hover:text-slate-900"
               >
                 <ArrowLeft size={14} aria-hidden="true" /> Back
               </Link>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex flex-col gap-1">
-                <span className="tracking-tight text-foreground">
-                  {activeMenuItem?.label ?? "Menu"}
+                <span className="text-sm font-semibold text-slate-900">
+                  {activeMenuItem?.fallbackLabel ?? "Menu"}
                 </span>
               </div>
               {isQualityControlAdmin(user) ? (
                 <span
                   aria-label="Quality Control Mode active"
                   title="Quality Control Mode active"
-                  className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-1 text-[9px] font-black uppercase tracking-[.1em] text-primary"
+                  className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-[9px] font-black uppercase tracking-[.1em] text-amber-600"
                 >
                   <ShieldCheck className="h-3 w-3" aria-hidden="true" />
                   <span>QC</span>
@@ -332,10 +340,8 @@ function DashboardLayoutContent({
             </div>
           </div>
         )}
-        <main className="min-w-0 flex-1 p-3 sm:p-4 lg:p-6">{children}</main>
+        <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </SidebarInset>
     </>
   );
 }
-
-

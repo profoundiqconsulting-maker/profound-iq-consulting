@@ -1023,3 +1023,40 @@ export type Message = typeof messages.$inferSelect;
 export type InsertMessage = typeof messages.$inferInsert;
 export type MessageNotification = typeof messageNotifications.$inferSelect;
 export type InsertMessageNotification = typeof messageNotifications.$inferInsert;
+
+export const resources = mysqlTable("resources", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 240 }).notNull(),
+  description: text("description").notNull(),
+  category: varchar("category", { length: 120 }).notNull(),
+  fileUrl: varchar("fileUrl", { length: 512 }),
+  fileType: varchar("fileType", { length: 64 }),
+  fileSize: int("fileSize"),
+  coverImageUrl: varchar("coverImageUrl", { length: 512 }),
+  status: varchar("status", { length: 24 }).default("published").notNull(),
+  sortOrder: int("sortOrder").default(0).notNull(),
+  createdByOpenId: varchar("createdByOpenId", { length: 64 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const surveys = mysqlTable("surveys", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 240 }).notNull(),
+  description: text("description").notNull(),
+  type: varchar("type", { length: 24 }).notNull(),
+  status: varchar("status", { length: 24 }).default("draft").notNull(),
+  options: json("options").notNull(),
+  responses: json("responses").$type<Record<string, number>>().default({}).notNull(),
+  totalResponses: int("totalResponses").default(0).notNull(),
+  startsAt: timestamp("startsAt"),
+  endsAt: timestamp("endsAt"),
+  createdByOpenId: varchar("createdByOpenId", { length: 64 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Resource = typeof resources.$inferSelect;
+export type InsertResource = typeof resources.$inferInsert;
+export type Survey = typeof surveys.$inferSelect;
+export type InsertSurvey = typeof surveys.$inferInsert;

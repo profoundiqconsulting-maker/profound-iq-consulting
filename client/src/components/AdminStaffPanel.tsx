@@ -5,7 +5,9 @@ import {
   Download,
   Mail,
   RefreshCw,
+  ShieldCheck,
   UserPlus,
+  Users,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -40,6 +42,10 @@ export default function AdminStaffPanel() {
     retry: false,
     refetchInterval: 30000,
   });
+  const allUsers = trpc.admin.listAllUsers.useQuery(undefined, {
+    retry: false,
+    refetchInterval: 30000,
+  });
   const performanceInput = useMemo(
     () => ({
       fromDate: performanceFrom || undefined,
@@ -70,6 +76,7 @@ export default function AdminStaffPanel() {
   const updateRole = trpc.admin.updateStaffRole.useMutation({
     onSuccess: () => {
       members.refetch();
+      allUsers.refetch();
       performance.refetch();
       toast.success("Role updated.");
     },
@@ -170,35 +177,36 @@ export default function AdminStaffPanel() {
       )}
       <div className="mt-8 grid gap-8 lg:grid-cols-2">
         <div>
-          <h3 className="font-bold">Team members</h3>
-          {members.isLoading ? (
-            <p className="mt-3 text-sm text-[#657084]">Loading team…</p>
+          <h3 className="font-bold">All users</h3>
+          {allUsers.isLoading ? (
+            <p className="mt-3 text-sm text-[#657084]">Loading users…</p>
           ) : (
             <div className="mt-3 divide-y divide-[#16243d]/10 border-y border-[#16243d]/10">
-              {(members.data ?? []).map(member => (
+              {(allUsers.data ?? []).map((user: { openId: string; name: string | null; email: string | null; role: string }) => (
                 <div
-                  key={member.openId}
+                  key={user.openId}
                   className="flex flex-wrap items-center justify-between gap-3 py-3"
                 >
                   <div>
                     <p className="font-bold">
-                      {member.name ?? "Unnamed member"}
+                      {user.name ?? "Unnamed member"}
                     </p>
                     <p className="text-xs text-[#657084]">
-                      {member.email ?? member.openId}
+                      {user.email ?? user.openId}
                     </p>
                   </div>
                   <select
-                    value={member.role === "admin" ? "admin" : "staff"}
+                    value={user.role === "admin" ? "admin" : user.role === "staff" ? "staff" : "user"}
                     onChange={event =>
                       updateRole.mutate({
-                        openId: member.openId,
-                        role: event.target.value as "staff" | "admin",
+                        openId: user.openId,
+                        role: event.target.value as "user" | "staff" | "admin",
                       })
                     }
-                    aria-label={`Role for ${member.name ?? member.email ?? member.openId}`}
+                    aria-label={`Role for ${user.name ?? user.email ?? user.openId}`}
                     className="border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs"
                   >
+                    <option value="user">User</option>
                     <option value="staff">Staff</option>
                     <option value="admin">Admin</option>
                   </select>

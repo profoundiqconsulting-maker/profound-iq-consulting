@@ -598,6 +598,7 @@ export default function Courses() {
                         src={course.coverImage}
                         alt=""
                         loading="lazy"
+                        title={course.title}
                         className="h-40 w-full object-cover"
                       />
                     <div className="flex flex-wrap items-baseline gap-3">
@@ -917,6 +918,7 @@ export default function Courses() {
             <CourseCoverImage
               src={previewCourse.coverImage}
               alt=""
+              title={previewCourse.title}
               className="h-40 w-full object-cover sm:h-56"
             />
             <div className="p-6 sm:p-10">
@@ -1093,6 +1095,7 @@ export default function Courses() {
                       <CourseCoverImage
                         src={course.coverImage}
                         alt=""
+                        title={course.title}
                         className="h-28 w-full object-cover"
                       />
                       <div className="mt-5 flex items-start justify-between gap-3">

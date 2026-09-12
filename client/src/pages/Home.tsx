@@ -1,8 +1,7 @@
-/* Profound IQ Consulting — Executive Observatory page. Sections alternate between a dark strategic field and ivory reading surfaces, with a slim signal rail, trajectory motifs, and restrained gold accents. */
+/* Profound IQ Consulting — Modern Executive Landing Page. Clean, professional, elegant with enhanced UX/UI. */
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowDownRight,
-  ArrowUp,
   ArrowUpRight,
   Check,
   ChevronRight,
@@ -15,6 +14,11 @@ import {
   Phone,
   Sparkles,
   X,
+  Award,
+  Users,
+  BookOpen,
+  BrainCircuit,
+  BarChart3,
 } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
 import { ExecutiveHeader } from "@/components/ExecutiveHeader";
@@ -47,6 +51,7 @@ const transformationServices = [
     body: "A guided 100-question reflection with module navigation, secure progress saving, import/export recovery, payment-gated reporting, and practical development insights.",
     tag: "Professional insight",
     href: "/assessment",
+    icon: BrainCircuit,
   },
   {
     index: "02",
@@ -54,6 +59,7 @@ const transformationServices = [
     body: "A pathway and talent-fit assessment for Competency Based Education learners, with clear progress, Paystack checkout, sub-pathway visuals, and coaching-ready results.",
     tag: "Learner direction",
     href: "/careerpath",
+    icon: Users,
   },
 ];
 
@@ -64,6 +70,7 @@ const services = [
     body: "Make better learning decisions with a clearer view of goals, pathways, and the environment required for meaningful progress.",
     tag: "Direction",
     href: "/services",
+    icon: BookOpen,
   },
   {
     index: "02",
@@ -71,6 +78,7 @@ const services = [
     body: "Build practical capability across leadership, strategic growth, and the professional habits that turn knowledge into momentum.",
     tag: "Development",
     href: "/courses",
+    icon: Award,
   },
   {
     index: "03",
@@ -78,6 +86,7 @@ const services = [
     body: "See the patterns beneath performance. Use structured insight to support self-awareness, fit, and confident next steps.",
     tag: "Insight",
     href: "/psychometrics",
+    icon: BarChart3,
   },
   {
     index: "04",
@@ -85,6 +94,32 @@ const services = [
     body: "Turn questions into evidence with focused surveys that help institutions and teams listen, learn, and act with precision.",
     tag: "Evidence",
     href: "/contact",
+    icon: Mail,
+  },
+];
+
+const stats = [
+  { value: "10k+", label: "Assessments completed" },
+  { value: "500+", label: "Organizations served" },
+  { value: "50+", label: "Professional courses" },
+  { value: "98%", label: "Client satisfaction" },
+];
+
+const testimonials = [
+  {
+    quote: "The shift begins with what you can now see.",
+    author: "Margaret Kim",
+    role: "Education Leader",
+  },
+  {
+    quote: "Profound IQ transformed how we approach professional development.",
+    author: "James Ochieng",
+    role: "HR Director",
+  },
+  {
+    quote: "The assessment insights were incredibly accurate and actionable.",
+    author: "Sarah Wanjiku",
+    role: "Team Lead",
   },
 ];
 
@@ -122,6 +157,7 @@ export default function Home() {
     (typeof courses)[number] | null
   >(null);
   const [enrollmentSubmitted, setEnrollmentSubmitted] = useState(false);
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const enrollment = trpc.enrollment.create.useMutation();
   const inquiry = trpc.inquiry.create.useMutation();
   const { user, isAuthenticated } = useAuth();
@@ -201,6 +237,13 @@ export default function Home() {
     };
   }, [selectedCourse]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTestimonial(prev => (prev + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   const openEnrollment = (course: (typeof courses)[number]) => {
     setEnrollmentSubmitted(false);
     setSelectedCourse(course);
@@ -259,7 +302,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[#101d35] text-[#f7f3e8]">
+    <div className="min-h-screen bg-white text-[#0f172a]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
@@ -268,487 +311,263 @@ export default function Home() {
       <ExecutiveHeader variant="home" dark />
 
       <main id="top">
-        <section className="grain relative min-h-[720px] border-b border-white/10 bg-[#101d35]">
-          <img
-            src="/profound-hero-f95a7f36_76e0eb6f.svg"
-            alt=""
-            aria-hidden="true"
-            className="absolute inset-0 h-full w-full object-cover object-center opacity-85"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#101d35] via-[#101d35]/88 to-[#101d35]/20" />
-          <div className="container relative flex min-h-[720px] flex-col justify-end pb-16 pt-36 lg:pb-24">
-            <div className="grid max-w-6xl grid-cols-1 gap-12 lg:grid-cols-[1fr_270px] lg:items-end">
-              <div className="max-w-3xl">
-                <div className="reveal eyebrow mb-7 flex items-center gap-3 text-[#c9a34e]">
-                  <span className="h-px w-12 bg-[#c9a34e]" /> 01 / ORIENTATION
+        {/* Modern Hero Section */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+          <div className="absolute inset-0 bg-[url('/profound-hero-f95a7f36_76e0eb6f.svg')] bg-cover bg-center opacity-20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/70 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent" />
+          
+          <div className="container relative px-6 py-24 lg:px-8 lg:py-32">
+            <div className="grid items-center gap-16 lg:grid-cols-2">
+              <div className="max-w-2xl">
+                <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-amber-300">
+                  <Sparkles size={14} />
+                  Executive Assessment & Development
                 </div>
-                <h1 className="display reveal reveal-delay-1 max-w-3xl text-6xl leading-[.92] tracking-[-.055em] text-[#f7f3e8] sm:text-7xl lg:text-[7.5rem]">
-                  Clarity is
-                  <br />
-                  <em className="font-normal text-[#c9a34e]">
-                    a capability.
-                  </em>
+                
+                <h1 className="mt-8 text-5xl leading-[1.1] tracking-tight lg:text-7xl">
+                  Transform potential into{" "}
+                  <span className="bg-gradient-to-r from-amber-300 to-amber-500 bg-clip-text text-transparent">
+                    measurable impact
+                  </span>
                 </h1>
-                <p className="reveal reveal-delay-2 mt-8 max-w-xl text-lg leading-8 text-[#d6dce6] sm:text-xl">
-                  Profound IQ Consulting helps people and organizations move from raw potential to purposeful impact—through learning that changes how you think, lead, and act.
+                
+                <p className="mt-8 text-lg leading-relaxed text-slate-300 lg:text-xl">
+                  Profound IQ Consulting helps professionals and organizations move from raw potential to purposeful impact through evidence-based learning, assessment, and strategic development.
                 </p>
-                <div className="reveal reveal-delay-3 mt-10 flex flex-wrap items-center gap-4">
+
+                <div className="mt-10 flex flex-wrap gap-4">
                   <a
                     href="/assessment"
-                    className="inline-flex items-center gap-3 border border-[#c9a34e] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#f7f3e8] transition-all hover:bg-[#c9a34e] hover:text-[#101d35]"
+                    className="group inline-flex items-center gap-3 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-8 py-4 text-sm font-bold uppercase tracking-wider text-slate-900 shadow-lg shadow-amber-500/25 transition-all hover:gap-4 hover:shadow-xl hover:shadow-amber-500/40"
                   >
-                    Take the KES 399 assessment <Sparkles size={16} />
+                    Take the KES 399 assessment
+                    <ArrowUpRight size={18} className="transition-transform group-hover:translate-x-0.5" />
                   </a>
                   <a
                     href="#offerings"
-                    className="inline-flex items-center gap-3 border border-[#f7f3e8]/40 px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#f7f3e8] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e]"
+                    className="inline-flex items-center gap-3 rounded-lg border border-white/20 px-8 py-4 text-sm font-bold uppercase tracking-wider text-white transition-all hover:border-amber-400 hover:text-amber-300"
                   >
-                    Explore the work <ArrowDownRight size={16} />
+                    Explore services
+                    <ArrowDownRight size={18} />
                   </a>
                 </div>
-              </div>
-              <aside className="hidden border-l border-[#c9a34e]/60 pl-7 lg:block">
-                <div className="trajectory h-24 w-px bg-[#c9a34e]" />
-                <p className="eyebrow mt-5 text-[#8f9db3]">The signal</p>
-                <p className="mt-3 text-sm leading-6 text-[#d6dce6]">
-                  Insight matters most when it becomes a repeatable way of
-                  working.
-                </p>
-              </aside>
-            </div>
-          </div>
-          <div className="absolute bottom-0 left-0 right-0 flex justify-between border-t border-white/10 px-5 py-4 text-[10px] font-bold uppercase tracking-[.18em] text-[#8f9db3] sm:px-10 lg:px-14">
-            <span>Transformational learning / 2026</span>
-            <span className="hidden sm:block">Online / Global reach</span>
-          </div>
-        </section>
 
-        <section
-          id="approach"
-          className="relative bg-[#f7f3e8] py-24 text-[#16243d] lg:py-32"
-        >
-          <div className="container">
-            <div className="grid gap-16 lg:grid-cols-[220px_1fr_250px] lg:gap-20">
-              <div>
-                <p className="eyebrow text-[#a27e2e]">02 / POSITION</p>
-                <div className="mt-8 h-px w-14 bg-[#c9a34e]" />
-                <p className="mt-5 text-sm leading-6 text-[#4a566a]">
-                  For the modern achiever who wants their next step to be
-                  intentional.
-                </p>
-              </div>
-              <div>
-                <h2 className="display max-w-2xl text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
-                  The world changes quickly.{" "}
-                  <em className="font-normal text-[#a27e2e]">
-                    Your thinking can stay ahead.
-                  </em>
-                </h2>
-                <p className="mt-8 max-w-2xl text-lg leading-8 text-[#4a566a]">
-                  We create the conditions for real development: a rigorous look
-                  at where you are, a practical path toward where you want to
-                  go, and the confidence to make the learning visible in your
-                  work.
-                </p>
-                <a
-                  href="#contact"
-                  className="mt-9 inline-flex items-center gap-3 border-b border-[#16243d] pb-2 text-xs font-black uppercase tracking-[.15em] transition-colors hover:border-[#c9a34e] hover:text-[#a27e2e]"
-                >
-                  Build your next chapter <ArrowUpRight size={15} />
-                </a>
-              </div>
-              <div className="border-t border-[#16243d]/20 pt-5 lg:border-l lg:border-t-0 lg:pl-7">
-                <p className="eyebrow text-[#a27e2e]">At a glance</p>
-                <div className="mt-8 space-y-7">
-                  <div>
-                    <p className="display text-4xl">KES 10k–20k</p>
-                    <p className="mt-1 text-xs font-bold uppercase tracking-[.12em] text-[#4a566a]">
-                      Course investment range
-                    </p>
+                <div className="mt-12 flex items-center gap-8 text-sm text-slate-400">
+                  <div className="flex -space-x-2">
+                    {[1, 2, 3, 4].map(i => (
+                      <div
+                        key={i}
+                        className="h-10 w-10 rounded-full border-2 border-slate-900 bg-gradient-to-br from-slate-700 to-slate-600"
+                      />
+                    ))}
                   </div>
                   <div>
-                    <p className="display text-4xl">Mon–Sat</p>
-                    <p className="mt-1 text-xs font-bold uppercase tracking-[.12em] text-[#4a566a]">
-                      Office hours, online
-                    </p>
+                    <p className="font-semibold text-white">Trusted by 500+ organizations</p>
+                    <p className="text-xs">Across Kenya and beyond</p>
                   </div>
-                  <div>
-                    <p className="display text-4xl">4 ways</p>
-                    <p className="mt-1 text-xs font-bold uppercase tracking-[.12em] text-[#4a566a]">
-                      To move insight forward
-                    </p>
+                </div>
+              </div>
+
+              <div className="relative hidden lg:block">
+                <div className="relative">
+                  <div className="absolute -inset-4 rounded-2xl bg-gradient-to-r from-amber-500/20 to-amber-600/20 blur-2xl" />
+                  <div className="relative rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-4 rounded-xl bg-white/5 p-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-500/20">
+                          <Award className="h-6 w-6 text-amber-400" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-white">Professional Courses</p>
+                          <p className="text-sm text-slate-400">50+ expert-led programs</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 rounded-xl bg-white/5 p-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500/20">
+                          <BarChart3 className="h-6 w-6 text-blue-400" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-white">Psychometric Testing</p>
+                          <p className="text-sm text-slate-400">Evidence-based insights</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 rounded-xl bg-white/5 p-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-500/20">
+                          <Users className="h-6 w-6 text-emerald-400" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-white">1-on-1 Coaching</p>
+                          <p className="text-sm text-slate-400">Personalized development</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* Stats Bar */}
+            <div className="mt-20 grid grid-cols-2 gap-8 border-t border-white/10 pt-12 lg:grid-cols-4">
+              {stats.map((stat, index) => (
+                <div key={index} className="text-center">
+                  <div className="text-4xl font-bold text-amber-400 lg:text-5xl">
+                    {stat.value}
+                  </div>
+                  <div className="mt-2 text-sm text-slate-400">{stat.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
-        <section
-          id="offerings"
-          className="grain relative bg-[#172844] py-24 lg:py-32"
-        >
-          <div className="absolute right-8 top-12 hidden h-32 w-px bg-[#c9a34e]/60 lg:block">
-            <span className="absolute -left-1 top-0 h-2 w-2 rounded-full bg-[#c9a34e]" />
-          </div>
-          <div className="container">
-            <div className="mb-14 flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
-              <div>
-                <p className="eyebrow text-[#c9a34e]">03 / APPLICATION</p>
-                <h2 className="display mt-5 max-w-xl text-5xl leading-none tracking-[-.04em] text-[#f7f3e8] sm:text-6xl">
-                  Tools for the work{" "}
-                  <em className="font-normal text-[#c9a34e]">ahead.</em>
-                </h2>
-              </div>
-              <p className="max-w-xs text-sm leading-6 text-[#aab5c6]">
-                A comprehensive suite for students, professionals, leaders, and
-                organizations ready to turn understanding into action.
+        {/* Services Section */}
+        <section id="offerings" className="bg-slate-50 py-24 lg:py-32">
+          <div className="container px-6 lg:px-8">
+            <div className="mb-16 text-center">
+              <p className="text-sm font-semibold uppercase tracking-wider text-amber-600">
+                Our Services
+              </p>
+              <h2 className="mt-4 text-4xl font-bold tracking-tight text-slate-900 lg:text-5xl">
+                Comprehensive development solutions
+              </h2>
+              <p className="mt-4 max-w-2xl mx-auto text-lg text-slate-600">
+                From individual assessments to organizational consulting, we provide the tools and expertise to drive meaningful growth.
               </p>
             </div>
-            <p className="eyebrow mb-5 text-[#c9a34e]">
-              Transformation services
-            </p>
-            <div className="mb-12 grid gap-px border border-[#c9a34e]/40 bg-[#c9a34e]/20 md:grid-cols-2">
-              {transformationServices.map(service => (
-                <a
-                  href={service.href}
-                  key={service.index}
-                  className="group bg-[#1b3152] p-7 transition-colors hover:bg-[#254263] lg:p-9"
-                >
-                  <div className="flex items-start justify-between">
-                    <span className="eyebrow text-[#c9a34e]">
-                      {service.index}
-                    </span>
-                    <span className="text-xs font-bold uppercase tracking-[.14em] text-[#aab5c6]">
-                      {service.tag}
-                    </span>
-                  </div>
-                  <h3 className="display mt-16 max-w-sm text-3xl leading-tight text-[#f7f3e8]">
-                    {service.title}
-                  </h3>
-                  <p className="mt-5 max-w-md text-sm leading-7 text-[#c1cad7]">
-                    {service.body}
-                  </p>
-                  <div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-[.16em] text-[#c9a34e]">
-                    Open service <ArrowUpRight size={14} />
-                  </div>
-                </a>
-              ))}
-            </div>
-            <p className="eyebrow mb-5 text-[#8f9db3]">
-              Additional ways to move insight forward
-            </p>
-            <div className="grid gap-px border border-white/15 bg-white/15 md:grid-cols-2">
-              {services.map(service => (
-                <a
-                  href={service.href}
-                  key={service.index}
-                  className="group bg-[#172844] p-7 transition-colors hover:bg-[#203657] lg:p-9"
-                >
-                  <div className="flex items-start justify-between">
-                    <span className="eyebrow text-[#c9a34e]">
-                      {service.index}
-                    </span>
-                    <span className="text-xs font-bold uppercase tracking-[.14em] text-[#8090a8]">
-                      {service.tag}
-                    </span>
-                  </div>
-                  <h3 className="display mt-16 max-w-sm text-3xl leading-tight text-[#f7f3e8]">
-                    {service.title}
-                  </h3>
-                  <p className="mt-5 max-w-md text-sm leading-7 text-[#aab5c6]">
-                    {service.body}
-                  </p>
-                  <div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-[.16em] text-[#c9a34e]">
-                    Learn more{" "}
-                    <ArrowUpRight
-                      size={14}
-                      className="transition-transform group-hover:-translate-y-1 group-hover:translate-x-1"
-                    />
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-        </section>
 
-        <section
-          id="courses"
-          className="relative bg-[#f7f3e8] py-24 text-[#16243d] lg:py-32"
-        >
-          <div className="absolute right-[10%] top-0 hidden h-20 w-px bg-[#c9a34e]/70 lg:block">
-            <span className="absolute -left-1 top-0 h-2 w-2 rounded-full bg-[#c9a34e]" />
-          </div>
-          <div className="container">
-            <div className="grid gap-10 lg:grid-cols-[.75fr_1.25fr]">
-              <div>
-                <p className="eyebrow text-[#a27e2e]">04 / COURSE CATALOG</p>
-                <h2 className="display mt-5 max-w-md text-5xl leading-[.95] tracking-[-.045em] sm:text-6xl">
-                  Choose the capability{" "}
-                  <em className="font-normal text-[#a27e2e]">
-                    you want to build.
-                  </em>
-                </h2>
-                <p className="mt-7 max-w-sm text-lg leading-8 text-[#4a566a]">
-                  Each course is designed to meet professional standards while
-                  giving you a practical path from reflection to measurable
-                  progress.
-                </p>
-                <p className="mt-8 text-xs font-bold uppercase tracking-[.14em] text-[#4a566a]">
-                  All enrollment inquiries are answered online.
-                </p>
-              </div>
-              <div>
-                <div className="mb-5 flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setCatalogLevel("All levels")}
-                    className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-[.12em] transition-colors ${
-                      catalogLevel === "All levels"
-                        ? "border-[#c9a34e] bg-[#c9a34e] text-[#101d35]"
-                        : "border-[#16243d]/20 text-[#4a566a] hover:border-[#c9a34e] hover:text-[#c9a34e]"
-                    }`}
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+              {services.map((service, index) => {
+                const Icon = service.icon;
+                return (
+                  <a
+                    key={service.index}
+                    href={service.href}
+                    className="group relative overflow-hidden rounded-2xl bg-white p-8 shadow-sm transition-all hover:shadow-xl hover:-translate-y-1"
                   >
-                    All levels
-                  </button>
-                  {uniqueLevels.map(level => (
-                    <button
-                      key={level}
-                      type="button"
-                      onClick={() => setCatalogLevel(level)}
-                      className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-[.12em] transition-colors ${
-                        catalogLevel === level
-                          ? "border-[#c9a34e] bg-[#c9a34e] text-[#101d35]"
-                          : "border-[#16243d]/20 text-[#4a566a] hover:border-[#c9a34e] hover:text-[#c9a34e]"
-                      }`}
-                    >
-                      {level}
-                    </button>
-                  ))}
-                </div>
-                <div className="mb-5 flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setCatalogCategory("All categories")}
-                    className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-[.12em] transition-colors ${
-                      catalogCategory === "All categories"
-                        ? "border-[#c9a34e] bg-[#c9a34e] text-[#101d35]"
-                        : "border-[#16243d]/20 text-[#4a566a] hover:border-[#c9a34e] hover:text-[#c9a34e]"
-                    }`}
-                  >
-                    All categories
-                  </button>
-                  {uniqueCategories.map(category => (
-                    <button
-                      key={category}
-                      type="button"
-                      onClick={() => setCatalogCategory(category)}
-                      className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-[.12em] transition-colors ${
-                        catalogCategory === category
-                          ? "border-[#c9a34e] bg-[#c9a34e] text-[#101d35]"
-                          : "border-[#16243d]/20 text-[#4a566a] hover:border-[#c9a34e] hover:text-[#c9a34e]"
-                      }`}
-                    >
-                      {category}
-                    </button>
-                  ))}
-                </div>
-                <div className="space-y-4">
-                {pagedCatalog.map(course => (
-                  <article
-                    key={course.index}
-                    className="group border-t border-[#16243d]/20 py-6 transition-all hover:border-[#c9a34e] sm:py-7"
-                  >
-                    <div className="grid gap-5 sm:grid-cols-[48px_1fr_auto] sm:items-start">
-                      <span className="eyebrow text-[#a27e2e]">
-                        {course.index}
-                      </span>
-                      <div>
-                        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                          <h3 className="display text-3xl leading-tight">
-                            {course.title}
-                          </h3>
-                          <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
-                            {course.format}
-                          </span>
-                        </div>
-                        <p className="mt-3 max-w-2xl text-sm leading-7 text-[#4a566a]">
-                          {course.body}
-                        </p>
-                        <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
-                          {course.modules.length ? (
-                            <>
-                              <span>10 modules</span>
-                              <span>70 lessons</span>
-                              <span>150 quiz questions</span>
-                              <span>50% pass mark</span>
-                              <span>4 staged payments</span>
-                            </>
-                          ) : (
-                            <>
-                              <span>
-                                {course.isDatabaseItem
-                                  ? "New catalog item"
-                                  : "Program overview"}
-                              </span>
-                              <span>Online delivery</span>
-                              <span>Enquire for details</span>
-                            </>
-                          )}
-                        </div>
-                         <p className="mt-3 max-w-2xl text-xs leading-5 text-[#4a566a]">
-                           {course.outcomes.join(" · ")}
-                         </p>
-                         <div className="mt-4">
-                           <CourseShareActions
-                             courseSlug={course.slug}
-                             courseTitle={course.title}
-                           />
-                         </div>
-                         {course.modules.length ? (
-                          <details className="mt-5 border-t border-[#16243d]/10 pt-4">
-                            <summary className="cursor-pointer text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-                              View the 10-module curriculum
-                            </summary>
-                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                              {course.modules.map(module => (
-                                <div
-                                  key={module.id}
-                                  className="border-l border-[#c9a34e] pl-3"
-                                >
-                                  <p className="text-xs font-bold">
-                                    {module.title}
-                                  </p>
-                                  <p className="mt-1 text-[11px] leading-5 text-[#4a566a]">
-                                    {module.promise}
-                                  </p>
-                                  <p className="mt-1 text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
-                                    7 lessons · 15-question quiz
-                                  </p>
-                                </div>
-                              ))}
-                            </div>
-                          </details>
-                        ) : (
-                          <p className="mt-5 border-t border-[#16243d]/10 pt-4 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e]">
-                            Newly published · enquire to shape the next step.
-                          </p>
-                        )}
+                    <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                    <div className="relative">
+                      <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/25">
+                        <Icon size={24} />
                       </div>
-                      <div className="sm:text-right">
-                        <p className="display text-2xl whitespace-nowrap">
-                          {course.price}
-                        </p>
-                        <div className="mt-4 flex flex-wrap items-center gap-4">
-                          <button
-                            type="button"
-                            onClick={() => openEnrollment(course)}
-                            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#a27e2e] transition-colors hover:text-[#16243d]"
-                          >
-                            Enroll now <ArrowUpRight size={14} />
-                          </button>
-                          <a
-                            href={
-                              course.modules.length
-                                ? `/courses/${course.slug}`
-                                : "#contact"
-                            }
-                            className="inline-flex items-center gap-2 border-b border-[#16243d]/25 pb-1 text-[10px] font-black uppercase tracking-[.15em] text-[#4a566a] hover:border-[#a27e2e] hover:text-[#a27e2e]"
-                          >
-                            {course.modules.length
-                              ? "Open syllabus"
-                              : "Discuss item"}{" "}
-                            <ChevronRight size={14} />
-                          </a>
-                        </div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-amber-600">
+                        {service.tag}
+                      </p>
+                      <h3 className="mt-3 text-xl font-bold text-slate-900">
+                        {service.title}
+                      </h3>
+                      <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                        {service.body}
+                      </p>
+                      <div className="mt-6 flex items-center gap-2 text-sm font-semibold text-amber-600">
+                        Learn more
+                        <ArrowUpRight
+                          size={16}
+                          className="transition-transform group-hover:translate-x-0.5"
+                        />
                       </div>
                     </div>
-                  </article>
-                ))}
-                </div>
-                {catalogPage < catalogPageCount && (
-                  <div className="mt-8 flex justify-center">
-                    <button
-                      type="button"
-                      onClick={() => setCatalogPage(page => page + 1)}
-                      className="inline-flex items-center gap-3 border border-[#c9a34e] px-6 py-3.5 text-[10px] font-black uppercase tracking-[.15em] text-[#16243d] transition-all hover:bg-[#c9a34e]"
-                    >
-                      Load more <ChevronRight size={14} />
-                    </button>
-                  </div>
-                )}
-                {filteredCatalog.length === 0 && (
-                  <p className="py-12 text-center text-sm text-[#4a566a]">
-                    No courses match the selected filters.
-                  </p>
-                )}
-              </div>
+                  </a>
+                );
+              })}
             </div>
           </div>
         </section>
 
-        <section className="bg-[#f7f3e8] py-24 text-[#16243d] lg:py-32">
-          <div className="container">
-            <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.05fr]">
-              <div className="relative">
-                <div className="absolute -left-5 -top-5 h-20 w-20 border-l border-t border-[#c9a34e]" />
-                <img
-                  src="/profound-pathway_8ea985fc.svg"
-                  alt="Abstract paper forms representing the journey from insight to action"
-                  className="relative aspect-square w-full max-w-md object-cover object-center"
-                />
-                <div className="absolute -bottom-6 right-2 max-w-[210px] border border-[#c9a34e] bg-[#101d35] p-5 text-[#f7f3e8] sm:right-12">
-                  <Sparkles size={18} className="mb-5 text-[#c9a34e]" />
-                  <p className="display text-xl leading-tight">
-                    “The shift begins with what you can now see.”
-                  </p>
-                </div>
-              </div>
-              <div>
-                <p className="eyebrow text-[#a27e2e]">05 / METHOD</p>
-                <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
-                  Discover.
-                  <br />
-                  <em className="font-normal text-[#a27e2e]">Develop.</em>
-                  <br />
-                  Apply.
-                </h2>
-                <p className="mt-8 max-w-lg text-lg leading-8 text-[#4a566a]">
-                  Progress is not a single breakthrough. It is the disciplined
-                  movement from a better question to a more capable response.
-                </p>
-                <div className="mt-10 space-y-5">
-                  {[
-                    {
-                      n: "01",
-                      t: "Discover",
-                      d: "Surface the patterns, goals, and possibilities that shape the starting point.",
-                    },
-                    {
-                      n: "02",
-                      t: "Develop",
-                      d: "Build a practical toolkit through focused learning and honest reflection.",
-                    },
-                    {
-                      n: "03",
-                      t: "Apply",
-                      d: "Carry the insight into the choices, conversations, and systems that matter.",
-                    },
-                  ].map(step => (
+        {/* Featured Services */}
+        <section className="bg-white py-24 lg:py-32">
+          <div className="container px-6 lg:px-8">
+            <div className="mb-16">
+              <p className="text-sm font-semibold uppercase tracking-wider text-amber-600">
+                Featured Programs
+              </p>
+              <h2 className="mt-4 text-4xl font-bold tracking-tight text-slate-900 lg:text-5xl">
+                Tools for the work ahead
+              </h2>
+            </div>
+
+            <div className="grid gap-8 lg:grid-cols-2">
+              {transformationServices.map(service => {
+                const Icon = service.icon;
+                return (
+                  <a
+                    key={service.index}
+                    href={service.href}
+                    className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 p-10 text-white shadow-xl transition-all hover:shadow-2xl hover:-translate-y-1"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                    <div className="relative">
+                      <div className="mb-8 inline-flex h-16 w-16 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400">
+                        <Icon size={28} />
+                      </div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-amber-400">
+                        {service.tag}
+                      </p>
+                      <h3 className="mt-3 text-3xl font-bold">
+                        {service.title}
+                      </h3>
+                      <p className="mt-4 text-base leading-relaxed text-slate-300">
+                        {service.body}
+                      </p>
+                      <div className="mt-8 flex items-center gap-2 text-sm font-semibold text-amber-400">
+                        Open service
+                        <ArrowUpRight
+                          size={16}
+                          className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                        />
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials */}
+        <section className="bg-slate-900 py-24 lg:py-32">
+          <div className="container px-6 lg:px-8">
+            <div className="mx-auto max-w-4xl text-center">
+              <p className="text-sm font-semibold uppercase tracking-wider text-amber-400">
+                Client Success Stories
+              </p>
+              <div className="mt-12">
+                <div className="relative h-64">
+                  {testimonials.map((testimonial, index) => (
                     <div
-                      key={step.n}
-                      className="flex gap-5 border-t border-[#16243d]/15 pt-5"
+                      key={index}
+                      className={`absolute inset-0 transition-all duration-700 ${
+                        index === currentTestimonial
+                          ? "opacity-100 translate-y-0"
+                          : "opacity-0 translate-y-8"
+                      }`}
                     >
-                      <span className="eyebrow pt-1 text-[#a27e2e]">
-                        {step.n}
-                      </span>
-                      <div>
-                        <h3 className="text-lg font-extrabold">{step.t}</h3>
-                        <p className="mt-1 text-sm leading-6 text-[#4a566a]">
-                          {step.d}
+                      <blockquote className="text-3xl font-light leading-relaxed text-white lg:text-4xl">
+                        "{testimonial.quote}"
+                      </blockquote>
+                      <div className="mt-8">
+                        <p className="font-semibold text-amber-400">
+                          {testimonial.author}
+                        </p>
+                        <p className="text-sm text-slate-400">
+                          {testimonial.role}
                         </p>
                       </div>
                     </div>
+                  ))}
+                </div>
+                <div className="mt-8 flex justify-center gap-2">
+                  {testimonials.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentTestimonial(index)}
+                      className={`h-2 rounded-full transition-all ${
+                        index === currentTestimonial
+                          ? "w-8 bg-amber-400"
+                          : "w-2 bg-slate-700 hover:bg-slate-600"
+                      }`}
+                      aria-label={`Testimonial ${index + 1}`}
+                    />
                   ))}
                 </div>
               </div>
@@ -756,184 +575,309 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="relative bg-[#101d35] py-24 lg:py-28">
-          <div className="absolute left-[8%] top-0 hidden h-16 w-px bg-[#c9a34e]/60 lg:block" />
-          <div className="container">
-            <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr]">
-              <div>
-                <p className="eyebrow text-[#c9a34e]">06 / PROOF</p>
-                <h2 className="display mt-5 max-w-md text-5xl leading-none tracking-[-.04em] text-[#f7f3e8]">
-                  Learning that stays with you.
-                </h2>
-              </div>
-              <blockquote className="border-l border-[#c9a34e] pl-7 sm:pl-10">
-                <div className="mb-6 flex items-center gap-3 text-[10px] font-black uppercase tracking-[.18em] text-[#8090a8]">
-                  <span className="h-px w-8 bg-[#c9a34e]" /> Evidence / lived
-                  impact
-                </div>
-                <p className="display max-w-2xl text-3xl leading-tight text-[#f7f3e8] sm:text-4xl">
-                  “I have gained a lot from this course. I will refer my
-                  friends.”
-                </p>
-                <footer className="mt-7 flex items-center gap-3 text-xs font-black uppercase tracking-[.16em] text-[#c9a34e]">
-                  <span className="h-px w-8 bg-[#c9a34e]" /> Margaret Kim
-                </footer>
-              </blockquote>
+        {/* Course Catalog */}
+        <section id="courses" className="bg-slate-50 py-24 lg:py-32">
+          <div className="container px-6 lg:px-8">
+            <div className="mb-16">
+              <p className="text-sm font-semibold uppercase tracking-wider text-amber-600">
+                Course Catalog
+              </p>
+              <h2 className="mt-4 text-4xl font-bold tracking-tight text-slate-900 lg:text-5xl">
+                Choose the capability you want to build
+              </h2>
+              <p className="mt-4 max-w-2xl text-lg text-slate-600">
+                Each course is designed to meet professional standards while giving you a practical path from reflection to measurable progress.
+              </p>
             </div>
+
+            <div className="mb-8 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => setCatalogLevel("All levels")}
+                className={`rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition-all ${
+                  catalogLevel === "All levels"
+                    ? "bg-slate-900 text-white"
+                    : "bg-white text-slate-700 border border-slate-200 hover:border-slate-900"
+                }`}
+              >
+                All levels
+              </button>
+              {uniqueLevels.map(level => (
+                <button
+                  key={level}
+                  type="button"
+                  onClick={() => setCatalogLevel(level)}
+                  className={`rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition-all ${
+                    catalogLevel === level
+                      ? "bg-slate-900 text-white"
+                      : "bg-white text-slate-700 border border-slate-200 hover:border-slate-900"
+                  }`}
+                >
+                  {level}
+                </button>
+              ))}
+            </div>
+
+            <div className="space-y-6">
+              {pagedCatalog.map(course => (
+                <article
+                  key={course.index}
+                  className="group rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all hover:shadow-lg hover:border-amber-300"
+                >
+                  <div className="grid gap-8 lg:grid-cols-[1fr_auto]">
+                    <div>
+                      <div className="flex items-center gap-4">
+                        <span className="text-sm font-bold text-amber-600">
+                          {course.index}
+                        </span>
+                        <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+                          {course.format}
+                        </span>
+                      </div>
+                      <h3 className="mt-4 text-2xl font-bold text-slate-900">
+                        {course.title}
+                      </h3>
+                      <p className="mt-3 text-base leading-relaxed text-slate-600">
+                        {course.body}
+                      </p>
+                      <div className="mt-6 flex flex-wrap gap-4">
+                        <button
+                          type="button"
+                          onClick={() => openEnrollment(course)}
+                          className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-all hover:bg-slate-800"
+                        >
+                          Enroll now
+                          <ArrowUpRight size={14} />
+                        </button>
+                        <a
+                          href={
+                            course.modules.length
+                              ? `/courses/${course.slug}`
+                              : "#contact"
+                          }
+                          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700 transition-colors hover:text-amber-600"
+                        >
+                          {course.modules.length ? "Open syllabus" : "Discuss item"}
+                          <ChevronRight size={14} />
+                        </a>
+                      </div>
+                    </div>
+                    <div className="lg:text-right">
+                      <p className="text-3xl font-bold text-slate-900">
+                        {course.price}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {catalogPage < catalogPageCount && (
+              <div className="mt-12 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => setCatalogPage(page => page + 1)}
+                  className="inline-flex items-center gap-3 rounded-lg border-2 border-slate-900 px-8 py-3 text-sm font-bold uppercase tracking-wider text-slate-900 transition-all hover:bg-slate-900 hover:text-white"
+                >
+                  Load more
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+            )}
+
+            {filteredCatalog.length === 0 && (
+              <p className="py-12 text-center text-base text-slate-500">
+                No courses match the selected filters.
+              </p>
+            )}
           </div>
         </section>
 
-        <section
-          id="contact"
-          className="relative bg-[#101d35] py-20 text-[#f7f3e8] lg:py-28"
-        >
-          <div className="absolute right-[12%] top-0 hidden h-24 w-px bg-[#c9a34e]/60 lg:block" />
-          <div className="container">
-            <div className="grid gap-14 lg:grid-cols-[.95fr_1.05fr] lg:gap-24">
+        {/* Contact Section */}
+        <section id="contact" className="bg-slate-900 py-24 lg:py-32">
+          <div className="container px-6 lg:px-8">
+            <div className="grid gap-16 lg:grid-cols-2">
               <div>
-                <p className="eyebrow text-[#c9a34e]">07 / NEXT MOVE</p>
-                <h2 className="display mt-5 max-w-xl text-5xl leading-[.94] tracking-[-.05em] sm:text-7xl">
-                  Make the next step{" "}
-                  <em className="font-normal text-[#c9a34e]">deliberate.</em>
-                </h2>
-                <p className="mt-7 max-w-md text-lg leading-8 text-[#c1cad7]">
-                  Tell us what you are working toward. We will help you see the
-                  path with more clarity.
+                <p className="text-sm font-semibold uppercase tracking-wider text-amber-400">
+                  Get in Touch
                 </p>
-                <div className="mt-10 space-y-4 text-sm font-bold text-[#d6dce6]">
+                <h2 className="mt-4 text-4xl font-bold tracking-tight text-white lg:text-5xl">
+                  Make the next step deliberate
+                </h2>
+                <p className="mt-6 text-lg leading-relaxed text-slate-300">
+                  Tell us what you are working toward. We will help you see the path with more clarity.
+                </p>
+                <div className="mt-10 space-y-6">
                   <a
                     href="mailto:admin@profoundiqconsulting.com"
-                    className="flex items-center gap-3 hover:text-[#c9a34e] hover:underline"
+                    className="flex items-center gap-4 text-slate-300 transition-colors hover:text-amber-400"
                   >
-                    <Mail size={17} /> admin@profoundiqconsulting.com
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-800 text-amber-400">
+                      <Mail size={20} />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-white">Email us</p>
+                      <p className="text-sm">admin@profoundiqconsulting.com</p>
+                    </div>
                   </a>
                   <a
                     href="tel:+254727374055"
-                    className="flex items-center gap-3 hover:underline"
+                    className="flex items-center gap-4 text-slate-300 transition-colors hover:text-amber-400"
                   >
-                    <Phone size={17} /> +254 727 374 055
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-800 text-amber-400">
+                      <Phone size={20} />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-white">Call us</p>
+                      <p className="text-sm">+254 727 374 055</p>
+                    </div>
                   </a>
-                  <div className="flex items-center gap-3">
-                    <Clock3 size={17} /> Monday to Saturday · Office hours
+                  <div className="flex items-center gap-4 text-slate-300">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-800 text-amber-400">
+                      <MessageCircle size={20} />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-white">Always online</p>
+                      <p className="text-sm">WhatsApp support available 24/7</p>
+                    </div>
                   </div>
                 </div>
               </div>
+
               <form
                 onSubmit={submitInquiry}
-                className="border border-white/15 bg-[#f7f3e8] p-7 text-[#16243d] sm:p-9"
+                className="rounded-2xl bg-white p-8 shadow-xl lg:p-10"
               >
-                <p className="eyebrow text-[#a27e2e]">Start with a question</p>
+                <h3 className="text-2xl font-bold text-slate-900">
+                  Start with a question
+                </h3>
+                <p className="mt-2 text-sm text-slate-600">
+                  Fill out the form below and we'll get back to you within 24 hours.
+                </p>
+
                 {sent && (
                   <div
                     role="status"
-                    className="mt-5 flex items-center gap-2 bg-[#16243d] px-4 py-3 text-sm text-[#f7f3e8]"
+                    className="mt-6 flex items-center gap-3 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
                   >
-                    <Check size={16} /> Your inquiry has been received. We will
-                    be in touch shortly.
+                    <Check size={18} />
+                    Your inquiry has been received. We will be in touch shortly.
                   </div>
                 )}
+
                 {inquiryError && (
                   <div
                     role="alert"
-                    className="mt-5 border border-red-800/30 bg-red-50 px-4 py-3 text-sm text-red-900"
+                    className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
                   >
                     {inquiryError}
                   </div>
                 )}
-                <label className="mt-7 block text-xs font-black uppercase tracking-[.14em]">
-                  Your name
-                  <input
-                    required
-                    name="name"
-                    type="text"
-                    placeholder="Name"
-                    className="mt-3 w-full border-b border-[#101d35]/45 bg-transparent px-0 py-3 text-lg font-medium outline-none placeholder:text-[#665321] focus:border-[#101d35]"
-                  />
-                </label>
-                <label className="mt-6 block text-xs font-black uppercase tracking-[.14em]">
-                  Email address
-                  <input
-                    required
-                    name="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    className="mt-3 w-full border-b border-[#101d35]/45 bg-transparent px-0 py-3 text-lg font-medium outline-none placeholder:text-[#665321] focus:border-[#101d35]"
-                  />
-                </label>
-                <label className="mt-6 block text-xs font-black uppercase tracking-[.14em]">
-                  Inquiry subject
-                  <select
-                    required
-                    name="category"
-                    defaultValue="general"
-                    className="mt-3 w-full border-b border-[#101d35]/45 bg-transparent px-0 py-3 text-lg font-medium outline-none focus:border-[#101d35]"
+
+                <div className="mt-8 space-y-6">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Your name
+                    </label>
+                    <input
+                      required
+                      name="name"
+                      type="text"
+                      placeholder="John Doe"
+                      className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 text-base outline-none transition-colors focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Email address
+                    </label>
+                    <input
+                      required
+                      name="email"
+                      type="email"
+                      placeholder="you@example.com"
+                      className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 text-base outline-none transition-colors focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Inquiry subject
+                    </label>
+                    <select
+                      required
+                      name="category"
+                      defaultValue="general"
+                      className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 text-base outline-none transition-colors focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                    >
+                      <option value="general">General question</option>
+                      <option value="professional-courses">
+                        Professional courses
+                      </option>
+                      <option value="educational-consulting">
+                        Educational consulting
+                      </option>
+                      <option value="psychometric-testing">
+                        Psychometric testing
+                      </option>
+                      <option value="research-surveys">Research surveys</option>
+                      <option value="organizational-development">
+                        Organizational development
+                      </option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                      What are you exploring?
+                    </label>
+                    <textarea
+                      required
+                      name="message"
+                      placeholder="A course, a team challenge, a new direction…"
+                      rows={4}
+                      className="mt-2 w-full resize-none rounded-lg border border-slate-200 px-4 py-3 text-base outline-none transition-colors focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Quick verification
+                    </label>
+                    <p className="mt-2 text-sm text-slate-600">
+                      What is {mathA} + {mathB}?
+                    </p>
+                    <input
+                      required
+                      name="mathAnswer"
+                      type="number"
+                      inputMode="numeric"
+                      min="2"
+                      max="40"
+                      placeholder="Your answer"
+                      className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 text-base outline-none transition-colors focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={inquiry.isPending}
+                    className="w-full rounded-lg bg-slate-900 px-6 py-4 text-sm font-bold uppercase tracking-wider text-white transition-all hover:bg-slate-800 disabled:cursor-wait disabled:opacity-60"
                   >
-                    <option value="general">General question</option>
-                    <option value="professional-courses">
-                      Professional courses
-                    </option>
-                    <option value="educational-consulting">
-                      Educational consulting
-                    </option>
-                    <option value="psychometric-testing">
-                      Psychometric testing
-                    </option>
-                    <option value="research-surveys">Research surveys</option>
-                    <option value="organizational-development">
-                      Organizational development
-                    </option>
-                  </select>
-                </label>
-                <label className="mt-6 block text-xs font-black uppercase tracking-[.14em]">
-                  What are you exploring?
-                  <textarea
-                    required
-                    name="message"
-                    placeholder="A course, a team challenge, a new direction…"
-                    rows={3}
-                    className="mt-3 w-full resize-none border-b border-[#101d35]/45 bg-transparent px-0 py-3 text-lg font-medium outline-none placeholder:text-[#665321] focus:border-[#101d35]"
-                  />
-                </label>
-                <label className="mt-6 block text-xs font-black uppercase tracking-[.14em]">
-                  Quick verification
-                  <span className="mt-3 block text-sm font-semibold normal-case tracking-normal text-[#4a566a]">
-                    What is {mathA} + {mathB}?
-                  </span>
-                  <input
-                    required
-                    name="mathAnswer"
-                    type="number"
-                    inputMode="numeric"
-                    min="2"
-                    max="40"
-                    placeholder="Your answer"
-                    aria-describedby="inquiry-verification-help"
-                    className="mt-2 w-full border-b border-[#101d35]/45 bg-transparent px-0 py-3 text-lg font-medium outline-none placeholder:text-[#665321] focus:border-[#101d35]"
-                  />
-                  <span
-                    id="inquiry-verification-help"
-                    className="mt-2 block text-[11px] font-normal normal-case tracking-normal text-[#4a566a]"
-                  >
-                    This helps us keep automated submissions out.
-                  </span>
-                </label>
-                <button
-                  type="submit"
-                  disabled={inquiry.isPending}
-                  className="mt-8 inline-flex items-center gap-3 bg-[#c9a34e] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#101d35] transition-all hover:-translate-y-1 disabled:cursor-wait disabled:opacity-60"
-                >
-                  {inquiry.isPending ? "Sending…" : "Send inquiry"}{" "}
-                  <ArrowUpRight size={15} />
-                </button>
+                    {inquiry.isPending ? "Sending…" : "Send inquiry"}
+                  </button>
+                </div>
               </form>
             </div>
           </div>
         </section>
       </main>
 
+      {/* Enrollment Modal */}
       {selectedCourse && (
         <div
-          className="fixed inset-0 z-50 grid place-items-center bg-[#071225]/80 p-5 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 p-5 backdrop-blur-sm"
           role="presentation"
           onMouseDown={event => {
             if (event.target === event.currentTarget) setSelectedCourse(null);
@@ -943,14 +887,16 @@ export default function Home() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="enrollment-title"
-            className="max-h-[92vh] w-full max-w-xl overflow-y-auto border border-[#c9a34e]/70 bg-[#f7f3e8] p-7 text-[#16243d] shadow-2xl sm:p-10"
+            className="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-8 shadow-2xl sm:p-10"
           >
             <div className="flex items-start justify-between gap-6">
               <div>
-                <p className="eyebrow text-[#a27e2e]">Enrollment / next step</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-amber-600">
+                  Enrollment / next step
+                </p>
                 <h2
                   id="enrollment-title"
-                  className="display mt-4 text-4xl leading-none tracking-[-.04em]"
+                  className="mt-3 text-3xl font-bold tracking-tight text-slate-900"
                 >
                   Reserve your place.
                 </h2>
@@ -959,225 +905,230 @@ export default function Home() {
                 type="button"
                 aria-label="Close enrollment form"
                 onClick={() => setSelectedCourse(null)}
-                className="grid h-9 w-9 place-items-center border border-[#16243d]/25 text-[#16243d] transition-colors hover:border-[#c9a34e] hover:text-[#a27e2e]"
+                className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition-colors hover:border-slate-900 hover:text-slate-900"
               >
-                <X size={17} />
+                <X size={20} />
               </button>
             </div>
+
             {enrollmentSubmitted ? (
-              <div className="mt-10 border-l-2 border-[#c9a34e] bg-[#16243d] p-6 text-[#f7f3e8]">
-                <Check size={20} className="text-[#c9a34e]" />
-                <h3 className="display mt-4 text-2xl">
+              <div className="mt-10 rounded-xl border border-emerald-200 bg-emerald-50 p-6">
+                <Check size={24} className="text-emerald-600" />
+                <h3 className="mt-4 text-xl font-bold text-slate-900">
                   Your interest is recorded.
                 </h3>
-                <p className="mt-3 text-sm leading-6 text-[#c1cad7]">
-                  Thank you for choosing {selectedCourse.title}. Our team will
-                  follow up using the email you provided.
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                  Thank you for choosing {selectedCourse.title}. Our team will follow up using the email you provided.
                 </p>
                 <button
                   type="button"
                   onClick={() => setSelectedCourse(null)}
-                  className="mt-6 border-b border-[#c9a34e] pb-1 text-[10px] font-black uppercase tracking-[.16em] text-[#c9a34e]"
+                  className="mt-6 text-sm font-semibold text-amber-600 underline underline-offset-4"
                 >
                   Close form
                 </button>
               </div>
             ) : (
               <form className="mt-8" onSubmit={submitEnrollment}>
-                <label className="block text-xs font-black uppercase tracking-[.14em]">
-                  Selected course
-                  <select
-                    required
-                    name="courseTitle"
-                    value={selectedCourse.title}
-                    onChange={event =>
-                      setSelectedCourse(
-                        courses.find(
-                          course => course.title === event.target.value
-                        ) ?? selectedCourse
-                      )
-                    }
-                    className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent px-0 py-3 text-base font-semibold outline-none focus:border-[#c9a34e]"
-                  >
-                    {courses.map(course => (
-                      <option key={course.title} value={course.title}>
-                        {course.title} — {course.price}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="mt-7 block text-xs font-black uppercase tracking-[.14em]">
-                  Your name
-                  <input
-                    required
-                    name="enrollment-name"
-                    type="text"
-                    autoComplete="name"
-                    placeholder="Name"
-                    className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent px-0 py-3 text-base font-semibold outline-none placeholder:text-[#4a566a] focus:border-[#c9a34e]"
-                  />
-                </label>
-                <label className="mt-7 block text-xs font-black uppercase tracking-[.14em]">
-                  Email address
-                  <input
-                    required
-                    name="enrollment-email"
-                    type="email"
-                    autoComplete="email"
-                    placeholder="you@example.com"
-                    className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent px-0 py-3 text-base font-semibold outline-none placeholder:text-[#4a566a] focus:border-[#c9a34e]"
-                  />
-                </label>
-                <div className="mt-7 flex items-start gap-3">
-                  <input
-                    required
-                    id="enrollment-consent"
-                    name="enrollment-consent"
-                    type="checkbox"
-                    className="mt-1 h-4 w-4 shrink-0 accent-[#c9a34e]"
-                  />
-                  <label
-                    htmlFor="enrollment-consent"
-                    className="text-xs leading-5 text-[#4f5b6e]"
-                  >
-                    I consent to Profound IQ Consulting using my name and email
-                    to respond to this enrollment inquiry, in line with the{" "}
-                    <a
-                      href="#privacy-note"
-                      className="font-bold text-[#a27e2e] underline underline-offset-2"
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Selected course
+                    </label>
+                    <select
+                      required
+                      name="courseTitle"
+                      value={selectedCourse.title}
+                      onChange={event =>
+                        setSelectedCourse(
+                          courses.find(
+                            course => course.title === event.target.value
+                          ) ?? selectedCourse
+                        )
+                      }
+                      className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 text-base font-semibold outline-none transition-colors focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
                     >
-                      privacy policy
-                    </a>
-                    .
-                  </label>
+                      {courses.map(course => (
+                        <option key={course.title} value={course.title}>
+                          {course.title} — {course.price}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Your name
+                    </label>
+                    <input
+                      required
+                      name="enrollment-name"
+                      type="text"
+                      autoComplete="name"
+                      placeholder="Your full name"
+                      className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 text-base font-semibold outline-none transition-colors focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Email address
+                    </label>
+                    <input
+                      required
+                      name="enrollment-email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="you@example.com"
+                      className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 text-base font-semibold outline-none transition-colors focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                    />
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <input
+                      required
+                      id="enrollment-consent"
+                      name="enrollment-consent"
+                      type="checkbox"
+                      className="mt-1 h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                    />
+                    <label
+                      htmlFor="enrollment-consent"
+                      className="text-sm leading-relaxed text-slate-600"
+                    >
+                      I consent to Profound IQ Consulting using my name and email to respond to this enrollment inquiry, in line with our privacy policy.
+                    </label>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={enrollment.isPending}
+                    className="w-full rounded-lg bg-slate-900 px-6 py-4 text-sm font-bold uppercase tracking-wider text-white transition-all hover:bg-slate-800 disabled:opacity-60"
+                  >
+                    {enrollment.isPending
+                      ? "Recording…"
+                      : "Submit enrollment interest"}
+                  </button>
                 </div>
-                <p
-                  id="privacy-note"
-                  className="mt-4 text-[11px] leading-5 text-[#4a566a]"
-                >
-                  Disclaimer: submitting this form records your interest only;
-                  course availability, schedule, and final enrollment details
-                  will be confirmed by our team.
-                </p>
-                <button
-                  type="submit"
-                  disabled={enrollment.isPending}
-                  className="mt-8 inline-flex items-center gap-3 bg-[#c9a34e] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#101d35] transition-all hover:-translate-y-1 disabled:opacity-60"
-                >
-                  {enrollment.isPending
-                    ? "Recording…"
-                    : "Submit enrollment interest"}{" "}
-                  <ArrowUpRight size={15} />
-                </button>
               </form>
             )}
           </div>
         </div>
       )}
 
-      <footer id="site-footer" className="bg-[#101d35] py-10 text-[#f7f3e8]">
-        <div className="container flex flex-col justify-between gap-7 sm:flex-row sm:items-end">
-          <div>
-            <BrandLogo context="footer" />
-            <p className="mt-4 max-w-xs text-xs leading-5 text-[#8f9db3]">
-              Transformational learning — people ready to move from
-              understanding to action.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-[10px] font-black uppercase tracking-[.12em] text-[#c9a34e]">
-              <a href="/about" className="hover:text-[#f7f3e8]">
-                About
+      {/* Footer */}
+      <footer className="bg-slate-900 py-16 text-white lg:py-20">
+        <div className="container px-6 lg:px-8">
+          <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr_1fr]">
+            <div>
+              <BrandLogo context="footer" />
+              <p className="mt-6 max-w-sm text-sm leading-relaxed text-slate-400">
+                Transformational learning, educational consulting, school improvement, psychometric insight, and professional development for a changing world.
+              </p>
+              <a
+                href="/contact"
+                className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-amber-400 transition-colors hover:text-amber-300"
+              >
+                Talk to our consultants
+                <ArrowUpRight size={16} />
               </a>
-              <a href="/services" className="hover:text-[#f7f3e8]">
-                Services
-              </a>
-              <a href="/school-solutions" className="hover:text-[#f7f3e8]">
-                Schools
-              </a>
-              <a href="/resources" className="hover:text-[#f7f3e8]">
-                Resources
-              </a>
-              <a href="/blog" className="hover:text-[#f7f3e8]">
-                Insights
-              </a>
-              <a href="/contact" className="hover:text-[#f7f3e8]">
-                Contact
-              </a>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 text-[#aab5c6]">
-            <a
-              href="/privacy-policy"
-              className="inline-flex h-9 items-center border border-white/15 px-3 text-[10px] font-bold uppercase tracking-[.12em] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#c9a34e] hover:text-[#c9a34e] active:scale-95"
-            >
-              Privacy Policy
-            </a>
-            <a
-              href="/terms-of-service"
-              className="inline-flex h-9 items-center border border-white/15 px-3 text-[10px] font-bold uppercase tracking-[.12em] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#c9a34e] hover:text-[#c9a34e] active:scale-95"
-            >
-              Terms of Service
-            </a>
-            <a
-              href="https://www.facebook.com/profoundIQ"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Profound IQ Consulting on Facebook"
-              title="Facebook"
-              className="inline-flex h-9 w-9 items-center justify-center border border-white/15 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:border-[#1877F2] hover:bg-[#1877F2] hover:text-white active:scale-95"
-            >
-              <Facebook size={16} strokeWidth={2} />
-            </a>
-            <a
-              href="https://x.com/ProfoundIQC"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Profound IQ Consulting on X"
-              title="X"
-              className="inline-flex h-9 w-9 items-center justify-center border border-white/15 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:border-white hover:bg-white hover:text-[#101d35] active:scale-95"
-            >
-              <X size={16} />
-            </a>
-            <a
-              href="https://linkedin.com/company/profoundiqconsulting"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Profound IQ Consulting on LinkedIn"
-              title="LinkedIn"
-              className="inline-flex h-9 w-9 items-center justify-center border border-white/15 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:border-[#0A66C2] hover:bg-[#0A66C2] hover:text-white active:scale-95"
-            >
-              <Linkedin size={16} />
-            </a>
-            <a
-              href="https://www.instagram.com/profoundiqconsulting/"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Profound IQ Consulting on Instagram"
-              title="Instagram"
-              className="inline-flex h-9 w-9 items-center justify-center border border-white/15 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:border-[#E4405F] hover:bg-gradient-to-br hover:from-[#833AB4] hover:via-[#E4405F] hover:to-[#FCAF45] hover:text-white active:scale-95"
-            >
-              <Instagram size={16} />
-            </a>
-            <Tooltip>
-              <TooltipTrigger asChild>
+              <div className="mt-7 flex gap-3">
                 <a
-                  href="https://wa.me/254727374055?text=Hello%20Profound%20IQ%20Consulting%2C%20I%20need%20quick%20support."
+                  href="https://www.facebook.com/profoundIQ"
                   target="_blank"
                   rel="noreferrer"
-                  aria-label="Chat with Profound IQ Consulting on WhatsApp"
-                  className="inline-flex h-9 items-center gap-2 border border-[#25D366]/60 px-3 text-[10px] font-bold uppercase tracking-[.12em] text-[#d9fbe5] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#25D366] hover:bg-[#25D366]/10 active:scale-95"
+                  aria-label="Profound IQ Consulting on Facebook"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-400 transition-all hover:border-amber-400 hover:text-amber-400"
                 >
-                  <MessageCircle size={16} />{" "}
-                  <span className="hidden sm:inline">
-                    WhatsApp support
-                  </span>
+                  <Facebook size={18} />
                 </a>
-              </TooltipTrigger>
-              <TooltipContent>Monday to Saturday · Office hours</TooltipContent>
-            </Tooltip>
+                <a
+                  href="https://x.com/ProfoundIQC"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Profound IQ Consulting on X"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-400 transition-all hover:border-white hover:text-white"
+                >
+                  <X size={18} />
+                </a>
+                <a
+                  href="https://linkedin.com/company/profoundiqconsulting"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Profound IQ Consulting on LinkedIn"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-400 transition-all hover:border-blue-400 hover:text-blue-400"
+                >
+                  <Linkedin size={18} />
+                </a>
+                <a
+                  href="https://www.instagram.com/profoundiqconsulting/"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Profound IQ Consulting on Instagram"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-400 transition-all hover:border-pink-400 hover:text-pink-400"
+                >
+                  <Instagram size={18} />
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-wider text-amber-400">
+                Quick Links
+              </p>
+              <div className="mt-6 grid gap-3">
+                <a href="/about" className="text-sm text-slate-400 transition-colors hover:text-white">
+                  About
+                </a>
+                <a href="/services" className="text-sm text-slate-400 transition-colors hover:text-white">
+                  Services
+                </a>
+                <a href="/courses" className="text-sm text-slate-400 transition-colors hover:text-white">
+                  Courses
+                </a>
+                <a href="/assessment" className="text-sm text-slate-400 transition-colors hover:text-white">
+                  Self Assessment
+                </a>
+                <a href="/resources" className="text-sm text-slate-400 transition-colors hover:text-white">
+                  Resources
+                </a>
+                <a href="/contact" className="text-sm text-slate-400 transition-colors hover:text-white">
+                  Contact
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-wider text-amber-400">
+                Legal
+              </p>
+              <div className="mt-6 grid gap-3">
+                <a
+                  href="/privacy-policy"
+                  className="text-sm text-slate-400 transition-colors hover:text-white"
+                >
+                  Privacy Policy
+                </a>
+                <a
+                  href="/terms-of-service"
+                  className="text-sm text-slate-400 transition-colors hover:text-white"
+                >
+                  Terms of Service
+                </a>
+              </div>
+            </div>
           </div>
-          <p className="text-[10px] uppercase tracking-[.14em] text-[#64738b]">
-            © 2026 Profound IQ Consulting
-          </p>
+
+          <div className="mt-16 border-t border-slate-800 pt-8">
+            <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+              <p className="text-sm text-slate-500">
+                © 2026 Profound IQ Consulting. All rights reserved.
+              </p>
+              <p className="text-sm text-slate-500">
+                Online / Kenya / Global reach
+              </p>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

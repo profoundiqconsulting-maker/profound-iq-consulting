@@ -2,6 +2,7 @@
 import {
   ArrowUpRight,
   BookOpen,
+  ExternalLink,
   FileSearch,
   Mic2,
   ScrollText,
@@ -9,6 +10,7 @@ import {
 import { Link } from "wouter";
 import { PublicPageShell } from "@/components/PublicPageShell";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { trpc } from "@/lib/trpc";
 
 const resourceTypes = [
   {
@@ -38,6 +40,11 @@ const resourceTypes = [
 ];
 
 export default function Resources() {
+  const resources = trpc.resources.list.useQuery(undefined, {
+    retry: false,
+    refetchOnWindowFocus: true,
+  });
+
   return (
     <PublicPageShell
       eyebrow="04 / Resources"
@@ -75,6 +82,54 @@ export default function Resources() {
           </div>
         </ScrollReveal>
       </section>
+
+      {(resources.data ?? []).length > 0 && (
+        <section className="bg-white py-24 lg:py-32">
+          <div className="container">
+            <div className="mb-12">
+              <p className="eyebrow text-[#a27e2e]">Resource library</p>
+              <h2 className="display mt-5 text-4xl leading-[.98] tracking-[-.045em] sm:text-5xl">
+                Curated materials
+              </h2>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {(resources.data ?? [])
+                .sort((a, b) => a.sortOrder - b.sortOrder)
+                .map((resource, index) => (
+                  <ScrollReveal key={resource.id} delay={index * 70}>
+                    <article className="group border border-[#16243d]/10 bg-[#f7f3e8] p-8 transition-all duration-200 hover:-translate-y-1 hover:border-[#c9a34e] hover:bg-white hover:shadow-lg">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-[#16243d] text-[#c9a34e]">
+                          <BookOpen size={22} />
+                        </div>
+                        <span className="text-[10px] font-black tracking-[.16em] text-[#a27e2e]">
+                          {resource.category}
+                        </span>
+                      </div>
+                      <h3 className="mt-6 text-xl font-semibold leading-tight">
+                        {resource.title}
+                      </h3>
+                      <p className="mt-3 text-sm leading-7 text-[#657084]">
+                        {resource.description}
+                      </p>
+                      {resource.fileUrl && (
+                        <a
+                          href={resource.fileUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-6 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-colors group-hover:text-[#a27e2e]"
+                        >
+                          Access resource <ExternalLink size={14} />
+                        </a>
+                      )}
+                    </article>
+                  </ScrollReveal>
+                ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       <section className="bg-[#fffaf0] py-24 lg:py-32">
         <div className="container">
           <div className="mt-16 grid gap-5 md:grid-cols-2">

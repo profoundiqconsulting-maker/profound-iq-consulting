@@ -122,6 +122,18 @@ import {
   getResetLinkRevocationAudits,
   updateUserExportPreferences,
   updateUserExportLogo,
+  listAllUsers,
+  listResources,
+  getResource,
+  createResource,
+  updateResource,
+  deleteResource,
+  listSurveys,
+  getSurvey,
+  createSurvey,
+  updateSurvey,
+  deleteSurvey,
+  submitSurveyResponse,
   getDb,
   createConversation,
   getConversation,
@@ -174,7 +186,6 @@ import {
   recordCertificateUsageEvent,
   getSiteSeoSetting,
   upsertSiteSeoSetting,
-  getAdminNotificationRecipients,
   getAdminSecuritySettings,
   getAdminSystemSettings,
   upsertAdminSystemSetting,
@@ -932,9 +943,17 @@ export const appRouter = router({
           identifier: z.string().trim().min(3).max(320),
           password: z.string().min(1).max(128),
           trustDevice: z.boolean().default(false),
+          mathA: z.number().int().min(1).max(20),
+          mathB: z.number().int().min(1).max(20),
+          mathAnswer: z.number().int().min(2).max(40),
         })
       )
       .mutation(async ({ ctx, input }) => {
+        if (input.mathAnswer !== input.mathA + input.mathB)
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Please solve the verification question correctly.",
+          });
         const identifier = normalizeIdentifier(input.identifier);
         if (!identifierSchema.test(input.identifier))
           throw new TRPCError({
@@ -942,43 +961,6 @@ export const appRouter = router({
             message: "Invalid identifier or password.",
           });
         const meta = requestSecurityMeta(ctx.req);
-        const identifierKey = hashRateLimitKey(identifier);
-        const networkKey = meta.networkHash;
-        const rateKeys = [
-          [identifierKey, networkKey],
-          [identifierKey, "global"],
-          ["global", networkKey],
-        ] as const;
-        const rates = await Promise.all(
-          rateKeys.map(([identifierHash, networkHash]) =>
-            checkLoginRateLimit(identifierHash, networkHash)
-          )
-        );
-        const blockedRate = rates.find(rate => rate.blocked);
-        if (blockedRate?.blocked) {
-          const configuredWindowSeconds = Number(
-            blockedRate.windowSeconds ?? 60
-          );
-          const unlockAt =
-            blockedRate.unlockAt instanceof Date &&
-            !Number.isNaN(blockedRate.unlockAt.getTime())
-              ? blockedRate.unlockAt
-              : new Date(Date.now() + configuredWindowSeconds * 1000);
-          await recordLoginEvent({
-            identifierType: getIdentifierType(identifier),
-            success: false,
-            failureCode: "rate_limited",
-            ...meta,
-          });
-          throw new TRPCError({
-            code: "TOO_MANY_REQUESTS",
-            message: `Too many failed attempts. Try again after ${unlockAt.toISOString()}.`,
-            cause: {
-              unlockAt: unlockAt.toISOString(),
-              windowSeconds: configuredWindowSeconds,
-            },
-          });
-        }
         let lookupUser;
         try {
           lookupUser = await findUserByLocalIdentifier(identifier);
@@ -990,17 +972,6 @@ export const appRouter = router({
           !user?.passwordHash ||
           !verifyPassword(input.password, user.passwordHash)
         ) {
-          const alertThreshold = await getEffectiveLoginAlertThreshold();
-          const failures = await Promise.all(
-            rateKeys.map(([identifierHash, networkHash]) =>
-              recordFailedLogin(
-                identifierHash,
-                networkHash,
-                new Date(),
-                alertThreshold
-              )
-            )
-          );
           await recordLoginEvent({
             openId: user?.openId,
             identifierType: getIdentifierType(identifier),
@@ -1008,33 +979,11 @@ export const appRouter = router({
             failureCode: "invalid_credentials",
             ...meta,
           });
-          const alertFailure = failures.find(failure => failure.shouldAlert);
-          if (alertFailure) {
-            getAdminNotificationRecipients()
-              .then(recipients =>
-                sendFailedLoginAlert({
-                  recipients,
-                  identifier,
-                  failedCount: alertFailure.failedCount,
-                })
-              )
-              .catch(error =>
-                console.error(
-                  "[Auth] Failed-login alert could not be sent",
-                  error
-                )
-              );
-          }
           throw new TRPCError({
             code: "UNAUTHORIZED",
             message: "Invalid identifier or password.",
           });
         }
-        await Promise.all(
-          rateKeys.map(([identifierHash, networkHash]) =>
-            clearLoginFailures(identifierHash, networkHash)
-          )
-        );
         const token = await sdk.createSessionToken(user.openId, {
           name: user.name ?? identifier,
         });
@@ -1087,15 +1036,11 @@ export const appRouter = router({
             new Date(Date.now() + 30 * 60 * 1000)
           );
           const resetUrl = `${input.origin.replace(/\/$/, "")}/reset-password?token=${encodeURIComponent(reset.raw)}`;
-          try {
-            await sendPasswordResetEmail({
-              to: user.email,
-              name: user.name ?? "there",
-              resetUrl,
-            });
-          } catch (error) {
-            console.error("[Auth] Password reset email failed", error);
-          }
+          await sendPasswordResetEmail({
+            to: user.email,
+            name: user.name ?? "there",
+            resetUrl,
+          });
         }
         return {
           success: true,
@@ -1389,6 +1334,26 @@ export const appRouter = router({
         });
         return { id };
       }),
+  }),
+  resources: router({
+    list: publicProcedure.query(() => listResources()),
+    survey: publicProcedure
+      .input(z.object({ id: z.number().int().positive() }))
+      .query(async ({ input }) => getSurvey(input.id)),
+    submitSurveyResponse: publicProcedure
+      .input(z.object({ id: z.number().int().positive(), optionIndex: z.number().int().min(0) }))
+      .mutation(async ({ input }) => submitSurveyResponse(input.id, input.optionIndex)),
+    activeSurveys: publicProcedure.query(() => {
+      const now = new Date();
+      return listSurveys().then(surveys =>
+        surveys.filter(s => {
+          if (s.status !== "published") return false;
+          if (s.startsAt && new Date(s.startsAt) > now) return false;
+          if (s.endsAt && new Date(s.endsAt) < now) return false;
+          return true;
+        })
+      );
+    }),
   }),
   newsletter: router({
     subscribers: adminProcedure
@@ -4599,6 +4564,108 @@ export const appRouter = router({
         })
       )
       .mutation(({ input }) => updateUserRole(input.openId, input.role)),
+    listAllUsers: adminProcedure.query(() => listAllUsers()),
+    listResources: adminProcedure.query(() => listResources()),
+    createResource: adminProcedure
+      .input(
+        z.object({
+          title: z.string().trim().min(2).max(240),
+          description: z.string().trim().min(2),
+          category: z.string().trim().min(2).max(120),
+          fileUrl: z.string().url().max(512).optional(),
+          fileType: z.string().trim().max(64).optional(),
+          fileSize: z.number().int().positive().optional(),
+          coverImageUrl: z.string().url().max(512).optional(),
+          sortOrder: z.number().int().min(0).optional(),
+        })
+      )
+      .mutation(({ ctx, input }) =>
+        createResource({
+          ...input,
+          createdByOpenId: ctx.user.openId,
+        })
+      ),
+    updateResource: adminProcedure
+      .input(
+        z.object({
+          id: z.number().int().positive(),
+          title: z.string().trim().min(2).max(240).optional(),
+          description: z.string().trim().min(2).optional(),
+          category: z.string().trim().min(2).max(120).optional(),
+          fileUrl: z.string().url().max(512).optional(),
+          fileType: z.string().trim().max(64).optional(),
+          fileSize: z.number().int().positive().optional(),
+          coverImageUrl: z.string().url().max(512).optional(),
+          status: z.enum(["published", "draft"]).optional(),
+          sortOrder: z.number().int().min(0).optional(),
+        })
+      )
+      .mutation(({ input }) =>
+        updateResource(input.id, {
+          title: input.title,
+          description: input.description,
+          category: input.category,
+          fileUrl: input.fileUrl,
+          fileType: input.fileType,
+          fileSize: input.fileSize,
+          coverImageUrl: input.coverImageUrl,
+          status: input.status,
+          sortOrder: input.sortOrder,
+        })
+      ),
+    deleteResource: adminProcedure
+      .input(z.object({ id: z.number().int().positive() }))
+      .mutation(({ input }) => deleteResource(input.id)),
+    listSurveys: adminProcedure.query(() => listSurveys()),
+    createSurvey: adminProcedure
+      .input(
+        z.object({
+          title: z.string().trim().min(2).max(240),
+          description: z.string().trim().min(2),
+          type: z.enum(["poll", "survey", "review"]),
+          options: z.array(z.string().trim().min(1).max(120)).min(2).max(6),
+          startsAt: z.string().datetime().optional(),
+          endsAt: z.string().datetime().optional(),
+        })
+      )
+      .mutation(({ ctx, input }) =>
+        createSurvey({
+          title: input.title,
+          description: input.description,
+          type: input.type,
+          options: input.options,
+          createdByOpenId: ctx.user.openId,
+          startsAt: input.startsAt ? new Date(input.startsAt) : undefined,
+          endsAt: input.endsAt ? new Date(input.endsAt) : undefined,
+        })
+      ),
+    updateSurvey: adminProcedure
+      .input(
+        z.object({
+          id: z.number().int().positive(),
+          title: z.string().trim().min(2).max(240).optional(),
+          description: z.string().trim().min(2).optional(),
+          type: z.enum(["poll", "survey", "review"]).optional(),
+          options: z.array(z.string().trim().min(1).max(120)).min(2).max(6).optional(),
+          status: z.enum(["draft", "published", "closed"]).optional(),
+          startsAt: z.string().datetime().optional(),
+          endsAt: z.string().datetime().optional(),
+        })
+      )
+      .mutation(({ input }) =>
+        updateSurvey(input.id, {
+          title: input.title,
+          description: input.description,
+          type: input.type,
+          options: input.options,
+          status: input.status,
+          startsAt: input.startsAt ? new Date(input.startsAt) : undefined,
+          endsAt: input.endsAt ? new Date(input.endsAt) : undefined,
+        })
+      ),
+    deleteSurvey: adminProcedure
+      .input(z.object({ id: z.number().int().positive() }))
+      .mutation(({ input }) => deleteSurvey(input.id)),
     updateContactInquiryWorkload: adminProcedure
       .input(
         z.object({

@@ -6,19 +6,12 @@ import { trpc } from "@/lib/trpc";
 import { useLocale } from "@/contexts/LocaleContext";
 
 const phoneNumber = "254727374055";
-const officeHours = "Monday to Saturday, 9 AM to 5 PM";
 const quickReplies = [
   "I need help choosing a course.",
   "I have a payment question.",
   "I need help with an assessment.",
   "I need help with my certificate.",
 ];
-
-function isOfficeOpen(date: Date) {
-  const day = date.getDay();
-  const hour = date.getHours();
-  return day >= 1 && day <= 6 && hour >= 9 && hour < 17;
-}
 
 function pageGreeting(pathname: string) {
   if (pathname.includes("course"))
@@ -51,7 +44,6 @@ export function WhatsAppSupportWidget() {
       return false;
     }
   });
-  const [online, setOnline] = useState(() => isOfficeOpen(new Date()));
   const [fallbackOpen, setFallbackOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -60,7 +52,7 @@ export function WhatsAppSupportWidget() {
   const { t } = useLocale();
   const submitInquiry = trpc.inquiry.create.useMutation({
     onSuccess: () => {
-      toast.success("Thanks — we’ll follow up by email during office hours.");
+      toast.success("Thanks — we’ll follow up by email.");
       setEmail("");
       setMessage("");
       setFallbackOpen(false);
@@ -78,13 +70,6 @@ export function WhatsAppSupportWidget() {
     [greeting]
   );
   const isCoursePage = location.toLowerCase().includes("course");
-
-  useEffect(() => {
-    const updateStatus = () => setOnline(isOfficeOpen(new Date()));
-    updateStatus();
-    const timer = window.setInterval(updateStatus, 60_000);
-    return () => window.clearInterval(timer);
-  }, []);
 
   useEffect(() => {
     setBounceAttention(false);
@@ -116,7 +101,7 @@ export function WhatsAppSupportWidget() {
       )?.value || 0
     );
     const requestMessage =
-      message.trim() || "Please contact me when WhatsApp support is available.";
+      message.trim() || "Please contact me via WhatsApp.";
     submitInquiry.mutate({
       name: "WhatsApp follow-up",
       email: email.trim(),
@@ -135,11 +120,11 @@ export function WhatsAppSupportWidget() {
         onClick={() => setMinimizedState(false)}
         aria-label={t("whatsappSupport")}
         title={t("whatsappSupport")}
-        className="fixed bottom-5 right-5 z-40 inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#f7f3e8] bg-[#25D366] text-[#062411] shadow-[0_10px_24px_rgba(0,0,0,.25)] transition-all duration-200 hover:-translate-y-1 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101d35] active:scale-95"
+        className="fixed bottom-4 right-4 z-40 inline-flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#f7f3e8] bg-[#25D366] text-[#062411] shadow-[0_10px_24px_rgba(0,0,0,.25)] transition-all duration-200 hover:-translate-y-1 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101d35] active:scale-95 sm:bottom-6 sm:right-6"
       >
-        <MessageCircle size={20} />
+        <MessageCircle size={22} />
         <span
-          className={`absolute right-0 top-0 h-3 w-3 rounded-full border-2 border-[#f7f3e8] ${online ? "bg-[#0b8f43]" : "bg-[#697386]"}`}
+          className={`absolute right-0 top-0 h-3 w-3 rounded-full border-2 border-[#f7f3e8] bg-[#0b8f43]`}
         />
         <Plus
           className="absolute -bottom-1 -right-1 rounded-full bg-[#101d35] p-0.5 text-[#f7f3e8]"
@@ -151,13 +136,13 @@ export function WhatsAppSupportWidget() {
 
   return (
     <div
-      className={`fixed bottom-5 right-5 z-40 w-[min(21rem,calc(100vw-2rem))] ${bounceAttention ? "motion-safe:animate-[bounce_1s_ease-in-out_2]" : ""}`}
+      className={`fixed bottom-4 right-4 z-40 w-[calc(100vw-2rem)] sm:bottom-6 sm:right-6 sm:w-[min(21rem,calc(100vw-2rem))] ${bounceAttention ? "motion-safe:animate-[bounce_1s_ease-in-out_2]" : ""}`}
     >
-      {fallbackOpen && !online && (
+      {fallbackOpen && (
         <div
           className="mb-3 rounded-2xl border border-[#d7b45a]/40 bg-[#101d35] p-4 text-[#f7f3e8] shadow-[0_18px_40px_rgba(0,0,0,.3)]"
           role="dialog"
-          aria-label="Leave an offline WhatsApp support request"
+          aria-label="Leave a WhatsApp support request"
         >
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
@@ -165,8 +150,7 @@ export function WhatsAppSupportWidget() {
                 Leave a message
               </p>
               <p className="mt-1 text-xs leading-5 text-[#d9e0eb]">
-                WhatsApp is offline. Leave your email and we’ll reply during{" "}
-                {officeHours.toLowerCase()}.
+                We’ll reply as soon as possible.
               </p>
             </div>
             <button
@@ -177,23 +161,6 @@ export function WhatsAppSupportWidget() {
             >
               <X size={15} />
             </button>
-          </div>
-          <div className="mb-3">
-            <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[.12em] text-[#b6c1d2]">
-              Quick replies
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {quickReplies.map(reply => (
-                <button
-                  type="button"
-                  key={reply}
-                  onClick={() => setMessage(reply)}
-                  className="rounded-full border border-[#d7b45a]/45 px-2.5 py-1.5 text-[10px] leading-3 text-[#f7f3e8] transition hover:border-[#d7b45a] hover:bg-[#d7b45a]/10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#d7b45a]"
-                >
-                  {reply}
-                </button>
-              ))}
-            </div>
           </div>
           <form onSubmit={submitFallback} className="space-y-2.5">
             <label
@@ -257,51 +224,28 @@ export function WhatsAppSupportWidget() {
       )}
       <div className="relative">
         <div className="group">
-          {online ? (
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={`Chat with Profound IQ Consulting on WhatsApp. Online now. ${greeting}`}
-              title="Expected response time: usually within 15 minutes during office hours"
-              className="motion-safe:animate-pulse inline-flex min-h-14 w-full items-center gap-3 rounded-full bg-[#25D366] px-4 py-3 text-[#062411] shadow-[0_12px_28px_rgba(0,0,0,.28)] transition-all duration-200 hover:animate-none hover:-translate-y-1 hover:scale-[1.02] hover:bg-[#1ebe5d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7f3e8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101d35] active:scale-95"
-            >
-              <MessageCircle size={25} strokeWidth={2.25} />
-              <span className="pr-1 text-left">
-                <strong className="block text-[11px] font-black uppercase tracking-[.12em]">
-                  Quick support
-                </strong>
-                <span className="mt-0.5 flex items-center gap-1.5 text-[10px] font-semibold">
-                  <span className="h-2 w-2 rounded-full bg-[#0b8f43]" />
-                  Online now · reply within 15 min
-                </span>
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`Chat with Profound IQ Consulting on WhatsApp. Online now. ${greeting}`}
+            title="Expected response time: usually within 15 minutes"
+            className="motion-safe:animate-pulse inline-flex min-h-14 w-full items-center gap-3 rounded-full bg-[#25D366] px-4 py-3 text-[#062411] shadow-[0_12px_28px_rgba(0,0,0,.28)] transition-all duration-200 hover:animate-none hover:-translate-y-1 hover:scale-[1.02] hover:bg-[#1ebe5d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7f3e8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101d35] active:scale-95"
+          >
+            <MessageCircle size={22} strokeWidth={2.25} className="shrink-0" />
+            <span className="pr-1 text-left">
+              <strong className="block text-[11px] font-black uppercase tracking-[.12em]">
+                Quick support
+              </strong>
+              <span className="mt-0.5 flex items-center gap-1.5 text-[10px] font-semibold">
+                <span className="h-2 w-2 shrink-0 rounded-full bg-[#0b8f43]" />
+                <span className="hidden sm:inline">Online now · reply within 15 min</span>
+                <span className="sm:hidden">Online now</span>
               </span>
-            </a>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setFallbackOpen(open => !open)}
-              aria-expanded={fallbackOpen}
-              aria-label="Open offline contact form for WhatsApp support"
-              title="WhatsApp is offline. Leave your email for a reply during office hours"
-              className="inline-flex min-h-14 w-full items-center gap-3 rounded-full bg-[#25D366] px-4 py-3 text-left text-[#062411] shadow-[0_12px_28px_rgba(0,0,0,.28)] transition-all duration-200 hover:-translate-y-1 hover:scale-[1.02] hover:bg-[#1ebe5d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7f3e8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101d35] active:scale-95"
-            >
-              <MessageCircle size={25} strokeWidth={2.25} />
-              <span>
-                <strong className="block text-[11px] font-black uppercase tracking-[.12em]">
-                  Leave a message
-                </strong>
-                <span className="mt-0.5 flex items-center gap-1.5 text-[10px] font-semibold">
-                  <span className="h-2 w-2 rounded-full bg-[#697386]" />
-                  Offline · reply next office day
-                </span>
-              </span>
-            </button>
-          )}
+            </span>
+          </a>
           <span className="pointer-events-none absolute bottom-full right-0 mb-2 hidden max-w-[18rem] rounded-lg bg-[#101d35] px-3 py-2 text-[11px] leading-4 text-[#f7f3e8] shadow-lg group-hover:block">
-            {online
-              ? "Expected response time: usually within 15 minutes during active office hours."
-              : `Leave your email and we’ll reply during ${officeHours.toLowerCase()}.`}
+            Expected response time: usually within 15 minutes.
           </span>
         </div>
         <button

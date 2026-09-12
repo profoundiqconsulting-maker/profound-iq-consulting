@@ -9,6 +9,7 @@ const primaryNavItems = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Self Assessment", href: "/assessment" },
+  { label: "Career Path", href: "/careerpath" },
   { label: "Courses", href: "/courses" },
   { label: "Psychometrics", href: "/psychometrics" },
   { label: "School Solutions", href: "/school-solutions" },

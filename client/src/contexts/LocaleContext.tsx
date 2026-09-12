@@ -56,7 +56,7 @@ const english = {
   privacyPolicy: "Privacy Policy",
   termsOfService: "Terms of Service",
   whatsappSupport: "WhatsApp support",
-  officeHours: "Monday to Saturday · Office hours",
+  alwaysOnline: "Always online",
   yourPrivacyChoices: "Your privacy choices",
   clearerWay: "A clearer way to use cookies.",
   cookieDescription:

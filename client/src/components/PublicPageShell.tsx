@@ -23,6 +23,7 @@ const navItems = [
   { label: "Self Assessment", href: "/assessment" },
   { label: "CareerPath", href: "/careerpath" },
   { label: "Resources", href: "/resources" },
+  { label: "Surveys", href: "/surveys" },
 ];
 
 type Breadcrumb = { label: string; href?: string };

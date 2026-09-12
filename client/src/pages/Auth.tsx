@@ -17,8 +17,6 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import {
-  getRateLimitCountdownSeconds,
-  LOGIN_LOCKOUT_WINDOW_MS,
   passwordStrength,
 } from "../../../shared/localAuth";
 import { getAuthCopy } from "../../../shared/authLocalization";
@@ -51,6 +49,9 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [mathA, setMathA] = useState(0);
+  const [mathB, setMathB] = useState(0);
+  const [mathUserAnswer, setMathUserAnswer] = useState("");
   const [inviteToken] = useState(
     () => new URLSearchParams(window.location.search).get("invite") ?? ""
   );
@@ -65,33 +66,14 @@ export default function Auth() {
       ? requested
       : "/dashboard";
   });
-  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
   const [googleSignInPending, setGoogleSignInPending] = useState(false);
-  const [remainingSeconds, setRemainingSeconds] = useState(0);
   const login = trpc.auth.login.useMutation({
     onSuccess: async data => {
       utils.auth.me.setData(undefined, data.user as any);
       await utils.auth.me.refetch();
       navigate(returnTo);
     },
-    onError: error => {
-      if (error.data?.code === "TOO_MANY_REQUESTS") {
-        const unlockMatch = error.message.match(
-          /after (\d{4}-\d{2}-\d{2}T[^.]+\.\d{3}Z)/
-        );
-        const unlockAt = unlockMatch
-          ? Date.parse(unlockMatch[1])
-          : Date.now() + LOGIN_LOCKOUT_WINDOW_MS;
-        setLockedUntil(unlockAt);
-        const exactTime = new Date(unlockAt).toLocaleString([], {
-          dateStyle: "medium",
-          timeStyle: "short",
-        });
-        toast.error(
-          `Too many failed attempts. You can try again at ${exactTime}.`
-        );
-      } else toast.error(error.message);
-    },
+    onError: error => toast.error(error.message),
   });
   const register = trpc.auth.register.useMutation({
     onSuccess: async data => {
@@ -106,22 +88,14 @@ export default function Auth() {
     onError: error => toast.error(error.message),
   });
 
+  const generateMath = () => {
+    setMathA(Math.floor(Math.random() * 20) + 1);
+    setMathB(Math.floor(Math.random() * 20) + 1);
+    setMathUserAnswer("");
+  };
   useEffect(() => {
-    if (!lockedUntil) {
-      setRemainingSeconds(0);
-      return;
-    }
-    const update = () => {
-      const seconds = getRateLimitCountdownSeconds(lockedUntil);
-      setRemainingSeconds(seconds);
-      if (seconds === 0) setLockedUntil(null);
-    };
-    update();
-    const timer = window.setInterval(update, 1000);
-    return () => window.clearInterval(timer);
-  }, [lockedUntil]);
-  const formatRemaining = (seconds: number) =>
-    `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+    if (mode === "login") generateMath();
+  }, [mode]);
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -129,10 +103,16 @@ export default function Auth() {
     if (mode === "login") {
       if (!identifier.trim() || !password)
         return setFormError("Enter your email and password to continue.");
+      const answer = parseInt(mathUserAnswer, 10);
+      if (isNaN(answer) || answer !== mathA + mathB)
+        return setFormError("Please solve the verification question correctly.");
       return login.mutate({
         identifier: identifier.trim(),
         password,
         trustDevice: true,
+        mathA,
+        mathB,
+        mathAnswer: answer,
       });
     }
     if (mode === "forgot") {
@@ -162,7 +142,6 @@ export default function Auth() {
     });
   };
   const pending = login.isPending || register.isPending || reset.isPending;
-  const loginLocked = mode === "login" && remainingSeconds > 0;
   const strength = passwordStrength(password);
   const strengthLabel =
     strength < 2
@@ -188,7 +167,7 @@ export default function Auth() {
             href="/"
             className="text-[10px] font-black uppercase tracking-[.16em] text-[#c9d1df] hover:text-[#c9a34e]"
           >
-            {t("backToSite")}
+            {authCopy.backToSite}
           </Link>
         </div>
       </header>
@@ -229,7 +208,7 @@ export default function Auth() {
                 href="/dashboard"
                 className="mt-6 inline-flex items-center gap-2 bg-[#16243d] px-5 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8]"
               >
-                {t("myWorkspace")} <ArrowRight size={14} />
+                {authCopy.welcome} <ArrowRight size={14} />
               </Link>
             </div>
           ) : (
@@ -369,18 +348,32 @@ export default function Auth() {
                     )}
                   </label>
                 )}
+                {mode === "login" && (
+                  <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                    Verification
+                    <span className="font-normal normal-case tracking-normal text-[#657084]">
+                      Solve {mathA} + {mathB} = ?
+                    </span>
+                    <input
+                      required
+                      type="number"
+                      inputMode="numeric"
+                      value={mathUserAnswer}
+                      onChange={event => setMathUserAnswer(event.target.value)}
+                      className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
+                    />
+                  </label>
+                )}
                 <button
-                  disabled={pending || loginLocked}
+                  disabled={pending}
                   className="inline-flex items-center justify-center gap-2 bg-[#16243d] px-5 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] disabled:opacity-60"
                 >
                   {pending && <RefreshCw size={14} className="animate-spin" />}
-                  {loginLocked
-                    ? `Try again in ${formatRemaining(remainingSeconds)}`
-                    : mode === "login"
-                      ? "Sign in"
-                      : mode === "register"
-                        ? "Create account"
-                        : "Send reset link"}
+                  {mode === "login"
+                    ? "Sign in"
+                    : mode === "register"
+                      ? "Create account"
+                      : "Send reset link"}
                   <ArrowRight size={14} />
                 </button>
                 {formError && (
@@ -392,22 +385,6 @@ export default function Auth() {
                   </p>
                 )}
               </form>
-              {loginLocked && (
-                <p className="mt-3 text-xs leading-5 text-[#657084]">
-                  Need access sooner?{" "}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMode("forgot");
-                      if (identifier.includes("@")) setEmail(identifier);
-                    }}
-                    className="font-bold text-[#a27e2e] underline underline-offset-4"
-                  >
-                    Forgot Password
-                  </button>{" "}
-                  to request a secure email reset link.
-                </p>
-              )}
               <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs">
                 <button
                   type="button"

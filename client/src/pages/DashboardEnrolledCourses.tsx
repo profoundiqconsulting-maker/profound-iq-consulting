@@ -332,6 +332,7 @@ export default function DashboardEnrolledCourses() {
                         <CourseCoverImage
                           src={course.coverImage}
                           alt={course.title}
+                          title={course.title}
                           className="h-full w-full object-cover opacity-80 transition-transform duration-300 group-hover:scale-105"
                         />
                       )}

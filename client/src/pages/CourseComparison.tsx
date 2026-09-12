@@ -188,6 +188,7 @@ export default function CourseComparison() {
                         <CourseCoverImage
                           src={course.coverImage}
                           alt=""
+                          title={course.title}
                           className="h-40 w-full object-cover"
                         />
                         <div className="p-6">
