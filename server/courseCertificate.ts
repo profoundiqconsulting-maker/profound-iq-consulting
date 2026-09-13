@@ -22,17 +22,17 @@ export type CertificateFieldLayout = Record<
   }
 >;
 export const DEFAULT_CERTIFICATE_FIELD_LAYOUT: CertificateFieldLayout = {
-  logo: { x: 735, y: 24, width: 530, height: 265, visible: true },
+  logo: { x: 735, y: 24, width: 700, height: 350, visible: true },
   recipient: { x: 1000, y: 795, visible: true },
   course: { x: 1000, y: 965, visible: true },
-  issuedDate: { x: 210, y: 1195, visible: true },
-  certificateId: { x: 1450, y: 1195, visible: true },
-  signature: { x: 865, y: 1080, width: 270, height: 125, visible: true },
+  issuedDate: { x: 210, y: 1235, visible: true },
+  certificateId: { x: 1450, y: 1235, visible: true },
+  signature: { x: 865, y: 1140, width: 270, height: 110, visible: true },
   trainerName: { x: 1000, y: 1260, visible: true },
   trainerTitle: { x: 1000, y: 1298, visible: true },
-  qrCode: { x: 1450, y: 980, visible: true },
+  qrCode: { x: 1760, y: 1120, visible: true },
   seal: { x: 1785, y: 170, visible: true },
-  signatureRule: { x: 800, y: 1218, visible: true },
+  signatureRule: { x: 800, y: 1248, visible: true },
   waveTopOne: { visible: true },
   waveTopTwo: { visible: true },
   waveTopGold: { visible: true },
@@ -43,8 +43,8 @@ export const DEFAULT_CERTIFICATE_FIELD_LAYOUT: CertificateFieldLayout = {
   completionLabel: { x: 1000, y: 580, visible: true },
   awardLabel: { x: 1000, y: 695, visible: true },
   completionText: { x: 1000, y: 885, visible: true },
-  issuedLabel: { x: 210, y: 1155, visible: true },
-  idLabel: { x: 1450, y: 1155, visible: true },
+  issuedLabel: { x: 210, y: 1195, visible: true },
+  idLabel: { x: 1450, y: 1195, visible: true },
 };
 
 function applyFieldLayout(svg: string, layout?: CertificateFieldLayout) {
@@ -129,7 +129,7 @@ function wrapText(value: string, maxChars: number) {
 function renderQrCode(value: string, verifyLabel: string) {
   const qr = QRCode.create(value, { errorCorrectionLevel: "M" });
   const size = qr.modules.size;
-  const scale = 4;
+  const scale = 2.5;
   const quiet = 3;
   const cells = Array.from(qr.modules.data)
     .map((cell, index) =>
@@ -139,7 +139,15 @@ function renderQrCode(value: string, verifyLabel: string) {
     )
     .join("");
   const dimension = (size + quiet * 2) * scale;
-  return `<g data-field="qrCode" transform="translate(1450 980)"><rect x="-20" y="-20" width="${dimension + 40}" height="${dimension + 64}" rx="8" fill="#ffffff" stroke="#c9a34e" stroke-width="4"/><g fill="#102b59">${cells}</g><text x="${dimension / 2}" y="${dimension + 23}" text-anchor="middle" fill="#102b59" font-family="Arial,sans-serif" font-size="15" font-weight="700" letter-spacing="1">${escapeXml(verifyLabel)}</text></g>`;
+  const padding = 18;
+  const textHeight = 18;
+  const boxWidth = Math.max(dimension + padding * 2, 160);
+  const boxHeight = dimension + textHeight + padding * 2;
+  const qrOffsetX = (boxWidth - dimension) / 2;
+  const qrOffsetY = padding;
+  const textX = boxWidth / 2;
+  const textY = qrOffsetY + dimension + textHeight - 2;
+  return `<g data-field="qrCode" transform="translate(1760 1120)"><rect x="0" y="0" width="${boxWidth}" height="${boxHeight}" rx="8" fill="#ffffff" stroke="#c9a34e" stroke-width="4"/><g fill="#102b59" transform="translate(${qrOffsetX}, ${qrOffsetY})">${cells}</g><text x="${textX}" y="${textY}" text-anchor="middle" fill="#102b59" font-family="Arial,sans-serif" font-size="11" font-weight="700" letter-spacing="0.5">${escapeXml(verifyLabel)}</text></g>`;
 }
 
 export function renderCourseCertificateSvg(input: {

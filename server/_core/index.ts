@@ -3,7 +3,6 @@ import express from "express";
 import { createServer } from "http";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
-import { registerSocialOAuthRoutes } from "./socialOAuth";
 import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
@@ -15,10 +14,16 @@ import { registerWeeklyPsychometricAnalytics } from "../scheduledPsychometricAna
 import { registerWeeklyCourseLessonReviewAnalytics } from "../scheduledCourseLessonReviewAnalytics";
 import { serveStatic, setupVite } from "./vite";
 import { registerSeoRoutes } from "../seoRoutes";
+import { ensureAdminUser } from "../db";
 
 async function startServer() {
   const app = express();
   const server = createServer(app);
+  try {
+    await ensureAdminUser();
+  } catch (error) {
+    console.error("[Bootstrap] Admin user ensure failed:", error);
+  }
   registerPaystackWebhook(app);
   registerWeeklyEnrollmentExport(app);
   registerBiweeklyNewsletter(app);
@@ -30,7 +35,6 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
   registerOAuthRoutes(app);
-  registerSocialOAuthRoutes(app);
   // tRPC API
   app.use(
     "/api/trpc",

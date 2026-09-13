@@ -38,6 +38,7 @@ const DashboardMyWorkspaces = lazy(() => import("./pages/DashboardMyWorkspaces")
 const MyCertificates = lazy(() => import("./pages/MyCertificates"));
 const MyIllustrations = lazy(() => import("./pages/MyIllustrations"));
 const Settings = lazy(() => import("./pages/Settings"));
+const CommunicationInbox = lazy(() => import("./pages/CommunicationInbox"));
 const Auth = lazy(() => import("./pages/Auth"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const SharedReport = lazy(() => import("./pages/SharedReport"));
@@ -153,6 +154,7 @@ function Router() {
         <Route path="/dashboard/psychometrics" component={DashboardPsychometrics} />
         <Route path="/dashboard/certificates" component={MyCertificates} />
         <Route path="/dashboard/settings" component={Settings} />
+        <Route path="/dashboard/communication" component={CommunicationInbox} />
         <Route path="/dashboard/enrolled-courses" component={DashboardEnrolledCourses} />
         <Route path="/dashboard/my-workspaces" component={DashboardMyWorkspaces} />
         <Route path="/myspace" component={MySpace} />

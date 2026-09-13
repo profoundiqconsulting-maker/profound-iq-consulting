@@ -2298,7 +2298,6 @@ function CourseWorkspaceUnlocked({
                 type="button"
                 onClick={requestCertificate}
                 disabled={
-                  !isCourseComplete ||
                   !currentEnrollment ||
                   requestCertificateMutation.isPending
                 }
@@ -2309,9 +2308,7 @@ function CourseWorkspaceUnlocked({
                   ? "Preparing certificate…"
                   : qualityControl
                     ? "Generate QC certificate"
-                    : isCourseComplete
-                      ? "Request certificate"
-                      : "Complete the course first"}
+                    : "Request certificate"}
               </Button>
               <Button
                 type="button"
@@ -2339,42 +2336,90 @@ function CourseWorkspaceUnlocked({
                 />
               </label>
               <div className="mt-3 grid grid-cols-2 gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
+                <a
+                  href={buildCertificateShareUrl(
+                    "linkedin",
+                    canonicalCertificate?.fileUrl ?? "",
+                    course.title,
+                    certificateShareMessage.trim() ||
+                      buildCertificateLinkedInPost(
+                        course.title,
+                        canonicalCertificate?.fileUrl ?? ""
+                      )
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={() => void shareCertificate("linkedin")}
-                  disabled={!canonicalCertificate}
-                  className="w-full text-xs"
+                  aria-disabled={!canonicalCertificate}
+                  className={`inline-flex items-center justify-center gap-2 border border-[#16243d]/25 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:border-[#16243d]/60 hover:bg-[#16243d]/5 disabled:opacity-50 ${
+                    !canonicalCertificate ? "opacity-50 pointer-events-none" : ""
+                  }`}
                 >
                   <Share2 size={15} /> LinkedIn
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
+                </a>
+                <a
+                  href={buildCertificateShareUrl(
+                    "facebook",
+                    canonicalCertificate?.fileUrl ?? "",
+                    course.title,
+                    certificateShareMessage.trim() ||
+                      buildCertificateLinkedInPost(
+                        course.title,
+                        canonicalCertificate?.fileUrl ?? ""
+                      )
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={() => void shareCertificate("facebook")}
-                  disabled={!canonicalCertificate}
-                  className="w-full text-xs"
+                  aria-disabled={!canonicalCertificate}
+                  className={`inline-flex items-center justify-center gap-2 border border-[#16243d]/25 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:border-[#16243d]/60 hover:bg-[#16243d]/5 disabled:opacity-50 ${
+                    !canonicalCertificate ? "opacity-50 pointer-events-none" : ""
+                  }`}
                 >
                   Facebook
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
+                </a>
+                <a
+                  href={buildCertificateShareUrl(
+                    "whatsapp",
+                    canonicalCertificate?.fileUrl ?? "",
+                    course.title,
+                    certificateShareMessage.trim() ||
+                      buildCertificateLinkedInPost(
+                        course.title,
+                        canonicalCertificate?.fileUrl ?? ""
+                      )
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={() => void shareCertificate("whatsapp")}
-                  disabled={!canonicalCertificate}
-                  className="w-full text-xs"
+                  aria-disabled={!canonicalCertificate}
+                  className={`inline-flex items-center justify-center gap-2 border border-[#16243d]/25 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:border-[#16243d]/60 hover:bg-[#16243d]/5 disabled:opacity-50 ${
+                    !canonicalCertificate ? "opacity-50 pointer-events-none" : ""
+                  }`}
                 >
                   WhatsApp
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
+                </a>
+                <a
+                  href={buildCertificateShareUrl(
+                    "twitter",
+                    canonicalCertificate?.fileUrl ?? "",
+                    course.title,
+                    certificateShareMessage.trim() ||
+                      buildCertificateLinkedInPost(
+                        course.title,
+                        canonicalCertificate?.fileUrl ?? ""
+                      )
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={() => void shareCertificate("twitter")}
-                  disabled={!canonicalCertificate}
-                  className="w-full text-xs"
+                  aria-disabled={!canonicalCertificate}
+                  className={`inline-flex items-center justify-center gap-2 border border-[#16243d]/25 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:border-[#16243d]/60 hover:bg-[#16243d]/5 disabled:opacity-50 ${
+                    !canonicalCertificate ? "opacity-50 pointer-events-none" : ""
+                  }`}
                 >
                   X/Twitter
-                </Button>
+                </a>
               </div>
               {certificateRecord && (
                 <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
@@ -2383,7 +2428,7 @@ function CourseWorkspaceUnlocked({
                     variant="outline"
                     onClick={downloadPdfCertificate}
                     disabled={downloadCertificatePdfMutation.isPending}
-                    className="w-full text-xs"
+                    className="w-full border-[#16243d]/25 bg-white text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:border-[#16243d]/60 hover:bg-[#16243d]/5 disabled:opacity-50"
                   >
                     {downloadCertificatePdfMutation.isPending ? (
                       <>
@@ -2399,7 +2444,7 @@ function CourseWorkspaceUnlocked({
                     variant="outline"
                     onClick={() => void downloadPngCertificate()}
                     disabled={certificatePngDownloading}
-                    className="w-full text-xs"
+                    className="w-full border-[#16243d]/25 bg-white text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:border-[#16243d]/60 hover:bg-[#16243d]/5 disabled:opacity-50"
                   >
                     {certificatePngDownloading
                       ? "Preparing PNG…"
@@ -2409,7 +2454,7 @@ function CourseWorkspaceUnlocked({
                     type="button"
                     variant="outline"
                     onClick={copyCertificateLink}
-                    className="w-full text-xs"
+                    className="w-full border-[#16243d]/25 bg-white text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:border-[#16243d]/60 hover:bg-[#16243d]/5"
                   >
                     Copy certificate link
                   </Button>
@@ -2417,7 +2462,7 @@ function CourseWorkspaceUnlocked({
                     type="button"
                     variant="outline"
                     onClick={() => setCertificatePrintOpen(true)}
-                    className="w-full text-xs"
+                    className="w-full border-[#16243d]/25 bg-white text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:border-[#16243d]/60 hover:bg-[#16243d]/5"
                   >
                     Print preview
                   </Button>

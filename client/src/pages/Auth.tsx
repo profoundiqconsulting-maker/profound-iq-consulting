@@ -66,7 +66,7 @@ export default function Auth() {
       ? requested
       : "/dashboard";
   });
-  const [googleSignInPending, setGoogleSignInPending] = useState(false);
+
   const login = trpc.auth.login.useMutation({
     onSuccess: async data => {
       utils.auth.me.setData(undefined, data.user as any);
@@ -179,8 +179,7 @@ export default function Auth() {
           </h1>
           <p className="mt-7 max-w-md text-lg leading-8 text-[#c1cad7]">
             Use your email or username and password to continue your assessment
-            journey. Google and LinkedIn are optional alternatives, not required
-            for access.
+            journey.
           </p>
         </div>
         <div className="border border-[#c9a34e]/60 bg-[#f7f3e8] p-7 text-[#16243d] shadow-2xl sm:p-10">
@@ -412,55 +411,6 @@ export default function Auth() {
                   >
                     Need an account?
                   </button>
-                )}
-              </div>
-              <div className="mt-7 border-t border-[#16243d]/15 pt-6">
-                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#657084]">
-                  {authCopy.optionalSocial}
-                </p>
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                  <button
-                    type="button"
-                    disabled={googleSignInPending}
-                    onClick={() => {
-                      setGoogleSignInPending(true);
-                      window.location.href = `/api/oauth/google/start?origin=${encodeURIComponent(window.location.origin)}&returnTo=${encodeURIComponent(returnTo)}`;
-                    }}
-                    className="inline-flex items-center justify-center gap-2 border border-[#16243d]/30 px-4 py-4 text-[10px] font-black uppercase tracking-[.12em] hover:border-[#c9a34e] disabled:cursor-wait disabled:opacity-60"
-                  >
-                    {googleSignInPending ? (
-                      <Loader2
-                        size={14}
-                        className="animate-spin"
-                        aria-hidden="true"
-                      />
-                    ) : null}
-                    {googleSignInPending ? "Opening Google..." : "Google"}{" "}
-                    {!googleSignInPending && <ArrowRight size={14} />}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      window.location.href = `/api/oauth/linkedin/start?origin=${encodeURIComponent(window.location.origin)}&returnTo=${encodeURIComponent(returnTo)}`;
-                    }}
-                    className="inline-flex items-center justify-center gap-2 border border-[#16243d]/30 px-4 py-4 text-[10px] font-black uppercase tracking-[.12em] hover:border-[#c9a34e]"
-                  >
-                    LinkedIn <ArrowRight size={14} />
-                  </button>
-                </div>
-                {googleSignInPending && (
-                  <p
-                    className="mt-3 flex items-center gap-2 text-xs text-[#657084]"
-                    role="status"
-                    aria-live="polite"
-                  >
-                    <Loader2
-                      size={13}
-                      className="animate-spin text-[#a27e2e]"
-                      aria-hidden="true"
-                    />{" "}
-                     Redirecting securely to Google. Keep this window open...
-                  </p>
                 )}
               </div>
             </>

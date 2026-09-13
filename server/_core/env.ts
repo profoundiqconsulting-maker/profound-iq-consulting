@@ -28,10 +28,6 @@ export const ENV = {
   oAuthServerUrl: process.env.OAUTH_SERVER_URL ?? "",
   ownerOpenId: process.env.OWNER_OPEN_ID ?? "",
   appId: process.env.VITE_APP_ID ?? "",
-  googleOAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID ?? "",
-  googleOAuthClientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET ?? "",
-  linkedinOAuthClientId: process.env.LINKEDIN_OAUTH_CLIENT_ID ?? "",
-  linkedinOAuthClientSecret: process.env.LINKEDIN_OAUTH_CLIENT_SECRET ?? "",
 
   // Environment
   isProduction: process.env.NODE_ENV === "production",

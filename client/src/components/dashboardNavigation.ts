@@ -7,6 +7,7 @@ import {
   ClipboardCheck,
   ClipboardList,
   LayoutDashboard,
+  Mail,
   Settings,
   Users,
 } from "lucide-react";
@@ -17,6 +18,7 @@ export type DashboardNavItem = {
   labelKey:
     | "overview"
     | "settings"
+    | "messages"
     | "certificates"
     | "selfAssessment"
     | "selfAssessmentReports"
@@ -85,6 +87,14 @@ export const dashboardNavItems: DashboardNavItem[] = [
     fallbackLabel: "Settings",
     path: "/dashboard/settings",
     icon: Settings,
+    group: "workspace",
+  },
+  {
+    id: "messages",
+    labelKey: "messages",
+    fallbackLabel: "Messages",
+    path: "/dashboard/communication",
+    icon: Mail,
     group: "workspace",
   },
   {

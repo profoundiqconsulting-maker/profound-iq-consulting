@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
+import { hashPassword } from "./localAuthCrypto";
 import {
   and,
   asc,
@@ -87,6 +88,10 @@ import {
   messageNotifications,
   resources,
   surveys,
+  communicationCampaigns,
+  communicationTickets,
+  surveyResponses,
+  surveyAnalysis,
   type Conversation,
   type Message,
   type MessageNotification,
@@ -655,6 +660,132 @@ export async function markNotificationRead(notificationId: number, openId: strin
     .where(and(eq(messageNotifications.id, notificationId), eq(messageNotifications.userOpenId, openId)));
 }
 
+export async function createCommunicationCampaign(input: {
+  title: string;
+  body: string;
+  recipientType: string;
+  filters: Record<string, unknown>;
+  sentByOpenId: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const [campaign] = await db
+    .insert(communicationCampaigns)
+    .values({ ...input, sentAt: new Date() })
+    .$returningId();
+  return campaign.id;
+}
+
+export async function listCommunicationCampaigns() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(communicationCampaigns).orderBy(desc(communicationCampaigns.createdAt));
+}
+
+export async function createCommunicationTicket(input: {
+  title: string;
+  description: string;
+  assignedToOpenId?: string;
+  assignedToName?: string;
+  priority?: string;
+  relatedConversationId?: number;
+  createdByOpenId: string;
+  dueDate?: Date;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const [ticket] = await db
+    .insert(communicationTickets)
+    .values({
+      ...input,
+      status: "open",
+      priority: input.priority ?? "medium",
+    })
+    .$returningId();
+  return ticket.id;
+}
+
+export async function listCommunicationTickets(filters?: { assignedToOpenId?: string; status?: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const conditions = [];
+  if (filters?.assignedToOpenId) conditions.push(eq(communicationTickets.assignedToOpenId, filters.assignedToOpenId));
+  if (filters?.status) conditions.push(eq(communicationTickets.status, filters.status));
+  const where = conditions.length ? and(...conditions) : undefined;
+  return db.select().from(communicationTickets).where(where).orderBy(desc(communicationTickets.createdAt));
+}
+
+export async function updateCommunicationTicket(input: {
+  id: number;
+  status?: string;
+  assignedToOpenId?: string;
+  assignedToName?: string;
+  priority?: string;
+  dueDate?: Date;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const updateSet: Record<string, unknown> = { updatedAt: new Date() };
+  if (input.status !== undefined) updateSet.status = input.status;
+  if (input.assignedToOpenId !== undefined) updateSet.assignedToOpenId = input.assignedToOpenId;
+  if (input.assignedToName !== undefined) updateSet.assignedToName = input.assignedToName;
+  if (input.priority !== undefined) updateSet.priority = input.priority;
+  if (input.dueDate !== undefined) updateSet.dueDate = input.dueDate;
+  await db.update(communicationTickets).set(updateSet).where(eq(communicationTickets.id, input.id));
+  return getCommunicationTicket(input.id);
+}
+
+export async function getCommunicationTicket(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const [ticket] = await db.select().from(communicationTickets).where(eq(communicationTickets.id, id)).limit(1);
+  return ticket ?? null;
+}
+
+export async function createSurveyResponse(input: {
+  surveyId: number;
+  respondentOpenId?: string;
+  respondentEmail?: string;
+  answers: Record<string, unknown>;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const [response] = await db
+    .insert(surveyResponses)
+    .values(input)
+    .$returningId();
+  return response.id;
+}
+
+export async function getSurveyResponses(surveyId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(surveyResponses).where(eq(surveyResponses.surveyId, surveyId)).orderBy(desc(surveyResponses.submittedAt));
+}
+
+export async function upsertSurveyAnalysis(input: {
+  surveyId: number;
+  analysisJson: Record<string, unknown>;
+  insightsJson: Record<string, unknown>;
+  advisoryJson: Record<string, unknown>;
+  generatedByOpenId: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db
+    .insert(surveyAnalysis)
+    .values({ ...input, generatedAt: new Date() })
+    .onDuplicateKeyUpdate({ set: { ...input, generatedAt: new Date() } });
+  return getSurveyAnalysis(input.surveyId);
+}
+
+export async function getSurveyAnalysis(surveyId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const [analysis] = await db.select().from(surveyAnalysis).where(eq(surveyAnalysis.surveyId, surveyId)).limit(1);
+  return analysis ?? null;
+}
+
 export async function createUserSession(input: {
   openId: string;
   tokenHash: string;
@@ -1197,6 +1328,40 @@ export async function createLocalUser(input: {
     .insert(users)
     .values({ ...input, loginMethod: "password", role: input.role ?? "user" });
   return getUserByOpenId(input.openId);
+}
+
+export async function ensureAdminUser() {
+  const db = await getDb();
+  if (!db) return;
+  const ADMIN_USERNAME = "profoundiq";
+  const ADMIN_EMAIL = "profoundiqconsulting@gmail.com";
+  const ADMIN_PASSWORD = "Profoundiq@2026";
+  const existing = await findUserByLocalIdentifier(ADMIN_USERNAME);
+  const existingByEmail = await findUserByLocalIdentifier(ADMIN_EMAIL);
+  const user = existing || existingByEmail;
+  if (!user) {
+    const openId = `local_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    await createLocalUser({
+      openId,
+      name: "Profound IQ Admin",
+      email: ADMIN_EMAIL,
+      username: ADMIN_USERNAME,
+      passwordHash: hashPassword(ADMIN_PASSWORD),
+      role: "admin",
+    });
+    console.log(`[Bootstrap] Created admin user ${ADMIN_USERNAME}`);
+    return;
+  }
+  const updates: Record<string, unknown> = {};
+  if (user.role !== "admin") updates.role = "admin";
+  if (!user.passwordHash) updates.passwordHash = hashPassword(ADMIN_PASSWORD);
+  if (user.username !== ADMIN_USERNAME) updates.username = ADMIN_USERNAME;
+  if (user.email !== ADMIN_EMAIL) updates.email = ADMIN_EMAIL;
+  if (Object.keys(updates).length > 0) {
+    const { eq } = await import("drizzle-orm");
+    await db.update(users).set(updates).where(eq(users.openId, user.openId));
+    console.log(`[Bootstrap] Updated admin user ${ADMIN_USERNAME}`);
+  }
 }
 
 export async function setPasswordResetToken(

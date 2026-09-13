@@ -1056,7 +1056,60 @@ export const surveys = mysqlTable("surveys", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+export const communicationCampaigns = mysqlTable("communication_campaigns", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 240 }).notNull(),
+  body: text("body").notNull(),
+  recipientType: varchar("recipientType", { length: 24 }).notNull(),
+  filters: json("filters").$type<Record<string, unknown>>().default({}).notNull(),
+  sentByOpenId: varchar("sentByOpenId", { length: 64 }).notNull(),
+  sentAt: timestamp("sentAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const communicationTickets = mysqlTable("communication_tickets", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 240 }).notNull(),
+  description: text("description").notNull(),
+  assignedToOpenId: varchar("assignedToOpenId", { length: 64 }),
+  assignedToName: varchar("assignedToName", { length: 160 }),
+  status: varchar("status", { length: 24 }).default("open").notNull(),
+  priority: varchar("priority", { length: 16 }).default("medium").notNull(),
+  relatedConversationId: int("relatedConversationId"),
+  createdByOpenId: varchar("createdByOpenId", { length: 64 }).notNull(),
+  dueDate: timestamp("dueDate"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const surveyResponses = mysqlTable("survey_responses", {
+  id: int("id").autoincrement().primaryKey(),
+  surveyId: int("surveyId").notNull(),
+  respondentOpenId: varchar("respondentOpenId", { length: 64 }),
+  respondentEmail: varchar("respondentEmail", { length: 320 }),
+  answers: json("answers").notNull(),
+  submittedAt: timestamp("submittedAt").defaultNow().notNull(),
+});
+
+export const surveyAnalysis = mysqlTable("survey_analysis", {
+  id: int("id").autoincrement().primaryKey(),
+  surveyId: int("surveyId").notNull().unique(),
+  analysisJson: json("analysisJson").notNull(),
+  insightsJson: json("insightsJson").notNull(),
+  advisoryJson: json("advisoryJson").notNull(),
+  generatedAt: timestamp("generatedAt").defaultNow().notNull(),
+  generatedByOpenId: varchar("generatedByOpenId", { length: 64 }).notNull(),
+});
+
 export type Resource = typeof resources.$inferSelect;
 export type InsertResource = typeof resources.$inferInsert;
 export type Survey = typeof surveys.$inferSelect;
 export type InsertSurvey = typeof surveys.$inferInsert;
+export type CommunicationCampaign = typeof communicationCampaigns.$inferSelect;
+export type InsertCommunicationCampaign = typeof communicationCampaigns.$inferInsert;
+export type CommunicationTicket = typeof communicationTickets.$inferSelect;
+export type InsertCommunicationTicket = typeof communicationTickets.$inferInsert;
+export type SurveyResponse = typeof surveyResponses.$inferSelect;
+export type InsertSurveyResponse = typeof surveyResponses.$inferInsert;
+export type SurveyAnalysis = typeof surveyAnalysis.$inferSelect;
+export type InsertSurveyAnalysis = typeof surveyAnalysis.$inferInsert;

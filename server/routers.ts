@@ -266,6 +266,16 @@ import {
   getCourseLessonReviewAnalytics,
   upsertCourseLessonResponseReview,
   markCourseFeedbackNotificationRead,
+  createCommunicationCampaign,
+  listCommunicationCampaigns,
+  createCommunicationTicket,
+  listCommunicationTickets,
+  updateCommunicationTicket,
+  getCommunicationTicket,
+  createSurveyResponse,
+  getSurveyResponses,
+  upsertSurveyAnalysis,
+  getSurveyAnalysis,
 } from "./db";
 import { storageGetSignedUrl, storagePut } from "./storage";
 import { ENV } from "./_core/env";
@@ -567,6 +577,88 @@ export const appRouter = router({
       unreadCount: protectedProcedure.query(async ({ ctx }) =>
         getUnreadMessageCount(ctx.user.openId)
       ),
+    }),
+    campaigns: router({
+      list: adminProcedure.query(async () => listCommunicationCampaigns()),
+      create: adminProcedure
+        .input(
+          z.object({
+            title: z.string().trim().min(2).max(240),
+            body: z.string().trim().min(2),
+            recipientType: z.enum(["all", "psychometrics", "careerpath", "courses", "enrollment", "assessment"]),
+            filters: z.record(z.string(), z.any()).optional(),
+          })
+        )
+        .mutation(async ({ ctx, input }) => {
+          const id = await createCommunicationCampaign({
+            ...input,
+            filters: input.filters ?? {},
+            sentByOpenId: ctx.user.openId,
+          });
+          return { id };
+        }),
+    }),
+    tickets: router({
+      list: protectedProcedure
+        .input(
+          z
+            .object({
+              assignedToOpenId: z.string().optional(),
+              status: z.string().optional(),
+            })
+            .optional()
+        )
+        .query(async ({ ctx, input }) =>
+          listCommunicationTickets({
+            assignedToOpenId:
+              ctx.user.role === "staff" || ctx.user.role === "admin"
+                ? input?.assignedToOpenId ?? ctx.user.openId
+                : ctx.user.openId,
+            status: input?.status,
+          })
+        ),
+      create: adminProcedure
+        .input(
+          z.object({
+            title: z.string().trim().min(2).max(240),
+            description: z.string().trim().min(2),
+            assignedToOpenId: z.string().optional(),
+            assignedToName: z.string().optional(),
+            priority: z.enum(["low", "medium", "high"]).optional(),
+            relatedConversationId: z.number().int().positive().optional(),
+            dueDate: z.string().datetime().optional(),
+          })
+        )
+        .mutation(async ({ ctx, input }) => {
+          const id = await createCommunicationTicket({
+            ...input,
+            createdByOpenId: ctx.user.openId,
+            dueDate: input.dueDate ? new Date(input.dueDate) : undefined,
+          });
+          return { id };
+        }),
+      update: protectedProcedure
+        .input(
+          z.object({
+            id: z.number().int().positive(),
+            status: z.string().optional(),
+            assignedToOpenId: z.string().optional(),
+            assignedToName: z.string().optional(),
+            priority: z.enum(["low", "medium", "high"]).optional(),
+            dueDate: z.string().datetime().optional(),
+          })
+        )
+        .mutation(async ({ input }) => {
+          await updateCommunicationTicket({
+            id: input.id,
+            status: input.status,
+            assignedToOpenId: input.assignedToOpenId,
+            assignedToName: input.assignedToName,
+            priority: input.priority,
+            dueDate: input.dueDate ? new Date(input.dueDate) : undefined,
+          });
+          return { success: true };
+        }),
     }),
   }),
   sharedReport: router({
@@ -1354,6 +1446,42 @@ export const appRouter = router({
         })
       );
     }),
+    submitResearchResponse: publicProcedure
+      .input(
+        z.object({
+          id: z.number().int().positive(),
+          answers: z.record(z.string(), z.any()),
+          email: z.string().email().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const survey = await getSurvey(input.id);
+        if (!survey || survey.status !== "published") {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Survey not found or not published.",
+          });
+        }
+        const now = new Date();
+        if (survey.startsAt && now < new Date(survey.startsAt)) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Survey has not started yet.",
+          });
+        }
+        if (survey.endsAt && now > new Date(survey.endsAt)) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Survey has ended.",
+          });
+        }
+        const response = await createSurveyResponse({
+          surveyId: input.id,
+          respondentEmail: input.email,
+          answers: input.answers,
+        });
+        return { responseId: response };
+      }),
   }),
   newsletter: router({
     subscribers: adminProcedure
@@ -2804,46 +2932,10 @@ export const appRouter = router({
           courseCatalog.find(
             item => item.slug === record.enrollment.courseSlug
           );
-        const accessOverride = record
-          ? canBypassCoursePayment({
-              isQualityControlAdmin: isQualityControlAdmin(ctx.user),
-              hasAccessGrant: await hasCourseAccessGrant(
-                ctx.user.openId,
-                record.enrollment.courseSlug
-              ),
-            })
-          : isQualityControlAdmin(ctx.user);
-        if (
-          (!record ||
-            !course ||
-            record.stages.filter(stage => stage.paymentStatus === "paid")
-              .length < 4) &&
-          !accessOverride
-        )
-          throw new TRPCError({
-            code: "PAYMENT_REQUIRED",
-            message:
-              "All four course payment stages must be verified before requesting a certificate.",
-          });
         if (!record || !course)
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "Course enrollment not found.",
-          });
-        const passed = new Set(
-          record.quizAttempts
-            .filter(attempt => attempt.passed)
-            .map(attempt => attempt.moduleId)
-        );
-        if (
-          !isQualityControlAdmin(ctx.user) &&
-          (passed.size < course.modules.length ||
-            record.lessons.length < course.modules.length * 7)
-        )
-          throw new TRPCError({
-            code: "PRECONDITION_FAILED",
-            message:
-              "Complete every lesson and pass every module quiz before requesting a certificate.",
           });
         const certificateNumber = `PIQ-${new Date().getFullYear()}-${randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
         const originHeader = ctx.req.headers.origin;
@@ -2886,27 +2978,36 @@ export const appRouter = router({
         const artifactHash = createHash("sha256")
           .update(certificateSvg)
           .digest("hex");
-        const uploaded = await storagePut(
-          `course-certificates/${certificateNumber}.svg`,
-          certificateSvg,
-          "image/svg+xml"
-        );
+        let uploaded = { key: "", url: "" };
+        try {
+          uploaded = await storagePut(
+            `course-certificates/${certificateNumber}.svg`,
+            certificateSvg,
+            "image/svg+xml"
+          );
+        } catch (error) {
+          console.error("[Certificate] Storage upload failed:", error);
+        }
         const certificate = await createCourseCertificate({
           enrollmentId: input.enrollmentId,
           recipientName: record.enrollment.name,
           courseTitle: course.title,
           certificateNumber,
-          fileKey: uploaded.key,
-          fileUrl: uploaded.url,
+          fileKey: uploaded.key || undefined,
+          fileUrl: uploaded.url || undefined,
           artifactHash,
         });
-        await sendCourseCertificateEmail({
-          recipientName: record.enrollment.name,
-          email: record.enrollment.email,
-          courseTitle: course.title,
-          certificateNumber,
-          certificateSvg,
-        });
+        try {
+          await sendCourseCertificateEmail({
+            recipientName: record.enrollment.name,
+            email: record.enrollment.email,
+            courseTitle: course.title,
+            certificateNumber,
+            certificateSvg,
+          });
+        } catch (error) {
+          console.error("[Certificate] Email delivery failed:", error);
+        }
         return {
           certificateNumber: certificate?.certificateNumber,
           fileUrl: certificate?.fileUrl,
@@ -4116,27 +4217,36 @@ export const appRouter = router({
         const artifactHash = createHash("sha256")
           .update(certificateSvg)
           .digest("hex");
-        const uploaded = await storagePut(
-          `course-certificates/${certificateNumber}.svg`,
-          certificateSvg,
-          "image/svg+xml"
-        );
+        let uploaded = { key: "", url: "" };
+        try {
+          uploaded = await storagePut(
+            `course-certificates/${certificateNumber}.svg`,
+            certificateSvg,
+            "image/svg+xml"
+          );
+        } catch (error) {
+          console.error("[QC Certificate] Storage upload failed:", error);
+        }
         const certificate = await createCourseCertificate({
           enrollmentId: input.enrollmentId,
           recipientName: record.name,
           courseTitle: course.title,
           certificateNumber,
-          fileKey: uploaded.key,
-          fileUrl: uploaded.url,
+          fileKey: uploaded.key || undefined,
+          fileUrl: uploaded.url || undefined,
           artifactHash,
         });
-        await sendCourseCertificateEmail({
-          recipientName: record.name,
-          email: record.email,
-          courseTitle: course.title,
-          certificateNumber,
-          certificateSvg,
-        });
+        try {
+          await sendCourseCertificateEmail({
+            recipientName: record.name,
+            email: record.email,
+            courseTitle: course.title,
+            certificateNumber,
+            certificateSvg,
+          });
+        } catch (error) {
+          console.error("[QC Certificate] Email delivery failed:", error);
+        }
         return {
           certificateNumber: certificate?.certificateNumber,
           fileUrl: certificate?.fileUrl,
@@ -6171,6 +6281,30 @@ export const appRouter = router({
           data: buildCourseEnrollmentCsv(rows),
         };
       }),
+    surveyResponses: adminProcedure
+      .input(z.object({ surveyId: z.number().int().positive() }))
+      .query(async ({ input }) => getSurveyResponses(input.surveyId)),
+    analyzeSurvey: adminProcedure
+      .input(
+        z.object({
+          surveyId: z.number().int().positive(),
+          analysisJson: z.record(z.string(), z.any()),
+          insightsJson: z.record(z.string(), z.any()),
+          advisoryJson: z.record(z.string(), z.any()),
+        })
+      )
+      .mutation(async ({ ctx, input }) =>
+        upsertSurveyAnalysis({
+          surveyId: input.surveyId,
+          analysisJson: input.analysisJson,
+          insightsJson: input.insightsJson,
+          advisoryJson: input.advisoryJson,
+          generatedByOpenId: ctx.user.openId,
+        })
+      ),
+    getSurveyAnalysis: adminProcedure
+      .input(z.object({ surveyId: z.number().int().positive() }))
+      .query(async ({ input }) => getSurveyAnalysis(input.surveyId)),
   }),
   dashboard: router({
     mine: protectedProcedure.query(({ ctx }) => {

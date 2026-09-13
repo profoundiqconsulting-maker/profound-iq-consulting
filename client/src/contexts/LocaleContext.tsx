@@ -96,6 +96,7 @@ const english = {
   adminObservatory: "Admin observatory",
   staffWorkspace: "Staff workspace",
   settings: "Settings",
+  messages: "Messages",
   navigation: "Navigation",
   enrolledCourses: "Enrolled Courses",
   signInToContinue: "Sign in to continue",

@@ -20,7 +20,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/useMobile";
-import { ArrowLeft, LogOut, PanelLeft, ShieldCheck } from "lucide-react";
+import { LogOut, PanelLeft, ShieldCheck, Home } from "lucide-react";
 import { isQualityControlAdmin } from "@shared/courseAccess";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
@@ -185,6 +185,13 @@ function DashboardLayoutContent({
               >
                 <PanelLeft className="h-4 w-4 text-slate-400" />
               </button>
+              <Link
+                href="/"
+                className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-slate-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 shrink-0"
+                aria-label="Go to home page"
+              >
+                <Home className="h-4 w-4 text-slate-400" />
+              </Link>
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="font-semibold tracking-tight truncate text-white">
@@ -318,7 +325,7 @@ function DashboardLayoutContent({
                 href="/"
                 className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.16em] text-slate-600 hover:text-slate-900"
               >
-                <ArrowLeft size={14} aria-hidden="true" /> Back
+                <Home size={14} aria-hidden="true" /> Home
               </Link>
             </div>
             <div className="flex items-center gap-3">

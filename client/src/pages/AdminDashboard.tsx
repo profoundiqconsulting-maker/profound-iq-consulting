@@ -83,6 +83,8 @@ import AdminCourseDeliveryPanel from "@/components/AdminCourseDeliveryPanel";
 import AdminPaymentExceptionsPanel from "@/components/AdminPaymentExceptionsPanel";
 import AdminNewsletterPanel from "@/components/AdminNewsletterPanel";
 import AdminInsightsPanel from "@/components/AdminInsightsPanel";
+import AdminCommunicationPanel from "@/components/AdminCommunicationPanel";
+import AdminResearchSurveyPanel from "@/components/AdminResearchSurveyPanel";
 import { AdminCourseAccessAudit } from "@/components/AdminCourseAccessAudit";
 import { AdminCertificatePreview } from "@/components/AdminCertificatePreview";
 import { AdminRecentQCCertificates } from "@/components/AdminRecentQCCertificates";
@@ -1282,7 +1284,7 @@ export default function AdminDashboard() {
       <div className="mt-8 space-y-8">
         {activeTab === "surveys" && (
           <div id="surveys" className="scroll-mt-8">
-            <AdminSurveysPanel />
+            <AdminResearchSurveyPanel />
           </div>
         )}
 
@@ -1353,6 +1355,7 @@ export default function AdminDashboard() {
 
         {activeTab === "communications" && (
           <>
+            <AdminCommunicationPanel />
             <div id="newsletter-subscribers" className="scroll-mt-8">
               <AdminNewsletterPanel />
             </div>
