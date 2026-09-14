@@ -4,18 +4,23 @@ import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import {
+  Activity,
   AlertCircle,
   ArrowLeft,
   BarChart3,
   Bold,
+  BrainCircuit,
+  Building2,
   CalendarClock,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Clock3,
+  Database,
   Download,
   FileText,
   Filter,
+  Gauge,
   Italic,
   LockKeyhole,
   Mail,
@@ -1248,137 +1253,33 @@ export default function AdminDashboard() {
         description="Manage assessment records, follow up on course interest, and keep future communications on-brand."
         badge={{ label: "Admin only", variant: "secondary" }}
       />
-      <div
-        className="mt-6 flex flex-wrap items-center gap-2"
-        role="tablist"
-        aria-label="Admin sections"
-      >
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => setActiveTab("overview")}
-          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "overview" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
-        >
-          Signal Room
-        </Button>
-        <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">Operations</span>
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => setActiveTab("operations")}
-          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "operations" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
-        >
-          Operations
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => setActiveTab("revenue")}
-          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "revenue" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
-        >
-          Revenue
-        </Button>
-        <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">Intelligence</span>
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => setActiveTab("psychometrics")}
-          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "psychometrics" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
-        >
-          Psychometrics
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => setActiveTab("inquiries")}
-          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "inquiries" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
-        >
-          Inquiries
-        </Button>
-        <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">System</span>
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => setActiveTab("system")}
-          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "system" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
-        >
-          System
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => setActiveTab("staff")}
-          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "staff" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
-        >
-          Staff & Catalog
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => setActiveTab("communications")}
-          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "communications" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
-        >
-          Communications
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => setActiveTab("surveys")}
-          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "surveys" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
-        >
-          Surveys
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => setActiveTab("security")}
-          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "security" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
-        >
-          Security
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => setActiveTab("organization")}
-          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "organization" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
-        >
-          Organization
-        </Button>
+      <div className="mt-6 flex flex-wrap items-center gap-2" role="tablist" aria-label="Admin sections">
+        <TabButton tab="overview" label="Signal Room" icon={<BarChart3 size={14} />} activeTab={activeTab} onTabChange={setActiveTab} />
+        <TabDivider />
+        <TabButton tab="operations" label="Operations" icon={<Activity size={14} />} activeTab={activeTab} onTabChange={setActiveTab} />
+        <TabDivider />
+        <TabButton tab="revenue" label="Revenue" icon={<Database size={14} />} activeTab={activeTab} onTabChange={setActiveTab} />
+        <TabDivider />
+        <TabButton tab="intelligence" label="Intelligence" icon={<Gauge size={14} />} activeTab={activeTab} onTabChange={setActiveTab} />
+        <TabDivider />
+        <TabButton tab="psychometrics" label="Psychometrics" icon={<BrainCircuit size={14} />} activeTab={activeTab} onTabChange={setActiveTab} />
+        <TabButton tab="inquiries" label="Inquiries" icon={<Mail size={14} />} activeTab={activeTab} onTabChange={setActiveTab} />
+        <TabDivider />
+        <TabButton tab="system" label="System" icon={<Clock3 size={14} />} activeTab={activeTab} onTabChange={setActiveTab} />
+        <TabDivider />
+        <TabButton tab="staff" label="Staff & Catalog" icon={<Users size={14} />} activeTab={activeTab} onTabChange={setActiveTab} />
+        <TabButton tab="communications" label="Communications" icon={<Send size={14} />} activeTab={activeTab} onTabChange={setActiveTab} />
+        <TabButton tab="surveys" label="Surveys" icon={<FileText size={14} />} activeTab={activeTab} onTabChange={setActiveTab} />
+        <TabDivider />
+        <TabButton tab="security" label="Security" icon={<ShieldCheck size={14} />} activeTab={activeTab} onTabChange={setActiveTab} />
+        <TabButton tab="organization" label="Organization" icon={<Building2 size={14} />} activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
-      <div className="mt-4 flex flex-wrap items-center gap-2 border-b border-[#16243d]/10 pb-4">
+      <div className="mt-4 flex flex-wrap items-center gap-3 border-b border-[#16243d]/10 pb-4">
         <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">Quick actions</span>
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => setActiveTab("operations")}
-          className="bg-[#16243d] text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8] hover:bg-[#16243d]/90"
-        >
-          <ShieldCheck size={14} /> Generate QC certificate
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => setActiveTab("communications")}
-          className="border border-[#16243d]/25 bg-white text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] hover:border-[#16243d]/60"
-        >
-          <Send size={14} /> Send newsletter
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => setActiveTab("revenue")}
-          className="border border-[#16243d]/25 bg-white text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] hover:border-[#16243d]/60"
-        >
-          <Download size={14} /> Review payments
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => setActiveTab("overview")}
-          className="border border-[#16243d]/25 bg-white text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] hover:border-[#16243d]/60"
-        >
-          <BarChart3 size={14} /> View reports
-        </Button>
+        <QuickActionButton icon={<ShieldCheck size={14} />} label="Generate QC certificate" target="operations" onTabChange={setActiveTab} />
+        <QuickActionButton icon={<MailCheck size={14} />} label="Send newsletter" target="communications" onTabChange={setActiveTab} />
+        <QuickActionButton icon={<Download size={14} />} label="Review payments" target="revenue" onTabChange={setActiveTab} />
+        <QuickActionButton icon={<BarChart3 size={14} />} label="View reports" target="overview" onTabChange={setActiveTab} />
       </div>
       <div className="mt-8 space-y-8">
         {activeTab === "surveys" && (
@@ -1411,6 +1312,67 @@ export default function AdminDashboard() {
           <div id="revenue" className="scroll-mt-8">
             <AdminRevenuePanel />
           </div>
+        )}
+
+        {activeTab === "intelligence" && (
+          <>
+            <Section
+              id="intelligence"
+              eyebrow="Intelligence"
+              title="Insights that move the needle."
+              description="Aggregated analytics, conversion benchmarks, and trend analysis across all assessment and enrollment journeys."
+            >
+              <div className="grid gap-6 lg:grid-cols-3">
+                <div className="border border-[#16243d]/10 bg-[#fffaf0] p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Assessment starts</p>
+                  <p className="mt-2 text-3xl font-bold">{analytics.data?.summary?.assessment_started ?? 0}</p>
+                  <p className="mt-1 text-xs text-[#16243d]">Total in selected range</p>
+                </div>
+                <div className="border border-[#16243d]/10 bg-[#fffaf0] p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Payment completions</p>
+                  <p className="mt-2 text-3xl font-bold">{analytics.data?.summary?.payment_completed ?? 0}</p>
+                  <p className="mt-1 text-xs text-[#16243d]">Verified conversions</p>
+                </div>
+                <div className="border border-[#16243d]/10 bg-[#fffaf0] p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Conversion rate</p>
+                  <p className="mt-2 text-3xl font-bold">{analytics.data?.summary && analytics.data.summary.assessment_started && analytics.data.summary.payment_completed ? Math.round((analytics.data.summary.payment_completed / analytics.data.summary.assessment_started) * 100) : 0}%</p>
+                  <p className="mt-1 text-xs text-[#16243d]">Start-to-payment</p>
+                </div>
+              </div>
+            </Section>
+
+            <Section eyebrow="Trend analysis" title="Weekly momentum." description="Track assessment attempts and payment completions over time." className="mt-14">
+              <div className="mt-5 h-72">
+                {analytics.isLoading ? (
+                  <div className="grid h-full place-items-center text-sm text-[#16243d]">Loading intelligence…</div>
+                ) : (analytics.data?.weekly ?? []).length === 0 ? (
+                  <div className="grid h-full place-items-center text-sm text-[#16243d]">No trend data in this range.</div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={analytics.data?.weekly}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#16243d15" />
+                      <XAxis dataKey="week" tickFormatter={v => v.slice(5)} stroke="#16243d" tick={{ fontSize: 10 }} />
+                      <YAxis allowDecimals={false} stroke="#16243d" tick={{ fontSize: 10 }} />
+                      <Tooltip contentStyle={{ background: "#f7f3e8", border: "1px solid #c9a34e", color: "#16243d" }} />
+                      <Line type="monotone" dataKey="assessment_started" name="Starts" stroke="#c9a34e" strokeWidth={2.5} dot={{ r: 3, fill: "#c9a34e" }} />
+                      <Line type="monotone" dataKey="payment_completed" name="Paid" stroke="#7d5e1e" strokeWidth={2} dot={{ r: 3, fill: "#7d5e1e" }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </Section>
+
+            <Section eyebrow="Share intelligence" title="How candidates share results." description="Track LinkedIn, Facebook, WhatsApp, and X/Twitter sharing activity." className="mt-14">
+              <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {[{ label: "LinkedIn", key: "linkedin" }, { label: "Facebook", key: "facebook" }, { label: "WhatsApp", key: "whatsapp" }, { label: "X/Twitter", key: "x" }].map(platform => (
+                  <div key={platform.key} className="border border-[#16243d]/10 bg-white/55 p-4 text-center">
+                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">{platform.label}</p>
+                    <p className="mt-1 text-2xl font-bold">{shareAnalytics.data?.find(item => item.platform === platform.key)?.count ?? 0}</p>
+                  </div>
+                ))}
+              </div>
+            </Section>
+          </>
         )}
 
         {activeTab === "staff" && (
@@ -5333,6 +5295,26 @@ function DateField({
         className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-[11px] text-sm font-semibold text-[#16243d] outline-none focus:border-[#c9a34e]"
       />
     </label>
+  );
+}
+
+function TabButton({ tab, label, icon, activeTab, onTabChange }: { tab: string; label: string; icon: React.ReactNode; activeTab: string; onTabChange: (tab: string) => void }) {
+  return (
+    <Button type="button" size="sm" onClick={() => onTabChange(tab)} className={activeTab === tab ? "bg-[#16243d] text-[#f7f3e8] border border-[#c9a34e] text-[10px] font-black uppercase tracking-[.12em]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#c9a34e]/60 text-[10px] font-black uppercase tracking-[.12em]"}>
+      {icon}<span className="ml-1.5">{label}</span>
+    </Button>
+  );
+}
+
+function TabDivider() {
+  return <div className="h-6 w-px bg-[#16243d]/15 mx-1" />;
+}
+
+function QuickActionButton({ icon, label, target, onTabChange }: { icon: React.ReactNode; label: string; target: string; onTabChange: (tab: string) => void }) {
+  return (
+    <Button type="button" size="sm" onClick={() => onTabChange(target)} className="border border-[#16243d]/25 bg-white text-[#16243d] text-[10px] font-black uppercase tracking-[.12em] hover:border-[#c9a34e]/60 inline-flex items-center gap-1.5">
+      {icon}{label}
+    </Button>
   );
 }
 
