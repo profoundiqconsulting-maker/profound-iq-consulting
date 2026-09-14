@@ -39,10 +39,12 @@ import {
   ArrowUpRight,
   Award,
   BarChart3,
+  BookOpen,
   BrainCircuit,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  ClipboardCheck,
   Clock3,
   CreditCard,
   Download,
@@ -1223,6 +1225,29 @@ export default function UserDashboard() {
         description="Review your assessment history, saved pathways, and recommendations."
         badge={user?.role === "quality_control_admin" ? { label: "QC Mode", variant: "secondary" } : undefined}
       />
+      <div className="mt-6 flex flex-wrap items-center gap-2 border-b border-[#16243d]/10 pb-4">
+        <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">Quick actions</span>
+        <Link href="/assessment">
+          <Button size="sm" className="bg-[#16243d] text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8] hover:bg-[#16243d]/90">
+            <ClipboardCheck size={14} /> Self Assessment
+          </Button>
+        </Link>
+        <Link href="/careerpath">
+          <Button size="sm" className="border border-[#16243d]/25 bg-white text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] hover:border-[#16243d]/60">
+            <Users size={14} /> CareerPath
+          </Button>
+        </Link>
+        <Link href="/psychometrics">
+          <Button size="sm" className="border border-[#16243d]/25 bg-white text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] hover:border-[#16243d]/60">
+            <BrainCircuit size={14} /> Psychometrics
+          </Button>
+        </Link>
+        <Link href="/courses">
+          <Button size="sm" className="border border-[#16243d]/25 bg-white text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] hover:border-[#16243d]/60">
+            <BookOpen size={14} /> Courses
+          </Button>
+        </Link>
+      </div>
       <main className="min-w-0 flex-1 p-3 sm:p-4 lg:p-6">
         
         {/* Stats Overview */}

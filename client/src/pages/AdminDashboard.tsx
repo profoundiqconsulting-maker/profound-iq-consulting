@@ -1249,37 +1249,136 @@ export default function AdminDashboard() {
         badge={{ label: "Admin only", variant: "secondary" }}
       />
       <div
-        className="mt-8 flex flex-wrap gap-2"
+        className="mt-6 flex flex-wrap items-center gap-2"
         role="tablist"
         aria-label="Admin sections"
       >
-        {[
-          { id: "overview", label: "Overview" },
-          { id: "psychometrics", label: "Psychometrics" },
-          { id: "inquiries", label: "Inquiries" },
-          { id: "revenue", label: "Revenue" },
-          { id: "staff", label: "Staff & Catalog" },
-          { id: "learning", label: "Learning" },
-          { id: "resources", label: "Resources" },
-          { id: "surveys", label: "Surveys" },
-          { id: "system", label: "System Settings" },
-          { id: "communications", label: "Communications" },
-          { id: "security", label: "Security" },
-          { id: "organization", label: "Organization" },
-        ].map(tab => (
-          <Button
-            key={tab.id}
-            type="button"
-            role="tab"
-            aria-selected={activeTab === tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            variant={activeTab === tab.id ? "default" : "outline"}
-            size="sm"
-            className="text-[10px] font-black uppercase tracking-[.12em]"
-          >
-            {tab.label}
-          </Button>
-        ))}
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => setActiveTab("overview")}
+          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "overview" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
+        >
+          Signal Room
+        </Button>
+        <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">Operations</span>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => setActiveTab("operations")}
+          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "operations" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
+        >
+          Operations
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => setActiveTab("revenue")}
+          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "revenue" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
+        >
+          Revenue
+        </Button>
+        <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">Intelligence</span>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => setActiveTab("psychometrics")}
+          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "psychometrics" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
+        >
+          Psychometrics
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => setActiveTab("inquiries")}
+          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "inquiries" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
+        >
+          Inquiries
+        </Button>
+        <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">System</span>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => setActiveTab("system")}
+          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "system" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
+        >
+          System
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => setActiveTab("staff")}
+          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "staff" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
+        >
+          Staff & Catalog
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => setActiveTab("communications")}
+          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "communications" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
+        >
+          Communications
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => setActiveTab("surveys")}
+          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "surveys" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
+        >
+          Surveys
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => setActiveTab("security")}
+          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "security" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
+        >
+          Security
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => setActiveTab("organization")}
+          className={"text-[10px] font-black uppercase tracking-[.12em] " + (activeTab === "organization" ? "bg-[#16243d] text-[#f7f3e8]" : "border border-[#16243d]/25 bg-white text-[#16243d] hover:border-[#16243d]/60")}
+        >
+          Organization
+        </Button>
+      </div>
+      <div className="mt-4 flex flex-wrap items-center gap-2 border-b border-[#16243d]/10 pb-4">
+        <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">Quick actions</span>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => setActiveTab("operations")}
+          className="bg-[#16243d] text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8] hover:bg-[#16243d]/90"
+        >
+          <ShieldCheck size={14} /> Generate QC certificate
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => setActiveTab("communications")}
+          className="border border-[#16243d]/25 bg-white text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] hover:border-[#16243d]/60"
+        >
+          <Send size={14} /> Send newsletter
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => setActiveTab("revenue")}
+          className="border border-[#16243d]/25 bg-white text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] hover:border-[#16243d]/60"
+        >
+          <Download size={14} /> Review payments
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => setActiveTab("overview")}
+          className="border border-[#16243d]/25 bg-white text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] hover:border-[#16243d]/60"
+        >
+          <BarChart3 size={14} /> View reports
+        </Button>
       </div>
       <div className="mt-8 space-y-8">
         {activeTab === "surveys" && (
