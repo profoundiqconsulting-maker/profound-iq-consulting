@@ -2667,7 +2667,7 @@ export default function AdminDashboard() {
             </div>
           </>
         )}
-        {overview.data && (
+        {activeTab === "overview" && overview.data && (
           <>
             <div className="mt-10 grid gap-4 sm:grid-cols-3">
               <StatCard
