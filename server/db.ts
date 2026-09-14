@@ -2702,7 +2702,31 @@ export async function createContactInquiry(input: {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const result = await db.insert(contactInquiries).values(input);
-  return Number(result[0].insertId);
+  const id = Number(result[0].insertId);
+  const year = new Date().getFullYear();
+  const ticketNumber = `PIQ-${year}-${String(id).padStart(6, "0")}`;
+  await db
+    .update(contactInquiries)
+    .set({ ticketNumber })
+    .where(eq(contactInquiries.id, id));
+  return { id, ticketNumber };
+}
+
+export async function getContactInquiry(id: number | string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const where = Number.isNaN(Number(id)) || String(id).startsWith("PIQ-")
+    ? eq(contactInquiries.ticketNumber, String(id))
+    : eq(contactInquiries.id, Number(id));
+  return (
+    (
+      await db
+        .select()
+        .from(contactInquiries)
+        .where(where)
+        .limit(1)
+    )[0] ?? null
+  );
 }
 
 export async function listContactInquiries(
@@ -2750,7 +2774,8 @@ function contactInquiryConditions(filters: ContactInquiryFilters) {
       ? or(
           like(contactInquiries.name, `%${filters.search}%`),
           like(contactInquiries.email, `%${filters.search}%`),
-          like(contactInquiries.message, `%${filters.search}%`)
+          like(contactInquiries.message, `%${filters.search}%`),
+          like(contactInquiries.ticketNumber, `%${filters.search}%`)
         )
       : undefined,
     filters.category && filters.category !== "all"

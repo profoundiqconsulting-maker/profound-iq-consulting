@@ -2,7 +2,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { TrpcContext } from "./_core/context";
 
 const mocks = vi.hoisted(() => ({
-  createContactInquiry: vi.fn().mockResolvedValue(27),
+  createContactInquiry: vi.fn().mockResolvedValue({
+    id: 27,
+    ticketNumber: "PIQ-2026-000027",
+  }),
   listContactInquiries: vi
     .fn()
     .mockResolvedValue({
@@ -197,7 +200,7 @@ describe("inquiry.create", () => {
         mathB: 5,
         mathAnswer: 12,
       });
-    expect(result).toEqual({ id: 27 });
+    expect(result).toEqual({ id: 27, ticketNumber: "PIQ-2026-000027" });
     expect(mocks.createContactInquiry).toHaveBeenCalledWith({
       name: "Amina Njeri",
       email: "amina@example.com",

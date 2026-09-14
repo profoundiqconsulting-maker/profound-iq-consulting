@@ -115,6 +115,7 @@ export const catalogItems = mysqlTable("catalog_items", {
 
 export const contactInquiries = mysqlTable("contact_inquiries", {
   id: int("id").autoincrement().primaryKey(),
+  ticketNumber: varchar("ticketNumber", { length: 32 }).unique(),
   name: varchar("name", { length: 160 }).notNull(),
   email: varchar("email", { length: 320 }).notNull(),
   category: varchar("category", { length: 80 }).notNull(),

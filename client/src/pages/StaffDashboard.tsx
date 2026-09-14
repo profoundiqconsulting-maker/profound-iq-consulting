@@ -156,7 +156,7 @@ function InquiryDesk() {
             <input
               value={search}
               onChange={event => setFilter(setSearch, event.target.value)}
-              placeholder="Search name, email, or message"
+              placeholder="Search name, email, ticket number, or message"
               className="w-full border border-[#16243d]/20 bg-white/80 dark:bg-[#16243d] py-3 pl-9 pr-3 text-sm outline-none focus:border-[#c9a34e] transition-colors"
             />
           </div>
@@ -204,6 +204,11 @@ function InquiryDesk() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <h2 className="text-base font-semibold text-[#16243d] dark:text-[#f7f3e8]">{inquiry.name}</h2>
+                      {inquiry.ticketNumber && (
+                        <span className="font-mono text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+                          #{inquiry.ticketNumber}
+                        </span>
+                      )}
                       <span className="rounded-full border border-[#c9a34e]/60 px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e] dark:text-[#7d5e1e]">
                         {inquiry.category.replaceAll("-", " ")}
                       </span>

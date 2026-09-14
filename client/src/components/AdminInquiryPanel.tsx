@@ -244,7 +244,7 @@ export default function AdminInquiryPanel() {
           <input
             value={search}
             onChange={event => setFilter(setSearch, event.target.value)}
-            placeholder="Search name, email, or message"
+            placeholder="Search name, email, ticket number, or message"
             className="w-full border border-[#16243d]/20 bg-[#f7f3e8] py-2 pl-9 pr-3 text-sm outline-none focus:border-[#c9a34e]"
           />
         </label>
@@ -435,6 +435,11 @@ export default function AdminInquiryPanel() {
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="font-bold">{inquiry.name}</h3>
+                      {inquiry.ticketNumber && (
+                        <span className="font-mono text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+                          #{inquiry.ticketNumber}
+                        </span>
+                      )}
                       <span className="border border-[#c9a34e]/60 px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
                         {subjectLabel(inquiry.category)}
                       </span>

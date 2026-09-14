@@ -162,6 +162,7 @@ import {
   clearLoginFailures,
   countFailedLoginEvents,
   createContactInquiry,
+  getContactInquiry,
   listContactInquiries,
   listAssignedContactInquiries,
   updateAssignedContactInquiryStatus,
@@ -1414,7 +1415,7 @@ export const appRouter = router({
             code: "BAD_REQUEST",
             message: "Please solve the verification question correctly.",
           });
-        const id = await createContactInquiry({
+        const { id, ticketNumber } = await createContactInquiry({
           name: input.name,
           email: input.email,
           category: input.category,
@@ -1425,7 +1426,7 @@ export const appRouter = router({
           userOpenId: ctx.user?.openId,
           metadata: { inquiryId: id },
         });
-        return { id };
+        return { id, ticketNumber };
       }),
   }),
   resources: router({
@@ -4643,6 +4644,12 @@ export const appRouter = router({
         })
       ),
     teamMembers: adminProcedure.query(() => getAdminTeamMembers()),
+    getContactInquiry: adminProcedure
+      .input(z.object({ id: z.union([z.number().int().positive(), z.string()]).optional() }))
+      .query(async ({ input }) => {
+        if (input?.id) return getContactInquiry(input.id);
+        return null;
+      }),
     staffInvitations: adminProcedure.query(() => listStaffInvitations()),
     inviteStaff: adminProcedure
       .input(
