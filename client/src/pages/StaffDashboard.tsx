@@ -46,7 +46,7 @@ export default function StaffDashboard() {
   const [tab, setTab] = useState<StaffTab>("inquiries");
 
   return (
-    <DashboardLayout role="staff">
+    <DashboardLayout role="staff" title="Staff Workspace">
       <main className="min-h-screen bg-gradient-to-br from-[#f7f3e8] via-[#f7f3e8] to-[#ead9ae] dark:from-[#0d1a2f] dark:via-[#101d35] dark:to-[#16243d] px-4 py-8 text-[#16243d] dark:text-[#f7f3e8] sm:px-8 lg:px-12">
         <div className="mx-auto max-w-6xl">
           <DashboardHero

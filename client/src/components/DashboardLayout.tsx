@@ -192,21 +192,35 @@ function DashboardLayoutContent({
               >
                 <Home className="h-4 w-4 text-slate-400" />
               </Link>
-              {!isCollapsed ? (
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-semibold tracking-tight truncate text-white">
-                    {title || "Navigation"}
-                  </span>
-                  {isQualityControlAdmin(user) ? (
-                    <span
-                      aria-label="Quality Control Mode active"
-                      title="Quality Control Mode active"
-                      className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-400"
-                    >
-                      <ShieldCheck className="h-3 w-3" aria-hidden="true" />
-                      <span>QC Mode</span>
+                 {!isCollapsed ? (
+                <div className="flex flex-col gap-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold tracking-tight truncate text-white">
+                      {title || "Navigation"}
                     </span>
-                  ) : null}
+                    {role ? (
+                      <span
+                        aria-label={`Role: ${role}`}
+                        className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[.1em] ring-1 ring-amber-400/30 bg-amber-400/10 text-amber-400"
+                      >
+                        {role === "admin"
+                          ? "Admin"
+                          : role === "staff"
+                            ? "Staff"
+                            : "Learner"}
+                      </span>
+                    ) : null}
+                    {isQualityControlAdmin(user) ? (
+                      <span
+                        aria-label="Quality Control Mode active"
+                        title="Quality Control Mode active"
+                        className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-400"
+                      >
+                        <ShieldCheck className="h-3 w-3" aria-hidden="true" />
+                        <span>QC Mode</span>
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
               ) : null}
             </div>
@@ -334,6 +348,18 @@ function DashboardLayoutContent({
                   {activeMenuItem?.fallbackLabel ?? "Menu"}
                 </span>
               </div>
+              {role ? (
+                <span
+                  aria-label={`Role: ${role}`}
+                  className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[.1em] ring-1 ring-amber-400/30 bg-amber-400/10 text-amber-600"
+                >
+                  {role === "admin"
+                    ? "Admin"
+                    : role === "staff"
+                      ? "Staff"
+                      : "Learner"}
+                </span>
+              ) : null}
               {isQualityControlAdmin(user) ? (
                 <span
                   aria-label="Quality Control Mode active"

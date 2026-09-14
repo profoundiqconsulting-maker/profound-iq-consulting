@@ -163,6 +163,15 @@ export const dashboardNavItems: DashboardNavItem[] = [
     adminOnly: true,
   },
   {
+    id: "cohorts",
+    labelKey: "adminObservatory",
+    fallbackLabel: "Cohort management",
+    path: "/admin/cohorts",
+    icon: Users,
+    group: "operations",
+    adminOnly: true,
+  },
+  {
     id: "staff",
     labelKey: "staffWorkspace",
     fallbackLabel: "Staff workspace",

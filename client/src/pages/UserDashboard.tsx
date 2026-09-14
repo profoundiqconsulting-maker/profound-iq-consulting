@@ -1218,7 +1218,7 @@ export default function UserDashboard() {
   if (!user) return <AccessState />;
 
   return (
-    <DashboardLayout role="user">
+    <DashboardLayout role="user" title="Learner Dashboard">
       <DashboardHero
         eyebrow="Your space"
         title="Your dashboard"

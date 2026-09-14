@@ -159,7 +159,13 @@ function Router() {
         <Route path="/dashboard/my-workspaces" component={DashboardMyWorkspaces} />
         <Route path="/myspace" component={MySpace} />
         <Route path="/my-illustrations" component={MyIllustrations} />
-        <Route path="/settings" component={Settings} />
+        <Route
+          path="/settings"
+          component={() => {
+            useLocation()[1]("/dashboard/settings", { replace: true });
+            return null;
+          }}
+        />
         <Route path="/auth" component={Auth} />
         <Route path="/reset-password" component={ResetPassword} />
         <Route path="/shared-report" component={SharedReport} />
