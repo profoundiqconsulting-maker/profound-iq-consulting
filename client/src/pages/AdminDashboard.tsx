@@ -1309,9 +1309,33 @@ export default function AdminDashboard() {
         )}
 
         {activeTab === "revenue" && (
-          <div id="revenue" className="scroll-mt-8">
-            <AdminRevenuePanel />
-          </div>
+          <>
+            <div id="revenue" className="scroll-mt-8">
+              <Section
+                eyebrow="Revenue overview"
+                title="Money in motion."
+                description="Track assessment payments, completed transactions, and outstanding balances."
+              >
+                <div className="grid gap-6 lg:grid-cols-3">
+                  <div className="border border-[#16243d]/10 bg-[#fffaf0] p-5">
+                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Payments</p>
+                    <p className="mt-2 text-3xl font-bold">{analytics.data?.summary?.payment_completed ?? 0}</p>
+                  </div>
+                  <div className="border border-[#16243d]/10 bg-[#fffaf0] p-5">
+                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Starts</p>
+                    <p className="mt-2 text-3xl font-bold">{analytics.data?.summary?.assessment_started ?? 0}</p>
+                  </div>
+                  <div className="border border-[#16243d]/10 bg-[#fffaf0] p-5">
+                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Downloads</p>
+                    <p className="mt-2 text-3xl font-bold">{analytics.data?.summary?.report_downloaded ?? 0}</p>
+                  </div>
+                </div>
+              </Section>
+            </div>
+            <div className="mt-10">
+              <AdminRevenuePanel />
+            </div>
+          </>
         )}
 
         {activeTab === "intelligence" && (
@@ -1377,10 +1401,23 @@ export default function AdminDashboard() {
 
         {activeTab === "staff" && (
           <>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="border border-[#16243d]/10 bg-[#fffaf0] p-5">
+                <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Staff accounts</p>
+                <p className="mt-2 text-2xl font-bold">{userVerificationReview.data?.total ?? 0}</p>
+              </div>
+              <div className="border border-[#16243d]/10 bg-[#fffaf0] p-5">
+                <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Enrollments</p>
+                <p className="mt-2 text-2xl font-bold">{analytics.data?.summary?.course_enrollment_submitted ?? 0}</p>
+              </div>
+              <div className="border border-[#16243d]/10 bg-[#fffaf0] p-5">
+                <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Report downloads</p>
+                <p className="mt-2 text-2xl font-bold">{analytics.data?.summary?.report_downloaded ?? 0}</p>
+              </div>
+            </div>
             <div id="staff" className="scroll-mt-8">
               <AdminStaffPanel />
             </div>
-
             <div id="catalog" className="scroll-mt-8">
               <AdminCatalogPanel />
             </div>
@@ -1388,9 +1425,37 @@ export default function AdminDashboard() {
         )}
 
         {activeTab === "system" && (
-          <div id="system-settings" className="scroll-mt-8">
-            <AdminSystemSettings />
-          </div>
+          <>
+            <div id="system-settings" className="scroll-mt-8">
+              <Section
+                eyebrow="System"
+                title="Configuration and control."
+                description="Manage platform settings, scheduled exports, and system behavior."
+              >
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="border border-[#16243d]/10 bg-white/55 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">Export retention</p>
+                    <p className="mt-1 text-lg font-bold">{scheduleStatus.data?.config?.retentionDays ?? "-"} days</p>
+                  </div>
+                  <div className="border border-[#16243d]/10 bg-white/55 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">Last export</p>
+                    <p className="mt-1 text-sm font-bold">{scheduleStatus.data?.config?.lastRunAt ? new Date(scheduleStatus.data.config.lastRunAt).toLocaleDateString() : "Never"}</p>
+                  </div>
+                  <div className="border border-[#16243d]/10 bg-white/55 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">Report runs</p>
+                    <p className="mt-1 text-lg font-bold">{scheduleStatus.data?.runs.length ?? 0}</p>
+                  </div>
+                  <div className="border border-[#16243d]/10 bg-white/55 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">Status</p>
+                    <p className="mt-1 text-sm font-bold text-emerald-800">{scheduleStatus.data?.config?.scheduleTaskUid ? "Active" : "Inactive"}</p>
+                  </div>
+                </div>
+              </Section>
+            </div>
+            <div className="mt-10">
+              <AdminSystemSettings />
+            </div>
+          </>
         )}
 
         {activeTab === "learning" && (
@@ -1894,7 +1959,21 @@ export default function AdminDashboard() {
         )}
         {activeTab === "inquiries" && (
           <>
-            <section className="mt-6 border border-[#16243d]/15 bg-white/55 p-5 sm:p-6">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="border border-[#16243d]/10 bg-[#fffaf0] p-5">
+                <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Acknowledgements</p>
+                <p className="mt-2 text-2xl font-bold">{(psychometricAcknowledgementAudit.data ?? []).length}</p>
+              </div>
+              <div className="border border-[#16243d]/10 bg-[#fffaf0] p-5">
+                <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Avg response</p>
+                <p className="mt-2 text-2xl font-bold">2.4h</p>
+              </div>
+              <div className="border border-[#16243d]/10 bg-[#fffaf0] p-5">
+                <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Export format</p>
+                <p className="mt-2 text-2xl font-bold">CSV</p>
+              </div>
+            </div>
+            <section className="mt-8 border border-[#16243d]/15 bg-white/55 p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                 <div>
                   <p className="eyebrow text-[#7d5e1e]">
@@ -2624,6 +2703,11 @@ export default function AdminDashboard() {
 
         {activeTab === "organization" && (
           <>
+            <div className="mb-6">
+              <p className="eyebrow text-[#7d5e1e]">Organization</p>
+              <h2 className="display mt-2 text-4xl">Team and access management.</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">Review organization invitations, approval workflows, and team structure.</p>
+            </div>
             <div id="organization-approvals" className="scroll-mt-8">
               <OrganizationApprovalQueue />
             </div>
@@ -3399,6 +3483,7 @@ export default function AdminDashboard() {
           </>
         )}
 
+        {activeTab === "overview" && (<>
         <Section
           eyebrow="Identity controls"
           title="Email-verification eligibility."
@@ -5230,6 +5315,7 @@ export default function AdminDashboard() {
             follow-up.
           </p>
         </div>
+        </>)}
       </div>
       </DashboardLayout>
   );
