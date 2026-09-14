@@ -317,8 +317,9 @@ import {
   emailPsychometricReportIfNeeded,
   sendPsychometricReportEmail,
   sendAssessmentResumeEmail,
-  sendFailedLoginAlert,
-  sendTemplateTestEmail,
+   sendFailedLoginAlert,
+   verifySmtpConnection,
+   sendTemplateTestEmail,
   sendCourseCertificateEmail,
   sendOrganizationReviewRequestEmail,
   sendNewsletterConfirmationEmail,
@@ -5685,6 +5686,17 @@ export const appRouter = router({
       getCareerPathShareAnalytics()
     ),
     emailTemplates: adminProcedure.query(() => getEmailTemplates()),
+    verifyEmailConnection: adminProcedure.query(async () => {
+      try {
+        await verifySmtpConnection();
+        return { connected: true, error: null };
+      } catch (error) {
+        return {
+          connected: false,
+          error: error instanceof Error ? error.message : "Unknown connection error",
+        };
+      }
+    }),
     sendTemplateTestEmail: adminProcedure
       .input(
         z.object({

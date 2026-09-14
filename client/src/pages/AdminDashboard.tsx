@@ -393,10 +393,13 @@ export default function AdminDashboard() {
 
   const templates = trpc.admin.emailTemplates.useQuery(undefined, {
     enabled: Boolean(user?.role === "admin"),
-
     retry: false,
-
     refetchInterval: 30000,
+  });
+
+  const emailConnection = trpc.admin.verifyEmailConnection.useQuery(undefined, {
+    enabled: Boolean(user?.role === "admin"),
+    retry: false,
   });
 
   const scheduleStatus = trpc.admin.scheduledExportStatus.useQuery(undefined, {
@@ -1455,6 +1458,47 @@ export default function AdminDashboard() {
             <div className="mt-10">
               <AdminSystemSettings />
             </div>
+
+            <Section
+              id="email-service"
+              eyebrow="Email service"
+              title="SMTP and Resend delivery."
+              description="Verify the outbound email connection and send test messages to admin accounts."
+              className="mt-14"
+            >
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="border border-[#16243d]/10 bg-[#fffaf0] p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Connection</p>
+                  <p className="mt-2 text-lg font-bold">
+                    {emailConnection.isLoading
+                      ? "Checking…"
+                      : emailConnection.data?.connected
+                        ? "Active"
+                        : "Failed"}
+                  </p>
+                  {emailConnection.data?.error
+                    ? (
+                      <p className="mt-1 text-xs text-[#ef4444]">
+                        {emailConnection.data.error}
+                      </p>
+                    )
+                    : null}
+                </div>
+                <div className="border border-[#16243d]/10 bg-[#fffaf0] p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Provider</p>
+                  <p className="mt-2 text-sm font-bold">Resend SMTP</p>
+                </div>
+                <div className="border border-[#16243d]/10 bg-[#fffaf0] p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">Test deliver</p>
+                  <button
+                    onClick={() => emailConnection.refetch()}
+                    className="mt-2 border border-[#16243d] bg-[#16243d] px-3 py-1.5 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] hover:bg-[#16243d]/90"
+                  >
+                    Re-verify
+                  </button>
+                </div>
+              </div>
+            </Section>
           </>
         )}
 

@@ -12,6 +12,7 @@ import { registerBiweeklyNewsletter } from "../scheduledNewsletter";
 import { registerDeliveryLogExportWorker } from "../deliveryLogExport";
 import { registerWeeklyPsychometricAnalytics } from "../scheduledPsychometricAnalytics";
 import { registerWeeklyCourseLessonReviewAnalytics } from "../scheduledCourseLessonReviewAnalytics";
+import { verifySmtpConnection, getSmtpConfig } from "../email";
 import { serveStatic, setupVite } from "./vite";
 import { registerSeoRoutes } from "../seoRoutes";
 import { ensureAdminUser } from "../db";
@@ -23,6 +24,13 @@ async function startServer() {
     await ensureAdminUser();
   } catch (error) {
     console.error("[Bootstrap] Admin user ensure failed:", error);
+  }
+  try {
+    const smtpConfig = getSmtpConfig();
+    await verifySmtpConnection();
+    console.log(`[Email] SMTP connection verified for ${smtpConfig.host}:${smtpConfig.port}`);
+  } catch (error) {
+    console.error("[Email] SMTP connection failed:", error);
   }
   registerPaystackWebhook(app);
   registerWeeklyEnrollmentExport(app);
