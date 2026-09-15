@@ -53,7 +53,10 @@ export default function CoursePaymentSuccess() {
             setStatus("error");
           } else {
             const delay = 200 * 2 ** attempt;
-            const timer = setTimeout(() => setAttempt(current => current + 1), delay);
+            const timer = setTimeout(
+              () => setAttempt(current => current + 1),
+              delay
+            );
             return () => clearTimeout(timer);
           }
         },
@@ -78,10 +81,10 @@ export default function CoursePaymentSuccess() {
         <main className="container grid min-h-[70vh] place-items-center py-16">
           <div className="text-center">
             <Loader2
-              className="mx-auto animate-spin text-[#a27e2e]"
+              className="mx-auto animate-spin text-[#7d5e1e]"
               size={34}
             />
-            <p className="eyebrow mt-5 text-[#a27e2e]">Secure verification</p>
+            <p className="eyebrow mt-5 text-[#7d5e1e]">Secure verification</p>
             <h1 className="display mt-3 text-4xl">Confirming your payment.</h1>
             <p className="mt-4 text-sm text-[#657084]">
               We are checking the Paystack transaction before unlocking your
@@ -101,7 +104,7 @@ export default function CoursePaymentSuccess() {
         <TransformationNav active="assessment" />
         <main className="container grid min-h-[70vh] place-items-center py-16">
           <div className="max-w-md text-center">
-            <AlertCircle className="mx-auto text-[#a27e2e]" size={34} />
+            <AlertCircle className="mx-auto text-[#7d5e1e]" size={34} />
             <h1 className="display mt-4 text-4xl">
               Sign in to confirm payment.
             </h1>
@@ -165,7 +168,7 @@ export default function CoursePaymentSuccess() {
       <main className="container grid min-h-[70vh] place-items-center py-16">
         <div className="w-full max-w-2xl border border-[#c9a34e]/60 bg-white/60 p-7 text-center shadow-sm sm:p-12">
           <CheckCircle2 className="mx-auto text-emerald-700" size={42} />
-          <p className="eyebrow mt-6 text-[#a27e2e]">Payment successful</p>
+          <p className="eyebrow mt-6 text-[#7d5e1e]">Payment successful</p>
           <h1 className="display mt-3 text-5xl">
             Your learning path is ready.
           </h1>

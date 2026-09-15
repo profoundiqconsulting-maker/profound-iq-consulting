@@ -1051,7 +1051,7 @@ function CourseWorkspaceUnlocked({
       ? (currentModule.lessons[activeLessonIndex + 1] ?? null)
       : null;
   const continueToNextLesson = () => {
-    if (!activeLessonTimerComplete) {
+    if (!activeLessonTimerComplete && !accessOverride) {
       toast.info("Keep studying before continuing", {
         description: `The next lesson unlocks when the 25-minute timer reaches zero. ${formatCountdown(activeLessonSecondsRemaining)} remaining.`,
       });
@@ -1279,7 +1279,11 @@ function CourseWorkspaceUnlocked({
       });
       return;
     }
-    if (isCompleting && lessonSecondsRemaining(lessonId) > 0) {
+    if (
+      isCompleting &&
+      !accessOverride &&
+      lessonSecondsRemaining(lessonId) > 0
+    ) {
       toast.info("Lesson timer still running", {
         description: `Keep studying for ${formatCountdown(lessonSecondsRemaining(lessonId))} more.`,
       });
@@ -2138,6 +2142,7 @@ function CourseWorkspaceUnlocked({
                         onChange={() => toggleLesson(lesson.id)}
                         disabled={
                           !progress.lessons.includes(lesson.id) &&
+                          !accessOverride &&
                           lessonSecondsRemaining(lesson.id) > 0
                         }
                         aria-label={`${lesson.title} ${progress.lessons.includes(lesson.id) ? "completed" : "completion"}`}
@@ -2163,13 +2168,16 @@ function CourseWorkspaceUnlocked({
               {isModuleReady && !moduleLocked && (
                 <div className="mt-6 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-[#f7f3e8]">
                   <div className="flex items-start gap-3">
-                    <Sparkles size={18} className="mt-0.5 text-accent-on-dark" />
+                    <Sparkles
+                      size={18}
+                      className="mt-0.5 text-accent-on-dark"
+                    />
                     <div>
                       <p className="font-bold">{lessonCopy.quizReady}</p>
-                       <p className="mt-1 text-sm leading-6 text-muted-on-dark">
-                         {lessonCopy.quizReadyDescription} {COURSE_PASS_MARK}%
-                         pass mark; unlimited retries are available.
-                       </p>
+                      <p className="mt-1 text-sm leading-6 text-muted-on-dark">
+                        {lessonCopy.quizReadyDescription} {COURSE_PASS_MARK}%
+                        pass mark; unlimited retries are available.
+                      </p>
                       <Button
                         type="button"
                         onClick={openQuiz}
@@ -2226,64 +2234,66 @@ function CourseWorkspaceUnlocked({
             </div>
           </section>
           <aside className="space-y-5">
-              <div className="border border-[#16243d]/15 bg-[#16243d] p-5 text-[#f7f3e8]">
-                <p className="eyebrow text-accent-on-dark">{enrollmentCopy.payment}</p>
-                <p className="display mt-3 text-3xl text-[#f7f3e8]">
-                  KES {course.priceKes.toLocaleString()}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-[#d7deea]">
-                  Four staged payments of KES{" "}
-                  {course.stageAmountsKes
-                    .map(amount => amount.toLocaleString())
-                    .join(" / ")}{" "}
-                  keep access aligned to your learning journey.
-                </p>
-                <div className="mt-5 space-y-3">
-                  {stageAmounts.map((stage, index) => (
-                    <div
-                      key={stage.label}
-                      className="flex items-center gap-3 text-xs"
-                    >
-                      <span
-                        className={`grid h-6 w-6 place-items-center rounded-full border ${stage.complete ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : "border-[#c1cad7]/60 text-[#c1cad7]"}`}
-                      >
-                        {stage.complete ? <CheckCircle2 size={14} /> : index + 1}
-                      </span>
-                      <span className="flex-1 text-[#d7deea]">{stage.label}</span>
-                      <span className="font-bold text-accent-on-dark">
-                        {stage.complete
-                          ? accessOverride
-                            ? "Bypassed"
-                            : "Paid"
-                          : "25%"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                {accessOverride ? (
-                  <div className="mt-6 border border-[#c9a34e]/60 bg-[#fff5cf] p-3 text-xs leading-5 text-[#5d4613]">
-                    <strong>Payment bypass active.</strong> This workspace is open
-                    for quality review without checkout.
-                  </div>
-                ) : (
-                  <Button
-                    type="button"
-                    onClick={() => startCheckout()}
-                    disabled={
-                      enrollMutation.isPending || checkoutMutation.isPending
-                    }
-                    className="mt-6 w-full bg-[#c9a34e] text-[#16243d]"
+            <div className="border border-[#16243d]/15 bg-[#16243d] p-5 text-[#f7f3e8]">
+              <p className="eyebrow text-accent-on-dark">
+                {enrollmentCopy.payment}
+              </p>
+              <p className="display mt-3 text-3xl text-[#f7f3e8]">
+                KES {course.priceKes.toLocaleString()}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-[#d7deea]">
+                Four staged payments of KES{" "}
+                {course.stageAmountsKes
+                  .map(amount => amount.toLocaleString())
+                  .join(" / ")}{" "}
+                keep access aligned to your learning journey.
+              </p>
+              <div className="mt-5 space-y-3">
+                {stageAmounts.map((stage, index) => (
+                  <div
+                    key={stage.label}
+                    className="flex items-center gap-3 text-xs"
                   >
-                    {checkoutMutation.isPending || enrollMutation.isPending
-                      ? "Preparing secure checkout…"
-                      : `Pay KES ${(course.stageAmountsKes[Math.min(3, progress.stageCount)] ?? course.stageAmountsKes[0] ?? 0).toLocaleString()} · stage ${Math.min(4, progress.stageCount + 1)} of 4`}
-                  </Button>
-                )}
-                <p className="mt-3 text-[10px] leading-4 text-[#c1cad7]">
-                  Payment verification and stage unlocking are handled securely
-                  before access is granted.
-                </p>
+                    <span
+                      className={`grid h-6 w-6 place-items-center rounded-full border ${stage.complete ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : "border-[#c1cad7]/60 text-[#c1cad7]"}`}
+                    >
+                      {stage.complete ? <CheckCircle2 size={14} /> : index + 1}
+                    </span>
+                    <span className="flex-1 text-[#d7deea]">{stage.label}</span>
+                    <span className="font-bold text-accent-on-dark">
+                      {stage.complete
+                        ? accessOverride
+                          ? "Bypassed"
+                          : "Paid"
+                        : "25%"}
+                    </span>
+                  </div>
+                ))}
               </div>
+              {accessOverride ? (
+                <div className="mt-6 border border-[#c9a34e]/60 bg-[#fff5cf] p-3 text-xs leading-5 text-[#5d4613]">
+                  <strong>Payment bypass active.</strong> This workspace is open
+                  for quality review without checkout.
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={() => startCheckout()}
+                  disabled={
+                    enrollMutation.isPending || checkoutMutation.isPending
+                  }
+                  className="mt-6 w-full bg-[#c9a34e] text-[#16243d]"
+                >
+                  {checkoutMutation.isPending || enrollMutation.isPending
+                    ? "Preparing secure checkout…"
+                    : `Pay KES ${(course.stageAmountsKes[Math.min(3, progress.stageCount)] ?? course.stageAmountsKes[0] ?? 0).toLocaleString()} · stage ${Math.min(4, progress.stageCount + 1)} of 4`}
+                </Button>
+              )}
+              <p className="mt-3 text-[10px] leading-4 text-[#c1cad7]">
+                Payment verification and stage unlocking are handled securely
+                before access is granted.
+              </p>
+            </div>
             <div className="border-l-2 border-[#c9a34e] bg-white/60 p-5">
               <p className="eyebrow text-[#5d4613]">
                 {enrollmentCopy.certificate}
@@ -2298,8 +2308,7 @@ function CourseWorkspaceUnlocked({
                 type="button"
                 onClick={requestCertificate}
                 disabled={
-                  !currentEnrollment ||
-                  requestCertificateMutation.isPending
+                  !currentEnrollment || requestCertificateMutation.isPending
                 }
                 className="mt-4 w-full bg-[#16243d] text-[#f7f3e8]"
               >
@@ -2352,7 +2361,9 @@ function CourseWorkspaceUnlocked({
                   onClick={() => void shareCertificate("linkedin")}
                   aria-disabled={!canonicalCertificate}
                   className={`inline-flex items-center justify-center gap-2 border border-[#16243d]/25 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:border-[#16243d]/60 hover:bg-[#16243d]/5 disabled:opacity-50 ${
-                    !canonicalCertificate ? "opacity-50 pointer-events-none" : ""
+                    !canonicalCertificate
+                      ? "opacity-50 pointer-events-none"
+                      : ""
                   }`}
                 >
                   <Share2 size={15} /> LinkedIn
@@ -2373,7 +2384,9 @@ function CourseWorkspaceUnlocked({
                   onClick={() => void shareCertificate("facebook")}
                   aria-disabled={!canonicalCertificate}
                   className={`inline-flex items-center justify-center gap-2 border border-[#16243d]/25 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:border-[#16243d]/60 hover:bg-[#16243d]/5 disabled:opacity-50 ${
-                    !canonicalCertificate ? "opacity-50 pointer-events-none" : ""
+                    !canonicalCertificate
+                      ? "opacity-50 pointer-events-none"
+                      : ""
                   }`}
                 >
                   Facebook
@@ -2394,7 +2407,9 @@ function CourseWorkspaceUnlocked({
                   onClick={() => void shareCertificate("whatsapp")}
                   aria-disabled={!canonicalCertificate}
                   className={`inline-flex items-center justify-center gap-2 border border-[#16243d]/25 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:border-[#16243d]/60 hover:bg-[#16243d]/5 disabled:opacity-50 ${
-                    !canonicalCertificate ? "opacity-50 pointer-events-none" : ""
+                    !canonicalCertificate
+                      ? "opacity-50 pointer-events-none"
+                      : ""
                   }`}
                 >
                   WhatsApp
@@ -2415,7 +2430,9 @@ function CourseWorkspaceUnlocked({
                   onClick={() => void shareCertificate("twitter")}
                   aria-disabled={!canonicalCertificate}
                   className={`inline-flex items-center justify-center gap-2 border border-[#16243d]/25 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:border-[#16243d]/60 hover:bg-[#16243d]/5 disabled:opacity-50 ${
-                    !canonicalCertificate ? "opacity-50 pointer-events-none" : ""
+                    !canonicalCertificate
+                      ? "opacity-50 pointer-events-none"
+                      : ""
                   }`}
                 >
                   X/Twitter
@@ -2636,13 +2653,13 @@ function CourseWorkspaceUnlocked({
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-[.14em] text-accent-on-dark">
-                         {enrollmentCopy.details} · 25-minute study timer
+                        {enrollmentCopy.details} · 25-minute study timer
                       </p>
-                       <p className="mt-1 text-xs leading-5 text-muted-on-dark">
-                         {activeLessonTimerComplete
-                           ? "Time complete — the next lesson is unlocked."
-                           : "Stay in this lesson until the timer reaches zero."}
-                       </p>
+                      <p className="mt-1 text-xs leading-5 text-muted-on-dark">
+                        {activeLessonTimerComplete
+                          ? "Time complete — the next lesson is unlocked."
+                          : "Stay in this lesson until the timer reaches zero."}
+                      </p>
                     </div>
                     <span
                       role="timer"
@@ -2662,9 +2679,9 @@ function CourseWorkspaceUnlocked({
                   <div className="mt-3 h-2 overflow-hidden bg-white/15">
                     <div
                       className="h-full bg-[#c9a34e] transition-[width] duration-1000"
-                       style={{
-                         width: `${Math.min(100, Math.round(((1500 - activeLessonSecondsRemaining) / 1500) * 100))}%`,
-                       }}
+                      style={{
+                        width: `${Math.min(100, Math.round(((1500 - activeLessonSecondsRemaining) / 1500) * 100))}%`,
+                      }}
                     />
                   </div>
                 </div>
@@ -2735,7 +2752,7 @@ function CourseWorkspaceUnlocked({
                                   `${activeLesson.id}:section:${sectionIndex}`
                                 )
                               }
-                               className="text-[10px] font-black uppercase tracking-[.1em] text-accent-on-dark"
+                              className="text-[10px] font-black uppercase tracking-[.1em] text-accent-on-dark"
                             >
                               {bookmarks.includes(
                                 `${activeLesson.id}:section:${sectionIndex}`
@@ -2765,16 +2782,16 @@ function CourseWorkspaceUnlocked({
                           onClick={() =>
                             toggleBookmark(`${activeLesson.id}:simulation`)
                           }
-                           className="text-[10px] font-black uppercase tracking-[.1em] text-accent-on-dark"
+                          className="text-[10px] font-black uppercase tracking-[.1em] text-accent-on-dark"
                         >
                           {bookmarks.includes(`${activeLesson.id}:simulation`)
                             ? assessmentCopy.saved
                             : assessmentCopy.saveForLater}
                         </button>
                       </div>
-                       <p className="mt-2 text-sm leading-6 text-muted-on-dark">
-                         {activeLesson.simulation.prompt}
-                       </p>
+                      <p className="mt-2 text-sm leading-6 text-muted-on-dark">
+                        {activeLesson.simulation.prompt}
+                      </p>
                       <div className="mt-4 grid gap-2">
                         {activeLesson.simulation.options.map(
                           (option, index) => (
@@ -3160,7 +3177,7 @@ function CourseWorkspaceUnlocked({
                                 );
                                 setLessonStage(2);
                               }}
-                               className={`border p-3 text-left text-xs leading-5 transition ${experientialChoice === index ? "border-[#8b4f63] bg-[#fff0f3] text-[#8b4f63]" : "border-[#16243d]/15 bg-white/70 hover:border-[#8b4f63] hover:bg-[#8b4f63]/5"}`}
+                              className={`border p-3 text-left text-xs leading-5 transition ${experientialChoice === index ? "border-[#8b4f63] bg-[#fff0f3] text-[#8b4f63]" : "border-[#16243d]/15 bg-white/70 hover:border-[#8b4f63] hover:bg-[#8b4f63]/5"}`}
                             >
                               <span className="mr-2 font-black text-[#8b4f63]">
                                 {String.fromCharCode(65 + index)}.
@@ -3199,7 +3216,7 @@ function CourseWorkspaceUnlocked({
                       />
                     </section>
                     <p className="mt-4 text-xs leading-5 text-muted-on-dark">
-                       Work in one uninterrupted 25-minute block: orient,
+                      Work in one uninterrupted 25-minute block: orient,
                       practise, respond, reflect, and record your next action.
                     </p>
                   </aside>
@@ -3221,16 +3238,16 @@ function CourseWorkspaceUnlocked({
                   <Button
                     type="button"
                     onClick={() => {
-                      if (!activeLessonTimerComplete) {
+                      if (!activeLessonTimerComplete && !accessOverride) {
                         toast.info("Lesson timer still running", {
-                           description: `The lesson must remain open for 25 minutes and every response must be saved. ${formatCountdown(activeLessonSecondsRemaining)} remaining.`,
+                          description: `The lesson must remain open for 25 minutes and every response must be saved. ${formatCountdown(activeLessonSecondsRemaining)} remaining.`,
                         });
                         return;
                       }
                       toggleLesson(activeLesson.id);
                     }}
                     disabled={
-                      !activeLessonTimerComplete ||
+                      (!activeLessonTimerComplete && !accessOverride) ||
                       !lessonResponsesComplete ||
                       progress.lessons.includes(activeLesson.id)
                     }
@@ -3238,14 +3255,14 @@ function CourseWorkspaceUnlocked({
                   >
                     {progress.lessons.includes(activeLesson.id)
                       ? "Lesson complete"
-                      : activeLessonTimerComplete
+                      : activeLessonTimerComplete || accessOverride
                         ? "Mark lesson complete"
                         : `Complete in ${formatCountdown(activeLessonSecondsRemaining)}`}
                   </Button>
                   <Button
                     type="button"
                     onClick={continueToNextLesson}
-                    disabled={!activeLessonTimerComplete}
+                    disabled={!activeLessonTimerComplete && !accessOverride}
                     className="bg-[#c9a34e] text-[#16243d]"
                   >
                     {nextLesson ? "Next lesson" : "Close lesson"}{" "}
@@ -3597,7 +3614,9 @@ function CourseWorkspaceUnlocked({
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="eyebrow text-accent-on-dark">Certificate preview</p>
+                <p className="eyebrow text-accent-on-dark">
+                  Certificate preview
+                </p>
                 <h2
                   id="certificate-print-preview-title"
                   className="display mt-2 text-2xl sm:text-3xl"

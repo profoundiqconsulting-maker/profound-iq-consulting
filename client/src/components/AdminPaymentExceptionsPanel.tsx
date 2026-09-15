@@ -65,7 +65,7 @@ export default function AdminPaymentExceptionsPanel() {
     <section className="mt-10 border border-[#c9a34e]/60 bg-[#fffaf0] p-5 sm:p-6">
       <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 lg:flex-row lg:items-end">
         <div>
-          <p className="eyebrow flex items-center gap-2 text-[#a27e2e]">
+          <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
             <ShieldCheck size={13} /> Payments / exception control
           </p>
           <h2 className="display mt-3 text-3xl">Reconcile the edges.</h2>
@@ -141,7 +141,7 @@ export default function AdminPaymentExceptionsPanel() {
       </div>
       {payments.isLoading ? (
         <div className="mt-6 flex items-center gap-2 text-sm text-[#657084]">
-          <RefreshCw size={15} className="animate-spin text-[#a27e2e]" />{" "}
+          <RefreshCw size={15} className="animate-spin text-[#7d5e1e]" />{" "}
           Loading payment records…
         </div>
       ) : payments.isError ? (
@@ -159,7 +159,7 @@ export default function AdminPaymentExceptionsPanel() {
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <span
-                      className={`inline-flex items-center gap-1 px-2 py-1 text-[9px] font-black uppercase tracking-[.1em] ${stage.paymentStatus === "paid" ? "bg-emerald-100 text-emerald-800" : stage.paymentStatus === "failed" ? "bg-red-100 text-red-800" : "bg-[#ead9ae] text-[#7d5e1e]"}`}
+                      className={`inline-flex items-center gap-1 px-2 py-1 text-[9px] font-black uppercase tracking-[.1em] ${stage.paymentStatus === "paid" ? "bg-emerald-100 text-emerald-800" : stage.paymentStatus === "failed" ? "bg-red-100 text-red-800" : "bg-[#ead9ae] text-[#5d4613]"}`}
                     >
                       {stage.paymentStatus === "paid" ? (
                         <CheckCircle2 size={12} />
@@ -170,7 +170,7 @@ export default function AdminPaymentExceptionsPanel() {
                       )}
                       {stage.paymentStatus}
                     </span>
-                    <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                    <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                       Stage {stage.stage} / 4
                     </span>
                   </div>
@@ -267,7 +267,7 @@ export default function AdminPaymentExceptionsPanel() {
         </p>
       ) : (
         <div className="mt-8 border-t border-[#16243d]/10 pt-6">
-          <p className="eyebrow flex items-center gap-2 text-[#a27e2d]">
+          <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
             <Clock size={13} /> Reconciliation activity
           </p>
           {recentLog.data?.length === 0 && !recentLog.isLoading ? (

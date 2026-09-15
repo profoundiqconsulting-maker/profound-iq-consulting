@@ -150,7 +150,8 @@ export default function Home() {
   const [mathA, setMathA] = useState(() => Math.floor(Math.random() * 9) + 2);
   const [mathB, setMathB] = useState(() => Math.floor(Math.random() * 9) + 2);
   const [catalogLevel, setCatalogLevel] = useState<string>("All levels");
-  const [catalogCategory, setCatalogCategory] = useState<string>("All categories");
+  const [catalogCategory, setCatalogCategory] =
+    useState<string>("All categories");
   const [catalogPage, setCatalogPage] = useState(1);
   const CATALOG_PAGE_SIZE = 6;
   const [selectedCourse, setSelectedCourse] = useState<
@@ -195,7 +196,10 @@ export default function Home() {
         isDatabaseItem: true,
       };
     });
-    return [...merged, ...Array.from(bySlug.values())] as (typeof baseCourses)[number][];
+    return [
+      ...merged,
+      ...Array.from(bySlug.values()),
+    ] as (typeof baseCourses)[number][];
   }, [liveCatalog.data]);
 
   const uniqueLevels = Array.from(
@@ -207,7 +211,10 @@ export default function Home() {
   const filteredCatalog = courses.filter(course => {
     if (catalogLevel !== "All levels" && course.skillLevel !== catalogLevel)
       return false;
-    if (catalogCategory !== "All categories" && course.category !== catalogCategory)
+    if (
+      catalogCategory !== "All categories" &&
+      course.category !== catalogCategory
+    )
       return false;
     return true;
   });
@@ -216,7 +223,7 @@ export default function Home() {
     Math.ceil(filteredCatalog.length / CATALOG_PAGE_SIZE)
   );
   const pagedCatalog = filteredCatalog.slice(
-    (catalogPage - 1) * CATALOG_PAGE_SIZE,
+    0,
     catalogPage * CATALOG_PAGE_SIZE
   );
 
@@ -316,7 +323,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-[url('/profound-hero-f95a7f36_76e0eb6f.svg')] bg-cover bg-center opacity-20" />
           <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/70 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent" />
-          
+
           <div className="container relative px-6 py-24 lg:px-8 lg:py-32">
             <div className="grid items-center gap-16 lg:grid-cols-2">
               <div className="max-w-2xl">
@@ -324,16 +331,19 @@ export default function Home() {
                   <Sparkles size={14} />
                   Executive Assessment & Development
                 </div>
-                
+
                 <h1 className="mt-8 text-5xl leading-[1.1] tracking-tight lg:text-7xl">
                   Transform potential into{" "}
                   <span className="bg-gradient-to-r from-amber-300 to-amber-500 bg-clip-text text-transparent">
                     measurable impact
                   </span>
                 </h1>
-                
+
                 <p className="mt-8 text-lg leading-relaxed text-slate-300 lg:text-xl">
-                  Profound IQ Consulting helps professionals and organizations move from raw potential to purposeful impact through evidence-based learning, assessment, and strategic development.
+                  Profound IQ Consulting helps professionals and organizations
+                  move from raw potential to purposeful impact through
+                  evidence-based learning, assessment, and strategic
+                  development.
                 </p>
 
                 <div className="mt-10 flex flex-wrap gap-4">
@@ -342,7 +352,10 @@ export default function Home() {
                     className="group inline-flex items-center gap-3 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-8 py-4 text-sm font-bold uppercase tracking-wider text-slate-900 shadow-lg shadow-amber-500/25 transition-all hover:gap-4 hover:shadow-xl hover:shadow-amber-500/40"
                   >
                     Take the KES 399 assessment
-                    <ArrowUpRight size={18} className="transition-transform group-hover:translate-x-0.5" />
+                    <ArrowUpRight
+                      size={18}
+                      className="transition-transform group-hover:translate-x-0.5"
+                    />
                   </a>
                   <a
                     href="#offerings"
@@ -363,7 +376,9 @@ export default function Home() {
                     ))}
                   </div>
                   <div>
-                    <p className="font-semibold text-white">Trusted by 500+ organizations</p>
+                    <p className="font-semibold text-white">
+                      Trusted by 500+ organizations
+                    </p>
                     <p className="text-xs">Across Kenya and beyond</p>
                   </div>
                 </div>
@@ -379,8 +394,12 @@ export default function Home() {
                           <Award className="h-6 w-6 text-amber-400" />
                         </div>
                         <div>
-                          <p className="font-semibold text-white">Professional Courses</p>
-                          <p className="text-sm text-slate-400">50+ expert-led programs</p>
+                          <p className="font-semibold text-white">
+                            Professional Courses
+                          </p>
+                          <p className="text-sm text-slate-400">
+                            50+ expert-led programs
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-4 rounded-xl bg-white/5 p-4">
@@ -388,8 +407,12 @@ export default function Home() {
                           <BarChart3 className="h-6 w-6 text-blue-400" />
                         </div>
                         <div>
-                          <p className="font-semibold text-white">Psychometric Testing</p>
-                          <p className="text-sm text-slate-400">Evidence-based insights</p>
+                          <p className="font-semibold text-white">
+                            Psychometric Testing
+                          </p>
+                          <p className="text-sm text-slate-400">
+                            Evidence-based insights
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-4 rounded-xl bg-white/5 p-4">
@@ -397,8 +420,12 @@ export default function Home() {
                           <Users className="h-6 w-6 text-emerald-400" />
                         </div>
                         <div>
-                          <p className="font-semibold text-white">1-on-1 Coaching</p>
-                          <p className="text-sm text-slate-400">Personalized development</p>
+                          <p className="font-semibold text-white">
+                            1-on-1 Coaching
+                          </p>
+                          <p className="text-sm text-slate-400">
+                            Personalized development
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -414,7 +441,9 @@ export default function Home() {
                   <div className="text-4xl font-bold text-amber-400 lg:text-5xl">
                     {stat.value}
                   </div>
-                  <div className="mt-2 text-sm text-slate-400">{stat.label}</div>
+                  <div className="mt-2 text-sm text-slate-400">
+                    {stat.label}
+                  </div>
                 </div>
               ))}
             </div>
@@ -432,7 +461,8 @@ export default function Home() {
                 Comprehensive development solutions
               </h2>
               <p className="mt-4 max-w-2xl mx-auto text-lg text-slate-600">
-                From individual assessments to organizational consulting, we provide the tools and expertise to drive meaningful growth.
+                From individual assessments to organizational consulting, we
+                provide the tools and expertise to drive meaningful growth.
               </p>
             </div>
 
@@ -586,7 +616,9 @@ export default function Home() {
                 Choose the capability you want to build
               </h2>
               <p className="mt-4 max-w-2xl text-lg text-slate-600">
-                Each course is designed to meet professional standards while giving you a practical path from reflection to measurable progress.
+                Each course is designed to meet professional standards while
+                giving you a practical path from reflection to measurable
+                progress.
               </p>
             </div>
 
@@ -641,14 +673,24 @@ export default function Home() {
                         {course.body}
                       </p>
                       <div className="mt-6 flex flex-wrap gap-4">
-                        <button
-                          type="button"
-                          onClick={() => openEnrollment(course)}
-                          className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-all hover:bg-slate-800"
-                        >
-                          Enroll now
-                          <ArrowUpRight size={14} />
-                        </button>
+                        {course.modules.length ? (
+                          <a
+                            href={`/courses/${course.slug}?workspace=1`}
+                            className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-all hover:bg-slate-800"
+                          >
+                            Enroll now
+                            <ArrowUpRight size={14} />
+                          </a>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => openEnrollment(course)}
+                            className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-all hover:bg-slate-800"
+                          >
+                            Enroll now
+                            <ArrowUpRight size={14} />
+                          </button>
+                        )}
                         <a
                           href={
                             course.modules.length
@@ -657,7 +699,9 @@ export default function Home() {
                           }
                           className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700 transition-colors hover:text-amber-600"
                         >
-                          {course.modules.length ? "Open syllabus" : "Discuss item"}
+                          {course.modules.length
+                            ? "Open syllabus"
+                            : "Discuss item"}
                           <ChevronRight size={14} />
                         </a>
                       </div>
@@ -705,7 +749,8 @@ export default function Home() {
                   Make the next step deliberate
                 </h2>
                 <p className="mt-6 text-lg leading-relaxed text-slate-300">
-                  Tell us what you are working toward. We will help you see the path with more clarity.
+                  Tell us what you are working toward. We will help you see the
+                  path with more clarity.
                 </p>
                 <div className="mt-10 space-y-6">
                   <a
@@ -752,7 +797,8 @@ export default function Home() {
                   Start with a question
                 </h3>
                 <p className="mt-2 text-sm text-slate-600">
-                  Fill out the form below and we'll get back to you within 24 hours.
+                  Fill out the form below and we'll get back to you within 24
+                  hours.
                 </p>
 
                 {sent && (
@@ -918,7 +964,8 @@ export default function Home() {
                   Your interest is recorded.
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                  Thank you for choosing {selectedCourse.title}. Our team will follow up using the email you provided.
+                  Thank you for choosing {selectedCourse.title}. Our team will
+                  follow up using the email you provided.
                 </p>
                 <button
                   type="button"
@@ -996,7 +1043,9 @@ export default function Home() {
                       htmlFor="enrollment-consent"
                       className="text-sm leading-relaxed text-slate-600"
                     >
-                      I consent to Profound IQ Consulting using my name and email to respond to this enrollment inquiry, in line with our privacy policy.
+                      I consent to Profound IQ Consulting using my name and
+                      email to respond to this enrollment inquiry, in line with
+                      our privacy policy.
                     </label>
                   </div>
 
@@ -1023,7 +1072,9 @@ export default function Home() {
             <div>
               <BrandLogo context="footer" />
               <p className="mt-6 max-w-sm text-sm leading-relaxed text-slate-400">
-                Transformational learning, educational consulting, school improvement, psychometric insight, and professional development for a changing world.
+                Transformational learning, educational consulting, school
+                improvement, psychometric insight, and professional development
+                for a changing world.
               </p>
               <a
                 href="/contact"
@@ -1077,22 +1128,40 @@ export default function Home() {
                 Quick Links
               </p>
               <div className="mt-6 grid gap-3">
-                <a href="/about" className="text-sm text-slate-400 transition-colors hover:text-white">
+                <a
+                  href="/about"
+                  className="text-sm text-slate-400 transition-colors hover:text-white"
+                >
                   About
                 </a>
-                <a href="/services" className="text-sm text-slate-400 transition-colors hover:text-white">
+                <a
+                  href="/services"
+                  className="text-sm text-slate-400 transition-colors hover:text-white"
+                >
                   Services
                 </a>
-                <a href="/courses" className="text-sm text-slate-400 transition-colors hover:text-white">
+                <a
+                  href="/courses"
+                  className="text-sm text-slate-400 transition-colors hover:text-white"
+                >
                   Courses
                 </a>
-                <a href="/assessment" className="text-sm text-slate-400 transition-colors hover:text-white">
+                <a
+                  href="/assessment"
+                  className="text-sm text-slate-400 transition-colors hover:text-white"
+                >
                   Self Assessment
                 </a>
-                <a href="/resources" className="text-sm text-slate-400 transition-colors hover:text-white">
+                <a
+                  href="/resources"
+                  className="text-sm text-slate-400 transition-colors hover:text-white"
+                >
                   Resources
                 </a>
-                <a href="/contact" className="text-sm text-slate-400 transition-colors hover:text-white">
+                <a
+                  href="/contact"
+                  className="text-sm text-slate-400 transition-colors hover:text-white"
+                >
                   Contact
                 </a>
               </div>

@@ -9,8 +9,16 @@ interface DashboardHeroProps {
   title: string;
   description?: string;
   actions?: React.ReactNode;
-  badge?: { label: string; variant?: "default" | "secondary" | "outline" | "destructive" };
-  stats?: Array<{ label: string; value: string | number; trend?: { value: number; label: string }; icon?: React.ReactNode }>;
+  badge?: {
+    label: string;
+    variant?: "default" | "secondary" | "outline" | "destructive";
+  };
+  stats?: Array<{
+    label: string;
+    value: string | number;
+    trend?: { value: number; label: string };
+    icon?: React.ReactNode;
+  }>;
 }
 
 export function DashboardHero({
@@ -26,15 +34,18 @@ export function DashboardHero({
   const displayName = user?.name?.split(" ")[0] || "there";
 
   return (
-<div className="mb-8">
+    <div className="mb-8">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div className="min-w-0">
           <div className="flex items-center gap-3 mb-2">
-            <p className="text-[10px] font-black uppercase tracking-[.14em] text-accent dark:text-accent-on-dark">
+            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e] dark:text-accent-on-dark">
               {eyebrow}
             </p>
             {badge && (
-              <Badge variant={badge.variant || "secondary"} className="text-[9px] font-black uppercase tracking-[.08em]">
+              <Badge
+                variant={badge.variant || "secondary"}
+                className="text-[9px] font-black uppercase tracking-[.08em]"
+              >
                 {badge.label}
               </Badge>
             )}
@@ -49,7 +60,10 @@ export function DashboardHero({
           )}
           {user && (
             <p className="mt-2 text-xs text-foreground">
-              Welcome back, <span className="font-semibold text-foreground">{displayName}</span>
+              Welcome back,{" "}
+              <span className="font-semibold text-foreground">
+                {displayName}
+              </span>
             </p>
           )}
         </div>
@@ -60,16 +74,22 @@ export function DashboardHero({
       {stats && stats.length > 0 && (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat, index) => (
-              <Card key={index} className="border border-border bg-card backdrop-blur-sm p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-                <p className="text-[10px] font-black uppercase tracking-[.12em] text-foreground">
-                  {stat.label}
-                </p>
+            <Card
+              key={index}
+              className="border border-border bg-card backdrop-blur-sm p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+            >
+              <p className="text-[10px] font-black uppercase tracking-[.12em] text-foreground">
+                {stat.label}
+              </p>
               <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">
                 {stat.value}
               </p>
               {stat.trend && (
-                <p className={`mt-1 text-xs font-medium ${stat.trend.value >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
-                  {stat.trend.value >= 0 ? "+" : ""}{stat.trend.value} {stat.trend.label}
+                <p
+                  className={`mt-1 text-xs font-medium ${stat.trend.value >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}
+                >
+                  {stat.trend.value >= 0 ? "+" : ""}
+                  {stat.trend.value} {stat.trend.label}
                 </p>
               )}
             </Card>
@@ -79,5 +99,3 @@ export function DashboardHero({
     </div>
   );
 }
-
-

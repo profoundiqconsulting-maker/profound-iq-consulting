@@ -73,14 +73,23 @@ export type CourseRecord = {
 
 type CourseStatus = "not-started" | "in-progress" | "completed" | "expired";
 
-function getCourseStatus(record: CourseRecord, courseModules: { id: string; title: string; lessons: Array<{ id: string }> }[] | undefined): CourseStatus {
+function getCourseStatus(
+  record: CourseRecord,
+  courseModules:
+    | { id: string; title: string; lessons: Array<{ id: string }> }[]
+    | undefined
+): CourseStatus {
   const hasLessons = (record.lessons?.length ?? 0) > 0;
-  const hasPassedQuiz = (record.quizAttempts ?? []).some(attempt => attempt.passed);
+  const hasPassedQuiz = (record.quizAttempts ?? []).some(
+    attempt => attempt.passed
+  );
   const hasCertificate = (record.certificates?.length ?? 0) > 0;
   const hasFailedPayment = (record.stages ?? []).some(
-    stage => stage.paymentStatus === "failed" || stage.paymentStatus === "cancelled"
+    stage =>
+      stage.paymentStatus === "failed" || stage.paymentStatus === "cancelled"
   );
-  const allStagesPaid = (record.stages ?? []).length >= 4 &&
+  const allStagesPaid =
+    (record.stages ?? []).length >= 4 &&
     record.stages.every(stage => stage.paymentStatus === "paid");
 
   if (hasFailedPayment && !allStagesPaid) return "expired";
@@ -88,14 +97,19 @@ function getCourseStatus(record: CourseRecord, courseModules: { id: string; titl
 
   const modules = courseModules ?? [];
   const badges = buildCourseModuleBadges({
-    modules: modules.map(m => ({ id: m.id, title: m.title, lessons: m.lessons })),
+    modules: modules.map(m => ({
+      id: m.id,
+      title: m.title,
+      lessons: m.lessons,
+    })),
     completedLessonIds: (record.lessons ?? []).map(l => l.lessonId),
     passedQuizModuleIds: (record.quizAttempts ?? [])
       .filter(attempt => attempt.passed)
       .map(attempt => attempt.moduleId),
   });
 
-  const allModulesEarned = badges.length > 0 && badges.every(badge => badge.status === "earned");
+  const allModulesEarned =
+    badges.length > 0 && badges.every(badge => badge.status === "earned");
   if (allModulesEarned && hasCertificate) return "completed";
 
   return "in-progress";
@@ -107,7 +121,8 @@ function getStatusConfig(status: CourseStatus) {
       return {
         label: "Not Started",
         eyebrow: "Ready to begin",
-        description: "Courses you have enrolled in but have not yet started learning.",
+        description:
+          "Courses you have enrolled in but have not yet started learning.",
         actionLabel: "Start course",
         actionIcon: BookOpen,
         colorClass: "text-muted-foreground",
@@ -117,7 +132,8 @@ function getStatusConfig(status: CourseStatus) {
       return {
         label: "In Progress",
         eyebrow: "Keep going",
-        description: "Courses you are actively working through. Pick up where you left off.",
+        description:
+          "Courses you are actively working through. Pick up where you left off.",
         actionLabel: "Continue",
         actionIcon: ChevronRight,
         colorClass: "text-[#7d5e1e]",
@@ -127,7 +143,8 @@ function getStatusConfig(status: CourseStatus) {
       return {
         label: "Completed",
         eyebrow: "Well done",
-        description: "Courses you have finished. Review your achievements or download your certificate.",
+        description:
+          "Courses you have finished. Review your achievements or download your certificate.",
         actionLabel: "Review",
         actionIcon: Trophy,
         colorClass: "text-emerald-700",
@@ -137,7 +154,8 @@ function getStatusConfig(status: CourseStatus) {
       return {
         label: "Expired",
         eyebrow: "Access lapsed",
-        description: "These enrollments need payment attention to restore access.",
+        description:
+          "These enrollments need payment attention to restore access.",
         actionLabel: "Re-enroll",
         actionIcon: RefreshCw,
         colorClass: "text-red-700",
@@ -148,19 +166,23 @@ function getStatusConfig(status: CourseStatus) {
 
 export default function DashboardEnrolledCourses() {
   const { t } = useLocale();
-  const courseHistory = trpc.course.state.useQuery(undefined, { enabled: true });
+  const courseHistory = trpc.course.state.useQuery(undefined, {
+    enabled: true,
+  });
 
   const categorized = useMemo(() => {
     const records = (courseHistory.data ?? []) as CourseRecord[];
     const groups: Record<CourseStatus, CourseRecord[]> = {
       "not-started": [],
       "in-progress": [],
-      "completed": [],
-      "expired": [],
+      completed: [],
+      expired: [],
     };
 
     for (const record of records) {
-      const course = courseCatalog.find(item => item.slug === record.enrollment.courseSlug);
+      const course = courseCatalog.find(
+        item => item.slug === record.enrollment.courseSlug
+      );
       const status = getCourseStatus(record, course?.modules);
       groups[status].push(record);
     }
@@ -209,7 +231,9 @@ export default function DashboardEnrolledCourses() {
   const shareCertificate = async (record: CourseRecord) => {
     const cert = record.certificates[0];
     if (!cert) return;
-    const course = courseCatalog.find(item => item.slug === record.enrollment.courseSlug);
+    const course = courseCatalog.find(
+      item => item.slug === record.enrollment.courseSlug
+    );
     const shareData = {
       title: `Profound IQ Consulting - ${course?.title ?? "Course"} completed`,
       text: `I completed ${course?.title ?? "a professional course"} with Profound IQ Consulting.`,
@@ -235,7 +259,9 @@ export default function DashboardEnrolledCourses() {
       <DashboardLayout role="user" title="Enrolled Courses">
         <div className="flex flex-col items-center justify-center gap-3 py-20">
           <RefreshCw className="animate-spin text-accent" size={24} />
-          <p className="text-sm font-semibold text-muted-foreground">Loading your enrolled courses...</p>
+          <p className="text-sm font-semibold text-muted-foreground">
+            Loading your enrolled courses...
+          </p>
         </div>
       </DashboardLayout>
     );
@@ -265,7 +291,9 @@ export default function DashboardEnrolledCourses() {
         ]}
       />
 
-      {(["not-started", "in-progress", "completed", "expired"] as CourseStatus[]).map(status => {
+      {(
+        ["not-started", "in-progress", "completed", "expired"] as CourseStatus[]
+      ).map(status => {
         const records = categorized[status];
         const config = getStatusConfig(status);
         const ActionIcon = config.actionIcon;
@@ -297,18 +325,26 @@ export default function DashboardEnrolledCourses() {
 
                 const badges = buildCourseModuleBadges({
                   modules: course.modules,
-                  completedLessonIds: (record.lessons ?? []).map(l => l.lessonId),
+                  completedLessonIds: (record.lessons ?? []).map(
+                    l => l.lessonId
+                  ),
                   passedQuizModuleIds: (record.quizAttempts ?? [])
                     .filter(attempt => attempt.passed)
                     .map(attempt => attempt.moduleId),
                 });
 
-                const earnedBadges = badges.filter(b => b.status === "earned").length;
+                const earnedBadges = badges.filter(
+                  b => b.status === "earned"
+                ).length;
                 const latestQuiz = (record.quizAttempts ?? [])
                   .filter(a => a.passed)
                   .sort((a, b) => {
-                    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-                    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                    const dateA = a.createdAt
+                      ? new Date(a.createdAt).getTime()
+                      : 0;
+                    const dateB = b.createdAt
+                      ? new Date(b.createdAt).getTime()
+                      : 0;
                     return dateB - dateA;
                   })[0];
 
@@ -338,7 +374,7 @@ export default function DashboardEnrolledCourses() {
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                       <div className="absolute bottom-3 left-4 right-4">
-                         <p className="text-[9px] font-black uppercase tracking-[.14em] text-accent-on-dark dark:text-gold-on-light">
+                        <p className="text-[9px] font-black uppercase tracking-[.14em] text-accent-on-dark dark:text-gold-on-light">
                           {course.category}
                         </p>
                         <h3 className="display mt-1 text-lg leading-tight text-white">
@@ -371,15 +407,19 @@ export default function DashboardEnrolledCourses() {
                             {rollup.learningPercent}% complete
                           </span>
                           <span className="text-muted-foreground">
-                            {rollup.completedModules}/{course.modules.length} modules
+                            {rollup.completedModules}/{course.modules.length}{" "}
+                            modules
                           </span>
                         </div>
-                        <Progress value={rollup.learningPercent} className="h-1.5 transition-all duration-300" />
+                        <Progress
+                          value={rollup.learningPercent}
+                          className="h-1.5 transition-all duration-300"
+                        />
                       </div>
 
-                        <div className="grid grid-cols-3 gap-2 mb-4">
+                      <div className="grid grid-cols-3 gap-2 mb-4">
                         <div className="text-center p-2 bg-[#f7f3e8] rounded-lg transition-colors hover:bg-[#f0e8d0]">
-                          <p className="text-[10px] font-black uppercase tracking-[.08em] text-accent dark:text-accent-on-dark">
+                          <p className="text-[10px] font-black uppercase tracking-[.08em] text-[#7d5e1e] dark:text-accent-on-dark">
                             Lessons
                           </p>
                           <p className="mt-1 text-sm font-bold text-foreground">
@@ -387,7 +427,7 @@ export default function DashboardEnrolledCourses() {
                           </p>
                         </div>
                         <div className="text-center p-2 bg-[#f7f3e8] rounded-lg transition-colors hover:bg-[#f0e8d0]">
-                          <p className="text-[10px] font-black uppercase tracking-[.08em] text-accent dark:text-accent-on-dark">
+                          <p className="text-[10px] font-black uppercase tracking-[.08em] text-[#7d5e1e] dark:text-accent-on-dark">
                             Badges
                           </p>
                           <p className="mt-1 text-sm font-bold text-foreground">
@@ -395,7 +435,7 @@ export default function DashboardEnrolledCourses() {
                           </p>
                         </div>
                         <div className="text-center p-2 bg-[#f7f3e8] rounded-lg transition-colors hover:bg-[#f0e8d0]">
-                          <p className="text-[10px] font-black uppercase tracking-[.08em] text-accent dark:text-accent-on-dark">
+                          <p className="text-[10px] font-black uppercase tracking-[.08em] text-[#7d5e1e] dark:text-accent-on-dark">
                             Payment
                           </p>
                           <p className="mt-1 text-sm font-bold text-foreground">
@@ -406,13 +446,18 @@ export default function DashboardEnrolledCourses() {
 
                       {status === "not-started" && (
                         <p className="text-xs text-muted-foreground mb-4">
-                          You have not started this course yet. Begin your learning journey today.
+                          You have not started this course yet. Begin your
+                          learning journey today.
                         </p>
                       )}
                       {status === "in-progress" && latestQuiz && (
                         <div className="flex items-center gap-2 mb-3 text-xs">
-                          <span className="text-muted-foreground">Latest quiz:</span>
-                          <span className={`font-bold ${latestQuiz.passed ? "text-emerald-700" : "text-[#7d5e1e]"}`}>
+                          <span className="text-muted-foreground">
+                            Latest quiz:
+                          </span>
+                          <span
+                            className={`font-bold ${latestQuiz.passed ? "text-emerald-700" : "text-[#7d5e1e]"}`}
+                          >
                             {latestQuiz.score}%
                           </span>
                         </div>
@@ -421,7 +466,11 @@ export default function DashboardEnrolledCourses() {
                       <div className="flex items-center justify-between gap-2">
                         <Link href={`/courses/${record.enrollment.courseSlug}`}>
                           <Button
-                            variant={status === "completed" || status === "in-progress" ? "default" : "outline"}
+                            variant={
+                              status === "completed" || status === "in-progress"
+                                ? "default"
+                                : "outline"
+                            }
                             size="sm"
                             className={
                               status === "completed" || status === "in-progress"
@@ -430,7 +479,9 @@ export default function DashboardEnrolledCourses() {
                             }
                           >
                             <ActionIcon size={14} className="mr-1.5" />
-                            {status === "completed" && record.certificates[0] ? "Review" : config.actionLabel}
+                            {status === "completed" && record.certificates[0]
+                              ? "Review"
+                              : config.actionLabel}
                           </Button>
                         </Link>
 
@@ -458,7 +509,9 @@ export default function DashboardEnrolledCourses() {
                         )}
 
                         {status === "expired" && (
-                          <Link href={`/courses/${record.enrollment.courseSlug}`}>
+                          <Link
+                            href={`/courses/${record.enrollment.courseSlug}`}
+                          >
                             <Button
                               variant="outline"
                               size="sm"
@@ -490,7 +543,8 @@ export default function DashboardEnrolledCourses() {
               <BookOpen size={28} className="text-muted-foreground" />
             </div>
             <p className="text-sm text-foreground max-w-sm">
-              You have not enrolled in any courses yet. Explore our professional courses to begin your learning journey.
+              You have not enrolled in any courses yet. Explore our professional
+              courses to begin your learning journey.
             </p>
             <Link href="/courses">
               <Button className="bg-[#16243d] text-[#f7f3e8] hover:bg-[#0f1a2e] transition-colors">

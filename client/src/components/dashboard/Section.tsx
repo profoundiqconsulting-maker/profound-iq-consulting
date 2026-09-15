@@ -41,7 +41,7 @@ export function Section({
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div className="min-w-0">
               {eyebrow && (
-                <p className="text-[10px] font-black uppercase tracking-[.14em] text-accent dark:text-accent-on-dark">
+                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e] dark:text-accent-on-dark">
                   {eyebrow}
                 </p>
               )}
@@ -62,13 +62,23 @@ export function Section({
           </div>
         </div>
       )}
-      {stats && <div className="border-b border-border bg-muted/30 px-5 py-4 sm:px-7">{stats}</div>}
-      {filters && <div className="border-b border-border bg-card/70 px-5 py-3 sm:px-7">{filters}</div>}
+      {stats && (
+        <div className="border-b border-border bg-muted/30 px-5 py-4 sm:px-7">
+          {stats}
+        </div>
+      )}
+      {filters && (
+        <div className="border-b border-border bg-card/70 px-5 py-3 sm:px-7">
+          {filters}
+        </div>
+      )}
       <div className="p-5 sm:p-7">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center gap-3 py-12">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            <p className="text-xs font-semibold text-muted-foreground">Loading...</p>
+            <p className="text-xs font-semibold text-muted-foreground">
+              Loading...
+            </p>
           </div>
         ) : isEmpty ? (
           <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
@@ -85,5 +95,3 @@ export function Section({
     </section>
   );
 }
-
-
