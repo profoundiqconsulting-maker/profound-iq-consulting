@@ -33,6 +33,9 @@ import { buildCoursePaymentSuccessPath } from "../shared/coursePaymentRouting";
 import { PUBLISHED_SITE_ORIGIN } from "../shared/siteOrigin";
 import { parse as parseCookie } from "cookie";
 
+import { paystackRequest } from "./_core/paystack";
+import { reconcileStalePendingPayments } from "./paymentReconciliationJob";
+
 const PUBLIC_SITE_ORIGIN = PUBLISHED_SITE_ORIGIN;
 import { eq } from "drizzle-orm";
 import { conversations } from "../drizzle/schema";
@@ -108,9 +111,10 @@ import {
   bulkSetCourseAccessGrants,
   setCourseAccessGrant,
   setCoursePaymentStageReference,
-  markCoursePaymentStagePaid,
   updateCoursePaymentStageStatus,
   listCoursePaymentExceptions,
+  logPaymentReconciliation,
+  listRecentReconciliationLog,
   getCourseActivePosition,
   upsertCourseActivePosition,
   createCourseCertificate,
@@ -432,46 +436,6 @@ const analyticsEventSchema = z.object({
     .record(z.string(), z.union([z.string(), z.number(), z.boolean()]))
     .optional(),
 });
-
-async function paystackRequest(path: string, init?: RequestInit) {
-  const secretKey = process.env.PAYSTACK_SECRET_KEY?.trim();
-  if (!secretKey)
-    throw new TRPCError({
-      code: "PRECONDITION_FAILED",
-      message: "Paystack is not configured.",
-    });
-  const response = await fetch(`https://api.paystack.co${path}`, {
-    ...init,
-    headers: {
-      Authorization: `Bearer ${secretKey}`,
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
-  });
-  const rawBody = await response.text();
-  let payload: { status?: boolean; message?: string; data?: any };
-  try {
-    payload = JSON.parse(rawBody) as {
-      status?: boolean;
-      message?: string;
-      data?: any;
-    };
-  } catch {
-    throw new TRPCError({
-      code: "BAD_GATEWAY",
-      message:
-        response.status >= 500
-          ? "Paystack is temporarily unavailable. Please try again."
-          : "Paystack returned an unexpected response. Please retry checkout.",
-    });
-  }
-  if (!response.ok || !payload.status)
-    throw new TRPCError({
-      code: "BAD_GATEWAY",
-      message: payload.message ?? "Paystack request failed.",
-    });
-  return payload;
-}
 
 function requestSecurityMeta(req: import("express").Request) {
   return getRequestSecurityMetadata(req);
@@ -4941,7 +4905,7 @@ export const appRouter = router({
         z
           .object({
             status: z
-              .enum(["all", "pending", "failed", "exception", "paid"])
+              .enum(["all", "pending", "failed", "exception", "refunded", "paid"])
               .default("all"),
             search: z.string().trim().max(160).optional(),
             limit: z.number().int().min(1).max(250).default(100),
@@ -4963,29 +4927,46 @@ export const appRouter = router({
           note: z.string().trim().max(1000).optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ ctx, input }) => {
         const stage = await getCoursePaymentStageById(input.stageId);
         if (!stage)
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "Payment stage not found.",
           });
-        if (input.action === "reset_pending")
-          return {
-            reconciled: true as const,
-            stage: await updateCoursePaymentStageStatus(stage.id, {
-              status: "pending",
-              errorMessage: input.note ?? null,
-            }),
-          };
-        if (input.action === "mark_exception")
-          return {
-            reconciled: true as const,
-            stage: await updateCoursePaymentStageStatus(stage.id, {
-              status: "exception",
-              errorMessage: input.note ?? "Flagged for manual review.",
-            }),
-          };
+        const operatorOpenId = ctx.user?.openId ?? null;
+        const forwardedFor = ctx.req.headers["x-forwarded-for"];
+        const ip =
+          typeof forwardedFor === "string"
+            ? forwardedFor.split(",")[0].trim()
+            : ctx.req.socket?.remoteAddress ?? null;
+        const log = (outcome: string) =>
+          logPaymentReconciliation({
+            stageId: stage.id,
+            userOpenId: operatorOpenId,
+            action: input.action,
+            outcome,
+            note: input.note ?? null,
+            ip,
+          }).catch(error => {
+            console.error("[Reconciliation] Audit log write failed:", error);
+          });
+        if (input.action === "reset_pending") {
+          const updated = await updateCoursePaymentStageStatus(stage.id, {
+            status: "pending",
+            errorMessage: input.note ?? null,
+          });
+          void log("pending");
+          return { reconciled: true as const, stage: updated };
+        }
+        if (input.action === "mark_exception") {
+          const updated = await updateCoursePaymentStageStatus(stage.id, {
+            status: "exception",
+            errorMessage: input.note ?? "Flagged for manual review.",
+          });
+          void log("exception");
+          return { reconciled: true as const, stage: updated };
+        }
         if (!stage.paystackReference)
           throw new TRPCError({
             code: "PRECONDITION_FAILED",
@@ -5006,34 +4987,72 @@ export const appRouter = router({
             transaction.status === "success" &&
             transaction.amount === stage.amountKes * 100 &&
             transaction.currency === "KES";
-          if (valid)
-            return {
-              reconciled: true as const,
-              stage: await updateCoursePaymentStageStatus(stage.id, {
-                status: "paid",
-                paid: true,
-              }),
-            };
-          return {
-            reconciled: false as const,
-            stage: await updateCoursePaymentStageStatus(stage.id, {
-              status: transaction.status === "failed" ? "failed" : "exception",
+          if (
+            transaction.status === "refunded" ||
+            transaction.status === "partially_paid" ||
+            transaction.status === "reversed"
+          ) {
+            const updated = await updateCoursePaymentStageStatus(stage.id, {
+              status: "refunded",
               errorMessage:
                 input.note ??
-                `Paystack returned ${transaction.status ?? "an unexpected status"}.`,
-            }),
-          };
+                `Paystack returned ${transaction.status ?? "refund"}.`,
+            });
+            void log("refunded");
+            return { reconciled: false as const, stage: updated };
+          }
+          if (valid) {
+            const updated = await updateCoursePaymentStageStatus(stage.id, {
+              status: "paid",
+              paid: true,
+            });
+            void log("paid");
+            return { reconciled: true as const, stage: updated };
+          }
+          const outcome =
+            transaction.status === "failed" ? "failed" : "exception";
+          const updated = await updateCoursePaymentStageStatus(stage.id, {
+            status: outcome,
+            errorMessage:
+              input.note ??
+              `Paystack returned ${transaction.status ?? "an unexpected status"}.`,
+          });
+          void log(outcome);
+          return { reconciled: false as const, stage: updated };
         } catch (error) {
-          await updateCoursePaymentStageStatus(stage.id, {
+          const updated = await updateCoursePaymentStageStatus(stage.id, {
             status: "exception",
             errorMessage:
               error instanceof Error
                 ? error.message.slice(0, 1000)
                 : "Paystack verification failed.",
           });
+          void log("exception");
           throw error;
         }
       }),
+      paymentReconciliationLog: adminProcedure
+        .input(
+          z
+            .object({
+              limit: z.number().int().min(1).max(200).default(50),
+            })
+            .optional()
+        )
+        .query(({ input }) =>
+          listRecentReconciliationLog(input?.limit ?? 50)
+        ),
+      reconcileStalePayments: adminProcedure
+        .input(
+          z
+            .object({
+              maxAgeMinutes: z.number().int().positive().optional(),
+            })
+            .optional()
+        )
+        .mutation(async ({ input }) =>
+          reconcileStalePendingPayments(input)
+        ),
     exportContactInquiries: adminProcedure
       .input(
         z

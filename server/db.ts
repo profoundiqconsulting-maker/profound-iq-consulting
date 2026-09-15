@@ -54,15 +54,16 @@ import {
   courseLessonIllustrationBookmarks,
   courseSavedCourses,
   courseRecommendationHistory,
-  courseQuizAttempts,
-  coursePaymentStages,
-  coursePaymentEvents,
-  courseActivePositions,
-  courseCertificates,
-  courseDeliveryEvents,
-  catalogItems,
-  deliveryLogExportJobs,
-  emailPreviewDeliveries,
+   courseQuizAttempts,
+   coursePaymentStages,
+   coursePaymentEvents,
+   paymentReconciliationLog,
+   courseActivePositions,
+   courseCertificates,
+   courseDeliveryEvents,
+   catalogItems,
+   deliveryLogExportJobs,
+   emailPreviewDeliveries,
   emailTemplates,
   InsertAssessmentAttempt,
   InsertUser,
@@ -6331,7 +6332,7 @@ export async function updateCoursePaymentStageStatus(
 }
 
 export async function listCoursePaymentExceptions(input: {
-  status?: "all" | "pending" | "failed" | "exception" | "paid";
+  status?: "all" | "pending" | "failed" | "exception" | "refunded" | "paid";
   search?: string;
   limit?: number;
 }) {
@@ -6374,6 +6375,65 @@ export async function listCoursePaymentExceptions(input: {
     paid: rows.filter(row => row.stage.paymentStatus === "paid").length,
   };
   return { rows, summary };
+}
+
+export async function logPaymentReconciliation(input: {
+  stageId: number;
+  userOpenId: string | null;
+  action: string;
+  outcome: string;
+  note?: string | null;
+  ip?: string | null;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(paymentReconciliationLog).values({
+    stageId: input.stageId,
+    userOpenId: input.userOpenId ?? null,
+    action: input.action,
+    outcome: input.outcome,
+    note: input.note ?? null,
+    ip: input.ip ?? null,
+  });
+}
+
+export async function listRecentReconciliationLog(limit = 50) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db
+    .select({
+      id: paymentReconciliationLog.id,
+      stageId: paymentReconciliationLog.stageId,
+      action: paymentReconciliationLog.action,
+      outcome: paymentReconciliationLog.outcome,
+      note: paymentReconciliationLog.note,
+      operatorOpenId: paymentReconciliationLog.userOpenId,
+      operatorName: users.name,
+      operatorEmail: users.email,
+      createdAt: paymentReconciliationLog.createdAt,
+    })
+    .from(paymentReconciliationLog)
+    .leftJoin(users, eq(paymentReconciliationLog.userOpenId, users.openId))
+    .orderBy(desc(paymentReconciliationLog.createdAt))
+    .limit(Math.max(1, limit));
+}
+
+export async function listStalePendingPaymentStages(maxAgeMinutes = 30) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const cutoff = new Date(Date.now() - maxAgeMinutes * 60_000);
+  return db
+    .select()
+    .from(coursePaymentStages)
+    .where(
+      and(
+        eq(coursePaymentStages.paymentStatus, "pending"),
+        isNotNull(coursePaymentStages.paystackReference),
+        isNotNull(coursePaymentStages.initializedAt),
+        lt(coursePaymentStages.initializedAt, cutoff)
+      )
+    )
+    .orderBy(desc(coursePaymentStages.initializedAt));
 }
 
 export async function getCourseActivePosition(enrollmentId: number) {
@@ -6447,19 +6507,6 @@ export async function setCoursePaymentStageReference(
     .update(coursePaymentStages)
     .set({ paystackReference: reference, initializedAt: new Date() })
     .where(eq(coursePaymentStages.id, id));
-}
-export async function markCoursePaymentStagePaid(id: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database is not available");
-  await db
-    .update(coursePaymentStages)
-    .set({ paymentStatus: "paid", paidAt: new Date() })
-    .where(
-      and(
-        eq(coursePaymentStages.id, id),
-        eq(coursePaymentStages.paymentStatus, "pending")
-      )
-    );
 }
 export async function createCourseCertificate(input: {
   enrollmentId: number;

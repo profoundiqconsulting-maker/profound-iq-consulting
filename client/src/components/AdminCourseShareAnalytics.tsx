@@ -43,6 +43,25 @@ function saveDownload(filename: string, content: BlobPart, type: string) {
   URL.revokeObjectURL(url);
 }
 
+function PreviewImage({ src, alt }: { src: string; alt: string }) {
+  const [ok, setOk] = useState(true);
+  if (!ok) {
+    return (
+      <div className="flex aspect-[1200/630] w-full items-center justify-center text-xs text-[#657084] bg-[#f1f5f9]">
+        Preview unavailable
+      </div>
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className="aspect-[1200/630] w-full object-cover"
+      onError={() => setOk(false)}
+    />
+  );
+}
+
 export default function AdminCourseShareAnalytics() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -415,11 +434,7 @@ export default function AdminCourseShareAnalytics() {
                 </span>{" "}
                 Twitter / X · summary_large_image
               </div>
-              <img
-                src={previewUrl}
-                alt={`Twitter preview for ${selectedCourse.title}`}
-                className="aspect-[1200/630] w-full object-cover"
-              />
+              <PreviewImage src={previewUrl} alt={`Twitter preview for ${selectedCourse.title}`} />
               <div className="p-4">
                 <p className="text-[10px] uppercase tracking-[.12em] text-[#657084]">
                   {PUBLISHED_SITE_ORIGIN.replace(/^https?:\/\//, "")}
@@ -437,11 +452,7 @@ export default function AdminCourseShareAnalytics() {
                 </span>{" "}
                 Facebook · link preview
               </div>
-              <img
-                src={previewUrl}
-                alt={`Facebook preview for ${selectedCourse.title}`}
-                className="aspect-[1200/630] w-full object-cover"
-              />
+              <PreviewImage src={previewUrl} alt={`Facebook preview for ${selectedCourse.title}`} />
               <div className="p-4">
                 <p className="text-[10px] uppercase tracking-[.12em] text-[#657084]">
                   PROFOUND IQ CONSULTING

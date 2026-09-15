@@ -1031,7 +1031,7 @@ function CourseWorkspaceUnlocked({
   const activeLesson =
     currentModule.lessons.find(lesson => lesson.id === activeLessonId) ?? null;
   const lessonSecondsRemaining = (lessonId: string) => {
-    if (accessOverride || progress.lessons.includes(lessonId)) return 0;
+    if (progress.lessons.includes(lessonId)) return 0;
     const startedAt = progress.lessonTimers[lessonId]?.startedAt;
     return startedAt
       ? Math.max(0, 1500 - Math.floor((timerNow - startedAt) / 1000))

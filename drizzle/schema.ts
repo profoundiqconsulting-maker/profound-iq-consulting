@@ -418,6 +418,23 @@ export const coursePaymentEvents = mysqlTable("course_payment_events", {
   processedAt: timestamp("processedAt"),
   errorMessage: text("errorMessage"),
 });
+export const paymentReconciliationLog = mysqlTable(
+  "payment_reconciliation_log",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    stageId: int("stageId"),
+    userOpenId: varchar("userOpenId", { length: 64 }),
+    action: varchar("action", { length: 32 }).notNull(),
+    outcome: varchar("outcome", { length: 32 }).notNull(),
+    note: text("note"),
+    ip: varchar("ip", { length: 64 }),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => ({
+    byStage: index("payment_reconciliation_log_stage_idx").on(table.stageId),
+    byUser: index("payment_reconciliation_log_user_idx").on(table.userOpenId),
+  })
+);
 export const courseActivePositions = mysqlTable("course_active_positions", {
   id: int("id").autoincrement().primaryKey(),
   enrollmentId: int("enrollmentId").notNull().unique(),
@@ -914,6 +931,7 @@ export type CourseLessonProgress = typeof courseLessonProgress.$inferSelect;
 export type CourseQuizAttempt = typeof courseQuizAttempts.$inferSelect;
 export type CoursePaymentStage = typeof coursePaymentStages.$inferSelect;
 export type CoursePaymentEvent = typeof coursePaymentEvents.$inferSelect;
+export type PaymentReconciliationLog = typeof paymentReconciliationLog.$inferSelect;
 export type CourseActivePosition = typeof courseActivePositions.$inferSelect;
 export type CourseCertificate = typeof courseCertificates.$inferSelect;
 export type EmailTemplate = typeof emailTemplates.$inferSelect;

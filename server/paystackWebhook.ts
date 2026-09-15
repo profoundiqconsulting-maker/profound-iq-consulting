@@ -254,6 +254,17 @@ async function reconcileCoursePayment(
     return true;
   }
 
+  if (event.event === "charge.refunded" || event.event === "charge.dispute.stopped" || event.event === "charge.dispute.closed") {
+    await updateCoursePaymentStageStatus(stage.id, {
+      status: "refunded",
+      errorMessage:
+        data?.failure_message ??
+        `Paystack recorded ${event.event ?? "refund"} for this transaction.`,
+    });
+    await markCoursePaymentEventProcessed(eventId);
+    return true;
+  }
+
   const reason = `Unhandled Paystack event ${event.event ?? "unknown"} (status: ${data?.status ?? "unspecified"}) for a course payment.`;
   await updateCoursePaymentStageStatus(stage.id, {
     status: "exception",

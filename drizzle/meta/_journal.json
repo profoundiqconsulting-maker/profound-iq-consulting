@@ -505,6 +505,20 @@
       "when": 1789274625495,
       "tag": "0071_harsh_dark_phoenix",
       "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "5",
+      "when": 1789451453990,
+      "tag": "0072_thick_ultragirl",
+      "breakpoints": true
+    },
+    {
+      "idx": 73,
+      "version": "5",
+      "when": 1789468781893,
+      "tag": "0073_giant_rockslide",
+      "breakpoints": true
     }
   ]
 }

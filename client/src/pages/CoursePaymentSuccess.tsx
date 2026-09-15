@@ -19,6 +19,8 @@ export default function CoursePaymentSuccess() {
     enabled: Boolean(user),
     retry: false,
   });
+  const [attempt, setAttempt] = useState(0);
+  const MAX_ATTEMPTS = 3;
   const [status, setStatus] = useState<"verifying" | "success" | "error">(
     reference ? "verifying" : "error"
   );
@@ -33,19 +35,34 @@ export default function CoursePaymentSuccess() {
   };
 
   useEffect(() => {
-    if (!user || !reference || verify.isPending || status !== "verifying")
+    if (!user || !reference || status !== "verifying" || verify.isPending)
       return;
-    verify.mutate(
+    let cancelled = false;
+    void verify.mutate(
       { reference },
       {
         onSuccess: () => {
-          setStatus("success");
-          void state.refetch();
+          if (!cancelled) {
+            setStatus("success");
+            void state.refetch();
+          }
         },
-        onError: () => setStatus("error"),
+        onError: () => {
+          if (cancelled) return;
+          if (attempt + 1 >= MAX_ATTEMPTS) {
+            setStatus("error");
+          } else {
+            const delay = 200 * 2 ** attempt;
+            const timer = setTimeout(() => setAttempt(current => current + 1), delay);
+            return () => clearTimeout(timer);
+          }
+        },
       }
     );
-  }, [user, reference, status]);
+    return () => {
+      cancelled = true;
+    };
+  }, [user, reference, status, attempt, verify, state]);
 
   const enrollment = state.data?.find(
     record => record.enrollment.courseSlug === courseSlug
@@ -69,6 +86,9 @@ export default function CoursePaymentSuccess() {
             <p className="mt-4 text-sm text-[#657084]">
               We are checking the Paystack transaction before unlocking your
               next course step.
+            </p>
+            <p className="mt-2 text-xs text-[#657084]">
+              Retrying automatically… attempt {attempt + 1} of {MAX_ATTEMPTS}
             </p>
           </div>
         </main>
@@ -111,16 +131,29 @@ export default function CoursePaymentSuccess() {
               Payment needs another check.
             </h1>
             <p className="mt-4 text-sm leading-6 text-[#657084]">
-              We could not verify this transaction yet. Your course access has
-              not changed. Return to the course and use the retry payment
-              action.
+              We could not verify this transaction yet. We are retrying in the
+              background, or you can try again. If this still fails, your
+              payment record is on file and an administrator can verify it
+              manually.
             </p>
-            <Link
-              href={courseSlug ? `/courses/${courseSlug}` : "/courses"}
-              className="mt-6 inline-flex items-center gap-2 border border-[#16243d]/25 px-5 py-3 text-xs font-black uppercase tracking-[.12em]"
-            >
-              Return to course <ArrowRight size={14} />
-            </Link>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => {
+                  setAttempt(0);
+                  setStatus("verifying");
+                }}
+                className="inline-flex items-center justify-center gap-2 bg-[#16243d] px-5 py-3 text-xs font-black uppercase tracking-[.12em] text-[#f7f3e8]"
+              >
+                Retry verification
+              </button>
+              <Link
+                href={courseSlug ? `/courses/${courseSlug}` : "/dashboard"}
+                className="inline-flex items-center justify-center gap-2 border border-[#16243d]/25 px-5 py-3 text-xs font-black uppercase tracking-[.12em]"
+              >
+                Return to course <ArrowRight size={14} />
+              </Link>
+            </div>
           </div>
         </main>
       </div>

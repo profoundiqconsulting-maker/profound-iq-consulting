@@ -1,6 +1,7 @@
 import {
   AlertTriangle,
   CheckCircle2,
+  Clock,
   RefreshCw,
   Search,
   ShieldCheck,
@@ -15,6 +16,7 @@ const statusOptions = [
   "pending",
   "failed",
   "exception",
+  "refunded",
   "paid",
 ] as const;
 type Status = (typeof statusOptions)[number];
@@ -38,6 +40,21 @@ export default function AdminPaymentExceptionsPanel() {
             result.stage.lastError ??
             "The reconciliation status has been refreshed.",
         }
+      );
+    },
+    onError: error =>
+      toast.error("Reconciliation failed", { description: error.message }),
+  });
+  const recentLog = trpc.admin.paymentReconciliationLog.useQuery(
+    { limit: 50 },
+    { refetchInterval: 30000 }
+  );
+  const reconcileStale = trpc.admin.reconcileStalePayments.useMutation({
+    onSuccess: result => {
+      void utils.admin.coursePaymentExceptions.invalidate();
+      void recentLog.refetch();
+      toast.success(
+        `Reconciliation run — ${result.paid} paid, ${result.failed} failed, ${result.errors.length} errors, ${result.checked} checked`
       );
     },
     onError: error =>
@@ -68,6 +85,14 @@ export default function AdminPaymentExceptionsPanel() {
             className={payments.isFetching ? "animate-spin" : ""}
           />{" "}
           Refresh
+        </button>
+        <button
+          type="button"
+          onClick={() => void reconcileStale.mutate({})}
+          disabled={reconcileStale.isPending}
+          className="inline-flex items-center gap-2 border border-[#16243d]/25 bg-[#16243d] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] disabled:opacity-60"
+        >
+          <ShieldCheck size={13} /> Run reconciliation
         </button>
       </div>
       <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -110,6 +135,7 @@ export default function AdminPaymentExceptionsPanel() {
           <option value="pending">Pending</option>
           <option value="failed">Failed</option>
           <option value="exception">Exception</option>
+          <option value="refunded">Refunded</option>
           <option value="paid">Paid</option>
         </select>
       </div>
@@ -233,6 +259,68 @@ export default function AdminPaymentExceptionsPanel() {
       ) : (
         <div className="mt-6 border border-dashed border-[#16243d]/20 bg-white/55 p-5 text-sm text-[#657084]">
           No payment records match this view.
+        </div>
+      )}
+      {recentLog.isError ? (
+        <p className="mt-8 text-xs text-red-600">
+          Could not load reconciliation history.
+        </p>
+      ) : (
+        <div className="mt-8 border-t border-[#16243d]/10 pt-6">
+          <p className="eyebrow flex items-center gap-2 text-[#a27e2d]">
+            <Clock size={13} /> Reconciliation activity
+          </p>
+          {recentLog.data?.length === 0 && !recentLog.isLoading ? (
+            <p className="mt-2 text-xs text-[#657084]">
+              No reconciliation actions recorded yet.
+            </p>
+          ) : (
+            <div className="mt-3 -mx-2 overflow-x-auto">
+              <table className="exec-table min-w-[380px] text-left text-xs">
+                <thead>
+                  <tr>
+                    <th className="px-2 py-1 text-[10px] uppercase text-[#657084]">
+                      When
+                    </th>
+                    <th className="px-2 py-1 text-[10px] uppercase text-[#657084]">
+                      Operator
+                    </th>
+                    <th className="px-2 py-1 text-[10px] uppercase text-[#657084]">
+                      Action
+                    </th>
+                    <th className="px-2 py-1 text-[10px] uppercase text-[#657084]">
+                      Outcome
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(recentLog.data ?? []).map(entry => (
+                    <tr key={entry.id}>
+                      <td className="px-2 py-1 align-top">
+                        {new Date(entry.createdAt).toLocaleString()}
+                      </td>
+                      <td className="px-2 py-1 align-top">
+                        {entry.operatorEmail ??
+                          entry.operatorName ??
+                          entry.operatorOpenId ??
+                          "—"}
+                      </td>
+                      <td className="px-2 py-1 align-top">{entry.action}</td>
+                      <td className="px-2 py-1 align-top">
+                        {entry.outcome}
+                        {entry.note ? ` — ${entry.note}` : ""}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {recentLog.isLoading && (
+            <p className="mt-3 flex items-center gap-2 text-xs text-[#657084]">
+              <RefreshCw size={12} className="animate-spin" /> Loading…
+            </p>
+          )}
         </div>
       )}
     </section>
