@@ -132,6 +132,11 @@ import {
   createResource,
   updateResource,
   deleteResource,
+  createResourcePurchase,
+  getResourcePurchaseByReference,
+  updateResourcePurchaseStatus,
+  listUserResourcePurchases,
+  listResourcePurchases,
   listSurveys,
   getSurvey,
   createSurvey,
@@ -360,6 +365,9 @@ import {
   getStaffPerformanceSummary,
   findUserByLocalIdentifier,
   setPasswordResetToken,
+  setSecurityQuestions,
+  verifySecurityQuestions,
+  resetPasswordViaSecurityQuestions,
 } from "./db";
 import {
   identifierSchema,
@@ -372,6 +380,8 @@ import {
   hashRateLimitKey,
   hashResetToken,
   verifyPassword,
+  hashSecurityAnswer,
+  verifySecurityAnswer,
 } from "./localAuthCrypto";
 import { sendPasswordResetEmail } from "./email";
 import {
@@ -869,10 +879,26 @@ export const appRouter = router({
                 "Password must be 10–128 characters and include letters and numbers."
               ),
             inviteToken: z.string().min(32).max(128).optional(),
+            securityQuestion1: z.string().trim().min(5).max(255).optional(),
+            securityAnswer1: z.string().trim().min(1).max(128).optional(),
+            securityQuestion2: z.string().trim().min(5).max(255).optional(),
+            securityAnswer2: z.string().trim().min(1).max(128).optional(),
           })
           .refine(
             input => Boolean(input.email || input.username),
             "Provide an email address or username."
+          )
+          .refine(
+            input =>
+              Boolean(input.securityQuestion1) ===
+              Boolean(input.securityAnswer1),
+            "Provide both security question 1 and its answer, or leave both empty."
+          )
+          .refine(
+            input =>
+              Boolean(input.securityQuestion2) ===
+              Boolean(input.securityAnswer2),
+            "Provide both security question 2 and its answer, or leave both empty."
           )
       )
       .mutation(async ({ ctx, input }) => {
@@ -925,6 +951,14 @@ export const appRouter = router({
                 : invitation
                   ? "staff"
                   : "user",
+            securityQuestion1: input.securityQuestion1 ?? null,
+            securityAnswer1Hash: input.securityAnswer1
+              ? hashSecurityAnswer(input.securityAnswer1)
+              : null,
+            securityQuestion2: input.securityQuestion2 ?? null,
+            securityAnswer2Hash: input.securityAnswer2
+              ? hashSecurityAnswer(input.securityAnswer2)
+              : null,
           });
         } catch (error) {
           const raw = error instanceof Error ? error : new Error(String(error));
@@ -1128,6 +1162,60 @@ export const appRouter = router({
             code: "BAD_REQUEST",
             message: "This password-reset link is invalid or expired.",
           });
+        return { success: true } as const;
+      }),
+    getSecurityQuestions: publicProcedure
+      .input(z.object({ email: z.string().trim().email() }))
+      .query(async ({ input }) => {
+        const identifier = normalizeIdentifier(input.email);
+        const user = await findUserByLocalIdentifier(identifier);
+        if (!user) return { hasQuestions: false } as const;
+        return {
+          hasQuestions: Boolean(
+            user.securityQuestion1 && user.securityQuestion2
+          ),
+          question1: user.securityQuestion1 ?? null,
+          question2: user.securityQuestion2 ?? null,
+        };
+      }),
+    verifySecurityQuestions: publicProcedure
+      .input(
+        z.object({
+          email: z.string().trim().email(),
+          answer1: z.string().trim().min(1).max(128),
+          answer2: z.string().trim().min(1).max(128),
+          newPassword: z
+            .string()
+            .refine(
+              validatePassword,
+              "Password must be 10–128 characters and include letters and numbers."
+            ),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const identifier = normalizeIdentifier(input.email);
+        const user = await findUserByLocalIdentifier(identifier);
+        if (!user) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Invalid email or security answers.",
+          });
+        }
+        const valid = await verifySecurityQuestions(
+          user.openId,
+          input.answer1,
+          input.answer2
+        );
+        if (!valid) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Invalid email or security answers.",
+          });
+        }
+        await resetPasswordViaSecurityQuestions(
+          user.openId,
+          hashPassword(input.newPassword)
+        );
         return { success: true } as const;
       }),
     me: publicProcedure.query(opts => opts.ctx.user),
@@ -1448,6 +1536,117 @@ export const appRouter = router({
         });
         return { responseId: response };
       }),
+    get: publicProcedure
+      .input(z.object({ id: z.number().int().positive() }))
+      .query(async ({ input }) => getResource(input.id)),
+    initializePayment: protectedProcedure
+      .input(
+        z.object({
+          resourceId: z.number().int().positive(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const resource = await getResource(input.resourceId);
+        if (!resource || resource.status !== "published") {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Resource not found or not published.",
+          });
+        }
+        if (!resource.fileUrl) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "This resource does not have a downloadable file.",
+          });
+        }
+        if ((resource.price ?? 0) <= 0) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "This resource is free. No payment required.",
+          });
+        }
+        const reference = `piq-resource-${Date.now()}-${Math.random().toString(36).replace(/[^a-zA-Z0-9]/g, "").slice(0, 10)}`;
+        const originHeader = ctx.req.headers.origin;
+        const origin = typeof originHeader === "string" ? originHeader : PUBLIC_SITE_ORIGIN;
+        const payment = await paystackRequest("/transaction/initialize", {
+          method: "POST",
+          body: JSON.stringify({
+            amount: resource.price * 100,
+            currency: resource.currency ?? "KES",
+            email: ctx.user.email ?? "",
+            reference,
+            callback_url: `${origin}/resources?resourcePayment=${encodeURIComponent(reference)}`,
+            metadata: JSON.stringify({
+              resourceId: input.resourceId,
+              userOpenId: ctx.user.openId,
+            }),
+          }),
+        });
+        await createResourcePurchase({
+          resourceId: input.resourceId,
+          userOpenId: ctx.user.openId,
+          userEmail: ctx.user.email ?? "",
+          amountKes: resource.price,
+          currency: resource.currency ?? "KES",
+          paystackReference: reference,
+          paymentStatus: "pending",
+        });
+        return {
+          authorizationUrl: payment.data.authorization_url as string,
+          reference,
+        };
+      }),
+    verifyPayment: protectedProcedure
+      .input(z.object({ reference: z.string().min(15).max(140) }))
+      .mutation(async ({ ctx, input }) => {
+        const purchase = await getResourcePurchaseByReference(input.reference);
+        if (!purchase) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Resource purchase not found.",
+          });
+        }
+        if (purchase.userOpenId !== ctx.user.openId) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "This purchase is not available to your account.",
+          });
+        }
+        if (purchase.paymentStatus === "paid") {
+          const resource = await getResource(purchase.resourceId);
+          return {
+            paid: true as const,
+            downloadUrl: resource?.fileUrl ?? null,
+          };
+        }
+        const verification = await paystackRequest(
+          `/transaction/verify/${encodeURIComponent(input.reference)}`
+        );
+        const status = verification.data.status;
+        if (status === "success") {
+          await updateResourcePurchaseStatus(purchase.id, "paid");
+          const resource = await getResource(purchase.resourceId);
+          return {
+            paid: true as const,
+            downloadUrl: resource?.fileUrl ?? null,
+          };
+        }
+        await updateResourcePurchaseStatus(purchase.id, "failed");
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Payment was not successful.",
+        });
+      }),
+    myPurchases: protectedProcedure.query(async ({ ctx }) => {
+      const purchases = await listUserResourcePurchases(ctx.user.openId);
+      const resources = await Promise.all(
+        purchases.map(p => getResource(p.resourceId))
+      );
+      return purchases.map((purchase, index) => ({
+        ...purchase,
+        resource: resources[index] ?? null,
+      }));
+    }),
   }),
   newsletter: router({
     subscribers: adminProcedure
@@ -1640,10 +1839,46 @@ export const appRouter = router({
         z.object({
           slug: z.string().trim().min(1).max(160),
           status: z.enum(["draft", "published"]),
-          socialImageUrl: z.string().url().max(512).nullable().optional(),
+          socialImageUrl: z
+            .string()
+            .max(12_000_000)
+            .nullable()
+            .optional(),
+          contentType: z
+            .enum(["image/png", "image/jpeg", "image/webp"])
+            .optional(),
         })
       )
-      .mutation(({ input }) => setInsightArticleStatus(input)),
+      .mutation(async ({ input }) => {
+        let socialImageUrl = input.socialImageUrl ?? undefined;
+        if (socialImageUrl && socialImageUrl.startsWith("data:")) {
+          const raw = socialImageUrl.replace(/^data:[^;]+;base64,/, "");
+          const bytes = Buffer.from(raw, "base64");
+          if (bytes.length > 8 * 1024 * 1024) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Image must be 8 MB or smaller.",
+            });
+          }
+          const contentType = input.contentType ?? "image/png";
+          const extension =
+            contentType === "image/png"
+              ? "png"
+              : contentType === "image/webp"
+                ? "webp"
+                : "jpg";
+          const stored = await storagePut(
+            `insight-social/${input.slug}-${Date.now()}.${extension}`,
+            bytes,
+            contentType
+          );
+          socialImageUrl = stored.url;
+        }
+        return setInsightArticleStatus({
+          ...input,
+          socialImageUrl: socialImageUrl ?? null,
+        });
+      }),
   }),
   enrollment: router({
     create: publicProcedure
@@ -4671,19 +4906,59 @@ export const appRouter = router({
           title: z.string().trim().min(2).max(240),
           description: z.string().trim().min(2),
           category: z.string().trim().min(2).max(120),
-          fileUrl: z.string().url().max(512).optional(),
+          fileUrl: z.string().max(12_000_000).optional(),
           fileType: z.string().trim().max(64).optional(),
           fileSize: z.number().int().positive().optional(),
-          coverImageUrl: z.string().url().max(512).optional(),
+          coverImageUrl: z.string().max(12_000_000).optional(),
+          price: z.number().int().min(0).default(0).optional(),
+          currency: z.string().trim().length(3).default("KES").optional(),
           sortOrder: z.number().int().min(0).optional(),
         })
       )
-      .mutation(({ ctx, input }) =>
-        createResource({
+      .mutation(async ({ ctx, input }) => {
+        let fileUrl = input.fileUrl;
+        let coverImageUrl = input.coverImageUrl;
+        if (fileUrl && fileUrl.startsWith("data:")) {
+          const raw = fileUrl.replace(/^data:[^;]+;base64,/, "");
+          const bytes = Buffer.from(raw, "base64");
+          const contentType = input.fileType ?? "application/octet-stream";
+          const extension =
+            contentType.includes("pdf")
+              ? "pdf"
+              : contentType.includes("zip")
+                ? "zip"
+                : contentType.includes("sheet")
+                  ? "xlsx"
+                  : contentType.includes("document")
+                    ? "docx"
+                    : contentType.includes("image")
+                      ? "png"
+                      : "bin";
+          const stored = await storagePut(
+            `resource-files/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`,
+            bytes,
+            contentType
+          );
+          fileUrl = stored.url;
+        }
+        if (coverImageUrl && coverImageUrl.startsWith("data:")) {
+          const raw = coverImageUrl.replace(/^data:[^;]+;base64,/, "");
+          const bytes = Buffer.from(raw, "base64");
+          const contentType = "image/png";
+          const stored = await storagePut(
+            `resource-covers/${Date.now()}-${Math.random().toString(36).slice(2)}.png`,
+            bytes,
+            contentType
+          );
+          coverImageUrl = stored.url;
+        }
+        return createResource({
           ...input,
+          fileUrl,
+          coverImageUrl,
           createdByOpenId: ctx.user.openId,
-        })
-      ),
+        });
+      }),
     updateResource: adminProcedure
       .input(
         z.object({
@@ -4691,30 +4966,86 @@ export const appRouter = router({
           title: z.string().trim().min(2).max(240).optional(),
           description: z.string().trim().min(2).optional(),
           category: z.string().trim().min(2).max(120).optional(),
-          fileUrl: z.string().url().max(512).optional(),
+          fileUrl: z.string().max(12_000_000).optional(),
           fileType: z.string().trim().max(64).optional(),
           fileSize: z.number().int().positive().optional(),
-          coverImageUrl: z.string().url().max(512).optional(),
+          coverImageUrl: z.string().max(12_000_000).optional(),
           status: z.enum(["published", "draft"]).optional(),
           sortOrder: z.number().int().min(0).optional(),
+          price: z.number().int().min(0).optional(),
+          currency: z.string().trim().length(3).optional(),
         })
       )
-      .mutation(({ input }) =>
-        updateResource(input.id, {
+      .mutation(async ({ input }) => {
+        let fileUrl = input.fileUrl;
+        let coverImageUrl = input.coverImageUrl;
+        if (fileUrl && fileUrl.startsWith("data:")) {
+          const raw = fileUrl.replace(/^data:[^;]+;base64,/, "");
+          const bytes = Buffer.from(raw, "base64");
+          const contentType = input.fileType ?? "application/octet-stream";
+          const extension =
+            contentType.includes("pdf")
+              ? "pdf"
+              : contentType.includes("zip")
+                ? "zip"
+                : contentType.includes("sheet")
+                  ? "xlsx"
+                  : contentType.includes("document")
+                    ? "docx"
+                    : contentType.includes("image")
+                      ? "png"
+                      : "bin";
+          const stored = await storagePut(
+            `resource-files/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`,
+            bytes,
+            contentType
+          );
+          fileUrl = stored.url;
+        }
+        if (coverImageUrl && coverImageUrl.startsWith("data:")) {
+          const raw = coverImageUrl.replace(/^data:[^;]+;base64,/, "");
+          const bytes = Buffer.from(raw, "base64");
+          const contentType = "image/png";
+          const stored = await storagePut(
+            `resource-covers/${Date.now()}-${Math.random().toString(36).slice(2)}.png`,
+            bytes,
+            contentType
+          );
+          coverImageUrl = stored.url;
+        }
+        return updateResource(input.id, {
           title: input.title,
           description: input.description,
           category: input.category,
-          fileUrl: input.fileUrl,
+          fileUrl,
           fileType: input.fileType,
           fileSize: input.fileSize,
-          coverImageUrl: input.coverImageUrl,
+          coverImageUrl,
           status: input.status,
           sortOrder: input.sortOrder,
-        })
-      ),
+          price: input.price,
+          currency: input.currency,
+        });
+      }),
     deleteResource: adminProcedure
       .input(z.object({ id: z.number().int().positive() }))
       .mutation(({ input }) => deleteResource(input.id)),
+    listPurchases: adminProcedure
+      .input(
+        z.object({
+          resourceId: z.number().int().positive().optional(),
+          userOpenId: z.string().max(64).optional(),
+        })
+      )
+      .query(async ({ input }) => {
+        if (input.resourceId) {
+          return listResourcePurchases(input.resourceId);
+        }
+        if (input.userOpenId) {
+          return listUserResourcePurchases(input.userOpenId);
+        }
+        return [];
+      }),
     listSurveys: adminProcedure.query(() => listSurveys()),
     createSurvey: adminProcedure
       .input(
@@ -5240,12 +5571,12 @@ export const appRouter = router({
         z.object({
           fallbackImageUrl: z
             .string()
-            .url()
-            .refine(
-              value => value.startsWith("https://"),
-              "Use an HTTPS image URL."
-            )
-            .max(512),
+            .max(12_000_000)
+            .optional(),
+          contentType: z
+            .enum(["image/png", "image/jpeg", "image/webp"])
+            .optional(),
+          filename: z.string().trim().min(1).max(160).optional(),
           version: z
             .string()
             .trim()
@@ -5256,9 +5587,33 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
+        let imageUrl = input.fallbackImageUrl?.trim() ?? "";
+        if (imageUrl && imageUrl.startsWith("data:")) {
+          const raw = imageUrl.replace(/^data:[^;]+;base64,/, "");
+          const bytes = Buffer.from(raw, "base64");
+          if (bytes.length > 8 * 1024 * 1024) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Image must be 8 MB or smaller.",
+            });
+          }
+          const contentType = input.contentType ?? "image/png";
+          const extension =
+            contentType === "image/png"
+              ? "png"
+              : contentType === "image/webp"
+                ? "webp"
+                : "jpg";
+          const stored = await storagePut(
+            `social-previews/fallback-${Date.now()}.${extension}`,
+            bytes,
+            contentType
+          );
+          imageUrl = stored.url;
+        }
         await upsertSiteSeoSetting(
           "fallback_social_image_url",
-          input.fallbackImageUrl,
+          imageUrl,
           ctx.user.openId
         );
         return upsertSiteSeoSetting(

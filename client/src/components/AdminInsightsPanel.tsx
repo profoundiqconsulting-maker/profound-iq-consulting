@@ -23,7 +23,20 @@ export default function AdminInsightsPanel() {
     onError: error =>
       toast.error(error.message || "Unable to update article status."),
   });
+  const [previewFiles, setPreviewFiles] = useState<Record<string, File | null>>(
+    {}
+  );
   const [previewUrls, setPreviewUrls] = useState<Record<string, string>>({});
+  const readFileAsBase64 = (slug: string, file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPreviewUrls(current => ({
+        ...current,
+        [slug]: reader.result as string,
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
   return (
     <section
       id="insights-publishing"
@@ -36,7 +49,7 @@ export default function AdminInsightsPanel() {
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
             Move approved article drafts into the public library, keep
             work-in-progress pieces private, and attach a branded social preview
-            image URL when one is ready.
+            image when one is ready.
           </p>
         </div>
         <span className="text-xs font-bold text-[#7d5e1e]">Admin only</span>
@@ -54,6 +67,8 @@ export default function AdminInsightsPanel() {
         <div className="mt-6 space-y-4">
           {(articles.data?.rows ?? []).map(article => {
             const published = article.status === "Published";
+            const file = previewFiles[article.slug];
+            const preview = previewUrls[article.slug] ?? article.socialImageUrl;
             return (
               <article
                 key={article.slug}
@@ -88,7 +103,12 @@ export default function AdminInsightsPanel() {
                         setStatus.mutate({
                           slug: article.slug,
                           status: published ? "draft" : "published",
-                          socialImageUrl: previewUrls[article.slug] || null,
+                          socialImageUrl: preview || null,
+                          contentType: file?.type as
+                            | "image/png"
+                            | "image/jpeg"
+                            | "image/webp"
+                            | undefined,
                         })
                       }
                       disabled={setStatus.isPending}
@@ -102,21 +122,34 @@ export default function AdminInsightsPanel() {
                 <label className="mt-4 flex items-center gap-2 text-xs text-[#657084]">
                   <ImagePlus size={15} className="text-[#7d5e1e]" />
                   <span className="sr-only">
-                    Social preview image URL for {article.title}
+                    Social preview image for {article.title}
                   </span>
                   <input
-                    value={
-                      previewUrls[article.slug] ?? article.socialImageUrl ?? ""
-                    }
-                    onChange={event =>
-                      setPreviewUrls(current => ({
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    className="text-sm"
+                    onChange={event => {
+                      const selected = event.target.files?.[0];
+                      if (!selected) return;
+                      setPreviewFiles(current => ({
                         ...current,
-                        [article.slug]: event.target.value,
-                      }))
-                    }
-                    placeholder="Optional HTTPS social preview image URL"
-                    className="min-h-10 w-full border border-[#16243d]/15 bg-[#fffaf0] px-3 text-sm text-[#16243d] outline-none focus:border-[#c9a34e]"
+                        [article.slug]: selected,
+                      }));
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        setPreviewUrls(current => ({
+                          ...current,
+                          [article.slug]: reader.result as string,
+                        }));
+                      };
+                      reader.readAsDataURL(selected);
+                    }}
                   />
+                  {file && (
+                    <span className="text-[11px] font-normal text-[#657084]">
+                      {file.name} · {(file.size / 1024).toFixed(1)} KB
+                    </span>
+                  )}
                 </label>
               </article>
             );

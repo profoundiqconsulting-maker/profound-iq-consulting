@@ -29,6 +29,7 @@ const displayPrice = "KES 699";
 type Answer = { questionId: string; value: number };
 
 export default function Psychometrics() {
+  const utils = trpc.useUtils();
   const [, params] = useRoute("/psychometrics/:slug");
   const [, navigate] = useLocation();
   const { t, locale } = useLocale();
@@ -87,6 +88,7 @@ export default function Psychometrics() {
           setPaymentMessage(
             "Payment verified. Your personalized profile is ready."
           );
+          void utils.dashboard.mine.refetch();
           toast.success("Assessment complete");
         },
         onError: error => {
@@ -142,6 +144,19 @@ export default function Psychometrics() {
   }, [slug]);
 
   useEffect(() => {
+    if (!slug || !detail.data?.questions?.length) return;
+    try {
+      const saved = window.localStorage.getItem("piq-psychometric-answers");
+      if (saved) {
+        const parsed = JSON.parse(saved) as Record<string, number>;
+        if (Object.keys(parsed).length) setAnswers(parsed);
+      }
+    } catch {
+      window.localStorage.removeItem("piq-psychometric-answers");
+    }
+  }, [slug, detail.data?.questions]);
+
+  useEffect(() => {
     if (!slug) return;
     const handler = () => {
       window.localStorage.setItem(
@@ -172,7 +187,14 @@ export default function Psychometrics() {
   );
   const choose = (value: number) => {
     if (!current) return;
-    setAnswers(previous => ({ ...previous, [current.id]: value }));
+    const next = { ...answers, [current.id]: value };
+    setAnswers(next);
+    if (slug) {
+      window.localStorage.setItem(
+        "piq-psychometric-answers",
+        JSON.stringify(next)
+      );
+    }
   };
   const downloadPaidReport = async () => {
     const reference =

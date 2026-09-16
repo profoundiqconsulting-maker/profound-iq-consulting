@@ -3,9 +3,9 @@ export const identifierSchema =
 
 export function normalizeIdentifier(value: string) {
   const trimmed = value.trim();
-  return trimmed.includes("@")
-    ? trimmed.toLowerCase()
-    : trimmed.replace(/[\s().-]/g, "").toLowerCase();
+  if (trimmed.includes("@")) return trimmed.toLowerCase();
+  const digitsOnly = trimmed.replace(/^\+/, "").replace(/[\s().-]/g, "");
+  return digitsOnly.toLowerCase();
 }
 
 export function passwordStrength(password: string) {

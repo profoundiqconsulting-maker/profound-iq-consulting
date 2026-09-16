@@ -142,6 +142,7 @@ export function buildSitemapXml(courses: Array<{ slug: string }>) {
     "/careerpath",
     "/psychometrics",
     "/resources",
+    "/surveys",
     "/blog",
     ...insightArticles.map(article => `/blog/${article.slug}`),
     "/contact",

@@ -23,6 +23,7 @@ const serviceLabels = {
   assessment: "Self Assessment",
   careerpath: "CareerPath",
   psychometrics: "Psychometrics",
+  courses: "Courses",
 } as const;
 const searchItems = [
   {
@@ -62,7 +63,7 @@ const searchItems = [
 export function TransformationNav({
   active,
 }: {
-  active: "assessment" | "careerpath" | "psychometrics";
+  active: "assessment" | "careerpath" | "psychometrics" | "courses";
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -95,7 +96,9 @@ export function TransformationNav({
       ? t("selfAssessment")
       : active === "careerpath"
         ? t("careerPath")
-        : t("psychometrics");
+        : active === "courses"
+          ? "Courses"
+          : t("psychometrics");
   const closeMenus = () => {
     setMenuOpen(false);
     setProfileOpen(false);
@@ -267,6 +270,17 @@ export function TransformationNav({
             Home
           </Link>
           <a
+            href="/courses"
+            onClick={event => switchService(event, "/courses")}
+            className={
+              active === "courses"
+                ? "text-[#c9a34e]"
+                : "text-[#c1cad7] hover:text-[#c9a34e]"
+            }
+          >
+            Courses
+          </a>
+          <a
             href="/assessment"
             onClick={event => switchService(event, "/assessment")}
             className={
@@ -299,6 +313,9 @@ export function TransformationNav({
           >
             {t("psychometrics")}
           </a>
+          <Link href="/dashboard" className="text-[#c1cad7] hover:text-[#c9a34e]">
+            My Space
+          </Link>
           <a href="/#contact" className="text-[#c1cad7] hover:text-[#c9a34e]">
             {t("contact")}
           </a>
@@ -549,6 +566,15 @@ export function TransformationNav({
               Home
             </Link>
             <a
+              href="/courses"
+              onClick={event => switchService(event, "/courses")}
+              className={
+                active === "courses" ? "text-[#c9a34e]" : "text-[#c1cad7]"
+              }
+            >
+              Courses
+            </a>
+            <a
               href="/assessment"
               onClick={event => switchService(event, "/assessment")}
               className={
@@ -577,6 +603,9 @@ export function TransformationNav({
             >
               {t("psychometrics")}
             </a>
+            <Link href="/dashboard" onClick={closeMenus} className="text-[#c9a34e]">
+              My Space
+            </Link>
             <a href="/#contact" onClick={closeMenus} className="text-[#c1cad7]">
               {t("contact")}
             </a>

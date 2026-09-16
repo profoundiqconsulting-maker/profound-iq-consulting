@@ -1,4 +1,5 @@
 /* Profound IQ Consulting — Executive Observatory Resources page: editorial discovery without fabricated publications, authors, or performance claims. */
+import { useState } from "react";
 import {
   ArrowUpRight,
   BookOpen,
@@ -6,11 +7,17 @@ import {
   FileSearch,
   Mic2,
   ScrollText,
+  Share2,
+  Lock,
 } from "lucide-react";
 import { Link } from "wouter";
 import { PublicPageShell } from "@/components/PublicPageShell";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { SocialSharing } from "@/components/SocialSharing";
+import PaystackInlineModal from "@/components/PaystackInlineModal";
 import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 const resourceTypes = [
   {
@@ -40,10 +47,43 @@ const resourceTypes = [
 ];
 
 export default function Resources() {
+  const { user, isAuthenticated } = useAuth();
   const resources = trpc.resources.list.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: true,
   });
+  const [paymentResource, setPaymentResource] = useState<{ id: number; title: string; price: number; currency: string; reference?: string } | null>(null);
+  const initializePayment = trpc.resources.initializePayment.useMutation({
+    onSuccess: data => {
+      setPaymentResource(prev => prev ? { ...prev, reference: data.reference } : prev);
+    },
+    onError: error => toast.error(error.message),
+  });
+  const verifyPayment = trpc.resources.verifyPayment.useMutation({
+    onSuccess: data => {
+      if (data.paid && data.downloadUrl) {
+        window.open(data.downloadUrl, "_blank");
+        toast.success("Payment verified. Download started.");
+      }
+      setPaymentResource(null);
+    },
+    onError: error => toast.error(error.message),
+  });
+  const [purchasedIds, setPurchasedIds] = useState<number[]>([]);
+
+  const handlePurchase = async (resource: { id: number; title: string; price: number; currency: string }) => {
+    if (!isAuthenticated) {
+      window.location.href = "/auth?mode=login";
+      return;
+    }
+    setPaymentResource(resource);
+    initializePayment.mutate({ resourceId: resource.id });
+  };
+
+  const handlePaymentSuccess = (reference: string) => {
+    if (!paymentResource) return;
+    verifyPayment.mutate({ reference });
+  };
 
   return (
     <PublicPageShell
@@ -129,15 +169,39 @@ export default function Resources() {
                         {resource.description}
                       </p>
                       {resource.fileUrl && (
-                        <a
-                          href={resource.fileUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mt-6 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-colors group-hover:text-[#7d5e1e]"
-                        >
-                          Access resource <ExternalLink size={14} />
-                        </a>
+                        <div className="mt-6 flex flex-wrap items-center gap-3">
+                          {(resource.price ?? 0) > 0 ? (
+                            <>
+                              <span className="text-sm font-semibold text-[#16243d]">
+                                {resource.currency} {resource.price?.toLocaleString()}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handlePurchase({ id: resource.id, title: resource.title, price: resource.price ?? 0, currency: resource.currency ?? "KES" })}
+                                className="inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-4 py-2 text-[10px] font-black uppercase tracking-[.12em] text-white transition-all hover:bg-[#0f172a]"
+                              >
+                                Purchase
+                              </button>
+                            </>
+                          ) : (
+                            <a
+                              href={resource.fileUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-4 py-2 text-[10px] font-black uppercase tracking-[.12em] text-white transition-all hover:bg-[#0f172a]"
+                            >
+                              Download <ExternalLink size={14} />
+                            </a>
+                          )}
+                        </div>
                       )}
+                      <SocialSharing
+                        url={resource.fileUrl || `${window.location.origin}/resources`}
+                        title={resource.title}
+                        text={resource.description}
+                        platforms={["linkedin", "x", "facebook", "whatsapp", "copy"]}
+                        className="mt-4"
+                      />
                     </article>
                   </ScrollReveal>
                 ))}
@@ -248,6 +312,26 @@ export default function Resources() {
           </div>
         </ScrollReveal>
       </section>
+      {paymentResource && (
+        <PaystackInlineModal
+          open={!!paymentResource.reference}
+          product={{
+            accessCode: "",
+            reference: paymentResource.reference || "",
+            amountKes: paymentResource.price,
+            productName: paymentResource.title,
+            productType: "resource",
+            resourceId: paymentResource.id,
+          }}
+          customerEmail={user?.email || ""}
+          onClose={() => setPaymentResource(null)}
+          onSuccess={handlePaymentSuccess}
+          onError={(message: string) => {
+            toast.error(message);
+            setPaymentResource(null);
+          }}
+        />
+      )}
     </PublicPageShell>
   );
 }

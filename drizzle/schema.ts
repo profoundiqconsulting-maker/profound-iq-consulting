@@ -38,6 +38,10 @@ export const users = mysqlTable(
     leaderboardDisplayName: varchar("leaderboardDisplayName", { length: 80 }),
     exportPreferences: json("exportPreferences"),
     exportLogoUrl: varchar("exportLogoUrl", { length: 512 }),
+    securityQuestion1: varchar("securityQuestion1", { length: 255 }),
+    securityAnswer1Hash: varchar("securityAnswer1Hash", { length: 255 }),
+    securityQuestion2: varchar("securityQuestion2", { length: 255 }),
+    securityAnswer2Hash: varchar("securityAnswer2Hash", { length: 255 }),
   },
   table => ({
     emailUnique: uniqueIndex("users_email_unique").on(table.email),
@@ -1052,11 +1056,25 @@ export const resources = mysqlTable("resources", {
   fileType: varchar("fileType", { length: 64 }),
   fileSize: int("fileSize"),
   coverImageUrl: varchar("coverImageUrl", { length: 512 }),
+  price: int("price").default(0).notNull(),
+  currency: varchar("currency", { length: 3 }).default("KES").notNull(),
   status: varchar("status", { length: 24 }).default("published").notNull(),
   sortOrder: int("sortOrder").default(0).notNull(),
   createdByOpenId: varchar("createdByOpenId", { length: 64 }).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const resourcePurchases = mysqlTable("resource_purchases", {
+  id: int("id").autoincrement().primaryKey(),
+  resourceId: int("resourceId").notNull(),
+  userOpenId: varchar("userOpenId", { length: 64 }).notNull(),
+  userEmail: varchar("userEmail", { length: 320 }).notNull(),
+  amountKes: int("amountKes").notNull(),
+  currency: varchar("currency", { length: 3 }).default("KES").notNull(),
+  paystackReference: varchar("paystackReference", { length: 120 }).unique(),
+  paymentStatus: varchar("paymentStatus", { length: 24 }).default("pending").notNull(),
+  purchasedAt: timestamp("purchasedAt").defaultNow().notNull(),
 });
 
 export const surveys = mysqlTable("surveys", {
@@ -1132,3 +1150,5 @@ export type SurveyResponse = typeof surveyResponses.$inferSelect;
 export type InsertSurveyResponse = typeof surveyResponses.$inferInsert;
 export type SurveyAnalysis = typeof surveyAnalysis.$inferSelect;
 export type InsertSurveyAnalysis = typeof surveyAnalysis.$inferInsert;
+export type ResourcePurchase = typeof resourcePurchases.$inferSelect;
+export type InsertResourcePurchase = typeof resourcePurchases.$inferInsert;

@@ -19,7 +19,7 @@ describe("local credential authentication", () => {
     expect(normalizeIdentifier(" User.Name@Example.COM ")).toBe(
       "user.name@example.com"
     );
-    expect(normalizeIdentifier("+254 727-374-055")).toBe("+254727374055");
+    expect(normalizeIdentifier("+254 727-374-055")).toBe("254727374055");
     expect(normalizeIdentifier("  Amina_User ")).toBe("amina_user");
   });
 

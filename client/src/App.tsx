@@ -26,6 +26,9 @@ const CourseComparison = lazy(() => import("./pages/CourseComparison"));
 const CoursePaymentSuccess = lazy(() => import("./pages/CoursePaymentSuccess"));
 const CourseWorkspace = lazy(() => import("./pages/CourseWorkspace"));
 const CohortManagement = lazy(() => import("./pages/CohortManagement"));
+const AdminUsers = lazy(() => import("./pages/AdminUsers"));
+const AdminInquiries = lazy(() => import("./pages/AdminInquiries"));
+const AdminCertificates = lazy(() => import("./pages/AdminCertificates"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const StaffDashboard = lazy(() => import("./pages/StaffDashboard"));
 const SavedPathwaysPrint = lazy(() => import("./pages/SavedPathwaysPrint"));
@@ -142,6 +145,9 @@ function Router() {
         />
         <Route path="/courses/:slug" component={CourseWorkspace} />
         <Route path="/admin/cohorts" component={CohortManagement} />
+        <Route path="/admin/users" component={AdminUsers} />
+        <Route path="/admin/inquiries" component={AdminInquiries} />
+        <Route path="/admin/certificates" component={AdminCertificates} />
         <Route path="/admin" component={AdminDashboard} />
         <Route path="/staff" component={StaffDashboard} />
         <Route

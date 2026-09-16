@@ -519,6 +519,13 @@
       "when": 1789468781893,
       "tag": "0073_giant_rockslide",
       "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "5",
+      "when": 1789582470114,
+      "tag": "0074_security_questions",
+      "breakpoints": true
     }
   ]
 }

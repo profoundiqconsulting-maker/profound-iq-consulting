@@ -52,13 +52,13 @@ export function AdminObservatorySidebarWidget() {
           ? usersQuery.data.length
           : 0,
         icon: Users,
-        href: "/admin",
+        href: "/admin/users",
       },
       {
         label: "Inquiries",
         value: openInquiries,
         icon: Mail,
-        href: "/admin",
+        href: "/admin/inquiries",
       },
       {
         label: "Certificates",
@@ -66,7 +66,7 @@ export function AdminObservatorySidebarWidget() {
           ? certificatesQuery.data.length
           : 0,
         icon: Award,
-        href: "/admin",
+        href: "/admin/certificates",
       },
     ];
     setMetrics(items);
@@ -78,7 +78,11 @@ export function AdminObservatorySidebarWidget() {
 
   if (user?.role !== "admin") return null;
 
-  const isActive = location === "/admin" || location.startsWith("/admin/");
+  const isActive =
+    location === "/admin" ||
+    location.startsWith("/admin/users") ||
+    location.startsWith("/admin/inquiries") ||
+    location.startsWith("/admin/certificates");
 
   return (
     <div className="px-3 py-3 border-t border-slate-800">

@@ -191,6 +191,7 @@ function AssessmentContentPagination({
 }
 
 export default function Assessment() {
+  const utils = trpc.useUtils();
   const [, navigate] = useLocation();
   const { locale, t } = useLocale();
   const { user, isAuthenticated } = useAuth();
@@ -686,6 +687,7 @@ export default function Assessment() {
             returnedReference
           );
           sessionStorage.removeItem("piq-assessment-reference");
+          void utils.dashboard.mine.refetch();
           toast.success("Payment verified", {
             description: "Your assessment report is now unlocked.",
           });
@@ -853,6 +855,28 @@ export default function Assessment() {
     setSavedPulse(true);
     window.setTimeout(() => setSavedPulse(false), 1200);
   };
+
+  const autoSaveTimer = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    if (stage !== "questions" || !name.trim() || !email.trim()) return;
+    if (autoSaveTimer.current) window.clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = window.setTimeout(() => {
+      const answersArray = Object.entries(answers).map(
+        ([questionId, value]) => ({ questionId, value })
+      );
+      saveDraft.mutate({
+        name: name.trim(),
+        email: email.trim(),
+        answers: answersArray,
+        currentModule: page,
+        origin: window.location.origin,
+      });
+    }, 2000);
+    return () => {
+      if (autoSaveTimer.current) window.clearTimeout(autoSaveTimer.current);
+    };
+  }, [stage, name, email, answers, page, saveDraft]);
 
   const resumeLocalDraft = () => {
     if (!localDraft) return;

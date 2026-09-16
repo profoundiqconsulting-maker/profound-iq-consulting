@@ -43,7 +43,7 @@ describe("course SEO server routes", () => {
     );
     expect(xml).toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"');
     expect(xml).toContain('hreflang="sw"');
-    expect(xml.match(/<url>/g)?.length).toBe(200);
+    expect(xml.match(/<url>/g)?.length).toBe(210);
   });
 
   it("generates a course-specific absolute PNG preview image", async () => {

@@ -643,6 +643,7 @@ function CheckoutPage({
   onBack?: () => void;
   customerEmail?: string;
 }) {
+  const utils = trpc.useUtils();
   const [paymentState, setPaymentState] =
     useState<PaystackCheckoutState>("idle");
   const [inlineModalOpen, setInlineModalOpen] = useState(false);
@@ -683,6 +684,7 @@ function CheckoutPage({
         onSuccess: result => {
           onVerified(result.report);
           setPaymentState("paid");
+          void utils.dashboard.mine.refetch();
           toast.success("Payment verified");
         },
         onError: error => {
@@ -1302,6 +1304,7 @@ function ReportsPage({
 }
 
 export default function CareerPath() {
+  const utils = trpc.useUtils();
   const [location, setLocation] = useLocation();
   const [page, setPage] = useState<Page>("introduction");
   const [completedAssessment, setCompletedAssessment] = useState<{
@@ -1358,7 +1361,7 @@ export default function CareerPath() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const saved = sessionStorage.getItem("careerpath-assessment");
+    const saved = localStorage.getItem("careerpath-assessment");
     if (!saved) return;
     try {
       const parsed = JSON.parse(saved) as {
@@ -1376,7 +1379,7 @@ export default function CareerPath() {
         typeof parsed.currentModule === "number" ? parsed.currentModule : 0
       );
     } catch {
-      sessionStorage.removeItem("careerpath-assessment");
+      localStorage.removeItem("careerpath-assessment");
     }
   }, []);
 
@@ -1389,7 +1392,7 @@ export default function CareerPath() {
       answers: assessmentAnswers,
       currentModule: assessmentCurrentModule,
     };
-    sessionStorage.setItem("careerpath-assessment", JSON.stringify(payload));
+    localStorage.setItem("careerpath-assessment", JSON.stringify(payload));
   }, [
     participantName,
     participantEmail,
@@ -1401,21 +1404,21 @@ export default function CareerPath() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (page === "reports" && unlockedReport) {
-      sessionStorage.removeItem("careerpath-assessment");
-      sessionStorage.removeItem("careerpath-checkout");
+      localStorage.removeItem("careerpath-assessment");
+      localStorage.removeItem("careerpath-checkout");
     }
   }, [page, unlockedReport]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (page === "checkout" && checkoutReference && !checkoutProduct) {
-      const saved = sessionStorage.getItem("careerpath-checkout");
+      const saved = localStorage.getItem("careerpath-checkout");
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
           if (parsed?.product) setCheckoutProduct(parsed.product);
         } catch {
-          sessionStorage.removeItem("careerpath-checkout");
+          localStorage.removeItem("careerpath-checkout");
         }
       }
     }
@@ -1456,7 +1459,7 @@ export default function CareerPath() {
       };
       setCheckoutReference(result.reference);
       setCheckoutProduct(product);
-      sessionStorage.setItem(
+      localStorage.setItem(
         "careerpath-checkout",
         JSON.stringify({ product })
       );

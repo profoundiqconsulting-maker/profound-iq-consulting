@@ -7,11 +7,12 @@ export type PaystackInlineProduct = {
   reference: string;
   amountKes: number;
   productName: string;
-  productType: "assessment" | "psychometric" | "careerpath" | "course_stage";
+  productType: "assessment" | "psychometric" | "careerpath" | "course_stage" | "resource";
   testSlug?: string;
   enrollmentId?: number;
   courseSlug?: string;
   stage?: number;
+  resourceId?: number;
 };
 
 type PaystackInlineModalProps = {
@@ -113,6 +114,7 @@ export default function PaystackInlineModal({
         enrollment_id: product.enrollmentId,
         course_slug: product.courseSlug,
         stage: product.stage,
+        resource_id: product.resourceId,
       },
       onSuccess: reference => {
         onSuccessRef.current(reference.reference);

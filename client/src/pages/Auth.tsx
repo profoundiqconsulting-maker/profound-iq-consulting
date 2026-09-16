@@ -21,7 +21,7 @@ import {
 } from "../../../shared/localAuth";
 import { getAuthCopy } from "../../../shared/authLocalization";
 
-type Mode = "login" | "register" | "forgot";
+type Mode = "login" | "register" | "forgot" | "reset";
 
 export default function Auth() {
   const { user, loading } = useAuth();
@@ -37,7 +37,7 @@ export default function Auth() {
 
   const [mode, setMode] = useState<Mode>(() => {
     const requested = new URLSearchParams(window.location.search).get("mode");
-    return requested === "register" || requested === "forgot"
+    return requested === "register" || requested === "forgot" || requested === "reset"
       ? requested
       : "login";
   });
@@ -66,6 +66,30 @@ export default function Auth() {
       ? requested
       : "/dashboard";
   });
+  const [securityQuestion1, setSecurityQuestion1] = useState("");
+  const [securityAnswer1, setSecurityAnswer1] = useState("");
+  const [securityQuestion2, setSecurityQuestion2] = useState("");
+  const [securityAnswer2, setSecurityAnswer2] = useState("");
+  const [resetEmail, setResetEmail] = useState("");
+  const [securityQuestions, setSecurityQuestions] = useState<{
+    question1: string | null;
+    question2: string | null;
+  } | null>(null);
+
+  const SECURITY_QUESTIONS = [
+    "What is the name of your first school?",
+    "What is your favorite color?",
+    "What is the name of your childhood pet?",
+    "What city were you born in?",
+    "What is your mother's maiden name?",
+    "What was the name of your first employer?",
+    "What is the model of your first car?",
+    "What is your favorite food?",
+    "What is the name of your best friend in high school?",
+    "What is your favorite movie?",
+    "What is the name of the street you grew up on?",
+    "What is your favorite book?",
+  ];
 
   const login = trpc.auth.login.useMutation({
     onSuccess: async data => {
@@ -87,6 +111,42 @@ export default function Auth() {
     onSuccess: result => toast.success(result.message),
     onError: error => toast.error(error.message),
   });
+  const getSecurityQuestionsQuery = trpc.auth.getSecurityQuestions.useQuery(
+    { email: resetEmail.trim() },
+    { enabled: false, retry: false }
+  );
+  const verifySecurityQuestions = trpc.auth.verifySecurityQuestions.useMutation({
+    onSuccess: async () => {
+      toast.success("Password reset successfully. Please sign in.");
+      setMode("login");
+      setPassword("");
+      setSecurityQuestions(null);
+      setResetEmail("");
+      setSecurityAnswer1("");
+      setSecurityAnswer2("");
+    },
+    onError: error => toast.error(error.message),
+  });
+
+  useEffect(() => {
+    if (getSecurityQuestionsQuery.data && mode === "forgot") {
+      if (getSecurityQuestionsQuery.data.hasQuestions) {
+        setSecurityQuestions({
+          question1: getSecurityQuestionsQuery.data.question1,
+          question2: getSecurityQuestionsQuery.data.question2,
+        });
+        setMode("reset");
+      } else {
+        reset.mutate({
+          email: resetEmail.trim(),
+          origin: PUBLISHED_SITE_ORIGIN,
+        });
+      }
+    }
+    if (getSecurityQuestionsQuery.isError && mode === "forgot") {
+      toast.error("Unable to check security questions. Please try again.");
+    }
+  }, [getSecurityQuestionsQuery.data, getSecurityQuestionsQuery.isError, mode]);
 
   const generateMath = () => {
     setMathA(Math.floor(Math.random() * 20) + 1);
@@ -116,13 +176,20 @@ export default function Auth() {
       });
     }
     if (mode === "forgot") {
-      if (!email.trim() || !/^\S+@\S+\.\S+$/.test(email.trim()))
+      if (!resetEmail.trim() || !/^\S+@\S+\.\S+$/.test(resetEmail.trim()))
+        return setFormError("Enter a valid email address.");
+      return getSecurityQuestionsQuery.refetch();
+    }
+    if (mode === "reset" && securityQuestions) {
+      if (!password || passwordStrength(password) < 3)
         return setFormError(
-          "Enter a valid email address to request a reset link."
+          "Choose a stronger password with at least 10 characters, including letters and numbers."
         );
-      return reset.mutate({
-        email: email.trim(),
-        origin: PUBLISHED_SITE_ORIGIN,
+      return verifySecurityQuestions.mutate({
+        email: resetEmail.trim(),
+        answer1: securityAnswer1.trim(),
+        answer2: securityAnswer2.trim(),
+        newPassword: password,
       });
     }
     if (!name.trim()) return setFormError("Enter your full name.");
@@ -132,6 +199,26 @@ export default function Auth() {
       return setFormError(
         "Choose a stronger password with at least 10 characters, including letters and numbers."
       );
+    const selectedQ1 = securityQuestion1.trim();
+    const selectedA1 = securityAnswer1.trim();
+    const selectedQ2 = securityQuestion2.trim();
+    const selectedA2 = securityAnswer2.trim();
+    if (Boolean(selectedQ1) !== Boolean(selectedA1))
+      return setFormError(
+        "Provide both security question 1 and its answer, or leave both empty."
+      );
+    if (Boolean(selectedQ2) !== Boolean(selectedA2))
+      return setFormError(
+        "Provide both security question 2 and its answer, or leave both empty."
+      );
+    if (selectedQ1.length < 5)
+      return setFormError("Security question 1 must be at least 5 characters.");
+    if (selectedA1.length < 1)
+      return setFormError("Security answer 1 is required.");
+    if (selectedQ2.length < 5)
+      return setFormError("Security question 2 must be at least 5 characters.");
+    if (selectedA2.length < 1)
+      return setFormError("Security answer 2 is required.");
     return register.mutate({
       name: name.trim(),
       email: email || undefined,
@@ -139,9 +226,20 @@ export default function Auth() {
       username: username || undefined,
       password,
       inviteToken: inviteToken || undefined,
+      securityQuestion1: selectedQ1 || undefined,
+      securityAnswer1: selectedA1 || undefined,
+      securityQuestion2: selectedQ2 || undefined,
+      securityAnswer2: selectedA2 || undefined,
     });
   };
-  const pending = login.isPending || register.isPending || reset.isPending;
+  const pending =
+    mode === "login"
+      ? login.isPending
+      : mode === "forgot"
+        ? getSecurityQuestionsQuery.isPending
+        : mode === "reset"
+          ? verifySecurityQuestions.isPending
+          : register.isPending;
   const strength = passwordStrength(password);
   const strengthLabel =
     strength < 2
@@ -253,10 +351,16 @@ export default function Auth() {
                       </span>
                     )}
                     <input
-                      required={mode === "forgot"}
+                      required={mode === "forgot" || mode === "reset"}
                       type="email"
-                      value={email}
-                      onChange={event => setEmail(event.target.value)}
+                      value={mode === "forgot" || mode === "reset" ? resetEmail : email}
+                      onChange={event => {
+                        if (mode === "forgot" || mode === "reset") {
+                          setResetEmail(event.target.value);
+                        } else {
+                          setEmail(event.target.value);
+                        }
+                      }}
                       autoComplete="email"
                       className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
                     />
@@ -312,7 +416,7 @@ export default function Auth() {
                           showPassword ? "Hide password" : "Show password"
                         }
                         onClick={() => setShowPassword(value => !value)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#657084] hover:text-[#7d5e1e]"
+                        className="absolute right-3 top-1/2 -translate-y-0.5 text-[#657084] hover:text-[#7d5e1e]"
                       >
                         {showPassword ? (
                           <EyeOff size={16} />
@@ -363,7 +467,116 @@ export default function Auth() {
                     />
                   </label>
                 )}
+                {mode === "register" && (
+                  <>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                        Security question 1
+                        <select
+                          value={securityQuestion1}
+                          onChange={event => setSecurityQuestion1(event.target.value)}
+                          className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
+                        >
+                          <option value="">Select a question</option>
+                          {SECURITY_QUESTIONS.map(question => (
+                            <option key={question} value={question}>
+                              {question}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                        Answer
+                        <input
+                          value={securityAnswer1}
+                          onChange={event => setSecurityAnswer1(event.target.value)}
+                          placeholder="Your answer"
+                          autoComplete="off"
+                          className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
+                        />
+                      </label>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                        Security question 2
+                        <select
+                          value={securityQuestion2}
+                          onChange={event => setSecurityQuestion2(event.target.value)}
+                          className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
+                        >
+                          <option value="">Select a question</option>
+                          {SECURITY_QUESTIONS.map(question => (
+                            <option key={question} value={question}>
+                              {question}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                        Answer
+                        <input
+                          value={securityAnswer2}
+                          onChange={event => setSecurityAnswer2(event.target.value)}
+                          placeholder="Your answer"
+                          autoComplete="off"
+                          className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
+                        />
+                      </label>
+                    </div>
+                  </>
+                )}
+                {mode === "reset" && securityQuestions && (
+                  <>
+                    <div className="border-l-2 border-[#c9a34e] bg-[#16243d]/5 p-3 text-sm text-[#4a566a]">
+                      <p className="font-semibold">Question 1: {securityQuestions.question1}</p>
+                      <input
+                        required
+                        value={securityAnswer1}
+                        onChange={event => setSecurityAnswer1(event.target.value)}
+                        placeholder="Your answer"
+                        autoComplete="off"
+                        className="mt-2 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm outline-none focus:border-[#c9a34e]"
+                      />
+                    </div>
+                    <div className="border-l-2 border-[#c9a34e] bg-[#16243d]/5 p-3 text-sm text-[#4a566a]">
+                      <p className="font-semibold">Question 2: {securityQuestions.question2}</p>
+                      <input
+                        required
+                        value={securityAnswer2}
+                        onChange={event => setSecurityAnswer2(event.target.value)}
+                        placeholder="Your answer"
+                        autoComplete="off"
+                        className="mt-2 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm outline-none focus:border-[#c9a34e]"
+                      />
+                    </div>
+                    <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                      New password
+                      <span className="font-normal normal-case tracking-normal text-[#657084]">
+                        At least 10 characters, including letters and numbers.
+                      </span>
+                      <div className="relative">
+                        <input
+                          required
+                          type={showPassword ? "text" : "password"}
+                          value={password}
+                          onChange={event => setPassword(event.target.value)}
+                          autoComplete="new-password"
+                          className="w-full border border-[#16243d]/20 bg-white px-3 py-3 pr-11 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
+                        />
+                        <button
+                          type="button"
+                          aria-label={showPassword ? "Hide password" : "Show password"}
+                          onClick={() => setShowPassword(value => !value)}
+                          className="absolute right-3 top-1/2 -translate-y-0.5 text-[#657084] hover:text-[#7d5e1e]"
+                        >
+                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      </div>
+                    </label>
+                  </>
+                )}
                 <button
+                  type="submit"
                   disabled={pending}
                   className="inline-flex items-center justify-center gap-2 bg-[#16243d] px-5 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] disabled:opacity-60"
                 >
@@ -372,7 +585,9 @@ export default function Auth() {
                     ? "Sign in"
                     : mode === "register"
                       ? "Create account"
-                      : "Send reset link"}
+                      : mode === "reset"
+                        ? "Reset password"
+                        : "Send reset link"}
                   <ArrowRight size={14} />
                 </button>
                 {formError && (
@@ -387,12 +602,23 @@ export default function Auth() {
               <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs">
                 <button
                   type="button"
-                  onClick={() =>
-                    setMode(mode === "login" ? "register" : "login")
-                  }
+                  onClick={() => {
+                    if (mode === "reset") {
+                      setMode("forgot");
+                      setSecurityQuestions(null);
+                      setSecurityAnswer1("");
+                      setSecurityAnswer2("");
+                    } else {
+                      setMode(mode === "login" ? "register" : "login");
+                    }
+                  }}
                   className="font-bold text-[#7d5e1e] underline-offset-4 hover:underline"
                 >
-                  {mode === "login" ? "Create an account" : "Back to sign in"}
+                  {mode === "login"
+                    ? "Create an account"
+                    : mode === "reset"
+                      ? "Back to email reset"
+                      : "Back to sign in"}
                 </button>
                 {mode === "login" && (
                   <button
@@ -425,6 +651,7 @@ export default function Auth() {
             </p>
             <p className="mt-3">
               Password reset links are single-use and expire after 30 minutes.
+              You can also reset your password by answering your security questions.
             </p>
           </div>
         </div>

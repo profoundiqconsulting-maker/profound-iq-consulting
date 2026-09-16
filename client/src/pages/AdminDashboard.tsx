@@ -1397,7 +1397,7 @@ export default function AdminDashboard() {
         <div className="mt-8 space-y-8">
           {activeTab === "surveys" && (
             <div id="surveys" className="scroll-mt-8">
-              <AdminResearchSurveyPanel />
+              <AdminSurveysPanel />
             </div>
           )}
 

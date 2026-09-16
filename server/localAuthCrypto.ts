@@ -31,3 +31,11 @@ export function hashResetToken(raw: string) {
 export function hashRateLimitKey(value: string) {
   return createHash("sha256").update(value).digest("hex");
 }
+
+export function hashSecurityAnswer(answer: string) {
+  return hashPassword(answer.trim().toLowerCase());
+}
+
+export function verifySecurityAnswer(answer: string, encoded: string) {
+  return verifyPassword(answer.trim().toLowerCase(), encoded);
+}

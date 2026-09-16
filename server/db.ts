@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { hashPassword } from "./localAuthCrypto";
+import { hashPassword, hashSecurityAnswer, verifySecurityAnswer } from "./localAuthCrypto";
 import {
   and,
   asc,
@@ -88,6 +88,7 @@ import {
   messages,
   messageNotifications,
   resources,
+  resourcePurchases,
   surveys,
   communicationCampaigns,
   communicationTickets,
@@ -1322,12 +1323,22 @@ export async function createLocalUser(input: {
   username?: string | null;
   passwordHash: string;
   role?: "user" | "staff" | "admin";
+  securityQuestion1?: string | null;
+  securityAnswer1Hash?: string | null;
+  securityQuestion2?: string | null;
+  securityAnswer2Hash?: string | null;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db
-    .insert(users)
-    .values({ ...input, loginMethod: "password", role: input.role ?? "user" });
+  await db.insert(users).values({
+    ...input,
+    loginMethod: "password",
+    role: input.role ?? "user",
+    securityQuestion1: input.securityQuestion1 ?? null,
+    securityAnswer1Hash: input.securityAnswer1Hash ?? null,
+    securityQuestion2: input.securityQuestion2 ?? null,
+    securityAnswer2Hash: input.securityAnswer2Hash ?? null,
+  });
   return getUserByOpenId(input.openId);
 }
 
@@ -1337,6 +1348,10 @@ export async function ensureAdminUser() {
   const ADMIN_USERNAME = "profoundiq";
   const ADMIN_EMAIL = "profoundiqconsulting@gmail.com";
   const ADMIN_PASSWORD = "Profoundiq@2026";
+  const ADMIN_SECURITY_Q1 = "What is the name of your first school?";
+  const ADMIN_SECURITY_A1 = "Profound IQ";
+  const ADMIN_SECURITY_Q2 = "What is your favorite color?";
+  const ADMIN_SECURITY_A2 = "Blue";
   const existing = await findUserByLocalIdentifier(ADMIN_USERNAME);
   const existingByEmail = await findUserByLocalIdentifier(ADMIN_EMAIL);
   const user = existing || existingByEmail;
@@ -1349,6 +1364,10 @@ export async function ensureAdminUser() {
       username: ADMIN_USERNAME,
       passwordHash: hashPassword(ADMIN_PASSWORD),
       role: "admin",
+      securityQuestion1: ADMIN_SECURITY_Q1,
+      securityAnswer1Hash: hashSecurityAnswer(ADMIN_SECURITY_A1),
+      securityQuestion2: ADMIN_SECURITY_Q2,
+      securityAnswer2Hash: hashSecurityAnswer(ADMIN_SECURITY_A2),
     });
     console.log(`[Bootstrap] Created admin user ${ADMIN_USERNAME}`);
     return;
@@ -1358,6 +1377,12 @@ export async function ensureAdminUser() {
   if (!user.passwordHash) updates.passwordHash = hashPassword(ADMIN_PASSWORD);
   if (user.username !== ADMIN_USERNAME) updates.username = ADMIN_USERNAME;
   if (user.email !== ADMIN_EMAIL) updates.email = ADMIN_EMAIL;
+  if (!user.securityQuestion1) {
+    updates.securityQuestion1 = ADMIN_SECURITY_Q1;
+    updates.securityAnswer1Hash = hashSecurityAnswer(ADMIN_SECURITY_A1);
+    updates.securityQuestion2 = ADMIN_SECURITY_Q2;
+    updates.securityAnswer2Hash = hashSecurityAnswer(ADMIN_SECURITY_A2);
+  }
   if (Object.keys(updates).length > 0) {
     const { eq } = await import("drizzle-orm");
     await db.update(users).set(updates).where(eq(users.openId, user.openId));
@@ -1406,11 +1431,73 @@ export async function consumePasswordResetToken(
       passwordHash,
       passwordResetTokenHash: null,
       passwordResetExpiresAt: null,
+      securityQuestion1: null,
+      securityAnswer1Hash: null,
+      securityQuestion2: null,
+      securityAnswer2Hash: null,
     })
     .where(
       and(eq(users.id, user.id), eq(users.passwordResetTokenHash, tokenHash))
     );
   return getUserByOpenId(user.openId);
+}
+
+export async function setSecurityQuestions(
+  openId: string,
+  question1: string,
+  answer1Hash: string,
+  question2: string,
+  answer2Hash: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db
+    .update(users)
+    .set({
+      securityQuestion1: question1,
+      securityAnswer1Hash: answer1Hash,
+      securityQuestion2: question2,
+      securityAnswer2Hash: answer2Hash,
+    })
+    .where(eq(users.openId, openId));
+}
+
+export async function verifySecurityQuestions(
+  openId: string,
+  answer1: string,
+  answer2: string
+) {
+  const db = await getDb();
+  if (!db) return false;
+  const rows = await db
+    .select()
+    .from(users)
+    .where(eq(users.openId, openId))
+    .limit(1);
+  const user = rows[0];
+  if (!user || !user.securityAnswer1Hash || !user.securityAnswer2Hash) return false;
+  const valid1 = verifySecurityAnswer(answer1, user.securityAnswer1Hash);
+  const valid2 = verifySecurityAnswer(answer2, user.securityAnswer2Hash);
+  return valid1 || valid2;
+}
+
+export async function resetPasswordViaSecurityQuestions(
+  openId: string,
+  newPasswordHash: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db
+    .update(users)
+    .set({
+      passwordHash: newPasswordHash,
+      securityQuestion1: null,
+      securityAnswer1Hash: null,
+      securityQuestion2: null,
+      securityAnswer2Hash: null,
+    })
+    .where(eq(users.openId, openId));
+  return getUserByOpenId(openId);
 }
 
 export async function upsertUser(user: InsertUser): Promise<void> {
@@ -7512,6 +7599,8 @@ export async function createResource(input: {
   fileType?: string;
   fileSize?: number;
   coverImageUrl?: string;
+  price?: number;
+  currency?: string;
   createdByOpenId: string;
 }) {
   const db = await getDb();
@@ -7522,6 +7611,8 @@ export async function createResource(input: {
     fileType: input.fileType ?? null,
     fileSize: input.fileSize ?? null,
     coverImageUrl: input.coverImageUrl ?? null,
+    price: input.price ?? 0,
+    currency: input.currency ?? "KES",
   }).$returningId();
   return rows[0];
 }
@@ -7536,6 +7627,8 @@ export async function updateResource(id: number, input: {
   coverImageUrl?: string;
   status?: string;
   sortOrder?: number;
+  price?: number;
+  currency?: string;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -7548,6 +7641,55 @@ export async function deleteResource(id: number) {
   if (!db) throw new Error("Database is not available");
   await db.delete(resources).where(eq(resources.id, id));
   return true;
+}
+
+export async function createResourcePurchase(input: {
+  resourceId: number;
+  userOpenId: string;
+  userEmail: string;
+  amountKes: number;
+  currency?: string;
+  paystackReference?: string;
+  paymentStatus?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db.insert(resourcePurchases).values({
+    resourceId: input.resourceId,
+    userOpenId: input.userOpenId,
+    userEmail: input.userEmail,
+    amountKes: input.amountKes,
+    currency: input.currency ?? "KES",
+    paystackReference: input.paystackReference ?? null,
+    paymentStatus: input.paymentStatus ?? "pending",
+  }).$returningId();
+  return rows[0];
+}
+
+export async function getResourcePurchaseByReference(reference: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select().from(resourcePurchases).where(eq(resourcePurchases.paystackReference, reference)).limit(1);
+  return rows[0] ?? null;
+}
+
+export async function updateResourcePurchaseStatus(id: number, paymentStatus: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(resourcePurchases).set({ paymentStatus }).where(eq(resourcePurchases.id, id));
+  return getResourcePurchaseByReference((await db.select().from(resourcePurchases).where(eq(resourcePurchases.id, id)).limit(1))?.[0]?.paystackReference ?? "");
+}
+
+export async function listUserResourcePurchases(userOpenId: string) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(resourcePurchases).where(eq(resourcePurchases.userOpenId, userOpenId)).orderBy(desc(resourcePurchases.purchasedAt));
+}
+
+export async function listResourcePurchases(resourceId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(resourcePurchases).where(eq(resourcePurchases.resourceId, resourceId)).orderBy(desc(resourcePurchases.purchasedAt));
 }
 
 export async function listSurveys() {

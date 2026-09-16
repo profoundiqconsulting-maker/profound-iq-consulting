@@ -279,6 +279,7 @@ const readProgress = (course: CourseDefinition): SavedProgress => {
 };
 
 export default function CourseWorkspace() {
+  const utils = trpc.useUtils();
   const [, params] = useRoute("/courses/:slug");
   const { locale } = useLocale();
   const baseCourse = courseCatalog.find(item => item.slug === params?.slug);
@@ -312,7 +313,7 @@ function CourseWorkspaceContent({ course }: { course: CourseDefinition }) {
   if (authLoading)
     return (
       <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-        <TransformationNav active="assessment" />
+        <TransformationNav active="courses" />
         <main className="container grid min-h-[70vh] place-items-center py-16">
           <div className="text-center">
             <Loader2
@@ -380,6 +381,7 @@ function CourseWorkspaceContent({ course }: { course: CourseDefinition }) {
 }
 
 function FirstStageCheckout({ course }: { course: CourseDefinition }) {
+  const utils = trpc.useUtils();
   const { user } = useAuth();
   const { t, locale } = useLocale();
   const enrollmentCopy = getCourseEnrollmentCopy(locale);
@@ -649,6 +651,7 @@ function FirstStageCheckout({ course }: { course: CourseDefinition }) {
                 toast.success("Payment verified", {
                   description: "Your course access is updated.",
                 });
+                void utils.dashboard.mine.refetch();
                 window.location.reload();
               },
               onError: error => {

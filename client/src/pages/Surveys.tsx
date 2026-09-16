@@ -3,6 +3,7 @@ import { useState } from "react";
 import { CheckCircle2, Vote } from "lucide-react";
 import { PublicPageShell } from "@/components/PublicPageShell";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { SocialSharing } from "@/components/SocialSharing";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -64,6 +65,8 @@ export default function Surveys() {
               {activeSurveys.map((survey, index) => {
                 const totalVotes = survey.totalResponses;
                 const userChoice = responses[survey.id];
+                const shareUrl = `${window.location.origin}/surveys`;
+                const shareText = `Participate in this ${survey.type}: ${survey.title}`;
                 return (
                   <ScrollReveal key={survey.id} delay={index * 70}>
                     <article className="border border-[#16243d]/10 bg-white p-8 shadow-sm transition-all hover:shadow-lg">
@@ -127,6 +130,13 @@ export default function Surveys() {
                           </span>
                         )}
                       </p>
+                      <SocialSharing
+                        url={shareUrl}
+                        title={survey.title}
+                        text={shareText}
+                        platforms={["linkedin", "x", "facebook", "whatsapp", "copy"]}
+                        className="mt-4"
+                      />
                     </article>
                   </ScrollReveal>
                 );
