@@ -1,4 +1,4 @@
-const DEFAULT_SITE_ORIGIN = "http://localhost:3000";
+const DEFAULT_SITE_ORIGIN = "https://profoundiqconsulting.com";
 
 export const PUBLISHED_SITE_ORIGIN =
   typeof window === "undefined"
