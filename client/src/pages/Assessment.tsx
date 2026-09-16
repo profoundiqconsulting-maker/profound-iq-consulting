@@ -2074,6 +2074,29 @@ export default function Assessment() {
                 </div>
               )}
             </div>
+            {stage === "questions" && (
+              <>
+                <AssessmentContentPagination
+                  currentPage={contentPage}
+                  pageCount={contentPageCount}
+                  questionCount={moduleQuestions.length}
+                  hasNextModule={page < totalPages - 1}
+                  onPageChange={nextPage =>
+                    advanceAssessmentContent(
+                      Math.max(0, Math.min(contentPageCount, nextPage))
+                    )
+                  }
+                />
+                {contentAdvanceNotice && (
+                  <p
+                    role="status"
+                    className="mb-6 animate-pulse border-l-2 border-[#c9a34e] bg-[#fffaf0] px-4 py-3 text-sm font-semibold text-[#7d5e1e]"
+                  >
+                    {contentAdvanceNotice}
+                  </p>
+                )}
+              </>
+            )}
             {mobileReviewMode && (
               <div className="mb-4 flex items-center justify-between border-l-2 border-[#c9a34e] bg-[#16243d] p-4 text-[#f7f3e8] sm:hidden">
                 <div>
