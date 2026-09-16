@@ -30,6 +30,7 @@ import {
   dashboardNavGroups,
   visibleDashboardNavItems,
 } from "./dashboardNavigation";
+import { AdminObservatorySidebarWidget } from "./AdminObservatorySidebarWidget";
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
 const DEFAULT_WIDTH = 280;
@@ -275,7 +276,7 @@ function DashboardLayoutContent({
               })}
             </SidebarMenu>
           </SidebarContent>
-
+          <AdminObservatorySidebarWidget />
           <SidebarFooter className="border-t border-slate-800 bg-slate-900 p-3">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

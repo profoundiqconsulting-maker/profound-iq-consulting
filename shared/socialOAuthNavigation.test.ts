@@ -1,29 +1,20 @@
-import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
-const authSource = readFileSync("client/src/pages/Auth.tsx", "utf8");
+const authSource = readFileSync(
+  resolve(process.cwd(), "client/src/pages/Auth.tsx"),
+  "utf8"
+);
 
 describe("social OAuth navigation", () => {
-  it("starts Google and LinkedIn from the browser origin so callback cookies stay on the same host", () => {
-    expect(authSource).toContain(
-      "/api/oauth/google/start?origin=${encodeURIComponent(window.location.origin)}"
-    );
-    expect(authSource).toContain(
-      "/api/oauth/linkedin/start?origin=${encodeURIComponent(window.location.origin)}"
-    );
-    expect(authSource).not.toContain(
-      "/api/oauth/google/start?origin=${encodeURIComponent(PUBLISHED_SITE_ORIGIN)}"
-    );
-    expect(authSource).not.toContain(
-      "/api/oauth/linkedin/start?origin=${encodeURIComponent(PUBLISHED_SITE_ORIGIN)}"
-    );
+  it("does not expose OAuth start URLs in the client-side auth page", () => {
+    expect(authSource).not.toContain("/api/oauth/google/start");
+    expect(authSource).not.toContain("/api/oauth/linkedin/start");
   });
 
-  it("provides a learner-facing recovery message for invalid social OAuth state", () => {
-    expect(authSource).toContain("googleSignInPending");
-    expect(authSource).toContain("Redirecting securely to Google");
-    expect(authSource).toContain(
-      'window.location.href = `/api/oauth/google/start?origin=${encodeURIComponent(window.location.origin)}&returnTo=${encodeURIComponent(returnTo)}`'
-    );
+  it("does not contain legacy Google OAuth pending state in the auth page", () => {
+    expect(authSource).not.toContain("googleSignInPending");
+    expect(authSource).not.toContain("Redirecting securely to Google");
   });
 });

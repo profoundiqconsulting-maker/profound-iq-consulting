@@ -41,7 +41,7 @@ export default function AdminSocialPreviewSettings() {
           <ImageIcon size={18} />
         </div>
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
             Share presentation
           </p>
           <h2

@@ -472,7 +472,7 @@ export default function CertificateVerification() {
       <TransformationNav active="assessment" />
       <main className="container py-12 sm:py-20">
         <div className="mx-auto max-w-3xl">
-          <p className="eyebrow text-[#a27e2e]">{eyebrow}</p>
+          <p className="eyebrow text-[#7d5e1e]">{eyebrow}</p>
           <h1 className="display mt-4 text-5xl leading-none sm:text-7xl">
             {title}
           </h1>
@@ -488,7 +488,7 @@ export default function CertificateVerification() {
           ) : verification.isLoading ? (
             status(
               <ShieldCheck
-                className="animate-pulse text-[#a27e2e]"
+                className="animate-pulse text-[#7d5e1e]"
                 size={28}
               />,
               checking,

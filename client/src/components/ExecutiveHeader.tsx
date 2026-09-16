@@ -112,7 +112,7 @@ export function ExecutiveHeader({
                     active
                       ? dark
                         ? "text-[#c9a34e]"
-                        : "text-[#a27e2e]"
+                        : "text-[#7d5e1e]"
                       : dark
                         ? "text-[#c1cad7] hover:text-[#f7f3e8]"
                         : "text-[#4a566a] hover:text-[#16243d]"
@@ -220,19 +220,19 @@ export function ExecutiveHeader({
             <Search
               size={15}
               strokeWidth={2}
-              className={dark ? "text-[#a27e2e]" : "text-[#a27e2e]"}
+              className={dark ? "text-[#7d5e1e]" : "text-[#7d5e1e]"}
               aria-hidden="true"
             />
-            <input
-              type="search"
-              placeholder="Search…"
-              className={cn(
-                "h-10 w-full rounded-md border bg-transparent px-3 text-sm tracking-tight outline-none",
-                dark
-                  ? "border-white/12 placeholder:text-[#8f9db3]"
-                  : "border-[#16243d]/15 placeholder:text-[#657084]"
-              )}
-            />
+             <input
+               type="search"
+               placeholder="Search…"
+               className={cn(
+                 "h-10 w-full rounded-md border bg-transparent px-3 text-sm tracking-tight outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30",
+                 dark
+                   ? "border-white/12 placeholder:text-[#8f9db3]"
+                   : "border-[#16243d]/15 placeholder:text-[#657084]"
+               )}
+             />
           </div>
 
           <nav className="grid grid-cols-1 gap-1" aria-label="Primary mobile">
@@ -251,7 +251,7 @@ export function ExecutiveHeader({
                     active
                       ? dark
                         ? "border-[#c9a34e]/50 bg-[#c9a34e]/10 text-[#c9a34e]"
-                        : "border-[#a27e2e]/50 bg-[#a27e2e]/10 text-[#a27e2e]"
+                        : "border-[#a27e2e]/50 bg-[#a27e2e]/10 text-[#7d5e1e]"
                       : dark
                         ? "border border-white/8 text-[#c1cad7] hover:border-white/20 hover:bg-white/5 hover:text-[#f7f3e8]"
                         : "border border-[#16243d]/10 text-[#4a566a] hover:border-[#16243d]/25 hover:bg-white hover:text-[#16243d]"

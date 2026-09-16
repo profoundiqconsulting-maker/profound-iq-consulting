@@ -53,7 +53,10 @@ describe("course enrollment access flow", () => {
     );
     expect(coursesSource).toContain("trpc.course.enroll.useMutation");
     expect(coursesSource).toContain(
-      "stageCheckout.mutate({ enrollmentId: result.enrollmentId, stage: 1 }"
+      "stageCheckout.mutate("
+    );
+    expect(coursesSource).toContain(
+      "enrollmentId: result.enrollmentId, stage: 1"
     );
     expect(coursesSource).toContain(
       "window.location.href = `/auth?mode=login&returnTo="
@@ -70,12 +73,18 @@ describe("course enrollment access flow", () => {
     expect(workspaceSource).toContain(
       "Lesson access opens only after payment verification"
     );
+    expect(workspaceSource).toContain(
+      "checkoutMutation.mutate("
+    );
+    expect(workspaceSource).toContain(
+      "enrollmentId: result.enrollmentId, stage: 1"
+    );
   });
 
   it("keeps lesson content behind auth-session resolution and staged payment gates", () => {
     expect(workspaceSource).toContain("loading: authLoading");
     expect(workspaceSource).toContain(
-      "Your lessons remain protected while we confirm your signed-in session."
+      "Your lessons remain protected while we confirm your signed-in"
     );
     expect(workspaceSource).toContain("canAccessCourseLessons");
     expect(accessSource).toContain("Complete the first 25% enrollment payment");

@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 import {
@@ -184,9 +184,9 @@ export default function Auth() {
         </div>
         <div className="border border-[#c9a34e]/60 bg-[#f7f3e8] p-7 text-[#16243d] shadow-2xl sm:p-10">
           <div className="flex items-center gap-3 border-b border-[#16243d]/15 pb-6">
-            <LockKeyhole className="text-[#a27e2e]" size={20} />
+            <LockKeyhole className="text-[#7d5e1e]" size={20} />
             <div>
-              <p className="eyebrow text-[#a27e2e]">{authCopy.secureAccess}</p>
+              <p className="eyebrow text-[#7d5e1e]">{authCopy.secureAccess}</p>
               <h2 className="display mt-2 text-3xl">
                 {mode === "login"
                   ? authCopy.welcome
@@ -312,7 +312,7 @@ export default function Auth() {
                           showPassword ? "Hide password" : "Show password"
                         }
                         onClick={() => setShowPassword(value => !value)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#657084] hover:text-[#a27e2e]"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#657084] hover:text-[#7d5e1e]"
                       >
                         {showPassword ? (
                           <EyeOff size={16} />
@@ -390,7 +390,7 @@ export default function Auth() {
                   onClick={() =>
                     setMode(mode === "login" ? "register" : "login")
                   }
-                  className="font-bold text-[#a27e2e] underline-offset-4 hover:underline"
+                  className="font-bold text-[#7d5e1e] underline-offset-4 hover:underline"
                 >
                   {mode === "login" ? "Create an account" : "Back to sign in"}
                 </button>
@@ -419,7 +419,7 @@ export default function Auth() {
             <p className="flex items-start gap-2">
               <CheckCircle2
                 size={15}
-                className="mt-0.5 shrink-0 text-[#a27e2e]"
+                className="mt-0.5 shrink-0 text-[#7d5e1e]"
               />
               Your password is stored as a one-way cryptographic hash.
             </p>

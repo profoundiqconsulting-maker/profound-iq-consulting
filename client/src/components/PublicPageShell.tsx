@@ -24,6 +24,7 @@ const navItems = [
   { label: "CareerPath", href: "/careerpath" },
   { label: "Resources", href: "/resources" },
   { label: "Surveys", href: "/surveys" },
+  { label: "My Space", href: "/dashboard" },
 ];
 
 type Breadcrumb = { label: string; href?: string };
@@ -121,7 +122,7 @@ export function PublicPageShell({
               >
                 <div className="h-24 w-px bg-[#c9a34e]" />
                 <p
-                  className={`eyebrow mt-5 ${darkHero ? "text-[#8f9db3]" : "text-[#a27e2e]"}`}
+                  className={`eyebrow mt-5 ${darkHero ? "text-[#8f9db3]" : "text-[#7d5e1e]"}`}
                 >
                   The signal
                 </p>

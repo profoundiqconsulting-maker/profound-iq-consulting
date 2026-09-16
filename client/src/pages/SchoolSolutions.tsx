@@ -65,7 +65,7 @@ export default function SchoolSolutions() {
         <ScrollReveal>
           <div className="container grid gap-16 lg:grid-cols-[.65fr_1.35fr] lg:gap-20">
             <div>
-              <p className="eyebrow text-[#a27e2e]">The school context</p>
+              <p className="eyebrow text-[#7d5e1e]">The school context</p>
               <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
                 Improvement is a connected system.
               </h2>
@@ -90,7 +90,7 @@ export default function SchoolSolutions() {
         <div className="container">
           <ScrollReveal>
             <div className="max-w-3xl">
-              <p className="eyebrow text-[#a27e2e]">Where we can help</p>
+              <p className="eyebrow text-[#7d5e1e]">Where we can help</p>
               <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
                 A practical route from challenge to capability.
               </h2>
@@ -101,7 +101,7 @@ export default function SchoolSolutions() {
               <ScrollReveal key={title} delay={index * 70}>
                 <article className="public-card-link group border-t-4 border-[#c9a34e] bg-white/70 p-8 transition-all duration-200 hover:-translate-y-1 hover:bg-white hover:shadow-lg sm:p-9">
                   <div className="flex items-start justify-between gap-5">
-                    <Icon size={26} className="text-[#a27e2e]" />
+                    <Icon size={26} className="text-[#7d5e1e]" />
                     <span className="text-[10px] font-black tracking-[.16em] text-[#657084]">
                       0{index + 1}
                     </span>
@@ -152,7 +152,7 @@ export default function SchoolSolutions() {
         <ScrollReveal>
           <div className="container flex flex-col items-start justify-between gap-8 border-t border-[#16243d]/10 pt-12 sm:flex-row sm:items-center">
             <div>
-              <p className="eyebrow text-[#a27e2e]">
+              <p className="eyebrow text-[#7d5e1e]">
                 For schools ready to move
               </p>
               <h2 className="display mt-4 text-4xl leading-tight sm:text-5xl">

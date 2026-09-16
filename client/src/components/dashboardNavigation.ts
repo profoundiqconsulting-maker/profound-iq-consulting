@@ -44,7 +44,7 @@ export const dashboardNavItems: DashboardNavItem[] = [
   {
     id: "overview",
     labelKey: "overview",
-    fallbackLabel: "Overview",
+    fallbackLabel: "My Space",
     path: "/dashboard",
     icon: LayoutDashboard,
     group: "workspace",

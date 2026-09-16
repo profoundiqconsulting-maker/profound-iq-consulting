@@ -128,7 +128,7 @@ export default function Services() {
       <section className="bg-[#f7f3e8] py-24 lg:py-32">
         <div className="container">
           <div className="max-w-3xl">
-            <p className="eyebrow text-[#a27e2e]">The portfolio</p>
+            <p className="eyebrow text-[#7d5e1e]">The portfolio</p>
             <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
               Choose the work that moves your question forward.
             </h2>
@@ -146,11 +146,11 @@ export default function Services() {
                       <div className="inline-flex h-14 w-14 items-center justify-center rounded-sm bg-[#16243d] text-[#c9a34e]">
                         <Icon size={24} />
                       </div>
-                      <span className="text-[10px] font-black tracking-[.16em] text-[#a27e2e]">
+                      <span className="text-[10px] font-black tracking-[.16em] text-[#7d5e1e]">
                         0{index + 1}
                       </span>
                     </div>
-                    <p className="mt-8 text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+                    <p className="mt-8 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                       {tag}
                     </p>
                     <h3 className="mt-4 max-w-lg text-2xl font-semibold leading-tight">
@@ -165,7 +165,7 @@ export default function Services() {
                       </span>
                       <Link
                         href={href}
-                        className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-colors group-hover:text-[#a27e2e]"
+                        className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-colors group-hover:text-[#7d5e1e]"
                       >
                         Learn more <ArrowUpRight size={14} />
                       </Link>
@@ -213,7 +213,7 @@ export default function Services() {
       <section className="bg-[#fffaf0] py-24 lg:py-32">
         <div className="container grid gap-16 lg:grid-cols-[.65fr_1.35fr] lg:gap-20">
           <div>
-            <p className="eyebrow text-[#a27e2e]">Questions, answered</p>
+            <p className="eyebrow text-[#7d5e1e]">Questions, answered</p>
             <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
               Start with the context you have.
             </h2>
@@ -221,9 +221,9 @@ export default function Services() {
           <div className="divide-y divide-[#16243d]/10 border-y border-[#16243d]/10">
             {faqs.map(([question, answer]) => (
               <details key={question} className="group cursor-pointer py-6">
-                <summary className="flex list-none items-start justify-between gap-5 text-base font-semibold text-[#16243d] transition-colors hover:text-[#a27e2e]">
+                <summary className="flex list-none items-start justify-between gap-5 text-base font-semibold text-[#16243d] transition-colors hover:text-[#7d5e1e]">
                   {question}
-                  <span className="mt-0.5 shrink-0 text-2xl font-normal text-[#a27e2e] transition-transform group-open:rotate-45">
+                  <span className="mt-0.5 shrink-0 text-2xl font-normal text-[#7d5e1e] transition-transform group-open:rotate-45">
                     +
                   </span>
                 </summary>
@@ -238,7 +238,7 @@ export default function Services() {
       <section className="bg-[#f7f3e8] py-20">
         <div className="container flex flex-col items-start justify-between gap-8 border-t border-[#16243d]/10 pt-12 sm:flex-row sm:items-center">
           <div>
-            <p className="eyebrow text-[#a27e2e]">Next step</p>
+            <p className="eyebrow text-[#7d5e1e]">Next step</p>
             <h2 className="display mt-4 text-4xl leading-tight sm:text-5xl">
               Tell us what needs to change.
             </h2>

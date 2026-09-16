@@ -297,10 +297,10 @@ export default function Psychometrics() {
               >
                 <CardHeader>
                   <div className="flex items-center justify-between gap-3">
-                    <span className="eyebrow text-[#a27e2e]">
+                    <span className="eyebrow text-[#7d5e1e]">
                       {test.questionCount} items
                     </span>
-                    <span className="text-sm font-semibold text-[#a27e2e]">
+                    <span className="text-sm font-semibold text-[#7d5e1e]">
                       {displayPrice}
                     </span>
                   </div>
@@ -348,7 +348,7 @@ export default function Psychometrics() {
           </Link>
           <Card className="mt-6 border-[#c9a34e]/50 bg-[#fffdf7]">
             <CardHeader>
-              <p className="eyebrow text-[#a27e2e]">PERSONALIZED PROFILE</p>
+              <p className="eyebrow text-[#7d5e1e]">PERSONALIZED PROFILE</p>
               <CardTitle className="display text-5xl">{report.title}</CardTitle>
               <p className="text-[#16243d]">{paymentMessage}</p>
             </CardHeader>
@@ -370,7 +370,7 @@ export default function Psychometrics() {
                         key={strength}
                         className="flex items-center gap-3 rounded-xl border border-[#16243d]/10 p-4"
                       >
-                        <CheckCircle2 className="text-[#a27e2e]" size={18} />
+                        <CheckCircle2 className="text-[#7d5e1e]" size={18} />
                         <span className="text-sm font-semibold text-[#16243d]">
                           {strength}
                         </span>
@@ -387,7 +387,7 @@ export default function Psychometrics() {
                   >
                     <div className="flex justify-between gap-3">
                       <strong className="text-[#16243d]">{domain.label}</strong>
-                      <span className="font-bold text-[#a27e2e]">
+                      <span className="font-bold text-[#7d5e1e]">
                         {domain.score}/100
                       </span>
                     </div>
@@ -435,7 +435,7 @@ export default function Psychometrics() {
                 </Link>
               </div>
               <section className="mt-8 border-t border-[#16243d]/10 pt-7">
-                <p className="eyebrow text-[#a27e2e]">Recommended next steps</p>
+                <p className="eyebrow text-[#7d5e1e]">Recommended next steps</p>
                 <h2 className="display mt-2 text-3xl">
                   Turn insight into practice.
                 </h2>
@@ -486,7 +486,7 @@ export default function Psychometrics() {
                               className={
                                 feedbackScores[course.slug] &&
                                 feedbackScores[course.slug] >= rating
-                                  ? "text-[#a27e2e]"
+                                  ? "text-[#7d5e1e]"
                                   : "text-[#9aa2ad]"
                               }
                             >
@@ -554,10 +554,10 @@ export default function Psychometrics() {
         >
           <ol className="flex items-center gap-2">
             <li
-              className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${!slug ? "text-[#16243d]" : "text-[#a27e2e]"}`}
+              className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${!slug ? "text-[#16243d]" : "text-[#7d5e1e]"}`}
             >
               <span
-                className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[10px] ${!slug ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : "border-[#a27e2e] text-[#a27e2e]"}`}
+                className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[10px] ${!slug ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : "border-[#a27e2e] text-[#7d5e1e]"}`}
               >
                 1
               </span>
@@ -604,13 +604,13 @@ export default function Psychometrics() {
               <ArrowLeft size={16} /> All profiles
             </Button>
           </Link>
-          <span className="eyebrow text-[#a27e2e]">
+          <span className="eyebrow text-[#7d5e1e]">
             {displayPrice} · Paystack
           </span>
         </div>
         <section className="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
           <div>
-            <p className="eyebrow text-[#a27e2e]">{test.shortTitle}</p>
+            <p className="eyebrow text-[#7d5e1e]">{test.shortTitle}</p>
             <h1 className="display mt-4 text-5xl leading-none">
               {test.strapline}
             </h1>
@@ -626,7 +626,7 @@ export default function Psychometrics() {
               </div>
               <Progress value={completion} className="mt-3" />
               <div className="mt-7">
-                <p className="eyebrow text-[#a27e2e]">{current?.domainLabel}</p>
+                <p className="eyebrow text-[#7d5e1e]">{current?.domainLabel}</p>
                 <h2 className="mt-3 text-xl font-semibold leading-8">
                   {current?.prompt}
                 </h2>
@@ -699,7 +699,7 @@ export default function Psychometrics() {
         </section>
         {index === questions.length && (
           <section className="mt-8 rounded-2xl border border-[#c9a34e]/50 bg-[#fffdf7] p-6">
-            <p className="eyebrow text-[#a27e2e]">
+            <p className="eyebrow text-[#7d5e1e]">
               {workflowCopy.secureCheckout}
             </p>
             <h2 className="display mt-3 text-3xl">

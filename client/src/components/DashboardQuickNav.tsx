@@ -35,7 +35,7 @@ export function DashboardQuickNav({
             >
               <p
                 id={`quick-nav-${group.id}`}
-                className="px-2 pb-1 pt-1 text-[9px] font-black uppercase tracking-[.16em] text-[#a27e2e]"
+                className="px-2 pb-1 pt-1 text-[9px] font-black uppercase tracking-[.16em] text-[#7d5e1e]"
               >
                 {group.fallbackLabel}
               </p>

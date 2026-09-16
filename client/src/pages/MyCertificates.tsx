@@ -213,7 +213,7 @@ export default function MyCertificates() {
       <div className="space-y-8">
         <header className="flex flex-col gap-3 border-b border-[#16243d]/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="eyebrow text-[#a27e2e]">YOUR CREDENTIALS</p>
+            <p className="eyebrow text-[#7d5e1e]">YOUR CREDENTIALS</p>
             <h1 className="display mt-3 text-4xl leading-tight text-[#16243d] sm:text-5xl">
               My Certificates
             </h1>
@@ -269,7 +269,7 @@ export default function MyCertificates() {
                   <Award className="h-7 w-7 text-[#c9a34e]" />
                   {cert.emailStatus === "sent" ||
                   cert.emailStatus === "delivered" ? (
-                    <span className="inline-flex items-center gap-1 border border-[#c9a34e]/40 bg-[#c9a34e]/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                    <span className="inline-flex items-center gap-1 border border-[#c9a34e]/40 bg-[#c9a34e]/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                       <MailCheck size={10} /> Emailed
                     </span>
                   ) : cert.emailStatus === "failed" ? (
@@ -330,7 +330,7 @@ export default function MyCertificates() {
                     type="button"
                     onClick={() => handleDownloadPng(cert)}
                     disabled={!cert.fileUrl}
-                    className="inline-flex items-center gap-1.5 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition-colors hover:border-[#c9a34e] hover:text-[#a27e2e] disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition-colors hover:border-[#c9a34e] hover:text-[#7d5e1e] disabled:opacity-50"
                   >
                     <ImageDown size={12} /> PNG
                   </button>
@@ -338,14 +338,14 @@ export default function MyCertificates() {
                     type="button"
                     onClick={() => handlePrint(cert)}
                     disabled={!cert.fileUrl}
-                    className="inline-flex items-center gap-1.5 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition-colors hover:border-[#c9a34e] hover:text-[#a27e2e] disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition-colors hover:border-[#c9a34e] hover:text-[#7d5e1e] disabled:opacity-50"
                   >
                     <Printer size={12} /> Print
                   </button>
                   <button
                     type="button"
                     onClick={() => handleShare(cert)}
-                    className="inline-flex items-center gap-1.5 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition-colors hover:border-[#c9a34e] hover:text-[#a27e2e]"
+                    className="inline-flex items-center gap-1.5 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition-colors hover:border-[#c9a34e] hover:text-[#7d5e1e]"
                   >
                     <Share2 size={12} /> Share
                   </button>
@@ -354,7 +354,7 @@ export default function MyCertificates() {
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Link
                     href={`/verify/certificate?certificate=${encodeURIComponent(cert.certificateNumber)}`}
-                    className="inline-flex items-center gap-1.5 px-1 text-[10px] font-bold uppercase tracking-[.12em] text-[#a27e2e] hover:text-[#16243d]"
+                    className="inline-flex items-center gap-1.5 px-1 text-[10px] font-bold uppercase tracking-[.12em] text-[#7d5e1e] hover:text-[#16243d]"
                   >
                     <ShieldCheck size={11} /> Verify credential{" "}
                     <ExternalLink size={10} />

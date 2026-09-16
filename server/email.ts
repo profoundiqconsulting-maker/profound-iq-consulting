@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import type { AssessmentReport } from "../shared/assessment";
 import {
   getTopCareerPathStrengths,
@@ -30,15 +30,10 @@ import type { PsychometricReport } from "../shared/psychometrics";
 import { getGeneratedCopy } from "../shared/generatedCopy";
 import { PUBLISHED_SITE_ORIGIN } from "../shared/siteOrigin";
 
-type SmtpEnv = {
-  SMTP_HOST?: string;
-  SMTP_PORT?: string;
-  SMTP_USER?: string;
-  SMTP_PASSWORD?: string;
-  SMTP_FROM?: string;
-  SMTP_FROM_NAME?: string;
+type ResendEnv = {
   RESEND_API_KEY?: string;
   EMAIL_FROM?: string;
+  EMAIL_FROM_NAME?: string;
 };
 type MailAttachment = {
   filename?: string;
@@ -59,64 +54,90 @@ type MailTransport = {
 };
 
 export type SmtpConfig = {
-  host: string;
-  port: number;
-  user: string;
-  password: string;
+  apiKey: string;
   from: string;
   fromName: string;
 };
 
-let transporter: MailTransport | null = null;
+let resendClient: Resend | null = null;
 
 export function getSmtpConfig(
-  env: SmtpEnv = process.env as SmtpEnv
+  env: ResendEnv = process.env as ResendEnv
 ): SmtpConfig {
-  const resendApiKey = env.RESEND_API_KEY?.trim();
-  const configuredHost = env.SMTP_HOST?.trim();
-  const usingResend = Boolean(
-    resendApiKey && (!configuredHost || configuredHost === "smtp.resend.com")
-  );
-  const host = configuredHost || (usingResend ? "smtp.resend.com" : undefined);
-  const port = Number(env.SMTP_PORT ?? (usingResend ? 465 : 587));
-  const user = env.SMTP_USER?.trim() || (usingResend ? "resend" : undefined);
-  const password =
-    env.SMTP_PASSWORD?.trim() || (usingResend ? resendApiKey : undefined);
-  const from = env.SMTP_FROM?.trim() || env.EMAIL_FROM?.trim() || user;
-  const fromName = env.SMTP_FROM_NAME?.trim() || "Profound IQ Consulting";
-  if (
-    !host ||
-    !Number.isInteger(port) ||
-    port <= 0 ||
-    !user ||
-    !password ||
-    !from
-  )
-    throw new Error("SMTP report delivery is not configured.");
-  return { host, port, user, password, from, fromName };
+  const apiKey = env.RESEND_API_KEY?.trim();
+  const from = env.EMAIL_FROM?.trim();
+  const fromName = env.EMAIL_FROM_NAME?.trim() || "Profound IQ Consulting";
+  if (!apiKey || !from)
+    throw new Error("Resend API key and EMAIL_FROM are required.");
+  return { apiKey, from, fromName };
 }
 
-function getTransporter(): MailTransport {
-  if (!transporter) {
+function getResendClient(): Resend {
+  if (!resendClient) {
     const config = getSmtpConfig();
-    const smtpTransport = nodemailer.createTransport({
-      host: config.host,
-      port: config.port,
-      secure: config.port === 465,
-      auth: { user: config.user, pass: config.password },
-    });
-    transporter = {
-      sendMail: options => smtpTransport.sendMail(options),
-      verify: async () => {
-        await smtpTransport.verify();
-      },
-    };
+    resendClient = new Resend(config.apiKey);
   }
-  return transporter!;
+  return resendClient;
+}
+
+function toResendFrom(
+  from?: string | { name?: string; address: string },
+  fallbackName?: string
+): string {
+  if (typeof from === "string") return from;
+  if (from?.address) return from.name ? `${from.name} <${from.address}>` : from.address;
+  return fallbackName ?? "Profound IQ Consulting";
+}
+
+function buildResendAttachments(
+  attachments?: MailAttachment[]
+): Array<{ filename?: string | false; content?: string | Buffer; contentType?: string }> {
+  if (!attachments?.length) return [];
+  return attachments.map(attachment => {
+    if (attachment.content == null) return attachment;
+    return {
+      ...attachment,
+      content:
+        typeof attachment.content === "string"
+          ? attachment.content
+          : attachment.content.toString("base64"),
+    };
+  });
+}
+
+async function sendMail(options: MailOptions): Promise<unknown> {
+  const config = getSmtpConfig();
+  const resend = getResendClient();
+  const from = toResendFrom(options.from, config.fromName);
+  const to = Array.isArray(options.to) ? options.to : [options.to ?? config.from];
+
+  if (!options.text && !options.html) {
+    throw new Error("Resend requires at least one of text or html.");
+  }
+
+  const response = await resend.emails.send({
+    from,
+    to,
+    subject: options.subject ?? "",
+    text: options.text,
+    html: options.html,
+    attachments: buildResendAttachments(options.attachments),
+  } as import("resend").CreateEmailOptions);
+  return response;
 }
 
 export async function verifySmtpConnection(): Promise<void> {
-  await getTransporter().verify();
+  const config = getSmtpConfig();
+  const resend = getResendClient();
+  const response = await resend.emails.send({
+    from: config.from,
+    to: [config.from],
+    subject: "Profound IQ email verification",
+    text: "This is a verification message confirming Resend delivery is configured.",
+  });
+  if (!response.data?.id) {
+    throw new Error("Resend did not return a message ID for the verification send.");
+  }
 }
 
 export async function emailAssessmentReportIfNeeded(input: {
@@ -160,7 +181,7 @@ export async function sendScheduledExportNotification(input: {
     input.status === "success"
       ? `The weekly enrollment export was generated successfully with ${input.rowCount ?? 0} row(s). Download it from the admin dashboard: ${input.reportUrl ?? "open the dashboard"}.`
       : `The weekly enrollment export could not be generated. Error: ${input.errorMessage ?? "Unknown export error"}`;
-  await getTransporter().sendMail({
+  await sendMail({
     from: { name: config.fromName, address: config.from },
     to,
     subject,
@@ -179,7 +200,7 @@ export async function sendFailedLoginAlert(input: {
   if (!recipients.length) return;
   const subject = "Profound IQ security alert: repeated failed login attempts";
   const message = `We detected ${input.failedCount} failed login attempts for the identifier ${input.identifier}. Review your account and consider changing your password if this activity was not expected.`;
-  await getTransporter().sendMail({
+  await sendMail({
     from: { name: config.fromName, address: config.from },
     to: recipients,
     subject,
@@ -207,7 +228,7 @@ export async function sendNewsletterDigestEmail(input: {
     )
     .join("");
   const subject = "Profound IQ Insights: ideas for purposeful progress";
-  await getTransporter().sendMail({
+  await sendMail({
     from: { name: config.fromName, address: config.from },
     to: input.to,
     subject,
@@ -225,7 +246,7 @@ export async function sendNewsletterConfirmationEmail(input: {
   const safeConfirmationUrl = escapeHtml(input.confirmationUrl);
   const safeUnsubscribeUrl = escapeHtml(input.unsubscribeUrl);
   const subject = "Confirm your Profound IQ Insights subscription";
-  await getTransporter().sendMail({
+  await sendMail({
     from: { name: config.fromName, address: config.from },
     to: input.to,
     subject,
@@ -243,7 +264,7 @@ export async function sendPasswordResetEmail(input: {
   const subject = "Reset your Profound IQ password";
   const safeName = escapeHtml(input.name);
   const safeUrl = escapeHtml(input.resetUrl);
-  await getTransporter().sendMail({
+  await sendMail({
     from: { name: config.fromName, address: config.from },
     to: input.to,
     subject,
@@ -266,7 +287,7 @@ export async function sendAssessmentResumeEmail(input: {
     dateStyle: "medium",
     timeStyle: "short",
   });
-  await getTransporter().sendMail({
+  await sendMail({
     from: { name: config.fromName, address: config.from },
     to: input.to,
     subject,
@@ -287,7 +308,7 @@ export async function sendTemplateTestEmail(input: {
     course: "Lead with Clarity",
   };
   const config = getSmtpConfig();
-  await getTransporter().sendMail({
+  await sendMail({
     from: { name: config.fromName, address: config.from },
     to: input.to,
     subject: `[Preview] ${input.subject}`,
@@ -359,7 +380,7 @@ export async function sendCareerPathReportEmail(input: {
   const safePersonalNote = input.personalNotes?.trim()
     ? `<p><strong>Your personal note</strong></p><p style="white-space:pre-wrap">${escapeHtml(input.personalNotes.trim())}</p>`
     : "";
-  await getTransporter().sendMail({
+  await sendMail({
     from: { name: config.fromName, address: config.from },
     to: input.email,
     subject: input.receiptTitle?.trim()
@@ -431,7 +452,7 @@ export async function sendPsychometricReportEmail(input: {
   });
   const subject = `Your Profound IQ ${input.report.title} report`;
   const safeName = escapeHtml(input.participantName);
-  await getTransporter().sendMail({
+  await sendMail({
     from: { name: config.fromName, address: config.from },
     to: input.email,
     subject,
@@ -462,7 +483,7 @@ export async function sendAssessmentReportEmail(input: {
     createdAt: input.createdAt,
     report: input.report,
   });
-  await getTransporter().sendMail({
+  await sendMail({
     from: { name: config.fromName, address: config.from },
     to: input.email,
     subject: "Your Profound IQ assessment report",
@@ -501,7 +522,7 @@ export async function sendCourseCertificateEmail(input: {
   const safeName = escapeHtml(input.recipientName);
   const safeCourse = escapeHtml(input.courseTitle);
   const subject = `${copy.certificateOfCompletion} · ${input.courseTitle}`;
-  await getTransporter().sendMail({
+  await sendMail({
     from: { name: config.fromName, address: config.from },
     to: input.email,
     subject,
@@ -531,7 +552,7 @@ export async function sendOrganizationReviewRequestEmail(input: {
   const safeRespondent = escapeHtml(input.learnerName);
   const safeCourse = escapeHtml(input.courseTitle);
   const safeCertificate = escapeHtml(input.certificateNumber);
-  await getTransporter().sendMail({
+  await sendMail({
     from: { name: config.fromName, address: config.from },
     to: input.organizationEmail,
     subject,
@@ -552,7 +573,7 @@ export async function sendWeeklyPsychometricAnalyticsEmail(input: {
   if (!recipients.length) return;
   const subject = `Profound IQ weekly psychometric analytics · ${input.toDate}`;
   const message = `Attached is the weekly psychometric analytics report for ${input.fromDate} to ${input.toDate}. It covers ${input.attemptCount} assessment attempt(s), conversion, and report-email delivery outcomes.`;
-  await getTransporter().sendMail({
+  await sendMail({
     from: { name: config.fromName, address: config.from },
     to: recipients,
     subject,
@@ -582,7 +603,7 @@ export async function sendCourseAccessAnalyticsReportEmail(input: {
   const subject = `Profound IQ learning access report${input.fromDate || input.toDate ? ` · ${input.fromDate ?? "All time"}–${input.toDate ?? "Today"}` : ""}`;
   const message =
     "Attached is the branded Profound IQ Learning Access Observatory report for stakeholder review.";
-  await getTransporter().sendMail({
+  await sendMail({
     from: { name: config.fromName, address: config.from },
     to: [recipient],
     subject,
@@ -615,7 +636,7 @@ export async function sendInstructorFeedbackEmail(input: {
   const safeFeedback = escapeHtml(input.feedback);
   const subject =
     "New instructor feedback is ready in your Profound IQ workspace";
-  await getTransporter().sendMail({
+  await sendMail({
     from: { name: config.fromName, address: config.from },
     to: [recipient],
     subject,
@@ -637,7 +658,7 @@ export async function sendWeeklyCourseLessonReviewAnalyticsEmail(input: {
   if (!recipients.length) return;
   const subject = `Profound IQ weekly instructor review analytics · ${input.toDate}`;
   const message = `Attached is the review analytics report for ${input.fromDate} to ${input.toDate}. It covers ${input.reviewedResponses} reviewed response(s) and ${input.needsReviewResponses} response(s) still needing review.`;
-  await getTransporter().sendMail({
+  await sendMail({
     from: { name: config.fromName, address: config.from },
     to: recipients,
     subject,
@@ -682,8 +703,8 @@ export async function sendPaymentReceiptEmail(input: {
   else if (input.productType === "course_stage" && input.courseSlug)
     verificationUrl = `${origin}/courses/${encodeURIComponent(input.courseSlug)}`;
   const text = `Hello ${safeName},\n\nThank you for your payment of ${safeAmount} for ${safeProduct}.\n\nTransaction reference: ${safeReference}\nPaid on: ${safeDate}\n\nView your purchase: ${verificationUrl}\n\nIf you have any questions, reply to this email or contact our support team.\n\nProfound IQ Consulting · Transformational learning`;
-  const html = `<div style="max-width:680px;margin:0 auto;background:#f7f3e8;color:#16243d;font-family:Arial,sans-serif"><div style="background:#101d35;color:#f7f3e8;padding:24px 28px;border-top:6px solid #c9a34e"><div style="font-size:12px;letter-spacing:3px;font-weight:700">PROFOUND IQ CONSULTING</div><div style="margin-top:8px;color:#c9a34e;font-size:11px;letter-spacing:2px">PAYMENT RECEIPT</div></div><div style="padding:28px"><p>Hello ${safeName},</p><p>Thank you for your purchase. Your payment has been confirmed and your access is being updated.</p><div style="border:1px solid #d8cfba;background:#fff;padding:20px;margin:20px 0"><p style="font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#a27e2e;margin:0 0 12px">Transaction details</p><table style="width:100%;border-collapse:collapse;font-size:14px"><tr style="border-bottom:1px solid #eee"><td style="padding:8px 0;color:#657084">Product</td><td style="padding:8px 0;text-align:right;font-weight:600">${safeProduct}</td></tr><tr style="border-bottom:1px solid #eee"><td style="padding:8px 0;color:#657084">Amount paid</td><td style="padding:8px 0;text-align:right;font-weight:700;color:#a27e2e">${safeAmount}</td></tr><tr style="border-bottom:1px solid #eee"><td style="padding:8px 0;color:#657084">Reference</td><td style="padding:8px 0;text-align:right;font-family:monospace">${safeReference}</td></tr><tr><td style="padding:8px 0;color:#657084">Date</td><td style="padding:8px 0;text-align:right">${safeDate}</td></tr></table></div><p style="margin:0"><a href="${verificationUrl}" style="display:inline-block;background:#16243d;color:#f7f3e8;padding:12px 24px;text-decoration:none;font-weight:700;font-size:13px;letter-spacing:1px">VIEW YOUR PURCHASE</a></p><p style="margin-top:24px;font-size:13px;color:#657084">Keep this receipt for your records. If you did not authorize this transaction, contact us immediately.</p></div><div style="background:#16243d;color:#c1cad7;padding:18px 28px;font-size:12px">Profound IQ Consulting · Transformational learning · Online / global reach</div></div>`;
-  await getTransporter().sendMail({
+  const html = `<div style="max-width:680px;margin:0 auto;background:#f7f3e8;color:#16243d;font-family:Arial,sans-serif"><div style="background:#101d35;color:#f7f3e8;padding:24px 28px;border-top:6px solid #c9a34e"><div style="font-size:12px;letter-spacing:3px;font-weight:700">PROFOUND IQ CONSULTING</div><div style="margin-top:8px;color:#c9a34e;font-size:11px;letter-spacing:2px">PAYMENT RECEIPT</div></div><div style="padding:28px"><p>Hello ${safeName},</p><p>Thank you for your purchase. Your payment has been confirmed and your access is being updated.</p><div style="border:1px solid #d8cfba;background:#fff;padding:20px;margin:20px 0"><p style="font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#a27e2e;margin:0 0 12px">Transaction details</p><table style="width:100%;border-collapse:collapse;font-size:14px"><tr style="border-bottom:1px solid #eee"><td style="padding:8px 0;color:#657084">Product</td><td style="padding:8px 0;text-align:right;font-weight:600">${safeProduct}</td></tr><tr style="border-bottom:1px solid #eee"><td style="padding:8px 0;color:#657084">Amount paid</td><td style="padding:8px 0;text-align:right;font-weight:700;color:#a27e2e">${safeAmount}</td></tr><tr style="border-bottom:1px solid #eee"><td style="padding:8px 0;color:#657084">Reference</td><td style="padding:8px 0;text-align:right;font-family:monospace">${safeReference}</td></tr><tr><td style="padding:8px 0;color:#657084">Date</td><td style="padding:8px 0;text-align:right">${safeDate}</td></tr></table></div><p style="margin:0"><a href="${verificationUrl}" style="display:inline-block;background:#16243d;color:#f7f3e8;padding:12px 24px;text-decoration:none;font-weight:700;font-size:13px;letter-spacing:1px">VIEW YOUR PURCHASE</a></p><p style="margin-top:24px;font-size:13px;color:#657084">Keep this receipt for your records. If you did not authorize this transaction, contact us immediately.</p></div><div style="background:#16243d;color:#c1cad7;padding:18px 28px;font-size:12px">Profound IQ Consulting · Transformational learning</div></div>`;
+  await sendMail({
     from: { name: config.fromName, address: config.from },
     to: [input.to],
     subject,

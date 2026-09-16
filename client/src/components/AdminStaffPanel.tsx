@@ -101,7 +101,7 @@ export default function AdminStaffPanel() {
     >
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow flex items-center gap-2 text-[#a27e2e]">
+          <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
             <UserPlus size={13} /> Team operations
           </p>
           <h2 id="staff-ops-title" className="display mt-3 text-3xl">

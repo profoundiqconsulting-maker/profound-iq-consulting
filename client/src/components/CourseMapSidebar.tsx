@@ -49,7 +49,7 @@ export function CourseMapSidebar({
         <div className="flex items-center justify-between gap-3 border-b border-[#16243d]/10 p-4">
           {courseNavOpen && (
             <div>
-              <p className="eyebrow text-[#a27e2e]">Course map</p>
+              <p className="eyebrow text-[#7d5e1e]">Course map</p>
               <p className="mt-1 text-xs text-muted-foreground">
                 Jump to a module or lesson
               </p>
@@ -103,7 +103,7 @@ export function CourseMapSidebar({
                     aria-controls={`course-module-${module.id}`}
                     className={`flex w-full items-center gap-2 px-2 py-3 text-left text-xs transition-colors hover:bg-[#fffaf0] ${moduleIndex === index ? "bg-[#fffaf0] text-[#7d5e1e]" : "text-[#4a566a]"}`}
                   >
-                    <span className="grid h-6 w-6 shrink-0 place-items-center border border-[#c9a34e]/60 text-[10px] font-black text-[#a27e2e]">
+                    <span className="grid h-6 w-6 shrink-0 place-items-center border border-[#c9a34e]/60 text-[10px] font-black text-[#7d5e1e]">
                       {moduleComplete ? (
                         <CheckCircle2 size={13} />
                       ) : (
@@ -147,7 +147,7 @@ export function CourseMapSidebar({
                               aria-current={active ? "step" : undefined}
                               className={`flex w-full items-start gap-2 border-l-2 px-2 py-2 text-left text-[11px] leading-4 transition-colors hover:border-[#c9a34e] hover:bg-[#fffaf0] ${active ? "border-[#c9a34e] bg-[#fffaf0] font-bold text-[#7d5e1e]" : completed ? "border-[#c9a34e]/60 text-[#4a566a]" : "border-[#16243d]/10 text-muted-foreground"}`}
                             >
-                              <span className="mt-0.5 w-5 shrink-0 font-black text-[#a27e2e]">
+                              <span className="mt-0.5 w-5 shrink-0 font-black text-[#7d5e1e]">
                                 {completed ? "✓" : `${lessonIndex + 1}.`}
                               </span>
                               <span className="min-w-0 flex-1">

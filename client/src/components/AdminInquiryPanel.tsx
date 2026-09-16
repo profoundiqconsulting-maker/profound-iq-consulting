@@ -219,7 +219,7 @@ export default function AdminInquiryPanel() {
     >
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow flex items-center gap-2 text-[#a27e2e]">
+          <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
             <Mail size={13} /> Contact desk
           </p>
           <h2 id="inquiries-title" className="display mt-3 text-3xl">
@@ -422,7 +422,7 @@ export default function AdminInquiryPanel() {
                 type="button"
                 onClick={() => toggleSelected(inquiry.id)}
                 aria-label={`${selected.includes(inquiry.id) ? "Deselect" : "Select"} inquiry from ${inquiry.name}`}
-                className="mt-1 shrink-0 text-[#a27e2e]"
+                className="mt-1 shrink-0 text-[#7d5e1e]"
               >
                 {selected.includes(inquiry.id) ? (
                   <CheckSquare size={17} />
@@ -449,7 +449,7 @@ export default function AdminInquiryPanel() {
                     </div>
                     <a
                       href={`mailto:${inquiry.email}`}
-                      className="mt-1 inline-block text-sm text-[#a27e2e] hover:underline"
+                      className="mt-1 inline-block text-sm text-[#7d5e1e] hover:underline"
                     >
                       {inquiry.email}
                     </a>
@@ -644,7 +644,7 @@ export default function AdminInquiryPanel() {
       <div className="mt-10 border-t border-[#16243d]/10 pt-6">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="eyebrow text-[#a27e2e]">Last 30 days</p>
+            <p className="eyebrow text-[#7d5e1e]">Last 30 days</p>
             <h3 className="display mt-2 text-2xl">Inquiry mix by subject.</h3>
           </div>
           <span className="text-xs text-[#657084]">Category volume</span>
@@ -671,8 +671,9 @@ export default function AdminInquiryPanel() {
                 <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
                 <Tooltip
                   contentStyle={{
-                    border: "1px solid #c9a34e",
-                    background: "#f7f3e8",
+                    background: "var(--popover)",
+                    border: "1px solid var(--popover-foreground)",
+                    color: "var(--popover-foreground)",
                     fontSize: 12,
                   }}
                 />

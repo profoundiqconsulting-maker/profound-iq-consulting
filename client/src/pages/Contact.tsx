@@ -85,7 +85,7 @@ export default function Contact() {
       <section className="bg-[#f7f3e8] py-24 lg:py-32">
         <div className="container grid gap-16 lg:grid-cols-[.6fr_1.4fr] lg:gap-20 lg:items-start">
           <div>
-            <p className="eyebrow text-[#a27e2e]">Start here</p>
+            <p className="eyebrow text-[#7d5e1e]">Start here</p>
             <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
               A useful first message is enough.
             </h2>
@@ -99,7 +99,7 @@ export default function Contact() {
                 href="mailto:admin@profoundiqconsulting.com"
                 className="group flex items-start gap-5 transition-all"
               >
-                <Mail size={20} className="mt-1 shrink-0 text-[#a27e2e]" />
+                <Mail size={20} className="mt-1 shrink-0 text-[#7d5e1e]" />
                 <span>
                   <strong className="block text-sm text-[#16243d]">
                     admin@profoundiqconsulting.com
@@ -113,7 +113,7 @@ export default function Contact() {
                 href="tel:+254727374055"
                 className="group flex items-start gap-5 transition-all"
               >
-                <Phone size={20} className="mt-1 shrink-0 text-[#a27e2e]" />
+                <Phone size={20} className="mt-1 shrink-0 text-[#7d5e1e]" />
                 <span>
                   <strong className="block text-sm text-[#16243d]">
                     +254 727 374 055
@@ -131,7 +131,7 @@ export default function Contact() {
               >
                 <MessageCircle
                   size={20}
-                  className="mt-1 shrink-0 text-[#a27e2e]"
+                  className="mt-1 shrink-0 text-[#7d5e1e]"
                 />
                 <span>
                   <strong className="block text-sm text-[#16243d]">
@@ -143,7 +143,7 @@ export default function Contact() {
                 </span>
               </a>
               <div className="flex items-start gap-5">
-                <Clock3 size={20} className="mt-1 shrink-0 text-[#a27e2e]" />
+                <Clock3 size={20} className="mt-1 shrink-0 text-[#7d5e1e]" />
                 <span>
                   <strong className="block text-sm text-[#16243d]">
                     Monday to Saturday
@@ -158,14 +158,14 @@ export default function Contact() {
           <div className="border border-[#16243d]/10 bg-white/70 p-8 shadow-[0_20px_60px_rgba(16,29,53,.06)] sm:p-10 backdrop-blur-sm">
             <div className="flex items-start justify-between gap-6">
               <div>
-                <p className="eyebrow text-[#a27e2e]">Inquiry form</p>
+                <p className="eyebrow text-[#7d5e1e]">Inquiry form</p>
                 <h2 className="mt-4 text-2xl font-semibold text-[#16243d]">
                   What would you like to move forward?
                 </h2>
               </div>
               <Send
                 size={24}
-                className="mt-1 shrink-0 text-[#a27e2e]"
+                className="mt-1 shrink-0 text-[#7d5e1e]"
                 aria-hidden="true"
               />
             </div>

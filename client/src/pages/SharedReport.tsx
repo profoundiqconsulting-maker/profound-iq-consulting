@@ -59,11 +59,11 @@ export default function SharedReport() {
       </header>
       <main className="container py-10 sm:py-16">
         <div className="mx-auto max-w-5xl">
-          <p className="eyebrow text-[#a27e2e]">
+          <p className="eyebrow text-[#7d5e1e]">
             Shared with you · {data.participantName}
           </p>
           <h1 className="display mt-4 text-5xl">
-            A considered <em className="font-normal text-[#a27e2e]">signal.</em>
+            A considered <em className="font-normal text-[#7d5e1e]">signal.</em>
           </h1>
           <p className="mt-4 text-sm text-[#657084]">
             Generated {new Date(data.createdAt).toLocaleDateString()} · Link
@@ -117,7 +117,7 @@ export default function SharedReport() {
               >
                 <div className="flex justify-between">
                   <h2 className="font-bold">{dimension.label}</h2>
-                  <span className="display text-2xl text-[#a27e2e]">
+                  <span className="display text-2xl text-[#7d5e1e]">
                     {dimension.score}
                   </span>
                 </div>
@@ -125,7 +125,7 @@ export default function SharedReport() {
                   {dimension.readout}
                 </p>
                 <div className="mt-4 border-l border-[#c9a34e]/60 pl-3">
-                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                     Reflection prompts
                   </p>
                   <ul className="mt-2 space-y-2 text-xs leading-5 text-[#4a566a]">
@@ -139,7 +139,7 @@ export default function SharedReport() {
           </section>
           <section className="mt-10 grid gap-8 border-t border-[#16243d]/20 pt-8 lg:grid-cols-2">
             <div>
-              <p className="eyebrow text-[#a27e2e]">
+              <p className="eyebrow text-[#7d5e1e]">
                 {lens.label} reflection prompts
               </p>
               <ul className="mt-4 space-y-3 text-sm leading-6 text-[#4a566a]">
@@ -149,7 +149,7 @@ export default function SharedReport() {
                   </li>
                 ))}
               </ul>
-              <p className="eyebrow mt-8 text-[#a27e2e]">General reflection</p>
+              <p className="eyebrow mt-8 text-[#7d5e1e]">General reflection</p>
               <ul className="mt-4 space-y-3 text-sm leading-6 text-[#4a566a]">
                 {report.reflectionPoints.map(item => (
                   <li key={item} className="border-l border-[#c9a34e] pl-3">

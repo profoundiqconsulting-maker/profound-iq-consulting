@@ -35,7 +35,7 @@ export function ReflectionPromptCard({
   return (
     <article className="border-l border-[#c9a34e] bg-[#fffaf0]/70 p-4 sm:p-5">
       <div className="flex items-start gap-3">
-        <span className="mt-1 text-[#a27e2e]">→</span>
+        <span className="mt-1 text-[#7d5e1e]">→</span>
         <p className="text-sm leading-6 text-[#4a566a]">{prompt}</p>
       </div>
       <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">

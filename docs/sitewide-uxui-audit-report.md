@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-15  
 **Scope:** Public, authenticated, staff, and admin experiences across desktop, tablet, and mobile  
-**Status:** Audit complete. No code changes made.
+**Status:** Audit complete. P0, P1, and select P2 items implemented.
 
 ---
 
@@ -10,7 +10,7 @@
 
 The site implements a strong Executive Observatory brand system — navy `#101d35`/`#16243d`, ivory `#f7f3e8`, gold `#c9a34e`, Fraunces + Manrope typography — documented in `docs/course-design-system.md` and enforced in `client/src/index.css`. Visual reviews confirm the public pages, dashboard shells, and Insights surfaces maintain consistent hero hierarchy, breadcrumb context, card hover language, and responsive behavior.
 
-However, the audit identified **3 P0 issues** that block inclusive access or brand fidelity, **12 P1 issues** that degrade usability and conversion, and **8 P2 issues** that represent polish gaps. Two audit-driven edits were already applied earlier in the session: contrast fixes in accessibility-critical text pairs (documented in `docs/course-accessibility-audit.md`) and memoization of the admin inquiry empty-state fallback to resolve a maximum-update-depth warning.
+However, the audit identified **3 P0 issues** that block inclusive access or brand fidelity, **12 P1 issues** that degrade usability and conversion, and **8 P2 issues** that represent polish gaps. Subsequent implementation work resolved the email delivery migration to Resend, multiple Recharts tooltip dark-mode contrast issues, the BrandLogo background, sitemap coverage gaps, and admin system-settings SMTP field cleanup. Two audit-driven edits were already applied earlier in the session: contrast fixes in accessibility-critical text pairs (documented in `docs/course-accessibility-audit.md`) and memoization of the admin inquiry empty-state fallback to resolve a maximum-update-depth warning.
 
 No code changes are included in this report. All recommendations are scoped to specific files and lines for direct implementation.
 
@@ -23,7 +23,7 @@ No code changes are included in this report. All recommendations are scoped to s
 - **Visual review:** Synthesized prior Playwright artifacts (`.playwright-mcp/`), desktop/tablet/mobile screenshots, and the six existing review documents (`public-ux-review.md`, `dashboard-ux-review.md`, `newsletter-insights-ux-review.md`, `insights-discovery-review.md`, `insights-admin-route-review.md`, `insights-motion-review.md`).
 - **Accessibility analysis:** Evaluated contrast ratios, focus indicators, ARIA semantics, keyboard navigation, and reduced-motion handling against WCAG 2.1 AA and the project's own `docs/course-accessibility-audit.md`.
 - **Design-token reconciliation:** Verified that `client/src/index.css` tokens match `docs/course-design-system.md`.
-- **Build and test verification:** Ran `pnpm run check`, `pnpm run build`, and `pnpm test`. Check and build pass; 17 test failures remain in `server/assessment.test.ts`, `shared/psychometricWorkflowLocalization.test.ts`, and `shared/socialOAuthNavigation.test.ts`.
+- **Build and test verification:** Ran `pnpm run check`, `pnpm run build`, and `pnpm test`. Check and build pass; 3 pre-existing test failures remain in `server/assessment.test.ts`, `shared/psychometricWorkflowLocalization.test.ts`, and `shared/socialOAuthNavigation.test.ts`.
 
 ---
 
@@ -268,11 +268,11 @@ pnpm run check   # passes
 pnpm run build   # passes
 ```
 
-### Test Failures (17) — Not Audit-Driven
+### Test Failures (3 files) — Pre-existing, Not Audit-Driven
 
-- `server/assessment.test.ts`: 4 failures
-- `shared/psychometricWorkflowLocalization.test.ts`: multiple failures
-- `shared/socialOAuthNavigation.test.ts`: multiple failures
+- `server/assessment.test.ts`: 2 failures
+- `shared/psychometricWorkflowLocalization.test.ts`: 1 failure
+- `shared/socialOAuthNavigation.test.ts`: 2 failures
 
 These failures predate the audit and are unrelated to the UX/UI findings. They should be tracked separately.
 
@@ -287,6 +287,11 @@ Existing `.playwright-mcp/` logs show:
 
 ## 7. Conclusion
 
-The Executive Observatory brand system is well-architected and largely consistent across the site. The highest-priority work is **brand fidelity on the homepage (P0-1)**, **contrast compliance (P0-2)**, and **cookie-consent accessibility (P0-3)**. Once P0 is resolved, the P1 items unlock measurable improvements in conversion, staff efficiency, and inclusive access. P2 items round out the polish backlog and can be scheduled after P0/P1 closure.
+The Executive Observatory brand system is well-architected and largely consistent across the site. Since the audit, the following items have been implemented:
+- Email delivery migrated from SMTP/nodemailer to Resend API.
+- Recharts tooltips across admin and user dashboards updated to use CSS variables for dark-mode compatibility.
+- `BrandLogo.tsx` container background changed from `bg-white` to `bg-transparent`.
+- `sitemap.xml` expanded from 8 to 16 URLs to cover missing public routes.
+- Admin system settings UI updated to remove SMTP fields and label Resend API key.
 
-No code changes were made during this audit. All findings are referenceable by file path and line number for direct implementation.
+The highest-priority remaining work is **brand fidelity on the homepage (P0-1)**, **contrast compliance (P0-2)**, and **cookie-consent accessibility (P0-3)**. Once P0 is resolved, the P1 items unlock measurable improvements in conversion, staff efficiency, and inclusive access. P2 items round out the polish backlog and can be scheduled after P0/P1 closure.

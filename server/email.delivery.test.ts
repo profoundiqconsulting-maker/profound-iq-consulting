@@ -1,47 +1,53 @@
 import { describe, expect, it, vi } from "vitest";
 
 process.env.RESEND_API_KEY = "test-resend-api-key";
+process.env.EMAIL_FROM = "noreply@profoundiq.com";
+
+const sendMailMock = vi.fn(() =>
+  Promise.resolve({ data: { id: "test-message-id" } })
+);
+
+vi.mock("resend", () => {
+  const EmailsClass = () => ({
+    send: sendMailMock,
+  });
+  const ResendClass = class Resend {
+    emails = EmailsClass();
+    constructor() {}
+  };
+  return {
+    Resend: ResendClass,
+  };
+});
 
 const {
-  sendMail,
   renderAssessmentReportPdf,
   renderCareerPathReportPdf,
+} = await import("./reportPdf");
+const {
   claimAssessmentReportEmail,
   markAssessmentReportEmailSent,
   releaseAssessmentReportEmailClaim,
   claimCareerPathReportEmail,
   markCareerPathReportEmailSent,
   releaseCareerPathReportEmailClaim,
-} = vi.hoisted(() => ({
-  sendMail: vi.fn().mockResolvedValue({ messageId: "test-message" }),
+} = await import("./db");
+
+vi.mock("./reportPdf", () => ({
   renderAssessmentReportPdf: vi
     .fn()
     .mockResolvedValue(Buffer.from("%PDF-test")),
   renderCareerPathReportPdf: vi
     .fn()
     .mockResolvedValue(Buffer.from("%PDF-careerpath-test")),
+}));
+vi.mock("./db", () => ({
   claimAssessmentReportEmail: vi.fn().mockResolvedValue(true),
   markAssessmentReportEmailSent: vi.fn().mockResolvedValue(undefined),
   releaseAssessmentReportEmailClaim: vi.fn().mockResolvedValue(undefined),
   claimCareerPathReportEmail: vi.fn().mockResolvedValue(true),
   markCareerPathReportEmailSent: vi.fn().mockResolvedValue(undefined),
   releaseCareerPathReportEmailClaim: vi.fn().mockResolvedValue(undefined),
-}));
-
-vi.mock("nodemailer", () => ({
-  default: { createTransport: vi.fn(() => ({ sendMail, verify: vi.fn() })) },
-}));
-vi.mock("./reportPdf", () => ({
-  renderAssessmentReportPdf,
-  renderCareerPathReportPdf,
-}));
-vi.mock("./db", () => ({
-  claimAssessmentReportEmail,
-  markAssessmentReportEmailSent,
-  releaseAssessmentReportEmailClaim,
-  claimCareerPathReportEmail,
-  markCareerPathReportEmailSent,
-  releaseCareerPathReportEmailClaim,
 }));
 
 const {
@@ -67,17 +73,17 @@ describe("report email delivery", () => {
       },
     });
     expect(renderAssessmentReportPdf).toHaveBeenCalledOnce();
-    expect(sendMail).toHaveBeenCalledWith(
+    expect(sendMailMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        to: "amina@example.com",
+        to: ["amina@example.com"],
         subject: "Your Profound IQ assessment report",
-        attachments: [
-          {
+        attachments: expect.arrayContaining([
+          expect.objectContaining({
             filename: "profound-iq-assessment-44.pdf",
-            content: Buffer.from("%PDF-test"),
+            content: Buffer.from("%PDF-test").toString("base64"),
             contentType: "application/pdf",
-          },
-        ],
+          }),
+        ]),
         html: expect.stringContaining("Amina &lt;Njeri&gt;"),
       })
     );
@@ -91,7 +97,7 @@ describe("report email delivery", () => {
       resumeUrl: "https://example.com/assessment?resume=opaque-token",
       expiresAt,
     });
-    const message = sendMail.mock.calls.at(-1)?.[0] as {
+    const message = sendMailMock.mock.calls.at(-1)?.[0] as {
       subject?: string;
       text?: string;
       html?: string;
@@ -125,9 +131,9 @@ describe("report email delivery", () => {
     expect(markCareerPathReportEmailSent).toHaveBeenCalledWith(99);
     expect(releaseCareerPathReportEmailClaim).not.toHaveBeenCalled();
     expect(renderCareerPathReportPdf).toHaveBeenCalledOnce();
-    expect(sendMail).toHaveBeenLastCalledWith(
+    expect(sendMailMock).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        to: "brian@example.com",
+        to: ["brian@example.com"],
         subject: "Your Profound IQ CareerPath report",
         text: expect.stringContaining(
           "Your top strengths signals are Pure Sciences (82/100), Languages (64/100)."
@@ -138,7 +144,7 @@ describe("report email delivery", () => {
         attachments: expect.arrayContaining([
           expect.objectContaining({
             filename: "profound-iq-careerpath-99.pdf",
-            content: Buffer.from("%PDF-careerpath-test"),
+            content: Buffer.from("%PDF-careerpath-test").toString("base64"),
             contentType: "application/pdf",
           }),
           expect.objectContaining({
@@ -148,7 +154,7 @@ describe("report email delivery", () => {
         ]),
       })
     );
-    const message = sendMail.mock.calls.at(-1)?.[0] as {
+    const message = sendMailMock.mock.calls.at(-1)?.[0] as {
       text?: string;
       html?: string;
     };

@@ -116,7 +116,7 @@ export default function CourseCoverCropper({
       <div className="max-h-[92vh] w-full max-w-3xl overflow-auto border border-[#c9a34e]/60 bg-[#f7f3e8] p-5 text-[#16243d] shadow-2xl sm:p-7">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
               Open Graph artwork
             </p>
             <h2 id="cover-crop-title" className="mt-1 text-2xl font-semibold">
@@ -177,17 +177,17 @@ export default function CourseCoverCropper({
         >
           {aiStatus === "loading" ? (
             <>
-              <Loader2 size={14} className="animate-spin text-[#a27e2e]" />{" "}
+              <Loader2 size={14} className="animate-spin text-[#7d5e1e]" />{" "}
               Detecting the main subject…
             </>
           ) : aiStatus === "ready" ? (
             <>
-              <Sparkles size={14} className="text-[#a27e2e]" /> Smart frame
+              <Sparkles size={14} className="text-[#7d5e1e]" /> Smart frame
               applied. Manual controls remain available.
             </>
           ) : (
             <>
-              <Move size={14} className="text-[#a27e2e]" /> Manual framing mode.
+              <Move size={14} className="text-[#7d5e1e]" /> Manual framing mode.
             </>
           )}
         </div>

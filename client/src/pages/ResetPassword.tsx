@@ -56,9 +56,9 @@ export default function ResetPassword() {
       <section className="container grid min-h-[calc(100vh-90px)] place-items-center py-16">
         <div className="w-full max-w-xl border border-[#c9a34e]/60 bg-[#f7f3e8] p-7 text-[#16243d] shadow-2xl sm:p-10">
           <div className="flex items-center gap-3 border-b border-[#16243d]/15 pb-6">
-            <LockKeyhole className="text-[#a27e2e]" size={20} />
+            <LockKeyhole className="text-[#7d5e1e]" size={20} />
             <div>
-              <p className="eyebrow text-[#a27e2e]">{authCopy.secureAccess}</p>
+              <p className="eyebrow text-[#7d5e1e]">{authCopy.secureAccess}</p>
               <h1 className="display mt-2 text-3xl">Choose a new password.</h1>
             </div>
           </div>
@@ -122,7 +122,7 @@ export default function ResetPassword() {
             <p className="flex items-start gap-2">
               <CheckCircle2
                 size={15}
-                className="mt-0.5 shrink-0 text-[#a27e2e]"
+                className="mt-0.5 shrink-0 text-[#7d5e1e]"
               />
               Reset links are single-use and expire after 30 minutes.
             </p>

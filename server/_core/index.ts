@@ -26,11 +26,11 @@ async function startServer() {
     console.error("[Bootstrap] Admin user ensure failed:", error);
   }
   try {
-    const smtpConfig = getSmtpConfig();
+    const emailConfig = getSmtpConfig();
     await verifySmtpConnection();
-    console.log(`[Email] SMTP connection verified for ${smtpConfig.host}:${smtpConfig.port}`);
+    console.log(`[Email] Resend connection verified for ${emailConfig.from}`);
   } catch (error) {
-    console.error("[Email] SMTP connection failed:", error);
+    console.error("[Email] Resend connection failed:", error);
   }
   registerPaystackWebhook(app);
   registerWeeklyEnrollmentExport(app);

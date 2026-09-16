@@ -126,7 +126,7 @@ export default function AdminNewsletterPanel() {
     >
       <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow text-[#a27e2e]">Audience / newsletter</p>
+          <p className="eyebrow text-[#7d5e1e]">Audience / newsletter</p>
           <h2 className="display mt-2 text-2xl">
             Keep the conversation permission-based.
           </h2>
@@ -190,29 +190,29 @@ export default function AdminNewsletterPanel() {
         <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[#657084]">
           Search email or source
           <span className="flex min-h-11 items-center gap-2 border border-[#16243d]/15 bg-[#fffaf0] px-3">
-            <Search size={15} className="text-[#a27e2e]" />
-            <input
-              value={filters.search}
-              onChange={event => updateFilter("search", event.target.value)}
-              placeholder="e.g. learner@example.com"
-              aria-label="Search newsletter subscribers"
-              className="w-full bg-transparent text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none"
-            />
+            <Search size={15} className="text-[#7d5e1e]" />
+             <input
+               value={filters.search}
+               onChange={event => updateFilter("search", event.target.value)}
+               placeholder="e.g. learner@example.com"
+               aria-label="Search newsletter subscribers"
+               className="w-full bg-transparent text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
+             />
           </span>
         </label>
         <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[#657084]">
           Status
-          <select
-            value={filters.status}
-            onChange={event =>
-              updateFilter(
-                "status",
-                event.target.value as SubscriberFilters["status"]
-              )
-            }
-            aria-label="Filter newsletter subscribers by status"
-            className="min-h-11 border border-[#16243d]/15 bg-[#fffaf0] px-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none"
-          >
+             <select
+               value={filters.status}
+               onChange={event =>
+                 updateFilter(
+                   "status",
+                   event.target.value as SubscriberFilters["status"]
+                 )
+               }
+               aria-label="Filter newsletter subscribers by status"
+               className="min-h-11 border border-[#16243d]/15 bg-[#fffaf0] px-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
+             >
             <option value="all">All statuses</option>
             <option value="pending">Pending confirmation</option>
             <option value="confirmed">Confirmed</option>
@@ -222,24 +222,24 @@ export default function AdminNewsletterPanel() {
         </label>
         <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[#657084]">
           From date
-          <input
-            type="date"
-            value={filters.fromDate}
-            onChange={event => updateFilter("fromDate", event.target.value)}
-            aria-label="Newsletter subscriber start date"
-            className="min-h-11 border border-[#16243d]/15 bg-[#fffaf0] px-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none"
-          />
+           <input
+             type="date"
+             value={filters.fromDate}
+             onChange={event => updateFilter("fromDate", event.target.value)}
+             aria-label="Newsletter subscriber start date"
+             className="min-h-11 border border-[#16243d]/15 bg-[#fffaf0] px-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
+           />
         </label>
         <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[#657084]">
           To date
-          <input
-            type="date"
-            value={filters.toDate}
-            min={filters.fromDate || undefined}
-            onChange={event => updateFilter("toDate", event.target.value)}
-            aria-label="Newsletter subscriber end date"
-            className="min-h-11 border border-[#16243d]/15 bg-[#fffaf0] px-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none"
-          />
+           <input
+             type="date"
+             value={filters.toDate}
+             min={filters.fromDate || undefined}
+             onChange={event => updateFilter("toDate", event.target.value)}
+             aria-label="Newsletter subscriber end date"
+             className="min-h-11 border border-[#16243d]/15 bg-[#fffaf0] px-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
+           />
         </label>
         <button
           type="button"
@@ -252,7 +252,7 @@ export default function AdminNewsletterPanel() {
       </div>
       {subscribers.isLoading ? (
         <div className="mt-6 flex items-center gap-3 text-sm text-[#657084]">
-          <RefreshCw size={16} className="animate-spin text-[#a27e2e]" />{" "}
+          <RefreshCw size={16} className="animate-spin text-[#7d5e1e]" />{" "}
           Loading subscribers…
         </div>
       ) : subscribers.isError ? (
@@ -268,7 +268,7 @@ export default function AdminNewsletterPanel() {
       ) : (
         <>
           <div className="mt-5 flex items-center gap-3 text-xs font-bold uppercase tracking-[.1em] text-[#657084]">
-            <Mail size={15} className="text-[#a27e2e]" />{" "}
+            <Mail size={15} className="text-[#7d5e1e]" />{" "}
             {subscribers.data?.total ?? 0} matching address
             {(subscribers.data?.total ?? 0) === 1 ? "" : "es"}
           </div>

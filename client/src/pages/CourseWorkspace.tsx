@@ -2308,7 +2308,9 @@ function CourseWorkspaceUnlocked({
                 type="button"
                 onClick={requestCertificate}
                 disabled={
-                  !currentEnrollment || requestCertificateMutation.isPending
+                  !currentEnrollment ||
+                  requestCertificateMutation.isPending ||
+                  (!qualityControl && !isCourseComplete)
                 }
                 className="mt-4 w-full bg-[#16243d] text-[#f7f3e8]"
               >

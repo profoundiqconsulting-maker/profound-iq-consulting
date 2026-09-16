@@ -164,7 +164,7 @@ export default function Blog() {
         <ScrollReveal>
           <div className="container grid gap-16 lg:grid-cols-[.65fr_1.35fr] lg:gap-20">
             <div>
-              <p className="eyebrow text-[#a27e2e]">An honest library</p>
+              <p className="eyebrow text-[#7d5e1e]">An honest library</p>
               <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
                 Good insight should be useful before it is impressive.
               </h2>
@@ -179,7 +179,7 @@ export default function Blog() {
               <div className="flex items-start gap-5 border-l-2 border-[#c9a34e] bg-white/70 p-6 text-sm leading-7 text-[#16243d] backdrop-blur-sm">
                 <MessageSquareText
                   size={20}
-                  className="mt-1 shrink-0 text-[#a27e2e]"
+                  className="mt-1 shrink-0 text-[#7d5e1e]"
                 />
                 <span>
                   These are{" "}
@@ -187,7 +187,7 @@ export default function Blog() {
                   Explore how the library could work or{" "}
                   <Link
                     href="/contact"
-                    className="font-semibold text-[#a27e2e] underline decoration-[#c9a34e] underline-offset-4"
+                    className="font-semibold text-[#7d5e1e] underline decoration-[#c9a34e] underline-offset-4"
                   >
                     suggest a topic
                   </Link>{" "}
@@ -204,7 +204,7 @@ export default function Blog() {
           <ScrollReveal>
             <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
               <div>
-                <p className="eyebrow text-[#a27e2e]">
+                <p className="eyebrow text-[#7d5e1e]">
                   Preview the editorial grid
                 </p>
                 <h2 className="display mt-5 max-w-3xl text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
@@ -220,7 +220,7 @@ export default function Blog() {
             <label className="grid gap-2 text-sm font-semibold text-[#16243d]">
               <span className="sr-only">Search Insights previews</span>
               <span className="flex items-center gap-2 border border-[#16243d]/15 bg-white/75 px-4">
-                <Search size={17} className="text-[#a27e2e]" />
+                <Search size={17} className="text-[#7d5e1e]" />
                 <input
                   value={query}
                   onChange={event => {
@@ -291,13 +291,12 @@ export default function Blog() {
           ) : (
             <ScrollRevealGroup className="mt-8 grid gap-4 lg:grid-cols-3">
               {visibleArticles.map(article => (
-                <Link
-                  href={`/blog/${article.slug}`}
+                <article
                   key={article.slug}
-                  className="public-card-link flex min-h-[360px] flex-col border border-[#16243d]/15 bg-white/70 p-7 sm:p-8"
+                  className="flex min-h-[360px] flex-col border border-[#16243d]/15 bg-white/70 p-7 sm:p-8"
                 >
                   <div className="flex items-start justify-between">
-                    <p className="eyebrow text-[#a27e2e]">{article.category}</p>
+                    <p className="eyebrow text-[#7d5e1e]">{article.category}</p>
                     <span className="text-[10px] font-black tracking-[.16em] text-[#657084]">
                       {article.index}
                     </span>
@@ -315,9 +314,9 @@ export default function Blog() {
                     <span className="inline-flex items-center gap-2">
                       <Clock3 size={14} /> {article.readTime}
                     </span>
-                    <span className="text-[#a27e2e]">Coming soon</span>
+                    <span className="text-[#7d5e1e]">Preview only</span>
                   </div>
-                </Link>
+                </article>
               ))}
             </ScrollRevealGroup>
           )}
@@ -331,13 +330,35 @@ export default function Blog() {
                 Load more Insights <ArrowUpRight size={15} />
               </button>
             </div>
-          )}
+            )}
+            <div className="mt-8 rounded-xl border border-[#c9a34e]/40 bg-[#c9a34e]/5 p-6 text-center">
+              <p className="text-sm font-semibold text-[#16243d]">
+                These are preview cards, not published articles.
+              </p>
+              <p className="mt-2 text-sm text-[#657084]">
+                Full articles are being developed.{" "}
+                <Link
+                  href="/contact"
+                  className="font-semibold text-[#7d5e1e] underline decoration-[#c9a34e] underline-offset-4"
+                >
+                  Suggest a topic
+                </Link>{" "}
+                or explore our{" "}
+                <Link
+                  href="/courses"
+                  className="font-semibold text-[#7d5e1e] underline decoration-[#c9a34e] underline-offset-4"
+                >
+                  professional courses
+                </Link>{" "}
+                in the meantime.
+              </p>
+            </div>
 
           <ScrollReveal>
             <div className="mt-20 border-t border-[#16243d]/10 pt-16">
               <div className="grid gap-12 lg:grid-cols-[.6fr_1.4fr] lg:gap-20 lg:items-start">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">
+                  <p className="eyebrow text-[#7d5e1e]">
                     Stay close to the work
                   </p>
                   <h3 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
@@ -492,7 +513,7 @@ export default function Blog() {
           <ScrollReveal>
             <div className="grid gap-16 lg:grid-cols-[.65fr_1.35fr] lg:gap-20">
               <div>
-                <p className="eyebrow text-[#a27e2e]">Editorial themes</p>
+                <p className="eyebrow text-[#7d5e1e]">Editorial themes</p>
                 <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
                   Start with a question worth carrying forward.
                 </h2>
@@ -511,12 +532,12 @@ export default function Blog() {
                 className="public-card-link group border border-[#16243d]/10 bg-white/60 p-8 transition-all hover:-translate-y-1 hover:border-[#c9a34e] hover:bg-white hover:shadow-lg sm:p-9"
               >
                 <div className="flex items-start justify-between gap-4">
-                  <Icon size={26} className="text-[#a27e2e]" />
+                  <Icon size={26} className="text-[#7d5e1e]" />
                   <span className="text-[10px] font-black tracking-[.16em] text-[#657084]">
                     0{index + 1}
                   </span>
                 </div>
-                <p className="mt-8 text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+                <p className="mt-8 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                   {label} · Coming soon
                 </p>
                 <h3 className="mt-4 text-xl font-semibold leading-tight">
@@ -525,7 +546,7 @@ export default function Blog() {
                 <p className="mt-5 text-sm leading-7 text-[#657084]">{body}</p>
                 <Link
                   href="/contact"
-                  className="mt-8 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-colors group-hover:text-[#a27e2e]"
+                  className="mt-8 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-colors group-hover:text-[#7d5e1e]"
                 >
                   Request an update <ArrowUpRight size={14} />
                 </Link>

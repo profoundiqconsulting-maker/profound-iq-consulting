@@ -19,7 +19,7 @@ const copy = {
   ],
   fr: [
     "Page introuvable",
-    "Désolé, la page recherchée n’existe pas.",
+    "Désolé, la page recherchée n'existe pas.",
     "Elle a peut-être été déplacée ou supprimée.",
     "Accueil",
   ],
@@ -73,18 +73,18 @@ export default function NotFound() {
   const [title, description, detail, home] = copy[locale] ?? copy.en;
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-      <Card className="w-full max-w-lg mx-4 shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#f7f3e8]">
+      <Card className="w-full max-w-lg mx-4 shadow-lg border border-[#16243d]/10 bg-white">
         <CardContent className="pt-8 pb-8 text-center">
           <div className="flex justify-center mb-6">
             <div className="relative">
-              <div className="absolute inset-0 bg-red-100 rounded-full animate-pulse" />
-              <AlertCircle className="relative h-16 w-16 text-red-500" />
+              <div className="absolute inset-0 bg-[#c9a34e]/20 rounded-full animate-pulse" />
+              <AlertCircle className="relative h-16 w-16 text-[#c9a34e]" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">404</h1>
-          <h2 className="text-xl font-semibold text-slate-700 mb-4">{title}</h2>
-          <p className="text-slate-600 mb-8 leading-relaxed">
+          <h1 className="text-4xl font-bold text-[#16243d] mb-2">404</h1>
+          <h2 className="text-xl font-semibold text-[#16243d] mb-4">{title}</h2>
+          <p className="text-[#657084] mb-8 leading-relaxed">
             {description}
             <br />
             {detail}
@@ -93,7 +93,7 @@ export default function NotFound() {
             <Button
               aria-label="Return to the Profound IQ Consulting homepage"
               onClick={() => setLocation("/")}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+              className="bg-[#16243d] hover:bg-[#0f172a] text-white px-6 py-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
             >
               <Home className="w-4 h-4 mr-2" />
               {home}

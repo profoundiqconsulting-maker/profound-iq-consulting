@@ -118,6 +118,19 @@ async function getPublicCourses(): Promise<PublicCourse[]> {
   }
 }
 
+const SITEMAP_LOCALES = [
+  "en",
+  "sw",
+  "fr",
+  "es",
+  "pt",
+  "ar",
+  "zh",
+  "hi",
+  "de",
+  "ja",
+];
+
 export function buildSitemapXml(courses: Array<{ slug: string }>) {
   const staticPaths = [
     "/",
@@ -143,10 +156,24 @@ export function buildSitemapXml(courses: Array<{ slug: string }>) {
       ...courses.map(course => `/courses/${course.slug}`),
     ])
   );
-  const entries = paths.map(
-    path => `  <url><loc>${escapeHtml(SITE_ORIGIN)}${escapeHtml(path)}</loc></url>`
-  );
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join("\n")}\n</urlset>\n`;
+
+  const entries: string[] = [];
+  for (const path of paths) {
+    for (const locale of SITEMAP_LOCALES) {
+      const localizedPath = `${path}?lang=${locale}`;
+      entries.push(
+        `  <url><loc>${escapeHtml(SITE_ORIGIN)}${escapeHtml(localizedPath)}</loc>`
+      );
+      for (const altLocale of SITEMAP_LOCALES) {
+        entries.push(
+          `  <xhtml:link rel="alternate" hreflang="${altLocale}" href="${escapeHtml(SITE_ORIGIN)}${escapeHtml(path)}?lang=${altLocale}" />`
+        );
+      }
+      entries.push(`</url>`);
+    }
+  }
+
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${entries.join("\n")}\n</urlset>\n`;
 }
 
 function findClientScript() {

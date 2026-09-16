@@ -2903,6 +2903,23 @@ export const appRouter = router({
             code: "NOT_FOUND",
             message: "Course enrollment not found.",
           });
+        if (!isQualityControlAdmin(ctx.user)) {
+          const passed = new Set(
+            record.quizAttempts
+              .filter(attempt => attempt.passed)
+              .map(attempt => attempt.moduleId)
+          );
+          if (
+            record.lessons.length < course.modules.length * 7 ||
+            passed.size < course.modules.length
+          ) {
+            throw new TRPCError({
+              code: "PRECONDITION_FAILED",
+              message:
+                "Complete all lessons and module tests before requesting your certificate.",
+            });
+          }
+        }
         const certificateNumber = `PIQ-${new Date().getFullYear()}-${randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
         const originHeader = ctx.req.headers.origin;
         const origin =
@@ -7839,8 +7856,7 @@ export const appRouter = router({
         if (
           !attempt ||
           !ctx.user.email ||
-          attempt.email.trim().toLowerCase() !==
-            ctx.user.email.trim().toLowerCase() ||
+          attempt.email.trim().toLowerCase() !== ctx.user.email.trim().toLowerCase() ||
           attempt.paymentStatus !== "paid" ||
           !attempt.report
         )
@@ -7872,8 +7888,7 @@ export const appRouter = router({
         if (
           !attempt ||
           !ctx.user.email ||
-          attempt.email.trim().toLowerCase() !==
-            ctx.user.email.trim().toLowerCase() ||
+          attempt.email.trim().toLowerCase() !== ctx.user.email.trim().toLowerCase() ||
           attempt.paymentStatus !== "paid" ||
           !attempt.report
         )
@@ -7928,8 +7943,7 @@ export const appRouter = router({
         if (
           !attempt ||
           !ctx.user.email ||
-          attempt.email.trim().toLowerCase() !==
-            ctx.user.email.trim().toLowerCase() ||
+          attempt.email.trim().toLowerCase() !== ctx.user.email.trim().toLowerCase() ||
           attempt.paymentStatus !== "paid" ||
           !attempt.report
         )

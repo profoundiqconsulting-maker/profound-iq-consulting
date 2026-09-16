@@ -17,7 +17,7 @@ export function ModuleCompletionBadge({
       className={`flex items-center gap-3 border p-3 transition ${isEarned ? "border-[#c9a34e] bg-[#fff7dc]" : isInProgress ? "border-[#a27e2e]/35 bg-white/65" : "border-[#16243d]/10 bg-[#f7f3e8]"}`}
     >
       <span
-        className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${isEarned ? "bg-[#c9a34e] text-[#16243d]" : isInProgress ? "border border-[#a27e2e] text-[#a27e2e]" : "border border-[#16243d]/20 text-[#657084]"}`}
+        className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${isEarned ? "bg-[#c9a34e] text-[#16243d]" : isInProgress ? "border border-[#a27e2e] text-[#7d5e1e]" : "border border-[#16243d]/20 text-[#657084]"}`}
       >
         {isEarned ? (
           <Check size={16} strokeWidth={3} />
@@ -43,7 +43,7 @@ export function ModuleCompletionBadge({
       </span>
       {isEarned && (
         <Sparkles
-          className="ml-auto shrink-0 text-[#a27e2e]"
+          className="ml-auto shrink-0 text-[#7d5e1e]"
           size={15}
           aria-label="Completion badge earned"
         />

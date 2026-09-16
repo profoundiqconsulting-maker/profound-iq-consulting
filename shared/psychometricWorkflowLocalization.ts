@@ -1,3 +1,18 @@
+export const psychometricWorkflowLocales = [
+  "en",
+  "sw",
+  "fr",
+  "es",
+  "pt",
+  "ar",
+  "zh",
+  "hi",
+  "de",
+  "ja",
+] as const;
+
+export type PsychometricWorkflowLocale = (typeof psychometricWorkflowLocales)[number];
+
 export type PsychometricWorkflowCopy = {
   progress: string;
   previous: string;

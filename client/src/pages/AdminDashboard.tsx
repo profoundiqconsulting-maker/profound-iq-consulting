@@ -1250,6 +1250,8 @@ export default function AdminDashboard() {
       />
     );
 
+  const initialLoading = overview.isLoading;
+
   return (
     <DashboardLayout role="admin" title="Admin Observatory">
       <div id="admin-observatory" className="admin-observatory w-full">
@@ -1259,6 +1261,13 @@ export default function AdminDashboard() {
           description="Manage assessment records, follow up on course interest, and keep future communications on-brand."
           badge={{ label: "Admin only", variant: "secondary" }}
         />
+        {initialLoading && (
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Loading admin data" role="status">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="h-32 animate-pulse rounded-xl border border-[#16243d]/10 bg-[#f7f3e8]" />
+            ))}
+          </div>
+        )}
         <div
           className="mt-6 flex flex-wrap items-center gap-2"
           role="tablist"
@@ -1531,9 +1540,9 @@ export default function AdminDashboard() {
                         />
                         <Tooltip
                           contentStyle={{
-                            background: "#f7f3e8",
-                            border: "1px solid #c9a34e",
-                            color: "#16243d",
+                            background: "var(--popover)",
+                            border: "1px solid var(--popover-foreground)",
+                            color: "var(--popover-foreground)",
                           }}
                         />
                         <Line
@@ -1678,7 +1687,7 @@ export default function AdminDashboard() {
               <Section
                 id="email-service"
                 eyebrow="Email service"
-                title="SMTP and Resend delivery."
+                title="Resend delivery."
                 description="Verify the outbound email connection and send test messages to admin accounts."
                 className="mt-14"
               >
@@ -1700,7 +1709,7 @@ export default function AdminDashboard() {
                   </div>
                   <div className="exec-surface p-5">
                     <p className="exec-label-gold">Provider</p>
-                    <p className="mt-2 text-sm font-bold">Resend SMTP</p>
+                    <p className="mt-2 text-sm font-bold">Resend API</p>
                   </div>
                   <div className="exec-surface p-5">
                     <p className="exec-label-gold">Test deliver</p>
@@ -2554,11 +2563,9 @@ export default function AdminDashboard() {
 
                             <Tooltip
                               contentStyle={{
-                                background: "#f7f3e8",
-
-                                border: "1px solid #c9a34e",
-
-                                color: "#16243d",
+                                background: "var(--popover)",
+                                border: "1px solid var(--popover-foreground)",
+                                color: "var(--popover-foreground)",
                               }}
                             />
 
@@ -2646,11 +2653,9 @@ export default function AdminDashboard() {
 
                             <Tooltip
                               contentStyle={{
-                                background: "#f7f3e8",
-
-                                border: "1px solid #c9a34e",
-
-                                color: "#16243d",
+                                background: "var(--popover)",
+                                border: "1px solid var(--popover-foreground)",
+                                color: "var(--popover-foreground)",
                               }}
                             />
 
@@ -2730,12 +2735,12 @@ export default function AdminDashboard() {
               >
                 <div className="mt-5 border border-[#a27e2e]/30 bg-[#f7f3e8] p-4">
                   <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-                    SMTP fallback
+                    Manual reset
                   </p>
 
                   <p className="mt-1 text-xs leading-5 text-[#16243d]">
                     Generate a single-use reset link for an administrator when
-                    SMTP delivery is unavailable. The link expires in 10
+                    email delivery is unavailable. The link expires in 10
                     minutes.
                   </p>
 
@@ -3061,17 +3066,15 @@ export default function AdminDashboard() {
                             tick={{ fontSize: 10 }}
                           />
 
-                          <Tooltip
-                            contentStyle={{
-                              border: "1px solid #c9a34e",
+                            <Tooltip
+                              contentStyle={{
+                                background: "var(--popover)",
+                                border: "1px solid var(--popover-foreground)",
+                                color: "var(--popover-foreground)",
+                              }}
+                            />
 
-                              background: "#f7f3e8",
-
-                              fontSize: 12,
-                            }}
-                          />
-
-                          <Bar
+                            <Bar
                             dataKey="value"
                             fill="#c9a34e"
                             radius={[2, 2, 0, 0]}
@@ -3098,17 +3101,15 @@ export default function AdminDashboard() {
                             tick={{ fontSize: 10 }}
                           />
 
-                          <Tooltip
-                            contentStyle={{
-                              border: "1px solid #c9a34e",
+                            <Tooltip
+                              contentStyle={{
+                                background: "var(--popover)",
+                                border: "1px solid var(--popover-foreground)",
+                                color: "var(--popover-foreground)",
+                              }}
+                            />
 
-                              background: "#f7f3e8",
-
-                              fontSize: 12,
-                            }}
-                          />
-
-                          <Line
+                            <Line
                             type="monotone"
                             dataKey="assessment_started"
                             stroke="#16243d"
@@ -3436,11 +3437,9 @@ export default function AdminDashboard() {
 
                             <Tooltip
                               contentStyle={{
-                                background: "#f7f3e8",
-
-                                border: "1px solid #c9a34e",
-
-                                color: "#16243d",
+                                background: "var(--popover)",
+                                border: "1px solid var(--popover-foreground)",
+                                color: "var(--popover-foreground)",
                               }}
                             />
 
@@ -3528,11 +3527,9 @@ export default function AdminDashboard() {
 
                             <Tooltip
                               contentStyle={{
-                                background: "#f7f3e8",
-
-                                border: "1px solid #c9a34e",
-
-                                color: "#16243d",
+                                background: "var(--popover)",
+                                border: "1px solid var(--popover-foreground)",
+                                color: "var(--popover-foreground)",
                               }}
                             />
 
@@ -4664,12 +4661,12 @@ export default function AdminDashboard() {
               >
                 <div className="mt-5 border border-[#a27e2e]/30 bg-[#f7f3e8] p-4">
                   <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-                    SMTP fallback
+                    Manual reset
                   </p>
 
                   <p className="mt-1 text-xs leading-5 text-[#16243d]">
                     Generate a single-use reset link for an administrator when
-                    SMTP delivery is unavailable. The link expires in 10
+                    email delivery is unavailable. The link expires in 10
                     minutes.
                   </p>
 
@@ -4970,9 +4967,9 @@ export default function AdminDashboard() {
                             />
                             <Tooltip
                               contentStyle={{
-                                background: "#f7f3e8",
-                                border: "0",
-                                color: "#16243d",
+                                background: "var(--popover)",
+                                border: "1px solid var(--popover-foreground)",
+                                color: "var(--popover-foreground)",
                               }}
                             />
                             <Bar

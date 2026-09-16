@@ -287,8 +287,7 @@ function IllustrationCard({
                 ) : (
                   <Download size={13} />
                 )}{" "}
-                PNG
-              </button>
+                PNG</button>
             </>
           )}
         </div>
@@ -778,7 +777,7 @@ export default function MyIllustrations() {
                 size="sm"
                 onClick={clearSelection}
                 disabled={!selectedIds.length}
-                className="border-[#16243d]/20"
+                className="border-[#16243d]/20 motion-safe:animate-[pulse_650ms_ease-out]"
               >
                 Clear selection
               </Button>
@@ -907,7 +906,7 @@ export default function MyIllustrations() {
           </div>
           <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[#16243d]/15 pt-5">
             <p className="text-xs text-muted-foreground">
-              Showing {(page - 1) * pageSize + 1}–
+              Showing {((page - 1) * pageSize) + 1}–
               {Math.min(page * pageSize, bookmarksQuery.data?.total ?? 0)}{" "}
               of {bookmarksQuery.data?.total ?? 0} saved illustrations
             </p>

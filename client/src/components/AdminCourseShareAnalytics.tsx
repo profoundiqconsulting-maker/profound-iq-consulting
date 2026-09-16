@@ -210,7 +210,7 @@ export default function AdminCourseShareAnalytics() {
     >
       <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow text-[#a27e2e]">Social intelligence</p>
+          <p className="eyebrow text-[#7d5e1e]">Social intelligence</p>
           <h2
             id="course-share-analytics-title"
             className="display mt-2 text-2xl"
@@ -316,7 +316,7 @@ export default function AdminCourseShareAnalytics() {
       </div>
       <div className="mt-5 grid gap-3 sm:grid-cols-3">
         <div className="border border-[#16243d]/10 bg-[#fffaf0] p-4">
-          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
             Total shares
           </p>
           <p className="mt-2 text-2xl font-semibold">
@@ -332,7 +332,7 @@ export default function AdminCourseShareAnalytics() {
           )}
         </div>
         <div className="border border-[#16243d]/10 bg-[#fffaf0] p-4">
-          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
             Top course
           </p>
           <p className="mt-2 truncate text-sm font-bold">
@@ -340,7 +340,7 @@ export default function AdminCourseShareAnalytics() {
           </p>
         </div>
         <div className="border border-[#16243d]/10 bg-[#fffaf0] p-4">
-          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
             Top platform
           </p>
           <p className="mt-2 text-sm font-bold">
@@ -351,7 +351,7 @@ export default function AdminCourseShareAnalytics() {
       <div className="mt-6 border-t border-[#16243d]/10 pt-6">
         <div className="flex items-end justify-between gap-3">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
               Comparison momentum
             </p>
             <h3 className="mt-1 text-xl font-semibold">
@@ -375,7 +375,7 @@ export default function AdminCourseShareAnalytics() {
                 className="border border-[#16243d]/10 bg-[#fffaf0] p-4"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                  <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                     #{index + 1}
                   </span>
                   <span className="text-xs font-bold text-[#7d5e1e]">
@@ -398,7 +398,7 @@ export default function AdminCourseShareAnalytics() {
       <div className="mt-8 border-t border-[#16243d]/10 pt-6">
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
               Preview lab
             </p>
             <h3 className="mt-1 text-xl font-semibold">
@@ -514,7 +514,7 @@ export default function AdminCourseShareAnalytics() {
         </div>
       )}
       <div className="mt-8 border-t border-[#16243d]/10 pt-6">
-        <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+        <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
           Comparison shares over time
         </p>
         <h3 className="mt-1 text-xl font-semibold">Shortlist sharing trend</h3>
@@ -532,7 +532,13 @@ export default function AdminCourseShareAnalytics() {
                 />
                 <XAxis dataKey="date" tick={{ fontSize: 10 }} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
-                <Tooltip />
+                <Tooltip
+                  contentStyle={{
+                    background: "var(--popover)",
+                    border: "1px solid var(--popover-foreground)",
+                    color: "var(--popover-foreground)",
+                  }}
+                />
                 <Line
                   type="monotone"
                   dataKey="shares"
@@ -553,7 +559,7 @@ export default function AdminCourseShareAnalytics() {
       </div>
       {trendData.length > 1 && (
         <div className="mt-8 border-t border-[#16243d]/10 pt-6">
-          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]">
+          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
             Performance over time
           </p>
           <h3 className="mt-1 text-xl font-semibold">
@@ -569,7 +575,13 @@ export default function AdminCourseShareAnalytics() {
                 />
                 <XAxis dataKey="date" tick={{ fontSize: 10 }} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
-                <Tooltip />
+                <Tooltip
+                  contentStyle={{
+                    background: "var(--popover)",
+                    border: "1px solid var(--popover-foreground)",
+                    color: "var(--popover-foreground)",
+                  }}
+                />
                 <Legend />
                 <Line
                   type="monotone"
@@ -614,7 +626,13 @@ export default function AdminCourseShareAnalytics() {
                 interval={0}
               />
               <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
-              <Tooltip />
+              <Tooltip
+                contentStyle={{
+                  background: "var(--popover)",
+                  border: "1px solid var(--popover-foreground)",
+                  color: "var(--popover-foreground)",
+                }}
+              />
               {platforms.map((platform, index) => (
                 <Bar
                   key={platform}
@@ -633,7 +651,7 @@ export default function AdminCourseShareAnalytics() {
       ) : (
         <div className="mt-6 grid min-h-40 place-items-center border border-dashed border-[#16243d]/20 text-sm text-[#657084]">
           <div className="text-center">
-            <BarChart3 className="mx-auto mb-2 text-[#a27e2e]" size={24} />
+            <BarChart3 className="mx-auto mb-2 text-[#7d5e1e]" size={24} />
             <p>
               Share data will appear after visitors use the course share
               controls.

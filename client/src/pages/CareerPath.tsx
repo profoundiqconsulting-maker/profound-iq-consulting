@@ -75,7 +75,7 @@ function CareerPathStepIndicator({ current }: { current: Page }) {
               className="flex min-w-0 flex-1 items-center gap-2"
             >
               <span
-                className={`flex min-w-0 items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${isActive ? "text-[#16243d]" : isComplete ? "text-[#a27e2e]" : "text-[#657084]"}`}
+                className={`flex min-w-0 items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${isActive ? "text-[#16243d]" : isComplete ? "text-[#7d5e1e]" : "text-[#657084]"}`}
               >
                 <span
                   className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[10px] transition-all duration-300 ${isActive ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243] scale-110" : isComplete ? "border-[#a27e2e] bg-[#a27e2e] text-white" : "border-[#16243d]/20"}`}
@@ -125,7 +125,7 @@ function IntroPage({
           role="status"
           aria-live="polite"
         >
-          <Loader2 className="animate-spin text-[#a27e2e]" size={18} />{" "}
+          <Loader2 className="animate-spin text-[#7d5e1e]" size={18} />{" "}
           Preparing your CareerPath Assessment…
         </div>
       </div>
@@ -141,10 +141,10 @@ function IntroPage({
   return (
     <main className="container py-10 sm:py-16">
       <div className="mx-auto max-w-3xl">
-        <p className="eyebrow text-[#a27e2e]">Step 1 of 4</p>
+        <p className="eyebrow text-[#7d5e1e]">Step 1 of 4</p>
         <h1 className="display mt-4 text-5xl leading-[.95] tracking-[-.04em] sm:text-7xl">
           Career pathway &{" "}
-          <em className="font-normal text-[#a27e2e]">talent fit</em>.
+          <em className="font-normal text-[#7d5e1e]">talent fit</em>.
         </h1>
         <p className="mt-6 max-w-2xl text-base leading-7 text-[#4a566a]">
           A developmental assessment for Competency Based Education learners.
@@ -179,7 +179,7 @@ function IntroPage({
         </div>
 
         <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
-          <p className="eyebrow text-[#a27e2e]">Participant details</p>
+          <p className="eyebrow text-[#7d5e1e]">Participant details</p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <label className="text-xs font-bold">
               Full name
@@ -346,7 +346,7 @@ function AssessmentPage({
           role="status"
           aria-live="polite"
         >
-          <Loader2 className="animate-spin text-[#a27e2e]" size={18} />{" "}
+          <Loader2 className="animate-spin text-[#7d5e1e]" size={18} />{" "}
           Preparing your CareerPath Assessment...
         </div>
       </main>
@@ -357,10 +357,10 @@ function AssessmentPage({
     return (
       <main className="container py-10 sm:py-16">
         <div className="mx-auto max-w-3xl">
-          <p className="eyebrow text-[#a27e2e]">Assessment workspace</p>
+          <p className="eyebrow text-[#7d5e1e]">Assessment workspace</p>
           <h1 className="display mt-4 text-5xl leading-[.95] tracking-[-.04em] sm:text-7xl">
             Guided pathway{" "}
-            <em className="font-normal text-[#a27e2e]">assessment</em>.
+            <em className="font-normal text-[#7d5e1e]">assessment</em>.
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-7 text-[#4a566a]">
             Work through each module in order. There are no right or wrong
@@ -369,7 +369,7 @@ function AssessmentPage({
         </div>
 
         <section className="mx-auto mt-10 max-w-3xl border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
-          <p className="eyebrow text-[#a27e2e]">
+          <p className="eyebrow text-[#7d5e1e]">
             Step 2 of 4 — Participant details
           </p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -519,12 +519,12 @@ function AssessmentPlayer({
   return (
     <main className="container py-10 sm:py-16">
       <div className="mx-auto max-w-3xl">
-        <p className="eyebrow text-[#a27e2e]">
+        <p className="eyebrow text-[#7d5e1e]">
           Step 2 of 4 — Assessment in progress
         </p>
         <h1 className="display mt-4 text-5xl leading-[.95] tracking-[-.04em] sm:text-7xl">
           Guided pathway{" "}
-          <em className="font-normal text-[#a27e2e]">assessment</em>.
+          <em className="font-normal text-[#7d5e1e]">assessment</em>.
         </h1>
         <p className="mt-6 max-w-2xl text-base leading-7 text-[#4a566a]">
           Work through each module in order. There are no right or wrong
@@ -571,7 +571,7 @@ function AssessmentPlayer({
           <section className="border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
             <div className="flex items-end justify-between gap-4 border-b border-[#16243d]/15 pb-4">
               <div>
-                <p className="eyebrow text-[#a27e2e]">
+                <p className="eyebrow text-[#7d5e1e]">
                   Module {currentModule + 1}
                 </p>
                 <h2 className="display mt-2 text-3xl">{currentGroup.name}</h2>
@@ -708,12 +708,12 @@ function CheckoutPage({
               <ArrowLeft size={16} className="mr-2" /> Back to assessment
             </Button>
           )}
-          <p className="eyebrow text-[#a27e2e]">
+          <p className="eyebrow text-[#7d5e1e]">
             Step 3 of 4 — Secure checkout
           </p>
           <h1 className="display mt-4 text-5xl leading-[.95] tracking-[-.04em] sm:text-7xl">
             Complete your{" "}
-            <em className="font-normal text-[#a27e2e]">CareerPath</em>.
+            <em className="font-normal text-[#7d5e1e]">CareerPath</em>.
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-7 text-[#4a566a]">
             Finalize your payment to unlock your tailored CareerPath report,
@@ -928,7 +928,7 @@ function ReportsPage({
           role="status"
           aria-live="polite"
         >
-          <Loader2 className="animate-spin text-[#a27e2e]" size={18} /> Loading
+          <Loader2 className="animate-spin text-[#7d5e1e]" size={18} /> Loading
           your CareerPath report...
         </div>
       </main>
@@ -939,7 +939,7 @@ function ReportsPage({
     return (
       <main className="container py-16">
         <div className="mx-auto max-w-2xl border border-[#16243d]/15 bg-white/60 p-8 text-center">
-          <p className="eyebrow text-[#a27e2e]">
+          <p className="eyebrow text-[#7d5e1e]">
             Step 4 of 4 — Reports workspace
           </p>
           <h1 className="display mt-3 text-4xl">
@@ -981,11 +981,11 @@ function ReportsPage({
             <ArrowLeft size={16} className="mr-2" /> Back to checkout
           </Button>
         )}
-        <p className="eyebrow text-[#a27e2e]">
+        <p className="eyebrow text-[#7d5e1e]">
           Step 4 of 4 — Your CareerPath profile
         </p>
         <h1 className="display mt-4 text-5xl leading-none sm:text-7xl">
-          Discover. <em className="font-normal text-[#a27e2e]">Explore.</em>{" "}
+          Discover. <em className="font-normal text-[#7d5e1e]">Explore.</em>{" "}
           Choose.
         </h1>
         <p className="mt-5 text-base leading-7 text-[#4a566a]">
@@ -1060,7 +1060,7 @@ function ReportsPage({
                       className="mt-8 border border-[#16243d]/15 bg-white/55 p-5 sm:p-7"
                       aria-label="Past CareerPath reports and certificates"
                     >
-                      <p className="eyebrow text-[#a27e2e]">Your history</p>
+                      <p className="eyebrow text-[#7d5e1e]">Your history</p>
                       <div className="mt-4 grid gap-3 sm:grid-cols-2">
                         {careerHistory
                           .slice(0, 4)
@@ -1134,7 +1134,7 @@ function ReportsPage({
                       </p>
                       <h2 className="display mt-4 text-3xl">{pathway.label}</h2>
                       <p
-                        className={`mt-4 text-5xl ${index === 0 ? "text-[#c9a34e]" : "text-[#a27e2e]"}`}
+                        className={`mt-4 text-5xl ${index === 0 ? "text-[#c9a34e]" : "text-[#7d5e1e]"}`}
                       >
                         {pathway.score}
                         <span className="text-base"> / 100</span>
@@ -1153,7 +1153,7 @@ function ReportsPage({
             label: "Sub-Pathways",
             content: (
               <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
-                <p className="eyebrow text-[#a27e2e]">Sub-pathway readout</p>
+                <p className="eyebrow text-[#7d5e1e]">Sub-pathway readout</p>
                 <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {report.subPathways.map(subPathway => (
                     <article
@@ -1164,7 +1164,7 @@ function ReportsPage({
                         <h3 className="text-sm font-bold">
                           {subPathway.label}
                         </h3>
-                        <span className="text-lg font-semibold text-[#a27e2e]">
+                        <span className="text-lg font-semibold text-[#7d5e1e]">
                           {subPathway.score}
                         </span>
                       </div>
@@ -1248,7 +1248,7 @@ function ReportsPage({
             content: (
               <section className="mt-10 grid gap-6 lg:grid-cols-[1.1fr_.9fr]">
                 <article className="border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
-                  <p className="eyebrow text-[#a27e2e]">
+                  <p className="eyebrow text-[#7d5e1e]">
                     Why this signal matters
                   </p>
                   <h2 className="display mt-3 text-3xl">
@@ -1261,7 +1261,7 @@ function ReportsPage({
                     >
                       <CheckCircle2
                         size={17}
-                        className="mt-1 shrink-0 text-[#a27e2e]"
+                        className="mt-1 shrink-0 text-[#7d5e1e]"
                       />
                       <span>{item}</span>
                     </div>

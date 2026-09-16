@@ -118,7 +118,7 @@ function AssessmentFlowPagination({
         {steps.map((step, index) => (
           <li key={step.id} className="flex min-w-0 items-center gap-3">
             <span
-              className={`grid h-7 w-7 shrink-0 place-items-center border text-[10px] font-black transition-all duration-300 ${index === currentIndex ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d] scale-110" : index < currentIndex ? "border-[#a27e2e] text-[#a27e2e]" : "border-[#16243d]/20 text-[#657084]"}`}
+              className={`grid h-7 w-7 shrink-0 place-items-center border text-[10px] font-black transition-all duration-300 ${index === currentIndex ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d] scale-110" : index < currentIndex ? "border-[#a27e2e] text-[#7d5e1e]" : "border-[#16243d]/20 text-[#657084]"}`}
             >
               {index < currentIndex ? "✓" : index + 1}
             </span>
@@ -1277,7 +1277,7 @@ export default function Assessment() {
         <TransformationNav active="assessment" />
         <main className="container grid min-h-[70vh] place-items-center py-16">
           <section className="max-w-xl border-t-2 border-[#c9a34e] bg-white/60 p-8 text-center shadow-sm">
-            <p className="eyebrow text-[#a27e2e]">Resume link unavailable</p>
+            <p className="eyebrow text-[#7d5e1e]">Resume link unavailable</p>
             <h1 className="display mt-4 text-5xl leading-none">
               This saved session has expired.
             </h1>
@@ -1307,29 +1307,6 @@ export default function Assessment() {
           modulePage={page}
           totalModules={totalPages}
         />
-        {stage === "questions" && (
-          <>
-            <AssessmentContentPagination
-              currentPage={contentPage}
-              pageCount={contentPageCount}
-              questionCount={moduleQuestions.length}
-              hasNextModule={page < totalPages - 1}
-              onPageChange={nextPage =>
-                advanceAssessmentContent(
-                  Math.max(0, Math.min(contentPageCount, nextPage))
-                )
-              }
-            />
-            {contentAdvanceNotice && (
-              <p
-                role="status"
-                className="mb-6 animate-pulse border-l-2 border-[#c9a34e] bg-[#fffaf0] px-4 py-3 text-sm font-semibold text-[#7d5e1e]"
-              >
-                {contentAdvanceNotice}
-              </p>
-            )}
-          </>
-        )}
         {stage === "intro" && (
           <div className="mx-auto max-w-4xl">
             {error && (
@@ -1393,7 +1370,7 @@ export default function Assessment() {
                 role="dialog"
                 aria-label="Review imported progress"
               >
-                <p className="eyebrow text-[#a27e2e]">
+                <p className="eyebrow text-[#7d5e1e]">
                   Review imported progress
                 </p>
                 <p className="mt-2 text-sm leading-6">
@@ -1431,12 +1408,12 @@ export default function Assessment() {
             )}
             <div className="grid gap-12 lg:grid-cols-[1fr_300px]">
               <div>
-                <p className="eyebrow text-[#a27e2e]">
+                <p className="eyebrow text-[#7d5e1e]">
                   A reflective development tool
                 </p>
                 <h1 className="display mt-5 max-w-2xl text-6xl leading-[.92] tracking-[-.05em] sm:text-7xl">
                   See the patterns behind your{" "}
-                  <em className="font-normal text-[#a27e2e]">potential.</em>
+                  <em className="font-normal text-[#7d5e1e]">potential.</em>
                 </h1>
                 <p className="mt-7 max-w-2xl text-lg leading-8 text-[#4a566a]">
                   This 100-question Self Assessment helps you reflect on the
@@ -1483,7 +1460,7 @@ export default function Assessment() {
               <section
                 className={`mt-10 border-l-2 border-[#c9a34e] p-5 ${assessmentDark ? "bg-[#16243d] text-[#f7f3e8]" : "bg-white/65 text-[#16243d]"}`}
               >
-                <p className="eyebrow text-[#a27e2e]">Previous session found</p>
+                <p className="eyebrow text-[#7d5e1e]">Previous session found</p>
                 <p className="mt-2 text-sm leading-6">
                   Saved {new Date(localDraft.savedAt).toLocaleString()} with{" "}
                   {localDraftAnsweredCount} responses in{" "}
@@ -1526,7 +1503,7 @@ export default function Assessment() {
                           }
                         />
                       ))}
-                      <span className="relative z-10 text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+                      <span className="relative z-10 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                         {assessmentCopy.moduleCompleted}
                       </span>
                       <Button
@@ -1728,7 +1705,7 @@ export default function Assessment() {
           <div className="mx-auto max-w-4xl">
             <div className="flex flex-col justify-between gap-5 border-b border-[#16243d]/20 pb-7 sm:flex-row sm:items-end">
               <div>
-                <p className="eyebrow text-[#a27e2e]">
+                <p className="eyebrow text-[#7d5e1e]">
                   Assessment / module {page + 1} of {totalPages}
                 </p>
                 <h1 className="display mt-4 text-5xl leading-none tracking-[-.04em]">
@@ -1759,12 +1736,12 @@ export default function Assessment() {
                 <p className="text-xs font-bold uppercase tracking-[.12em] text-[#657084]">
                   Answered
                 </p>
-                <p className="mt-2 text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                <p className="mt-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                   {completedModuleCount} of {totalPages} modules complete
                 </p>
                 <div className="mt-1 flex flex-wrap items-center justify-start gap-2 sm:justify-end">
                   <p
-                    className={`text-[10px] text-[#657084] ${savedPulse ? "animate-pulse text-[#a27e2e]" : ""}`}
+                    className={`text-[10px] text-[#657084] ${savedPulse ? "animate-pulse text-[#7d5e1e]" : ""}`}
                   >
                     {lastSavedAt
                       ? `Saved ${new Date(lastSavedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
@@ -1773,7 +1750,7 @@ export default function Assessment() {
                   <button
                     type="button"
                     onClick={saveNow}
-                    className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e] hover:text-[#16243d]"
+                    className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e] hover:text-[#16243d]"
                   >
                     {assessmentCopy.saveNow}
                   </button>
@@ -1781,7 +1758,7 @@ export default function Assessment() {
                     type="button"
                     onClick={() => setPreferencesOpen(true)}
                     aria-label="Open assessment preferences"
-                    className="text-[#657084] hover:text-[#a27e2e]"
+                    className="text-[#657084] hover:text-[#7d5e1e]"
                   >
                     <Settings2 size={13} />
                   </button>
@@ -1815,7 +1792,7 @@ export default function Assessment() {
                   className="inline-flex items-center gap-2 border-[#16243d]/25 text-xs font-black uppercase tracking-[.12em]"
                 >
                   <Menu size={15} /> Module overview{" "}
-                  <span className="text-[#a27e2e]">
+                  <span className="text-[#7d5e1e]">
                     {completedModuleCount}/{totalPages}
                   </span>
                 </Button>
@@ -1854,7 +1831,7 @@ export default function Assessment() {
                           className={`flex w-full items-center justify-between gap-4 border px-4 py-4 text-left transition ${moduleIndex === page ? "border-[#c9a34e] bg-white" : "border-[#16243d]/15 bg-white/50 hover:border-[#c9a34e]"}`}
                         >
                           <span>
-                            <span className="block text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+                            <span className="block text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                               Module {moduleIndex + 1}
                             </span>
                             <span className="mt-1 block text-sm font-semibold">
@@ -1921,7 +1898,7 @@ export default function Assessment() {
               aria-label="Module navigation"
             >
               <div className="mb-2 flex items-center justify-between gap-3">
-                <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+                <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                   Module map
                 </span>
                 <div className="flex items-center gap-3">
@@ -1934,7 +1911,7 @@ export default function Assessment() {
                         ? "Show all sections"
                         : "Show sections with at least 20 points of potential improvement"
                     }
-                    className={`text-[9px] font-black uppercase tracking-[.1em] ${highPotentialOnly ? "text-[#a27e2e]" : "text-[#657084]"}`}
+                    className={`text-[9px] font-black uppercase tracking-[.1em] ${highPotentialOnly ? "text-[#7d5e1e]" : "text-[#657084]"}`}
                   >
                     {highPotentialOnly ? "All sections" : "High potential"}
                   </button>
@@ -1962,7 +1939,7 @@ export default function Assessment() {
                     onClick={toggleModuleRail}
                     aria-expanded={!moduleRailCollapsed}
                     aria-controls="assessment-module-rail"
-                    className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#657084] hover:text-[#a27e2e]"
+                    className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#657084] hover:text-[#7d5e1e]"
                   >
                     {moduleRailCollapsed ? (
                       <ChevronDown size={14} />
@@ -2140,7 +2117,7 @@ export default function Assessment() {
             )}
             <div className="mt-10 flex flex-wrap items-center justify-end gap-3 border-t border-[#16243d]/20 pt-6">
               <div className="text-xs leading-5 text-[#657084]">
-                <strong className="block text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+                <strong className="block text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                   Module {page + 1} of {totalPages}
                 </strong>
                 <span>
@@ -2155,7 +2132,7 @@ export default function Assessment() {
                 type="button"
                 onClick={saveAndContinueLater}
                 disabled={saveDraft.isPending}
-                className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.12em] text-[#657084] hover:text-[#a27e2e] disabled:opacity-50"
+                className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.12em] text-[#657084] hover:text-[#7d5e1e] disabled:opacity-50"
               >
                 {saveDraft.isPending ? (
                   <Loader2 size={15} className="animate-spin" />
@@ -2227,11 +2204,11 @@ export default function Assessment() {
           >
             <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#c9a34e]/20">
               {paymentState === "idle" ? (
-                <Loader2 className="animate-spin text-[#a27e2e]" />
+                <Loader2 className="animate-spin text-[#7d5e1e]" />
               ) : paymentState === "verifying" ? (
-                <Loader2 className="animate-spin text-[#a27e2e]" />
+                <Loader2 className="animate-spin text-[#7d5e1e]" />
               ) : (
-                <LockKeyhole className="text-[#a27e2e]" />
+                <LockKeyhole className="text-[#7d5e1e]" />
               )}
             </div>
             <h1 className="display mt-8 text-5xl">
@@ -2337,13 +2314,13 @@ export default function Assessment() {
                   content: (
                     <div className="grid gap-10 lg:grid-cols-[.8fr_1.2fr]">
                       <div>
-                        <p className="eyebrow text-[#a27e2e]">
+                        <p className="eyebrow text-[#7d5e1e]">
                           Assessment report / verified payment
                         </p>
                         <h1 className="display mt-5 text-6xl leading-[.9] tracking-[-.05em]">
                           Your current
                           <br />
-                          <em className="font-normal text-[#a27e2e]">
+                          <em className="font-normal text-[#7d5e1e]">
                             signal.
                           </em>
                         </h1>
@@ -2352,14 +2329,14 @@ export default function Assessment() {
                           intentional development conversation.
                         </p>
                         <div className="mt-7 border-l-2 border-[#c9a34e] bg-white/55 px-5 py-4">
-                          <p className="eyebrow text-[#a27e2e]">Prepared for</p>
+                          <p className="eyebrow text-[#7d5e1e]">Prepared for</p>
                           <p className="mt-2 text-base font-bold text-[#16243d]">
                             {name}
                           </p>
                           <p className="mt-1 text-sm text-[#657084]">{email}</p>
                         </div>
                         <div className="mt-10 border-t border-[#16243d]/20 pt-5">
-                          <p className="eyebrow text-[#a27e2e]">
+                          <p className="eyebrow text-[#7d5e1e]">
                             Overall foundation
                           </p>
                           <p className="display mt-3 text-7xl">
@@ -2385,7 +2362,7 @@ export default function Assessment() {
                                 <h2 className="text-sm font-extrabold">
                                   {dimension.label}
                                 </h2>
-                                <span className="display text-2xl text-[#a27e2e]">
+                                <span className="display text-2xl text-[#7d5e1e]">
                                   {dimension.score}
                                 </span>
                               </div>
@@ -2402,7 +2379,7 @@ export default function Assessment() {
                                 {dimension.readout}
                               </p>
                               <div className="mt-5 border-t border-[#16243d]/10 pt-4">
-                                <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                                <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                                   Reflection workspace
                                 </p>
                                 <p className="mt-1 text-xs leading-5 text-[#657084]">
@@ -2467,7 +2444,7 @@ export default function Assessment() {
                         </div>
                         <div className="mt-8 grid gap-5 border-t border-[#16243d]/20 pt-6 sm:grid-cols-2">
                           <div>
-                            <p className="eyebrow text-[#a27e2e]">
+                            <p className="eyebrow text-[#7d5e1e]">
                               Strength signals
                             </p>
                             <ul className="mt-4 space-y-2 text-sm font-semibold">
@@ -2475,7 +2452,7 @@ export default function Assessment() {
                                 <li key={strength} className="flex gap-2">
                                   <Check
                                     size={15}
-                                    className="mt-0.5 text-[#a27e2e]"
+                                    className="mt-0.5 text-[#7d5e1e]"
                                   />
                                   {strength}
                                 </li>
@@ -2483,7 +2460,7 @@ export default function Assessment() {
                             </ul>
                           </div>
                           <div>
-                            <p className="eyebrow text-[#a27e2e]">
+                            <p className="eyebrow text-[#7d5e1e]">
                               Focus signals
                             </p>
                             <ul className="mt-4 space-y-2 text-sm font-semibold">
@@ -2491,7 +2468,7 @@ export default function Assessment() {
                                 <li key={focus} className="flex gap-2">
                                   <ArrowRight
                                     size={15}
-                                    className="mt-0.5 text-[#a27e2e]"
+                                    className="mt-0.5 text-[#7d5e1e]"
                                   />
                                   {focus}
                                 </li>
@@ -2510,7 +2487,7 @@ export default function Assessment() {
                     <section className="mt-10 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6">
                       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                         <div>
-                          <p className="eyebrow text-[#a27e2e]">
+                          <p className="eyebrow text-[#7d5e1e]">
                             Adapt the lens
                           </p>
                           <h2 className="display mt-2 text-2xl">
@@ -2577,7 +2554,7 @@ export default function Assessment() {
                     <>
                       <section className="mt-10 flex flex-col justify-between gap-4 border border-[#c9a34e]/60 bg-[#fffaf0] p-5 sm:flex-row sm:items-center sm:p-6">
                         <div>
-                          <p className="eyebrow text-[#a27e2e]">
+                          <p className="eyebrow text-[#7d5e1e]">
                             Coach / manager export
                           </p>
                           <h2 className="display mt-2 text-2xl text-[#16243d]">
@@ -2615,7 +2592,7 @@ export default function Assessment() {
                       </section>
                       <div className="mt-12 grid gap-8 border-t border-[#16243d]/20 pt-8 lg:grid-cols-[1.1fr_.9fr]">
                         <section>
-                          <p className="eyebrow text-[#a27e2e]">
+                          <p className="eyebrow text-[#7d5e1e]">
                             Reflection points
                           </p>
                           <h2 className="display mt-3 text-3xl">
@@ -2807,7 +2784,7 @@ export default function Assessment() {
                   readOnly
                   value={resumeUrl}
                   onFocus={event => event.currentTarget.select()}
-                  className="min-w-0 flex-1 border border-[#16243d]/20 bg-white px-3 py-3 text-xs text-[#4a566a] outline-none"
+                  className="min-w-0 flex-1 border border-[#16243d]/20 bg-white px-3 py-3 text-xs text-[#4a566a] outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
                 />
                 <Button
                   type="button"
@@ -2951,7 +2928,7 @@ export default function Assessment() {
                 setAssessmentTheme("system");
                 window.localStorage.removeItem("piq-assessment-theme");
               }}
-              className="text-[10px] font-black uppercase tracking-[.1em] text-[#a27e2e]"
+              className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]"
             >
               Use system default
             </button>
@@ -3083,7 +3060,7 @@ export default function Assessment() {
             </p>
             {certificatePreview.isLoading ? (
               <div className="grid min-h-40 place-items-center text-sm text-[#657084]">
-                <Loader2 className="animate-spin text-[#a27e2e]" />
+                <Loader2 className="animate-spin text-[#7d5e1e]" />
               </div>
             ) : certificatePreview.error ? (
               <p className="p-4 text-sm text-red-800">

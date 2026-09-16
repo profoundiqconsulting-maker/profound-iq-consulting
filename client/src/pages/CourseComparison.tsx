@@ -144,7 +144,7 @@ export default function CourseComparison() {
         <section className="container py-12 lg:py-20">
           {!selectedCourses.length ? (
             <div className="border-l-2 border-[#c9a34e] bg-white/60 p-8">
-              <p className="eyebrow text-[#a27e2e]">NO COURSES SELECTED</p>
+              <p className="eyebrow text-[#7d5e1e]">NO COURSES SELECTED</p>
               <h2 className="display mt-3 text-3xl">
                 Build your comparison from the catalog.
               </h2>
@@ -154,7 +154,7 @@ export default function CourseComparison() {
               </p>
               <Link
                 href="/courses"
-                className="mt-6 inline-flex items-center gap-2 border-b border-[#a27e2e] pb-1 text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]"
+                className="mt-6 inline-flex items-center gap-2 border-b border-[#a27e2e] pb-1 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]"
               >
                 Explore courses <ArrowLeft className="rotate-180" size={14} />
               </Link>
@@ -163,7 +163,7 @@ export default function CourseComparison() {
             <>
               <div className="mb-7 flex items-end justify-between gap-4">
                 <div>
-                  <p className="eyebrow text-[#a27e2e]">
+                  <p className="eyebrow text-[#7d5e1e]">
                     {selectedCourses.length} PATHWAY
                     {selectedCourses.length === 1 ? "" : "S"}
                   </p>
@@ -216,14 +216,14 @@ export default function CourseComparison() {
                               type="button"
                               onClick={() => removeCourse(course.slug)}
                               aria-label={`Remove ${course.title}`}
-                              className="text-[#657084] hover:text-[#a27e2e]"
+                              className="text-[#657084] hover:text-[#7d5e1e]"
                             >
                               <X size={16} />
                             </button>
                           </div>
                           <dl className="mt-7 space-y-5 text-sm">
                             <div>
-                              <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                              <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                                 Outcomes
                               </dt>
                               <dd className="mt-2 space-y-2">
@@ -239,7 +239,7 @@ export default function CourseComparison() {
                             </div>
                             <div className="grid grid-cols-2 gap-4 border-t border-[#16243d]/10 pt-5">
                               <div>
-                                <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                                <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                                   Duration
                                 </dt>
                                 <dd className="mt-1 leading-5">
@@ -247,7 +247,7 @@ export default function CourseComparison() {
                                 </dd>
                               </div>
                               <div>
-                                <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                                <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                                   Investment
                                 </dt>
                                 <dd className="mt-1 leading-5">

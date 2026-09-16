@@ -47,7 +47,7 @@ export default function AdminRevenuePanel() {
     >
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow flex items-center gap-2 text-[#a27e2e]">
+          <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
             <BarChart3 size={13} /> Revenue observatory
           </p>
           <h2 id="revenue-title" className="display mt-3 text-3xl">
@@ -157,8 +157,9 @@ export default function AdminRevenuePanel() {
                     <Tooltip
                       formatter={(value: number) => kes(value)}
                       contentStyle={{
-                        border: "1px solid #c9a34e",
-                        background: "#f7f3e8",
+                        background: "var(--popover)",
+                        border: "1px solid var(--popover-foreground)",
+                        color: "var(--popover-foreground)",
                         fontSize: 12,
                       }}
                     />
@@ -185,8 +186,9 @@ export default function AdminRevenuePanel() {
                     <Tooltip
                       formatter={(value: number) => kes(value)}
                       contentStyle={{
-                        border: "1px solid #c9a34e",
-                        background: "#f7f3e8",
+                        background: "var(--popover)",
+                        border: "1px solid var(--popover-foreground)",
+                        color: "var(--popover-foreground)",
                         fontSize: 12,
                       }}
                     />

@@ -8,7 +8,7 @@ function LogoFallback({ context }: { context?: string }) {
       aria-hidden="true"
       className="display text-xl font-semibold tracking-[-.08em] text-[#16243d]"
     >
-      PIQ<span className="text-[#a27e2e]">.</span>
+      PIQ<span className="text-[#7d5e1e]">.</span>
     </span>
   );
 }
@@ -35,7 +35,7 @@ export function BrandLogo({
   return (
     <span
       data-brand-logo
-      className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-sm bg-white shadow-[0_8px_24px_rgba(16,29,53,.12)] ${sizeClasses} ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-sm bg-transparent shadow-[0_8px_24px_rgba(16,29,53,.12)] ${sizeClasses} ${className}`}
     >
       {failed ? (
         <LogoFallback context={context} />

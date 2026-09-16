@@ -140,7 +140,7 @@ export default function PaystackInlineModal({
         {loading && !scriptError && (
           <>
             <Loader2
-              className="mx-auto animate-spin text-[#a27e2e]"
+              className="mx-auto animate-spin text-[#7d5e1e]"
               size={32}
             />
             <p className="mt-4 text-sm font-semibold text-[#16243d]">
@@ -170,7 +170,7 @@ export default function PaystackInlineModal({
         )}
         {!loading && !scriptError && (
           <>
-            <p className="text-xs font-black uppercase tracking-[.14em] text-[#a27e2e]">
+            <p className="text-xs font-black uppercase tracking-[.14em] text-[#7d5e1e]">
               Secure checkout
             </p>
             <p className="mt-3 text-lg font-semibold text-[#16243d]">

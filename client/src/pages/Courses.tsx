@@ -1267,8 +1267,8 @@ export default function Courses() {
                         ) ?? selectedCourse
                       )
                     }
-                    className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent py-3 text-base font-semibold outline-none"
-                  >
+                     className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent py-3 text-base font-semibold outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
+                   >
                     <option value={selectedCourse.title}>
                       {selectedCourse.title} — {selectedCourse.price}
                     </option>
@@ -1283,24 +1283,24 @@ export default function Courses() {
                 </label>
                 <label className="mt-7 block text-xs font-black uppercase tracking-[.14em]">
                   {enrollmentCopy.yourName}
-                  <input
-                    required
-                    name="name"
-                    autoComplete="name"
-                    defaultValue={user?.name ?? ""}
-                    className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent py-3 text-base outline-none"
-                  />
+                   <input
+                     required
+                     name="name"
+                     autoComplete="name"
+                     defaultValue={user?.name ?? ""}
+                     className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent py-3 text-base outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
+                   />
                 </label>
                 <label className="mt-7 block text-xs font-black uppercase tracking-[.14em]">
                   {enrollmentCopy.emailAddress}
-                  <input
-                    required
-                    type="email"
-                    name="email"
-                    autoComplete="email"
-                    defaultValue={user?.email ?? ""}
-                    className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent py-3 text-base outline-none"
-                  />
+                   <input
+                     required
+                     type="email"
+                     name="email"
+                     autoComplete="email"
+                     defaultValue={user?.email ?? ""}
+                     className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent py-3 text-base outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
+                   />
                 </label>
                 <div className="mt-6 border border-[#c9a34e]/40 bg-[#fffaf0] p-4">
                   <p className="text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e]">

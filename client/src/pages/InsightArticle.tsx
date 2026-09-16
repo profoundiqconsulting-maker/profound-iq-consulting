@@ -84,7 +84,7 @@ export default function InsightArticle() {
               </span>
               <Link
                 href="/blog"
-                className="ml-auto inline-flex items-center gap-2 text-[#7d5e1e] underline underline-offset-4 transition-colors hover:text-[#a27e2e]"
+                className="ml-auto inline-flex items-center gap-2 text-[#7d5e1e] underline underline-offset-4 transition-colors hover:text-[#7d5e1e]"
               >
                 <ArrowLeft size={15} /> All Insights
               </Link>
@@ -108,7 +108,7 @@ export default function InsightArticle() {
           <aside className="lg:sticky lg:top-8 lg:self-start">
             <ScrollReveal>
               <div className="border-l-2 border-[#c9a34e] bg-white/70 p-7 backdrop-blur-sm">
-                <p className="eyebrow text-[#a27e2e]">A question to carry</p>
+                <p className="eyebrow text-[#7d5e1e]">A question to carry</p>
                 <p className="mt-5 text-lg font-semibold leading-8 text-[#16243d]">
                   {article.accent}
                 </p>
@@ -127,7 +127,7 @@ export default function InsightArticle() {
                   key={section.heading}
                   className="border-b border-[#16243d]/10 pb-12 last:border-0"
                 >
-                  <p className="eyebrow text-[#a27e2e]">
+                  <p className="eyebrow text-[#7d5e1e]">
                     {String(index + 1).padStart(2, "0")}
                   </p>
                   <h2 className="display mt-6 text-4xl leading-tight text-[#16243d] sm:text-5xl">
@@ -150,7 +150,7 @@ export default function InsightArticle() {
               </Link>
               <Link
                 href="/courses"
-                className="inline-flex min-h-12 items-center justify-center gap-3 border border-[#16243d]/20 px-6 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-all hover:-translate-y-1 hover:border-[#c9a34e] hover:text-[#a27e2e]"
+                className="inline-flex min-h-12 items-center justify-center gap-3 border border-[#16243d]/20 px-6 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-all hover:-translate-y-1 hover:border-[#c9a34e] hover:text-[#7d5e1e]"
               >
                 Explore courses <ArrowUpRight size={15} />
               </Link>

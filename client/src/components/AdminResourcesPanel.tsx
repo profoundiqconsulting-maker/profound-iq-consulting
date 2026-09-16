@@ -80,7 +80,7 @@ export default function AdminResourcesPanel() {
     <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow flex items-center gap-2 text-[#a27e2e]">
+          <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
             <Upload size={13} /> Resource library
           </p>
           <h2 className="display mt-3 text-3xl">
@@ -190,7 +190,7 @@ export default function AdminResourcesPanel() {
                       href={resource.fileUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1 rounded-full border border-[#16243d]/15 px-2 py-0.5 hover:text-[#a27e2e]"
+                      className="inline-flex items-center gap-1 rounded-full border border-[#16243d]/15 px-2 py-0.5 hover:text-[#7d5e1e]"
                     >
                       <ExternalLink size={10} /> File
                     </a>

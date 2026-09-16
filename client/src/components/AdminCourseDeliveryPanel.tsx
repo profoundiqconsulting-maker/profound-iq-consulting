@@ -25,7 +25,7 @@ export default function AdminCourseDeliveryPanel() {
     <section className="mt-8 border border-[#16243d]/15 bg-white/55 p-5 sm:p-6">
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow text-[#a27e2e]">Delivery observatory</p>
+          <p className="eyebrow text-[#7d5e1e]">Delivery observatory</p>
           <h2 className="display mt-2 text-2xl">Course result handoffs.</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
             Monitor learner email, organization-review requests, and
@@ -36,8 +36,8 @@ export default function AdminCourseDeliveryPanel() {
           size={17}
           className={
             outcomes.isFetching
-              ? "animate-spin text-[#a27e2e]"
-              : "text-[#a27e2e]"
+              ? "animate-spin text-[#7d5e1e]"
+              : "text-[#7d5e1e]"
           }
           aria-label="Delivery outcomes refresh automatically"
         />
@@ -46,7 +46,7 @@ export default function AdminCourseDeliveryPanel() {
         <label className="relative text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
           <Search
             size={14}
-            className="absolute bottom-3 left-3 text-[#a27e2e]"
+            className="absolute bottom-3 left-3 text-[#7d5e1e]"
           />
           <span className="sr-only">Search recipients</span>
           <input

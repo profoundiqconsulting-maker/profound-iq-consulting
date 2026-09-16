@@ -2229,6 +2229,11 @@ export default function UserDashboard() {
                             />
                             <Tooltip
                               formatter={value => [`${value}%`, "Score"]}
+                              contentStyle={{
+                                background: "var(--popover)",
+                                border: "1px solid var(--popover-foreground)",
+                                color: "var(--popover-foreground)",
+                              }}
                             />
                             <Line
                               type="monotone"
@@ -3355,6 +3360,11 @@ export default function UserDashboard() {
                             labelFormatter={label =>
                               `${label} · ${trendData.find(item => item.version === label)?.date ?? ""}`
                             }
+                            contentStyle={{
+                              background: "var(--popover)",
+                              border: "1px solid var(--popover-foreground)",
+                              color: "var(--popover-foreground)",
+                            }}
                           />
                           <Line
                             type="monotone"
@@ -4234,9 +4244,9 @@ export default function UserDashboard() {
               }
               onChange={event => setLeaderboardName(event.target.value)}
               maxLength={80}
-              placeholder={profile.data?.name || "Learner"}
-              className="mt-2 w-full border border-white/20 bg-transparent px-3 py-2 text-sm text-white outline-none placeholder:text-[#aeb8c8]"
-            />
+               placeholder={profile.data?.name || "Learner"}
+               className="mt-2 w-full border border-white/20 bg-transparent px-3 py-2 text-sm text-white outline-none placeholder:text-[#aeb8c8] transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
+             />
           </label>
         </div>
         {profile.data?.leaderboardOptIn && (

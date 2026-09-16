@@ -94,7 +94,7 @@ export default function AdminSurveysPanel() {
   };
 
   const statusIcon = {
-    draft: <Clock3 size={14} className="text-[#a27e2e]" />,
+    draft: <Clock3 size={14} className="text-[#7d5e1e]" />,
     published: <CheckCircle2 size={14} className="text-emerald-600" />,
     closed: <XCircle size={14} className="text-red-600" />,
   };
@@ -103,7 +103,7 @@ export default function AdminSurveysPanel() {
     <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow flex items-center gap-2 text-[#a27e2e]">
+          <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
             <BarChart3 size={13} /> Engagement & feedback
           </p>
           <h2 className="display mt-3 text-3xl">

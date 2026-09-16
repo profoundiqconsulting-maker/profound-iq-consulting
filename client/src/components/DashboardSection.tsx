@@ -19,7 +19,7 @@ export function DashboardSectionHeader({
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           {eyebrow && (
-            <p className="eyebrow text-[#a27e2e] dark:text-[#c9a34e]">
+            <p className="eyebrow text-[#7d5e1e] dark:text-[#c9a34e]">
               {eyebrow}
             </p>
           )}

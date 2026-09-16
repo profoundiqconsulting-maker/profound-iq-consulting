@@ -511,7 +511,7 @@ export function AdminCertificatePreview() {
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="eyebrow text-[#a27e2e]">Quality control</p>
+          <p className="eyebrow text-[#7d5e1e]">Quality control</p>
           <h2
             id="admin-certificate-preview-title"
             className="display mt-2 text-3xl"
@@ -947,7 +947,7 @@ export function AdminCertificatePreview() {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <BarChart3 size={15} className="text-[#a27e2e]" />
+              <BarChart3 size={15} className="text-[#7d5e1e]" />
               <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                 Certificate usage observatory
               </p>
@@ -1050,7 +1050,13 @@ export function AdminCertificatePreview() {
                       stroke="#657084"
                       fontSize={10}
                     />
-                    <Tooltip />
+                    <Tooltip
+                      contentStyle={{
+                        background: "var(--popover)",
+                        border: "1px solid var(--popover-foreground)",
+                        color: "var(--popover-foreground)",
+                      }}
+                    />
                     <Bar
                       dataKey="count"
                       name="Downloads"
@@ -1084,7 +1090,13 @@ export function AdminCertificatePreview() {
                       stroke="#657084"
                       fontSize={10}
                     />
-                    <Tooltip />
+                    <Tooltip
+                      contentStyle={{
+                        background: "var(--popover)",
+                        border: "1px solid var(--popover-foreground)",
+                        color: "var(--popover-foreground)",
+                      }}
+                    />
                     <Line
                       type="monotone"
                       dataKey="count"

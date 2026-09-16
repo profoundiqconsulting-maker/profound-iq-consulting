@@ -335,10 +335,10 @@ export function TransformationNav({
                         ? `search-result-${selectedSearchIndex}`
                         : undefined
                     }
-                    placeholder="Search modules or topics"
-                    aria-label="Search modules or topics"
-                    className="min-w-0 flex-1 bg-transparent py-3 text-sm outline-none"
-                  />
+                     placeholder="Search modules or topics"
+                     aria-label="Search modules or topics"
+                     className="min-w-0 flex-1 bg-transparent py-3 text-sm outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
+                   />
                   <kbd className="text-[9px] text-[#657084]">ESC</kbd>
                 </div>
                 {!query && recentSearches.length > 0 && (

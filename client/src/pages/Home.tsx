@@ -1,5 +1,5 @@
 /* Profound IQ Consulting — Modern Executive Landing Page. Clean, professional, elegant with enhanced UX/UI. */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -159,6 +159,8 @@ export default function Home() {
   >(null);
   const [enrollmentSubmitted, setEnrollmentSubmitted] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [testimonialsPaused, setTestimonialsPaused] = useState(false);
+  const enrollmentTriggerRef = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
   const enrollment = trpc.enrollment.create.useMutation();
   const inquiry = trpc.inquiry.create.useMutation();
   const { user, isAuthenticated } = useAuth();
@@ -245,14 +247,16 @@ export default function Home() {
   }, [selectedCourse]);
 
   useEffect(() => {
+    if (testimonialsPaused) return;
     const interval = setInterval(() => {
       setCurrentTestimonial(prev => (prev + 1) % testimonials.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [testimonialsPaused]);
 
-  const openEnrollment = (course: (typeof courses)[number]) => {
+  const openEnrollment = (course: (typeof courses)[number], element: HTMLButtonElement | HTMLAnchorElement | null = null) => {
     setEnrollmentSubmitted(false);
+    enrollmentTriggerRef.current = element;
     setSelectedCourse(course);
   };
 
@@ -309,7 +313,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-[#0f172a]">
+    <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
@@ -319,27 +323,27 @@ export default function Home() {
 
       <main id="top">
         {/* Modern Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+        <section className="relative overflow-hidden bg-[#101d35] text-[#f7f3e8]">
           <div className="absolute inset-0 bg-[url('/profound-hero-f95a7f36_76e0eb6f.svg')] bg-cover bg-center opacity-20" />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/70 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#101d35]/90 via-[#101d35]/70 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#101d35]/50 to-transparent" />
 
           <div className="container relative px-6 py-24 lg:px-8 lg:py-32">
             <div className="grid items-center gap-16 lg:grid-cols-2">
               <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-amber-300">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a34e]/30 bg-[#c9a34e]/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
                   <Sparkles size={14} />
                   Executive Assessment & Development
                 </div>
 
                 <h1 className="mt-8 text-5xl leading-[1.1] tracking-tight lg:text-7xl">
                   Transform potential into{" "}
-                  <span className="bg-gradient-to-r from-amber-300 to-amber-500 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-[#c9a34e] to-[#d4af5e] bg-clip-text text-transparent">
                     measurable impact
                   </span>
                 </h1>
 
-                <p className="mt-8 text-lg leading-relaxed text-slate-300 lg:text-xl">
+                <p className="mt-8 text-lg leading-relaxed text-[#c1cad7] lg:text-xl">
                   Profound IQ Consulting helps professionals and organizations
                   move from raw potential to purposeful impact through
                   evidence-based learning, assessment, and strategic
@@ -349,7 +353,7 @@ export default function Home() {
                 <div className="mt-10 flex flex-wrap gap-4">
                   <a
                     href="/assessment"
-                    className="group inline-flex items-center gap-3 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-8 py-4 text-sm font-bold uppercase tracking-wider text-slate-900 shadow-lg shadow-amber-500/25 transition-all hover:gap-4 hover:shadow-xl hover:shadow-amber-500/40"
+                    className="group inline-flex items-center gap-3 rounded-lg bg-[#c9a34e] px-8 py-4 text-sm font-bold uppercase tracking-wider text-[#101d35] shadow-lg shadow-[#c9a34e]/25 transition-all hover:gap-4 hover:shadow-xl hover:shadow-[#c9a34e]/40"
                   >
                     Take the KES 399 assessment
                     <ArrowUpRight
@@ -359,24 +363,24 @@ export default function Home() {
                   </a>
                   <a
                     href="#offerings"
-                    className="inline-flex items-center gap-3 rounded-lg border border-white/20 px-8 py-4 text-sm font-bold uppercase tracking-wider text-white transition-all hover:border-amber-400 hover:text-amber-300"
+                    className="inline-flex items-center gap-3 rounded-lg border border-[#f7f3e8]/20 px-8 py-4 text-sm font-bold uppercase tracking-wider text-[#f7f3e8] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e]"
                   >
                     Explore services
                     <ArrowDownRight size={18} />
                   </a>
                 </div>
 
-                <div className="mt-12 flex items-center gap-8 text-sm text-slate-400">
+                <div className="mt-12 flex items-center gap-8 text-sm text-[#aab5c6]">
                   <div className="flex -space-x-2">
                     {[1, 2, 3, 4].map(i => (
                       <div
                         key={i}
-                        className="h-10 w-10 rounded-full border-2 border-slate-900 bg-gradient-to-br from-slate-700 to-slate-600"
+                        className="h-10 w-10 rounded-full border-2 border-[#101d35] bg-gradient-to-br from-[#16243d] to-[#101d35]"
                       />
                     ))}
                   </div>
                   <div>
-                    <p className="font-semibold text-white">
+                    <p className="font-semibold text-[#f7f3e8]">
                       Trusted by 500+ organizations
                     </p>
                     <p className="text-xs">Across Kenya and beyond</p>
@@ -386,44 +390,44 @@ export default function Home() {
 
               <div className="relative hidden lg:block">
                 <div className="relative">
-                  <div className="absolute -inset-4 rounded-2xl bg-gradient-to-r from-amber-500/20 to-amber-600/20 blur-2xl" />
-                  <div className="relative rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
+                  <div className="absolute -inset-4 rounded-2xl bg-gradient-to-r from-[#c9a34e]/20 to-[#c9a34e]/20 blur-2xl" />
+                  <div className="relative rounded-2xl border border-[#f7f3e8]/10 bg-[#f7f3e8]/5 p-8 backdrop-blur-sm">
                     <div className="space-y-6">
-                      <div className="flex items-center gap-4 rounded-xl bg-white/5 p-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-500/20">
-                          <Award className="h-6 w-6 text-amber-400" />
+                      <div className="flex items-center gap-4 rounded-xl bg-[#f7f3e8]/5 p-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#c9a34e]/20">
+                          <Award className="h-6 w-6 text-[#c9a34e]" />
                         </div>
                         <div>
-                          <p className="font-semibold text-white">
+                          <p className="font-semibold text-[#f7f3e8]">
                             Professional Courses
                           </p>
-                          <p className="text-sm text-slate-400">
+                          <p className="text-sm text-[#aab5c6]">
                             50+ expert-led programs
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4 rounded-xl bg-white/5 p-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500/20">
-                          <BarChart3 className="h-6 w-6 text-blue-400" />
+                      <div className="flex items-center gap-4 rounded-xl bg-[#f7f3e8]/5 p-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#c9a34e]/20">
+                          <BarChart3 className="h-6 w-6 text-[#c9a34e]" />
                         </div>
                         <div>
-                          <p className="font-semibold text-white">
+                          <p className="font-semibold text-[#f7f3e8]">
                             Psychometric Testing
                           </p>
-                          <p className="text-sm text-slate-400">
+                          <p className="text-sm text-[#aab5c6]">
                             Evidence-based insights
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4 rounded-xl bg-white/5 p-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-500/20">
-                          <Users className="h-6 w-6 text-emerald-400" />
+                      <div className="flex items-center gap-4 rounded-xl bg-[#f7f3e8]/5 p-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#c9a34e]/20">
+                          <Users className="h-6 w-6 text-[#c9a34e]" />
                         </div>
                         <div>
-                          <p className="font-semibold text-white">
+                          <p className="font-semibold text-[#f7f3e8]">
                             1-on-1 Coaching
                           </p>
-                          <p className="text-sm text-slate-400">
+                          <p className="text-sm text-[#aab5c6]">
                             Personalized development
                           </p>
                         </div>
@@ -435,13 +439,13 @@ export default function Home() {
             </div>
 
             {/* Stats Bar */}
-            <div className="mt-20 grid grid-cols-2 gap-8 border-t border-white/10 pt-12 lg:grid-cols-4">
+            <div className="mt-20 grid grid-cols-2 gap-8 border-t border-[#f7f3e8]/10 pt-12 lg:grid-cols-4">
               {stats.map((stat, index) => (
                 <div key={index} className="text-center">
-                  <div className="text-4xl font-bold text-amber-400 lg:text-5xl">
+                  <div className="text-4xl font-bold text-[#c9a34e] lg:text-5xl">
                     {stat.value}
                   </div>
-                  <div className="mt-2 text-sm text-slate-400">
+                  <div className="mt-2 text-sm text-[#aab5c6]">
                     {stat.label}
                   </div>
                 </div>
@@ -451,16 +455,16 @@ export default function Home() {
         </section>
 
         {/* Services Section */}
-        <section id="offerings" className="bg-slate-50 py-24 lg:py-32">
+        <section id="offerings" className="bg-[#f7f3e8] py-24 lg:py-32">
           <div className="container px-6 lg:px-8">
             <div className="mb-16 text-center">
-              <p className="text-sm font-semibold uppercase tracking-wider text-amber-600">
+              <p className="text-sm font-semibold uppercase tracking-wider text-[#c9a34e]">
                 Our Services
               </p>
-              <h2 className="mt-4 text-4xl font-bold tracking-tight text-slate-900 lg:text-5xl">
+              <h2 className="mt-4 text-4xl font-bold tracking-tight text-[#16243d] lg:text-5xl">
                 Comprehensive development solutions
               </h2>
-              <p className="mt-4 max-w-2xl mx-auto text-lg text-slate-600">
+              <p className="mt-4 max-w-2xl mx-auto text-lg text-[#657084]">
                 From individual assessments to organizational consulting, we
                 provide the tools and expertise to drive meaningful growth.
               </p>
@@ -475,21 +479,21 @@ export default function Home() {
                     href={service.href}
                     className="group relative overflow-hidden rounded-2xl bg-white p-8 shadow-sm transition-all hover:shadow-xl hover:-translate-y-1"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#f7f3e8] to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                     <div className="relative">
-                      <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/25">
+                      <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-[#c9a34e] text-white shadow-lg shadow-[#c9a34e]/25">
                         <Icon size={24} />
                       </div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-amber-600">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
                         {service.tag}
                       </p>
-                      <h3 className="mt-3 text-xl font-bold text-slate-900">
+                      <h3 className="mt-3 text-xl font-bold text-[#16243d]">
                         {service.title}
                       </h3>
-                      <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                      <p className="mt-3 text-sm leading-relaxed text-[#657084]">
                         {service.body}
                       </p>
-                      <div className="mt-6 flex items-center gap-2 text-sm font-semibold text-amber-600">
+                      <div className="mt-6 flex items-center gap-2 text-sm font-semibold text-[#c9a34e]">
                         Learn more
                         <ArrowUpRight
                           size={16}
@@ -508,10 +512,10 @@ export default function Home() {
         <section className="bg-white py-24 lg:py-32">
           <div className="container px-6 lg:px-8">
             <div className="mb-16">
-              <p className="text-sm font-semibold uppercase tracking-wider text-amber-600">
+              <p className="text-sm font-semibold uppercase tracking-wider text-[#c9a34e]">
                 Featured Programs
               </p>
-              <h2 className="mt-4 text-4xl font-bold tracking-tight text-slate-900 lg:text-5xl">
+              <h2 className="mt-4 text-4xl font-bold tracking-tight text-[#16243d] lg:text-5xl">
                 Tools for the work ahead
               </h2>
             </div>
@@ -523,23 +527,23 @@ export default function Home() {
                   <a
                     key={service.index}
                     href={service.href}
-                    className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 p-10 text-white shadow-xl transition-all hover:shadow-2xl hover:-translate-y-1"
+                    className="group relative overflow-hidden rounded-2xl bg-[#16243d] p-10 text-[#f7f3e8] shadow-xl transition-all hover:shadow-2xl hover:-translate-y-1"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#c9a34e]/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                     <div className="relative">
-                      <div className="mb-8 inline-flex h-16 w-16 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400">
+                      <div className="mb-8 inline-flex h-16 w-16 items-center justify-center rounded-xl bg-[#c9a34e]/20 text-[#c9a34e]">
                         <Icon size={28} />
                       </div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-amber-400">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
                         {service.tag}
                       </p>
                       <h3 className="mt-3 text-3xl font-bold">
                         {service.title}
                       </h3>
-                      <p className="mt-4 text-base leading-relaxed text-slate-300">
+                      <p className="mt-4 text-base leading-relaxed text-[#c1cad7]">
                         {service.body}
                       </p>
-                      <div className="mt-8 flex items-center gap-2 text-sm font-semibold text-amber-400">
+                      <div className="mt-8 flex items-center gap-2 text-sm font-semibold text-[#c9a34e]">
                         Open service
                         <ArrowUpRight
                           size={16}
@@ -555,10 +559,10 @@ export default function Home() {
         </section>
 
         {/* Testimonials */}
-        <section className="bg-slate-900 py-24 lg:py-32">
+        <section className="bg-[#101d35] py-24 lg:py-32">
           <div className="container px-6 lg:px-8">
             <div className="mx-auto max-w-4xl text-center">
-              <p className="text-sm font-semibold uppercase tracking-wider text-amber-400">
+              <p className="text-sm font-semibold uppercase tracking-wider text-[#c9a34e]">
                 Client Success Stories
               </p>
               <div className="mt-12">
@@ -572,33 +576,53 @@ export default function Home() {
                           : "opacity-0 translate-y-8"
                       }`}
                     >
-                      <blockquote className="text-3xl font-light leading-relaxed text-white lg:text-4xl">
+                      <blockquote className="text-3xl font-light leading-relaxed text-[#f7f3e8] lg:text-4xl">
                         "{testimonial.quote}"
                       </blockquote>
                       <div className="mt-8">
-                        <p className="font-semibold text-amber-400">
+                        <p className="font-semibold text-[#c9a34e]">
                           {testimonial.author}
                         </p>
-                        <p className="text-sm text-slate-400">
+                        <p className="text-sm text-[#aab5c6]">
                           {testimonial.role}
                         </p>
                       </div>
                     </div>
                   ))}
                 </div>
-                <div className="mt-8 flex justify-center gap-2">
-                  {testimonials.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentTestimonial(index)}
-                      className={`h-2 rounded-full transition-all ${
-                        index === currentTestimonial
-                          ? "w-8 bg-amber-400"
-                          : "w-2 bg-slate-700 hover:bg-slate-600"
-                      }`}
-                      aria-label={`Testimonial ${index + 1}`}
-                    />
-                  ))}
+                <div className="mt-8 flex items-center justify-center gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setTestimonialsPaused(paused => !paused)}
+                    aria-label={testimonialsPaused ? "Play testimonial carousel" : "Pause testimonial carousel"}
+                    className="inline-flex items-center gap-2 rounded-full border border-[#16243d]/20 px-4 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#aab5c6] transition-colors hover:border-[#c9a34e] hover:text-[#c9a34e]"
+                  >
+                    {testimonialsPaused ? (
+                      <>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                        Play
+                      </>
+                    ) : (
+                      <>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>
+                        Pause
+                      </>
+                    )}
+                  </button>
+                  <div className="flex gap-2">
+                    {testimonials.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentTestimonial(index)}
+                        className={`h-2 rounded-full transition-all ${
+                          index === currentTestimonial
+                            ? "w-8 bg-[#c9a34e]"
+                            : "w-2 bg-[#16243d] hover:bg-[#1f3050]"
+                        }`}
+                        aria-label={`Testimonial ${index + 1}`}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -606,16 +630,16 @@ export default function Home() {
         </section>
 
         {/* Course Catalog */}
-        <section id="courses" className="bg-slate-50 py-24 lg:py-32">
+        <section id="courses" className="bg-[#f7f3e8] py-24 lg:py-32">
           <div className="container px-6 lg:px-8">
             <div className="mb-16">
-              <p className="text-sm font-semibold uppercase tracking-wider text-amber-600">
+              <p className="text-sm font-semibold uppercase tracking-wider text-[#c9a34e]">
                 Course Catalog
               </p>
-              <h2 className="mt-4 text-4xl font-bold tracking-tight text-slate-900 lg:text-5xl">
+              <h2 className="mt-4 text-4xl font-bold tracking-tight text-[#16243d] lg:text-5xl">
                 Choose the capability you want to build
               </h2>
-              <p className="mt-4 max-w-2xl text-lg text-slate-600">
+              <p className="mt-4 max-w-2xl text-lg text-[#657084]">
                 Each course is designed to meet professional standards while
                 giving you a practical path from reflection to measurable
                 progress.
@@ -628,8 +652,8 @@ export default function Home() {
                 onClick={() => setCatalogLevel("All levels")}
                 className={`rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition-all ${
                   catalogLevel === "All levels"
-                    ? "bg-slate-900 text-white"
-                    : "bg-white text-slate-700 border border-slate-200 hover:border-slate-900"
+                    ? "bg-[#16243d] text-white"
+                    : "bg-white text-[#657084] border border-[#16243d]/10 hover:border-[#16243d]"
                 }`}
               >
                 All levels
@@ -641,8 +665,8 @@ export default function Home() {
                   onClick={() => setCatalogLevel(level)}
                   className={`rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition-all ${
                     catalogLevel === level
-                      ? "bg-slate-900 text-white"
-                      : "bg-white text-slate-700 border border-slate-200 hover:border-slate-900"
+                      ? "bg-[#16243d] text-white"
+                      : "bg-white text-[#657084] border border-[#16243d]/10 hover:border-[#16243d]"
                   }`}
                 >
                   {level}
@@ -654,29 +678,29 @@ export default function Home() {
               {pagedCatalog.map(course => (
                 <article
                   key={course.index}
-                  className="group rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all hover:shadow-lg hover:border-amber-300"
+                  className="group rounded-2xl border border-[#16243d]/10 bg-white p-8 shadow-sm transition-all hover:shadow-lg hover:border-[#c9a34e]"
                 >
                   <div className="grid gap-8 lg:grid-cols-[1fr_auto]">
                     <div>
                       <div className="flex items-center gap-4">
-                        <span className="text-sm font-bold text-amber-600">
+                        <span className="text-sm font-bold text-[#c9a34e]">
                           {course.index}
                         </span>
-                        <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+                        <span className="rounded-full bg-[#c9a34e]/10 px-3 py-1 text-xs font-semibold text-[#7d5e1e]">
                           {course.format}
                         </span>
                       </div>
-                      <h3 className="mt-4 text-2xl font-bold text-slate-900">
+                      <h3 className="mt-4 text-2xl font-bold text-[#16243d]">
                         {course.title}
                       </h3>
-                      <p className="mt-3 text-base leading-relaxed text-slate-600">
+                      <p className="mt-3 text-base leading-relaxed text-[#657084]">
                         {course.body}
                       </p>
                       <div className="mt-6 flex flex-wrap gap-4">
                         {course.modules.length ? (
                           <a
                             href={`/courses/${course.slug}?workspace=1`}
-                            className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-all hover:bg-slate-800"
+                            className="inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-all hover:bg-[#0f172a]"
                           >
                             Enroll now
                             <ArrowUpRight size={14} />
@@ -684,8 +708,9 @@ export default function Home() {
                         ) : (
                           <button
                             type="button"
-                            onClick={() => openEnrollment(course)}
-                            className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-all hover:bg-slate-800"
+                            onClick={(event) => openEnrollment(course, event.currentTarget)}
+                            aria-pressed={selectedCourse?.index === course.index}
+                            className="inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-all hover:bg-[#0f172a]"
                           >
                             Enroll now
                             <ArrowUpRight size={14} />
@@ -697,7 +722,7 @@ export default function Home() {
                               ? `/courses/${course.slug}`
                               : "#contact"
                           }
-                          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700 transition-colors hover:text-amber-600"
+                          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#657084] transition-colors hover:text-[#c9a34e]"
                         >
                           {course.modules.length
                             ? "Open syllabus"
@@ -707,7 +732,7 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="lg:text-right">
-                      <p className="text-3xl font-bold text-slate-900">
+                      <p className="text-3xl font-bold text-[#16243d]">
                         {course.price}
                       </p>
                     </div>
@@ -721,7 +746,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => setCatalogPage(page => page + 1)}
-                  className="inline-flex items-center gap-3 rounded-lg border-2 border-slate-900 px-8 py-3 text-sm font-bold uppercase tracking-wider text-slate-900 transition-all hover:bg-slate-900 hover:text-white"
+                  className="inline-flex items-center gap-3 rounded-lg border-2 border-[#16243d] px-8 py-3 text-sm font-bold uppercase tracking-wider text-[#16243d] transition-all hover:bg-[#16243d] hover:text-white"
                 >
                   Load more
                   <ChevronRight size={18} />
@@ -730,7 +755,7 @@ export default function Home() {
             )}
 
             {filteredCatalog.length === 0 && (
-              <p className="py-12 text-center text-base text-slate-500">
+              <p className="py-12 text-center text-base text-[#657084]">
                 No courses match the selected filters.
               </p>
             )}
@@ -738,51 +763,51 @@ export default function Home() {
         </section>
 
         {/* Contact Section */}
-        <section id="contact" className="bg-slate-900 py-24 lg:py-32">
+        <section id="contact" className="bg-[#16243d] py-24 lg:py-32">
           <div className="container px-6 lg:px-8">
             <div className="grid gap-16 lg:grid-cols-2">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wider text-amber-400">
+                <p className="text-sm font-semibold uppercase tracking-wider text-[#c9a34e]">
                   Get in Touch
                 </p>
-                <h2 className="mt-4 text-4xl font-bold tracking-tight text-white lg:text-5xl">
+                <h2 className="mt-4 text-4xl font-bold tracking-tight text-[#f7f3e8] lg:text-5xl">
                   Make the next step deliberate
                 </h2>
-                <p className="mt-6 text-lg leading-relaxed text-slate-300">
+                <p className="mt-6 text-lg leading-relaxed text-[#c1cad7]">
                   Tell us what you are working toward. We will help you see the
                   path with more clarity.
                 </p>
                 <div className="mt-10 space-y-6">
                   <a
                     href="mailto:admin@profoundiqconsulting.com"
-                    className="flex items-center gap-4 text-slate-300 transition-colors hover:text-amber-400"
+                    className="flex items-center gap-4 text-[#c1cad7] transition-colors hover:text-[#c9a34e]"
                   >
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-800 text-amber-400">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#16243d] text-[#c9a34e]">
                       <Mail size={20} />
                     </div>
                     <div>
-                      <p className="font-semibold text-white">Email us</p>
+                      <p className="font-semibold text-[#f7f3e8]">Email us</p>
                       <p className="text-sm">admin@profoundiqconsulting.com</p>
                     </div>
                   </a>
                   <a
                     href="tel:+254727374055"
-                    className="flex items-center gap-4 text-slate-300 transition-colors hover:text-amber-400"
+                    className="flex items-center gap-4 text-[#c1cad7] transition-colors hover:text-[#c9a34e]"
                   >
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-800 text-amber-400">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#16243d] text-[#c9a34e]">
                       <Phone size={20} />
                     </div>
                     <div>
-                      <p className="font-semibold text-white">Call us</p>
+                      <p className="font-semibold text-[#f7f3e8]">Call us</p>
                       <p className="text-sm">+254 727 374 055</p>
                     </div>
                   </a>
-                  <div className="flex items-center gap-4 text-slate-300">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-800 text-amber-400">
+                  <div className="flex items-center gap-4 text-[#c1cad7]">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#16243d] text-[#c9a34e]">
                       <MessageCircle size={20} />
                     </div>
                     <div>
-                      <p className="font-semibold text-white">Always online</p>
+                      <p className="font-semibold text-[#f7f3e8]">Always online</p>
                       <p className="text-sm">WhatsApp support available 24/7</p>
                     </div>
                   </div>
@@ -792,11 +817,12 @@ export default function Home() {
               <form
                 onSubmit={submitInquiry}
                 className="rounded-2xl bg-white p-8 shadow-xl lg:p-10"
+                aria-live="polite"
               >
-                <h3 className="text-2xl font-bold text-slate-900">
+                <h3 className="text-2xl font-bold text-[#16243d]">
                   Start with a question
                 </h3>
-                <p className="mt-2 text-sm text-slate-600">
+                <p className="mt-2 text-sm text-[#657084]">
                   Fill out the form below and we'll get back to you within 24
                   hours.
                 </p>
@@ -804,6 +830,7 @@ export default function Home() {
                 {sent && (
                   <div
                     role="status"
+                    aria-live="polite"
                     className="mt-6 flex items-center gap-3 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
                   >
                     <Check size={18} />
@@ -814,6 +841,7 @@ export default function Home() {
                 {inquiryError && (
                   <div
                     role="alert"
+                    aria-live="assertive"
                     className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
                   >
                     {inquiryError}
@@ -822,40 +850,43 @@ export default function Home() {
 
                 <div className="mt-8 space-y-6">
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                    <label htmlFor="inquiry-name" className="block text-xs font-bold uppercase tracking-wider text-[#16243d]">
                       Your name
                     </label>
                     <input
                       required
+                      id="inquiry-name"
                       name="name"
                       type="text"
                       placeholder="John Doe"
-                      className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 text-base outline-none transition-colors focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                      className="mt-2 w-full rounded-lg border border-[#16243d]/10 px-4 py-3 text-base outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                    <label htmlFor="inquiry-email" className="block text-xs font-bold uppercase tracking-wider text-[#16243d]">
                       Email address
                     </label>
                     <input
                       required
+                      id="inquiry-email"
                       name="email"
                       type="email"
                       placeholder="you@example.com"
-                      className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 text-base outline-none transition-colors focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                      className="mt-2 w-full rounded-lg border border-[#16243d]/10 px-4 py-3 text-base outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                    <label htmlFor="inquiry-category" className="block text-xs font-bold uppercase tracking-wider text-[#16243d]">
                       Inquiry subject
                     </label>
                     <select
                       required
+                      id="inquiry-category"
                       name="category"
                       defaultValue="general"
-                      className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 text-base outline-none transition-colors focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                      className="mt-2 w-full rounded-lg border border-[#16243d]/10 px-4 py-3 text-base outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
                     >
                       <option value="general">General question</option>
                       <option value="professional-courses">
@@ -875,41 +906,43 @@ export default function Home() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                    <label htmlFor="inquiry-message" className="block text-xs font-bold uppercase tracking-wider text-[#16243d]">
                       What are you exploring?
                     </label>
                     <textarea
                       required
+                      id="inquiry-message"
                       name="message"
                       placeholder="A course, a team challenge, a new direction…"
                       rows={4}
-                      className="mt-2 w-full resize-none rounded-lg border border-slate-200 px-4 py-3 text-base outline-none transition-colors focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                      className="mt-2 w-full resize-none rounded-lg border border-[#16243d]/10 px-4 py-3 text-base outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                    <label htmlFor="inquiry-math" className="block text-xs font-bold uppercase tracking-wider text-[#16243d]">
                       Quick verification
                     </label>
-                    <p className="mt-2 text-sm text-slate-600">
+                    <p className="mt-2 text-sm text-[#657084]">
                       What is {mathA} + {mathB}?
                     </p>
                     <input
                       required
+                      id="inquiry-math"
                       name="mathAnswer"
                       type="number"
                       inputMode="numeric"
                       min="2"
                       max="40"
                       placeholder="Your answer"
-                      className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 text-base outline-none transition-colors focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                      className="mt-2 w-full rounded-lg border border-[#16243d]/10 px-4 py-3 text-base outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={inquiry.isPending}
-                    className="w-full rounded-lg bg-slate-900 px-6 py-4 text-sm font-bold uppercase tracking-wider text-white transition-all hover:bg-slate-800 disabled:cursor-wait disabled:opacity-60"
+                    className="w-full rounded-lg bg-[#16243d] px-6 py-4 text-sm font-bold uppercase tracking-wider text-white transition-all hover:bg-[#0f172a] disabled:cursor-wait disabled:opacity-60"
                   >
                     {inquiry.isPending ? "Sending…" : "Send inquiry"}
                   </button>
@@ -923,7 +956,7 @@ export default function Home() {
       {/* Enrollment Modal */}
       {selectedCourse && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 p-5 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#101d35]/80 p-5 backdrop-blur-sm"
           role="presentation"
           onMouseDown={event => {
             if (event.target === event.currentTarget) setSelectedCourse(null);
@@ -937,12 +970,12 @@ export default function Home() {
           >
             <div className="flex items-start justify-between gap-6">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-amber-600">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
                   Enrollment / next step
                 </p>
                 <h2
                   id="enrollment-title"
-                  className="mt-3 text-3xl font-bold tracking-tight text-slate-900"
+                  className="mt-3 text-3xl font-bold tracking-tight text-[#16243d]"
                 >
                   Reserve your place.
                 </h2>
@@ -950,8 +983,11 @@ export default function Home() {
               <button
                 type="button"
                 aria-label="Close enrollment form"
-                onClick={() => setSelectedCourse(null)}
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition-colors hover:border-slate-900 hover:text-slate-900"
+                onClick={() => {
+                  setSelectedCourse(null);
+                  enrollmentTriggerRef.current?.focus();
+                }}
+                className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#16243d]/10 text-[#657084] transition-colors hover:border-[#16243d] hover:text-[#16243d]"
               >
                 <X size={20} />
               </button>
@@ -960,17 +996,20 @@ export default function Home() {
             {enrollmentSubmitted ? (
               <div className="mt-10 rounded-xl border border-emerald-200 bg-emerald-50 p-6">
                 <Check size={24} className="text-emerald-600" />
-                <h3 className="mt-4 text-xl font-bold text-slate-900">
+                <h3 className="mt-4 text-xl font-bold text-[#16243d]">
                   Your interest is recorded.
                 </h3>
-                <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                <p className="mt-3 text-sm leading-relaxed text-[#657084]">
                   Thank you for choosing {selectedCourse.title}. Our team will
                   follow up using the email you provided.
                 </p>
                 <button
                   type="button"
-                  onClick={() => setSelectedCourse(null)}
-                  className="mt-6 text-sm font-semibold text-amber-600 underline underline-offset-4"
+                  onClick={() => {
+                    setSelectedCourse(null);
+                    enrollmentTriggerRef.current?.focus();
+                  }}
+                  className="mt-6 text-sm font-semibold text-[#c9a34e] underline underline-offset-4"
                 >
                   Close form
                 </button>
@@ -979,7 +1018,7 @@ export default function Home() {
               <form className="mt-8" onSubmit={submitEnrollment}>
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[#16243d]">
                       Selected course
                     </label>
                     <select
@@ -993,7 +1032,7 @@ export default function Home() {
                           ) ?? selectedCourse
                         )
                       }
-                      className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 text-base font-semibold outline-none transition-colors focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                      className="mt-2 w-full rounded-lg border border-[#16243d]/10 px-4 py-3 text-base font-semibold outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
                     >
                       {courses.map(course => (
                         <option key={course.title} value={course.title}>
@@ -1004,7 +1043,7 @@ export default function Home() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[#16243d]">
                       Your name
                     </label>
                     <input
@@ -1013,12 +1052,12 @@ export default function Home() {
                       type="text"
                       autoComplete="name"
                       placeholder="Your full name"
-                      className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 text-base font-semibold outline-none transition-colors focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                      className="mt-2 w-full rounded-lg border border-[#16243d]/10 px-4 py-3 text-base font-semibold outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[#16243d]">
                       Email address
                     </label>
                     <input
@@ -1027,7 +1066,7 @@ export default function Home() {
                       type="email"
                       autoComplete="email"
                       placeholder="you@example.com"
-                      className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 text-base font-semibold outline-none transition-colors focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                      className="mt-2 w-full rounded-lg border border-[#16243d]/10 px-4 py-3 text-base font-semibold outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
                     />
                   </div>
 
@@ -1037,11 +1076,11 @@ export default function Home() {
                       id="enrollment-consent"
                       name="enrollment-consent"
                       type="checkbox"
-                      className="mt-1 h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                      className="mt-1 h-4 w-4 rounded border-[#16243d]/20 text-[#c9a34e] focus:ring-[#c9a34e]"
                     />
                     <label
                       htmlFor="enrollment-consent"
-                      className="text-sm leading-relaxed text-slate-600"
+                      className="text-sm leading-relaxed text-[#657084]"
                     >
                       I consent to Profound IQ Consulting using my name and
                       email to respond to this enrollment inquiry, in line with
@@ -1052,7 +1091,7 @@ export default function Home() {
                   <button
                     type="submit"
                     disabled={enrollment.isPending}
-                    className="w-full rounded-lg bg-slate-900 px-6 py-4 text-sm font-bold uppercase tracking-wider text-white transition-all hover:bg-slate-800 disabled:opacity-60"
+                    className="w-full rounded-lg bg-[#16243d] px-6 py-4 text-sm font-bold uppercase tracking-wider text-white transition-all hover:bg-[#0f172a] disabled:opacity-60"
                   >
                     {enrollment.isPending
                       ? "Recording…"
@@ -1066,19 +1105,19 @@ export default function Home() {
       )}
 
       {/* Footer */}
-      <footer className="bg-slate-900 py-16 text-white lg:py-20">
+      <footer className="bg-[#101d35] py-16 text-[#f7f3e8] lg:py-20">
         <div className="container px-6 lg:px-8">
           <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr_1fr]">
             <div>
               <BrandLogo context="footer" />
-              <p className="mt-6 max-w-sm text-sm leading-relaxed text-slate-400">
+              <p className="mt-6 max-w-sm text-sm leading-relaxed text-[#aab5c6]">
                 Transformational learning, educational consulting, school
                 improvement, psychometric insight, and professional development
                 for a changing world.
               </p>
               <a
                 href="/contact"
-                className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-amber-400 transition-colors hover:text-amber-300"
+                className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-[#c9a34e] transition-colors hover:text-[#d4af5e]"
               >
                 Talk to our consultants
                 <ArrowUpRight size={16} />
@@ -1089,7 +1128,7 @@ export default function Home() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Profound IQ Consulting on Facebook"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-400 transition-all hover:border-amber-400 hover:text-amber-400"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#16243d] text-[#aab5c6] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e]"
                 >
                   <Facebook size={18} />
                 </a>
@@ -1098,7 +1137,7 @@ export default function Home() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Profound IQ Consulting on X"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-400 transition-all hover:border-white hover:text-white"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#16243d] text-[#aab5c6] transition-all hover:border-[#f7f3e8] hover:text-[#f7f3e8]"
                 >
                   <X size={18} />
                 </a>
@@ -1107,7 +1146,7 @@ export default function Home() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Profound IQ Consulting on LinkedIn"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-400 transition-all hover:border-blue-400 hover:text-blue-400"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#16243d] text-[#aab5c6] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e]"
                 >
                   <Linkedin size={18} />
                 </a>
@@ -1116,7 +1155,7 @@ export default function Home() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Profound IQ Consulting on Instagram"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-400 transition-all hover:border-pink-400 hover:text-pink-400"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#16243d] text-[#aab5c6] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e]"
                 >
                   <Instagram size={18} />
                 </a>
@@ -1124,43 +1163,43 @@ export default function Home() {
             </div>
 
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-amber-400">
+              <p className="text-sm font-semibold uppercase tracking-wider text-[#c9a34e]">
                 Quick Links
               </p>
               <div className="mt-6 grid gap-3">
                 <a
                   href="/about"
-                  className="text-sm text-slate-400 transition-colors hover:text-white"
+                  className="text-sm text-[#aab5c6] transition-colors hover:text-[#f7f3e8]"
                 >
                   About
                 </a>
                 <a
                   href="/services"
-                  className="text-sm text-slate-400 transition-colors hover:text-white"
+                  className="text-sm text-[#aab5c6] transition-colors hover:text-[#f7f3e8]"
                 >
                   Services
                 </a>
                 <a
                   href="/courses"
-                  className="text-sm text-slate-400 transition-colors hover:text-white"
+                  className="text-sm text-[#aab5c6] transition-colors hover:text-[#f7f3e8]"
                 >
                   Courses
                 </a>
                 <a
                   href="/assessment"
-                  className="text-sm text-slate-400 transition-colors hover:text-white"
+                  className="text-sm text-[#aab5c6] transition-colors hover:text-[#f7f3e8]"
                 >
                   Self Assessment
                 </a>
                 <a
                   href="/resources"
-                  className="text-sm text-slate-400 transition-colors hover:text-white"
+                  className="text-sm text-[#aab5c6] transition-colors hover:text-[#f7f3e8]"
                 >
                   Resources
                 </a>
                 <a
                   href="/contact"
-                  className="text-sm text-slate-400 transition-colors hover:text-white"
+                  className="text-sm text-[#aab5c6] transition-colors hover:text-[#f7f3e8]"
                 >
                   Contact
                 </a>
@@ -1168,19 +1207,19 @@ export default function Home() {
             </div>
 
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-amber-400">
+              <p className="text-sm font-semibold uppercase tracking-wider text-[#c9a34e]">
                 Legal
               </p>
               <div className="mt-6 grid gap-3">
                 <a
                   href="/privacy-policy"
-                  className="text-sm text-slate-400 transition-colors hover:text-white"
+                  className="text-sm text-[#aab5c6] transition-colors hover:text-[#f7f3e8]"
                 >
                   Privacy Policy
                 </a>
                 <a
                   href="/terms-of-service"
-                  className="text-sm text-slate-400 transition-colors hover:text-white"
+                  className="text-sm text-[#aab5c6] transition-colors hover:text-[#f7f3e8]"
                 >
                   Terms of Service
                 </a>
@@ -1188,12 +1227,12 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-16 border-t border-slate-800 pt-8">
+          <div className="mt-16 border-t border-[#16243d] pt-8">
             <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-[#657084]">
                 © 2026 Profound IQ Consulting. All rights reserved.
               </p>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-[#657084]">
                 Online / Kenya / Global reach
               </p>
             </div>

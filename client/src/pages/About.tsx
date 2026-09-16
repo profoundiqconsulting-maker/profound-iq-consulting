@@ -64,7 +64,7 @@ export default function About() {
         <ScrollReveal>
           <div className="container grid gap-16 lg:grid-cols-[.7fr_1.3fr] lg:gap-20">
             <div>
-              <p className="eyebrow text-[#a27e2e]">Why we exist</p>
+              <p className="eyebrow text-[#7d5e1e]">Why we exist</p>
               <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
                 Discovery should lead somewhere.
               </h2>
@@ -83,7 +83,7 @@ export default function About() {
                 and measurable progress.
               </p>
               <div className="border-l-2 border-[#c9a34e] bg-white/70 p-6 text-sm leading-7 text-[#16243d] backdrop-blur-sm">
-                <Lightbulb className="mb-3 text-[#a27e2e]" size={20} />
+                <Lightbulb className="mb-3 text-[#7d5e1e]" size={20} />
                 <strong className="block">Our belief</strong>
                 <span className="mt-2 block">
                   Clarity is not a personality trait. It is a capability that
@@ -135,7 +135,7 @@ export default function About() {
         <div className="container">
           <div className="grid gap-16 lg:grid-cols-[.65fr_1.35fr] lg:gap-20">
             <div>
-              <p className="eyebrow text-[#a27e2e]">Our method</p>
+              <p className="eyebrow text-[#7d5e1e]">Our method</p>
               <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
                 Insight that becomes a way of working.
               </h2>
@@ -144,7 +144,7 @@ export default function About() {
               {method.map((step, index) => (
                 <ScrollReveal key={step.index} delay={index * 70}>
                   <article className="group grid gap-6 border-b border-[#16243d]/10 py-8 transition-colors hover:border-[#c9a34e]/40 sm:grid-cols-[60px_1fr] sm:items-start last:border-b-0">
-                    <span className="text-xs font-black tracking-[.18em] text-[#a27e2e]">
+                    <span className="text-xs font-black tracking-[.18em] text-[#7d5e1e]">
                       {step.index}
                     </span>
                     <div>
@@ -165,7 +165,7 @@ export default function About() {
       <section className="bg-[#f7f3e8] py-20">
         <div className="container flex flex-col items-start justify-between gap-8 border-t border-[#16243d]/10 pt-12 sm:flex-row sm:items-center">
           <div>
-            <p className="eyebrow text-[#a27e2e]">
+            <p className="eyebrow text-[#7d5e1e]">
               Ready for a clearer next step?
             </p>
             <h2 className="display mt-4 text-4xl leading-tight sm:text-5xl">

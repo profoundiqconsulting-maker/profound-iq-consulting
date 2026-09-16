@@ -64,7 +64,7 @@ export default function TermsOfService() {
       </header>
       <section className="container max-w-4xl py-16 sm:py-24">
         <div className="max-w-3xl">
-          <div className="flex items-center gap-3 text-[#a27e2e]">
+          <div className="flex items-center gap-3 text-[#7d5e1e]">
             <FileText size={20} />
             <p className="text-[10px] font-black uppercase tracking-[.16em]">
               Service terms
@@ -77,7 +77,7 @@ export default function TermsOfService() {
             The terms that govern access to Profound IQ Consulting’s courses,
             assessments, reports, certificates, and support services.
           </p>
-          <p className="mt-5 text-xs uppercase tracking-[.14em] text-[#a27e2e]">
+          <p className="mt-5 text-xs uppercase tracking-[.14em] text-[#7d5e1e]">
             {t("effectiveDate")}: 26 August 2026
           </p>
         </div>
@@ -87,7 +87,7 @@ export default function TermsOfService() {
               key={title}
               className="grid gap-3 border-b border-[#16243d]/10 py-8 sm:grid-cols-[180px_1fr] sm:gap-10"
             >
-              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                 {String(index + 1).padStart(2, "0")}
               </p>
               <div>

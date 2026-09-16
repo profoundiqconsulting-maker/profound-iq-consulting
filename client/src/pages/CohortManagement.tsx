@@ -86,7 +86,7 @@ export default function CohortManagement() {
     <main className="container py-10 text-[#16243d]">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="eyebrow text-[#a27e2e]">Admin workspace</p>
+          <p className="eyebrow text-[#7d5e1e]">Admin workspace</p>
           <h1 className="display mt-2 text-4xl">Cohort management</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
             Group learners intentionally for conversion analysis. Assignments
@@ -157,7 +157,7 @@ export default function CohortManagement() {
           <span className="text-xs font-bold">Importing…</span>
         )}
         {importStatus && (
-          <span role="status" className="text-xs font-bold text-[#a27e2e]">
+          <span role="status" className="text-xs font-bold text-[#7d5e1e]">
             {importStatus}
           </span>
         )}

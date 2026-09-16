@@ -99,6 +99,16 @@ function ConversationList() {
     );
   }
 
+  if (conversations.isError) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center text-sm text-red-800">
+          Unable to load conversations. Please refresh and try again.
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (selectedId) {
     return (
       <ConversationDetail conversationId={selectedId} onBack={() => setSelectedId(null)} />
@@ -197,6 +207,8 @@ function ConversationDetail({
       <CardContent>
         {conversation.isLoading ? (
           <p className="py-8 text-center text-sm text-slate-600">Loading…</p>
+        ) : conversation.isError ? (
+          <p className="py-8 text-center text-sm text-red-800">Unable to load this conversation. Please try again.</p>
         ) : (
           <>
             <div className="mb-4 max-h-96 space-y-3 overflow-y-auto">
@@ -271,6 +283,8 @@ function TicketDesk() {
       <CardContent>
         {tickets.isLoading ? (
           <p className="py-8 text-center text-sm text-slate-600">Loading tickets…</p>
+        ) : tickets.isError ? (
+          <p className="py-8 text-center text-sm text-red-800">Unable to load tickets. Please refresh and try again.</p>
         ) : (tickets.data ?? []).length === 0 ? (
           <p className="py-8 text-center text-sm text-slate-600">No tickets found.</p>
         ) : (

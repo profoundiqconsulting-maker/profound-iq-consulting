@@ -69,7 +69,7 @@ export default function PrivacyPolicy() {
       </header>
       <section className="container max-w-6xl py-16 sm:py-24">
         <div className="max-w-3xl">
-          <div className="flex items-center gap-3 text-[#a27e2e]">
+          <div className="flex items-center gap-3 text-[#7d5e1e]">
             <ShieldCheck size={20} />
             <p className="text-[10px] font-black uppercase tracking-[.16em]">
               Trust and transparency
@@ -83,7 +83,7 @@ export default function PrivacyPolicy() {
             transformational learning, assessments, reports, certificates,
             payments, and support.
           </p>
-          <p className="mt-5 text-xs uppercase tracking-[.14em] text-[#a27e2e]">
+          <p className="mt-5 text-xs uppercase tracking-[.14em] text-[#7d5e1e]">
             {t("effectiveDate")}: 26 August 2026
           </p>
         </div>
@@ -93,7 +93,7 @@ export default function PrivacyPolicy() {
             aria-label="Privacy Policy contents"
           >
             <details className="group border border-[#16243d]/15 bg-[#fffaf0] lg:open">
-              <summary className="flex cursor-pointer list-none items-center justify-between p-4 text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e] lg:pointer-events-none">
+              <summary className="flex cursor-pointer list-none items-center justify-between p-4 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e] lg:pointer-events-none">
                 <span>On this page</span>
                 <ChevronDown
                   size={15}
@@ -106,7 +106,7 @@ export default function PrivacyPolicy() {
                     <li key={id}>
                       <a
                         href={`#${id}`}
-                        className="flex gap-3 py-2 text-xs leading-5 text-[#657084] transition-colors hover:text-[#a27e2e]"
+                        className="flex gap-3 py-2 text-xs leading-5 text-[#657084] transition-colors hover:text-[#7d5e1e]"
                       >
                         <span className="font-black text-[#c9a34e]">
                           {String(index + 1).padStart(2, "0")}
@@ -118,7 +118,7 @@ export default function PrivacyPolicy() {
                   <li>
                     <a
                       href="#questions"
-                      className="flex gap-3 py-2 text-xs leading-5 text-[#657084] transition-colors hover:text-[#a27e2e]"
+                      className="flex gap-3 py-2 text-xs leading-5 text-[#657084] transition-colors hover:text-[#7d5e1e]"
                     >
                       <span className="font-black text-[#c9a34e]">10</span>
                       <span>{t("questionsOrRequests")}</span>
@@ -136,7 +136,7 @@ export default function PrivacyPolicy() {
                 className="scroll-mt-8 border-b border-[#16243d]/10 py-8 sm:scroll-mt-10"
               >
                 <div className="grid gap-3 sm:grid-cols-[180px_1fr] sm:gap-10">
-                  <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+                  <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                     {String(index + 1).padStart(2, "0")}
                   </p>
                   <div>

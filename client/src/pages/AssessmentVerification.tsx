@@ -53,7 +53,7 @@ export default function AssessmentVerification() {
       <TransformationNav active="assessment" />
       <main className="container py-12 sm:py-20">
         <div className="mx-auto max-w-3xl">
-          <p className="eyebrow text-[#a27e2e]">
+          <p className="eyebrow text-[#7d5e1e]">
             Assessment certificate verification
           </p>
           <h1 className="display mt-4 text-5xl leading-none sm:text-7xl">
@@ -77,7 +77,7 @@ export default function AssessmentVerification() {
             </section>
           ) : verification.isLoading ? (
             <section className="mt-10 flex items-start gap-4 border-l-2 border-[#c9a34e] bg-white/65 p-6 sm:p-8">
-              <ShieldCheck className="animate-pulse text-[#a27e2e]" size={28} />
+              <ShieldCheck className="animate-pulse text-[#7d5e1e]" size={28} />
               <div>
                 <h2 className="display text-2xl">Checking certificate</h2>
                 <p className="mt-3 text-sm leading-6 text-[#657084]">

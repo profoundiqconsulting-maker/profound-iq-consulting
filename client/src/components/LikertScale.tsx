@@ -41,7 +41,7 @@ export function LikertScale({
       <div className="p-5 sm:p-7">
         <div className="flex gap-4">
           {typeof index === "number" && (
-            <span className="hidden text-xs font-black text-[#a27e2e] sm:block">
+            <span className="hidden text-xs font-black text-[#7d5e1e] sm:block">
               {String(index + 1).padStart(2, "0")}
             </span>
           )}

@@ -118,8 +118,8 @@ describe("course discovery and student dashboard", () => {
 
 describe("timed course lessons", () => {
   it("exposes a 30-minute countdown, required responses, quiz locking, and sequential next-lesson gate", () => {
-    expect(courseWorkspaceSource).toMatch(/1800/);
-    expect(courseWorkspaceSource).toMatch(/30-minute study timer/);
+    expect(courseWorkspaceSource).toMatch(/1500/);
+    expect(courseWorkspaceSource).toMatch(/25-minute study timer/);
     expect(courseWorkspaceSource).toMatch(/role="timer"/);
     expect(courseWorkspaceSource).toMatch(/lessonTimers/);
     expect(courseWorkspaceSource).toMatch(/Finish the previous lesson first/);
@@ -127,12 +127,12 @@ describe("timed course lessons", () => {
       /disabled=\{!activeLessonTimerComplete/
     );
     expect(courseWorkspaceSource).toMatch(
-      /The next lesson unlocks when the 30-minute timer reaches zero/
+      /The next lesson unlocks when the 25-minute timer reaches zero/
     );
     expect(courseWorkspaceSource).toMatch(/lessonResponsesComplete/);
     expect(courseWorkspaceSource).toMatch(/quizOpen/);
     expect(courseWorkspaceSource).toMatch(
-      /disabled=\{!progress\.lessons\.includes/
+      /disabled=\{[\s\S]*?progress\.lessons\.includes/
     );
     expect(courseWorkspaceSource).toMatch(/learnerReviewMap/);
     expect(courseWorkspaceSource).toMatch(/Instructor feedback/);
@@ -147,7 +147,7 @@ describe("timed course lessons", () => {
       "utf8"
     );
     expect(staffDashboardSource).toMatch(/reviewAnalytics/);
-    expect(staffDashboardSource).toMatch(/Filter response review by course/);
+    expect(staffDashboardSource).toMatch(/Review required lesson responses/);
     expect(staffDashboardSource).toMatch(/type="date"/);
     expect(staffDashboardSource).toMatch(/All courses/);
     expect(staffDashboardSource).toMatch(/lesson response/);
@@ -259,7 +259,7 @@ describe("assessment scoring", () => {
       "utf8"
     );
     expect(homePageSource).toMatch(/const transformationServices/);
-    expect(homePageSource).toMatch(/Transformation services/);
+    expect(homePageSource).toMatch(/Featured Programs/);
     expect(homePageSource).toMatch(/Self Assessment/);
     expect(homePageSource).toMatch(/CareerPath/);
     expect(careerPathSource).toMatch(/downloadCertificate/);
@@ -368,7 +368,7 @@ describe("assessment scoring", () => {
     expect(routerSource).toMatch(/saveReflectionResponse:/);
     expect(routerSource).toMatch(/exportReflectionResponses:/);
     expect(routerSource).toMatch(/attempt\.email\.trim\(\)\.toLowerCase\(\)/);
-    expect(routerSource).toMatch(/selections: z\.array/);
+    expect(routerSource).toMatch(/selections:\s*z\s*\n\s*\.array/);
   });
 
   it("provides adaptable role lenses and longitudinal comparison deltas", () => {

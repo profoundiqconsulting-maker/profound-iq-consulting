@@ -62,7 +62,7 @@ export default function Resources() {
         <ScrollReveal>
           <div className="container grid gap-16 lg:grid-cols-[.65fr_1.35fr] lg:gap-20">
             <div>
-              <p className="eyebrow text-[#a27e2e]">A growing library</p>
+              <p className="eyebrow text-[#7d5e1e]">A growing library</p>
               <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
                 Make room for better questions.
               </h2>
@@ -83,11 +83,27 @@ export default function Resources() {
         </ScrollReveal>
       </section>
 
-      {(resources.data ?? []).length > 0 && (
+      {resources.isLoading ? (
         <section className="bg-white py-24 lg:py-32">
           <div className="container">
             <div className="mb-12">
-              <p className="eyebrow text-[#a27e2e]">Resource library</p>
+              <p className="eyebrow text-[#7d5e1e]">Resource library</p>
+              <h2 className="display mt-5 text-4xl leading-[.98] tracking-[-.045em] sm:text-5xl">
+                Curated materials
+              </h2>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div key={index} className="h-48 animate-pulse rounded-xl border border-[#16243d]/10 bg-[#f7f3e8]" />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : (resources.data ?? []).length > 0 ? (
+        <section className="bg-white py-24 lg:py-32">
+          <div className="container">
+            <div className="mb-12">
+              <p className="eyebrow text-[#7d5e1e]">Resource library</p>
               <h2 className="display mt-5 text-4xl leading-[.98] tracking-[-.045em] sm:text-5xl">
                 Curated materials
               </h2>
@@ -102,7 +118,7 @@ export default function Resources() {
                         <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-[#16243d] text-[#c9a34e]">
                           <BookOpen size={22} />
                         </div>
-                        <span className="text-[10px] font-black tracking-[.16em] text-[#a27e2e]">
+                        <span className="text-[10px] font-black tracking-[.16em] text-[#7d5e1e]">
                           {resource.category}
                         </span>
                       </div>
@@ -117,7 +133,7 @@ export default function Resources() {
                           href={resource.fileUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="mt-6 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-colors group-hover:text-[#a27e2e]"
+                          className="mt-6 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-colors group-hover:text-[#7d5e1e]"
                         >
                           Access resource <ExternalLink size={14} />
                         </a>
@@ -125,6 +141,34 @@ export default function Resources() {
                     </article>
                   </ScrollReveal>
                 ))}
+            </div>
+          </div>
+        </section>
+      ) : (
+        <section className="bg-white py-24 lg:py-32">
+          <div className="container">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="eyebrow text-[#7d5e1e]">Resource library</p>
+              <h2 className="display mt-5 text-4xl leading-[.98] tracking-[-.045em] sm:text-5xl">
+                Curated materials
+              </h2>
+              <p className="mt-6 text-base leading-7 text-[#657084]">
+                The resource library is being developed. In the meantime, explore our professional courses or suggest a topic for the team.
+              </p>
+              <div className="mt-8 flex flex-wrap justify-center gap-4">
+                <Link
+                  href="/courses"
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-6 py-3 text-[10px] font-black uppercase tracking-[.12em] text-white transition-all hover:bg-[#0f172a]"
+                >
+                  Explore courses <ArrowUpRight size={14} />
+                </Link>
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center gap-2 rounded-lg border border-[#16243d]/25 px-6 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition-all hover:border-[#c9a34e] hover:text-[#7d5e1e]"
+                >
+                  Suggest a topic <ArrowUpRight size={14} />
+                </Link>
+              </div>
             </div>
           </div>
         </section>
@@ -140,7 +184,7 @@ export default function Resources() {
                     <div className="inline-flex h-14 w-14 items-center justify-center rounded-sm bg-[#16243d] text-[#c9a34e]">
                       <Icon size={24} />
                     </div>
-                    <span className="text-[10px] font-black tracking-[.16em] text-[#a27e2e]">
+                    <span className="text-[10px] font-black tracking-[.16em] text-[#7d5e1e]">
                       0{index + 1}
                     </span>
                   </div>
@@ -152,7 +196,7 @@ export default function Resources() {
                   </p>
                   <Link
                     href={title === "Educational insights" ? "/blog" : href}
-                    className="mt-8 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-colors group-hover:text-[#a27e2e]"
+                    className="mt-8 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-colors group-hover:text-[#7d5e1e]"
                   >
                     Explore this pathway <ArrowUpRight size={14} />
                   </Link>

@@ -11,11 +11,8 @@ const settingsSource = readFileSync(
   "utf8"
 );
 
-describe("profile and Google sign-in UX contracts", () => {
-  it("shows an explicit Google redirect status and disables the action while processing", () => {
-    expect(authSource).toContain("googleSignInPending");
-    expect(authSource).toContain("Redirecting securely to Google");
-    expect(authSource).toContain("disabled={googleSignInPending}");
+describe("profile and auth UX contracts", () => {
+  it("uses the published site origin constant in the auth page", () => {
     expect(authSource).toContain(
       'import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";'
     );

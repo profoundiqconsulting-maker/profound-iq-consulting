@@ -247,7 +247,7 @@ export function AdminCourseAccessAudit() {
     >
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="eyebrow text-[#a27e2e]">Learning access observatory</p>
+          <p className="eyebrow text-[#7d5e1e]">Learning access observatory</p>
           <h2 className="display mt-2 text-3xl">
             Denied lesson access and drop-offs
           </h2>
@@ -475,7 +475,7 @@ export function AdminCourseAccessAudit() {
       {query.data?.trend && query.data.trend.length > 0 && (
         <div className="mt-5 border border-[#16243d]/10 bg-[#fffaf0] p-4">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
               Conversion trend over time
             </p>
             <span className="text-[10px] text-[#657084]">
@@ -545,7 +545,7 @@ export function AdminCourseAccessAudit() {
       {usersQuery.data?.rows && usersQuery.data.rows.length > 0 && (
         <div className="mt-6 border border-[#16243d]/10 bg-[#fffaf0] p-4">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
               Cohort assignment
             </p>
             <span className="text-[10px] text-[#657084]">
@@ -601,7 +601,7 @@ export function AdminCourseAccessAudit() {
         <div className="mt-6 border border-[#c9a34e]/45 bg-[#fffaf0] p-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                 Quality-control access grants
               </p>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
@@ -806,7 +806,7 @@ export function AdminCourseAccessAudit() {
       {query.data?.conversionByCourse &&
         query.data.conversionByCourse.length > 0 && (
           <div className="mt-5 border border-[#16243d]/10 bg-[#fffaf0] p-4">
-            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
               Conversion by course
             </p>
             <div className="mt-3 space-y-3">
@@ -857,7 +857,7 @@ export function AdminCourseAccessAudit() {
                   <td className="px-3 py-3 font-semibold">{item.courseSlug}</td>
                   <td className="px-3 py-3">{item.moduleIndex + 1}</td>
                   <td className="px-3 py-3">Stage {item.requiredStage}</td>
-                  <td className="px-3 py-3 font-bold text-[#a27e2e]">
+                  <td className="px-3 py-3 font-bold text-[#7d5e1e]">
                     {item.deniedCount}
                   </td>
                   <td className="px-3 py-3">{item.uniqueUsers}</td>

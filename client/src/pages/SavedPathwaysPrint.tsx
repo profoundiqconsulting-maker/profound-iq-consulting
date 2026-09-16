@@ -228,7 +228,7 @@ export default function SavedPathwaysPrint() {
   if (loading)
     return (
       <div className="grid min-h-screen place-items-center bg-[#f7f3e8]">
-        <Loader2 className="animate-spin text-[#a27e2e]" />
+        <Loader2 className="animate-spin text-[#7d5e1e]" />
       </div>
     );
   if (!user)
@@ -276,7 +276,7 @@ export default function SavedPathwaysPrint() {
         <section className="mx-auto max-w-5xl px-5 py-10 sm:py-14 print:max-w-none print:px-12 print:py-8">
           <div className="flex flex-col justify-between gap-6 border-b-2 border-[#c9a34e] pb-7 sm:flex-row sm:items-end">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[.16em] text-[#a27e2e]">
+              <p className="text-[10px] font-black uppercase tracking-[.16em] text-[#7d5e1e]">
                 PROFOUND IQ / CONSULTING
               </p>
               <h1 className="mt-3 font-serif text-4xl leading-tight sm:text-5xl">
@@ -376,7 +376,7 @@ export default function SavedPathwaysPrint() {
                         key={course.slug}
                         className="break-inside-avoid border border-[#16243d]/15 bg-white/70 p-6 print:border-[#16243d]/30 print:bg-white"
                       >
-                        <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a27e2e]">
+                        <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                           {labels.pathway}{" "}
                           {String(pageIndex * chunkSize + index + 1).padStart(
                             2,
@@ -390,7 +390,7 @@ export default function SavedPathwaysPrint() {
                           {course.description}
                         </p>
                         <div className="mt-4 border-t border-[#16243d]/10 pt-4">
-                          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#a27e2e]">
+                          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                             {labels.outcomes}
                           </p>
                           <p className="mt-2 text-sm leading-6 text-[#4a566a]">

@@ -6,11 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 
 const DEFAULT_KEYS = [
-  { key: "smtp_host", label: "SMTP Host", placeholder: "smtp.example.com" },
-  { key: "smtp_port", label: "SMTP Port", placeholder: "587" },
-  { key: "smtp_user", label: "SMTP User", placeholder: "mail@example.com" },
-  { key: "smtp_password", label: "SMTP Password", placeholder: "••••••••" },
   { key: "resend_api_key", label: "Resend API Key", placeholder: "re_..." },
+  { key: "email_from", label: "From address", placeholder: "noreply@profoundiq.com" },
+  { key: "email_from_name", label: "From name", placeholder: "Profound IQ Consulting" },
   { key: "paystack_key", label: "Paystack Key", placeholder: "pk_live_..." },
   { key: "paystack_secret", label: "Paystack Secret", placeholder: "sk_live_..." },
   { key: "google_client_id", label: "Google Client ID", placeholder: "..." },
@@ -58,7 +56,7 @@ export default function AdminSystemSettings() {
           <p className="eyebrow text-[#7d5e1e]">Infrastructure</p>
           <h2 className="display mt-2 text-2xl">System settings</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
-            Manage API keys, SMTP, payment, and OAuth credentials required to run the platform.
+            Manage API keys, Resend, payment, and OAuth credentials required to run the platform.
           </p>
         </div>
         <Button
