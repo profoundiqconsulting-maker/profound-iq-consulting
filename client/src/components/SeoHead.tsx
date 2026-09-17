@@ -6,7 +6,12 @@ import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 const SITE_NAME = "Profound IQ Consulting";
 export const SITE_ORIGIN = PUBLISHED_SITE_ORIGIN;
 const PUBLIC_IMAGE_ORIGIN = PUBLISHED_SITE_ORIGIN;
-const DEFAULT_IMAGE = `${PUBLIC_IMAGE_ORIGIN}/profound-iq-social-preview.svg`;
+const DEFAULT_LOGO_IMAGE = `${PUBLIC_IMAGE_ORIGIN}/ProfoundIQLogo.png`;
+const DEFAULT_IMAGE = `${PUBLIC_IMAGE_ORIGIN}/ProfoundIQSocialSharingImage.png`;
+const DEFAULT_IMAGE_WIDTH = 1733;
+const DEFAULT_IMAGE_HEIGHT = 908;
+const SOCIAL_CARD_WIDTH = 1200;
+const SOCIAL_CARD_HEIGHT = 630;
 const courseSocialImageUrl = (slug: string) =>
   `${PUBLIC_IMAGE_ORIGIN}/og/course/${encodeURIComponent(slug)}.png`;
 
@@ -28,6 +33,12 @@ function humanizeSlug(slug: string) {
     .join(" ");
 }
 
+function getSocialImageDimensions(url: string): [number, number] {
+  return url === DEFAULT_IMAGE
+    ? [DEFAULT_IMAGE_WIDTH, DEFAULT_IMAGE_HEIGHT]
+    : [SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT];
+}
+
 function getSeo(pathname: string): SeoConfig {
   const cleanPath = pathname.replace(/\/$/, "") || "/";
   const slug = cleanPath.split("/").filter(Boolean).pop() ?? "";
@@ -44,7 +55,7 @@ function getSeo(pathname: string): SeoConfig {
         "@type": "Organization",
         name: SITE_NAME,
         url: SITE_ORIGIN,
-        logo: DEFAULT_IMAGE,
+        logo: DEFAULT_LOGO_IMAGE,
         email: "admin@profoundiqconsulting.com",
         telephone: "+254727374055",
         sameAs: [
@@ -395,14 +406,19 @@ export function SeoHead() {
     setProperty("og:description", seo.description);
     setProperty("og:type", seo.type ?? "website");
     setProperty("og:locale", "en_US");
+    setProperty("og:site_name", SITE_NAME);
     setProperty("og:url", `${SITE_ORIGIN}${seo.canonical ?? "/"}`);
-    setProperty("og:image", seo.image ?? DEFAULT_IMAGE);
-    setProperty("og:image:secure_url", seo.image ?? DEFAULT_IMAGE);
+    const socialImage = seo.image ?? DEFAULT_IMAGE;
+    const [socialImageWidth, socialImageHeight] =
+      getSocialImageDimensions(socialImage);
+    setProperty("og:image", socialImage);
+    setProperty("og:image:secure_url", socialImage);
     setProperty("og:image:type", "image/png");
-    setProperty("og:image:width", "1200");
-    setProperty("og:image:height", "630");
+    setProperty("og:image:width", String(socialImageWidth));
+    setProperty("og:image:height", String(socialImageHeight));
     setProperty("og:image:alt", `${seo.title} — Profound IQ Consulting`);
     setMeta("twitter:card", "summary_large_image");
+    setMeta("twitter:site", "@ProfoundIQC");
     setMeta("twitter:title", seo.title);
     setMeta("twitter:description", seo.description);
     setProperty("twitter:image", seo.image ?? DEFAULT_IMAGE);

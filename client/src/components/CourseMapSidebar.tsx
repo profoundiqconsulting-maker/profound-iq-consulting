@@ -85,7 +85,6 @@ export function CourseMapSidebar({
               const locked = !canAccessModuleLessons({
                 moduleIndex: index,
                 paidStages: effectiveStageCount,
-                isQualityControlAdmin: accessOverride,
               });
               const expanded = expandedModuleIndex === index;
               const moduleComplete = module.lessons.every(lesson =>

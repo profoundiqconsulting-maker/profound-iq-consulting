@@ -599,6 +599,8 @@ export default function Courses() {
                         alt=""
                         loading="lazy"
                         title={course.title}
+                        width={640}
+                        height={360}
                         className="h-40 w-full object-cover"
                       />
                     <div className="flex flex-wrap items-baseline gap-3">

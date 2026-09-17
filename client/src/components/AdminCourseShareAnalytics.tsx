@@ -80,10 +80,6 @@ export default function AdminCourseShareAnalytics() {
     retry: false,
     refetchInterval: 30000,
   });
-  const socialSettings = trpc.admin.socialPreviewSettings.useQuery(undefined, {
-    retry: false,
-    refetchInterval: 30000,
-  });
   const csvExport = trpc.admin.exportCourseShareCsv.useQuery(analyticsInput, {
     enabled: false,
   });
@@ -132,7 +128,7 @@ export default function AdminCourseShareAnalytics() {
         ? "text-emerald-700"
         : "text-rose-700";
   const previewUrl = selectedCourse
-    ? `${PUBLISHED_SITE_ORIGIN}/og/course/${encodeURIComponent(selectedCourse.slug)}.png?v=${encodeURIComponent(socialSettings.data?.version ?? "1")}`
+    ? `${PUBLISHED_SITE_ORIGIN}/og/course/${encodeURIComponent(selectedCourse.slug)}.png`
     : "";
   const applyPreset = (days: number) => {
     const end = new Date();

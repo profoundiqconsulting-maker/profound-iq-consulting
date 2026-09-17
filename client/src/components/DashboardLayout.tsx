@@ -20,8 +20,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LogOut, PanelLeft, ShieldCheck, Home } from "lucide-react";
-import { isQualityControlAdmin } from "@shared/courseAccess";
+import { LogOut, PanelLeft, Home } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
@@ -207,25 +206,15 @@ function DashboardLayoutContent({
                         {role === "admin"
                           ? "Admin"
                           : role === "staff"
-                            ? "Staff"
-                            : "Learner"}
-                      </span>
-                    ) : null}
-                    {isQualityControlAdmin(user) ? (
-                      <span
-                        aria-label="Quality Control Mode active"
-                        title="Quality Control Mode active"
-                        className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-400"
-                      >
-                        <ShieldCheck className="h-3 w-3" aria-hidden="true" />
-                        <span>QC Mode</span>
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          </SidebarHeader>
+                             ? "Staff"
+                             : "Learner"}
+                       </span>
+                     ) : null}
+                   </div>
+                 </div>
+               ) : null}
+             </div>
+           </SidebarHeader>
 
           <SidebarContent className="gap-0 bg-slate-900">
             <SidebarMenu className="gap-1 px-3 py-4">
@@ -357,23 +346,13 @@ function DashboardLayoutContent({
                   {role === "admin"
                     ? "Admin"
                     : role === "staff"
-                      ? "Staff"
-                      : "Learner"}
-                </span>
-              ) : null}
-              {isQualityControlAdmin(user) ? (
-                <span
-                  aria-label="Quality Control Mode active"
-                  title="Quality Control Mode active"
-                  className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-[9px] font-black uppercase tracking-[.1em] text-amber-600"
-                >
-                  <ShieldCheck className="h-3 w-3" aria-hidden="true" />
-                  <span>QC</span>
-                </span>
-              ) : null}
-            </div>
-          </div>
-        )}
+                       ? "Staff"
+                       : "Learner"}
+                 </span>
+               ) : null}
+             </div>
+           </div>
+         )}
         <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8 text-slate-900">{children}</main>
       </SidebarInset>
     </>

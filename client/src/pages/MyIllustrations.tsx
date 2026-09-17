@@ -163,6 +163,8 @@ function IllustrationCard({
             <img
               src={card.visualUrl}
               alt={card.visualAlt ?? card.lessonTitle}
+              width={1600}
+              height={900}
               loading="lazy"
               className="aspect-[16/9] w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
             />

@@ -1,18 +1,50 @@
 /* Profound IQ Consulting — Surveys page: public polls, surveys, and product reviews. */
 import { useState } from "react";
-import { CheckCircle2, Vote } from "lucide-react";
+import { CheckCircle2, Star, Vote } from "lucide-react";
 import { PublicPageShell } from "@/components/PublicPageShell";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { SocialSharing } from "@/components/SocialSharing";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
+type Question = {
+  id: string;
+  type: "single_choice" | "multiple_choice" | "text" | "rating" | "yes_no";
+  title: string;
+  description?: string;
+  required: boolean;
+  options?: string[];
+  minRating?: number;
+  maxRating?: number;
+};
+
+type Survey = {
+  id: number;
+  title: string;
+  description: string;
+  type: string;
+  status: string;
+  options: string[] | unknown;
+  responses: Record<string, number>;
+  totalResponses: number;
+  startsAt?: Date | null;
+  endsAt?: Date | null;
+  questions?: Question[] | null | unknown;
+};
+
 export default function Surveys() {
   const surveys = trpc.resources.activeSurveys.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: true,
   });
-  const submitMutation = trpc.resources.submitSurveyResponse.useMutation({
+  const submitVoteMutation = trpc.resources.submitSurveyResponse.useMutation({
+    onSuccess: () => {
+      toast.success("Response recorded");
+      surveys.refetch();
+    },
+    onError: error => toast.error(error.message),
+  });
+  const submitResearchMutation = trpc.resources.submitResearchResponse.useMutation({
     onSuccess: () => {
       toast.success("Response recorded");
       surveys.refetch();
@@ -20,16 +52,212 @@ export default function Surveys() {
     onError: error => toast.error(error.message),
   });
 
-  const [responses, setResponses] = useState<Record<number, number>>({});
+  const [legacyVotes, setLegacyVotes] = useState<Record<number, number>>({});
+  const [structuredAnswers, setStructuredAnswers] = useState<Record<number, Record<string, unknown>>>({});
+  const [submittedSurveys, setSubmittedSurveys] = useState<Record<number, boolean>>({});
 
   const activeSurveys = (surveys.data ?? []).filter(
     s => s.status === "published"
   );
 
-  const handleVote = (surveyId: number, optionIndex: number) => {
-    if (responses[surveyId] !== undefined) return;
-    setResponses(prev => ({ ...prev, [surveyId]: optionIndex }));
-    submitMutation.mutate({ id: surveyId, optionIndex });
+  const hasStructuredQuestions = (survey: Survey) => {
+    return Array.isArray(survey.questions) && survey.questions.length > 0;
+  };
+
+  const handleLegacyVote = (surveyId: number, optionIndex: number) => {
+    if (submittedSurveys[surveyId]) return;
+    setSubmittedSurveys(prev => ({ ...prev, [surveyId]: true }));
+    setLegacyVotes(prev => ({ ...prev, [surveyId]: optionIndex }));
+    submitVoteMutation.mutate({ id: surveyId, optionIndex });
+  };
+
+  const handleStructuredSubmit = (surveyId: number, surveyAnswers: Record<string, unknown>) => {
+    if (submittedSurveys[surveyId]) return;
+    setSubmittedSurveys(prev => ({ ...prev, [surveyId]: true }));
+    setStructuredAnswers(prev => ({ ...prev, [surveyId]: surveyAnswers }));
+    submitResearchMutation.mutate({ id: surveyId, answers: surveyAnswers });
+  };
+
+  const renderQuestion = (survey: Survey, question: Question, questionIndex: number) => {
+    const surveyAnswers = structuredAnswers[survey.id] || {};
+    const isSubmitted = submittedSurveys[survey.id];
+
+    switch (question.type) {
+      case "single_choice":
+        return (
+          <div key={question.id} className="space-y-2">
+            <p className="text-sm font-semibold">
+              {questionIndex + 1}. {question.title}
+              {question.required && <span className="ml-1 text-red-600">*</span>}
+            </p>
+            {question.description && (
+              <p className="text-xs text-[#657084]">{question.description}</p>
+            )}
+            <div className="space-y-2">
+              {(question.options || []).map((option, optIndex) => {
+                const isSelected = surveyAnswers[question.id] === optIndex;
+                return (
+                  <button
+                    key={optIndex}
+                    type="button"
+                    onClick={() => !isSubmitted && handleStructuredSubmit(survey.id, { ...surveyAnswers, [question.id]: optIndex })}
+                    disabled={isSubmitted}
+                    className={`w-full rounded-lg border px-4 py-3 text-left transition-all disabled:cursor-default ${
+                      isSelected
+                        ? "border-[#c9a34e] bg-[#c9a34e]/10"
+                        : "border-[#16243d]/15 hover:border-[#c9a34e]"
+                    }`}
+                  >
+                    <span className="text-sm font-medium">{option}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+
+      case "multiple_choice":
+        const selectedOptions = Array.isArray(surveyAnswers[question.id]) ? surveyAnswers[question.id] as number[] : [];
+        return (
+          <div key={question.id} className="space-y-2">
+            <p className="text-sm font-semibold">
+              {questionIndex + 1}. {question.title}
+              {question.required && <span className="ml-1 text-red-600">*</span>}
+            </p>
+            {question.description && (
+              <p className="text-xs text-[#657084]">{question.description}</p>
+            )}
+            <div className="space-y-2">
+              {(question.options || []).map((option, optIndex) => {
+                const isSelected = selectedOptions.includes(optIndex);
+                return (
+                  <button
+                    key={optIndex}
+                    type="button"
+                    onClick={() => {
+                      if (isSubmitted) return;
+                      const newSelected = isSelected
+                        ? selectedOptions.filter(i => i !== optIndex)
+                        : [...selectedOptions, optIndex];
+                      handleStructuredSubmit(survey.id, { ...surveyAnswers, [question.id]: newSelected });
+                    }}
+                    disabled={isSubmitted}
+                    className={`w-full rounded-lg border px-4 py-3 text-left transition-all disabled:cursor-default ${
+                      isSelected
+                        ? "border-[#c9a34e] bg-[#c9a34e]/10"
+                        : "border-[#16243d]/15 hover:border-[#c9a34e]"
+                    }`}
+                  >
+                    <span className="text-sm font-medium">{option}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+
+      case "text":
+        return (
+          <div key={question.id} className="space-y-2">
+            <p className="text-sm font-semibold">
+              {questionIndex + 1}. {question.title}
+              {question.required && <span className="ml-1 text-red-600">*</span>}
+            </p>
+            {question.description && (
+              <p className="text-xs text-[#657084]">{question.description}</p>
+            )}
+            <textarea
+              value={(surveyAnswers[question.id] as string) || ""}
+              onChange={event => {
+                if (isSubmitted) return;
+                setStructuredAnswers(prev => ({ ...prev, [survey.id]: { ...prev[survey.id], [question.id]: event.target.value } }));
+              }}
+              onBlur={() => {
+                if (!isSubmitted && surveyAnswers[question.id]) {
+                  handleStructuredSubmit(survey.id, surveyAnswers);
+                }
+              }}
+              disabled={isSubmitted}
+              placeholder="Your answer..."
+              rows={3}
+              className="w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm disabled:cursor-default"
+            />
+          </div>
+        );
+
+      case "rating":
+        const currentRating = surveyAnswers[question.id] as number | undefined;
+        const min = question.minRating ?? 1;
+        const max = question.maxRating ?? 5;
+        return (
+          <div key={question.id} className="space-y-2">
+            <p className="text-sm font-semibold">
+              {questionIndex + 1}. {question.title}
+              {question.required && <span className="ml-1 text-red-600">*</span>}
+            </p>
+            {question.description && (
+              <p className="text-xs text-[#657084]">{question.description}</p>
+            )}
+            <div className="flex items-center gap-2">
+              {Array.from({ length: max - min + 1 }, (_, i) => min + i).map(value => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => !isSubmitted && handleStructuredSubmit(survey.id, { ...surveyAnswers, [question.id]: value })}
+                  disabled={isSubmitted}
+                  className={`flex size-10 items-center justify-center rounded-full border transition-all disabled:cursor-default ${
+                    currentRating === value
+                      ? "border-[#c9a34e] bg-[#c9a34e]/20"
+                      : "border-[#16243d]/15 hover:border-[#c9a34e]"
+                  }`}
+                >
+                  <span className="text-sm font-bold">{value}</span>
+                </button>
+              ))}
+            </div>
+            {currentRating !== undefined && (
+              <p className="text-xs text-[#657084]">You selected: {currentRating}</p>
+            )}
+          </div>
+        );
+
+      case "yes_no":
+        const yesNoValue = surveyAnswers[question.id];
+        return (
+          <div key={question.id} className="space-y-2">
+            <p className="text-sm font-semibold">
+              {questionIndex + 1}. {question.title}
+              {question.required && <span className="ml-1 text-red-600">*</span>}
+            </p>
+            {question.description && (
+              <p className="text-xs text-[#657084]">{question.description}</p>
+            )}
+            <div className="flex gap-3">
+              {["Yes", "No"].map(option => {
+                const isSelected = yesNoValue === option.toLowerCase();
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => !isSubmitted && handleStructuredSubmit(survey.id, { ...surveyAnswers, [question.id]: option.toLowerCase() })}
+                    disabled={isSubmitted}
+                    className={`flex-1 rounded-lg border px-4 py-3 text-sm font-semibold transition-all disabled:cursor-default ${
+                      isSelected
+                        ? "border-[#c9a34e] bg-[#c9a34e]/10"
+                        : "border-[#16243d]/15 hover:border-[#c9a34e]"
+                    }`}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
   };
 
   return (
@@ -63,10 +291,10 @@ export default function Surveys() {
           ) : (
             <div className="grid gap-8 lg:grid-cols-2">
               {activeSurveys.map((survey, index) => {
-                const totalVotes = survey.totalResponses;
-                const userChoice = responses[survey.id];
+                const isStructured = hasStructuredQuestions(survey);
                 const shareUrl = `${window.location.origin}/surveys`;
                 const shareText = `Participate in this ${survey.type}: ${survey.title}`;
+
                 return (
                   <ScrollReveal key={survey.id} delay={index * 70}>
                     <article className="border border-[#16243d]/10 bg-white p-8 shadow-sm transition-all hover:shadow-lg">
@@ -83,53 +311,67 @@ export default function Surveys() {
                           </p>
                         </div>
                       </div>
-                      <div className="mt-6 space-y-3" role="radiogroup" aria-label={`Options for ${survey.title}`}>
-                        {(survey.options as string[]).map((option, optIndex) => {
-                          const votes =
-                            (survey.responses as Record<string, number>)[
-                              String(optIndex)
-                            ] ?? 0;
-                          const percentage = totalVotes > 0 ? (votes / totalVotes) * 100 : 0;
-                          const isSelected = userChoice === optIndex;
-                          return (
-                            <button
-                              key={optIndex}
-                              type="button"
-                              onClick={() => handleVote(survey.id, optIndex)}
-                              disabled={userChoice !== undefined}
-                              aria-pressed={isSelected}
-                              aria-checked={isSelected}
-                              className={`relative w-full overflow-hidden rounded-lg border px-4 py-3 text-left transition-all disabled:cursor-default ${
-                                isSelected
-                                  ? "border-[#c9a34e] bg-[#c9a34e]/10"
-                                  : "border-[#16243d]/15 hover:border-[#c9a34e]"
-                              }`}
-                            >
-                              <div
-                                className="absolute inset-y-0 left-0 bg-[#c9a34e]/10 transition-all"
-                                style={{ width: `${percentage}%` }}
-                                aria-hidden="true"
-                              />
-                              <div className="relative flex items-center justify-between">
-                                <span className="text-sm font-medium">
-                                  {option}
-                                </span>
-                                <span className="text-xs text-[#657084]">
-                                  {percentage.toFixed(1)}%
-                                </span>
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                      <p className="mt-4 text-xs text-[#657084]" aria-live="polite" aria-atomic="true">
-                        {totalVotes} response{totalVotes === 1 ? "" : "s"}
-                        {userChoice !== undefined && (
-                          <span className="ml-2 inline-flex items-center gap-1 text-emerald-700">
-                            <CheckCircle2 size={12} aria-hidden="true" /> You voted
-                          </span>
-                        )}
-                      </p>
+
+                      {isStructured ? (
+                        <div className="mt-6 space-y-6">
+                          {(survey.questions as Question[]).map((q, qIndex) =>
+                            renderQuestion(survey, q, qIndex)
+                          )}
+                          {submittedSurveys[survey.id] && (
+                            <div className="mt-4 flex items-center gap-2 text-emerald-700">
+                              <CheckCircle2 size={16} aria-hidden="true" />
+                              <span className="text-sm font-semibold">Thank you for your response</span>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="mt-6 space-y-3" role="radiogroup" aria-label={`Options for ${survey.title}`}>
+                          {(survey.options as string[]).map((option, optIndex) => {
+                            const votes = survey.responses[String(optIndex)] ?? 0;
+                            const totalVotes = survey.totalResponses;
+                            const percentage = totalVotes > 0 ? (votes / totalVotes) * 100 : 0;
+                            const isSelected = legacyVotes[survey.id] === optIndex;
+                            return (
+                              <button
+                                key={optIndex}
+                                type="button"
+                                onClick={() => handleLegacyVote(survey.id, optIndex)}
+                                disabled={submittedSurveys[survey.id]}
+                                aria-pressed={isSelected}
+                                aria-checked={isSelected}
+                                className={`relative w-full overflow-hidden rounded-lg border px-4 py-3 text-left transition-all disabled:cursor-default ${
+                                  isSelected
+                                    ? "border-[#c9a34e] bg-[#c9a34e]/10"
+                                    : "border-[#16243d]/15 hover:border-[#c9a34e]"
+                                }`}
+                              >
+                                <div
+                                  className="absolute inset-y-0 left-0 bg-[#c9a34e]/10 transition-all"
+                                  style={{ width: `${percentage}%` }}
+                                  aria-hidden="true"
+                                />
+                                <div className="relative flex items-center justify-between">
+                                  <span className="text-sm font-medium">
+                                    {option}
+                                  </span>
+                                  <span className="text-xs text-[#657084]">
+                                    {percentage.toFixed(1)}%
+                                  </span>
+                                </div>
+                              </button>
+                            );
+                          })}
+                          <p className="mt-4 text-xs text-[#657084]" aria-live="polite" aria-atomic="true">
+                            {survey.totalResponses} response{survey.totalResponses === 1 ? "" : "s"}
+                            {submittedSurveys[survey.id] && (
+                              <span className="ml-2 inline-flex items-center gap-1 text-emerald-700">
+                                <CheckCircle2 size={12} aria-hidden="true" /> You voted
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                      )}
+
                       <SocialSharing
                         url={shareUrl}
                         title={survey.title}

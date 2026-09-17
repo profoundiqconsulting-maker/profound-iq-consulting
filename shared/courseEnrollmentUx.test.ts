@@ -96,26 +96,25 @@ describe("course enrollment access flow", () => {
     );
     expect(routerSource).toContain("Verify payment stage ${requiredStage}");
     expect(routerSource).toContain("canBypassCoursePayment");
-    expect(routerSource).toContain("isQualityControlAdmin(ctx.user)");
+    expect(routerSource).toContain("hasAccessGrant");
   });
 
-  it("allows Quality Control certificate generation while retaining report ownership and data checks", () => {
+  it("requires payment and ownership for certificate access", () => {
     expect(routerSource).toContain("canAccessAssessmentCertificate");
     expect(routerSource).toContain("certificateSvgPreview");
     expect(routerSource).toContain("downloadCompletionCertificatePdf");
     expect(routerSource).toContain("paymentStatus: attempt.paymentStatus");
     expect(routerSource).toContain("hasReport: Boolean(attempt.report)");
-    expect(accessSource).toContain(
-      "Quality Control Mode bypasses payment status"
-    );
+    expect(routerSource).not.toContain("isQualityControlAdmin");
   });
 
-  it("shows Quality Control Mode only for the designated admin in the workspace shell", () => {
-    expect(dashboardLayoutSource).toContain("isQualityControlAdmin(user)");
-    expect(dashboardLayoutSource).toContain(
+  it("removes Quality Control Mode indicators from the dashboard layout", () => {
+    expect(dashboardLayoutSource).not.toContain("isQualityControlAdmin(user)");
+    expect(dashboardLayoutSource).not.toContain(
       'aria-label="Quality Control Mode active"'
     );
-    expect(dashboardLayoutSource).toContain("QC Mode");
+    expect(dashboardLayoutSource).not.toContain("QC Mode");
+    expect(dashboardLayoutSource).not.toContain("QC");
   });
 
   it("exposes a development-only mock checkout without weakening production payment verification", () => {

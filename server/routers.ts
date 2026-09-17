@@ -404,7 +404,6 @@ import {
 import {
   canAccessAssessmentCertificate,
   canBypassCoursePayment,
-  isQualityControlAdmin,
   qualityControlQuizScore,
 } from "../shared/courseAccess";
 import {
@@ -2013,24 +2012,6 @@ export const appRouter = router({
         z.object({ courseSlug: z.string().trim().min(2).max(120) }).optional()
       )
       .query(async ({ ctx, input }) => {
-        if (
-          isQualityControlAdmin(ctx.user) &&
-          input?.courseSlug &&
-          ctx.user.email
-        ) {
-          const course = courseCatalog.find(
-            item => item.slug === input.courseSlug
-          );
-          if (course)
-            await getOrCreateCourseEnrollment({
-              userOpenId: ctx.user.openId,
-              courseSlug: course.slug,
-              name: ctx.user.name?.trim() || "Profound IQ Admin",
-              email: ctx.user.email,
-              amountKes: course.stageAmountsKes[0] ?? COURSE_STAGE_AMOUNT_KES,
-              stageAmountsKes: course.stageAmountsKes,
-            });
-        }
         return listCourseEnrollmentState(ctx.user.openId);
       }),
     savedCourses: protectedProcedure.query(({ ctx }) =>
@@ -2459,7 +2440,6 @@ export const appRouter = router({
         );
         const requiredStage = moduleNumber >= 7 ? 3 : moduleNumber >= 4 ? 2 : 1;
         const accessOverride = canBypassCoursePayment({
-          isQualityControlAdmin: isQualityControlAdmin(ctx.user),
           hasAccessGrant: await hasCourseAccessGrant(
             ctx.user.openId,
             record.enrollment.courseSlug
@@ -2525,7 +2505,6 @@ export const appRouter = router({
         );
         const requiredStage = moduleNumber >= 7 ? 3 : moduleNumber >= 4 ? 2 : 1;
         const accessOverride = canBypassCoursePayment({
-          isQualityControlAdmin: isQualityControlAdmin(ctx.user),
           hasAccessGrant: await hasCourseAccessGrant(
             ctx.user.openId,
             record.enrollment.courseSlug
@@ -2555,7 +2534,7 @@ export const appRouter = router({
         const missing = input.requiredTaskIds.filter(
           taskId => !savedIds.has(taskId)
         );
-        if (missing.length && !isQualityControlAdmin(ctx.user))
+        if (missing.length)
           throw new TRPCError({
             code: "PRECONDITION_FAILED",
             message:
@@ -2593,7 +2572,6 @@ export const appRouter = router({
         );
         const requiredStage = moduleNumber >= 7 ? 3 : moduleNumber >= 4 ? 2 : 1;
         const accessOverride = canBypassCoursePayment({
-          isQualityControlAdmin: isQualityControlAdmin(ctx.user),
           hasAccessGrant: await hasCourseAccessGrant(
             ctx.user.openId,
             record.enrollment.courseSlug
@@ -2613,7 +2591,6 @@ export const appRouter = router({
         ).length;
         const score = qualityControlQuizScore({
           rawScore: Math.round((correct / module.quiz.length) * 100),
-          isQualityControlAdmin: isQualityControlAdmin(ctx.user),
         });
         await recordCourseQuizAttempt({
           enrollmentId: input.enrollmentId,
@@ -2673,7 +2650,6 @@ export const appRouter = router({
             message: "Payment stage not found.",
           });
         const accessOverride = canBypassCoursePayment({
-          isQualityControlAdmin: isQualityControlAdmin(ctx.user),
           hasAccessGrant: await hasCourseAccessGrant(
             ctx.user.openId,
             record.enrollment.courseSlug
@@ -2750,7 +2726,6 @@ export const appRouter = router({
             message: "Payment stage not found.",
           });
         const accessOverride = canBypassCoursePayment({
-          isQualityControlAdmin: isQualityControlAdmin(ctx.user),
           hasAccessGrant: await hasCourseAccessGrant(
             ctx.user.openId,
             record.enrollment.courseSlug
@@ -2892,11 +2867,6 @@ export const appRouter = router({
             message: "This payment is not available to your account.",
           });
         if (stage.paymentStatus === "paid") {
-          if (
-            stage.stage === 4 &&
-            record.stages.filter(s => s.paymentStatus === "paid").length >= 4 &&
-            !isQualityControlAdmin(ctx.user)
-          ) {
             const passed = new Set(
               record.quizAttempts
                 .filter(attempt => attempt.passed)
@@ -2983,8 +2953,7 @@ export const appRouter = router({
                 );
               }
             }
-          }
-          return { verified: true as const, stage: stage.stage };
+            return { verified: true as const, stage: stage.stage };
         }
         const verification = await paystackRequest(
           `/transaction/verify/${encodeURIComponent(input.reference)}`
@@ -3029,8 +2998,7 @@ export const appRouter = router({
         }
         if (
           stage.stage === 4 &&
-          record.stages.filter(s => s.paymentStatus === "paid").length >= 4 &&
-          !isQualityControlAdmin(ctx.user)
+          record.stages.filter(s => s.paymentStatus === "paid").length >= 4
         ) {
           const passed = new Set(
             record.quizAttempts
@@ -3138,23 +3106,6 @@ export const appRouter = router({
             code: "NOT_FOUND",
             message: "Course enrollment not found.",
           });
-        if (!isQualityControlAdmin(ctx.user)) {
-          const passed = new Set(
-            record.quizAttempts
-              .filter(attempt => attempt.passed)
-              .map(attempt => attempt.moduleId)
-          );
-          if (
-            record.lessons.length < course.modules.length * 7 ||
-            passed.size < course.modules.length
-          ) {
-            throw new TRPCError({
-              code: "PRECONDITION_FAILED",
-              message:
-                "Complete all lessons and module tests before requesting your certificate.",
-            });
-          }
-        }
         const certificateNumber = `PIQ-${new Date().getFullYear()}-${randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
         const originHeader = ctx.req.headers.origin;
         const origin =
@@ -3248,7 +3199,6 @@ export const appRouter = router({
             message: "Issued certificate not found.",
           });
         const accessOverride = canBypassCoursePayment({
-          isQualityControlAdmin: isQualityControlAdmin(ctx.user),
           hasAccessGrant: await hasCourseAccessGrant(
             ctx.user.openId,
             record.enrollment.courseSlug
@@ -4364,13 +4314,6 @@ export const appRouter = router({
     generateQcCertificate: adminProcedure
       .input(z.object({ enrollmentId: z.number().int().positive() }))
       .mutation(async ({ ctx, input }) => {
-        if (!isQualityControlAdmin(ctx.user)) {
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message:
-              "Only quality control administrators can generate QC certificates.",
-          });
-        }
         const record = await getCourseEnrollmentById(input.enrollmentId);
         if (!record) {
           throw new TRPCError({
@@ -5056,6 +4999,16 @@ export const appRouter = router({
           options: z.array(z.string().trim().min(1).max(120)).min(2).max(6),
           startsAt: z.string().datetime().optional(),
           endsAt: z.string().datetime().optional(),
+          questions: z.array(z.object({
+            id: z.string(),
+            type: z.enum(["single_choice", "multiple_choice", "text", "rating", "yes_no"]),
+            title: z.string().trim().min(1).max(240),
+            description: z.string().trim().optional(),
+            required: z.boolean().default(true),
+            options: z.array(z.string().trim().min(1).max(120)).optional(),
+            minRating: z.number().int().min(1).max(10).optional(),
+            maxRating: z.number().int().min(1).max(10).optional(),
+          })).optional(),
         })
       )
       .mutation(({ ctx, input }) =>
@@ -5067,6 +5020,7 @@ export const appRouter = router({
           createdByOpenId: ctx.user.openId,
           startsAt: input.startsAt ? new Date(input.startsAt) : undefined,
           endsAt: input.endsAt ? new Date(input.endsAt) : undefined,
+          questions: input.questions ?? null,
         })
       ),
     updateSurvey: adminProcedure
@@ -5080,6 +5034,16 @@ export const appRouter = router({
           status: z.enum(["draft", "published", "closed"]).optional(),
           startsAt: z.string().datetime().optional(),
           endsAt: z.string().datetime().optional(),
+          questions: z.array(z.object({
+            id: z.string(),
+            type: z.enum(["single_choice", "multiple_choice", "text", "rating", "yes_no"]),
+            title: z.string().trim().min(1).max(240),
+            description: z.string().trim().optional(),
+            required: z.boolean().default(true),
+            options: z.array(z.string().trim().min(1).max(120)).optional(),
+            minRating: z.number().int().min(1).max(10).optional(),
+            maxRating: z.number().int().min(1).max(10).optional(),
+          })).optional(),
         })
       )
       .mutation(({ input }) =>
@@ -5091,6 +5055,7 @@ export const appRouter = router({
           status: input.status,
           startsAt: input.startsAt ? new Date(input.startsAt) : undefined,
           endsAt: input.endsAt ? new Date(input.endsAt) : undefined,
+          questions: input.questions ?? null,
         })
       ),
     deleteSurvey: adminProcedure
@@ -5562,66 +5527,6 @@ export const appRouter = router({
       .mutation(({ ctx, input }) =>
         upsertAdminAnalyticsSettings(ctx.user.openId, input)
       ),
-    socialPreviewSettings: adminProcedure.query(async () => ({
-      fallbackImageUrl: await getSiteSeoSetting("fallback_social_image_url"),
-      version: (await getSiteSeoSetting("social_card_version")) ?? "1",
-    })),
-    saveSocialPreviewSettings: adminProcedure
-      .input(
-        z.object({
-          fallbackImageUrl: z
-            .string()
-            .max(12_000_000)
-            .optional(),
-          contentType: z
-            .enum(["image/png", "image/jpeg", "image/webp"])
-            .optional(),
-          filename: z.string().trim().min(1).max(160).optional(),
-          version: z
-            .string()
-            .trim()
-            .regex(
-              /^[a-zA-Z0-9._-]{1,32}$/,
-              "Use letters, numbers, dots, underscores, or hyphens for the version."
-            ),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        let imageUrl = input.fallbackImageUrl?.trim() ?? "";
-        if (imageUrl && imageUrl.startsWith("data:")) {
-          const raw = imageUrl.replace(/^data:[^;]+;base64,/, "");
-          const bytes = Buffer.from(raw, "base64");
-          if (bytes.length > 8 * 1024 * 1024) {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: "Image must be 8 MB or smaller.",
-            });
-          }
-          const contentType = input.contentType ?? "image/png";
-          const extension =
-            contentType === "image/png"
-              ? "png"
-              : contentType === "image/webp"
-                ? "webp"
-                : "jpg";
-          const stored = await storagePut(
-            `social-previews/fallback-${Date.now()}.${extension}`,
-            bytes,
-            contentType
-          );
-          imageUrl = stored.url;
-        }
-        await upsertSiteSeoSetting(
-          "fallback_social_image_url",
-          imageUrl,
-          ctx.user.openId
-        );
-        return upsertSiteSeoSetting(
-          "social_card_version",
-          input.version,
-          ctx.user.openId
-        );
-      }),
     emailPreviewHistory: adminProcedure
       .input(
         z
@@ -8084,7 +7989,6 @@ export const appRouter = router({
         if (
           !attempt ||
           !canAccessAssessmentCertificate({
-            isQualityControlAdmin: isQualityControlAdmin(ctx.user),
             identityMatches:
               attempt.email.trim().toLowerCase() ===
               (ctx.user.email ?? "").trim().toLowerCase(),
@@ -8151,7 +8055,6 @@ export const appRouter = router({
         if (
           !attempt ||
           !canAccessAssessmentCertificate({
-            isQualityControlAdmin: isQualityControlAdmin(ctx.user),
             identityMatches:
               attempt.email.trim().toLowerCase() ===
               ctx.user.email.trim().toLowerCase(),

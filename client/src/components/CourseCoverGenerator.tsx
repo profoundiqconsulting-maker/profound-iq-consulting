@@ -3,6 +3,8 @@ type CourseCoverGeneratorProps = {
   slug: string;
   title?: string;
   className?: string;
+  width?: number;
+  height?: number;
 };
 
 const BRAND = {
@@ -167,6 +169,8 @@ export function CourseCoverGenerator({
   slug,
   title,
   className,
+  width,
+  height,
 }: CourseCoverGeneratorProps) {
   const seed = hashString(slug);
   const palette = pickFromArray(PALETTES, seed);
@@ -180,6 +184,8 @@ export function CourseCoverGenerator({
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
+      width={width ?? 640}
+      height={height ?? 360}
       viewBox="0 0 640 360"
       preserveAspectRatio="xMidYMid slice"
       className={className}

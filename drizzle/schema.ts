@@ -1088,6 +1088,7 @@ export const surveys = mysqlTable("surveys", {
   totalResponses: int("totalResponses").default(0).notNull(),
   startsAt: timestamp("startsAt"),
   endsAt: timestamp("endsAt"),
+  questions: json("questions").default(null),
   createdByOpenId: varchar("createdByOpenId", { length: 64 }).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

@@ -192,6 +192,8 @@ export default function AdminNewsletterPanel() {
           <span className="flex min-h-11 items-center gap-2 border border-[#16243d]/15 bg-[#fffaf0] px-3">
             <Search size={15} className="text-[#7d5e1e]" />
              <input
+               id="newsletter-search"
+               name="search"
                value={filters.search}
                onChange={event => updateFilter("search", event.target.value)}
                placeholder="e.g. learner@example.com"
@@ -203,6 +205,8 @@ export default function AdminNewsletterPanel() {
         <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[#657084]">
           Status
              <select
+               id="newsletter-status"
+               name="status"
                value={filters.status}
                onChange={event =>
                  updateFilter(
@@ -223,6 +227,8 @@ export default function AdminNewsletterPanel() {
         <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[#657084]">
           From date
            <input
+             id="newsletter-from-date"
+             name="fromDate"
              type="date"
              value={filters.fromDate}
              onChange={event => updateFilter("fromDate", event.target.value)}
@@ -233,6 +239,8 @@ export default function AdminNewsletterPanel() {
         <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[#657084]">
           To date
            <input
+             id="newsletter-to-date"
+             name="toDate"
              type="date"
              value={filters.toDate}
              min={filters.fromDate || undefined}
@@ -301,6 +309,8 @@ export default function AdminNewsletterPanel() {
                       </td>
                       <td className="py-3 pr-4">
                         <select
+                          id={`newsletter-status-${subscriber.id}`}
+                          name={`subscriber-status-${subscriber.id}`}
                           value={subscriber.status as SubscriberStatus}
                           onChange={event =>
                             setStatus.mutate({

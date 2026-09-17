@@ -9,6 +9,8 @@ type CourseCoverImageProps = {
   className?: string;
   loading?: "lazy" | "eager";
   title?: string;
+  width?: number;
+  height?: number;
 };
 
 export function CourseCoverImage({
@@ -17,6 +19,8 @@ export function CourseCoverImage({
   className,
   loading,
   title,
+  width,
+  height,
 }: CourseCoverImageProps) {
   const [error, setError] = useState(false);
   const [useGenerated, setUseGenerated] = useState(false);
@@ -34,6 +38,8 @@ export function CourseCoverImage({
           slug={generatedSlug}
           title={title}
           className={className}
+          width={width}
+          height={height}
         />
       );
     }
@@ -42,6 +48,8 @@ export function CourseCoverImage({
         src={PLACEHOLDER}
         alt={alt}
         className={className}
+        width={width}
+        height={height}
         loading={loading}
         onError={() => setError(true)}
       />
@@ -53,6 +61,8 @@ export function CourseCoverImage({
       src={src}
       alt={alt}
       className={className}
+      width={width}
+      height={height}
       loading={loading}
       onError={() => setUseGenerated(true)}
     />

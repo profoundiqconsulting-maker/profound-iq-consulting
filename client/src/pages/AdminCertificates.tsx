@@ -4,7 +4,7 @@ import { Award } from "lucide-react";
 
 export default function AdminCertificates() {
   const certificates = trpc.admin.recentCourseCertificates.useQuery(
-    { limit: 200 },
+    { limit: 100 },
     {
       retry: false,
       refetchInterval: 30000,

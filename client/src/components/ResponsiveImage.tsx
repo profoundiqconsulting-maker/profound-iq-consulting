@@ -7,6 +7,8 @@ type ResponsiveImageProps = {
   className?: string;
   sizes?: string;
   loading?: "lazy" | "eager";
+  width?: number;
+  height?: number;
   fetchPriority?: "high" | "low" | "auto";
   decoding?: "async" | "auto" | "sync";
 };
@@ -27,6 +29,8 @@ export function ResponsiveImage({
   className = "",
   sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
   loading = "lazy",
+  width,
+  height,
   fetchPriority = "auto",
   decoding = "async",
 }: ResponsiveImageProps) {
@@ -67,6 +71,8 @@ export function ResponsiveImage({
         <img
           src={src}
           alt={alt}
+          width={width}
+          height={height}
           loading={loading}
           fetchPriority={fetchPriority}
           decoding={decoding}
@@ -80,6 +86,8 @@ export function ResponsiveImage({
     <img
       src={src}
       alt={alt}
+      width={width}
+      height={height}
       loading={loading}
       fetchPriority={fetchPriority}
       decoding={decoding}

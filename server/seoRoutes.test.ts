@@ -15,7 +15,6 @@ vi.mock("../shared/siteOrigin", () => {
 import {
   buildSitemapXml,
   courseSocialImageUrl,
-  getSocialPreviewSettings,
   renderCourseCatalogPage,
   renderCourseDetailPage,
   renderCourseSocialImage,
@@ -170,14 +169,11 @@ describe("course SEO server routes", () => {
     );
     expect(html).toContain('<div id="root"><main');
     expect(html).toContain("Decision Lab");
-    expect(html).toContain('href="/courses/decision-lab?workspace=1"');
-  });
-
-  it("falls back to default social preview settings when the database is unavailable", async () => {
-    const settings = await getSocialPreviewSettings();
-    expect(settings.fallbackImageUrl).toBe(
-      "http://localhost:3000/profound-iq-social-preview.svg"
+    expect(html).toContain(
+      'content="http://localhost:3000/ProfoundIQSocialSharingImage.png"'
     );
-    expect(settings.version).toBe("1");
+    expect(html).toContain('<meta property="og:image:width" content="1733"/>');
+    expect(html).toContain('<meta property="og:image:height" content="908"/>');
+    expect(html).toContain('href="/courses/decision-lab?workspace=1"');
   });
 });

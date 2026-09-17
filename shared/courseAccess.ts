@@ -1,47 +1,30 @@
-export const QUALITY_CONTROL_ADMIN_EMAIL = "profoundiqconsulting@gmail.com";
-
-export function isQualityControlAdmin(
-  user: { email?: string | null } | null | undefined
-) {
-  return user?.email?.trim().toLowerCase() === QUALITY_CONTROL_ADMIN_EMAIL;
-}
-
 export function canBypassCoursePayment(input: {
-  isQualityControlAdmin: boolean;
   hasAccessGrant: boolean;
 }) {
-  return input.isQualityControlAdmin || input.hasAccessGrant;
+  return input.hasAccessGrant;
 }
 
 export function qualityControlQuizScore(input: {
   rawScore: number;
-  isQualityControlAdmin: boolean;
 }) {
-  return input.isQualityControlAdmin ? 100 : input.rawScore;
+  return input.rawScore;
 }
 
 /**
  * Certificate output is available only for the owning account with a computed
- * report. Quality Control Mode bypasses payment status, but never bypasses
- * ownership or the requirement for report data.
+ * report. Payment must be completed.
  */
 export function canAccessAssessmentCertificate(input: {
-  isQualityControlAdmin: boolean;
   identityMatches: boolean;
   paymentStatus: string | null | undefined;
   hasReport: boolean;
 }) {
-  return (
-    input.identityMatches &&
-    input.hasReport &&
-    (input.isQualityControlAdmin || input.paymentStatus === "paid")
-  );
+  return input.identityMatches && input.hasReport && input.paymentStatus === "paid";
 }
 
 export type CourseAccessInput = {
   isAuthenticated: boolean;
   paidStages: number;
-  isQualityControlAdmin: boolean;
 };
 
 /** Returns the installment required before a module's lessons may be opened. Modules are 1-indexed in the learner-facing copy. */
@@ -52,34 +35,27 @@ export function requiredPaymentStageForModule(moduleIndex: number) {
 export function canAccessModuleLessons({
   moduleIndex,
   paidStages,
-  isQualityControlAdmin,
 }: {
   moduleIndex: number;
   paidStages: number;
-  isQualityControlAdmin: boolean;
 }) {
-  return (
-    isQualityControlAdmin ||
-    paidStages >= requiredPaymentStageForModule(moduleIndex)
-  );
+  return paidStages >= requiredPaymentStageForModule(moduleIndex);
 }
 
 export function canAccessCourseLessons({
   isAuthenticated,
   paidStages,
-  isQualityControlAdmin,
 }: CourseAccessInput) {
-  return isAuthenticated && (isQualityControlAdmin || paidStages >= 1);
+  return isAuthenticated && paidStages >= 1;
 }
 
 export function courseAccessReason({
   isAuthenticated,
   paidStages,
-  isQualityControlAdmin,
 }: CourseAccessInput) {
   if (!isAuthenticated)
     return "Sign in or register first. After the first 25% enrollment payment is verified, the full lesson player becomes available.";
-  if (!isQualityControlAdmin && paidStages < 1)
+  if (paidStages < 1)
     return "Complete the first 25% enrollment payment to unlock the full lesson player, simulations, notes, and module progression.";
   return "Detailed lessons are available.";
 }

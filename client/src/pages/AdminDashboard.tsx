@@ -85,8 +85,8 @@ import AdminInquiryPanel from "@/components/AdminInquiryPanel";
 import AdminRevenuePanel from "@/components/AdminRevenuePanel";
 import AdminStaffPanel from "@/components/AdminStaffPanel";
 import AdminSystemSettings from "@/components/AdminSystemSettings";
-import AdminCatalogPanel from "@/components/AdminCatalogPanel";
 import AdminCourseDeliveryPanel from "@/components/AdminCourseDeliveryPanel";
+import AdminReportsPanel from "@/components/AdminReportsPanel";
 import AdminPaymentExceptionsPanel from "@/components/AdminPaymentExceptionsPanel";
 import AdminNewsletterPanel from "@/components/AdminNewsletterPanel";
 import AdminInsightsPanel from "@/components/AdminInsightsPanel";
@@ -95,7 +95,6 @@ import AdminResearchSurveyPanel from "@/components/AdminResearchSurveyPanel";
 import { AdminCourseAccessAudit } from "@/components/AdminCourseAccessAudit";
 import { AdminCertificatePreview } from "@/components/AdminCertificatePreview";
 import { AdminRecentQCCertificates } from "@/components/AdminRecentQCCertificates";
-import AdminSocialPreviewSettings from "@/components/AdminSocialPreviewSettings";
 import AdminCourseShareAnalytics from "@/components/AdminCourseShareAnalytics";
 import AdminResourcesPanel from "@/components/AdminResourcesPanel";
 import AdminSurveysPanel from "@/components/AdminSurveysPanel";
@@ -104,7 +103,6 @@ import { renderEmailTemplate } from "@shared/emailTemplate";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
 import { useLocale } from "@/contexts/LocaleContext";
-import { isQualityControlAdmin } from "@shared/courseAccess";
 
 function statusLabel(status: string) {
   return status === "paid" ? "Paid" : "Pending";
@@ -1257,8 +1255,8 @@ export default function AdminDashboard() {
       <div id="admin-observatory" className="admin-observatory w-full">
         <DashboardHero
           eyebrow="Assessment intelligence"
-          title="The signal room"
-          description="Manage assessment records, follow up on course interest, and keep future communications on-brand."
+          title="Reports"
+          description="Download branded reports for every area of the platform."
           badge={{ label: "Admin only", variant: "secondary" }}
         />
         {initialLoading && (
@@ -1275,7 +1273,7 @@ export default function AdminDashboard() {
         >
           <TabButton
             tab="overview"
-            label="Signal Room"
+            label="Reports"
             icon={<BarChart3 size={14} />}
             activeTab={activeTab}
             onTabChange={setActiveTab}
@@ -1330,7 +1328,7 @@ export default function AdminDashboard() {
           <TabDivider />
           <TabButton
             tab="staff"
-            label="Staff & Catalog"
+            label="Staff"
             icon={<Users size={14} />}
             activeTab={activeTab}
             onTabChange={setActiveTab}
@@ -1408,17 +1406,9 @@ export default function AdminDashboard() {
           )}
 
           {activeTab === "overview" && (
-            <Section
-              id="share-observatory"
-              eyebrow="Share observatory"
-              title="Brand preview and share analytics"
-              description="Manage social preview settings and track how candidates share their results."
-            >
-              <div className="grid gap-6 lg:grid-cols-2">
-                <AdminSocialPreviewSettings />
-                <AdminCourseShareAnalytics />
-              </div>
-            </Section>
+            <div id="reports" className="scroll-mt-8">
+              <AdminReportsPanel />
+            </div>
           )}
 
           {activeTab === "revenue" && (
@@ -1623,9 +1613,6 @@ export default function AdminDashboard() {
               </div>
               <div id="staff" className="scroll-mt-8">
                 <AdminStaffPanel />
-              </div>
-              <div id="catalog" className="scroll-mt-8">
-                <AdminCatalogPanel />
               </div>
             </>
           )}

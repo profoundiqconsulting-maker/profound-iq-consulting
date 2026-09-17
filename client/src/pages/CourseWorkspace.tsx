@@ -236,6 +236,8 @@ function IllustrationCard({
           <img
             src={visualUrl}
             alt={visualAlt ?? "Conceptual lesson illustration"}
+            width={1600}
+            height={900}
             loading="lazy"
             className="aspect-[16/9] w-full object-cover opacity-95 transition-transform hover:scale-[1.01]"
           />
@@ -361,7 +363,6 @@ function CourseWorkspaceContent({ course }: { course: CourseDefinition }) {
     !canAccessCourseLessons({
       isAuthenticated,
       paidStages: effectivePaidStages,
-      isQualityControlAdmin: accessOverride && !fixturePaidStages,
     })
   )
     return (
@@ -751,7 +752,6 @@ function CourseAccessGate({
               {courseAccessReason({
                 isAuthenticated,
                 paidStages,
-                isQualityControlAdmin: false,
               })}
             </p>
             {isAuthenticated ? (
@@ -1181,7 +1181,6 @@ function CourseWorkspaceUnlocked({
     const targetModuleLocked = !canAccessModuleLessons({
       moduleIndex: targetModuleIndex,
       paidStages: effectiveStageCount,
-      isQualityControlAdmin: accessOverride,
     });
     if (targetModuleLocked) {
       requestPaymentForModule(
@@ -1488,14 +1487,12 @@ function CourseWorkspaceUnlocked({
   const moduleLocked = !canAccessModuleLessons({
     moduleIndex,
     paidStages: effectiveStageCount,
-    isQualityControlAdmin: accessOverride,
   });
   const selectModule = (nextIndex: number) => {
     const requiredStage = requiredStageForModule(nextIndex);
     const locked = !canAccessModuleLessons({
       moduleIndex: nextIndex,
       paidStages: effectiveStageCount,
-      isQualityControlAdmin: accessOverride,
     });
     if (locked) {
       requestPaymentForModule(requiredStage, nextIndex);
@@ -1511,7 +1508,6 @@ function CourseWorkspaceUnlocked({
       !canAccessModuleLessons({
         moduleIndex: nextIndex,
         paidStages: effectiveStageCount,
-        isQualityControlAdmin: accessOverride,
       })
     ) {
       selectModule(nextIndex);

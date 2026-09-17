@@ -7713,6 +7713,7 @@ export async function createSurvey(input: {
   createdByOpenId: string;
   startsAt?: Date;
   endsAt?: Date;
+  questions?: any[] | null;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -7722,6 +7723,7 @@ export async function createSurvey(input: {
     totalResponses: 0,
     startsAt: input.startsAt ?? null,
     endsAt: input.endsAt ?? null,
+    questions: input.questions ?? null,
   }).$returningId();
   return rows[0];
 }
@@ -7734,6 +7736,7 @@ export async function updateSurvey(id: number, input: {
   status?: string;
   startsAt?: Date | null;
   endsAt?: Date | null;
+  questions?: any[] | null;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");

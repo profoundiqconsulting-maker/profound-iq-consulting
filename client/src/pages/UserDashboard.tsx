@@ -96,7 +96,6 @@ import type {
   PaymentHistoryFilters,
   PaymentHistoryPage,
 } from "@shared/paymentHistory";
-import { isQualityControlAdmin } from "@shared/courseAccess";
 
 type CourseDeliveryRecord = {
   enrollment: {

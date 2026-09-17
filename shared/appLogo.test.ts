@@ -13,18 +13,18 @@ describe("shared app logo configuration", () => {
     expect(LOGO_URL).toMatch(/^\/ProfoundIQLogo\.png$/);
   });
 
-  it("uses a real favicon and optimized brand images for metadata", () => {
+  it("uses a real favicon and the permanent social sharing image for metadata", () => {
     expect(documentHead).toContain(
       '<link rel="icon" type="image/x-icon" href="/favicon.ico" />'
     );
     expect(documentHead).toContain(
-      '<meta property="og:image" content="http://localhost:3000/profound-iq-social-preview.svg" />'
+      '<meta property="og:image" content="http://localhost:3000/ProfoundIQSocialSharingImage.png" />'
     );
     expect(documentHead).toContain(
-      '<meta property="og:image:width" content="1200" />'
+      '<meta property="og:image:width" content="1733" />'
     );
     expect(documentHead).toContain(
-      '<meta property="og:image:height" content="630" />'
+      '<meta property="og:image:height" content="908" />'
     );
   });
 });

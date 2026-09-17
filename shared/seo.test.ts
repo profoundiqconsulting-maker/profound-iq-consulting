@@ -32,8 +32,8 @@ describe("route SEO metadata", () => {
     expect(`${SITE_ORIGIN}${course.canonical}`).toBe(
       "http://localhost:3000/courses/leadership-development"
     );
-    expect(DEFAULT_IMAGE).toMatch(
-      /^http:\/\/localhost:3000\/profound-iq-social-preview\.svg$/
+    expect(DEFAULT_IMAGE).toBe(
+      "http://localhost:3000/ProfoundIQSocialSharingImage.png"
     );
   });
 
@@ -47,8 +47,8 @@ describe("route SEO metadata", () => {
     const robots = readFileSync("client/public/robots.txt", "utf8");
     const sitemap = readFileSync("client/public/sitemap.xml", "utf8");
     expect(existsSync("client/public/robots.txt")).toBe(true);
-    expect(robots).toContain("Sitemap: http://localhost:3000/sitemap.xml");
+    expect(robots).toContain("Sitemap: https://profoundiqconsulting.com/sitemap.xml");
     expect(robots).toContain("Disallow: /admin");
-    expect(sitemap).toContain("http://localhost:3000/courses");
+    expect(sitemap).toContain("https://profoundiqconsulting.com/courses");
   });
 });
