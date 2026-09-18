@@ -3,10 +3,10 @@ import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
 import { getDimensionReflectionPoints } from "@shared/assessment";
 import { BrandLogo } from "@/components/BrandLogo";
-import { useLocale } from "@/contexts/LocaleContext";
+
 
 export default function SharedReport() {
-  const { t } = useLocale();
+  
   const token = new URLSearchParams(window.location.search).get("token") ?? "";
   const result = trpc.sharedReport.get.useQuery(
     { token },
@@ -53,7 +53,7 @@ export default function SharedReport() {
             href="/"
             className="text-[10px] font-black uppercase tracking-[.14em] text-[#c1cad7] hover:text-[#c9a34e]"
           >
-            {t("backToSite")}
+            {"Back to site"}
           </Link>
         </div>
       </header>

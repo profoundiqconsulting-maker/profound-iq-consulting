@@ -25,11 +25,6 @@ import {
   qaFixtureStorageValue,
 } from "@shared/qaFixture";
 import { useTheme } from "@/contexts/ThemeContext";
-import {
-  LocaleCode,
-  SUPPORTED_LOCALES,
-  useLocale,
-} from "@/contexts/LocaleContext";
 import DashboardLayout from "@/components/DashboardLayout";
 import { DashboardHero, Section } from "@/components/dashboard";
 import { Button } from "@/components/ui/button";
@@ -78,7 +73,6 @@ const learningGoalOptions = [
 export default function Settings() {
   const { user, loading: authLoading } = useAuth();
   const { theme, setTheme } = useTheme();
-  const { locale, setLocale, t } = useLocale();
   const profile = trpc.profile.get.useQuery(undefined, {
     enabled: Boolean(user),
     retry: false,
@@ -296,13 +290,6 @@ export default function Settings() {
       { onSuccess: () => setSaved(true) }
     );
   };
-  const handleLocaleChange = (nextLocale: LocaleCode) => {
-    if (nextLocale === locale) return;
-    setLocale(nextLocale);
-    toast.success(t("languageUpdated"), {
-      description: t("languageUpdatedDescription"),
-    });
-  };
 
   const confirmPendingRevoke = () => {
     if (!pendingRevoke) return;
@@ -503,19 +490,19 @@ export default function Settings() {
                 <Globe2 size={17} className="mt-0.5 text-[#7d5e1e]" />
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
-                    {t("connectedAccount")}
+                    {"Connected account"}
                   </p>
                   <p className="mt-2 text-sm font-semibold text-[#16243d]">
                     {user.loginMethod === "google"
-                      ? t("googleAccountConnected")
+                      ? "Google account connected"
                       : user.loginMethod
-                        ? `${user.loginMethod} ${t("providerAccountConnected")}`
-                        : t("emailPasswordAccount")}
+                        ? `${user.loginMethod} ${"account connected"}`
+                        : "Email and password account"}
                   </p>
                   <p className="mt-1 text-xs leading-5 text-[#16243d]">
                     {user.loginMethod === "google"
-                      ? t("googleAccountDescription")
-                      : t("currentSignInMethodDescription")}
+                      ? "Your Google profile email and picture are used for secure sign-in. You can hide the picture below without disconnecting the account."
+                      : "Your current sign-in method is shown here for account clarity."}
                   </p>
                 </div>
               </div>
@@ -535,26 +522,6 @@ export default function Settings() {
                     ))}
                   </SelectContent>
                 </Select>
-              </label>
-            </div>
-            <div className="mt-6">
-              <label className="block text-xs font-black uppercase tracking-[.14em] text-[#16243d]">
-                {t("preferredLanguage")}
-                <Select value={locale} onValueChange={handleLocaleChange}>
-                  <SelectTrigger className="mt-2">
-                    <SelectValue placeholder="Select language" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SUPPORTED_LOCALES.map(option => (
-                      <SelectItem key={option.code} value={option.code}>
-                        {option.nativeLabel} · {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <span className="mt-2 block text-xs font-normal normal-case tracking-normal text-[#16243d]">
-                  {t("preferredLanguageDescription")}
-                </span>
               </label>
             </div>
           </Section>
@@ -725,7 +692,7 @@ export default function Settings() {
                 </>
               ) : (
                 <>
-                  <Save size={15} /> {t("savePreferences")}
+                  <Save size={15} /> {"Save preferences"}
                 </>
               )}
             </Button>
@@ -748,14 +715,14 @@ export default function Settings() {
           title={
             courseState.data?.length
               ? `${courseState.data.length} active course${courseState.data.length === 1 ? "" : "s"}`
-              : t("noEnrollments")
+              : "No course enrollments yet."
           }
-          description={t("paymentHistoryDescription")}
+          description={"Review your active courses and the staged payments attached to each enrollment."}
         >
           {courseState.isLoading ? (
             <div className="flex items-center gap-3 text-sm text-[#16243d]">
               <Loader2 size={16} className="animate-spin text-[#7d5e1e]" />{" "}
-              {t("enrollmentStatus")}…
+              {"Course enrollment status"}…
             </div>
           ) : (
             <div className="mt-6 space-y-5">
@@ -781,7 +748,7 @@ export default function Settings() {
                       <span
                         className={`inline-flex w-fit items-center gap-2 border px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] ${paid > 0 ? "border-emerald-800/30 text-emerald-800" : "border-[#7d5e1e]/40 text-[#7d5e1e]"}`}
                       >
-                        {paid > 0 ? t("paymentPaid") : t("paymentPending")}
+                        {paid > 0 ? "Paid" : "Payment pending"}
                       </span>
                     </div>
                     <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -791,7 +758,7 @@ export default function Settings() {
                           className="flex items-center justify-between border-t border-[#16243d]/10 pt-2 text-xs"
                         >
                           <span className="text-[#16243d]">
-                            {t("paymentStage")} {stage.stage} · KES{" "}
+                            {"Stage"} {stage.stage} · KES{" "}
                             {stage.amountKes.toLocaleString()}
                           </span>
                           <span
@@ -802,8 +769,8 @@ export default function Settings() {
                             }
                           >
                             {stage.paymentStatus === "paid"
-                              ? `${t("paymentPaid")} · ${stage.paidAt ? new Date(stage.paidAt).toLocaleDateString() : ""}`
-                              : t("paymentPending")}
+                              ? `${"Paid"} · ${stage.paidAt ? new Date(stage.paidAt).toLocaleDateString() : ""}`
+                              : "Payment pending"}
                           </span>
                         </div>
                       ))}

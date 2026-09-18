@@ -9,14 +9,14 @@ import {
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useLocale } from "@/contexts/LocaleContext";
+
 import { DashboardHero, Section, StatCard } from "@/components/dashboard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import type { CareerPathReport } from "@shared/careerPath";
 
 export default function DashboardCareerPath() {
-  const { t } = useLocale();
+  
   const history = trpc.careerPath.history.useQuery(undefined, { enabled: true });
   const downloadReport = trpc.careerPath.downloadReport.useMutation({
     onError: error => toast.error("Could not download report", { description: error.message }),
@@ -28,7 +28,7 @@ export default function DashboardCareerPath() {
       total: reports.length,
       latest: reports[0]?.createdAt
         ? new Date(reports[0].createdAt).toLocaleDateString()
-        : "—",
+        : "ï¿½",
     };
   }, [history.data]);
 

@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { MessageCircle, Minus, Plus, Send, X } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
-import { useLocale } from "@/contexts/LocaleContext";
+
 
 const phoneNumber = "254727374055";
 const quickReplies = [
@@ -49,7 +49,7 @@ export function WhatsAppSupportWidget() {
   const [message, setMessage] = useState("");
   const [verification, setVerification] = useState(makeVerification);
   const [bounceAttention, setBounceAttention] = useState(false);
-  const { t } = useLocale();
+  
   const submitInquiry = trpc.inquiry.create.useMutation({
     onSuccess: () => {
       toast.success("Thanks — we’ll follow up by email.");
@@ -118,8 +118,8 @@ export function WhatsAppSupportWidget() {
       <button
         type="button"
         onClick={() => setMinimizedState(false)}
-        aria-label={t("whatsappSupport")}
-        title={t("whatsappSupport")}
+        aria-label={"WhatsApp support"}
+        title={"WhatsApp support"}
         className="fixed bottom-4 right-4 z-40 inline-flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#f7f3e8] bg-[#25D366] text-[#062411] shadow-[0_10px_24px_rgba(0,0,0,.25)] transition-all duration-200 hover:-translate-y-1 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101d35] active:scale-95 sm:bottom-6 sm:right-6"
       >
         <MessageCircle size={22} />
@@ -156,7 +156,7 @@ export function WhatsAppSupportWidget() {
             <button
               type="button"
               onClick={() => setFallbackOpen(false)}
-              aria-label={t("close")}
+              aria-label={"Close"}
               className="rounded-full p-1 text-[#b6c1d2] hover:bg-white/10 hover:text-white"
             >
               <X size={15} />
@@ -167,7 +167,7 @@ export function WhatsAppSupportWidget() {
               className="block text-[10px] font-bold uppercase tracking-[.12em] text-[#b6c1d2]"
               htmlFor="whatsapp-email"
             >
-              {t("emailAddress")}
+              {"Email address"}
             </label>
             <input
               id="whatsapp-email"
@@ -216,7 +216,7 @@ export function WhatsAppSupportWidget() {
               disabled={submitInquiry.isPending}
               className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#d7b45a] px-3 py-2.5 text-xs font-black uppercase tracking-[.12em] text-[#101d35] transition hover:bg-[#efcf7a] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {submitInquiry.isPending ? "Sending…" : t("talkToUs")}
+              {submitInquiry.isPending ? "Sending…" : "Talk to us"}
               <Send size={14} />
             </button>
           </form>
@@ -251,8 +251,8 @@ export function WhatsAppSupportWidget() {
         <button
           type="button"
           onClick={() => setMinimizedState(true)}
-          aria-label={t("close")}
-          title={t("close")}
+          aria-label={"Close"}
+          title={"Close"}
           className="absolute -right-1 -top-1 inline-flex h-6 w-6 items-center justify-center rounded-full border border-[#f7f3e8] bg-[#101d35] text-[#f7f3e8] shadow-sm transition-colors hover:bg-[#243653] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366]"
         >
           <Minus size={13} />

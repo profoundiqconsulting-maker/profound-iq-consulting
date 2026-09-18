@@ -5,12 +5,13 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { passwordStrength } from "../../../shared/localAuth";
-import { useLocale } from "@/contexts/LocaleContext";
+
 import { getAuthCopy } from "../../../shared/authLocalization";
 
 export default function ResetPassword() {
   const [, navigate] = useLocation();
-  const { locale, t } = useLocale();
+  const locale = "en";
+
   const authCopy = getAuthCopy(locale);
   const [password, setPassword] = useState("");
   const token = new URLSearchParams(window.location.search).get("token") ?? "";

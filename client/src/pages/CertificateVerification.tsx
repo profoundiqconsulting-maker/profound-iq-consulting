@@ -15,7 +15,7 @@ import {
 import { Link } from "wouter";
 import { TransformationNav } from "@/components/TransformationNav";
 import { trpc } from "@/lib/trpc";
-import { useLocale } from "@/contexts/LocaleContext";
+
 import { toast } from "sonner";
 import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 
@@ -353,7 +353,7 @@ export default function CertificateVerification() {
     [certificateNumber]
   );
   const [copied, setCopied] = useState(false);
-  const { locale } = useLocale();
+  const locale = "en";
   const actions = actionCopy[locale] ?? actionCopy.en;
   const nativeShareSupported =
     typeof navigator !== "undefined" && "share" in navigator;

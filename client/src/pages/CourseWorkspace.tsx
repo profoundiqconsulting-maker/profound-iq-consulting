@@ -50,7 +50,7 @@ import { buildCourseModuleBadges } from "@shared/courseBadges";
 import { ModuleCompletionBadge } from "@/components/ModuleCompletionBadge";
 import { AdminCourseQAChecklist } from "@/components/AdminCourseQAChecklist";
 import { CourseShareActions } from "@/components/CourseShareActions";
-import { useLocale } from "@/contexts/LocaleContext";
+
 import {
   getLessonInteractiveCopy,
   getLessonIllustrationCopy,
@@ -283,7 +283,7 @@ const readProgress = (course: CourseDefinition): SavedProgress => {
 export default function CourseWorkspace() {
   const utils = trpc.useUtils();
   const [, params] = useRoute("/courses/:slug");
-  const { locale } = useLocale();
+  const locale = "en";
   const baseCourse = courseCatalog.find(item => item.slug === params?.slug);
   const course = useMemo(
     () =>
@@ -307,7 +307,7 @@ export default function CourseWorkspace() {
 
 function CourseWorkspaceContent({ course }: { course: CourseDefinition }) {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
-  const { t } = useLocale();
+  
   const courseState = trpc.course.state.useQuery(
     { courseSlug: course.slug },
     { enabled: isAuthenticated }
@@ -384,7 +384,8 @@ function CourseWorkspaceContent({ course }: { course: CourseDefinition }) {
 function FirstStageCheckout({ course }: { course: CourseDefinition }) {
   const utils = trpc.useUtils();
   const { user } = useAuth();
-  const { t, locale } = useLocale();
+  const locale = "en";
+
   const enrollmentCopy = getCourseEnrollmentCopy(locale);
   const [name, setName] = useState(user?.name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
@@ -571,7 +572,8 @@ function CourseAccessGate({
   isAuthenticated: boolean;
   paidStages: number;
 }) {
-  const { t, locale } = useLocale();
+  const locale = "en";
+
   const authCopy = getAuthCopy(locale);
   return (
     <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
@@ -582,7 +584,7 @@ function CourseAccessGate({
             href="/courses"
             className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#5d4613]"
           >
-            <ArrowLeft size={14} /> {t("courses")}
+            <ArrowLeft size={14} /> {"Courses"}
           </Link>
           <p className="eyebrow mt-10 text-[#5d4613]">
             Course highlights · {course.duration}
@@ -644,7 +646,7 @@ function CourseAccessGate({
                   href={`/auth?mode=login&returnTo=${encodeURIComponent(`/courses/${course.slug}?workspace=1`)}`}
                   className="inline-flex items-center gap-2 bg-[#c9a34e] px-5 py-4 text-[10px] font-black uppercase tracking-[.15em] text-[#16243d]"
                 >
-                  {t("signInToContinue")} <ArrowRight size={14} />
+                  {"Sign in to continue"} <ArrowRight size={14} />
                 </Link>
                 <Link
                   href={`/auth?mode=register&returnTo=${encodeURIComponent(`/courses/${course.slug}?workspace=1`)}`}
@@ -660,14 +662,14 @@ function CourseAccessGate({
                   href="/dashboard"
                   className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#c1cad7] underline underline-offset-4 hover:text-[#f7f3e8]"
                 >
-                  {t("myWorkspace")} <ArrowUpRight size={14} />
+                  {"My workspace"} <ArrowUpRight size={14} />
                 </Link>
               )}
               <Link
                 href="/courses"
                 className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#c1cad7] underline underline-offset-4 hover:text-[#f7f3e8]"
               >
-                {t("courses")} <ArrowUpRight size={14} />
+                {"Courses"} <ArrowUpRight size={14} />
               </Link>
             </div>
           </div>
@@ -686,7 +688,8 @@ function CourseWorkspaceUnlocked({
   qualityControl?: boolean;
   accessOverride?: boolean;
 }) {
-  const { t, locale } = useLocale();
+  const locale = "en";
+
   const enrollmentCopy = getCourseEnrollmentCopy(locale);
   const assessmentCopy = getAssessmentCopy(locale);
   const lessonCopy = getLessonInteractiveCopy(locale);
@@ -1820,10 +1823,10 @@ function CourseWorkspaceUnlocked({
               href="/#courses"
               className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#5d4613]"
             >
-              <ArrowLeft size={14} /> {t("courses")}
+              <ArrowLeft size={14} /> {"Courses"}
             </Link>
             <p className="eyebrow mt-10 text-[#5d4613]">
-              {t("myWorkspace")} · {course.duration}
+              {"My workspace"} · {course.duration}
             </p>
             <h1 className="display mt-4 max-w-3xl text-5xl leading-[.95] tracking-[-.045em] sm:text-7xl">
               {course.title}

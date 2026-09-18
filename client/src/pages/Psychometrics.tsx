@@ -18,7 +18,7 @@ import { LikertScale } from "@/components/LikertScale";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { getPsychometricCourseRecommendations } from "@shared/psychometricRecommendations";
-import { useLocale } from "@/contexts/LocaleContext";
+
 import { getPsychometricWorkflowCopy } from "@shared/psychometricWorkflowLocalization";
 import PaystackInlineModal, {
   type PaystackInlineProduct,
@@ -32,7 +32,8 @@ export default function Psychometrics() {
   const utils = trpc.useUtils();
   const [, params] = useRoute("/psychometrics/:slug");
   const [, navigate] = useLocation();
-  const { t, locale } = useLocale();
+  const locale = "en";
+
   const workflowCopy = getPsychometricWorkflowCopy(locale);
   const slug = params?.slug;
   const catalog = trpc.psychometric.catalog.useQuery(undefined, {
@@ -453,7 +454,7 @@ export default function Psychometrics() {
                   href="/dashboard"
                   className="inline-flex items-center border border-[#16243d]/25 px-4 py-2 text-sm font-semibold text-[#16243d]"
                 >
-                  {t("myWorkspace")}
+                  {"My workspace"}
                 </Link>
               </div>
               <section className="mt-8 border-t border-[#16243d]/10 pt-7">

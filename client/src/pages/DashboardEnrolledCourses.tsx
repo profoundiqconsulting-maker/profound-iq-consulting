@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import { toast } from "sonner";
-import { useLocale } from "@/contexts/LocaleContext";
+
 import {
   DashboardHero,
   Section,
@@ -165,7 +165,7 @@ function getStatusConfig(status: CourseStatus) {
 }
 
 export default function DashboardEnrolledCourses() {
-  const { t } = useLocale();
+  
   const courseHistory = trpc.course.state.useQuery(undefined, {
     enabled: true,
   });

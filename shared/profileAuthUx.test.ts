@@ -19,16 +19,9 @@ describe("profile and auth UX contracts", () => {
     expect(authSource).toContain("PUBLISHED_SITE_ORIGIN");
   });
 
-  it("exposes connected account and preferred language controls in settings", () => {
+  it("exposes connected account controls in settings", () => {
     expect(settingsSource).toContain('user.loginMethod === "google"');
-    expect(settingsSource).toContain('t("connectedAccount")');
-    expect(settingsSource).toContain("SUPPORTED_LOCALES.map");
-    expect(settingsSource).toContain(
-      "const handleLocaleChange = (nextLocale: LocaleCode) =>"
-    );
-    expect(settingsSource).toContain('toast.success(t("languageUpdated")');
     expect(settingsSource).toContain("trpc.course.state.useQuery");
-    expect(settingsSource).toContain("paymentHistoryDescription");
-    expect(settingsSource).toContain("preferredLanguageDescription");
+    expect(settingsSource).toContain("Review your active courses");
   });
 });

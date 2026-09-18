@@ -22,7 +22,7 @@ import { Link } from "wouter";
 import { toast } from "sonner";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { useLocale } from "@/contexts/LocaleContext";
+
 import {
   downloadIllustrationStudySheet,
   downloadIllustrationStudySheetPng,
@@ -330,7 +330,8 @@ const updateLabel = "Save";
 
 export default function MyIllustrations() {
   const { user, loading, isAuthenticated } = useAuth();
-  const { locale, t } = useLocale();
+  const locale = "en";
+
   const [query, setQuery] = useState("");
   const [folderQuery, setFolderQuery] = useState("");
   const [modeFilter, setModeFilter] = useState<"all" | IllustrationMode>("all");
@@ -449,6 +450,7 @@ export default function MyIllustrations() {
   const cards = useMemo<GalleryCard[]>(
     () =>
       (bookmarksQuery.data?.rows ?? []).map(bookmark => {
+        const locale = "en";
         const baseCourse = courseCatalog.find(
           course => course.slug === bookmark.courseSlug
         );
@@ -480,7 +482,7 @@ export default function MyIllustrations() {
           updatedAt: bookmark.updatedAt,
         };
       }),
-    [bookmarksQuery.data?.rows, locale]
+    [bookmarksQuery.data?.rows]
   );
   const allFolders = bookmarksQuery.data?.folders ?? [];
   const folders = useMemo(
@@ -597,7 +599,7 @@ export default function MyIllustrations() {
       <DashboardHero
         eyebrow="Growth"
         title="My Illustrations"
-        description={t("myIllustrationsDescription")}
+        description={"Your saved visual study cards from every course."}
         stats={[
           { label: "Saved cards", value: bookmarksQuery.data?.total ?? 0 },
           { label: "Folders", value: allFolders.length },
@@ -835,7 +837,7 @@ export default function MyIllustrations() {
       ) : cards.length === 0 ? (
         <Section
           eyebrow="Library"
-          title={t("noIllustrations")}
+          title={"No illustrations saved yet."}
           description="Open a course lesson, choose an illustration that helps you learn, and select Save to build this collection."
         >
           <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
@@ -847,7 +849,7 @@ export default function MyIllustrations() {
             </p>
             <Link href="/courses">
               <Button className="bg-[#16243d] text-[#f7f3e8] hover:bg-[#0f1a2e] transition-colors">
-                {t("courses")} <ArrowUpRight size={14} />
+                {"Courses"} <ArrowUpRight size={14} />
               </Button>
             </Link>
           </div>
@@ -985,7 +987,7 @@ export default function MyIllustrations() {
                 onClick={() => setZoomed(null)}
                 className="border-white/20 text-[#f7f3e8] hover:bg-white/10"
               >
-                <X size={14} /> {t("close")}
+                <X size={14} /> {"Close"}
               </Button>
             </div>
             {zoomed.visualUrl && (

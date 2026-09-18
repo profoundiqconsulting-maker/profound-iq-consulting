@@ -34,10 +34,6 @@ const adminDashboardSource = readFileSync(
   resolve(process.cwd(), "client/src/pages/AdminDashboard.tsx"),
   "utf8"
 );
-const localeSource = readFileSync(
-  resolve(process.cwd(), "client/src/contexts/LocaleContext.tsx"),
-  "utf8"
-);
 
 describe("course enrollment access flow", () => {
   it("offers separate sign-in and registration paths that preserve the course route", () => {
@@ -130,16 +126,5 @@ describe("course enrollment access flow", () => {
 
   it("links dashboard users to payment history", () => {
     expect(dashboardSource).toContain("/settings#payment-history");
-  });
-
-  it("provides payment and enrollment translations for every supported locale", () => {
-    for (const key of [
-      "enrollmentStatus",
-      "paymentPending",
-      "paymentPaid",
-      "paymentStage",
-      "paymentHistoryShortcut",
-    ])
-      expect(localeSource).toContain(`${key}:`);
   });
 });

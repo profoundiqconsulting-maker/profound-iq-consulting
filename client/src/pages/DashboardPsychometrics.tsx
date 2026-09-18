@@ -9,13 +9,13 @@ import {
   Share2,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useLocale } from "@/contexts/LocaleContext";
+
 import { DashboardHero, Section, StatCard } from "@/components/dashboard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 export default function DashboardPsychometrics() {
-  const { t } = useLocale();
+  
   const history = trpc.psychometric.history.useQuery(undefined, { enabled: true });
   const downloadReport = trpc.psychometric.downloadReport.useMutation({
     onError: error => toast.error("Could not download report", { description: error.message }),

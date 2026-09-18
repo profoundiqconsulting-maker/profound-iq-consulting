@@ -4,7 +4,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { trpc } from "@/lib/trpc";
 import { courseCatalog } from "@shared/courseCatalog";
 import { localizeCourseMetadata } from "@shared/courseMetadataLocalization";
-import { useLocale } from "@/contexts/LocaleContext";
+
 import {
   ArrowLeft,
   ChevronLeft,
@@ -182,7 +182,7 @@ const copy: Record<
 
 export default function SavedPathwaysPrint() {
   const { user, loading } = useAuth();
-  const { locale } = useLocale();
+  const locale = "en";
   const saved = trpc.course.savedCourses.useQuery(undefined, {
     enabled: Boolean(user),
     retry: false,

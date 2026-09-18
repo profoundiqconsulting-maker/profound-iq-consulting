@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { isInquiryOverdue, sortAssignedInquiries } from "@shared/staffOps";
-import { useLocale } from "@/contexts/LocaleContext";
+
 import { DashboardPagination } from "@/components/DashboardPagination";
 import { courseCatalog } from "@shared/courseCatalog";
 import {
@@ -42,7 +42,7 @@ type SortMode = "priority" | "dueDate" | "newest";
 type StaffTab = "inquiries" | "review";
 
 export default function StaffDashboard() {
-  const { t } = useLocale();
+  
   const [tab, setTab] = useState<StaffTab>("inquiries");
 
   return (
@@ -92,7 +92,7 @@ export default function StaffDashboard() {
 }
 
 function InquiryDesk() {
-  const { t } = useLocale();
+  
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<Status>("all");
   const [sortMode, setSortMode] = useState<SortMode>("priority");
@@ -139,7 +139,7 @@ function InquiryDesk() {
   return (
     <DashboardSection className="mt-8">
       <DashboardSectionHeader
-        eyebrow={t("myWorkspace")}
+        eyebrow={"My workspace"}
         title="Assigned inquiries"
         description="Review inquiries assigned to you, keep internal context current, and move each conversation forward."
       />

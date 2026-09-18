@@ -17,7 +17,7 @@ import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { BrandLogo } from "@/components/BrandLogo";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useLocale } from "@/contexts/LocaleContext";
+
 
 const serviceLabels = {
   assessment: "Self Assessment",
@@ -90,15 +90,15 @@ export function TransformationNav({
   );
   const { user, isAuthenticated, loading } = useAuth();
   const { theme, setTheme, switchable } = useTheme();
-  const { t } = useLocale();
+  
   const activeLabel =
     active === "assessment"
-      ? t("selfAssessment")
+      ? "Self Assessment"
       : active === "careerpath"
-        ? t("careerPath")
+        ? "CareerPath"
         : active === "courses"
           ? "Courses"
-          : t("psychometrics");
+          : "Psychometrics";
   const closeMenus = () => {
     setMenuOpen(false);
     setProfileOpen(false);
@@ -289,7 +289,7 @@ export function TransformationNav({
                 : "text-[#c1cad7] hover:text-[#c9a34e]"
             }
           >
-            {t("selfAssessment")}
+            {"Self Assessment"}
           </a>
           <a
             href="/careerpath"
@@ -300,7 +300,7 @@ export function TransformationNav({
                 : "text-[#c1cad7] hover:text-[#c9a34e]"
             }
           >
-            {t("careerPath")}
+            {"CareerPath"}
           </a>
           <a
             href="/psychometrics"
@@ -311,13 +311,13 @@ export function TransformationNav({
                 : "text-[#c1cad7] hover:text-[#c9a34e]"
             }
           >
-            {t("psychometrics")}
+            {"Psychometrics"}
           </a>
           <Link href="/dashboard" className="text-[#c1cad7] hover:text-[#c9a34e]">
             My Space
           </Link>
           <a href="/#contact" className="text-[#c1cad7] hover:text-[#c9a34e]">
-            {t("contact")}
+            {"Contact"}
           </a>
         </nav>
         <div className="hidden items-center gap-2 md:flex">
@@ -581,7 +581,7 @@ export function TransformationNav({
                 active === "assessment" ? "text-[#c9a34e]" : "text-[#c1cad7]"
               }
             >
-              {t("selfAssessment")}
+              {"Self Assessment"}
             </a>
             <a
               href="/careerpath"
@@ -590,7 +590,7 @@ export function TransformationNav({
                 active === "careerpath" ? "text-[#c9a34e]" : "text-[#c1cad7]"
               }
             >
-              {t("careerPath")}
+              {"CareerPath"}
             </a>
             <a
               href="/psychometrics"
@@ -601,13 +601,13 @@ export function TransformationNav({
                   : "text-[#c1cad7]"
               }
             >
-              {t("psychometrics")}
+              {"Psychometrics"}
             </a>
             <Link href="/dashboard" onClick={closeMenus} className="text-[#c9a34e]">
               My Space
             </Link>
             <a href="/#contact" onClick={closeMenus} className="text-[#c1cad7]">
-              {t("contact")}
+              {"Contact"}
             </a>
             {!loading &&
               (isAuthenticated ? (

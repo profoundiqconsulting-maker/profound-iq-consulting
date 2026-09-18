@@ -3,11 +3,11 @@ import { Link } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
 import { DashboardHero, Section, StatCard } from "@/components/dashboard";
 import { courseCatalog } from "@shared/courseCatalog";
-import { useLocale } from "@/contexts/LocaleContext";
+
 import { BookOpen, ChevronRight, Clock3, PlayCircle } from "lucide-react";
 
 export default function DashboardMyWorkspaces() {
-  const { t, locale } = useLocale();
+  const locale = "en";
   const courses = useMemo(() => courseCatalog, []);
 
   return (

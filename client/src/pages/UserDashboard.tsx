@@ -91,7 +91,7 @@ import { CoachingVisualPreview } from "@/components/CoachingVisualPreview";
 import { summarizeCourseEnrollment } from "@shared/coursePaymentRollup";
 import { buildCourseModuleBadges } from "@shared/courseBadges";
 import { ModuleCompletionBadge } from "@/components/ModuleCompletionBadge";
-import { useLocale } from "@/contexts/LocaleContext";
+
 import type {
   PaymentHistoryFilters,
   PaymentHistoryPage,
@@ -133,90 +133,9 @@ type CourseDeliveryRecord = {
 
 export default function UserDashboard() {
   const { user, loading: authLoading, logout } = useAuth();
-  const { t, locale } = useLocale();
-  const pdfLayoutCopy = (
-    {
-      en: {
-        summary: "Summary",
-        detailed: "Detailed",
-        zoomOut: "Zoom out",
-        zoomIn: "Zoom in",
-        resetZoom: "Reset zoom",
-      },
-      sw: {
-        summary: "Muhtasari",
-        detailed: "Kwa kina",
-        zoomOut: "Punguza",
-        zoomIn: "Kuza",
-        resetZoom: "Weka upya",
-      },
-      fr: {
-        summary: "Résumé",
-        detailed: "Détaillé",
-        zoomOut: "Réduire",
-        zoomIn: "Agrandir",
-        resetZoom: "Réinitialiser",
-      },
-      es: {
-        summary: "Resumen",
-        detailed: "Detallado",
-        zoomOut: "Alejar",
-        zoomIn: "Acercar",
-        resetZoom: "Restablecer",
-      },
-      pt: {
-        summary: "Resumo",
-        detailed: "Detalhado",
-        zoomOut: "Reduzir",
-        zoomIn: "Ampliar",
-        resetZoom: "Repor",
-      },
-      ar: {
-        summary: "ملخص",
-        detailed: "مفصل",
-        zoomOut: "تصغير",
-        zoomIn: "تكبير",
-        resetZoom: "إعادة الضبط",
-      },
-      zh: {
-        summary: "摘要",
-        detailed: "详细",
-        zoomOut: "缩小",
-        zoomIn: "放大",
-        resetZoom: "重置",
-      },
-      hi: {
-        summary: "सारांश",
-        detailed: "विस्तृत",
-        zoomOut: "ज़ूम आउट",
-        zoomIn: "ज़ूम इन",
-        resetZoom: "रीसेट",
-      },
-      de: {
-        summary: "Zusammenfassung",
-        detailed: "Detailliert",
-        zoomOut: "Verkleinern",
-        zoomIn: "Vergrößern",
-        resetZoom: "Zurücksetzen",
-      },
-      ja: {
-        summary: "概要",
-        detailed: "詳細",
-        zoomOut: "縮小",
-        zoomIn: "拡大",
-        resetZoom: "リセット",
-      },
-    } as Record<
-      string,
-      {
-        summary: string;
-        detailed: string;
-        zoomOut: string;
-        zoomIn: string;
-        resetZoom: string;
-      }
-    >
-  )[locale] ?? {
+  const locale = "en";
+
+  const pdfLayoutCopy = {
     summary: "Summary",
     detailed: "Detailed",
     zoomOut: "Zoom out",
@@ -1442,7 +1361,6 @@ export default function UserDashboard() {
                   exportSavedPathways.mutate({
                     layout: savedPathwaysLayout,
                     pageSize: savedPathwaysPageSize,
-                    locale,
                     watermark: savedPathwaysWatermark,
                     coverPage: savedPathwaysCoverPage,
                     coverTemplate: savedPathwaysCoverTemplate,
@@ -1706,7 +1624,7 @@ export default function UserDashboard() {
                 : "border-[#16243d]/20 hover:border-[#c9a34e] hover:bg-[#c9a34e]/5"
             }`}
           >
-            {t("overview")}
+            {"Overview"}
           </button>
           <button
             type="button"
@@ -1722,7 +1640,7 @@ export default function UserDashboard() {
                 : "border-[#16243d]/20 hover:border-[#c9a34e] hover:bg-[#c9a34e]/5"
             }`}
           >
-            {t("paymentHistoryShortcut")}
+            {"Payment history"}
           </button>
         </div>
         {activeTab === "payments" && (
@@ -4611,10 +4529,10 @@ export default function UserDashboard() {
         <Link
           href="/settings#payment-history"
           className="inline-flex items-center gap-2 border border-[#16243d]/20 bg-[#f7f3e8] px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] shadow-lg transition hover:-translate-y-0.5 hover:border-[#c9a34e]"
-          title={t("paymentHistoryShortcutDescription")}
+          title={"View enrollments and staged payments"}
         >
           <CreditCard size={14} className="text-[#7d5e1e]" />{" "}
-          {t("paymentHistoryShortcut")}
+          {"Payment history"}
         </Link>
         <div
           className={`max-w-xs border border-[#c9a34e] bg-[#fffaf0] p-3 text-xs leading-5 text-[#16243d] shadow-lg transition ${showAssessmentHint ? "opacity-100" : "pointer-events-none translate-y-2 opacity-0"}`}
@@ -4673,7 +4591,7 @@ function PaymentHistoryTab({
   onClearFilters,
   onPageChange,
 }: PaymentHistoryTabProps) {
-  const { locale, t } = useLocale();
+  
   const courseOptions = useMemo(
     () => courseCatalog.map(course => course.slug).sort(),
     []
@@ -4684,7 +4602,7 @@ function PaymentHistoryTab({
     const course = courseCatalog.find(item => item.slug === slug);
     return course
       ? localizeCourseMetadata(
-          locale,
+          "en",
           course.slug,
           course.title,
           course.description
@@ -4693,33 +4611,33 @@ function PaymentHistoryTab({
   };
   const statusLabel = (status: string) =>
     status === "paid"
-      ? t("paymentPaid")
+      ? "Paid"
       : status === "pending"
-        ? t("paymentPending")
+        ? "Payment pending"
         : status.charAt(0).toUpperCase() + status.slice(1);
   const dateLabel = (date?: Date | string | null) =>
     date
-      ? new Date(date).toLocaleDateString(locale, {
+      ? new Date(date).toLocaleDateString("en", {
           year: "numeric",
           month: "short",
           day: "numeric",
         })
-      : t("notAvailable");
+      : "Not available";
 
   return (
     <section
       role="tabpanel"
-      aria-label={t("paymentHistoryShortcut")}
+      aria-label={"Payment history"}
       className="mb-10 border border-[#c9a34e]/60 bg-[#fffaf0] p-5 sm:p-7"
     >
       <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 lg:flex-row lg:items-start">
         <div>
           <p className="eyebrow text-accent dark:text-accent-on-dark">
-            {t("paymentHistoryShortcut")}
+            {"Payment history"}
           </p>
-          <h2 className="display mt-2 text-3xl">{t("enrollmentStatus")}</h2>
+          <h2 className="display mt-2 text-3xl">{"Course enrollment status"}</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
-            {t("paymentHistoryDescription")}
+            {"Review your active courses and the staged payments attached to each enrollment."}
           </p>
         </div>
         <Link
@@ -4727,18 +4645,18 @@ function PaymentHistoryTab({
           className="inline-flex h-fit items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] hover:border-[#c9a34e]"
         >
           <CreditCard size={14} className="text-[#7d5e1e]" />{" "}
-          {t("paymentHistoryShortcut")}
+          {"Payment history"}
         </Link>
       </div>
       {!hasEnrollments && !isLoading && !isError ? (
         <p className="mt-6 border border-dashed border-[#16243d]/20 bg-white/60 p-5 text-sm text-[#16243d]">
-          {t("noEnrollments")}
+          {"No course enrollments yet."}
         </p>
       ) : (
         <>
           <div className="mt-6 grid gap-3 border border-[#16243d]/10 bg-white/55 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
             <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
-              {t("filterByCourse")}
+              {"Filter by course"}
               <select
                 value={filters.courseSlug}
                 onChange={event =>
@@ -4746,7 +4664,7 @@ function PaymentHistoryTab({
                 }
                 className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2.5 text-xs font-normal normal-case tracking-normal text-[#16243d]"
               >
-                <option value="all">{t("allCourses")}</option>
+                <option value="all">{"All courses"}</option>
                 {courseOptions.map(slug => (
                   <option key={slug} value={slug}>
                     {courseLabel(slug)}
@@ -4755,34 +4673,34 @@ function PaymentHistoryTab({
               </select>
             </label>
             <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
-              {t("filterByStage")}
+              {"Filter by stage"}
               <select
                 value={filters.stage}
                 onChange={event => onFilterChange("stage", event.target.value)}
                 className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2.5 text-xs font-normal normal-case tracking-normal text-[#16243d]"
               >
-                <option value="all">{t("allStages")}</option>
+                <option value="all">{"All stages"}</option>
                 {[1, 2, 3, 4].map(stage => (
                   <option key={stage} value={String(stage)}>
-                    {t("paymentStage")} {stage}
+                    {"Stage"} {stage}
                   </option>
                 ))}
               </select>
             </label>
             <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
-              {t("filterByStatus")}
+              {"Filter by status"}
               <select
                 value={filters.status}
                 onChange={event => onFilterChange("status", event.target.value)}
                 className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2.5 text-xs font-normal normal-case tracking-normal text-[#16243d]"
               >
-                <option value="all">{t("allStatuses")}</option>
-                <option value="paid">{t("paymentPaid")}</option>
-                <option value="pending">{t("paymentPending")}</option>
+                <option value="all">{"All statuses"}</option>
+                <option value="paid">{"Paid"}</option>
+                <option value="pending">{"Payment pending"}</option>
               </select>
             </label>
             <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
-              {t("fromDate")}
+              {"From date"}
               <input
                 type="date"
                 value={filters.from}
@@ -4791,7 +4709,7 @@ function PaymentHistoryTab({
               />
             </label>
             <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
-              {t("toDate")}
+              {"To date"}
               <input
                 type="date"
                 value={filters.to}
@@ -4800,7 +4718,7 @@ function PaymentHistoryTab({
               />
             </label>
             <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
-              {t("sortTransactions")}
+              {"Sort transactions"}
               <select
                 value={filters.sort}
                 onChange={event =>
@@ -4811,19 +4729,19 @@ function PaymentHistoryTab({
                 }
                 className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2.5 text-xs font-normal normal-case tracking-normal text-[#16243d]"
               >
-                <option value="date-desc">{t("newestFirst")}</option>
-                <option value="date-asc">{t("oldestFirst")}</option>
-                <option value="amount-desc">{t("amountHighToLow")}</option>
-                <option value="amount-asc">{t("amountLowToHigh")}</option>
-                <option value="course-asc">{t("courseAtoZ")}</option>
-                <option value="stage-asc">{t("stageOrder")}</option>
-                <option value="status">{t("statusOrder")}</option>
+                <option value="date-desc">{"Newest first"}</option>
+                <option value="date-asc">{"Oldest first"}</option>
+                <option value="amount-desc">{"Amount: high to low"}</option>
+                <option value="amount-asc">{"Amount: low to high"}</option>
+                <option value="course-asc">{"Course: A–Z"}</option>
+                <option value="stage-asc">{"Stage order"}</option>
+                <option value="status">{"Status"}</option>
               </select>
             </label>
           </div>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
             <p className="text-xs text-[#16243d]">
-              {t("showingTransactions")
+              {"Showing {count} of {total} transactions"
                 .replace("{count}", String(rows.length))
                 .replace("{total}", String(page?.total ?? 0))}
             </p>
@@ -4832,19 +4750,19 @@ function PaymentHistoryTab({
               onClick={onClearFilters}
               className="border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] hover:border-[#c9a34e]"
             >
-              {t("clearFilters")}
+              {"Clear filters"}
             </button>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             <div className="border-t-2 border-[#c9a34e] bg-white/65 p-4">
               <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
-                {t("filteredTransactions")}
+                {"Matching transactions"}
               </p>
               <p className="display mt-2 text-3xl">{page?.total ?? 0}</p>
             </div>
             <div className="border-t-2 border-emerald-700/60 bg-white/65 p-4">
               <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
-                {t("paidTotal")}
+                {"Paid total"}
               </p>
               <p className="display mt-2 text-3xl">
                 KES {(page?.paidTotal ?? 0).toLocaleString()}
@@ -4852,7 +4770,7 @@ function PaymentHistoryTab({
             </div>
             <div className="border-t-2 border-[#a27e2e]/50 bg-white/65 p-4">
               <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
-                {t("pendingTotal")}
+                {"Pending total"}
               </p>
               <p className="display mt-2 text-3xl">
                 KES {(page?.pendingTotal ?? 0).toLocaleString()}
@@ -4862,30 +4780,30 @@ function PaymentHistoryTab({
           {isLoading ? (
             <div className="mt-5 flex items-center gap-2 border border-dashed border-[#16243d]/20 bg-white/60 p-8 text-sm text-[#16243d]">
               <RefreshCw size={16} className="animate-spin text-[#7d5e1e]" />{" "}
-              {t("loadingPaymentHistory")}
+              {"Loading payment history…"}
             </div>
           ) : isError ? (
             <div
               role="alert"
               className="mt-5 border border-dashed border-red-700/30 bg-red-50 p-8 text-sm text-red-900"
             >
-              {t("paymentHistoryUnavailable")}
+              {"Payment history is temporarily unavailable. Please try again."}
             </div>
           ) : !rows.length ? (
             <div className="mt-5 border border-dashed border-[#16243d]/20 bg-white/60 p-8 text-center text-sm text-[#16243d]">
-              {t("noPaymentMatch")}
+              {"No payments match these filters."}
             </div>
           ) : (
             <div className="mt-5 overflow-x-auto border border-[#16243d]/10 bg-white/70">
               <table className="min-w-full text-left text-sm">
                 <thead className="border-b border-[#16243d]/10 bg-[#f7f3e8] text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
                   <tr>
-                    <th className="px-4 py-3">{t("course")}</th>
-                    <th className="px-4 py-3">{t("paymentStage")}</th>
-                    <th className="px-4 py-3">{t("amount")}</th>
-                    <th className="px-4 py-3">{t("status")}</th>
-                    <th className="px-4 py-3">{t("transactionDate")}</th>
-                    <th className="px-4 py-3">{t("reference")}</th>
+                    <th className="px-4 py-3">{"Course"}</th>
+                    <th className="px-4 py-3">{"Stage"}</th>
+                    <th className="px-4 py-3">{"Amount"}</th>
+                    <th className="px-4 py-3">{"Status"}</th>
+                    <th className="px-4 py-3">{"Transaction date"}</th>
+                    <th className="px-4 py-3">{"Reference"}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#16243d]/10">
@@ -4895,7 +4813,7 @@ function PaymentHistoryTab({
                         {courseLabel(row.courseSlug)}
                       </td>
                       <td className="px-4 py-4 text-[#16243d]">
-                        {t("paymentStage")} {row.stage}
+                        {"Stage"} {row.stage}
                       </td>
                       <td className="whitespace-nowrap px-4 py-4">
                         KES {row.amountKes.toLocaleString()}
@@ -4912,7 +4830,7 @@ function PaymentHistoryTab({
                         className="max-w-[12rem] truncate px-4 py-4 text-xs text-[#16243d]"
                         title={row.paystackReference ?? undefined}
                       >
-                        {row.paystackReference ?? t("notAvailable")}
+                        {row.paystackReference ?? "Not available"}
                       </td>
                     </tr>
                   ))}
@@ -4926,7 +4844,7 @@ function PaymentHistoryTab({
             totalItems={page?.total ?? 0}
             pageSize={page?.pageSize ?? (rows.length || 1)}
             onPageChange={onPageChange}
-            itemLabel={t("paymentHistoryShortcut")}
+            itemLabel={"Payment history"}
           />
         </>
       )}

@@ -1,7 +1,7 @@
 import { ChevronRight } from "lucide-react";
 import { Link } from "wouter";
 import { useLocation } from "wouter";
-import { useLocale } from "@/contexts/LocaleContext";
+
 import {
   dashboardNavGroups,
   visibleDashboardNavItems,
@@ -15,7 +15,7 @@ export function DashboardQuickNav({
   className?: string;
 }) {
   const [location] = useLocation();
-  const { t } = useLocale();
+  
   const items = visibleDashboardNavItems(role);
 
   return (
@@ -54,7 +54,7 @@ export function DashboardQuickNav({
                     >
                       <span className="inline-flex items-center gap-2">
                         <Icon size={14} aria-hidden="true" />
-                        {t(item.labelKey) || item.fallbackLabel}
+                        {item.fallbackLabel}
                       </span>
                       {active && <ChevronRight size={12} aria-hidden="true" />}
                     </Link>

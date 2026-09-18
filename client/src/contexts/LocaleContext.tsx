@@ -1,6 +1,8 @@
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useContext, useState } from "react";
 
-const english = {
+type TranslationKey = string;
+
+const english: Record<TranslationKey, string> = {
   language: "Language",
   selectLanguage: "Select language",
   paymentHistoryUnavailable:
@@ -175,32 +177,25 @@ const english = {
   transactionDate: "Transaction date",
   reference: "Reference",
   notAvailable: "Not available",
-} as const;
+};
 
-type TranslationKey = keyof typeof english;
+type LocaleContextValue = {
+  locale: string;
+  setLocale: (locale: string) => void;
+  t: (key: TranslationKey, values?: Record<string, unknown>) => string;
+};
 
-const LocaleContext = createContext<{
-  locale: "en";
-  setLocale: (locale: "en") => void;
-  t: (key: TranslationKey) => string;
-  localeInfo: { code: "en"; label: "English"; nativeLabel: "English"; dir: "ltr" };
-}>({
+const LocaleContext = createContext<LocaleContextValue>({
   locale: "en",
-  setLocale: () => undefined,
-  t: key => english[key],
-  localeInfo: { code: "en", label: "English", nativeLabel: "English", dir: "ltr" },
+  setLocale: () => {},
+  t: key => english[key] || key,
 });
 
-export function LocaleProvider({ children }: { children: ReactNode }) {
+export function LocaleProvider({ children }: { children: React.ReactNode }) {
+  const [locale, setLocale] = useState("en");
+  const t = (key: TranslationKey) => english[key] || key;
   return (
-    <LocaleContext.Provider
-      value={{
-        locale: "en" as const,
-        setLocale: () => undefined,
-        t: (key: TranslationKey) => english[key],
-        localeInfo: { code: "en", label: "English", nativeLabel: "English", dir: "ltr" },
-      }}
-    >
+    <LocaleContext.Provider value={{ locale, setLocale, t }}>
       {children}
     </LocaleContext.Provider>
   );
@@ -209,26 +204,3 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 export function useLocale() {
   return useContext(LocaleContext);
 }
-
-export function isSupportedLocale(value: string): value is "en" {
-  return value === "en";
-}
-
-export function getLocaleDirection(): "ltr" {
-  return "ltr";
-}
-
-export function getLocalizedTranslation(key: TranslationKey): string {
-  return english[key];
-}
-
-export function detectLocaleFromPreferences(): "en" {
-  return "en";
-}
-
-export type { TranslationKey };
-export const LOCALE_STORAGE_KEY = "profound-iq-locale";
-export const SUPPORTED_LOCALES = [
-  { code: "en", label: "English", nativeLabel: "English", dir: "ltr" },
-] as const;
-export type LocaleCode = "en";

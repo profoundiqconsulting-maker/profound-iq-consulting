@@ -3,14 +3,14 @@ import { CheckCircle2, Loader2, ArrowRight, AlertCircle } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { useLocale } from "@/contexts/LocaleContext";
+
 import { TransformationNav } from "@/components/TransformationNav";
 import { startLogin } from "@/const";
 
 export default function CoursePaymentSuccess() {
   const [, setLocation] = useLocation();
   const { user, loading } = useAuth();
-  const { t } = useLocale();
+  
   const params = new URLSearchParams(window.location.search);
   const reference = params.get("reference");
   const courseSlug = params.get("course") || "";
@@ -116,7 +116,7 @@ export default function CoursePaymentSuccess() {
               onClick={handleSignIn}
               className="mt-6 inline-flex items-center gap-2 bg-[#16243d] px-5 py-3 text-xs font-black uppercase tracking-[.12em] text-[#f7f3e8]"
             >
-              {t("signIn")} <ArrowRight size={14} />
+              {"Sign in"} <ArrowRight size={14} />
             </button>
           </div>
         </main>

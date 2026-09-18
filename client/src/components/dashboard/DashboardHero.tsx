@@ -1,5 +1,5 @@
 ﻿import { useAuth } from "@/_core/hooks/useAuth";
-import { useLocale } from "@/contexts/LocaleContext";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -30,7 +30,7 @@ export function DashboardHero({
   stats,
 }: DashboardHeroProps) {
   const { user } = useAuth();
-  const { t } = useLocale();
+  
   const displayName = user?.name?.split(" ")[0] || "there";
 
   return (

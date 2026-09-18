@@ -7,10 +7,10 @@ import { CourseCoverImage } from "@/components/CourseCoverImage";
 import { CourseShareActions } from "@/components/CourseShareActions";
 import { courseCatalog } from "@shared/courseCatalog";
 import { localizeCourseCategory } from "@shared/courseCategoryLocalization";
-import { useLocale } from "@/contexts/LocaleContext";
+
 
 export default function CourseComparison() {
-  const { locale } = useLocale();
+  const locale = "en";
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
 

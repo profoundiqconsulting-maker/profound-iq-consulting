@@ -36,7 +36,7 @@ import {
 } from "@shared/assessment";
 import { trpc } from "@/lib/trpc";
 import { TransformationNav } from "@/components/TransformationNav";
-import { useLocale } from "@/contexts/LocaleContext";
+
 import { useAuth } from "@/_core/hooks/useAuth";
 import { LOGO_URL } from "@/components/BrandLogo";
 import { getAssessmentCopy } from "@shared/assessmentLocalization";
@@ -193,7 +193,8 @@ function AssessmentContentPagination({
 export default function Assessment() {
   const utils = trpc.useUtils();
   const [, navigate] = useLocation();
-  const { locale, t } = useLocale();
+  const locale = "en";
+
   const { user, isAuthenticated } = useAuth();
   const assessmentCopy = getAssessmentCopy(locale);
   const [stage, setStage] = useState<AssessmentStage>(() =>
@@ -3159,7 +3160,7 @@ export default function Assessment() {
         <div className="container flex flex-col justify-between gap-3 text-xs text-[#657084] sm:flex-row">
           <span>© 2026 Profound IQ Consulting</span>
           <span>
-            {t("selfAssessment")} · KES {ASSESSMENT_PRICE_KES}
+            {"Self Assessment"} · KES {ASSESSMENT_PRICE_KES}
           </span>
         </div>
       </footer>

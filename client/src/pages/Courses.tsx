@@ -21,7 +21,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { trpc } from "@/lib/trpc";
 import { CourseCoverImage } from "@/components/CourseCoverImage";
 import { courseCatalog } from "@shared/courseCatalog";
-import { useLocale } from "@/contexts/LocaleContext";
+
 import { useAuth } from "@/_core/hooks/useAuth";
 import { localizeCourseMetadata } from "@shared/courseMetadataLocalization";
 import { localizeCourseCategory } from "@shared/courseCategoryLocalization";
@@ -99,8 +99,9 @@ export default function Courses() {
   const [careerGoal, setCareerGoal] = useState("ai");
   const [currentLevel, setCurrentLevel] =
     useState<CourseCard["skillLevel"]>("Foundation");
-  const { t, locale } = useLocale();
+  
   const { user, isAuthenticated } = useAuth();
+  const locale = "en";
   const enrollmentCopy = getCourseEnrollmentCopy(locale);
   const liveCatalog = trpc.catalog.listPublished.useQuery(undefined, {
     retry: false,
@@ -232,7 +233,7 @@ export default function Courses() {
             .toLowerCase()
             .includes(query)) &&
         (category === "All categories" ||
-          category === t("allCategories") ||
+          category === "All categories" ||
           localizeCourseCategory(locale, courseCategory(course)) ===
             category) &&
         (skillLevel === "All levels" || course.skillLevel === skillLevel)
@@ -248,7 +249,7 @@ export default function Courses() {
               ["Foundation", "Practitioner", "Advanced"].indexOf(b.skillLevel)
             : Number(a.index) - Number(b.index)
     );
-  }, [category, courses, searchTerm, t, locale, skillLevel, sortBy]);
+  }, [category, courses, searchTerm, locale, skillLevel, sortBy]);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const shared = (params.get("compare") ?? "")
@@ -387,22 +388,22 @@ export default function Courses() {
           </Link>
           <nav className="hidden items-center gap-8 text-[11px] font-extrabold uppercase tracking-[.16em] text-[#c9d1df] md:flex">
             <Link href="/#approach" className="hover:text-[#c9a34e]">
-              {t("approach")}
+              {"Approach"}
             </Link>
             <Link href="/courses" className="text-[#c9a34e]">
-              {t("courses")}
+              {"Courses"}
             </Link>
             <Link href="/assessment" className="hover:text-[#c9a34e]">
-              {t("selfAssessment")}
+              {"Self Assessment"}
             </Link>
             <Link href="/#contact" className="hover:text-[#c9a34e]">
-              {t("contact")}
+              {"Contact"}
             </Link>
             <Link
               href="/dashboard"
               className="border border-white/25 px-3 py-3 hover:border-[#c9a34e] hover:text-[#c9a34e]"
             >
-              {t("myWorkspace")}
+              {"My workspace"}
             </Link>
           </nav>
           <button
@@ -418,16 +419,16 @@ export default function Courses() {
           <nav className="border-t border-white/10 px-5 py-5 md:hidden">
             <div className="flex flex-col gap-5 text-xs font-extrabold uppercase tracking-[.15em]">
               <Link href="/courses" onClick={() => setMenuOpen(false)}>
-                {t("courses")}
+                {"Courses"}
               </Link>
               <Link href="/assessment" onClick={() => setMenuOpen(false)}>
-                {t("selfAssessment")}
+                {"Self Assessment"}
               </Link>
               <Link href="/#contact" onClick={() => setMenuOpen(false)}>
-                {t("contact")}
+                {"Contact"}
               </Link>
               <Link href="/dashboard" onClick={() => setMenuOpen(false)}>
-                {t("myWorkspace")}
+                {"My workspace"}
               </Link>
             </div>
           </nav>
@@ -492,7 +493,7 @@ export default function Courses() {
               <input
                 value={searchTerm}
                 onChange={event => setSearchTerm(event.target.value)}
-                placeholder={t("searchCourses")}
+                placeholder={"Search courses, topics, or outcomes"}
                 className="w-full border border-[#16243d]/20 bg-[#f7f3e8] py-3 pl-10 pr-3 text-sm outline-none focus:border-[#c9a34e]"
               />
             </label>
@@ -716,7 +717,7 @@ export default function Courses() {
                       }}
                       className="mt-4 inline-flex items-center gap-2 border-b border-[#a27e2e] pb-1 text-[10px] font-black uppercase tracking-[.15em] text-[#7d5e1e]"
                     >
-                      {t("enrollNow")} <ArrowUpRight size={14} />
+                      {"Enroll now"} <ArrowUpRight size={14} />
                     </button>
                     <Link
                       href={
@@ -727,8 +728,8 @@ export default function Courses() {
                       className="mt-4 flex items-center justify-end gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#4a566a] hover:text-[#7d5e1e]"
                     >
                       {course.modules.length
-                        ? t("openSyllabus")
-                        : t("discussItem")}{" "}
+                        ? "Open syllabus"
+                        : "Discuss item"}{" "}
                       <ChevronRight size={14} />
                     </Link>
                   </div>
@@ -751,7 +752,7 @@ export default function Courses() {
               href="/#contact"
               className="inline-flex items-center gap-2 border border-[#c9a34e] px-5 py-4 text-[10px] font-black uppercase tracking-[.15em] text-[#f7f3e8] hover:bg-[#c9a34e] hover:text-[#16243d]"
             >
-              {t("talkToUs")} <ArrowUpRight size={14} />
+              {"Talk to us"} <ArrowUpRight size={14} />
             </Link>
           </div>
         </section>
@@ -1025,7 +1026,7 @@ export default function Courses() {
                       }}
                       className="inline-flex items-center justify-center gap-2 bg-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.13em] text-[#16243d]"
                     >
-                      {t("enrollNow")} <ArrowUpRight size={14} />
+                      {"Enroll now"} <ArrowUpRight size={14} />
                     </button>
                   </div>
                 </div>

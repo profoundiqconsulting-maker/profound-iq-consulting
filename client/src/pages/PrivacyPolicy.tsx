@@ -1,6 +1,6 @@
 import { ArrowLeft, ChevronDown, ShieldCheck } from "lucide-react";
 import { Link } from "wouter";
-import { useLocale } from "@/contexts/LocaleContext";
+
 
 const sections = [
   [
@@ -51,7 +51,7 @@ const sections = [
 ];
 
 export default function PrivacyPolicy() {
-  const { t } = useLocale();
+  
   return (
     <main className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
       <header className="border-b border-[#16243d]/10 bg-[#101d35] text-[#f7f3e8]">
@@ -60,7 +60,7 @@ export default function PrivacyPolicy() {
             href="/"
             className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e] transition-opacity hover:opacity-80"
           >
-            <ArrowLeft size={15} /> {t("backToSite")}
+            <ArrowLeft size={15} /> {"Back to site"}
           </Link>
           <span className="hidden text-[10px] uppercase tracking-[.16em] text-[#aab5c6] sm:block">
             Profound IQ Consulting
@@ -84,7 +84,7 @@ export default function PrivacyPolicy() {
             payments, and support.
           </p>
           <p className="mt-5 text-xs uppercase tracking-[.14em] text-[#7d5e1e]">
-            {t("effectiveDate")}: 26 August 2026
+            {"Effective date"}: 26 August 2026
           </p>
         </div>
         <div className="mt-12 grid gap-10 lg:grid-cols-[220px_1fr] lg:items-start">
@@ -121,7 +121,7 @@ export default function PrivacyPolicy() {
                       className="flex gap-3 py-2 text-xs leading-5 text-[#657084] transition-colors hover:text-[#7d5e1e]"
                     >
                       <span className="font-black text-[#c9a34e]">10</span>
-                      <span>{t("questionsOrRequests")}</span>
+                      <span>{"Questions or requests?"}</span>
                     </a>
                   </li>
                 </ol>
@@ -153,7 +153,7 @@ export default function PrivacyPolicy() {
               className="scroll-mt-8 border border-[#c9a34e]/50 bg-[#fffaf0] p-6 sm:scroll-mt-10 sm:p-8"
             >
               <h2 className="text-2xl font-semibold">
-                {t("questionsOrRequests")}
+                {"Questions or requests?"}
               </h2>
               <p className="mt-3 text-sm leading-7 text-[#526078]">
                 For privacy questions, account requests, or clarification about

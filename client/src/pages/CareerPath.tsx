@@ -37,7 +37,7 @@ import {
   paystackStateAfter,
   type PaystackCheckoutState,
 } from "@shared/paystackFeedback";
-import { useLocale } from "@/contexts/LocaleContext";
+
 import PaystackInlineModal, {
   type PaystackInlineProduct,
 } from "@/components/PaystackInlineModal";

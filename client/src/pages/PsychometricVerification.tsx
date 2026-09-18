@@ -3,11 +3,11 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
-import { useLocale } from "@/contexts/LocaleContext";
+
 import { toast } from "sonner";
 
 export default function PsychometricVerification() {
-  const { t } = useLocale();
+  
   const reference =
     new URLSearchParams(window.location.search).get("reference") ?? "";
   const result = trpc.psychometric.verifyPublic.useQuery(

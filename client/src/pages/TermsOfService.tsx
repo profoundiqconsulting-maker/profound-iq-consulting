@@ -1,6 +1,6 @@
 import { ArrowLeft, FileText } from "lucide-react";
 import { Link } from "wouter";
-import { useLocale } from "@/contexts/LocaleContext";
+
 
 const sections = [
   [
@@ -46,7 +46,7 @@ const sections = [
 ];
 
 export default function TermsOfService() {
-  const { t } = useLocale();
+  
   return (
     <main className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
       <header className="border-b border-[#16243d]/10 bg-[#101d35] text-[#f7f3e8]">
@@ -55,7 +55,7 @@ export default function TermsOfService() {
             href="/"
             className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e] transition-opacity hover:opacity-80"
           >
-            <ArrowLeft size={15} /> {t("backToSite")}
+            <ArrowLeft size={15} /> {"Back to site"}
           </Link>
           <span className="hidden text-[10px] uppercase tracking-[.16em] text-[#aab5c6] sm:block">
             Profound IQ Consulting
@@ -78,7 +78,7 @@ export default function TermsOfService() {
             assessments, reports, certificates, and support services.
           </p>
           <p className="mt-5 text-xs uppercase tracking-[.14em] text-[#7d5e1e]">
-            {t("effectiveDate")}: 26 August 2026
+            {"Effective date"}: 26 August 2026
           </p>
         </div>
         <div className="mt-14 border-t border-[#16243d]/15">
@@ -98,7 +98,7 @@ export default function TermsOfService() {
           ))}
         </div>
         <section className="mt-12 border border-[#c9a34e]/50 bg-[#fffaf0] p-6 sm:p-8">
-          <h2 className="text-2xl font-semibold">{t("privacyPolicy")}</h2>
+          <h2 className="text-2xl font-semibold">{"Privacy Policy"}</h2>
           <p className="mt-3 text-sm leading-7 text-[#526078]">
             For information about how account, learning, assessment, payment,
             and communication data is handled, read the{" "}
@@ -106,7 +106,7 @@ export default function TermsOfService() {
               href="/privacy-policy"
               className="font-semibold text-[#8b691d] underline underline-offset-4"
             >
-              {t("privacyPolicy")}
+              {"Privacy Policy"}
             </Link>
             .
           </p>

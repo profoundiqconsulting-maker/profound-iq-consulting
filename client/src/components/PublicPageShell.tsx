@@ -13,7 +13,7 @@ import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { BrandLogo } from "@/components/BrandLogo";
 import { ExecutiveHeader } from "@/components/ExecutiveHeader";
-import { useLocale } from "@/contexts/LocaleContext";
+
 
 const navItems = [
   { label: "About", href: "/about" },
@@ -49,7 +49,7 @@ export function PublicPageShell({
   darkHero = true,
 }: PublicPageShellProps) {
   const { isAuthenticated } = useAuth();
-  const { t } = useLocale();
+  
 
   return (
     <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">

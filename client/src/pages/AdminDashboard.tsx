@@ -102,7 +102,7 @@ import { buildFunnelComparison } from "@shared/adminAnalytics";
 import { renderEmailTemplate } from "@shared/emailTemplate";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
-import { useLocale } from "@/contexts/LocaleContext";
+
 
 function statusLabel(status: string) {
   return status === "paid" ? "Paid" : "Pending";
@@ -142,7 +142,7 @@ const templateDefaults: Record<
 };
 
 export default function AdminDashboard() {
-  const { t } = useLocale();
+  
 
   const { user, loading: authLoading } = useAuth();
 

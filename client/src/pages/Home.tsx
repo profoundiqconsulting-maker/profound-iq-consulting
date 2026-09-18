@@ -331,7 +331,7 @@ export default function Home() {
           <div className="container relative px-6 py-24 lg:px-8 lg:py-32">
             <div className="grid items-center gap-16 lg:grid-cols-2">
               <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a34e]/30 bg-[#c9a34e]/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a34e]/60 bg-[#c9a34e]/20 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
                   <Sparkles size={14} />
                   Executive Assessment & Development
                 </div>
@@ -343,7 +343,7 @@ export default function Home() {
                   </span>
                 </h1>
 
-                <p className="mt-8 text-lg leading-relaxed text-[#c1cad7] lg:text-xl">
+                <p className="mt-8 text-lg leading-relaxed text-[#e5eaf5] lg:text-xl">
                   Profound IQ Consulting helps professionals and organizations
                   move from raw potential to purposeful impact through
                   evidence-based learning, assessment, and strategic
@@ -363,14 +363,24 @@ export default function Home() {
                   </a>
                   <a
                     href="#offerings"
-                    className="inline-flex items-center gap-3 rounded-lg border border-[#f7f3e8]/20 px-8 py-4 text-sm font-bold uppercase tracking-wider text-[#f7f3e8] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e]"
+                    className="inline-flex items-center gap-3 rounded-lg border-2 border-[#f7f3e8] px-8 py-4 text-sm font-bold uppercase tracking-wider text-[#f7f3e8] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e]"
                   >
                     Explore services
                     <ArrowDownRight size={18} />
                   </a>
+                  <a
+                    href="/courses"
+                    className="group inline-flex items-center gap-3 rounded-lg bg-[#16243d] px-8 py-4 text-sm font-bold uppercase tracking-wider text-[#f7f3e8] shadow-lg shadow-[#16243d]/25 transition-all hover:gap-4 hover:shadow-xl hover:shadow-[#16243d]/40"
+                  >
+                    Enroll for courses
+                    <ArrowUpRight
+                      size={18}
+                      className="transition-transform group-hover:translate-x-0.5"
+                    />
+                  </a>
                 </div>
 
-                <div className="mt-12 flex items-center gap-8 text-sm text-[#aab5c6]">
+                <div className="mt-12 flex items-center gap-8 text-sm text-[#e5eaf5]">
                   <div className="flex -space-x-2">
                     {[1, 2, 3, 4].map(i => (
                       <div
@@ -383,51 +393,51 @@ export default function Home() {
                     <p className="font-semibold text-[#f7f3e8]">
                       Trusted by 500+ organizations
                     </p>
-                    <p className="text-xs">Across Kenya and beyond</p>
+                    <p className="text-xs text-[#d7deea]">Across Kenya and beyond</p>
                   </div>
                 </div>
               </div>
 
               <div className="relative hidden lg:block">
                 <div className="relative">
-                  <div className="absolute -inset-4 rounded-2xl bg-gradient-to-r from-[#c9a34e]/20 to-[#c9a34e]/20 blur-2xl" />
-                  <div className="relative rounded-2xl border border-[#f7f3e8]/10 bg-[#f7f3e8]/5 p-8 backdrop-blur-sm">
+                  <div className="absolute -inset-4 rounded-2xl bg-gradient-to-r from-[#c9a34e]/30 to-[#c9a34e]/30 blur-2xl" />
+                  <div className="relative rounded-2xl border-2 border-[#f7f3e8]/40 bg-[#f7f3e8]/15 p-8 backdrop-blur-sm">
                     <div className="space-y-6">
-                      <div className="flex items-center gap-4 rounded-xl bg-[#f7f3e8]/5 p-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#c9a34e]/20">
-                          <Award className="h-6 w-6 text-[#c9a34e]" />
+                      <div className="flex items-center gap-4 rounded-xl bg-[#f7f3e8]/15 p-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#c9a34e]">
+                          <Award className="h-6 w-6 text-[#101d35]" />
                         </div>
                         <div>
                           <p className="font-semibold text-[#f7f3e8]">
                             Professional Courses
                           </p>
-                          <p className="text-sm text-[#aab5c6]">
+                          <p className="text-sm text-[#f7f3e8]">
                             50+ expert-led programs
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4 rounded-xl bg-[#f7f3e8]/5 p-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#c9a34e]/20">
-                          <BarChart3 className="h-6 w-6 text-[#c9a34e]" />
+                      <div className="flex items-center gap-4 rounded-xl bg-[#f7f3e8]/15 p-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#c9a34e]">
+                          <BarChart3 className="h-6 w-6 text-[#101d35]" />
                         </div>
                         <div>
                           <p className="font-semibold text-[#f7f3e8]">
                             Psychometric Testing
                           </p>
-                          <p className="text-sm text-[#aab5c6]">
+                          <p className="text-sm text-[#f7f3e8]">
                             Evidence-based insights
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4 rounded-xl bg-[#f7f3e8]/5 p-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#c9a34e]/20">
-                          <Users className="h-6 w-6 text-[#c9a34e]" />
+                      <div className="flex items-center gap-4 rounded-xl bg-[#f7f3e8]/15 p-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#c9a34e]">
+                          <Users className="h-6 w-6 text-[#101d35]" />
                         </div>
                         <div>
                           <p className="font-semibold text-[#f7f3e8]">
                             1-on-1 Coaching
                           </p>
-                          <p className="text-sm text-[#aab5c6]">
+                          <p className="text-sm text-[#f7f3e8]">
                             Personalized development
                           </p>
                         </div>
@@ -438,19 +448,19 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Stats Bar */}
-            <div className="mt-20 grid grid-cols-2 gap-8 border-t border-[#f7f3e8]/10 pt-12 lg:grid-cols-4">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-4xl font-bold text-[#c9a34e] lg:text-5xl">
-                    {stat.value}
-                  </div>
-                  <div className="mt-2 text-sm text-[#aab5c6]">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div>
+             {/* Stats Bar */}
+             <div className="mt-20 grid grid-cols-2 gap-8 border-t-2 border-[#f7f3e8]/20 pt-12 lg:grid-cols-4">
+               {stats.map((stat, index) => (
+                 <div key={index} className="text-center">
+                   <div className="text-4xl font-bold text-[#c9a34e] lg:text-5xl">
+                     {stat.value}
+                   </div>
+                   <div className="mt-2 text-sm text-[#d7deea]">
+                     {stat.label}
+                   </div>
+                 </div>
+               ))}
+             </div>
           </div>
         </section>
 
