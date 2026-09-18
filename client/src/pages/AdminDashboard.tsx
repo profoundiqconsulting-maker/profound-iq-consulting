@@ -143,6 +143,22 @@ function isValidAdminTab(tab: string): boolean {
   ].includes(tab);
 }
 
+function TabPanel({
+  active,
+  id,
+  children,
+}: {
+  active: boolean;
+  id: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div id={id} className={`scroll-mt-8${active ? "" : " hidden"}`}>
+      {children}
+    </div>
+  );
+}
+
 type PaymentFilter = "all" | "paid" | "pending";
 
 type ScoreFilter = "all" | "high" | "mid" | "developing" | "locked";
@@ -1438,61 +1454,54 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
           </>
         )}
         <div className="mt-8 space-y-8">
-          {activeTab === "surveys" && (
-            <div id="surveys" className="scroll-mt-8">
-              <AdminSurveysPanel />
-            </div>
-          )}
+          <TabPanel active={activeTab === "surveys"} id="surveys">
+            <AdminSurveysPanel />
+          </TabPanel>
 
-          {activeTab === "resources" && (
-            <div id="resources" className="scroll-mt-8">
-              <AdminResourcesPanel />
-            </div>
-          )}
+          <TabPanel active={activeTab === "resources"} id="resources">
+            <AdminResourcesPanel />
+          </TabPanel>
 
-          {activeTab === "overview" && (
-            <div id="reports" className="scroll-mt-8">
-              <AdminReportsPanel />
-            </div>
-          )}
+          <TabPanel active={activeTab === "overview"} id="reports">
+            <AdminReportsPanel />
+          </TabPanel>
 
-          {activeTab === "revenue" && (
+          <TabPanel active={activeTab === "revenue"} id="revenue">
             <>
-              <div id="revenue" className="scroll-mt-8">
-                <Section
-                  eyebrow="Revenue overview"
-                  title="Money in motion."
-                  description="Track assessment payments, completed transactions, and outstanding balances."
-                >
-                  <div className="grid gap-6 lg:grid-cols-3">
-                    <div className="exec-surface p-5">
-                      <p className="exec-label-gold">Payments</p>
-                      <p className="mt-2 text-3xl font-bold">
-                        {analytics.data?.summary?.payment_completed ?? 0}
-                      </p>
-                    </div>
-                    <div className="exec-surface p-5">
-                      <p className="exec-label-gold">Starts</p>
-                      <p className="mt-2 text-3xl font-bold">
-                        {analytics.data?.summary?.assessment_started ?? 0}
-                      </p>
-                    </div>
-                    <div className="exec-surface p-5">
-                      <p className="exec-label-gold">Downloads</p>
-                      <p className="mt-2 text-3xl font-bold">
-                        {analytics.data?.summary?.report_downloaded ?? 0}
-                      </p>
-                    </div>
+              <Section
+                eyebrow="Revenue overview"
+                title="Money in motion."
+                description="Track assessment payments, completed transactions, and outstanding balances."
+              >
+                <div className="grid gap-6 lg:grid-cols-3">
+                  <div className="exec-surface p-5">
+                    <p className="exec-label-gold">Payments</p>
+                    <p className="mt-2 text-3xl font-bold">
+                      {analytics.data?.summary?.payment_completed ?? 0}
+                    </p>
                   </div>
-                </Section>
-              </div>
+                  <div className="exec-surface p-5">
+                    <p className="exec-label-gold">Starts</p>
+                    <p className="mt-2 text-3xl font-bold">
+                      {analytics.data?.summary?.assessment_started ?? 0}
+                    </p>
+                  </div>
+                  <div className="exec-surface p-5">
+                    <p className="exec-label-gold">Downloads</p>
+                    <p className="mt-2 text-3xl font-bold">
+                      {analytics.data?.summary?.report_downloaded ?? 0}
+                    </p>
+                  </div>
+                </div>
+              </Section>
               <div className="mt-10">
                 <AdminRevenuePanel />
               </div>
             </>
-          )}
+          </TabPanel>
 
-          {activeTab === "intelligence" && (
+          <TabPanel active={activeTab === "intelligence"}>
+
             <>
               <Section
                 id="intelligence"
@@ -1564,7 +1573,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         />
                         <XAxis
                           dataKey="week"
-                          tickFormatter={v => v.slice(5)}
+                          tickFormatter={v => v.slice(5
+</TabPanel>
                           stroke="#16243d"
                           tick={{ fontSize: 10 }}
                         />
@@ -1634,7 +1644,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
             </>
           )}
 
-          {activeTab === "staff" && (
+          <TabPanel active={activeTab === "staff"}>
+
             <>
               <div className="grid gap-3 sm:grid-cols-3">
                 <div className="exec-surface p-5">
@@ -1660,9 +1671,11 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 <AdminStaffPanel />
               </div>
             </>
-          )}
+          
+</TabPanel>
 
-          {activeTab === "system" && (
+          <TabPanel active={activeTab === "system"}>
+
             <>
               <div id="system-settings" className="scroll-mt-8">
                 <Section
@@ -1746,7 +1759,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   <div className="exec-surface p-5">
                     <p className="exec-label-gold">Test deliver</p>
                     <button
-                      onClick={() => emailConnection.refetch()}
+                      onClick={() => emailConnection.refetch(
+</TabPanel>
                       className="mt-2 border border-[#16243d] bg-[#16243d] px-3 py-1.5 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] hover:bg-[#16243d]/90"
                     >
                       Re-verify
@@ -1757,7 +1771,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
             </>
           )}
 
-          {activeTab === "learning" && (
+          <TabPanel active={activeTab === "learning"}>
+
             <>
               <div id="course-delivery" className="scroll-mt-8">
                 <AdminCourseDeliveryPanel />
@@ -1776,9 +1791,11 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
               </div>
               <AdminRecentQCCertificates />
             </>
-          )}
+          
+</TabPanel>
 
-          {activeTab === "communications" && (
+          <TabPanel active={activeTab === "communications"}>
+
             <>
               <AdminCommunicationPanel />
               <div id="newsletter-subscribers" className="scroll-mt-8">
@@ -1787,9 +1804,11 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
               <AdminInsightsPanel />
             </>
-          )}
+          
+</TabPanel>
 
-          {activeTab === "psychometrics" && (
+          <TabPanel active={activeTab === "psychometrics"}>
+
             <>
               <section
                 id="psychometric-intelligence"
@@ -1813,8 +1832,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       type="date"
                       value={psychometricFrom}
                       onChange={event =>
-                        setPsychometricFrom(event.target.value)
-                      }
+                        setPsychometricFrom(event.target.value
+</TabPanel>
                       aria-label="Psychometric analytics start date"
                       className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm"
                     />
@@ -2258,7 +2277,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
               </section>
             </>
           )}
-          {activeTab === "inquiries" && (
+          <TabPanel active={activeTab === "inquiries"}>
+
             <>
               <div className="grid gap-3 sm:grid-cols-3">
                 <div className="exec-surface p-5">
@@ -2306,7 +2326,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         <div className="flex flex-wrap justify-between gap-2 text-xs">
                           <strong>{entry.actorName}</strong>
                           <span className="text-[#16243d]">
-                            {new Date(entry.createdAt).toLocaleString()}
+                            {new Date(entry.createdAt).toLocaleString(
+</TabPanel>
                           </span>
                         </div>
                         <p className="mt-1 text-sm text-[#16243d]">
@@ -2330,7 +2351,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
               </div>
             </>
           )}
-          {activeTab === "operations" && (
+          <TabPanel active={activeTab === "operations"}>
+
             <>
               <Section
                 id="operations"
@@ -2423,7 +2445,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       {analyticsSettings.data.paidBenchmark ?? "-"}%
                     </p>
                   </div>
-                )}
+                
+</TabPanel>
               </Section>
 
               <Section
@@ -2479,7 +2502,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
             </>
           )}
 
-          {activeTab === "security" && (
+          <TabPanel active={activeTab === "security"}>
+
             <>
               <section
                 id="security"
@@ -2510,7 +2534,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                     >
                       <button
                         type="button"
-                        onClick={() => setLoginGranularity("daily")}
+                        onClick={() => setLoginGranularity("daily"
+</TabPanel>
                         aria-pressed={loginGranularity === "daily"}
                         className={`px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] ${loginGranularity === "daily" ? "bg-[#c9a34e] text-[#101d35]" : "text-[#c1cad7]"}`}
                       >
@@ -2997,7 +3022,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
             </>
           )}
 
-          {activeTab === "organization" && (
+          <TabPanel active={activeTab === "organization"}>
+
             <>
               <div className="mb-6">
                 <p className="eyebrow text-[#7d5e1e]">Organization</p>
@@ -3013,8 +3039,10 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 <OrganizationApprovalQueue />
               </div>
             </>
-          )}
-          {activeTab === "overview" && overview.data && (
+          
+</TabPanel>
+          <TabPanel active={activeTab === "overview"}>
+
             <>
               <div className="mt-10 grid gap-4 sm:grid-cols-3">
                 <StatCard
@@ -3183,7 +3211,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                           {item.value}
                         </p>
                       </div>
-                    ))}
+                    )
+</TabPanel>
                   </div>
                 </div>
               </section>
@@ -3519,7 +3548,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
             </>
           )}
 
-          {activeTab === "overview" && (
+          <TabPanel active={activeTab === "overview"}>
+
             <>
               <Section
                 eyebrow="Identity controls"
@@ -3548,8 +3578,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                           setVerificationSearch,
 
                           event.target.value
-                        )
-                      }
+                        
+</TabPanel>
                       placeholder="Search name, email, or ID"
                       className="w-full border border-[#16243d]/20 bg-[#f7f3e8] py-2 pl-7 pr-2 text-xs text-[#16243d] outline-none focus:border-[#c9a34e]"
                     />
