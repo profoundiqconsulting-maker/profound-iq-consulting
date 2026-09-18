@@ -7,6 +7,12 @@ import {
   LineChart,
   ShieldCheck,
   Activity,
+  TrendingUp,
+  TrendingDown,
+  Eye,
+  UserPlus,
+  CreditCard,
+  Award,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
@@ -33,6 +39,14 @@ export default function AdminReportsPanel() {
   const [selectedCategory, setSelectedCategory] = useState<string>("overview");
   const [dateRange, setDateRange] = useState<{ fromDate?: string; toDate?: string }>({});
 
+  const analytics = trpc.admin.analyticsSummary.useQuery(dateRange);
+  const revenue = trpc.admin.revenueReport.useQuery(dateRange);
+  const usersQuery = trpc.admin.listAllUsers.useQuery();
+
+  const totalUsers = usersQuery.data?.length ?? 0;
+  const adminUsers = usersQuery.data?.filter(u => u.role === "admin").length ?? 0;
+  const staffUsers = usersQuery.data?.filter(u => u.role === "staff").length ?? 0;
+
   const reportCategories: ReportCategory[] = [
     {
       id: "overview",
@@ -45,14 +59,14 @@ export default function AdminReportsPanel() {
           label: "Analytics Summary",
           description: "Overall site performance and engagement metrics",
           formats: ["csv", "excel", "pdf"],
-          useQuery: () => trpc.admin.analyticsSummary.useQuery(dateRange) as { data?: unknown; isLoading: boolean; error?: { message?: string } },
+          useQuery: () => analytics as { data?: unknown; isLoading: boolean; error?: { message?: string } },
         },
         {
           id: "revenue-report",
           label: "Revenue Report",
           description: "Payment transactions and revenue breakdown",
           formats: ["csv", "excel", "pdf"],
-          useQuery: () => trpc.admin.revenueReport.useQuery(dateRange) as { data?: unknown; isLoading: boolean; error?: { message?: string } },
+          useQuery: () => revenue as { data?: unknown; isLoading: boolean; error?: { message?: string } },
         },
         {
           id: "user-verification",
@@ -176,6 +190,43 @@ export default function AdminReportsPanel() {
 
   const selectedCategoryData = reportCategories.find(cat => cat.id === selectedCategory);
 
+  const analyticsSummary = analytics.data as {
+    summary: Record<string, number>;
+    previousSummary: Record<string, number>;
+    weekly: Record<string, Record<string, number>>;
+  } | null | undefined;
+
+  const statCards = [
+    {
+      label: "Total Users",
+      value: totalUsers,
+      icon: <Users size={18} />,
+      trend: null,
+      color: "bg-[#16243d]",
+    },
+    {
+      label: "Admin Users",
+      value: adminUsers,
+      icon: <ShieldCheck size={18} />,
+      trend: null,
+      color: "bg-[#7d5e1e]",
+    },
+    {
+      label: "Staff Users",
+      value: staffUsers,
+      icon: <UserPlus size={18} />,
+      trend: null,
+      color: "bg-[#c9a34e]",
+    },
+    {
+      label: "Site Visits",
+      value: analyticsSummary?.summary?.["page_view"] ?? 0,
+      icon: <Eye size={18} />,
+      trend: null,
+      color: "bg-[#16243d]",
+    },
+  ];
+
   return (
     <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -184,12 +235,35 @@ export default function AdminReportsPanel() {
             <LineChart size={13} /> Reports & exports
           </p>
           <h2 className="display mt-3 text-3xl">
-            Sitewide reports
+            Executive Dashboard
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-[#657084]">
-            Download branded reports for any area of the platform. Filter by date range and choose your preferred format.
+            Platform overview, key metrics, and downloadable reports. Filter by date range and choose your preferred format.
           </p>
         </div>
+      </div>
+
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {statCards.map((stat, index) => (
+          <div
+            key={index}
+            className={`rounded-xl border border-[#16243d]/10 ${stat.color} p-5 text-white shadow-sm transition-transform hover:-translate-y-0.5`}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[.12em] text-white/70">
+                  {stat.label}
+                </p>
+                <p className="display mt-2 text-3xl text-white">
+                  {stat.value.toLocaleString()}
+                </p>
+              </div>
+              <div className="text-white/80">
+                {stat.icon}
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-4">
@@ -199,9 +273,9 @@ export default function AdminReportsPanel() {
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`w-full rounded-lg border px-3 py-2 text-left text-sm transition-all ${
+                className={`w-full rounded-lg border px-3 py-2.5 text-left text-sm transition-all ${
                   selectedCategory === category.id
-                    ? "border-[#c9a34e] bg-[#c9a34e]/10"
+                    ? "border-[#c9a34e] bg-[#c9a34e]/10 shadow-sm"
                     : "border-[#16243d]/10 hover:border-[#c9a34e]"
                 }`}
               >
@@ -234,14 +308,14 @@ export default function AdminReportsPanel() {
                   return (
                     <div
                       key={report.id}
-                      className="border border-[#16243d]/10 bg-white p-4"
+                      className="rounded-xl border border-[#16243d]/10 bg-white p-5 shadow-sm transition-all hover:border-[#c9a34e] hover:shadow-md"
                     >
                       <div className="flex items-start justify-between">
                         <div>
                           <p className="font-semibold">{report.label}</p>
                           <p className="mt-1 text-xs text-[#657084]">{report.description}</p>
                         </div>
-                        <FileSpreadsheet size={16} className="text-[#7d5e1e]" />
+                        <FileSpreadsheet size={18} className="text-[#7d5e1e]" />
                       </div>
 
                       {error && (
@@ -249,17 +323,17 @@ export default function AdminReportsPanel() {
                       )}
 
                       {Boolean(data) && !error && (
-                        <p className="mt-2 text-xs text-emerald-700">
+                        <p className="mt-2 text-xs text-emerald-700 font-semibold">
                           {Array.isArray(data) ? `${(data as unknown[]).length} records` : "Data available"}
                         </p>
                       )}
 
-                      <div className="mt-3 flex flex-wrap gap-2">
+                      <div className="mt-4 flex flex-wrap gap-2">
                         {report.formats.map(format => (
                           <button
                             key={format}
                             disabled={isLoading || !!error}
-                            className="inline-flex items-center gap-1 border border-[#16243d]/20 px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-40"
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-[#16243d] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-white transition hover:bg-[#16243d]/90 disabled:cursor-not-allowed disabled:opacity-40"
                           >
                             <Download size={10} />
                             {format.toUpperCase()}

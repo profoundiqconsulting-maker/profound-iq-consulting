@@ -389,7 +389,6 @@ function FirstStageCheckout({ course }: { course: CourseDefinition }) {
   const [name, setName] = useState(user?.name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
   const [consent, setConsent] = useState(false);
-  const [mockOpen, setMockOpen] = useState(false);
   const [inlineModalOpen, setInlineModalOpen] = useState(false);
   const [inlineProduct, setInlineProduct] =
     useState<PaystackInlineProduct | null>(null);
@@ -406,14 +405,6 @@ function FirstStageCheckout({ course }: { course: CourseDefinition }) {
       }),
   });
   const verify = trpc.course.verifyStagePayment.useMutation();
-  const mockPayment = trpc.course.mockFirstStagePayment.useMutation({
-    onError: error =>
-      toast.error("Mock checkout failed", { description: error.message }),
-  });
-  const resetMockPayment = trpc.course.resetMockCoursePayments.useMutation({
-    onError: error =>
-      toast.error("Mock payment reset failed", { description: error.message }),
-  });
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!name.trim() || !email.trim() || !consent) return;
@@ -459,41 +450,7 @@ function FirstStageCheckout({ course }: { course: CourseDefinition }) {
   const pending =
     enroll.isPending ||
     checkout.isPending ||
-    verify.isPending ||
-    mockPayment.isPending ||
-    resetMockPayment.isPending;
-  const submitMock = () => {
-    if (!name.trim() || !email.trim() || !consent) return;
-    enroll.mutate(
-      {
-        courseSlug: course.slug,
-        name: name.trim(),
-        email: email.trim(),
-        consent: true,
-      },
-      {
-        onSuccess: result => {
-          if (!result.enrollmentId) {
-            toast.error("Enrollment could not be created");
-            return;
-          }
-          mockPayment.mutate(
-            { enrollmentId: result.enrollmentId },
-            {
-              onSuccess: () => {
-                toast.success("Mock first payment completed", {
-                  description:
-                    "Module 1 access is now unlocked for this development session.",
-                });
-                setMockOpen(false);
-                window.location.reload();
-              },
-            }
-          );
-        },
-      }
-    );
-  };
+    verify.isPending;
   return (
     <form
       onSubmit={submit}
@@ -559,81 +516,6 @@ function FirstStageCheckout({ course }: { course: CourseDefinition }) {
           ? enrollmentCopy.recording
           : `${enrollmentCopy.payment} · KES ${(course.stageAmountsKes[0] ?? 0).toLocaleString()}`}
       </button>
-      {import.meta.env.DEV && (
-        <div className="mt-5 border-t border-dashed border-white/20 pt-5">
-          <button
-            type="button"
-            onClick={() => setMockOpen(open => !open)}
-            className="text-[10px] font-black uppercase tracking-[.13em] text-gold-on-light underline underline-offset-4"
-          >
-            {t("mockCheckout")}
-          </button>
-          {mockOpen && (
-            <div className="mt-3 border border-[#c9a34e]/50 bg-[#101d35] p-4">
-              <p className="text-xs leading-5 text-muted-on-dark">
-                {t("mockCheckoutDescription")}
-              </p>
-              <button
-                type="button"
-                onClick={submitMock}
-                disabled={pending || !name.trim() || !email.trim() || !consent}
-                className="mt-4 inline-flex items-center gap-2 border border-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.13em] text-[#f7f3e8] disabled:opacity-60"
-              >
-                {mockPayment.isPending || enroll.isPending ? (
-                  <Loader2
-                    size={13}
-                    className="animate-spin"
-                    aria-hidden="true"
-                  />
-                ) : null}
-                {mockPayment.isPending || enroll.isPending
-                  ? "Simulating payment…"
-                  : t("simulatePayment")}
-              </button>
-              {window.location.pathname.includes("/courses/") && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const enrollmentId = Number(
-                      new URLSearchParams(window.location.search).get(
-                        "enrollmentId"
-                      )
-                    );
-                    if (!Number.isInteger(enrollmentId) || enrollmentId < 1) {
-                      toast.error(
-                        "Open this course from an existing enrollment to reset mock payments"
-                      );
-                      return;
-                    }
-                    if (
-                      !window.confirm(
-                        "Reset all mock payment stages for this enrollment?"
-                      )
-                    )
-                      return;
-                    resetMockPayment.mutate(
-                      { enrollmentId },
-                      {
-                        onSuccess: () => {
-                          toast.success("Mock payments reset", {
-                            description:
-                              "All staged payments are pending again for QA.",
-                          });
-                          window.location.reload();
-                        },
-                      }
-                    );
-                  }}
-                  disabled={pending}
-                  className="mt-3 text-[10px] font-black uppercase tracking-[.12em] text-muted-foreground underline underline-offset-4 disabled:opacity-60"
-                >
-                  Reset mock payments
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      )}
       <PaystackInlineModal
         open={inlineModalOpen}
         product={inlineProduct}

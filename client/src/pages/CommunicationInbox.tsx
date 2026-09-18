@@ -24,6 +24,9 @@ import {
   Send,
   Ticket,
   ArrowLeft,
+  Forward,
+  UserPlus,
+  CheckCircle2,
 } from "lucide-react";
 
 type Tab = "conversations" | "tickets";
@@ -31,6 +34,7 @@ type Tab = "conversations" | "tickets";
 export default function CommunicationInbox() {
   const { user } = useAuth();
   const [tab, setTab] = useState<Tab>("conversations");
+  const [composeOpen, setComposeOpen] = useState(false);
   const [, navigate] = useLocation();
 
   return (
@@ -43,17 +47,31 @@ export default function CommunicationInbox() {
               Your messages, conversations, and action tickets.
             </p>
           </div>
-          {user?.role === "admin" && (
+          <div className="flex gap-2">
             <Button
-              onClick={() => navigate("/admin?tab=communications")}
-              variant="outline"
+              onClick={() => setComposeOpen(open => !open)}
               size="sm"
               className="text-[10px] font-black uppercase tracking-[.12em]"
             >
-              <Mail size={14} className="mr-2" /> Admin Composer
+              <Plus size={14} className="mr-2" /> New Conversation
             </Button>
-          )}
+            {user?.role === "admin" && (
+              <Button
+                onClick={() => navigate("/admin?tab=communications")}
+                variant="outline"
+                size="sm"
+                className="text-[10px] font-black uppercase tracking-[.12em]"
+              >
+                <Mail size={14} className="mr-2" /> Admin Composer
+              </Button>
+            )}
+          </div>
         </div>
+
+        {composeOpen && (
+          <ComposeForm onClose={() => setComposeOpen(false)} />
+        )}
+
         <div className="mb-4 flex gap-2">
           <Button
             type="button"
@@ -78,6 +96,93 @@ export default function CommunicationInbox() {
         {tab === "tickets" && <TicketDesk />}
       </div>
     </DashboardLayout>
+  );
+}
+
+function ComposeForm({ onClose }: { onClose: () => void }) {
+  const { user } = useAuth();
+  const [subject, setSubject] = useState("");
+  const [body, setBody] = useState("");
+  const [sending, setSending] = useState(false);
+
+  const createConversation = trpc.communication.conversations.create.useMutation({
+    onSuccess: () => {
+      setSubject("");
+      setBody("");
+      setSending(false);
+      toast.success("Conversation started");
+      onClose();
+    },
+    onError: (error) => {
+      setSending(false);
+      toast.error(error.message);
+    },
+  });
+
+  const send = () => {
+    if (!subject.trim() || !body.trim()) {
+      toast.error("Subject and message are required.");
+      return;
+    }
+    setSending(true);
+    createConversation.mutate({
+      participantOpenIds: [],
+      subject: subject.trim(),
+      contextType: "general",
+    });
+  };
+
+  return (
+    <Card className="mb-6">
+      <CardHeader>
+        <CardTitle className="text-lg">New Conversation</CardTitle>
+        <CardDescription>
+          Start a new conversation with the Profound IQ team.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid gap-2">
+          <label className="text-xs font-bold uppercase tracking-[.1em]">
+            Subject
+          </label>
+          <Input
+            value={subject}
+            onChange={(event) => setSubject(event.target.value)}
+            placeholder="What is this about?"
+          />
+        </div>
+        <div className="grid gap-2">
+          <label className="text-xs font-bold uppercase tracking-[.1em]">
+            Message
+          </label>
+          <Textarea
+            value={body}
+            onChange={(event) => setBody(event.target.value)}
+            placeholder="Write your message…"
+            rows={4}
+          />
+        </div>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            onClick={send}
+            disabled={sending}
+            className="text-[10px] font-black uppercase tracking-[.12em]"
+          >
+            <Send size={14} className="mr-2" />
+            {sending ? "Sending…" : "Send Message"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            className="text-[10px] font-black uppercase tracking-[.12em]"
+          >
+            Cancel
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -149,9 +254,11 @@ function ConversationList() {
                     {conversation.contextType}
                   </p>
                 </div>
-                <Badge variant="secondary" className="ml-3">
-                  {conversation.status}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className="capitalize">
+                    {                  conversation.status}
+                  </Badge>
+                </div>
               </button>
             ))}
           </div>
@@ -170,6 +277,8 @@ function ConversationDetail({
 }) {
   const { user } = useAuth();
   const [body, setBody] = useState("");
+  const [forwarding, setForwarding] = useState(false);
+  const [raisingTicket, setRaisingTicket] = useState(false);
   const conversation = trpc.communication.conversations.get.useQuery(
     { id: conversationId },
     { retry: false }
@@ -181,7 +290,53 @@ function ConversationDetail({
     },
     onError: (error) => toast.error(error.message),
   });
+  const raiseTicket = trpc.communication.tickets.create.useMutation({
+    onSuccess: () => {
+      toast.success("Ticket raised successfully");
+      setRaisingTicket(false);
+    },
+    onError: (error: { message: string }) => {
+      toast.error(error.message);
+      setRaisingTicket(false);
+    },
+  });
   const messages = conversation.data?.messages ?? [];
+
+  const handleForward = () => {
+    setForwarding(true);
+    const forwardBody = prompt("Forward this conversation. Add a note (optional):");
+    if (forwardBody === null) {
+      setForwarding(false);
+      return;
+    }
+    send.mutate(
+      {
+        conversationId,
+        body: forwardBody ? `[Forwarded] ${forwardBody}\n\n---\nOriginal: ${messages.map(m => `${m.senderName}: ${m.body}`).join("\n")}` : `[Forwarded]\n\n${messages.map(m => `${m.senderName}: ${m.body}`).join("\n")}`,
+      },
+      {
+        onSettled: () => setForwarding(false),
+      }
+    );
+  };
+
+  const handleRaiseTicket = () => {
+    setRaisingTicket(true);
+    const title = prompt("Ticket title:");
+    if (!title) {
+      setRaisingTicket(false);
+      return;
+    }
+    const description = prompt("Ticket description:") || title;
+    raiseTicket.mutate(
+      {
+        title,
+        description,
+        relatedConversationId: conversationId,
+        priority: "medium",
+      }
+    );
+  };
 
   return (
     <Card>
@@ -195,13 +350,37 @@ function ConversationDetail({
         >
           <ArrowLeft size={14} className="mr-2" /> Back
         </Button>
-        <div>
+        <div className="flex-1">
           <CardTitle className="text-lg">
             {conversation.data?.subject || "Conversation"}
           </CardTitle>
           <CardDescription className="capitalize">
             {conversation.data?.contextType}
           </CardDescription>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleForward}
+            disabled={forwarding}
+            className="text-[10px] font-black uppercase tracking-[.12em]"
+          >
+            <Forward size={14} className="mr-2" />
+            Forward
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleRaiseTicket}
+            disabled={raisingTicket}
+            className="text-[10px] font-black uppercase tracking-[.12em]"
+          >
+            <Ticket size={14} className="mr-2" />
+            Raise Ticket
+          </Button>
         </div>
       </CardHeader>
       <CardContent>
@@ -221,7 +400,14 @@ function ConversationDetail({
                       : "bg-slate-100 text-slate-900"
                   } max-w-[80%]`}
                 >
-                  <p className="text-xs font-semibold">{message.senderName}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs font-semibold">{message.senderName}</p>
+                    {message.senderRole && (
+                      <Badge variant="outline" className="text-[10px] capitalize">
+                        {message.senderRole}
+                      </Badge>
+                    )}
+                  </div>
                   <p className="text-sm">{message.body}</p>
                   <p className="mt-1 text-[10px] opacity-70">
                     {new Date(message.createdAt).toLocaleString()}
@@ -276,8 +462,10 @@ function TicketDesk() {
         <CardTitle className="text-lg">Action Tickets</CardTitle>
         <CardDescription>
           {user?.role === "admin"
-            ? "Create and assign tickets to staff."
-            : "Tickets assigned to you."}
+              ? "Create, assign, and manage tickets for staff."
+              : user?.role === "staff"
+                ? "Tickets assigned to you and team tickets."
+                : "Tickets assigned to you."}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -286,7 +474,10 @@ function TicketDesk() {
         ) : tickets.isError ? (
           <p className="py-8 text-center text-sm text-red-800">Unable to load tickets. Please refresh and try again.</p>
         ) : (tickets.data ?? []).length === 0 ? (
-          <p className="py-8 text-center text-sm text-slate-600">No tickets found.</p>
+          <div className="py-8 text-center">
+            <CheckCircle2 className="mx-auto mb-3 text-[#c9a34e]" size={32} />
+            <p className="text-sm text-slate-600">No tickets found.</p>
+          </div>
         ) : (
           <div className="space-y-2">
             {(tickets.data ?? []).map(ticket => (
@@ -294,10 +485,10 @@ function TicketDesk() {
                 key={ticket.id}
                 className="flex items-center justify-between rounded-lg border border-slate-200 p-4"
               >
-                <div>
+                <div className="flex-1">
                   <p className="font-semibold text-slate-900">{ticket.title}</p>
                   <p className="text-xs text-slate-600 line-clamp-1">{ticket.description}</p>
-                  <div className="mt-2 flex gap-2">
+                  <div className="mt-2 flex flex-wrap gap-2">
                     <Badge variant="outline" className="capitalize">
                       {ticket.status}
                     </Badge>

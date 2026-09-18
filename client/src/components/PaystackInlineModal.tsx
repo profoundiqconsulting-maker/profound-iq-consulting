@@ -1,6 +1,6 @@
 /* Profound IQ Consulting — reusable Paystack inline checkout modal. */
 import { useEffect, useRef, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldCheck, AlertTriangle, ExternalLink } from "lucide-react";
 
 export type PaystackInlineProduct = {
   accessCode: string;
@@ -136,35 +136,46 @@ export default function PaystackInlineModal({
 
   if (!open) return null;
 
+  const formattedAmount = new Intl.NumberFormat("en-KE", {
+    style: "currency",
+    currency: "KES",
+    minimumFractionDigits: 0,
+  }).format(product?.amountKes ?? 0);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-xl border border-[#16243d]/10 bg-white p-8 text-center shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-deep/85 backdrop-blur-md">
+      <div className="w-full max-w-md rounded-2xl border border-[#c9a34e]/40 bg-white p-8 text-center shadow-2xl">
         {loading && !scriptError && (
           <>
-            <Loader2
-              className="mx-auto animate-spin text-[#7d5e1e]"
-              size={32}
-            />
-            <p className="mt-4 text-sm font-semibold text-[#16243d]">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#c9a34e]/15">
+              <Loader2
+                className="animate-spin text-[#7d5e1e]"
+                size={28}
+              />
+            </div>
+            <p className="mt-5 text-base font-bold text-[#16243d]">
               Loading secure payment…
             </p>
-            <p className="mt-1 text-xs text-[#657084]">
+            <p className="mt-2 text-sm text-[#4a566a]">
               Please do not close this window.
             </p>
           </>
         )}
         {scriptError && (
           <>
-            <p className="text-sm font-semibold text-red-700">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-50">
+              <AlertTriangle className="text-red-700" size={28} />
+            </div>
+            <p className="mt-5 text-base font-bold text-red-900">
               Payment gateway could not load.
             </p>
-            <p className="mt-2 text-xs text-[#657084]">
+            <p className="mt-2 text-sm text-[#4a566a]">
               Check your internet connection and try again.
             </p>
             <button
               type="button"
               onClick={onClose}
-              className="mt-4 inline-flex items-center gap-2 border border-[#16243d]/25 px-4 py-2 text-xs font-black uppercase tracking-[.12em]"
+              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-5 py-3 text-xs font-black uppercase tracking-[.12em] text-[#f7f3e8] transition hover:bg-[#16243d]/90"
             >
               Close
             </button>
@@ -172,27 +183,33 @@ export default function PaystackInlineModal({
         )}
         {!loading && !scriptError && (
           <>
-            <p className="text-xs font-black uppercase tracking-[.14em] text-[#7d5e1e]">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#c9a34e]/15">
+              <ShieldCheck className="text-[#7d5e1e]" size={24} />
+            </div>
+            <p className="mt-4 text-[10px] font-black uppercase tracking-[.16em] text-[#7d5e1e]">
               Secure checkout
             </p>
-            <p className="mt-3 text-lg font-semibold text-[#16243d]">
+            <p className="mt-3 text-xl font-bold text-[#16243d]">
               {product?.productName}
             </p>
-            <p className="mt-1 text-sm text-[#657084]">
-              KES {(product?.amountKes ?? 0).toLocaleString()}
+            <p className="mt-2 text-2xl font-black text-[#16243d]">
+              {formattedAmount}
             </p>
             <p className="mt-1 text-xs text-[#657084]">
               Ref: {product?.reference}
             </p>
-            <p className="mt-4 text-xs text-[#657084]">
-              A secure payment form will appear shortly. If it does not open
-              automatically, check your popup blocker.
-            </p>
+            <div className="mt-5 rounded-lg border border-[#16243d]/10 bg-[#f7f3e8] p-4 text-left">
+              <p className="text-xs leading-5 text-[#4a566a]">
+                A secure payment form will appear shortly. If it does not open
+                automatically, check your popup blocker or use the button below.
+              </p>
+            </div>
             <button
               type="button"
               onClick={() => onSuccessRef.current(product?.reference ?? "")}
-              className="mt-4 inline-flex items-center gap-2 border border-[#16243d]/25 px-4 py-2 text-xs font-black uppercase tracking-[.12em]"
+              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-5 py-3 text-xs font-black uppercase tracking-[.12em] text-[#f7f3e8] transition hover:bg-[#16243d]/90"
             >
+              <ExternalLink size={14} />
               I have completed payment
             </button>
           </>

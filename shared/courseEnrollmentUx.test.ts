@@ -117,21 +117,19 @@ describe("course enrollment access flow", () => {
     expect(dashboardLayoutSource).not.toContain("QC");
   });
 
-  it("exposes a development-only mock checkout without weakening production payment verification", () => {
-    expect(workspaceSource).toContain(
+  it("does not expose mock checkout in production code", () => {
+    expect(workspaceSource).not.toContain(
       "trpc.course.mockFirstStagePayment.useMutation"
     );
-    expect(workspaceSource).toContain("import.meta.env.DEV");
-    expect(workspaceSource).toContain('t("mockCheckoutDescription")');
-  });
-
-  it("links dashboard users to payment history and keeps mock reset development-only", () => {
-    expect(dashboardSource).toContain("/settings#payment-history");
-    expect(workspaceSource).toContain(
+    expect(workspaceSource).not.toContain(
       "trpc.course.resetMockCoursePayments.useMutation"
     );
-    expect(workspaceSource).toContain("Reset mock payments");
-    expect(workspaceSource).toContain('Reset all mock payment stages');
+    expect(routerSource).not.toContain("mockFirstStagePayment");
+    expect(routerSource).not.toContain("resetMockCoursePayments");
+  });
+
+  it("links dashboard users to payment history", () => {
+    expect(dashboardSource).toContain("/settings#payment-history");
   });
 
   it("provides payment and enrollment translations for every supported locale", () => {
@@ -141,7 +139,6 @@ describe("course enrollment access flow", () => {
       "paymentPaid",
       "paymentStage",
       "paymentHistoryShortcut",
-      "mockCheckoutDescription",
     ])
       expect(localeSource).toContain(`${key}:`);
   });

@@ -1,5 +1,5 @@
 /* Profound IQ Consulting — Admin communications panel: campaigns and tickets. */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,8 @@ import {
   Users,
   CalendarClock,
   Filter,
+  UserPlus,
+  CheckCircle2,
 } from "lucide-react";
 
 type CampaignTab = "campaigns" | "tickets";
@@ -235,7 +237,13 @@ function TicketManager() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
+  const [assignedToOpenId, setAssignedToOpenId] = useState<string>("");
   const [creating, setCreating] = useState(false);
+
+  const users = trpc.admin.listAllUsers.useQuery(undefined, {
+    retry: false,
+    refetchOnWindowFocus: true,
+  });
 
   const tickets = trpc.communication.tickets.list.useQuery(
     { status },
@@ -246,11 +254,16 @@ function TicketManager() {
       setTitle("");
       setDescription("");
       setPriority("medium");
+      setAssignedToOpenId("");
       toast.success("Ticket created.");
       tickets.refetch();
     },
     onError: (error) => toast.error(error.message),
   });
+
+  const staffUsers = (users.data ?? []).filter(
+    u => u.role === "staff" || u.role === "admin"
+  );
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
@@ -298,6 +311,24 @@ function TicketManager() {
               </SelectContent>
             </Select>
           </div>
+          <div className="grid gap-2">
+            <label className="text-xs font-bold uppercase tracking-[.1em]">
+              Assign to (optional)
+            </label>
+            <Select value={assignedToOpenId} onValueChange={setAssignedToOpenId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select staff member" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Unassigned</SelectItem>
+                {staffUsers.map(staff => (
+                  <SelectItem key={staff.openId} value={staff.openId}>
+                    {staff.name || staff.email} ({staff.role})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <Button
             type="button"
             onClick={() => {
@@ -307,14 +338,19 @@ function TicketManager() {
               }
               setCreating(true);
               createTicket.mutate(
-                { title: title.trim(), description: description.trim(), priority },
+                {
+                  title: title.trim(),
+                  description: description.trim(),
+                  priority,
+                  assignedToOpenId: assignedToOpenId || undefined,
+                },
                 { onSettled: () => setCreating(false) }
               );
             }}
             disabled={creating}
             className="w-full bg-[#16243d] text-white"
           >
-            <Ticket size={14} className="mr-2" />
+            <UserPlus size={14} className="mr-2" />
             {creating ? "Creating…" : "Create Ticket"}
           </Button>
         </CardContent>
@@ -348,9 +384,10 @@ function TicketManager() {
           {tickets.isLoading ? (
             <p className="py-8 text-center text-sm text-slate-600">Loading…</p>
           ) : (tickets.data ?? []).length === 0 ? (
-            <p className="py-8 text-center text-sm text-slate-600">
-              No tickets found.
-            </p>
+            <div className="py-8 text-center">
+              <CheckCircle2 className="mx-auto mb-3 text-[#c9a34e]" size={32} />
+              <p className="text-sm text-slate-600">No tickets found.</p>
+            </div>
           ) : (
             <div className="space-y-2">
               {(tickets.data ?? []).map(ticket => (
@@ -359,10 +396,8 @@ function TicketManager() {
                   className="rounded-lg border border-slate-200 p-3"
                 >
                   <p className="font-semibold text-slate-900">{ticket.title}</p>
-                  <p className="text-xs text-slate-600 line-clamp-1">
-                    {ticket.description}
-                  </p>
-                  <div className="mt-2 flex gap-2">
+                  <p className="text-xs text-slate-600 line-clamp-1">{ticket.description}</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
                     <Badge variant="outline" className="capitalize">
                       {ticket.status}
                     </Badge>
@@ -371,7 +406,7 @@ function TicketManager() {
                     </Badge>
                     {ticket.assignedToName && (
                       <span className="text-xs text-slate-600">
-                        {ticket.assignedToName}
+                        Assigned to: {ticket.assignedToName}
                       </span>
                     )}
                   </div>

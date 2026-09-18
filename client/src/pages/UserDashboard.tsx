@@ -1700,7 +1700,11 @@ export default function UserDashboard() {
               setActiveTab("overview");
               window.history.replaceState({}, "", "/dashboard");
             }}
-            className={`border px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] ${activeTab === "overview" ? "border-[#16243d] bg-[#16243d] text-[#f7f3e8]" : "border-[#16243d]/20 hover:border-[#c9a34e]"}`}
+            className={`rounded-lg border px-4 py-2.5 text-[10px] font-black uppercase tracking-[.12em] transition-all ${
+              activeTab === "overview"
+                ? "border-[#16243d] bg-[#16243d] text-[#f7f3e8] shadow-sm"
+                : "border-[#16243d]/20 hover:border-[#c9a34e] hover:bg-[#c9a34e]/5"
+            }`}
           >
             {t("overview")}
           </button>
@@ -1712,7 +1716,11 @@ export default function UserDashboard() {
               setActiveTab("payments");
               window.history.replaceState({}, "", "/dashboard?tab=payments");
             }}
-            className={`border px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] ${activeTab === "payments" ? "border-[#c9a34e] bg-[#fffaf0] text-[#7d5e1e]" : "border-[#16243d]/20 hover:border-[#c9a34e]"}`}
+            className={`rounded-lg border px-4 py-2.5 text-[10px] font-black uppercase tracking-[.12em] transition-all ${
+              activeTab === "payments"
+                ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d] shadow-sm"
+                : "border-[#16243d]/20 hover:border-[#c9a34e] hover:bg-[#c9a34e]/5"
+            }`}
           >
             {t("paymentHistoryShortcut")}
           </button>
@@ -1734,13 +1742,18 @@ export default function UserDashboard() {
           <p className="eyebrow text-accent dark:text-accent-on-dark">
             Private workspace / personal development
           </p>
-          <p className="text-sm font-semibold text-foreground">
-            Welcome back, {user.name?.split(" ")[0] || "there"}.
-          </p>
-          <h1 className="display mt-3 text-5xl leading-none tracking-[-.04em] sm:text-6xl">
-            Your <em className="font-normal text-accent-on-dark">pathway</em>.
-          </h1>
-          <div className="mt-6 max-w-2xl border-l-2 border-[#c9a34e] bg-white/55 p-4">
+          <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <h1 className="display text-5xl leading-none tracking-[-.04em] sm:text-6xl">
+              Your <em className="font-normal text-accent-on-dark">pathway</em>.
+            </h1>
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-[#c9a34e] animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
+                Active workspace
+              </span>
+            </div>
+          </div>
+          <div className="mt-6 max-w-2xl rounded-xl border-l-2 border-[#c9a34e] bg-white/55 p-5">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
                 Progress summary
@@ -1751,15 +1764,15 @@ export default function UserDashboard() {
                   : "Ready to begin"}
               </span>
             </div>
-            <div className="mt-3 h-2 overflow-hidden bg-[#16243d]/10">
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#16243d]/10">
               <div
-                className="h-full bg-[#c9a34e] transition-all"
+                className="h-full rounded-full bg-[#c9a34e] transition-all"
                 style={{
                   width: `${displayHistory.length ? Math.min(100, Math.round((paidVersions.length / Math.max(displayHistory.length, 1)) * 100)) : 0}%`,
                 }}
               />
             </div>
-            <p className="mt-2 text-xs text-[#16243d]">
+            <p className="mt-3 text-xs text-[#16243d]">
               {paidVersions.length} paid report
               {paidVersions.length === 1 ? "" : "s"} available from{" "}
               {displayHistory.length} assessment
@@ -1793,6 +1806,7 @@ export default function UserDashboard() {
                 icon={<FileText size={18} />}
                 label="Assessments"
                 value={displayHistory.length}
+                className="border-[#16243d]/10 bg-white shadow-sm transition hover:border-[#c9a34e] hover:shadow-md"
               />
               <StatCard
                 icon={<CheckCircle2 size={18} />}
@@ -1801,6 +1815,7 @@ export default function UserDashboard() {
                   displayHistory.filter(item => item.paymentStatus === "paid")
                     .length
                 }
+                className="border-[#16243d]/10 bg-white shadow-sm transition hover:border-[#c9a34e] hover:shadow-md"
               />
               <StatCard
                 icon={<Clock3 size={18} />}
@@ -1809,6 +1824,7 @@ export default function UserDashboard() {
                   displayHistory.filter(item => item.paymentStatus !== "paid")
                     .length
                 }
+                className="border-[#16243d]/10 bg-white shadow-sm transition hover:border-[#c9a34e] hover:shadow-md"
               />
             </section>
             <section className="mt-10 border border-[#c9a34e]/55 bg-[#fffaf0] p-5 sm:p-6">

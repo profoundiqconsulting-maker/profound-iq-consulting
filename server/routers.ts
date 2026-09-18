@@ -592,7 +592,7 @@ export const appRouter = router({
             status: input?.status,
           })
         ),
-      create: adminProcedure
+      create: protectedProcedure
         .input(
           z.object({
             title: z.string().trim().min(2).max(240),
@@ -2784,69 +2784,6 @@ export const appRouter = router({
           productName: course?.title ?? "Course",
           productType: "course_stage",
         };
-      }),
-    mockFirstStagePayment: protectedProcedure
-      .input(z.object({ enrollmentId: z.number().int().positive() }))
-      .mutation(async ({ ctx, input }) => {
-        if (process.env.NODE_ENV !== "development")
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message: "Mock checkout is available only in development.",
-          });
-        const state = await listCourseEnrollmentState(ctx.user.openId);
-        const record = state.find(
-          item => item.enrollment.id === input.enrollmentId
-        );
-        if (!record)
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message: "This enrollment is not available to your account.",
-          });
-        const stage = record.stages.find(item => item.stage === 1);
-        if (!stage)
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "First payment stage not found.",
-          });
-        if (stage.paymentStatus !== "paid")
-          await updateCoursePaymentStageStatus(stage.id, {
-            status: "paid",
-            paid: true,
-            errorMessage: null,
-          });
-        return {
-          mocked: true as const,
-          stage: 1 as const,
-          enrollmentId: input.enrollmentId,
-        };
-      }),
-    resetMockCoursePayments: protectedProcedure
-      .input(z.object({ enrollmentId: z.number().int().positive() }))
-      .mutation(async ({ ctx, input }) => {
-        if (process.env.NODE_ENV !== "development")
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message: "Mock checkout reset is available only in development.",
-          });
-        const state = await listCourseEnrollmentState(ctx.user.openId);
-        const record = state.find(
-          item => item.enrollment.id === input.enrollmentId
-        );
-        if (!record)
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message: "This enrollment is not available to your account.",
-          });
-        await Promise.all(
-          record.stages.map(stage =>
-            updateCoursePaymentStageStatus(stage.id, {
-              status: "pending",
-              paid: false,
-              errorMessage: null,
-            })
-          )
-        );
-        return { reset: true as const, enrollmentId: input.enrollmentId };
       }),
     verifyStagePayment: protectedProcedure
       .input(z.object({ reference: z.string().min(15).max(140) }))

@@ -146,11 +146,6 @@ const english = {
   paymentStage: "Stage",
   paymentHistoryDescription:
     "Review your active courses and the staged payments attached to each enrollment.",
-  mockCheckout: "Mock checkout",
-  mockCheckoutDescription:
-    "Development-only QA mode. This simulates a successful first installment without charging Paystack.",
-  simulatePayment: "Simulate first payment",
-  mockPaymentSuccess: "Mock first payment completed",
   paymentHistoryShortcut: "Payment history",
   paymentHistoryShortcutDescription: "View enrollments and staged payments",
   filterByCourse: "Filter by course",

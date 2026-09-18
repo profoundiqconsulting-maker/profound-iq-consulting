@@ -753,7 +753,7 @@ function CheckoutPage({
                   <p className="eyebrow text-[#c9a34e]">
                     CareerPath Talent Fit
                   </p>
-                  <p className="mt-2 text-sm text-[#c1cad7]">
+                  <p className="mt-2 text-sm text-[#d7deea]">
                     KES 399 · Secure Paystack checkout · Report delivered by
                     email
                   </p>

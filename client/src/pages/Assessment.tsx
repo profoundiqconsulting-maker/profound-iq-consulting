@@ -2263,7 +2263,7 @@ export default function Assessment() {
                 ? "Loading your report."
                 : "Verifying your payment."}
             </h1>
-            <p className="mt-5 text-base leading-7 text-[#657084]">
+            <p className="mt-5 text-base leading-7 text-[#4a566a]">
               {paymentState === "idle"
                 ? "We are retrieving your saved assessment report. Please keep this window open."
                 : "We are confirming the Paystack transaction before unlocking your report. Please keep this window open."}
