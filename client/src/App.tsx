@@ -30,6 +30,20 @@ const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const AdminInquiries = lazy(() => import("./pages/AdminInquiries"));
 const AdminCertificates = lazy(() => import("./pages/AdminCertificates"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
+const AdminOperations = lazy(() => import("./pages/admin/AdminOperations"));
+const AdminRevenue = lazy(() => import("./pages/admin/AdminRevenue"));
+const AdminIntelligence = lazy(() => import("./pages/admin/AdminIntelligence"));
+const AdminPsychometrics = lazy(() => import("./pages/admin/AdminPsychometrics"));
+const AdminInbox = lazy(() => import("./pages/admin/AdminInbox"));
+const AdminSystem = lazy(() => import("./pages/admin/AdminSystem"));
+const AdminStaff = lazy(() => import("./pages/admin/AdminStaff"));
+const AdminCommunications = lazy(() => import("./pages/admin/AdminCommunications"));
+const AdminSurveys = lazy(() => import("./pages/admin/AdminSurveys"));
+const AdminSecurity = lazy(() => import("./pages/admin/AdminSecurity"));
+const AdminOrganization = lazy(() => import("./pages/admin/AdminOrganization"));
+const AdminResources = lazy(() => import("./pages/admin/AdminResources"));
+const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
 const StaffDashboard = lazy(() => import("./pages/StaffDashboard"));
 const SavedPathwaysPrint = lazy(() => import("./pages/SavedPathwaysPrint"));
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
@@ -148,7 +162,27 @@ function Router() {
         <Route path="/admin/users" component={AdminUsers} />
         <Route path="/admin/inquiries" component={AdminInquiries} />
         <Route path="/admin/certificates" component={AdminCertificates} />
-        <Route path="/admin" component={AdminDashboard} />
+        <Route path="/admin/overview" component={AdminOverview} />
+        <Route path="/admin/operations" component={AdminOperations} />
+        <Route path="/admin/revenue" component={AdminRevenue} />
+        <Route path="/admin/intelligence" component={AdminIntelligence} />
+        <Route path="/admin/psychometrics" component={AdminPsychometrics} />
+        <Route path="/admin/inbox" component={AdminInbox} />
+        <Route path="/admin/system" component={AdminSystem} />
+        <Route path="/admin/staff" component={AdminStaff} />
+        <Route path="/admin/communications" component={AdminCommunications} />
+        <Route path="/admin/surveys" component={AdminSurveys} />
+        <Route path="/admin/security" component={AdminSecurity} />
+        <Route path="/admin/organization" component={AdminOrganization} />
+        <Route path="/admin/resources" component={AdminResources} />
+        <Route path="/admin/reports" component={AdminReports} />
+        <Route
+          path="/admin"
+          component={() => {
+            useLocation()[1]("/admin/overview", { replace: true });
+            return null;
+          }}
+        />
         <Route path="/staff" component={StaffDashboard} />
         <Route
           path="/dashboard/print-pathways"

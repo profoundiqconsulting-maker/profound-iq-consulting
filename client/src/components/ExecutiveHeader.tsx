@@ -1,9 +1,4 @@
-/* Profound IQ Consulting — Executive header navigation and authentication. */
-import { useEffect, useState } from "react";
-import { LogOut, Menu, Search, X } from "lucide-react";
-import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { BrandLogo } from "@/components/BrandLogo";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,331 +6,176 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Bell, LogOut, Search, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { Link } from "wouter";
 
-const primaryNavItems = [
-  { label: "Home", href: "/" },
-  { label: "About", href: "/about" },
-  { label: "Self Assessment", href: "/assessment" },
-  { label: "Career Path", href: "/careerpath" },
-  { label: "Courses", href: "/courses" },
-  { label: "Psychometrics", href: "/psychometrics" },
-  { label: "School Solutions", href: "/school-solutions" },
-  { label: "Resources", href: "/resources" },
-  { label: "Contacts", href: "/contact" },
-  { label: "My Space", href: "/dashboard" },
-];
-
-type ExecutiveHeaderProps = {
-  variant?: "home" | "public" | "dashboard";
-  dark?: boolean;
-};
-
-function cn(...classes: (string | false | null | undefined)[]) {
-  return classes.filter(Boolean).join(" ");
+interface ExecutiveHeaderProps {
+  breadcrumbs?: Array<{ label: string; href?: string }>;
+  searchOpen?: boolean;
+  setSearchOpen?: (open: boolean) => void;
+  role?: "user" | "staff" | "admin";
+  user: NonNullable<ReturnType<typeof useAuth>["user"]>;
 }
 
 export function ExecutiveHeader({
-  variant = "public",
-  dark = true,
+  breadcrumbs,
+  searchOpen,
+  setSearchOpen,
+  role,
+  user,
 }: ExecutiveHeaderProps) {
-  const [isCompact, setIsCompact] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [location] = useLocation();
-  const { isAuthenticated, user, logout } = useAuth();
-
-  const isItemActive = (href: string) => {
-    const [pathOnly] = href.split("?");
-    return location === href || location.startsWith(`${pathOnly}/`);
-  };
-
-  const navigateItems = primaryNavItems;
-
-  const headerTone = dark
-    ? "border-b border-white/[0.06] bg-[#0a1426]/95 text-[#f7f3e8] shadow-[0_1px_0_rgba(255,255,255,0.04),0_8px_24px_rgba(7,17,35,0.18)] supports-[backdrop-filter]:bg-[#0a1426]/75"
-    : "border-b border-[#16243d]/[0.06] bg-white/95 text-[#16243d] shadow-[0_1px_0_rgba(22,36,61,0.04),0_8px_24px_rgba(8,15,26,0.06)] supports-[backdrop-filter]:bg-white/75";
-
-  useEffect(() => {
-    const onScroll = () => setIsCompact(window.scrollY > 12);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [location]);
+  const { logout } = useAuth();
+  const [notifications] = useState([
+    { id: 1, title: "Weekly export ready", time: "2h ago", read: false },
+    { id: 2, title: "3 failed deliveries", time: "5h ago", read: false },
+  ]);
 
   return (
-    <header
-      data-executive-header
-      data-compact={isCompact}
-      className={cn(
-        "sticky top-0 z-50 backdrop-blur-xl transition-all duration-200 ease-out",
-        headerTone
-      )}
-    >
-      <div
-        className={cn(
-          "mx-auto flex w-full max-w-[1480px] items-center gap-2 px-3 transition-all duration-200 sm:gap-3 sm:px-5 lg:gap-4 lg:px-8",
-          isCompact ? "min-h-[54px]" : "min-h-[60px]"
-        )}
-      >
-        <Link
-          href="/"
-          className="flex shrink-0 items-center"
-          aria-label="Profound IQ Consulting home"
-        >
-          <BrandLogo
-            context="public page"
-            compact={isCompact}
-            className="border border-[#c9a34e]/60 transition-shadow duration-200 hover:shadow-[0_6px_20px_rgba(201,163,78,0.18)]"
-          />
-        </Link>
-
-        <nav
-          className="hidden flex-1 items-center justify-center xl:flex"
-          aria-label="Primary"
-        >
-          <div className="flex items-center gap-0.5 xl:gap-1">
-            {navigateItems.map(item => {
-              const isMySpace = item.href === "/dashboard";
-              const active = isMySpace
-                ? isItemActive("/dashboard") || isItemActive("/myspace")
-                : isItemActive(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={isMySpace && !isAuthenticated ? "/myspace" : item.href}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "relative inline-flex h-10 items-center rounded-md px-3 text-[13px] font-medium tracking-tight transition-colors duration-150",
-                    active
-                      ? dark
-                        ? "text-[#c9a34e]"
-                        : "text-[#7d5e1e]"
-                      : dark
-                        ? "text-[#c1cad7] hover:text-[#f7f3e8]"
-                        : "text-[#4a566a] hover:text-[#16243d]"
+    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:backdrop-blur">
+      <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-3">
+          {breadcrumbs && breadcrumbs.length > 0 && (
+            <nav aria-label="Breadcrumb" className="hidden items-center gap-2 sm:flex">
+              {breadcrumbs.map((crumb, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  {index > 0 && (
+                    <ChevronRight className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
                   )}
-                >
-                  <span className="relative">
-                    {item.label}
-                    <span
-                      className={cn(
-                        "absolute -bottom-1 left-0 right-0 h-px origin-left bg-[#c9a34e] transition-transform duration-200 ease-out",
-                        active ? "scale-x-100" : "scale-x-0 hover:scale-x-100"
-                      )}
-                      aria-hidden="true"
-                    />
-                  </span>
-                </Link>
-              );
-            })}
-
-            {isAuthenticated ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    className="hidden xl:flex items-center gap-2 ml-2 pl-2 border-l border-white/10 text-left"
-                  >
-                    <span className="text-[11px] text-[#8f9db3]">
-                      Signed in as{" "}
-                      <span className="font-semibold text-[#c9a34e]">
-                        {user?.name ?? "User"}
-                      </span>
-                    </span>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="min-w-[12rem]">
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="cursor-pointer">
-                      Dashboard
+                  {crumb.href && index < breadcrumbs.length - 1 ? (
+                    <Link
+                      href={crumb.href}
+                      className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
+                    >
+                      {crumb.label}
                     </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onSelect={() => logout()}
-                    className="cursor-pointer"
-                  >
-                    <LogOut size={14} className="mr-2" aria-hidden="true" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <nav
-                className="hidden xl:flex items-center gap-1 ml-2 pl-2 border-l border-white/10"
-                aria-label="Account"
+                  ) : (
+                    <span className="text-sm font-semibold text-slate-900" aria-current="page">
+                      {crumb.label}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </nav>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="hidden sm:block">
+            <label htmlFor="global-search" className="sr-only">
+              Search
+            </label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+              <Input
+                id="global-search"
+                type="search"
+                placeholder="Search..."
+                className="h-9 w-56 pl-9 text-sm"
+              />
+            </div>
+          </div>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 sm:hidden"
+            onClick={() => setSearchOpen?.(!searchOpen)}
+            aria-label="Toggle search"
+            aria-expanded={searchOpen}
+          >
+            <Search className="h-4 w-4" aria-hidden="true" />
+          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 relative"
+                aria-label={`Notifications, ${notifications.filter(n => !n.read).length} unread`}
               >
-                <Link
-                  href="/auth?mode=login"
-                  className="inline-flex h-8 items-center rounded-md px-3 text-[11px] font-semibold tracking-tight text-[#c1cad7] transition-colors duration-150 hover:text-[#f7f3e8]"
+                <Bell className="h-4 w-4 text-slate-700" aria-hidden="true" />
+                {notifications.some(n => !n.read) && (
+                  <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white">
+                    <span className="sr-only">Unread notifications</span>
+                  </span>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-80" aria-label="Notifications">
+              <div className="px-3 py-2">
+                <p className="text-sm font-semibold text-slate-900">Notifications</p>
+              </div>
+              <DropdownMenuSeparator />
+              {notifications.map(notification => (
+                <DropdownMenuItem
+                  key={notification.id}
+                  className={`flex flex-col items-start gap-1 ${notification.read ? "" : "bg-slate-50"}`}
                 >
-                  Sign In
-                </Link>
-                <Link
-                  href="/auth?mode=register"
-                  className="inline-flex h-8 items-center rounded-md px-3 text-[11px] font-semibold tracking-tight bg-[#c9a34e] text-[#0a1426] transition-colors duration-150 hover:bg-[#d4b35c]"
-                >
-                  Sign Up
-                </Link>
-              </nav>
-            )}
-          </div>
-        </nav>
-
-        <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen(open => !open)}
-            aria-label={mobileMenuOpen ? "Close navigation" : "Open navigation"}
-            aria-expanded={mobileMenuOpen}
-            className={cn(
-              "inline-flex h-10 w-10 items-center justify-center rounded-md transition-colors duration-150 xl:hidden",
-              dark
-                ? "text-[#c1cad7] hover:bg-white/5 hover:text-[#f7f3e8]"
-                : "text-[#4a566a] hover:bg-[#16243d]/[0.04] hover:text-[#16243d]"
-            )}
-          >
-            {mobileMenuOpen ? (
-              <X size={18} strokeWidth={2} aria-hidden="true" />
-            ) : (
-              <Menu size={18} strokeWidth={2} aria-hidden="true" />
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile menu */}
-      <div
-        className={cn(
-          "overflow-hidden border-t transition-all duration-300 ease-out xl:hidden",
-          dark ? "border-white/8 bg-[#0a1426]" : "border-[#16243d]/8 bg-white",
-          mobileMenuOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"
-        )}
-      >
-        <div className="mx-auto w-full max-w-[1480px] px-3 py-4 sm:px-5 lg:px-8">
-          <div className="mb-4 flex items-center gap-2 xl:hidden">
-            <Search
-              size={15}
-              strokeWidth={2}
-              className={dark ? "text-[#7d5e1e]" : "text-[#7d5e1e]"}
-              aria-hidden="true"
-            />
-             <input
-               type="search"
-               placeholder="Search…"
-               className={cn(
-                 "h-10 w-full rounded-md border bg-transparent px-3 text-sm tracking-tight outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30",
-                 dark
-                   ? "border-white/12 placeholder:text-[#8f9db3]"
-                   : "border-[#16243d]/15 placeholder:text-[#657084]"
-               )}
-             />
-          </div>
-
-          <nav className="grid grid-cols-1 gap-1" aria-label="Primary mobile">
-            {navigateItems.map(item => {
-              const isMySpace = item.href === "/dashboard";
-              const active = isMySpace
-                ? isItemActive("/dashboard") || isItemActive("/myspace")
-                : isItemActive(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={isMySpace && !isAuthenticated ? "/myspace" : item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={cn(
-                    "flex h-12 items-center gap-3 rounded-md px-3.5 text-sm font-medium tracking-tight transition-colors duration-150",
-                    active
-                      ? dark
-                        ? "border-[#c9a34e]/50 bg-[#c9a34e]/10 text-[#c9a34e]"
-                        : "border-[#a27e2e]/50 bg-[#a27e2e]/10 text-[#7d5e1e]"
-                      : dark
-                        ? "border border-white/8 text-[#c1cad7] hover:border-white/20 hover:bg-white/5 hover:text-[#f7f3e8]"
-                        : "border border-[#16243d]/10 text-[#4a566a] hover:border-[#16243d]/25 hover:bg-white hover:text-[#16243d]"
-                  )}
-                >
-                  <span className="truncate">{item.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div
-            className="mt-5 flex flex-wrap items-center gap-2 border-t pt-4"
-            style={{
-              borderColor: dark
-                ? "rgba(255,255,255,0.06)"
-                : "rgba(22,36,61,0.06)",
-            }}
-          >
-            {isAuthenticated ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    className={cn(
-                      "inline-flex h-11 items-center gap-2 rounded-md px-4 text-sm font-semibold tracking-tight",
-                      dark
-                        ? "border border-white/15 text-[#f7f3e8] hover:bg-white/5"
-                        : "border border-[#16243d]/20 text-[#16243d] hover:bg-[#16243d]/[0.04]"
+                  <div className="flex w-full items-start justify-between gap-2">
+                    <p className="text-sm font-medium text-slate-900">{notification.title}</p>
+                    {!notification.read && (
+                      <span className="sr-only">Unread</span>
                     )}
-                  >
-                    <span className="text-[11px] text-[#8f9db3]">
-                      Signed in as{" "}
-                      <span className="font-semibold text-[#c9a34e]">
-                        {user?.name ?? "User"}
-                      </span>
-                    </span>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="min-w-[12rem]">
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="cursor-pointer">
-                      Dashboard
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onSelect={() => {
-                      setMobileMenuOpen(false);
-                      logout();
-                    }}
-                    className="cursor-pointer"
-                  >
-                    <LogOut size={14} className="mr-2" aria-hidden="true" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <>
-                <Link
-                  href="/auth?mode=login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={cn(
-                    "inline-flex h-11 items-center rounded-md px-4 text-sm font-semibold tracking-tight",
-                    dark
-                      ? "text-[#c1cad7] hover:text-[#f7f3e8]"
-                      : "text-[#4a566a] hover:text-[#16243d]"
-                  )}
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/auth?mode=register"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="inline-flex h-11 items-center rounded-md bg-[#c9a34e] px-4 text-sm font-semibold tracking-tight text-[#0a1426] transition-colors hover:bg-[#d4b35c]"
-                >
-                  Sign Up
-                </Link>
-              </>
-            )}
-          </div>
+                  </div>
+                  <p className="text-xs text-slate-500">{notification.time}</p>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="h-9 gap-2 pl-1 pr-2"
+                aria-label="User menu"
+              >
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white">
+                  {user?.name?.charAt(0).toUpperCase()}
+                </div>
+                <span className="hidden text-sm font-medium text-slate-700 md:inline">
+                  {user?.name}
+                </span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48" aria-label="User menu">
+              <DropdownMenuItem asChild>
+                <Link href="/settings">Settings</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={logout}
+                className="text-red-600 focus:text-red-600"
+              >
+                <LogOut className="mr-2 h-4 w-4" aria-hidden="true" />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
+
+      {searchOpen && (
+        <div className="border-t border-slate-200 bg-white p-4 sm:hidden">
+          <div className="relative">
+            <label htmlFor="mobile-search" className="sr-only">
+              Search
+            </label>
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+            <Input
+              id="mobile-search"
+              type="search"
+              placeholder="Search..."
+              className="h-10 w-full pl-9"
+              autoFocus
+            />
+          </div>
+        </div>
+      )}
     </header>
   );
 }

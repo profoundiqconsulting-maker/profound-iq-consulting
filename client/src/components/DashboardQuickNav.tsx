@@ -3,8 +3,8 @@ import { Link } from "wouter";
 import { useLocation } from "wouter";
 
 import {
-  dashboardNavGroups,
   visibleDashboardNavItems,
+  visibleDashboardNavGroups,
 } from "./dashboardNavigation";
 
 export function DashboardQuickNav({
@@ -17,6 +17,7 @@ export function DashboardQuickNav({
   const [location] = useLocation();
   
   const items = visibleDashboardNavItems(role);
+  const groups = visibleDashboardNavGroups(role);
 
   return (
     <nav
@@ -24,7 +25,7 @@ export function DashboardQuickNav({
       className={`overflow-x-auto border border-[#16243d]/10 bg-white/70 p-2 shadow-[0_12px_32px_rgba(16,29,53,.06)] ${className}`}
     >
       <div className="flex min-w-max gap-2 lg:grid lg:min-w-0 lg:grid-cols-3">
-        {dashboardNavGroups.map(group => {
+        {groups.map(group => {
           const groupItems = items.filter(item => item.group === group.id);
           if (!groupItems.length) return null;
           return (

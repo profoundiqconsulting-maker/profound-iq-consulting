@@ -1,26 +1,26 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import {
-  dashboardNavGroups,
   paginateDashboardItems,
+  visibleDashboardNavGroups,
   visibleDashboardNavItems,
 } from "../client/src/components/dashboardNavigation";
 
 describe("My Space workspace navigation", () => {
-  it("keeps role-aware destinations ordered into workspace, growth, and operations groups", () => {
-    expect(dashboardNavGroups.map(group => group.id)).toEqual([
-      "workspace",
+  it("keeps role-aware destinations ordered into role-specific groups", () => {
+    expect(visibleDashboardNavGroups("user").map(group => group.id)).toEqual([
+      "mySpace",
       "growth",
-      "operations",
+      "account",
     ]);
     expect(
-      visibleDashboardNavItems("user").some(item => item.id === "admin")
+      visibleDashboardNavItems("user").some(item => item.id === "admin-observatory")
     ).toBe(false);
     expect(
-      visibleDashboardNavItems("staff").some(item => item.id === "staff")
+      visibleDashboardNavItems("staff").some(item => item.id === "staff-workspace")
     ).toBe(true);
     expect(
-      visibleDashboardNavItems("admin").some(item => item.id === "admin")
+      visibleDashboardNavItems("admin").some(item => item.id === "admin-observatory")
     ).toBe(true);
   });
 
@@ -39,7 +39,7 @@ describe("My Space workspace navigation", () => {
     );
     const staff = readFileSync("client/src/pages/StaffDashboard.tsx", "utf8");
     const user = readFileSync("client/src/pages/UserDashboard.tsx", "utf8");
-    expect(quickNav).toContain("dashboardNavGroups.map");
+    expect(quickNav).toContain("visibleDashboardNavGroups");
     expect(quickNav).toContain("lg:grid-cols-3");
     expect(staff).toContain('<DashboardLayout role="staff"');
     expect(user).toContain("<DashboardLayout");

@@ -20,6 +20,7 @@ import {
   Square,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useAdminTableState } from "@/hooks/useAdminTableState";
 
 const categories = [
   ["all", "All subjects"],
@@ -94,31 +95,68 @@ function InquiryAuditHistory({
 }
 
 export default function AdminInquiryPanel() {
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState<Category>("all");
-  const [status, setStatus] = useState<Status>("all");
-  const [assignedToOpenId, setAssignedToOpenId] = useState("all");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
-  const [page, setPage] = useState(1);
-  const [selected, setSelected] = useState<number[]>([]);
+  const table = useAdminTableState(
+    "admin-inquiries",
+    {
+      search: "",
+      category: "all" as Category,
+      status: "all" as Status,
+      assignedToOpenId: "all",
+      fromDate: "",
+      toDate: "",
+      page: 1,
+      selected: [] as number[],
+    },
+    {
+      persistedKeys: [
+        "search",
+        "category",
+        "status",
+        "assignedToOpenId",
+        "fromDate",
+        "toDate",
+        "page",
+        "selected",
+      ],
+    }
+  );
+  const { state, setValue } = table;
   const [noteDrafts, setNoteDrafts] = useState<Record<number, string>>({});
   const [bulkStatus, setBulkStatus] = useState<ActiveStatus>("contacted");
   const [auditOpen, setAuditOpen] = useState<number | null>(null);
+
+  const setSearch = (value: string) => setValue("search", value);
+  const setCategory = (value: Category) => setValue("category", value);
+  const setStatus = (value: Status) => setValue("status", value);
+  const setAssignedToOpenId = (value: string) => setValue("assignedToOpenId", value);
+  const setFromDate = (value: string) => setValue("fromDate", value);
+  const setToDate = (value: string) => setValue("toDate", value);
+  const setPage = (value: number | ((prev: number) => number)) =>
+    setValue("page", value);
+  const setSelected = (value: number[] | ((prev: number[]) => number[])) =>
+    setValue("selected", value);
+
   const filters = useMemo(
     () => ({
-      search: search || undefined,
-      category,
-      status,
-      assignedToOpenId,
-      fromDate: fromDate || undefined,
-      toDate: toDate || undefined,
+      search: state.search || undefined,
+      category: state.category,
+      status: state.status,
+      assignedToOpenId: state.assignedToOpenId,
+      fromDate: state.fromDate || undefined,
+      toDate: state.toDate || undefined,
     }),
-    [assignedToOpenId, category, fromDate, search, status, toDate]
+    [
+      state.assignedToOpenId,
+      state.category,
+      state.fromDate,
+      state.search,
+      state.status,
+      state.toDate,
+    ]
   );
   const input = useMemo(
-    () => ({ ...filters, page, pageSize: 8 }),
-    [filters, page]
+    () => ({ ...filters, page: state.page, pageSize: 8 }),
+    [filters, state.page]
   );
   const inquiries = trpc.admin.contactInquiries.useQuery(input, {
     retry: false,
@@ -160,7 +198,7 @@ export default function AdminInquiryPanel() {
     [inquiries.data?.rows]
   );
   const allVisibleSelected =
-    rows.length > 0 && rows.every(row => selected.includes(row.id));
+    rows.length > 0 && rows.every(row => state.selected.includes(row.id));
   const subjectLabel = (value: string) =>
     categories.find(([key]) => key === value)?.[1] ?? value;
   const resetPage = () => {
@@ -180,8 +218,8 @@ export default function AdminInquiryPanel() {
     if (result.data) csvDownload(result.data);
   };
   const handleBulkUpdate = () => {
-    if (selected.length)
-      bulkUpdate.mutate({ ids: selected, status: bulkStatus });
+    if (state.selected.length)
+      bulkUpdate.mutate({ ids: state.selected, status: bulkStatus });
   };
   const setFilter = (setter: (value: string) => void, value: string) => {
     setter(value);
@@ -242,14 +280,14 @@ export default function AdminInquiryPanel() {
             size={15}
           />
           <input
-            value={search}
+            value={state.search}
             onChange={event => setFilter(setSearch, event.target.value)}
             placeholder="Search name, email, ticket number, or message"
             className="w-full border border-[#16243d]/20 bg-[#f7f3e8] py-2 pl-9 pr-3 text-sm outline-none focus:border-[#c9a34e]"
           />
         </label>
         <select
-          value={category}
+          value={state.category}
           onChange={event => {
             setCategory(event.target.value as Category);
             resetPage();
@@ -267,7 +305,7 @@ export default function AdminInquiryPanel() {
             ))}
         </select>
         <select
-          value={status}
+          value={state.status}
           onChange={event => {
             setStatus(event.target.value as Status);
             resetPage();
@@ -281,7 +319,7 @@ export default function AdminInquiryPanel() {
           <option value="closed">Closed</option>
         </select>
         <select
-          value={assignedToOpenId}
+          value={state.assignedToOpenId}
           onChange={event => {
             setAssignedToOpenId(event.target.value);
             resetPage();
@@ -301,7 +339,7 @@ export default function AdminInquiryPanel() {
           From
           <input
             type="date"
-            value={fromDate}
+            value={state.fromDate}
             onChange={event => setFilter(setFromDate, event.target.value)}
             aria-label="Filter inquiries from date"
             className="mt-1 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs font-normal tracking-normal text-[#16243d]"
@@ -311,7 +349,7 @@ export default function AdminInquiryPanel() {
           To
           <input
             type="date"
-            value={toDate}
+            value={state.toDate}
             onChange={event => setFilter(setToDate, event.target.value)}
             aria-label="Filter inquiries to date"
             className="mt-1 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs font-normal tracking-normal text-[#16243d]"
@@ -377,7 +415,7 @@ export default function AdminInquiryPanel() {
             Select visible
           </button>
           <span className="text-xs text-[#657084]">
-            {selected.length} selected
+            {state.selected.length} selected
           </span>
         </div>
         <div className="flex gap-2">
@@ -396,7 +434,7 @@ export default function AdminInquiryPanel() {
           <button
             type="button"
             onClick={handleBulkUpdate}
-            disabled={!selected.length || bulkUpdate.isPending}
+            disabled={!state.selected.length || bulkUpdate.isPending}
             className="inline-flex items-center gap-2 bg-[#16243d] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] disabled:opacity-40"
           >
             {bulkUpdate.isPending && (
@@ -421,10 +459,10 @@ export default function AdminInquiryPanel() {
               <button
                 type="button"
                 onClick={() => toggleSelected(inquiry.id)}
-                aria-label={`${selected.includes(inquiry.id) ? "Deselect" : "Select"} inquiry from ${inquiry.name}`}
+                aria-label={`${state.selected.includes(inquiry.id) ? "Deselect" : "Select"} inquiry from ${inquiry.name}`}
                 className="mt-1 shrink-0 text-[#7d5e1e]"
               >
-                {selected.includes(inquiry.id) ? (
+                {state.selected.includes(inquiry.id) ? (
                   <CheckSquare size={17} />
                 ) : (
                   <Square size={17} />
@@ -617,13 +655,13 @@ export default function AdminInquiryPanel() {
         <button
           type="button"
           onClick={() => setPage(value => Math.max(1, value - 1))}
-          disabled={page <= 1 || inquiries.isLoading}
+          disabled={state.page <= 1 || inquiries.isLoading}
           className="inline-flex items-center gap-1 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-40"
         >
           <ChevronLeft size={13} /> Previous
         </button>
         <span className="text-xs text-[#657084]">
-          Page {inquiries.data?.page ?? page} of{" "}
+          Page {inquiries.data?.page ?? state.page} of{" "}
           {inquiries.data?.totalPages ?? 1}
         </span>
         <button
@@ -634,7 +672,7 @@ export default function AdminInquiryPanel() {
             )
           }
           disabled={
-            page >= (inquiries.data?.totalPages ?? 1) || inquiries.isLoading
+            state.page >= (inquiries.data?.totalPages ?? 1) || inquiries.isLoading
           }
           className="inline-flex items-center gap-1 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-40"
         >

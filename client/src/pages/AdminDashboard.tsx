@@ -77,9 +77,8 @@ import {
   Section,
   StatCard,
   FilterBar,
-  AnalyticsBarChart,
-  AnalyticsLineChart,
 } from "@/components/dashboard";
+import { AnalyticsBarChart, AnalyticsLineChart } from "@/components/dashboard/charts/AnalyticsCharts";
 import "@/components/dashboard/admin-observatory.css";
 import AdminInquiryPanel from "@/components/AdminInquiryPanel";
 import AdminRevenuePanel from "@/components/AdminRevenuePanel";
@@ -102,6 +101,18 @@ import { buildFunnelComparison } from "@shared/adminAnalytics";
 import { renderEmailTemplate } from "@shared/emailTemplate";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
+import {
+  OverviewScreen,
+  RevenueScreen,
+  InquiriesScreen,
+  StaffScreen,
+  SystemScreen,
+  CommunicationsScreen,
+  LearningScreen,
+  SurveysScreen,
+  ResourcesScreen,
+  OrganizationScreen,
+} from "@/components/admin-screens";
 
 
 function statusLabel(status: string) {
@@ -112,6 +123,24 @@ function toLocalDateKey(value: Date | string | number) {
   const date = new Date(value);
 
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function isValidAdminTab(tab: string): boolean {
+  return [
+    "overview",
+    "psychometrics",
+    "inquiries",
+    "revenue",
+    "staff",
+    "learning",
+    "communications",
+    "security",
+    "organization",
+    "operations",
+    "intelligence",
+    "surveys",
+    "resources",
+  ].includes(tab);
 }
 
 type PaymentFilter = "all" | "paid" | "pending";
@@ -141,45 +170,51 @@ const templateDefaults: Record<
   },
 };
 
-export default function AdminDashboard() {
+interface AdminDashboardProps {
+  defaultTab?: string;
+  hideTabs?: boolean;
+  title?: string;
+}
+
+const adminTabTitles: Record<string, string> = {
+  overview: "Reports",
+  operations: "Operations",
+  revenue: "Revenue",
+  intelligence: "Intelligence",
+  psychometrics: "Psychometrics",
+  inquiries: "Inquiries",
+  system: "System",
+  staff: "Staff",
+  communications: "Communications",
+  surveys: "Surveys",
+  security: "Security",
+  organization: "Organization",
+  resources: "Resources",
+};
+
+export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDashboardProps = {}) {
   
 
   const { user, loading: authLoading } = useAuth();
 
-  const [activeTab, setActiveTab] = useState(() => {
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    if (defaultTab && isValidAdminTab(defaultTab)) return defaultTab;
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-
       const tab = params.get("tab");
-
-      if (
-        tab &&
-        [
-          "overview",
-          "psychometrics",
-          "inquiries",
-          "revenue",
-          "staff",
-          "learning",
-          "communications",
-          "security",
-          "organization",
-        ].includes(tab)
-      ) {
+      if (tab && isValidAdminTab(tab)) {
         return tab;
       }
     }
-
     return "overview";
   });
 
   useEffect(() => {
+    if (defaultTab) return;
     const url = new URL(window.location.href);
-
     url.searchParams.set("tab", activeTab);
-
     window.history.replaceState({}, "", url);
-  }, [activeTab]);
+  }, [activeTab, defaultTab]);
 
   const overview = trpc.assessment.adminOverview.useQuery(undefined, {
     enabled: Boolean(user?.role === "admin"),
@@ -1250,13 +1285,19 @@ export default function AdminDashboard() {
 
   const initialLoading = overview.isLoading;
 
+  const resolvedTitle = title || adminTabTitles[activeTab] || "Admin Observatory";
+
   return (
-    <DashboardLayout role="admin" title="Admin Observatory">
+    <DashboardLayout role="admin" title={resolvedTitle}>
       <div id="admin-observatory" className="admin-observatory w-full">
         <DashboardHero
-          eyebrow="Assessment intelligence"
-          title="Reports"
-          description="Download branded reports for every area of the platform."
+          eyebrow={activeTab === "overview" ? "Assessment intelligence" : activeTab}
+          title={resolvedTitle}
+          description={
+            activeTab === "overview"
+              ? "Download branded reports for every area of the platform."
+              : `${resolvedTitle} workspace.`
+          }
           badge={{ label: "Admin only", variant: "secondary" }}
         />
         {initialLoading && (
@@ -1266,132 +1307,136 @@ export default function AdminDashboard() {
             ))}
           </div>
         )}
-        <div
-          className="mt-6 flex flex-wrap items-center gap-2"
-          role="tablist"
-          aria-label="Admin sections"
-        >
-          <TabButton
-            tab="overview"
-            label="Reports"
-            icon={<BarChart3 size={14} />}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
-          <TabDivider />
-          <TabButton
-            tab="operations"
-            label="Operations"
-            icon={<Activity size={14} />}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
-          <TabDivider />
-          <TabButton
-            tab="revenue"
-            label="Revenue"
-            icon={<Database size={14} />}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
-          <TabDivider />
-          <TabButton
-            tab="intelligence"
-            label="Intelligence"
-            icon={<Gauge size={14} />}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
-          <TabDivider />
-          <TabButton
-            tab="psychometrics"
-            label="Psychometrics"
-            icon={<BrainCircuit size={14} />}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
-          <TabButton
-            tab="inquiries"
-            label="Inquiries"
-            icon={<Mail size={14} />}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
-          <TabDivider />
-          <TabButton
-            tab="system"
-            label="System"
-            icon={<Clock3 size={14} />}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
-          <TabDivider />
-          <TabButton
-            tab="staff"
-            label="Staff"
-            icon={<Users size={14} />}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
-          <TabButton
-            tab="communications"
-            label="Communications"
-            icon={<Send size={14} />}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
-          <TabButton
-            tab="surveys"
-            label="Surveys"
-            icon={<FileText size={14} />}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
-          <TabDivider />
-          <TabButton
-            tab="security"
-            label="Security"
-            icon={<ShieldCheck size={14} />}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
-          <TabButton
-            tab="organization"
-            label="Organization"
-            icon={<Building2 size={14} />}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
-        </div>
-        <div className="mt-4 flex flex-wrap items-center gap-3 border-b border-[#16243d]/10 pb-4">
-          <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
-            Quick actions
-          </span>
-          <QuickActionButton
-            icon={<ShieldCheck size={14} />}
-            label="Generate QC certificate"
-            target="operations"
-            onTabChange={setActiveTab}
-          />
-          <QuickActionButton
-            icon={<MailCheck size={14} />}
-            label="Send newsletter"
-            target="communications"
-            onTabChange={setActiveTab}
-          />
-          <QuickActionButton
-            icon={<Download size={14} />}
-            label="Review payments"
-            target="revenue"
-            onTabChange={setActiveTab}
-          />
-          <QuickActionButton
-            icon={<BarChart3 size={14} />}
-            label="View reports"
-            target="overview"
-            onTabChange={setActiveTab}
-          />
-        </div>
+        {!hideTabs && (
+          <>
+            <div
+              className="mt-6 flex flex-wrap items-center gap-2"
+              role="tablist"
+              aria-label="Admin sections"
+            >
+              <TabButton
+                tab="overview"
+                label="Reports"
+                icon={<BarChart3 size={14} />}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+              <TabDivider />
+              <TabButton
+                tab="operations"
+                label="Operations"
+                icon={<Activity size={14} />}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+              <TabDivider />
+              <TabButton
+                tab="revenue"
+                label="Revenue"
+                icon={<Database size={14} />}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+              <TabDivider />
+              <TabButton
+                tab="intelligence"
+                label="Intelligence"
+                icon={<Gauge size={14} />}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+              <TabDivider />
+              <TabButton
+                tab="psychometrics"
+                label="Psychometrics"
+                icon={<BrainCircuit size={14} />}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+              <TabButton
+                tab="inquiries"
+                label="Inquiries"
+                icon={<Mail size={14} />}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+              <TabDivider />
+              <TabButton
+                tab="system"
+                label="System"
+                icon={<Clock3 size={14} />}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+              <TabDivider />
+              <TabButton
+                tab="staff"
+                label="Staff"
+                icon={<Users size={14} />}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+              <TabButton
+                tab="communications"
+                label="Communications"
+                icon={<Send size={14} />}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+              <TabButton
+                tab="surveys"
+                label="Surveys"
+                icon={<FileText size={14} />}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+              <TabDivider />
+              <TabButton
+                tab="security"
+                label="Security"
+                icon={<ShieldCheck size={14} />}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+              <TabButton
+                tab="organization"
+                label="Organization"
+                icon={<Building2 size={14} />}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+            </div>
+            <div className="mt-4 flex flex-wrap items-center gap-3 border-b border-[#16243d]/10 pb-4">
+              <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                Quick actions
+              </span>
+              <QuickActionButton
+                icon={<ShieldCheck size={14} />}
+                label="Generate QC certificate"
+                target="operations"
+                onTabChange={setActiveTab}
+              />
+              <QuickActionButton
+                icon={<MailCheck size={14} />}
+                label="Send newsletter"
+                target="communications"
+                onTabChange={setActiveTab}
+              />
+              <QuickActionButton
+                icon={<Download size={14} />}
+                label="Review payments"
+                target="revenue"
+                onTabChange={setActiveTab}
+              />
+              <QuickActionButton
+                icon={<BarChart3 size={14} />}
+                label="View reports"
+                target="overview"
+                onTabChange={setActiveTab}
+              />
+            </div>
+          </>
+        )}
         <div className="mt-8 space-y-8">
           {activeTab === "surveys" && (
             <div id="surveys" className="scroll-mt-8">
@@ -3310,273 +3355,6 @@ export default function AdminDashboard() {
                 </div>
               </section>
 
-              <section
-                id="security"
-                className="mt-10 scroll-mt-8 border border-[#16243d]/15 bg-[#16243d] p-5 text-[#f7f3e8] sm:p-7"
-              >
-                <div className="flex flex-col justify-between gap-4 border-b border-[#c9a34e]/35 pb-5 sm:flex-row sm:items-end">
-                  <div>
-                    <p className="eyebrow text-[#7d5e1e]">
-                      Security observatory
-                    </p>
-
-                    <h2 className="display mt-3 text-3xl">
-                      Login signals over time
-                    </h2>
-
-                    <p className="mt-2 max-w-2xl text-sm leading-6 text-[#c1cad7]">
-                      Access outcomes and session device mix, based on
-                      privacy-safe security metadata. The selected date range
-                      and granularity apply to both charts.
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="inline-flex border border-[#c9a34e]/60 p-1"
-                      role="group"
-                      aria-label="Chart granularity"
-                    >
-                      <button
-                        type="button"
-                        onClick={() => setLoginGranularity("daily")}
-                        aria-pressed={loginGranularity === "daily"}
-                        className={`px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] ${loginGranularity === "daily" ? "bg-[#c9a34e] text-[#101d35]" : "text-[#c1cad7]"}`}
-                      >
-                        Daily
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setLoginGranularity("weekly")}
-                        aria-pressed={loginGranularity === "weekly"}
-                        className={`px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] ${loginGranularity === "weekly" ? "bg-[#c9a34e] text-[#101d35]" : "text-[#c1cad7]"}`}
-                      >
-                        Weekly
-                      </button>
-                    </div>
-
-                    <ShieldCheck
-                      className="hidden text-[#7d5e1e] sm:block"
-                      size={24}
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-6 grid gap-5 xl:grid-cols-2">
-                  <div className="border border-[#c1cad7]/15 bg-[#101d35]/70 p-4 sm:p-5">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-                          Access outcomes
-                        </p>
-
-                        <p className="mt-1 text-xs text-[#c1cad7]">
-                          {loginGranularity === "daily" ? "Daily" : "Weekly"}{" "}
-                          successful and blocked sign-ins
-                        </p>
-                      </div>
-
-                      <div className="flex gap-3 text-[10px] font-black uppercase tracking-[.1em]">
-                        <span className="text-[#7d5e1e]">Success</span>
-
-                        <span className="text-red-300">Blocked</span>
-                      </div>
-                    </div>
-
-                    <div className="mt-5 h-64">
-                      {loginSecurityAnalytics.isLoading ? (
-                        <div className="grid h-full place-items-center text-sm text-[#c1cad7]">
-                          Loading login trends…
-                        </div>
-                      ) : (loginSecurityAnalytics.data?.loginTrend.length ??
-                          0) === 0 ? (
-                        <div className="grid h-full place-items-center text-center text-sm text-[#c1cad7]">
-                          No login events in this range.
-                        </div>
-                      ) : (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart
-                            data={loginSecurityAnalytics.data?.loginTrend}
-                          >
-                            <CartesianGrid
-                              stroke="#c1cad7"
-                              strokeOpacity={0.12}
-                              vertical={false}
-                            />
-
-                            <XAxis
-                              dataKey="week"
-                              tickFormatter={value => value.slice(5)}
-                              stroke="#c1cad7"
-                              tick={{ fontSize: 10 }}
-                              tickLine={false}
-                              axisLine={false}
-                            />
-
-                            <YAxis
-                              allowDecimals={false}
-                              stroke="#c1cad7"
-                              tick={{ fontSize: 10 }}
-                              tickLine={false}
-                              axisLine={false}
-                            />
-
-                            <Tooltip
-                              contentStyle={{
-                                background: "var(--popover)",
-                                border: "1px solid var(--popover-foreground)",
-                                color: "var(--popover-foreground)",
-                              }}
-                            />
-
-                            <Line
-                              type="monotone"
-                              dataKey="success"
-                              name="Success"
-                              stroke="#c9a34e"
-                              strokeWidth={2.5}
-                              dot={{ r: 3, fill: "#c9a34e" }}
-                            />
-
-                            <Line
-                              type="monotone"
-                              dataKey="failed"
-                              name="Failed attempts"
-                              stroke="#f59e0b"
-                              strokeWidth={2}
-                              dot={{ r: 3, fill: "#f59e0b" }}
-                            />
-
-                            <Line
-                              type="monotone"
-                              dataKey="blocked"
-                              name="Rate limited"
-                              stroke="#fca5a5"
-                              strokeWidth={2}
-                              dot={{ r: 3, fill: "#fca5a5" }}
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="border border-[#c1cad7]/15 bg-[#101d35]/70 p-4 sm:p-5">
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-                        Device classifications
-                      </p>
-
-                      <p className="mt-1 text-xs text-[#c1cad7]">
-                        Session mix by{" "}
-                        {loginGranularity === "daily" ? "day" : "week"}
-                      </p>
-                    </div>
-
-                    <div className="mt-5 h-64">
-                      {loginSecurityAnalytics.isLoading ? (
-                        <div className="grid h-full place-items-center text-sm text-[#c1cad7]">
-                          Loading device mix…
-                        </div>
-                      ) : (loginSecurityAnalytics.data?.deviceTrend.length ??
-                          0) === 0 ? (
-                        <div className="grid h-full place-items-center text-center text-sm text-[#c1cad7]">
-                          No classified sessions in this range.
-                        </div>
-                      ) : (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart
-                            data={loginSecurityAnalytics.data?.deviceTrend}
-                          >
-                            <CartesianGrid
-                              stroke="#c1cad7"
-                              strokeOpacity={0.12}
-                              vertical={false}
-                            />
-
-                            <XAxis
-                              dataKey="week"
-                              tickFormatter={value => value.slice(5)}
-                              stroke="#c1cad7"
-                              tick={{ fontSize: 10 }}
-                              tickLine={false}
-                              axisLine={false}
-                            />
-
-                            <YAxis
-                              allowDecimals={false}
-                              stroke="#c1cad7"
-                              tick={{ fontSize: 10 }}
-                              tickLine={false}
-                              axisLine={false}
-                            />
-
-                            <Tooltip
-                              contentStyle={{
-                                background: "var(--popover)",
-                                border: "1px solid var(--popover-foreground)",
-                                color: "var(--popover-foreground)",
-                              }}
-                            />
-
-                            <Bar
-                              dataKey="desktop"
-                              name="Desktop"
-                              stackId="devices"
-                              fill="#c9a34e"
-                            />
-
-                            <Bar
-                              dataKey="mobile"
-                              name="Mobile"
-                              stackId="devices"
-                              fill="#8aa0be"
-                            />
-
-                            <Bar
-                              dataKey="tablet"
-                              name="Tablet"
-                              stackId="devices"
-                              fill="#d9c28a"
-                            />
-
-                            <Bar
-                              dataKey="unknown"
-                              name="Unknown"
-                              stackId="devices"
-                              fill="#657084"
-                            />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      )}
-                    </div>
-
-                    <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-[10px] font-black uppercase tracking-[.1em] text-[#c1cad7]">
-                      <span>
-                        <i className="mr-1 inline-block h-2 w-2 bg-[#c9a34e]" />
-                        Desktop
-                      </span>
-
-                      <span>
-                        <i className="mr-1 inline-block h-2 w-2 bg-[#8aa0be]" />
-                        Mobile
-                      </span>
-
-                      <span>
-                        <i className="mr-1 inline-block h-2 w-2 bg-[#d9c28a]" />
-                        Tablet
-                      </span>
-
-                      <span>
-                        <i className="mr-1 inline-block h-2 w-2 bg-[#657084]" />
-                        Unknown
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
               <Section
                 eyebrow="Refine the register"
                 description="Filters apply to attempt date, payment state, and verified overall score."
@@ -4627,862 +4405,6 @@ export default function AdminDashboard() {
                     ))}
                   </div>
                 )}
-              </Section>
-
-              <Section
-                eyebrow="Security observatory"
-                title="Failed-login activity"
-                description="Review recent failed attempts and control when verified admins receive alerts."
-                actions={
-                  <div className="text-right">
-                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8]">
-                      Events in view
-                    </p>
-
-                    <p className="mt-1 text-2xl font-bold text-[#7d5e1e]">
-                      {failedLoginEvents.data?.total ?? 0}
-                    </p>
-                  </div>
-                }
-                className="mt-8 bg-[#16243d] text-[#f7f3e8]"
-              >
-                <div className="mt-5 border border-[#a27e2e]/30 bg-[#f7f3e8] p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-                    Manual reset
-                  </p>
-
-                  <p className="mt-1 text-xs leading-5 text-[#16243d]">
-                    Generate a single-use reset link for an administrator when
-                    email delivery is unavailable. The link expires in 10
-                    minutes.
-                  </p>
-
-                  <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-                    <input
-                      type="email"
-                      value={adminResetEmail || user?.email || ""}
-                      onChange={event => setAdminResetEmail(event.target.value)}
-                      placeholder="Administrator email"
-                      className="min-w-0 flex-1 border border-[#16243d]/20 bg-white px-3 py-2 text-sm text-[#16243d]"
-                    />
-                    <button
-                      type="button"
-                      disabled={generateAdminResetLink.isPending}
-                      onClick={() =>
-                        generateAdminResetLink.mutate({
-                          email: adminResetEmail || user?.email || "",
-                          origin: window.location.origin,
-                        })
-                      }
-                      className="inline-flex items-center justify-center gap-2 bg-[#16243d] px-4 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8] disabled:opacity-60"
-                    >
-                      {generateAdminResetLink.isPending && (
-                        <RefreshCw size={12} className="animate-spin" />
-                      )}{" "}
-                      Generate one-time link
-                    </button>
-                  </div>
-
-                  {adminResetLink && (
-                    <div className="mt-3 border-l-2 border-[#a27e2e] bg-white p-3 text-xs text-[#16243d]">
-                      <div className="break-all">
-                        <strong>One-time link:</strong> {adminResetLink}
-                      </div>
-                      <div className="mt-3 flex flex-wrap items-center gap-3">
-                        <button
-                          type="button"
-                          disabled={adminResetRemaining === 0}
-                          onClick={() => {
-                            void navigator.clipboard
-                              .writeText(adminResetLink)
-                              .then(() => {
-                                setAdminResetCopied(true);
-                                toast.success("Reset link copied");
-                              });
-                          }}
-                          className="border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-40"
-                        >
-                          {adminResetCopied ? "Copied" : "Copy to clipboard"}
-                        </button>
-                        <button
-                          type="button"
-                          disabled={revokeAdminResetLink.isPending}
-                          onClick={() => setConfirmResetRevocation(true)}
-                          className="border border-red-800/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-red-800 disabled:opacity-40"
-                        >
-                          Revoke link
-                        </button>
-                        <span className="text-[11px] text-[#16243d]">
-                          {adminResetRemaining > 0
-                            ? `Expires in ${Math.floor(adminResetRemaining / 60)}:${String(adminResetRemaining % 60).padStart(2, "0")}`
-                            : "Expired — generate a new link."}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto]">
-                  <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
-                    IP address
-                    <input
-                      type="search"
-                      value={securityIpSearch}
-                      onChange={event => {
-                        setSecurityIpSearch(event.target.value);
-
-                        setSecurityPage(1);
-                      }}
-                      placeholder="Search network address"
-                      className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
-                    />
-                  </label>
-
-                  <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
-                    Geographic location
-                    <input
-                      type="search"
-                      value={securityLocationSearch}
-                      onChange={event => {
-                        setSecurityLocationSearch(event.target.value);
-
-                        setSecurityPage(1);
-                      }}
-                      placeholder="Country code, e.g. KE"
-                      className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
-                    />
-                  </label>
-
-                  <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
-                    From
-                    <input
-                      type="date"
-                      value={securityFromDate}
-                      onChange={event => {
-                        setSecurityFromDate(event.target.value);
-
-                        setSecurityPage(1);
-                      }}
-                      className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
-                    />
-                  </label>
-
-                  <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
-                    To
-                    <input
-                      type="date"
-                      value={securityToDate}
-                      onChange={event => {
-                        setSecurityToDate(event.target.value);
-
-                        setSecurityPage(1);
-                      }}
-                      className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
-                    />
-                  </label>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSecurityFromDate("");
-
-                      setSecurityToDate("");
-
-                      setSecurityIpSearch("");
-
-                      setSecurityLocationSearch("");
-
-                      setSecurityPage(1);
-                    }}
-                    className="self-end border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em]"
-                  >
-                    Clear filters
-                  </button>
-                </div>
-
-                <div className="mt-5 grid gap-4 border-t border-[#16243d]/10 pt-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-                  <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
-                    Alert after failed attempts
-                    <input
-                      type="number"
-                      min="3"
-                      max="20"
-                      value={alertThreshold}
-                      onChange={event =>
-                        setAlertThreshold(Number(event.target.value))
-                      }
-                      className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm font-bold normal-case tracking-normal text-[#16243d]"
-                    />
-                  </label>
-
-                  <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
-                    Review window (days)
-                    <input
-                      type="number"
-                      min="1"
-                      max="90"
-                      value={reviewWindowDays}
-                      onChange={event =>
-                        setReviewWindowDays(Number(event.target.value))
-                      }
-                      className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm font-bold normal-case tracking-normal text-[#16243d]"
-                    />
-                  </label>
-
-                  <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
-                    Lockout duration (seconds)
-                    <input
-                      type="number"
-                      min="60"
-                      max="86400"
-                      value={lockoutWindowSeconds}
-                      onChange={event =>
-                        setLockoutWindowSeconds(Number(event.target.value))
-                      }
-                      className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm font-bold normal-case tracking-normal text-[#16243d]"
-                    />
-                    <span className="mt-1 block text-[10px] font-normal normal-case tracking-normal text-[#16243d]">
-                      Allowed range: 1 minute to 24 hours.
-                    </span>
-                  </label>
-
-                  <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
-                    Log retention (days)
-                    <input
-                      type="number"
-                      min="30"
-                      max="365"
-                      value={loginEventRetentionDays}
-                      onChange={event =>
-                        setLoginEventRetentionDays(Number(event.target.value))
-                      }
-                      className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm font-bold normal-case tracking-normal text-[#16243d]"
-                    />
-                  </label>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      saveSecuritySettings.mutate({
-                        alertThreshold,
-
-                        reviewWindowDays,
-
-                        loginEventRetentionDays,
-
-                        lockoutWindowSeconds,
-                      })
-                    }
-                    disabled={saveSecuritySettings.isPending}
-                    className="inline-flex items-center justify-center gap-2 bg-[#16243d] px-4 py-2.5 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8] disabled:opacity-60"
-                  >
-                    {saveSecuritySettings.isPending && (
-                      <RefreshCw size={13} className="animate-spin" />
-                    )}{" "}
-                    Save settings
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleExportSecurityLogs}
-                    disabled={exportSecurityLogs.isFetching}
-                    className="inline-flex items-center justify-center gap-2 border border-[#16243d]/20 px-4 py-2.5 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] disabled:opacity-60"
-                  >
-                    {exportSecurityLogs.isFetching && (
-                      <RefreshCw size={13} className="animate-spin" />
-                    )}{" "}
-                    Export security CSV
-                  </button>
-                </div>
-
-                <p className="mt-3 text-xs leading-5 text-[#16243d]">
-                  Failed-login events older than {loginEventRetentionDays} days
-                  are removed when this panel is viewed. The export includes the
-                  current filtered window within that retention period.
-                </p>
-
-                {exportSecurityLogs.data && (
-                  <p className="mt-2 text-xs font-semibold text-emerald-800">
-                    Security CSV ready: {exportSecurityLogs.data.retentionDays}
-                    -day retention applied.
-                  </p>
-                )}
-
-                <div className="mt-6 grid gap-5 lg:grid-cols-2">
-                  <div className="border border-[#16243d]/10 bg-[#16243d] p-5 text-[#f7f3e8]">
-                    <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-                      Regional threat signal
-                    </p>
-
-                    <p className="mt-1 text-xs text-[#c1cad7]">
-                      Failed-login events grouped by estimated region.
-                    </p>
-
-                    <div className="mt-4 h-52">
-                      {(failedLoginRegions.data?.length ?? 0) === 0 ? (
-                        <div className="grid h-full place-items-center text-sm text-[#c1cad7]">
-                          No regional events in this range.
-                        </div>
-                      ) : (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart
-                            data={failedLoginRegions.data?.slice(0, 8)}
-                            layout="vertical"
-                            margin={{ left: 8, right: 12 }}
-                          >
-                            <CartesianGrid
-                              stroke="#c1cad7"
-                              strokeOpacity={0.12}
-                              horizontal={false}
-                            />
-                            <XAxis
-                              type="number"
-                              allowDecimals={false}
-                              stroke="#c1cad7"
-                              tick={{ fontSize: 10 }}
-                              tickLine={false}
-                              axisLine={false}
-                            />
-                            <YAxis
-                              type="category"
-                              dataKey="location"
-                              width={58}
-                              stroke="#c1cad7"
-                              tick={{ fontSize: 10 }}
-                              tickLine={false}
-                              axisLine={false}
-                            />
-                            <Tooltip
-                              contentStyle={{
-                                background: "var(--popover)",
-                                border: "1px solid var(--popover-foreground)",
-                                color: "var(--popover-foreground)",
-                              }}
-                            />
-                            <Bar
-                              dataKey="count"
-                              name="Failed attempts"
-                              fill="#c9a34e"
-                              radius={[0, 2, 2, 0]}
-                            />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="border border-[#16243d]/10 bg-white/60 p-5">
-                    <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
-                      <div>
-                        <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-                          Unlock audit history
-                        </p>
-                        <p className="mt-1 text-xs text-[#16243d]">
-                          Manual unlock actions recorded with actor and cleared
-                          attempts.
-                        </p>
-                      </div>
-                      <div className="grid gap-2 sm:grid-cols-3">
-                        <input
-                          type="search"
-                          value={unlockAuditSearch}
-                          onChange={event => {
-                            setUnlockAuditSearch(event.target.value);
-                            setUnlockAuditPage(1);
-                          }}
-                          placeholder="Search user or admin"
-                          className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs text-[#16243d]"
-                        />
-                        <input
-                          type="date"
-                          value={unlockAuditFrom}
-                          onChange={event => {
-                            setUnlockAuditFrom(event.target.value);
-                            setUnlockAuditPage(1);
-                          }}
-                          className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs text-[#16243d]"
-                        />
-                        <input
-                          type="date"
-                          value={unlockAuditTo}
-                          onChange={event => {
-                            setUnlockAuditTo(event.target.value);
-                            setUnlockAuditPage(1);
-                          }}
-                          className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs text-[#16243d]"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        disabled={exportUnlockAudits.isFetching}
-                        onClick={() => void exportUnlockAudits.refetch()}
-                        className="mt-3 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] disabled:opacity-50"
-                      >
-                        Export filtered CSV
-                      </button>
-                    </div>
-
-                    <div className="mt-4 overflow-x-auto">
-                      <table className="w-full min-w-[520px] text-left text-xs">
-                        <thead>
-                          <tr className="border-b border-[#16243d]/10 text-[9px] font-black uppercase tracking-[.12em] text-[#16243d]">
-                            <th className="py-2 pr-3">When</th>
-                            <th className="py-2 pr-3">Account</th>
-                            <th className="py-2 pr-3">Admin</th>
-                            <th className="py-2">Cleared</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {unlockAuditHistory.data?.rows.map(audit => (
-                            <tr
-                              key={audit.id}
-                              className="border-b border-[#16243d]/10"
-                            >
-                              <td className="py-2 pr-3">
-                                {new Date(audit.createdAt).toLocaleString()}
-                              </td>
-                              <td className="py-2 pr-3">
-                                {audit.targetEmail ?? audit.targetOpenId}
-                              </td>
-                              <td className="py-2 pr-3">
-                                {audit.actorName ?? audit.actorOpenId}
-                              </td>
-                              <td className="py-2">
-                                {audit.clearedAttemptCount}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                      {!unlockAuditHistory.data?.rows.length && (
-                        <p className="py-5 text-sm text-[#16243d]">
-                          No unlock actions recorded.
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mt-3 flex items-center justify-between text-[10px] uppercase tracking-[.1em] text-[#16243d]">
-                      <span>
-                        Page {unlockAuditHistory.data?.page ?? 1} of{" "}
-                        {unlockAuditHistory.data?.pageCount ?? 1}
-                      </span>
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          disabled={unlockAuditPage <= 1}
-                          onClick={() => setUnlockAuditPage(page => page - 1)}
-                          className="border border-[#16243d]/20 px-2 py-1 disabled:opacity-40"
-                        >
-                          Previous
-                        </button>
-                        <button
-                          type="button"
-                          disabled={
-                            unlockAuditPage >=
-                            (unlockAuditHistory.data?.pageCount ?? 1)
-                          }
-                          onClick={() => setUnlockAuditPage(page => page + 1)}
-                          className="border border-[#16243d]/20 px-2 py-1 disabled:opacity-40"
-                        >
-                          Next
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="mt-6 border-t border-[#16243d]/10 pt-4">
-                      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
-                        <div>
-                          <div className="flex items-center justify-between gap-3">
-                            <div>
-                              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
-                                CSV download history
-                              </p>
-                              <p className="mt-1 text-xs text-[#16243d]">
-                                Track which administrators downloaded
-                                unlock-audit records.
-                              </p>
-                            </div>
-                            <button
-                              type="button"
-                              disabled={exportUnlockAuditHistory.isFetching}
-                              onClick={async () => {
-                                const result =
-                                  await exportUnlockAuditHistory.refetch();
-                                if (!result.data) return;
-                                const anchor = document.createElement("a");
-                                anchor.href = `data:${result.data.contentType},${encodeURIComponent(result.data.data)}`;
-                                anchor.download = result.data.filename;
-                                document.body.appendChild(anchor);
-                                anchor.click();
-                                anchor.remove();
-                                toast.success("Export history downloaded");
-                              }}
-                              className="border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-50"
-                            >
-                              {exportUnlockAuditHistory.isFetching
-                                ? "Preparing…"
-                                : "Download history CSV"}
-                            </button>
-                          </div>
-                        </div>
-                        <div className="grid gap-2 sm:grid-cols-3">
-                          <input
-                            type="search"
-                            value={exportHistorySearch}
-                            onChange={event => {
-                              setExportHistorySearch(event.target.value);
-                              setExportHistoryPage(1);
-                            }}
-                            placeholder="Search administrator or file"
-                            className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs"
-                          />
-                          <input
-                            type="date"
-                            value={exportHistoryFrom}
-                            onChange={event => {
-                              setExportHistoryFrom(event.target.value);
-                              setExportHistoryPage(1);
-                            }}
-                            aria-label="Export history start date"
-                            className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs"
-                          />
-                          <input
-                            type="date"
-                            value={exportHistoryTo}
-                            onChange={event => {
-                              setExportHistoryTo(event.target.value);
-                              setExportHistoryPage(1);
-                            }}
-                            aria-label="Export history end date"
-                            className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs"
-                          />
-                        </div>
-                      </div>
-                      <div className="mt-3 overflow-x-auto">
-                        <table className="w-full min-w-[520px] text-left text-xs">
-                          <thead>
-                            <tr className="border-b border-[#16243d]/10 text-[9px] font-black uppercase tracking-[.12em] text-[#16243d]">
-                              <th className="py-2 pr-3">Downloaded</th>
-                              <th className="py-2 pr-3">Administrator</th>
-                              <th className="py-2 pr-3">File</th>
-                              <th className="py-2">Filters</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {unlockAuditExportHistory.data?.rows.map(
-                              download => (
-                                <tr
-                                  key={download.id}
-                                  className="border-b border-[#16243d]/10"
-                                >
-                                  <td className="py-2 pr-3">
-                                    {new Date(
-                                      download.createdAt
-                                    ).toLocaleString()}
-                                  </td>
-                                  <td className="py-2 pr-3">
-                                    {download.adminName ?? download.adminOpenId}
-                                  </td>
-                                  <td className="py-2 pr-3">
-                                    {download.filename}
-                                  </td>
-                                  <td className="max-w-[220px] truncate py-2">
-                                    {download.filterSummary ?? "None"}
-                                  </td>
-                                </tr>
-                              )
-                            )}
-                          </tbody>
-                        </table>
-                        {!unlockAuditExportHistory.data?.rows.length && (
-                          <p className="py-4 text-sm text-[#16243d]">
-                            No CSV downloads match the current filters.
-                          </p>
-                        )}
-                      </div>
-                      <div className="mt-3 flex items-center justify-between text-[10px] uppercase tracking-[.1em] text-[#16243d]">
-                        <span>
-                          Page {unlockAuditExportHistory.data?.page ?? 1} of{" "}
-                          {unlockAuditExportHistory.data?.pageCount ?? 1}
-                        </span>
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            disabled={exportHistoryPage <= 1}
-                            onClick={() =>
-                              setExportHistoryPage(page => page - 1)
-                            }
-                            className="border border-[#16243d]/20 px-2 py-1 disabled:opacity-40"
-                          >
-                            Previous
-                          </button>
-                          <button
-                            type="button"
-                            disabled={
-                              exportHistoryPage >=
-                              (unlockAuditExportHistory.data?.pageCount ?? 1)
-                            }
-                            onClick={() =>
-                              setExportHistoryPage(page => page + 1)
-                            }
-                            className="border border-[#16243d]/20 px-2 py-1 disabled:opacity-40"
-                          >
-                            Next
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 border-t border-[#16243d]/10 pt-5">
-                  <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
-                        Reset-link revocation audit
-                      </p>
-                      <p className="mt-1 text-xs text-[#16243d]">
-                        Every manual invalidation is recorded with the target
-                        account, acting administrator, and UTC event time.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      disabled={exportResetLinkRevocations.isFetching}
-                      onClick={async () => {
-                        const result =
-                          await exportResetLinkRevocations.refetch();
-                        if (!result.data) return;
-                        const anchor = document.createElement("a");
-                        anchor.href = `data:${result.data.contentType},${encodeURIComponent(result.data.data)}`;
-                        anchor.download = result.data.filename;
-                        document.body.appendChild(anchor);
-                        anchor.click();
-                        anchor.remove();
-                        toast.success("Revocation audit downloaded");
-                      }}
-                      className="border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-50"
-                    >
-                      Export revocations CSV
-                    </button>
-                  </div>
-                  <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                    <input
-                      type="search"
-                      value={revocationAuditSearch}
-                      onChange={event => {
-                        setRevocationAuditSearch(event.target.value);
-                        setRevocationAuditPage(1);
-                      }}
-                      placeholder="Search account or admin"
-                      className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs"
-                    />
-                    <input
-                      type="search"
-                      value={revocationAuditActor}
-                      onChange={event => {
-                        setRevocationAuditActor(event.target.value);
-                        setRevocationAuditPage(1);
-                      }}
-                      placeholder="Filter by administrator"
-                      aria-label="Filter revocations by administrator"
-                      className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs"
-                    />
-                    <input
-                      type="date"
-                      value={revocationAuditFrom}
-                      onChange={event => {
-                        setRevocationAuditFrom(event.target.value);
-                        setRevocationAuditPage(1);
-                      }}
-                      aria-label="Revocation audit start date"
-                      className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs"
-                    />
-                    <input
-                      type="date"
-                      value={revocationAuditTo}
-                      onChange={event => {
-                        setRevocationAuditTo(event.target.value);
-                        setRevocationAuditPage(1);
-                      }}
-                      aria-label="Revocation audit end date"
-                      className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs"
-                    />
-                  </div>
-                  <div className="mt-3 overflow-x-auto">
-                    <table className="w-full min-w-[620px] text-left text-xs">
-                      <thead>
-                        <tr className="border-b border-[#16243d]/10 text-[9px] font-black uppercase tracking-[.12em] text-[#16243d]">
-                          <th className="py-2 pr-3">Revoked at</th>
-                          <th className="py-2 pr-3">Target account</th>
-                          <th className="py-2">Administrator</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {resetLinkRevocationHistory.data?.rows.map(event => (
-                          <tr
-                            key={event.id}
-                            className="border-b border-[#16243d]/10"
-                          >
-                            <td className="py-2 pr-3">
-                              {new Date(event.revokedAt).toLocaleString()}
-                            </td>
-                            <td className="py-2 pr-3">{event.targetEmail}</td>
-                            <td className="py-2">
-                              {event.actorName ?? event.actorOpenId}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    {!resetLinkRevocationHistory.data?.rows.length && (
-                      <p className="py-4 text-sm text-[#16243d]">
-                        No reset-link revocations match the current filters.
-                      </p>
-                    )}
-                  </div>
-                  <div className="mt-3 flex items-center justify-between text-[10px] uppercase tracking-[.1em] text-[#16243d]">
-                    <span>
-                      Page {resetLinkRevocationHistory.data?.page ?? 1} of{" "}
-                      {resetLinkRevocationHistory.data?.pageCount ?? 1}
-                    </span>
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        disabled={revocationAuditPage <= 1}
-                        onClick={() => setRevocationAuditPage(page => page - 1)}
-                        className="border border-[#16243d]/20 px-2 py-1 disabled:opacity-40"
-                      >
-                        Previous
-                      </button>
-                      <button
-                        type="button"
-                        disabled={
-                          revocationAuditPage >=
-                          (resetLinkRevocationHistory.data?.pageCount ?? 1)
-                        }
-                        onClick={() => setRevocationAuditPage(page => page + 1)}
-                        className="border border-[#16243d]/20 px-2 py-1 disabled:opacity-40"
-                      >
-                        Next
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {failedLoginEvents.data?.rows.length ? (
-                  <div className="mt-5 overflow-x-auto border-t border-[#16243d]/10">
-                    <table className="w-full min-w-[620px] text-left text-sm">
-                      <thead>
-                        <tr className="border-b border-[#16243d]/10 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
-                          <th className="py-3 pr-4">When</th>
-
-                          <th className="py-3 pr-4">Identifier type</th>
-
-                          <th className="py-3 pr-4">Reason</th>
-
-                          <th className="py-3 pr-4">Network / location</th>
-
-                          <th className="py-3">Device / action</th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {failedLoginEvents.data.rows.map(event => (
-                          <tr
-                            key={event.id}
-                            className="border-b border-[#16243d]/10"
-                          >
-                            <td className="py-3 pr-4">
-                              {new Date(event.createdAt).toLocaleString()}
-                            </td>
-
-                            <td className="py-3 pr-4">
-                              {event.identifierType}
-                            </td>
-
-                            <td className="py-3 pr-4">
-                              {event.failureCode?.replaceAll("_", " ")}
-                            </td>
-
-                            <td className="py-3 pr-4 text-xs text-[#16243d]">
-                              <span className="block">
-                                {event.networkAddress ?? "Unknown network"}
-                              </span>
-
-                              <span className="block text-[10px] uppercase tracking-[.08em]">
-                                {event.estimatedLocation ??
-                                  "Location unavailable"}
-                              </span>
-                            </td>
-
-                            <td className="max-w-[260px] py-3 text-xs text-[#16243d]">
-                              <span className="block truncate">
-                                {event.userAgent ?? "Unknown device"}
-                              </span>
-
-                              {event.openId && (
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    unlockUserLogin.mutate({
-                                      targetOpenId: event.openId!,
-                                    })
-                                  }
-                                  disabled={unlockUserLogin.isPending}
-                                  className="mt-2 inline-flex items-center gap-1 border border-[#16243d]/20 px-2 py-1 text-[9px] font-black uppercase tracking-[.1em] text-[#16243d] disabled:opacity-50"
-                                >
-                                  {unlockUserLogin.isPending && (
-                                    <RefreshCw
-                                      size={10}
-                                      className="animate-spin"
-                                    />
-                                  )}
-                                  Unlock account
-                                </button>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="mt-5 border-t border-[#16243d]/10 pt-5 text-sm text-[#16243d]">
-                    No failed-login events match these filters.
-                  </div>
-                )}
-
-                <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#16243d]/10 pt-4 text-xs text-[#16243d]">
-                  <span>
-                    Page {failedLoginEvents.data?.page ?? securityPage} of{" "}
-                    {failedLoginEvents.data?.pageCount ?? 1}
-                  </span>
-
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      disabled={securityPage <= 1}
-                      onClick={() =>
-                        setSecurityPage(page => Math.max(1, page - 1))
-                      }
-                      className="border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-40"
-                    >
-                      Previous
-                    </button>
-
-                    <button
-                      type="button"
-                      disabled={
-                        securityPage >= (failedLoginEvents.data?.pageCount ?? 1)
-                      }
-                      onClick={() => setSecurityPage(page => page + 1)}
-                      className="border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-40"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
               </Section>
 
               {confirmResetRevocation && (

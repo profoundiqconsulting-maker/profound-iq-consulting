@@ -4,17 +4,37 @@ import { trpc } from "@/lib/trpc";
 import { courseCatalog } from "@shared/courseCatalog";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useAdminTableState } from "@/hooks/useAdminTableState";
 
 const inputClass =
   "border border-[#16243d]/20 bg-white px-3 py-2 text-xs text-[#16243d] outline-none transition focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30";
 
 export function AdminRecentQCCertificates() {
-  const [courseSlug, setCourseSlug] = useState("all");
-  const [status, setStatus] = useState("issued");
-  const [search, setSearch] = useState("");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
+  const table = useAdminTableState(
+    "admin-qc-certificates",
+    {
+      courseSlug: "all",
+      status: "issued",
+      search: "",
+      fromDate: "",
+      toDate: "",
+    },
+    {
+      persistedKeys: ["courseSlug", "status", "search", "fromDate", "toDate"],
+    }
+  );
+  const { state, setValue } = table;
   const [qcEnrollmentId, setQcEnrollmentId] = useState("");
+  const courseSlug = state.courseSlug as string;
+  const status = state.status as string;
+  const search = state.search as string;
+  const fromDate = state.fromDate as string;
+  const toDate = state.toDate as string;
+  const setCourseSlug = (value: string) => setValue("courseSlug", value);
+  const setStatusValue = (value: string) => setValue("status", value);
+  const setSearchValue = (value: string) => setValue("search", value);
+  const setFromDateValue = (value: string) => setValue("fromDate", value);
+  const setToDateValue = (value: string) => setValue("toDate", value);
   const queryInput = useMemo(
     () => ({
       courseSlug,
@@ -121,7 +141,7 @@ export function AdminRecentQCCertificates() {
             />
             <input
               value={search}
-              onChange={event => setSearch(event.target.value)}
+              onChange={event => setSearchValue(event.target.value)}
               placeholder="Name, course, ID"
               className={`${inputClass} w-full pl-9`}
             />
@@ -146,7 +166,7 @@ export function AdminRecentQCCertificates() {
           <span>Status</span>
           <select
             value={status}
-            onChange={event => setStatus(event.target.value)}
+            onChange={event => setStatusValue(event.target.value)}
             className={inputClass}
           >
             <option value="all">All statuses</option>
@@ -164,7 +184,7 @@ export function AdminRecentQCCertificates() {
             <input
               type="date"
               value={fromDate}
-              onChange={event => setFromDate(event.target.value)}
+              onChange={event => setFromDateValue(event.target.value)}
               className={`${inputClass} w-full pl-9`}
             />
           </span>
@@ -179,7 +199,7 @@ export function AdminRecentQCCertificates() {
             <input
               type="date"
               value={toDate}
-              onChange={event => setToDate(event.target.value)}
+              onChange={event => setToDateValue(event.target.value)}
               className={`${inputClass} w-full pl-9`}
             />
           </span>

@@ -10,6 +10,7 @@ import {
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { DashboardPagination } from "@/components/DashboardPagination";
+import { useAdminTableState } from "@/hooks/useAdminTableState";
 
 const PAGE_SIZE = 10;
 
@@ -22,23 +23,38 @@ type SubscriberFilters = {
 };
 
 export default function AdminNewsletterPanel() {
-  const [page, setPage] = useState(1);
-  const [filters, setFilters] = useState<SubscriberFilters>({
+  const table = useAdminTableState("newsletter", {
     search: "",
-    status: "all",
+    status: "all" as SubscriberFilters["status"],
     fromDate: "",
     toDate: "",
+    page: 1,
   });
+  const { state, setValue } = table;
+  const filters = useMemo(
+    () => ({
+      search: state.search,
+      status: state.status,
+      fromDate: state.fromDate,
+      toDate: state.toDate,
+    }),
+    [state.search, state.status, state.fromDate, state.toDate]
+  );
+  const setFilter = <K extends keyof SubscriberFilters>(key: K, value: SubscriberFilters[K]) => {
+    setValue(key, value);
+    setValue("page", 1);
+  };
+
   const queryInput = useMemo(
     () => ({
-      page,
+      page: state.page,
       pageSize: PAGE_SIZE,
       search: filters.search || undefined,
       status: filters.status,
       fromDate: filters.fromDate || undefined,
       toDate: filters.toDate || undefined,
     }),
-    [filters, page]
+    [filters, state.page]
   );
   const subscribers = trpc.newsletter.subscribers.useQuery(queryInput, {
     retry: false,
@@ -80,21 +96,18 @@ export default function AdminNewsletterPanel() {
         toast.error(error.message || "Unable to enable newsletter scheduling."),
     });
 
-  useEffect(() => {
-    setPage(1);
-  }, [filters.search, filters.status, filters.fromDate, filters.toDate]);
-
-  const updateFilter = <K extends keyof SubscriberFilters>(
-    key: K,
-    value: SubscriberFilters[K]
-  ) => setFilters(current => ({ ...current, [key]: value }));
-  const clearFilters = () =>
-    setFilters({ search: "", status: "all", fromDate: "", toDate: "" });
+  const clearFilters = () => {
+    setValue("search", "");
+    setValue("status", "all");
+    setValue("fromDate", "");
+    setValue("toDate", "");
+    setValue("page", 1);
+  };
   const hasFilters = Boolean(
-    filters.search ||
-      filters.fromDate ||
-      filters.toDate ||
-      filters.status !== "all"
+    state.search ||
+      state.fromDate ||
+      state.toDate ||
+      state.status !== "all"
   );
 
   const downloadCsv = async () => {
@@ -182,8 +195,8 @@ export default function AdminNewsletterPanel() {
           {schedule.data?.config?.scheduleTaskUid
             ? "Schedule enabled"
             : enableSchedule.isPending
-              ? "Enabling…"
-              : "Enable schedule"}
+            ? "Enabling…"
+            : "Enable schedule"}
         </button>
       </div>
       <div className="mt-5 grid gap-3 border border-[#16243d]/10 bg-white/55 p-4 md:grid-cols-[1.4fr_.8fr_.8fr_.8fr_auto] md:items-end">
@@ -192,31 +205,31 @@ export default function AdminNewsletterPanel() {
           <span className="flex min-h-11 items-center gap-2 border border-[#16243d]/15 bg-[#fffaf0] px-3">
             <Search size={15} className="text-[#7d5e1e]" />
              <input
-               id="newsletter-search"
-               name="search"
-               value={filters.search}
-               onChange={event => updateFilter("search", event.target.value)}
-               placeholder="e.g. learner@example.com"
-               aria-label="Search newsletter subscribers"
-               className="w-full bg-transparent text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
-             />
+              id="newsletter-search"
+              name="search"
+              value={filters.search}
+              onChange={event => setFilter("search", event.target.value)}
+              placeholder="e.g. learner@example.com"
+              aria-label="Search newsletter subscribers"
+              className="w-full bg-transparent text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
+            />
           </span>
         </label>
         <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[#657084]">
           Status
              <select
-               id="newsletter-status"
-               name="status"
-               value={filters.status}
-               onChange={event =>
-                 updateFilter(
-                   "status",
-                   event.target.value as SubscriberFilters["status"]
-                 )
-               }
-               aria-label="Filter newsletter subscribers by status"
-               className="min-h-11 border border-[#16243d]/15 bg-[#fffaf0] px-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
-             >
+              id="newsletter-status"
+              name="status"
+              value={state.status}
+              onChange={event =>
+                setFilter(
+                  "status",
+                  event.target.value as SubscriberFilters["status"]
+                )
+              }
+              aria-label="Filter newsletter subscribers by status"
+              className="min-h-11 border border-[#16243d]/15 bg-[#fffaf0] px-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
+            >
             <option value="all">All statuses</option>
             <option value="pending">Pending confirmation</option>
             <option value="confirmed">Confirmed</option>
@@ -230,21 +243,20 @@ export default function AdminNewsletterPanel() {
              id="newsletter-from-date"
              name="fromDate"
              type="date"
-             value={filters.fromDate}
-             onChange={event => updateFilter("fromDate", event.target.value)}
+              value={state.fromDate}
+              onChange={event => setFilter("fromDate", event.target.value)}
              aria-label="Newsletter subscriber start date"
              className="min-h-11 border border-[#16243d]/15 bg-[#fffaf0] px-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
            />
         </label>
-        <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[#657084]">
+        <label className="grid gap-2 text-xs font-black uppercase tracking-[.08em] text-[#657084]">
           To date
            <input
              id="newsletter-to-date"
              name="toDate"
              type="date"
-             value={filters.toDate}
-             min={filters.fromDate || undefined}
-             onChange={event => updateFilter("toDate", event.target.value)}
+              value={state.toDate}
+              onChange={event => setFilter("toDate", event.target.value)}
              aria-label="Newsletter subscriber end date"
              className="min-h-11 border border-[#16243d]/15 bg-[#fffaf0] px-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
            />
@@ -337,11 +349,11 @@ export default function AdminNewsletterPanel() {
             </div>
           )}
           <DashboardPagination
-            page={subscribers.data?.page ?? page}
+            page={subscribers.data?.page ?? state.page}
             pageCount={subscribers.data?.pageCount ?? 1}
             totalItems={subscribers.data?.total ?? 0}
             pageSize={PAGE_SIZE}
-            onPageChange={setPage}
+            onPageChange={page => setValue("page", page)}
             itemLabel="newsletter subscribers"
           />
         </>

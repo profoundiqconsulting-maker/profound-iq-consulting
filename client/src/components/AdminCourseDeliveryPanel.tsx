@@ -1,20 +1,29 @@
 import { useMemo, useState } from "react";
 import { RefreshCw, Search } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useAdminTableState } from "@/hooks/useAdminTableState";
 
 export default function AdminCourseDeliveryPanel() {
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("all");
+  const table = useAdminTableState("course-delivery", {
+    search: "",
+    status: "all",
+    page: 1,
+  });
+  const { state, setValue } = table;
   const [step, setStep] = useState("all");
+  const setSearch = (value: string) => setValue("search", value);
+  const setStatus = (value: string) => setValue("status", value);
+  const setPage = (value: number | ((prev: number) => number)) =>
+    setValue("page", value);
   const input = useMemo(
     () => ({
-      search: search.trim() || undefined,
-      status,
+      search: state.search.trim() || undefined,
+      status: state.status,
       step,
       limit: 100,
       offset: 0,
     }),
-    [search, status, step]
+    [state.search, state.status, step]
   );
   const outcomes = trpc.admin.courseDeliveryOutcomes.useQuery(input, {
     retry: false,
@@ -50,7 +59,7 @@ export default function AdminCourseDeliveryPanel() {
           />
           <span className="sr-only">Search recipients</span>
           <input
-            value={search}
+            value={state.search}
             onChange={event => setSearch(event.target.value)}
             className="w-full border border-[#16243d]/20 bg-[#f7f3e8] py-3 pl-9 pr-3 text-sm font-normal normal-case tracking-normal"
             placeholder="Search email or organization"
@@ -72,7 +81,7 @@ export default function AdminCourseDeliveryPanel() {
         <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
           Status
           <select
-            value={status}
+            value={state.status}
             onChange={event => setStatus(event.target.value)}
             className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal normal-case tracking-normal"
           >

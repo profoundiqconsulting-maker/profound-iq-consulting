@@ -10,6 +10,7 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import { useAdminTableState } from "@/hooks/useAdminTableState";
 
 const statusOptions = [
   "all",
@@ -22,9 +23,17 @@ const statusOptions = [
 type Status = (typeof statusOptions)[number];
 
 export default function AdminPaymentExceptionsPanel() {
-  const [status, setStatus] = useState<Status>("pending");
-  const [search, setSearch] = useState("");
-  const input = { status, search: search.trim() || undefined, limit: 100 };
+  const table = useAdminTableState("payment-exceptions", {
+    search: "",
+    status: "pending" as Status,
+    page: 1,
+  });
+  const { state, setValue } = table;
+  const setSearch = (value: string) => setValue("search", value);
+  const setStatus = (value: Status) => setValue("status", value);
+  const setPage = (value: number | ((prev: number) => number)) =>
+    setValue("page", value);
+  const input = { status: state.status, search: state.search.trim() || undefined, limit: 100 };
   const payments = trpc.admin.coursePaymentExceptions.useQuery(input, {
     retry: false,
     refetchInterval: 30000,
@@ -104,7 +113,7 @@ export default function AdminPaymentExceptionsPanel() {
               onClick={() =>
                 setStatus(key === "total" ? "all" : (key as Status))
               }
-              className={`border p-3 text-left ${status === (key === "total" ? "all" : key) ? "border-[#c9a34e] bg-[#ead9ae]/40" : "border-[#16243d]/10 bg-white/60"}`}
+              className={`border p-3 text-left ${state.status === (key === "total" ? "all" : key) ? "border-[#c9a34e] bg-[#ead9ae]/40" : "border-[#16243d]/10 bg-white/60"}`}
             >
               <p className="text-[9px] font-black uppercase tracking-[.12em] text-[#657084]">
                 {key}
@@ -120,14 +129,14 @@ export default function AdminPaymentExceptionsPanel() {
         <label className="relative flex-1">
           <Search size={15} className="absolute left-3 top-3 text-[#657084]" />
           <input
-            value={search}
+            value={state.search}
             onChange={event => setSearch(event.target.value)}
             placeholder="Search learner, course, or Paystack reference"
             className="w-full border border-[#16243d]/15 bg-white/70 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#c9a34e]"
           />
         </label>
         <select
-          value={status}
+          value={state.status}
           onChange={event => setStatus(event.target.value as Status)}
           className="border border-[#16243d]/15 bg-white/70 px-3 py-2.5 text-sm outline-none focus:border-[#c9a34e]"
         >

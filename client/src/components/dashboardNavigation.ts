@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-export type DashboardNavItem = {
+export type RoleNavItem = {
   id: string;
   labelKey:
     | "overview"
@@ -31,26 +31,164 @@ export type DashboardNavItem = {
     | "enrolledCourses"
     | "myIllustrations"
     | "adminObservatory"
-    | "staffWorkspace";
+    | "staffWorkspace"
+    | "userManagement"
+    | "cohortManagement"
+    | "contactInquiries"
+    | "assignedInquiries"
+    | "lessonReviews"
+    | "reviewAnalytics";
   fallbackLabel: string;
   path: string;
   icon: LucideIcon;
-  group: "workspace" | "growth" | "operations";
-  adminOnly?: boolean;
-  staffOnly?: boolean;
+  group: string;
 };
 
-export const dashboardNavItems: DashboardNavItem[] = [
+export const adminNavItems: RoleNavItem[] = [
   {
-    id: "overview",
+    id: "admin-observatory",
+    labelKey: "adminObservatory",
+    fallbackLabel: "Overview",
+    path: "/admin/overview",
+    icon: BarChart3,
+    group: "platform",
+  },
+  {
+    id: "admin-users",
+    labelKey: "userManagement",
+    fallbackLabel: "User Management",
+    path: "/admin/users",
+    icon: Users,
+    group: "platform",
+  },
+  {
+    id: "admin-cohorts",
+    labelKey: "cohortManagement",
+    fallbackLabel: "Cohort Management",
+    path: "/admin/cohorts",
+    icon: Users,
+    group: "platform",
+  },
+  {
+    id: "admin-inbox",
+    labelKey: "contactInquiries",
+    fallbackLabel: "Contact Inquiries",
+    path: "/admin/inbox",
+    icon: Mail,
+    group: "operations",
+  },
+  {
+    id: "admin-certificates",
+    labelKey: "certificates",
+    fallbackLabel: "Certificates",
+    path: "/admin/certificates",
+    icon: Award,
+    group: "operations",
+  },
+  {
+    id: "admin-reports",
+    labelKey: "adminObservatory",
+    fallbackLabel: "Reports",
+    path: "/admin/reports",
+    icon: BarChart3,
+    group: "system",
+  },
+  {
+    id: "admin-system",
+    labelKey: "settings",
+    fallbackLabel: "System Settings",
+    path: "/admin/system",
+    icon: Settings,
+    group: "system",
+  },
+];
+
+export const staffNavItems: RoleNavItem[] = [
+  {
+    id: "staff-workspace",
+    labelKey: "staffWorkspace",
+    fallbackLabel: "Staff Workspace",
+    path: "/staff",
+    icon: ClipboardList,
+    group: "workspace",
+  },
+  {
+    id: "staff-inquiries",
+    labelKey: "assignedInquiries",
+    fallbackLabel: "Assigned Inquiries",
+    path: "/staff/inquiries",
+    icon: Mail,
+    group: "operations",
+  },
+  {
+    id: "staff-reviews",
+    labelKey: "lessonReviews",
+    fallbackLabel: "Lesson Reviews",
+    path: "/staff/reviews",
+    icon: ClipboardCheck,
+    group: "operations",
+  },
+  {
+    id: "staff-analytics",
+    labelKey: "reviewAnalytics",
+    fallbackLabel: "Review Analytics",
+    path: "/staff/analytics",
+    icon: BarChart3,
+    group: "operations",
+  },
+  {
+    id: "staff-settings",
+    labelKey: "settings",
+    fallbackLabel: "Workspace Settings",
+    path: "/staff/settings",
+    icon: Settings,
+    group: "account",
+  },
+];
+
+export const learnerNavItems: RoleNavItem[] = [
+  {
+    id: "learner-space",
     labelKey: "overview",
     fallbackLabel: "My Space",
     path: "/dashboard",
     icon: LayoutDashboard,
-    group: "workspace",
+    group: "mySpace",
   },
   {
-    id: "dashboard-assessment",
+    id: "learner-certificates",
+    labelKey: "certificates",
+    fallbackLabel: "My Certificates",
+    path: "/dashboard/certificates",
+    icon: Award,
+    group: "mySpace",
+  },
+  {
+    id: "learner-illustrations",
+    labelKey: "myIllustrations",
+    fallbackLabel: "My Illustrations",
+    path: "/my-illustrations",
+    icon: Bookmark,
+    group: "mySpace",
+  },
+  {
+    id: "learner-workspaces",
+    labelKey: "myWorkspace",
+    fallbackLabel: "My Workspaces",
+    path: "/dashboard/my-workspaces",
+    icon: BookOpen,
+    group: "mySpace",
+  },
+  {
+    id: "learner-enrolled",
+    labelKey: "enrolledCourses",
+    fallbackLabel: "Enrolled Courses",
+    path: "/dashboard/enrolled-courses",
+    icon: BookOpen,
+    group: "mySpace",
+  },
+  {
+    id: "learner-assessment",
     labelKey: "selfAssessmentReports",
     fallbackLabel: "Assessment Reports",
     path: "/dashboard/assessment",
@@ -58,15 +196,7 @@ export const dashboardNavItems: DashboardNavItem[] = [
     group: "growth",
   },
   {
-    id: "dashboard-careerpath",
-    labelKey: "careerPathReports",
-    fallbackLabel: "CareerPath Reports",
-    path: "/dashboard/careerpath",
-    icon: Users,
-    group: "growth",
-  },
-  {
-    id: "dashboard-psychometrics",
+    id: "learner-psychometrics",
     labelKey: "psychometricReports",
     fallbackLabel: "Psychometric Reports",
     path: "/dashboard/psychometrics",
@@ -74,55 +204,15 @@ export const dashboardNavItems: DashboardNavItem[] = [
     group: "growth",
   },
   {
-    id: "my-certificates",
-    labelKey: "certificates",
-    fallbackLabel: "My Certificates",
-    path: "/dashboard/certificates",
-    icon: Award,
-    group: "workspace",
-  },
-  {
-    id: "settings",
-    labelKey: "settings",
-    fallbackLabel: "Settings",
-    path: "/dashboard/settings",
-    icon: Settings,
-    group: "workspace",
-  },
-  {
-    id: "messages",
-    labelKey: "messages",
-    fallbackLabel: "Messages",
-    path: "/dashboard/communication",
-    icon: Mail,
-    group: "workspace",
-  },
-  {
-    id: "self-assessment",
-    labelKey: "selfAssessment",
-    fallbackLabel: "Self Assessment",
-    path: "/assessment",
-    icon: ClipboardCheck,
-    group: "growth",
-  },
-  {
-    id: "psychometrics",
-    labelKey: "psychometrics",
-    fallbackLabel: "Psychometrics",
-    path: "/psychometrics",
-    icon: BrainCircuit,
-    group: "growth",
-  },
-  {
-    id: "careerpath",
-    labelKey: "careerPath",
-    fallbackLabel: "CareerPath",
-    path: "/careerpath",
+    id: "learner-careerpath",
+    labelKey: "careerPathReports",
+    fallbackLabel: "CareerPath Reports",
+    path: "/dashboard/careerpath",
     icon: Users,
     group: "growth",
   },
   {
-    id: "courses",
+    id: "learner-courses",
     labelKey: "courses",
     fallbackLabel: "Courses",
     path: "/courses",
@@ -130,70 +220,75 @@ export const dashboardNavItems: DashboardNavItem[] = [
     group: "growth",
   },
   {
-    id: "my-workspaces",
-    labelKey: "myWorkspace",
-    fallbackLabel: "My Workspaces",
-    path: "/dashboard/my-workspaces",
-    icon: BookOpen,
-    group: "workspace",
-  },
-  {
-    id: "dashboard-enrolled-courses",
-    labelKey: "enrolledCourses",
-    fallbackLabel: "Enrolled Courses",
-    path: "/dashboard/enrolled-courses",
-    icon: BookOpen,
-    group: "workspace",
-  },
-  {
-    id: "my-illustrations",
-    labelKey: "myIllustrations",
-    fallbackLabel: "My Illustrations",
-    path: "/my-illustrations",
-    icon: Bookmark,
+    id: "learner-self-assessment",
+    labelKey: "selfAssessment",
+    fallbackLabel: "Self Assessment",
+    path: "/assessment",
+    icon: ClipboardCheck,
     group: "growth",
   },
   {
-    id: "admin",
-    labelKey: "adminObservatory",
-    fallbackLabel: "Admin observatory",
-    path: "/admin",
-    icon: BarChart3,
-    group: "operations",
-    adminOnly: true,
+    id: "learner-psychometrics-standalone",
+    labelKey: "psychometrics",
+    fallbackLabel: "Psychometrics",
+    path: "/psychometrics",
+    icon: BrainCircuit,
+    group: "growth",
   },
   {
-    id: "cohorts",
-    labelKey: "adminObservatory",
-    fallbackLabel: "Cohort management",
-    path: "/admin/cohorts",
+    id: "learner-careerpath-standalone",
+    labelKey: "careerPath",
+    fallbackLabel: "CareerPath",
+    path: "/careerpath",
     icon: Users,
-    group: "operations",
-    adminOnly: true,
+    group: "growth",
   },
   {
-    id: "staff",
-    labelKey: "staffWorkspace",
-    fallbackLabel: "Staff workspace",
-    path: "/staff",
-    icon: ClipboardList,
-    group: "operations",
-    staffOnly: true,
+    id: "learner-messages",
+    labelKey: "messages",
+    fallbackLabel: "Messages",
+    path: "/dashboard/communication",
+    icon: Mail,
+    group: "account",
+  },
+  {
+    id: "learner-settings",
+    labelKey: "settings",
+    fallbackLabel: "Settings",
+    path: "/dashboard/settings",
+    icon: Settings,
+    group: "account",
   },
 ];
 
-export const dashboardNavGroups = [
-  { id: "workspace", labelKey: "workspace", fallbackLabel: "Workspace" },
-  { id: "growth", labelKey: "growth", fallbackLabel: "Transformation" },
-  { id: "operations", labelKey: "operations", fallbackLabel: "Operations" },
+export const adminGroups = [
+  { id: "platform", fallbackLabel: "Platform" },
+  { id: "operations", fallbackLabel: "Operations" },
+  { id: "system", fallbackLabel: "System" },
+] as const;
+
+export const staffGroups = [
+  { id: "workspace", fallbackLabel: "Workspace" },
+  { id: "operations", fallbackLabel: "Operations" },
+  { id: "account", fallbackLabel: "Account" },
+] as const;
+
+export const learnerGroups = [
+  { id: "mySpace", fallbackLabel: "My Space" },
+  { id: "growth", fallbackLabel: "Growth" },
+  { id: "account", fallbackLabel: "Account" },
 ] as const;
 
 export function visibleDashboardNavItems(role: string | undefined) {
-  return dashboardNavItems.filter(
-    item =>
-      (!item.adminOnly || role === "admin") &&
-      (!item.staffOnly || role === "admin" || role === "staff")
-  );
+  if (role === "admin") return adminNavItems;
+  if (role === "staff") return staffNavItems;
+  return learnerNavItems;
+}
+
+export function visibleDashboardNavGroups(role: string | undefined) {
+  if (role === "admin") return adminGroups;
+  if (role === "staff") return staffGroups;
+  return learnerGroups;
 }
 
 export function getDashboardPageCount(totalItems: number, pageSize: number) {
