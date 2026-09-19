@@ -457,10 +457,10 @@ function FirstStageCheckout({ course }: { course: CourseDefinition }) {
       onSubmit={submit}
       className="mt-6 max-w-xl border border-white/15 bg-white/5 p-5 sm:p-6"
     >
-      <p className="text-xs font-black uppercase tracking-[.14em] text-gold-on-light">
+      <p className="text-xs font-black uppercase tracking-[.14em] text-accent-on-dark">
         First step · unlock Module 1
       </p>
-      <p className="mt-2 text-sm leading-6 text-muted-foreground">
+      <p className="mt-2 text-sm leading-6 text-muted-on-dark">
         Create or refresh your enrollment, then pay the first staged installment
         of{" "}
         <strong className="text-[#f7f3e8]">
@@ -469,28 +469,34 @@ function FirstStageCheckout({ course }: { course: CourseDefinition }) {
         through Paystack. Lesson access opens only after payment verification.
       </p>
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        <label className="grid gap-2 text-[10px] font-black uppercase tracking-[.12em] text-muted-foreground">
+        <label className="grid gap-2 text-[10px] font-black uppercase tracking-[.12em] text-muted-on-dark">
           {enrollmentCopy.yourName}
           <input
+            id="workspace-enrollment-name"
+            name="name"
             required
             minLength={2}
             value={name}
             onChange={event => setName(event.target.value)}
+            autoComplete="name"
             className="border border-white/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
           />
         </label>
-        <label className="grid gap-2 text-[10px] font-black uppercase tracking-[.12em] text-muted-foreground">
+        <label className="grid gap-2 text-[10px] font-black uppercase tracking-[.12em] text-muted-on-dark">
           {enrollmentCopy.emailAddress}
           <input
+            id="workspace-enrollment-email"
+            name="email"
             required
             type="email"
             value={email}
             onChange={event => setEmail(event.target.value)}
+            autoComplete="email"
             className="border border-white/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
           />
         </label>
       </div>
-      <label className="mt-4 flex items-start gap-3 text-xs leading-5 text-muted-foreground">
+      <label className="mt-4 flex items-start gap-3 text-xs leading-5 text-muted-on-dark">
         <input
           type="checkbox"
           required

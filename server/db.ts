@@ -17,6 +17,7 @@ import {
   type SQL,
 } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
+import { createConnection } from "mysql2/promise";
 import {
   normalizeLeaderboardDisplayName,
   rankAchievementLeaderboard,
@@ -125,10 +126,29 @@ import {
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
+function parseDatabaseUrl(url: string) {
+  const parsed = new URL(url);
+  return {
+    host: parsed.hostname,
+    port: parsed.port ? Number(parsed.port) : 3306,
+    user: decodeURIComponent(parsed.username),
+    password: decodeURIComponent(parsed.password),
+    database: parsed.pathname.replace(/^\//, ""),
+  };
+}
+
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      const { host, port, user, password, database } = parseDatabaseUrl(process.env.DATABASE_URL);
+      const connection = await createConnection({
+        host: host || "127.0.0.1",
+        port,
+        user,
+        password,
+        database,
+      });
+      _db = drizzle(connection);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;

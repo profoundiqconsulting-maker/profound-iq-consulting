@@ -23,6 +23,7 @@ import {
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/FormField";
 import { TransformationNav } from "@/components/TransformationNav";
 import { ReportSectionTabs } from "@/components/ReportSectionTabs";
 import { LikertScale } from "@/components/LikertScale";
@@ -180,30 +181,33 @@ function IntroPage({
 
         <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
           <p className="eyebrow text-[#7d5e1e]">Participant details</p>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <label className="text-xs font-bold">
-              Full name
-              <input
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <FormField
+                label="Full name"
+                name="name"
+                type="text"
+                autoComplete="name"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
                 minLength={2}
-                className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]"
                 placeholder="Your name"
+                labelClassName="text-xs font-bold"
+                className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]"
               />
-            </label>
-            <label className="text-xs font-bold">
-              Email for your report
-              <input
+              <FormField
+                label="Email for your report"
+                name="email"
                 type="email"
+                autoComplete="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]"
                 placeholder="you@example.com"
+                labelClassName="text-xs font-bold"
+                className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]"
               />
-            </label>
-          </div>
+            </div>
           <label className="mt-5 flex items-start gap-3 text-xs leading-5 text-[#657084]">
             <input
               type="checkbox"
@@ -372,30 +376,33 @@ function AssessmentPage({
           <p className="eyebrow text-[#7d5e1e]">
             Step 2 of 4 — Participant details
           </p>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <label className="text-xs font-bold">
-              Full name
-              <input
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <FormField
+                label="Full name"
+                name="name"
+                type="text"
+                autoComplete="name"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
                 minLength={2}
-                className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]"
                 placeholder="Your name"
+                labelClassName="text-xs font-bold"
+                className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]"
               />
-            </label>
-            <label className="text-xs font-bold">
-              Email for your report
-              <input
+              <FormField
+                label="Email for your report"
+                name="email"
                 type="email"
+                autoComplete="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]"
                 placeholder="you@example.com"
+                labelClassName="text-xs font-bold"
+                className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]"
               />
-            </label>
-          </div>
+            </div>
           <label className="mt-5 flex items-start gap-3 text-xs leading-5 text-[#657084]">
             <input
               type="checkbox"

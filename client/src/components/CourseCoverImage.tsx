@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { CourseCoverGenerator } from "@/components/CourseCoverGenerator";
+import { cn } from "@/lib/utils";
 
 const PLACEHOLDER = "/cover-placeholder_e7060957.svg";
 
@@ -43,11 +44,15 @@ export function CourseCoverImage({
         />
       );
     }
+    const aspectFallback =
+      loading === "lazy" && width == null && height == null
+        ? "aspect-[16/9] "
+        : "";
     return (
       <img
         src={PLACEHOLDER}
         alt={alt}
-        className={className}
+        className={cn(aspectFallback, className)}
         width={width}
         height={height}
         loading={loading}
@@ -56,11 +61,15 @@ export function CourseCoverImage({
     );
   }
 
+  const aspectFallback =
+    loading === "lazy" && width == null && height == null
+      ? "aspect-[16/9] "
+      : "";
   return (
     <img
       src={src}
       alt={alt}
-      className={className}
+      className={cn(aspectFallback, className)}
       width={width}
       height={height}
       loading={loading}

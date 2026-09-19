@@ -1682,6 +1682,8 @@ export default function Assessment() {
                 <label className="text-xs font-black uppercase tracking-[.14em]">
                   Your name
                   <input
+                    id="assessment-name"
+                    name="name"
                     required
                     value={name}
                     onChange={event => setName(event.target.value)}
@@ -1693,6 +1695,8 @@ export default function Assessment() {
                 <label className="text-xs font-black uppercase tracking-[.14em]">
                   Email for your report
                   <input
+                    id="assessment-email"
+                    name="email"
                     required
                     type="email"
                     value={email}

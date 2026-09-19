@@ -1,5 +1,6 @@
 /* Profound IQ Consulting — responsive course image with WebP/AVIF fallbacks and srcset. */
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 
 type ResponsiveImageProps = {
   src: string;
@@ -64,6 +65,11 @@ export function ResponsiveImage({
   const sourceType = supportsAvif ? "image/avif" : supportsWebp ? "image/webp" : null;
   const canUsePicture = sourceType && (supportsWebp || supportsAvif);
 
+  const aspectFallback =
+    loading === "lazy" && width == null && height == null
+      ? "aspect-[16/9] "
+      : "";
+
   if (canUsePicture) {
     return (
       <picture className={className}>
@@ -76,7 +82,7 @@ export function ResponsiveImage({
           loading={loading}
           fetchPriority={fetchPriority}
           decoding={decoding}
-          className="h-full w-full object-cover"
+          className={cn("h-full w-full object-cover", aspectFallback)}
         />
       </picture>
     );
@@ -91,7 +97,7 @@ export function ResponsiveImage({
       loading={loading}
       fetchPriority={fetchPriority}
       decoding={decoding}
-      className={`h-full w-full object-cover ${className}`}
+      className={cn("h-full w-full object-cover", aspectFallback, className)}
     />
   );
 }

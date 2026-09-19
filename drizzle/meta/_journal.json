@@ -526,6 +526,13 @@
       "when": 1789582470114,
       "tag": "0074_security_questions",
       "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "5",
+      "when": 1789797564386,
+      "tag": "0075_hard_johnny_blaze",
+      "breakpoints": true
     }
   ]
 }

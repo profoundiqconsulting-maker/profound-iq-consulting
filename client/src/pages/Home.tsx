@@ -868,6 +868,7 @@ export default function Home() {
                       id="inquiry-name"
                       name="name"
                       type="text"
+                      autoComplete="name"
                       placeholder="John Doe"
                       className="mt-2 w-full rounded-lg border border-[#16243d]/10 px-4 py-3 text-base outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
                     />
@@ -882,6 +883,7 @@ export default function Home() {
                       id="inquiry-email"
                       name="email"
                       type="email"
+                      autoComplete="email"
                       placeholder="you@example.com"
                       className="mt-2 w-full rounded-lg border border-[#16243d]/10 px-4 py-3 text-base outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
                     />

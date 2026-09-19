@@ -9,6 +9,7 @@ import {
   ArrowLeft,
   BarChart3,
   Bold,
+  BookOpen,
   BrainCircuit,
   Building2,
   CalendarClock,
@@ -20,6 +21,7 @@ import {
   Download,
   FileText,
   Filter,
+  Folder,
   Gauge,
   Italic,
   LockKeyhole,
@@ -189,6 +191,7 @@ const adminTabTitles: Record<string, string> = {
   surveys: "Surveys",
   security: "Security",
   organization: "Organization",
+  learning: "Learning",
   resources: "Resources",
 };
 
@@ -1402,6 +1405,21 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 tab="organization"
                 label="Organization"
                 icon={<Building2 size={14} />}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+              <TabDivider />
+              <TabButton
+                tab="learning"
+                label="Learning"
+                icon={<BookOpen size={14} />}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+              <TabButton
+                tab="resources"
+                label="Resources"
+                icon={<Folder size={14} />}
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
               />

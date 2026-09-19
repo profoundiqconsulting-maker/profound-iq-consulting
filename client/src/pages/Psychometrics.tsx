@@ -730,15 +730,21 @@ export default function Psychometrics() {
             </h2>
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               <Input
+                id="psychometrics-name"
+                name="name"
                 placeholder={workflowCopy.fullName}
                 value={name}
                 onChange={event => setName(event.target.value)}
+                autoComplete="name"
               />
               <Input
+                id="psychometrics-email"
+                name="email"
                 type="email"
                 placeholder={workflowCopy.emailAddress}
                 value={email}
                 onChange={event => setEmail(event.target.value)}
+                autoComplete="email"
               />
             </div>
             <label className="mt-5 flex items-start gap-3 text-sm leading-6 text-[#16243d]">
