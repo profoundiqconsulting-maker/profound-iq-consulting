@@ -106,14 +106,14 @@ export default function Blog() {
     search: query.trim() || undefined,
     category: category === "All topics" ? undefined : category,
     page: 1,
-    pageSize: 50,
+    pageSize: 12,
   });
   const filteredArticles = insightsSearch.data?.rows ?? [];
   const visibleArticles = getVisibleInsightsPreviews(
     filteredArticles,
     articleLimit
   );
-  const newsletterEmailIsValid = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(
+  const newsletterEmailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
     newsletterEmail.trim()
   );
 
@@ -291,32 +291,31 @@ export default function Blog() {
           ) : (
             <ScrollRevealGroup className="mt-8 grid gap-4 lg:grid-cols-3">
               {visibleArticles.map(article => (
-                <article
-                  key={article.slug}
-                  className="flex min-h-[360px] flex-col border border-[#16243d]/15 bg-white/70 p-7 sm:p-8"
-                >
-                  <div className="flex items-start justify-between">
-                    <p className="eyebrow text-[#7d5e1e]">{article.category}</p>
-                    <span className="text-[10px] font-black tracking-[.16em] text-[#657084]">
-                      {article.index}
-                    </span>
-                  </div>
-                  <p className="mt-8 text-xs font-semibold italic text-[#7d5e1e]">
-                    {article.accent}
-                  </p>
-                  <h3 className="mt-4 text-2xl font-semibold leading-tight text-[#16243d]">
-                    {article.title}
-                  </h3>
-                  <p className="mt-4 flex-1 text-base leading-7 text-[#657084]">
-                    {article.excerpt}
-                  </p>
-                  <div className="mt-7 flex items-center justify-between border-t border-[#16243d]/10 pt-5 text-[10px] font-black uppercase tracking-[.13em] text-[#657084]">
-                    <span className="inline-flex items-center gap-2">
-                      <Clock3 size={14} /> {article.readTime}
-                    </span>
-                    <span className="text-[#7d5e1e]">Preview only</span>
-                  </div>
-                </article>
+                <Link key={article.slug} href={`/blog/${article.slug}`}>
+                  <article className="flex min-h-[360px] flex-col border border-[#16243d]/15 bg-white/70 p-7 transition-all hover:-translate-y-1 hover:border-[#c9a34e] hover:shadow-lg sm:p-8">
+                    <div className="flex items-start justify-between">
+                      <p className="eyebrow text-[#7d5e1e]">{article.category}</p>
+                      <span className="text-[10px] font-black tracking-[.16em] text-[#657084]">
+                        {article.index}
+                      </span>
+                    </div>
+                    <p className="mt-8 text-xs font-semibold italic text-[#7d5e1e]">
+                      {article.accent}
+                    </p>
+                    <h3 className="mt-4 text-2xl font-semibold leading-tight text-[#16243d]">
+                      {article.title}
+                    </h3>
+                    <p className="mt-4 flex-1 text-base leading-7 text-[#657084]">
+                      {article.excerpt}
+                    </p>
+                    <div className="mt-7 flex items-center justify-between border-t border-[#16243d]/10 pt-5 text-[10px] font-black uppercase tracking-[.13em] text-[#657084]">
+                      <span className="inline-flex items-center gap-2">
+                        <Clock3 size={14} /> {article.readTime}
+                      </span>
+                      <span className="text-[#7d5e1e]">Preview only</span>
+                    </div>
+                  </article>
+                </Link>
               ))}
             </ScrollRevealGroup>
           )}

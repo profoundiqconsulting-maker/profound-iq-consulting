@@ -3,24 +3,44 @@ import {
   Upload,
   Trash2,
   Plus,
+  Save,
   FileText,
   Image,
   File,
   RefreshCw,
   ExternalLink,
+  X,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
+type ResourceForm = {
+  title: string;
+  description: string;
+  category: string;
+  price: number;
+  currency: string;
+  sortOrder: number;
+  status: string;
+  file: File | null;
+  coverImage: File | null;
+};
+
+const emptyForm: ResourceForm = {
+  title: "",
+  description: "",
+  category: "guide",
+  price: 0,
+  currency: "KES",
+  sortOrder: 0,
+  status: "draft",
+  file: null,
+  coverImage: null,
+};
+
 export default function AdminResourcesPanel() {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("guide");
-  const [price, setPrice] = useState(0);
-  const [currency, setCurrency] = useState("KES");
-  const [file, setFile] = useState<File | null>(null);
-  const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [sortOrder, setSortOrder] = useState(0);
+  const [form, setForm] = useState<ResourceForm>({ ...emptyForm });
+  const [editingId, setEditingId] = useState<number | null>(null);
   const resources = trpc.admin.listResources.useQuery(undefined, {
     retry: false,
     refetchInterval: 30000,
@@ -29,11 +49,7 @@ export default function AdminResourcesPanel() {
     onSuccess: () => {
       resources.refetch();
       toast.success("Resource created");
-      setTitle("");
-      setDescription("");
-      setFile(null);
-      setCoverImage(null);
-      setSortOrder(0);
+      setForm({ ...emptyForm });
     },
     onError: error => toast.error(error.message),
   });
@@ -41,6 +57,8 @@ export default function AdminResourcesPanel() {
     onSuccess: () => {
       resources.refetch();
       toast.success("Resource updated");
+      setEditingId(null);
+      setForm({ ...emptyForm });
     },
     onError: error => toast.error(error.message),
   });
@@ -51,7 +69,6 @@ export default function AdminResourcesPanel() {
     },
     onError: error => toast.error(error.message),
   });
-  const [editingId, setEditingId] = useState<number | null>(null);
 
   const readFileAsBase64 = (selected: File) =>
     new Promise<string>((resolve, reject) => {
@@ -61,27 +78,57 @@ export default function AdminResourcesPanel() {
       reader.readAsDataURL(selected);
     });
 
+  const startEdit = (resource: {
+    id: number;
+    title: string;
+    description: string;
+    category: string;
+    price: number;
+    currency: string;
+    sortOrder: number;
+    status: string;
+  }) => {
+    setEditingId(resource.id);
+    setForm({
+      title: resource.title,
+      description: resource.description,
+      category: resource.category,
+      price: resource.price ?? 0,
+      currency: resource.currency ?? "KES",
+      sortOrder: resource.sortOrder ?? 0,
+      status: resource.status ?? "draft",
+      file: null,
+      coverImage: null,
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setForm({ ...emptyForm });
+  };
+
   const handleCreate = async () => {
-    if (!title.trim() || !description.trim() || !category.trim()) {
+    if (!form.title.trim() || !form.description.trim() || !form.category.trim()) {
       toast.error("Title, description, and category are required");
       return;
     }
     try {
       const [fileBase64, coverBase64] = await Promise.all([
-        file ? readFileAsBase64(file) : Promise.resolve(""),
-        coverImage ? readFileAsBase64(coverImage) : Promise.resolve(""),
+        form.file ? readFileAsBase64(form.file) : Promise.resolve(""),
+        form.coverImage ? readFileAsBase64(form.coverImage) : Promise.resolve(""),
       ]);
       createMutation.mutate({
-        title: title.trim(),
-        description: description.trim(),
-        category: category.trim(),
-        price,
-        currency,
+        title: form.title.trim(),
+        description: form.description.trim(),
+        category: form.category.trim(),
+        price: form.price,
+        currency: form.currency,
         fileUrl: fileBase64 || undefined,
-        fileType: file?.type,
-        fileSize: file?.size,
+        fileType: form.file?.type,
+        fileSize: form.file?.size,
         coverImageUrl: coverBase64 || undefined,
-        sortOrder,
+        sortOrder: form.sortOrder,
+        status: form.status as "draft" | "published",
       });
     } catch (error) {
       toast.error("Could not read files", {
@@ -90,15 +137,44 @@ export default function AdminResourcesPanel() {
     }
   };
 
-  const handleUpdate = (id: number) => {
-    updateMutation.mutate({ id, sortOrder });
-    setEditingId(null);
+  const handleUpdate = async () => {
+    if (!editingId) return;
+    if (!form.title.trim() || !form.description.trim() || !form.category.trim()) {
+      toast.error("Title, description, and category are required");
+      return;
+    }
+    try {
+      const [fileBase64, coverBase64] = await Promise.all([
+        form.file ? readFileAsBase64(form.file) : Promise.resolve(""),
+        form.coverImage ? readFileAsBase64(form.coverImage) : Promise.resolve(""),
+      ]);
+      updateMutation.mutate({
+        id: editingId,
+        title: form.title.trim(),
+        description: form.description.trim(),
+        category: form.category.trim(),
+        price: form.price,
+        currency: form.currency,
+        fileUrl: fileBase64 || undefined,
+        fileType: form.file?.type,
+        fileSize: form.file?.size,
+        coverImageUrl: coverBase64 || undefined,
+        sortOrder: form.sortOrder,
+        status: form.status as "draft" | "published",
+      });
+    } catch (error) {
+      toast.error("Could not read files", {
+        description: error instanceof Error ? error.message : "Try again.",
+      });
+    }
   };
 
   const handleDelete = (id: number) => {
     if (!confirm("Delete this resource? This cannot be undone.")) return;
     deleteMutation.mutate({ id });
   };
+
+  const isPending = createMutation.isPending || updateMutation.isPending;
 
   return (
     <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-6">
@@ -108,21 +184,30 @@ export default function AdminResourcesPanel() {
             <Upload size={13} /> Resource library
           </p>
           <h2 className="display mt-3 text-3xl">
-            Upload and manage resources
+            {editingId ? "Edit resource" : "Upload and manage resources"}
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-[#657084]">
             Add guides, templates, videos, and other resources to the public
-            Resources page.
+            Resources page. Use price 0 for free resources.
           </p>
         </div>
+        {editingId && (
+          <button
+            type="button"
+            onClick={cancelEdit}
+            className="inline-flex items-center gap-2 border border-[#16243d]/20 px-4 py-2 text-[10px] font-black uppercase tracking-[.1em]"
+          >
+            <X size={13} /> Cancel
+          </button>
+        )}
       </div>
 
       <div className="mt-8 grid gap-4 border border-[#16243d]/10 bg-[#f7f3e8] p-4 sm:grid-cols-2">
         <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
           Title
           <input
-            value={title}
-            onChange={event => setTitle(event.target.value)}
+            value={form.title}
+            onChange={event => setForm({ ...form, title: event.target.value })}
             placeholder="Resource title"
             className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
           />
@@ -130,8 +215,8 @@ export default function AdminResourcesPanel() {
         <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
           Category
           <input
-            value={category}
-            onChange={event => setCategory(event.target.value)}
+            value={form.category}
+            onChange={event => setForm({ ...form, category: event.target.value })}
             placeholder="guide, template, video..."
             className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
           />
@@ -141,8 +226,8 @@ export default function AdminResourcesPanel() {
           <input
             type="number"
             min="0"
-            value={price}
-            onChange={event => setPrice(Number(event.target.value))}
+            value={form.price}
+            onChange={event => setForm({ ...form, price: Number(event.target.value) })}
             placeholder="0 for free"
             className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
           />
@@ -150,8 +235,8 @@ export default function AdminResourcesPanel() {
         <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
           Currency
           <input
-            value={currency}
-            onChange={event => setCurrency(event.target.value)}
+            value={form.currency}
+            onChange={event => setForm({ ...form, currency: event.target.value })}
             placeholder="KES"
             className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
           />
@@ -159,8 +244,8 @@ export default function AdminResourcesPanel() {
         <label className="sm:col-span-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
           Description
           <textarea
-            value={description}
-            onChange={event => setDescription(event.target.value)}
+            value={form.description}
+            onChange={event => setForm({ ...form, description: event.target.value })}
             placeholder="Short description of this resource"
             rows={3}
             className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
@@ -170,12 +255,12 @@ export default function AdminResourcesPanel() {
           File
           <input
             type="file"
-            onChange={event => setFile(event.target.files?.[0] ?? null)}
+            onChange={event => setForm({ ...form, file: event.target.files?.[0] ?? null })}
             className="mt-1 block w-full text-sm"
           />
-          {file && (
+          {form.file && (
             <span className="mt-1 block text-[11px] font-normal text-[#657084]">
-              {file.name} · {(file.size / 1024).toFixed(1)} KB
+              {form.file.name} · {(form.file.size / 1024).toFixed(1)} KB
             </span>
           )}
         </label>
@@ -185,13 +270,13 @@ export default function AdminResourcesPanel() {
             type="file"
             accept="image/png,image/jpeg,image/webp"
             onChange={event =>
-              setCoverImage(event.target.files?.[0] ?? null)
+              setForm({ ...form, coverImage: event.target.files?.[0] ?? null })
             }
             className="mt-1 block w-full text-sm"
           />
-          {coverImage && (
+          {form.coverImage && (
             <span className="mt-1 block text-[11px] font-normal text-[#657084]">
-              {coverImage.name} · {(coverImage.size / 1024).toFixed(1)} KB
+              {form.coverImage.name} · {(form.coverImage.size / 1024).toFixed(1)} KB
             </span>
           )}
         </label>
@@ -199,23 +284,36 @@ export default function AdminResourcesPanel() {
           Sort order
           <input
             type="number"
-            value={sortOrder}
-            onChange={event => setSortOrder(Number(event.target.value))}
+            value={form.sortOrder}
+            onChange={event => setForm({ ...form, sortOrder: Number(event.target.value) })}
             className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
           />
         </label>
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+          Status
+          <select
+            value={form.status}
+            onChange={event => setForm({ ...form, status: event.target.value })}
+            className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
+          >
+            <option value="draft">Draft</option>
+            <option value="published">Published</option>
+          </select>
+        </label>
         <button
           type="button"
-          onClick={handleCreate}
-          disabled={createMutation.isPending}
+          onClick={editingId ? handleUpdate : handleCreate}
+          disabled={isPending}
           className="mt-auto inline-flex items-center justify-center gap-2 bg-[#16243d] px-4 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] disabled:opacity-40"
         >
-          {createMutation.isPending ? (
+          {isPending ? (
             <RefreshCw size={13} className="animate-spin" />
+          ) : editingId ? (
+            <Save size={13} />
           ) : (
             <Plus size={13} />
           )}
-          Add resource
+          {editingId ? "Update resource" : "Add resource"}
         </button>
       </div>
 
@@ -240,6 +338,9 @@ export default function AdminResourcesPanel() {
                   <span className="rounded-full border border-[#16243d]/15 px-2 py-0.5">
                     {resource.status}
                   </span>
+                  <span className="rounded-full border border-[#16243d]/15 px-2 py-0.5">
+                    {resource.price === 0 ? "Free" : `${resource.price} ${resource.currency ?? "KES"}`}
+                  </span>
                   {resource.fileUrl && (
                     <a
                       href={resource.fileUrl}
@@ -255,8 +356,8 @@ export default function AdminResourcesPanel() {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setEditingId(resource.id)}
-                  className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]"
+                  onClick={() => startEdit(resource)}
+                  className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]"
                 >
                   Edit
                 </button>
@@ -268,21 +369,6 @@ export default function AdminResourcesPanel() {
                   <Trash2 size={12} /> Delete
                 </button>
               </div>
-              {editingId === resource.id && (
-                <div className="mt-3 w-full rounded-lg border border-[#16243d]/10 bg-[#f7f3e8] p-3">
-                  <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
-                    Sort order
-                    <input
-                      type="number"
-                      defaultValue={resource.sortOrder}
-                      onBlur={event =>
-                        editingId && handleUpdate(editingId)
-                      }
-                      className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm"
-                    />
-                  </label>
-                </div>
-              )}
             </div>
           ))
         )}

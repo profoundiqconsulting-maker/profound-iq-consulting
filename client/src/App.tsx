@@ -8,6 +8,8 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { CookieConsent } from "./components/CookieConsent";
 import { WhatsAppSupportWidget } from "./components/WhatsAppSupportWidget";
 import { SeoHead } from "./components/SeoHead";
+import { RoleBasedRedirect } from "./components/RoleBasedRedirect";
+import { AdminRouteGuard } from "./components/AdminRouteGuard";
 
 const Home = lazy(() => import("./pages/Home"));
 const About = lazy(() => import("./pages/About"));
@@ -158,7 +160,11 @@ function Router() {
           component={CoursePaymentSuccess}
         />
         <Route path="/courses/:slug" component={CourseWorkspace} />
-        <Route path="/admin/cohorts" component={CohortManagement} />
+        <Route path="/admin/cohorts" component={() => (
+          <AdminRouteGuard>
+            <CohortManagement />
+          </AdminRouteGuard>
+        )} />
         <Route path="/admin/users" component={AdminUsers} />
         <Route path="/admin/inquiries" component={AdminInquiries} />
         <Route path="/admin/certificates" component={AdminCertificates} />
@@ -188,7 +194,7 @@ function Router() {
           path="/dashboard/print-pathways"
           component={SavedPathwaysPrint}
         />
-        <Route path="/dashboard" component={UserDashboard} />
+        <Route path="/dashboard" component={RoleBasedRedirect} />
         <Route path="/dashboard/assessment" component={DashboardAssessment} />
         <Route path="/dashboard/careerpath" component={DashboardCareerPath} />
         <Route path="/dashboard/psychometrics" component={DashboardPsychometrics} />
@@ -207,6 +213,34 @@ function Router() {
           }}
         />
         <Route path="/auth" component={Auth} />
+        <Route
+          path="/login"
+          component={() => {
+            const params = new URLSearchParams(window.location.search);
+            const returnTo = params.get("returnTo");
+            const invite = params.get("invite");
+            const query = new URLSearchParams();
+            query.set("mode", "login");
+            if (returnTo) query.set("returnTo", returnTo);
+            if (invite) query.set("invite", invite);
+            useLocation()[1](`/auth?${query.toString()}`, { replace: true });
+            return null;
+          }}
+        />
+        <Route
+          path="/signup"
+          component={() => {
+            const params = new URLSearchParams(window.location.search);
+            const returnTo = params.get("returnTo");
+            const invite = params.get("invite");
+            const query = new URLSearchParams();
+            query.set("mode", "register");
+            if (returnTo) query.set("returnTo", returnTo);
+            if (invite) query.set("invite", invite);
+            useLocation()[1](`/auth?${query.toString()}`, { replace: true });
+            return null;
+          }}
+        />
         <Route path="/reset-password" component={ResetPassword} />
         <Route path="/shared-report" component={SharedReport} />
         <Route path="/verify/assessment" component={AssessmentVerification} />

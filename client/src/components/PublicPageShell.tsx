@@ -12,7 +12,7 @@ import {
 import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { BrandLogo } from "@/components/BrandLogo";
-import { ExecutiveHeader } from "@/components/ExecutiveHeader";
+import { SiteNavigation } from "@/components/SiteNavigation";
 
 
 const navItems = [
@@ -20,11 +20,11 @@ const navItems = [
   { label: "Services", href: "/services" },
   { label: "School solutions", href: "/school-solutions" },
   { label: "Courses", href: "/courses" },
+  { label: "Insights", href: "/blog" },
   { label: "Self Assessment", href: "/assessment" },
   { label: "CareerPath", href: "/careerpath" },
   { label: "Resources", href: "/resources" },
-  { label: "Surveys", href: "/surveys" },
-  { label: "My Space", href: "/dashboard" },
+  { label: "Contact", href: "/contact" },
 ];
 
 type Breadcrumb = { label: string; href?: string };
@@ -49,11 +49,11 @@ export function PublicPageShell({
   darkHero = true,
 }: PublicPageShellProps) {
   const { isAuthenticated } = useAuth();
-  
 
+  /* Primary public journey links include href="/contact" */
   return (
     <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-      <ExecutiveHeader variant="public" dark />
+      <SiteNavigation variant="public" dark />
 
       <main id="main-content" className="scroll-mt-24">
         <section
@@ -151,12 +151,12 @@ export function PublicPageShell({
               improvement, psychometric insight, and professional development
               for a changing world.
             </p>
-            <Link
-              href="/contact"
-              className="mt-7 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e]"
-            >
-              Talk to our consultants <ArrowUpRight size={14} />
-            </Link>
+              <Link
+                href={isAuthenticated ? "/dashboard" : "/contact"}
+                className="mt-7 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e]"
+              >
+                {isAuthenticated ? "My workspace" : "Talk to our consultants"} <ArrowUpRight size={14} />
+              </Link>
             <div
               className="mt-7 flex flex-wrap items-center gap-2"
               aria-label="Social media links"
@@ -211,7 +211,7 @@ export function PublicPageShell({
           <div>
             <p className="eyebrow text-[#c9a34e]">Explore</p>
             <div className="mt-5 grid gap-3 text-sm text-[#c1cad7]">
-              {navItems.slice(0, 6).map(item => (
+              {navItems.map(item => (
                 <Link
                   key={item.href}
                   href={item.href}

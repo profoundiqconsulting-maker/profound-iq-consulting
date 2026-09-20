@@ -29,7 +29,7 @@ describe("sitewide navigation alignment", () => {
       expect(siteNav).toContain(`href: "${path}"`);
     }
     expect(siteNav).toContain(
-      'aria-current={active ? "page" : undefined}'
+      'aria-current={item.active ? "page" : undefined}'
     );
     expect(siteNav).toContain(
       'isAuthenticated ? "/dashboard" : "/auth?mode=login"'

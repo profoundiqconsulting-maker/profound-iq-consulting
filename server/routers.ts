@@ -1482,6 +1482,7 @@ export const appRouter = router({
   }),
   resources: router({
     list: publicProcedure.query(() => listResources()),
+    listPublished: publicProcedure.query(() => listPublishedResources()),
     survey: publicProcedure
       .input(z.object({ id: z.number().int().positive() }))
       .query(async ({ input }) => getSurvey(input.id)),

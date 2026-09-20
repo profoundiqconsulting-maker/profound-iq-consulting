@@ -6,9 +6,14 @@ import {
   CheckCircle2,
   Eye,
   EyeOff,
+  Facebook,
+  Instagram,
+  Linkedin,
   LockKeyhole,
   Loader2,
+  MessageCircle,
   RefreshCw,
+  X,
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -656,6 +661,66 @@ export default function Auth() {
           </div>
         </div>
       </section>
+      <footer className="border-t border-white/10 bg-[#101d35] py-12 text-[#f7f3e8]">
+        <div className="container">
+          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+            <div className="text-center md:text-left">
+              <p className="text-sm font-semibold">Profound IQ Consulting</p>
+              <p className="mt-1 text-xs text-[#c1cad7]">Transformational learning for a changing world.</p>
+            </div>
+            <div className="flex items-center gap-2" aria-label="Social media links">
+              <a
+                href="https://www.facebook.com/profoundIQ"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Profound IQ Consulting on Facebook"
+                className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:-translate-y-0.5 hover:border-[#1877F2] hover:bg-[#1877F2] hover:text-white"
+              >
+                <Facebook size={16} />
+              </a>
+              <a
+                href="https://x.com/ProfoundIQC"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Profound IQ Consulting on X"
+                className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-[#101d35]"
+              >
+                <X size={16} />
+              </a>
+              <a
+                href="https://linkedin.com/company/profoundiqconsulting"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Profound IQ Consulting on LinkedIn"
+                className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:-translate-y-0.5 hover:border-[#0A66C2] hover:bg-[#0A66C2] hover:text-white"
+              >
+                <Linkedin size={16} />
+              </a>
+              <a
+                href="https://www.instagram.com/profoundiqconsulting/"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Profound IQ Consulting on Instagram"
+                className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:-translate-y-0.5 hover:border-[#E4405F] hover:bg-[#E4405F] hover:text-white"
+              >
+                <Instagram size={16} />
+              </a>
+              <a
+                href="https://wa.me/254727374055"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Chat with Profound IQ Consulting on WhatsApp"
+                className="inline-flex h-9 w-9 items-center justify-center border border-[#25D366]/60 text-[#d9fbe5] transition-all hover:-translate-y-0.5 hover:border-[#25D366] hover:bg-[#25D366]/10"
+              >
+                <MessageCircle size={16} />
+              </a>
+            </div>
+          </div>
+          <div className="mt-6 border-t border-white/10 pt-5 text-center text-[10px] font-bold uppercase tracking-[.14em] text-[#8f9db3]">
+            © 2026 Profound IQ Consulting · Online / Kenya / Global reach
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }

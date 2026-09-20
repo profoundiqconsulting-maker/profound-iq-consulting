@@ -48,7 +48,7 @@ const resourceTypes = [
 
 export default function Resources() {
   const { user, isAuthenticated } = useAuth();
-  const resources = trpc.resources.list.useQuery(undefined, {
+  const resources = trpc.resources.listPublished.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: true,
   });

@@ -1,17 +1,32 @@
+import { useMemo, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
 import { Users } from "lucide-react";
 
+const ROLE_FILTERS = [
+  { value: "all", label: "All levels" },
+  { value: "admin", label: "Admin" },
+  { value: "staff", label: "Staff" },
+  { value: "user", label: "Learner" },
+] as const;
+
 export default function AdminUsers() {
+  const [roleFilter, setRoleFilter] = useState<string>("all");
   const users = trpc.admin.listAllUsers.useQuery(undefined, {
     retry: false,
     refetchInterval: 30000,
   });
 
+  const filteredUsers = useMemo(() => {
+    const data = users.data ?? [];
+    if (roleFilter === "all") return data;
+    return data.filter(user => user.role === roleFilter);
+  }, [users.data, roleFilter]);
+
   return (
     <DashboardLayout role="admin" title="User Management">
       <div className="admin-observatory w-full">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="exec-eyebrow">User Management</p>
             <h1 className="display mt-2 text-3xl">All Users</h1>
@@ -19,9 +34,25 @@ export default function AdminUsers() {
               Manage user accounts, roles, and access across the platform.
             </p>
           </div>
-          <div className="exec-badge">
-            <Users size={16} />
-            <span>{users.data?.length ?? 0} total users</span>
+          <div className="flex items-center gap-3">
+            <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#64748b]">
+              User level
+              <select
+                value={roleFilter}
+                onChange={event => setRoleFilter(event.target.value)}
+                className="mt-1 block border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
+              >
+                {ROLE_FILTERS.filter(option => option.value !== "all" || roleFilter === "all").map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="exec-badge">
+              <Users size={16} />
+              <span>{filteredUsers.length} user{filteredUsers.length === 1 ? "" : "s"}</span>
+            </div>
           </div>
         </div>
 
@@ -34,9 +65,9 @@ export default function AdminUsers() {
             <div className="p-6 text-center text-sm text-red-600">
               Failed to load users.
             </div>
-          ) : (users.data ?? []).length === 0 ? (
+          ) : filteredUsers.length === 0 ? (
             <div className="p-6 text-center text-sm text-[#64748b]">
-              No users found.
+              {roleFilter === "all" ? "No users found." : `No ${ROLE_FILTERS.find(option => option.value === roleFilter)?.label.toLowerCase()} users found.`}
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -50,7 +81,7 @@ export default function AdminUsers() {
                   </tr>
                 </thead>
                 <tbody>
-                  {(users.data ?? []).map(user => (
+                  {filteredUsers.map(user => (
                     <tr key={user.openId}>
                       <td className="font-medium text-[#0f172a]">
                         {user.name ?? "—"}
@@ -66,7 +97,7 @@ export default function AdminUsers() {
                                 : "bg-[#f1f5f9] text-[#475569]"
                           }`}
                         >
-                          {user.role}
+                          {user.role === "user" ? "learner" : user.role}
                         </span>
                       </td>
                       <td className="text-[#64748b]">

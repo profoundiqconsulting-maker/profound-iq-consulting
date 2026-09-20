@@ -120,26 +120,26 @@ function CohortManagementInner() {
   const totalLearners = users.data?.total ?? 0;
 
   return (
-    <div className="admin-observatory w-full space-y-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
+    <div className="admin-observatory w-full max-w-full space-y-6 overflow-x-hidden">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <p className="exec-eyebrow">Admin workspace</p>
           <h1 className="display mt-2 text-3xl">Cohort management</h1>
           <p className="mt-1 text-sm text-[#64748b]">
             Group learners intentionally for conversion analysis. Assignments are stored on the user record and can be changed at any time.
           </p>
         </div>
-        <div className="exec-badge">
+        <div className="exec-badge w-fit">
           <Users size={16} />
           <span>{totalLearners} total learners</span>
         </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-        <div className="space-y-4">
-          <div className="exec-card p-5">
+        <div className="space-y-4 overflow-x-hidden">
+          <div className="exec-card p-4 sm:p-5">
             <div className="flex flex-wrap items-center gap-3">
-              <div className="relative">
+              <div className="relative w-full sm:w-auto">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#64748b]" aria-hidden="true" />
                 <Input
                   value={search}
@@ -148,21 +148,21 @@ function CohortManagementInner() {
                     setPage(1);
                   }}
                   placeholder="Name, email, or ID"
-                  className="h-10 w-72 pl-9"
+                  className="h-10 w-full pl-9 sm:w-72"
                 />
               </div>
               <Input
                 value={cohort}
                 onChange={event => setCohort(event.target.value)}
                 placeholder="Cohort label"
-                className="h-10 w-56"
+                className="h-10 w-full sm:w-56"
               />
               <Button
                 disabled={!selected.length || assign.isPending}
                 onClick={() =>
                   assign.mutate({ openIds: selected, cohort: cohort.trim() || null })
                 }
-                className="h-10 bg-[#16243d] text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] disabled:opacity-40"
+                className="h-10 w-full sm:w-auto bg-[#16243d] text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] disabled:opacity-40"
               >
                 {assign.isPending ? "Assigning…" : `Assign ${selected.length || "selected"}`}
               </Button>
@@ -173,56 +173,58 @@ function CohortManagementInner() {
           </div>
 
           <div className="exec-card overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="exec-table">
-                <thead>
-                  <tr>
-                    <th>Select</th>
-                    <th>Learner</th>
-                    <th>Email</th>
-                    <th>Cohort</th>
-                    <th>Last signed in</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.data?.rows.map(user => (
-                    <tr key={user.openId}>
-                      <td>
-                        <input
-                          type="checkbox"
-                          checked={selected.includes(user.openId)}
-                          onChange={() => toggle(user.openId)}
-                          aria-label={`Select ${user.name || user.email || user.openId}`}
-                          className="h-4 w-4 rounded border-[#16243d]/20"
-                        />
-                      </td>
-                      <td className="font-medium text-[#0f172a]">
-                        {user.name || "Unnamed learner"}
-                      </td>
-                      <td className="text-[#475569]">{user.email || "—"}</td>
-                      <td>
-                        {user.cohort ? (
-                          <Badge variant="secondary" className="text-[10px] font-black uppercase tracking-[.08em]">
-                            {user.cohort}
-                          </Badge>
-                        ) : (
-                          <span className="text-[#64748b]">Unassigned</span>
-                        )}
-                      </td>
-                      <td className="text-[#64748b]">
-                        {new Date(user.lastSignedIn).toLocaleDateString()}
-                      </td>
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <div className="inline-block min-w-full align-middle">
+                <table className="exec-table min-w-[640px]">
+                  <thead>
+                    <tr>
+                      <th>Select</th>
+                      <th>Learner</th>
+                      <th>Email</th>
+                      <th>Cohort</th>
+                      <th>Last signed in</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {users.data?.rows.map(user => (
+                      <tr key={user.openId}>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={selected.includes(user.openId)}
+                            onChange={() => toggle(user.openId)}
+                            aria-label={`Select ${user.name || user.email || user.openId}`}
+                            className="h-4 w-4 rounded border-[#16243d]/20"
+                          />
+                        </td>
+                        <td className="font-medium text-[#0f172a]">
+                          {user.name || "Unnamed learner"}
+                        </td>
+                        <td className="text-[#475569]">{user.email || "—"}</td>
+                        <td>
+                          {user.cohort ? (
+                            <Badge variant="secondary" className="text-[10px] font-black uppercase tracking-[.08em]">
+                              {user.cohort}
+                            </Badge>
+                          ) : (
+                            <span className="text-[#64748b]">Unassigned</span>
+                          )}
+                        </td>
+                        <td className="text-[#64748b]">
+                          {new Date(user.lastSignedIn).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
             {!users.isLoading && !users.data?.rows.length && (
               <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
                 <p className="text-sm font-semibold text-[#64748b]">No learners match this search.</p>
               </div>
             )}
-            <div className="flex items-center justify-between border-t border-[#e2e8f0] px-5 py-4 text-xs text-[#64748b]">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#e2e8f0] px-4 py-4 text-xs text-[#64748b] sm:px-5">
               <span>
                 {totalLearners} learners · page {users.data?.page ?? page} of{" "}
                 {users.data?.totalPages ?? 1}
@@ -252,7 +254,7 @@ function CohortManagementInner() {
         </div>
 
         <div className="space-y-4">
-          <div className="exec-card p-5">
+          <div className="exec-card p-4 sm:p-5">
             <p className="exec-label-gold">Bulk import CSV</p>
             <p className="mt-2 text-sm leading-6 text-[#475569]">
               Upload a CSV to assign cohorts in bulk. Required headers:{" "}
@@ -298,7 +300,7 @@ function CohortManagementInner() {
             )}
           </div>
 
-          <div className="exec-card p-5">
+          <div className="exec-card p-4 sm:p-5">
             <p className="exec-label-gold">Quick actions</p>
             <div className="mt-4 space-y-2">
               <Button

@@ -12,6 +12,8 @@ import {
   Settings,
   ChevronDown,
   ChevronUp,
+  X,
+  Save,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -60,6 +62,7 @@ export default function AdminSurveysPanel() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [expandedQuestion, setExpandedQuestion] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const surveys = trpc.admin.listSurveys.useQuery(undefined, {
     retry: false,
@@ -77,6 +80,8 @@ export default function AdminSurveysPanel() {
     onSuccess: () => {
       surveys.refetch();
       toast.success("Survey updated");
+      setEditingId(null);
+      resetForm();
     },
     onError: error => toast.error(error.message),
   });
@@ -94,6 +99,31 @@ export default function AdminSurveysPanel() {
     setType("survey");
     setStatus("draft");
     setQuestions([]);
+    setExpandedQuestion(null);
+    setPreviewMode(false);
+    setEditingId(null);
+  };
+
+  const startEdit = (survey: {
+    id: number;
+    title: string;
+    description: string;
+    type: SurveyType;
+    status: SurveyStatus;
+    questions?: Question[] | null;
+    startsAt?: string | null;
+    endsAt?: string | null;
+  }) => {
+    setEditingId(survey.id);
+    setTitle(survey.title);
+    setDescription(survey.description);
+    setType(survey.type);
+    setStatus(survey.status);
+    setQuestions(
+      survey.questions && survey.questions.length > 0
+        ? survey.questions.map(q => ({ ...q, id: q.id || crypto.randomUUID() }))
+        : []
+    );
     setExpandedQuestion(null);
     setPreviewMode(false);
   };
@@ -183,6 +213,49 @@ export default function AdminSurveysPanel() {
     });
   };
 
+  const handleUpdate = () => {
+    if (!editingId) return;
+    if (!title.trim() || !description.trim()) {
+      toast.error("Title and description are required");
+      return;
+    }
+    if (questions.length === 0) {
+      toast.error("Add at least one question");
+      return;
+    }
+    const validQuestions = questions.filter(q => q.title.trim());
+    if (validQuestions.length === 0) {
+      toast.error("All questions must have a title");
+      return;
+    }
+    for (const q of validQuestions) {
+      if ((q.type === "single_choice" || q.type === "multiple_choice") && (!q.options || q.options.filter(o => o.trim()).length < 2)) {
+        toast.error(`Question "${q.title}" needs at least 2 options`);
+        return;
+      }
+    }
+    updateMutation.mutate({
+      id: editingId,
+      title: title.trim(),
+      description: description.trim(),
+      type,
+      status,
+      options: [],
+      questions: validQuestions.map(q => ({
+        id: q.id,
+        type: q.type,
+        title: q.title.trim(),
+        description: q.description?.trim() || undefined,
+        required: q.required,
+        ...(q.options ? { options: q.options.filter(o => o.trim()) } : {}),
+        ...(q.minRating !== undefined ? { minRating: q.minRating } : {}),
+        ...(q.maxRating !== undefined ? { maxRating: q.maxRating } : {}),
+      })),
+      startsAt: undefined,
+      endsAt: undefined,
+    });
+  };
+
   const handleStatusChange = (id: number, newStatus: SurveyStatus) => {
     updateMutation.mutate({ id, status: newStatus });
   };
@@ -198,6 +271,8 @@ export default function AdminSurveysPanel() {
     closed: <XCircle size={14} className="text-red-600" />,
   };
 
+  const isPending = createMutation.isPending || updateMutation.isPending;
+
   return (
     <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -206,12 +281,21 @@ export default function AdminSurveysPanel() {
             <BarChart3 size={13} /> Engagement & feedback
           </p>
           <h2 className="display mt-3 text-3xl">
-            Surveys, polls, and reviews
+            {editingId ? "Edit survey" : "Surveys, polls, and reviews"}
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-[#657084]">
             Create structured surveys with multiple question types, or use simple polls for quick feedback.
           </p>
         </div>
+        {editingId && (
+          <button
+            type="button"
+            onClick={resetForm}
+            className="inline-flex items-center gap-2 border border-[#16243d]/20 px-4 py-2 text-[10px] font-black uppercase tracking-[.1em]"
+          >
+            <X size={13} /> Cancel
+          </button>
+        )}
       </div>
 
       <div className="mt-8 grid gap-4 border border-[#16243d]/10 bg-[#f7f3e8] p-4">
@@ -472,16 +556,18 @@ export default function AdminSurveysPanel() {
         <div className="lg:col-span-2">
           <button
             type="button"
-            onClick={handleCreate}
-            disabled={createMutation.isPending}
+            onClick={editingId ? handleUpdate : handleCreate}
+            disabled={isPending}
             className="inline-flex items-center justify-center gap-2 bg-[#16243d] px-4 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] disabled:opacity-40"
           >
-            {createMutation.isPending ? (
+            {isPending ? (
               <RefreshCw size={13} className="animate-spin" />
+            ) : editingId ? (
+              <Save size={13} />
             ) : (
               <Plus size={13} />
             )}
-            Create survey
+            {editingId ? "Update survey" : "Create survey"}
           </button>
         </div>
       </div>
@@ -518,6 +604,13 @@ export default function AdminSurveysPanel() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => startEdit(survey)}
+                  className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]"
+                >
+                  Edit
+                </button>
                 <select
                   value={survey.status}
                   onChange={event =>

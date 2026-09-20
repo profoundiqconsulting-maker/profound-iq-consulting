@@ -7604,6 +7604,16 @@ export async function listResources() {
   return db.select().from(resources).orderBy(desc(resources.sortOrder), desc(resources.createdAt));
 }
 
+export async function listPublishedResources() {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(resources)
+    .where(eq(resources.status, "published"))
+    .orderBy(desc(resources.sortOrder), desc(resources.createdAt));
+}
+
 export async function getResource(id: number) {
   const db = await getDb();
   if (!db) return null;

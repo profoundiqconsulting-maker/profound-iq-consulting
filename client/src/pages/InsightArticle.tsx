@@ -105,7 +105,7 @@ export default function InsightArticle() {
       )}
       <section className="bg-[#fffaf0] py-20 lg:py-32">
         <div className="container grid gap-16 lg:grid-cols-[.6fr_1.4fr] lg:gap-20">
-          <aside className="lg:sticky lg:top-8 lg:self-start">
+          <aside className="lg:sticky lg:top-24 lg:self-start">
             <ScrollReveal>
               <div className="border-l-2 border-[#c9a34e] bg-white/70 p-7 backdrop-blur-sm">
                 <p className="eyebrow text-[#7d5e1e]">A question to carry</p>

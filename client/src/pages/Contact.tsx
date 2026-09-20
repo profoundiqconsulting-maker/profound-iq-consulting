@@ -182,9 +182,13 @@ export default function Contact() {
                   Thank you. The team will review the context and follow up
                   through the email address you provided.
                 </p>
-                <button
-                  type="button"
-                  onClick={() => setSent(false)}
+                 <button
+                   type="button"
+                   onClick={() => {
+                     setSent(false);
+                     setMathA(newNumber());
+                     setMathB(newNumber());
+                   }}
                   className="mt-5 text-[10px] font-black uppercase tracking-[.14em] underline underline-offset-4"
                 >
                   Send another inquiry
@@ -246,7 +250,7 @@ export default function Contact() {
                     <span className="text-xs font-normal text-[#657084]">
                       What is {mathA} + {mathB}?
                     </span>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                       <input
                         name="mathAnswer"
                         required

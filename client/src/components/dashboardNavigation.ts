@@ -7,6 +7,8 @@ import {
   BrainCircuit,
   ClipboardCheck,
   ClipboardList,
+  Database,
+  Folder,
   LayoutDashboard,
   Mail,
   Settings,
@@ -38,7 +40,9 @@ export type RoleNavItem = {
     | "contactInquiries"
     | "assignedInquiries"
     | "lessonReviews"
-    | "reviewAnalytics";
+    | "reviewAnalytics"
+    | "resources"
+    | "surveys";
   fallbackLabel: string;
   path: string;
   icon: LucideIcon;
@@ -111,12 +115,20 @@ export const adminNavItems: RoleNavItem[] = [
     group: "operations",
   },
   {
-    id: "admin-reports",
-    labelKey: "adminObservatory",
-    fallbackLabel: "Reports",
-    path: "/admin/overview",
+    id: "admin-resources",
+    labelKey: "resources",
+    fallbackLabel: "Resources",
+    path: "/admin/resources",
+    icon: Folder,
+    group: "operations",
+  },
+  {
+    id: "admin-surveys",
+    labelKey: "surveys",
+    fallbackLabel: "Surveys",
+    path: "/admin/surveys",
     icon: BarChart3,
-    group: "system",
+    group: "operations",
   },
   {
     id: "admin-system",
@@ -304,15 +316,19 @@ export const learnerGroups = [
   { id: "account", fallbackLabel: "Account" },
 ] as const;
 
+const normalizeRole = (role: string | undefined) => role?.toLowerCase().trim();
+
 export function visibleDashboardNavItems(role: string | undefined) {
-  if (role === "admin") return adminNavItems;
-  if (role === "staff") return staffNavItems;
+  const normalizedRole = normalizeRole(role);
+  if (normalizedRole === "admin") return adminNavItems;
+  if (normalizedRole === "staff") return staffNavItems;
   return learnerNavItems;
 }
 
 export function visibleDashboardNavGroups(role: string | undefined) {
-  if (role === "admin") return adminGroups;
-  if (role === "staff") return staffGroups;
+  const normalizedRole = normalizeRole(role);
+  if (normalizedRole === "admin") return adminGroups;
+  if (normalizedRole === "staff") return staffGroups;
   return learnerGroups;
 }
 

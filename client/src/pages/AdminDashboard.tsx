@@ -7,6 +7,7 @@ import {
   Activity,
   AlertCircle,
   ArrowLeft,
+  ArrowUpRight,
   BarChart3,
   Bold,
   BookOpen,
@@ -1459,29 +1460,51 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
           {activeTab === "surveys" && (
             <div id="surveys" className="scroll-mt-8">
               <AdminSurveysPanel />
+              <div className="mt-4">
+                <Link href="/surveys" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                  View public surveys <ArrowUpRight size={13} />
+                </Link>
+              </div>
             </div>
           )}
 
           {activeTab === "resources" && (
             <div id="resources" className="scroll-mt-8">
               <AdminResourcesPanel />
+              <div className="mt-4">
+                <Link href="/resources" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                  View public resources <ArrowUpRight size={13} />
+                </Link>
+              </div>
             </div>
           )}
 
           {activeTab === "overview" && (
             <div id="reports" className="scroll-mt-8">
               <AdminReportsPanel />
+              <div className="mt-4">
+                <Link href="/admin/overview" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                  View reports <ArrowUpRight size={13} />
+                </Link>
+              </div>
             </div>
           )}
 
           {activeTab === "revenue" && (
             <>
-              <div id="revenue" className="scroll-mt-8">
-                <Section
-                  eyebrow="Revenue overview"
-                  title="Money in motion."
-                  description="Track assessment payments, completed transactions, and outstanding balances."
-                >
+               <div id="revenue" className="scroll-mt-8">
+                 <Section
+                   eyebrow="Revenue overview"
+                   title="Money in motion."
+                   description={
+                     <span>
+                       Track assessment payments, completed transactions, and outstanding balances.
+                       <Link href="/admin/revenue" className="ml-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                         View revenue <ArrowUpRight size={13} />
+                       </Link>
+                     </span>
+                   }
+                 >
                   <div className="grid gap-6 lg:grid-cols-3">
                     <div className="exec-surface p-5">
                       <p className="exec-label-gold">Payments</p>
@@ -1516,7 +1539,14 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 id="intelligence"
                 eyebrow="Intelligence"
                 title="Insights that move the needle."
-                description="Aggregated analytics, conversion benchmarks, and trend analysis across all assessment and enrollment journeys."
+                description={
+                  <span>
+                    Aggregated analytics, conversion benchmarks, and trend analysis across all assessment and enrollment journeys.
+                    <Link href="/admin/overview" className="ml-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                      View reports <ArrowUpRight size={13} />
+                    </Link>
+                  </span>
+                }
               >
                 <div className="grid gap-6 lg:grid-cols-3">
                   <div className="exec-surface p-5">
@@ -1674,6 +1704,11 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   </p>
                 </div>
               </div>
+              <div className="mt-4">
+                <Link href="/admin/staff" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                  Manage staff <ArrowUpRight size={13} />
+                </Link>
+              </div>
               <div id="staff" className="scroll-mt-8">
                 <AdminStaffPanel />
               </div>
@@ -1793,6 +1828,11 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 <AdminCertificatePreview />
               </div>
               <AdminRecentQCCertificates />
+              <div className="mt-4">
+                <Link href="/admin/learning" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                  Learning overview <ArrowUpRight size={13} />
+                </Link>
+              </div>
             </>
           )}
 
@@ -1804,6 +1844,11 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
               </div>
 
               <AdminInsightsPanel />
+              <div className="mt-4">
+                <Link href="/admin/communications" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                  Communications <ArrowUpRight size={13} />
+                </Link>
+              </div>
             </>
           )}
 
@@ -2294,6 +2339,11 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   <p className="mt-2 text-2xl font-bold">CSV</p>
                 </div>
               </div>
+              <div className="mt-4">
+                <Link href="/admin/inquiries" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                  View inquiries <ArrowUpRight size={13} />
+                </Link>
+              </div>
               <section className="mt-8 border border-[#16243d]/15 bg-white p-5 sm:p-6">
                 <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                   <div>
@@ -2354,7 +2404,14 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 id="operations"
                 eyebrow="Operations control"
                 title="Keep the platform running."
-                description="Monitor scheduled exports, delivery log jobs, and automated analytics pipelines."
+                description={
+                  <span>
+                    Monitor scheduled exports, delivery log jobs, and automated analytics pipelines.
+                    <Link href="/admin/operations" className="ml-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                      Operations <ArrowUpRight size={13} />
+                    </Link>
+                  </span>
+                }
               >
                 <div className="grid gap-6 lg:grid-cols-3">
                   <div className="exec-surface p-5">

@@ -7,12 +7,14 @@ import {
   ChevronRight,
   Clock3,
   Facebook,
+  FileText,
   Instagram,
   Linkedin,
   Mail,
   MessageCircle,
   Phone,
   Sparkles,
+  Vote,
   X,
   Award,
   Users,
@@ -21,7 +23,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
-import { ExecutiveHeader } from "@/components/ExecutiveHeader";
+import { SiteNavigation } from "@/components/SiteNavigation";
 import { CourseShareActions } from "@/components/CourseShareActions";
 import { trpc } from "@/lib/trpc";
 import {
@@ -160,11 +162,22 @@ export default function Home() {
   const [enrollmentSubmitted, setEnrollmentSubmitted] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [testimonialsPaused, setTestimonialsPaused] = useState(false);
+  const [visibleResourceCount, setVisibleResourceCount] = useState(3);
+  const [visibleSurveyCount, setVisibleSurveyCount] = useState(3);
+  const HOME_PREVIEW_COUNT = 3;
   const enrollmentTriggerRef = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
   const enrollment = trpc.enrollment.create.useMutation();
   const inquiry = trpc.inquiry.create.useMutation();
   const { user, isAuthenticated } = useAuth();
   const liveCatalog = trpc.catalog.listPublished.useQuery(undefined, {
+    retry: false,
+    refetchOnWindowFocus: true,
+  });
+  const publishedResources = trpc.resources.listPublished.useQuery(undefined, {
+    retry: false,
+    refetchOnWindowFocus: true,
+  });
+  const activeSurveys = trpc.resources.activeSurveys.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: true,
   });
@@ -227,6 +240,92 @@ export default function Home() {
   const pagedCatalog = filteredCatalog.slice(
     0,
     catalogPage * CATALOG_PAGE_SIZE
+  );
+
+  const displayResources = useMemo(() => {
+    const data = (publishedResources.data ?? [])
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+    return data.slice(0, visibleResourceCount);
+  }, [publishedResources.data, visibleResourceCount]);
+
+  const displaySurveys = useMemo(() => {
+    const data = (activeSurveys.data ?? []).filter(
+      survey => survey.status === "published"
+    );
+    return data.slice(0, visibleSurveyCount);
+  }, [activeSurveys.data, visibleSurveyCount]);
+
+  const renderResourcePreview = (resource: {
+    id: number;
+    title: string;
+    description: string;
+    category: string;
+    price: number;
+    currency: string;
+    fileUrl?: string | null;
+  }) => (
+    <article className="flex h-full flex-col justify-between border border-[#16243d]/10 bg-white p-6 transition-all hover:-translate-y-1 hover:border-[#c9a34e] hover:shadow-lg">
+      <div>
+        <span className="text-[10px] font-black uppercase tracking-[.16em] text-[#7d5e1e]">
+          {resource.category}
+        </span>
+        <h3 className="mt-3 text-lg font-semibold leading-tight text-[#16243d]">
+          {resource.title}
+        </h3>
+        <p className="mt-2 line-clamp-2 text-sm text-[#657084]">
+          {resource.description}
+        </p>
+      </div>
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+        <span className="text-sm font-semibold text-[#16243d]">
+          {(resource.price ?? 0) === 0
+            ? "Free"
+            : `${resource.currency ?? "KES"} ${(resource.price ?? 0).toLocaleString()}`}
+        </span>
+        <a
+          href={resource.fileUrl || "/resources"}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-4 py-2 text-[10px] font-black uppercase tracking-[.12em] text-white transition-all hover:bg-[#0f172a]"
+        >
+          {(resource.price ?? 0) === 0 ? "Download" : "View"}
+          <ArrowUpRight size={14} />
+        </a>
+      </div>
+    </article>
+  );
+
+  const renderSurveyPreview = (survey: {
+    id: number;
+    title: string;
+    description: string;
+    type: string;
+    totalResponses: number;
+  }) => (
+    <article className="flex h-full flex-col justify-between border border-[#16243d]/10 bg-white p-6 transition-all hover:-translate-y-1 hover:border-[#c9a34e] hover:shadow-lg">
+      <div>
+        <span className="inline-flex rounded-full bg-[#c9a34e]/10 px-3 py-1 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
+          {survey.type}
+        </span>
+        <h3 className="mt-3 text-lg font-semibold leading-tight text-[#16243d]">
+          {survey.title}
+        </h3>
+        <p className="mt-2 line-clamp-2 text-sm text-[#657084]">
+          {survey.description}
+        </p>
+      </div>
+      <div className="mt-5 flex items-center justify-between gap-3">
+        <span className="text-xs text-[#657084]">
+          {survey.totalResponses} response{survey.totalResponses === 1 ? "" : "s"}
+        </span>
+        <a
+          href="/surveys"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-4 py-2 text-[10px] font-black uppercase tracking-[.12em] text-white transition-all hover:bg-[#0f172a]"
+        >
+          Participate <ArrowUpRight size={14} />
+        </a>
+      </div>
+    </article>
   );
 
   useEffect(() => {
@@ -319,7 +418,7 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
 
-      <ExecutiveHeader variant="home" dark />
+      <SiteNavigation variant="home" dark />
 
       <main id="top">
         {/* Modern Hero Section */}
@@ -769,6 +868,122 @@ export default function Home() {
                 No courses match the selected filters.
               </p>
             )}
+          </div>
+        </section>
+
+        {/* Resources Preview */}
+        <section className="bg-[#f7f3e8] py-24 lg:py-32">
+          <div className="container px-6 lg:px-8">
+            <div className="mb-12">
+              <p className="eyebrow text-[#7d5e1e]">Resources</p>
+              <h2 className="display mt-5 text-4xl leading-[.98] tracking-[-.045em] sm:text-5xl">
+                Curated materials
+              </h2>
+              <p className="mt-4 max-w-2xl text-base text-[#4a566a]">
+                Practical guides, templates, and tools to support better decisions and clearer next steps.
+              </p>
+            </div>
+            {publishedResources.isLoading ? (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: HOME_PREVIEW_COUNT }).map((_, index) => (
+                  <div key={index} className="h-48 animate-pulse rounded-xl border border-[#16243d]/10 bg-white" />
+                ))}
+              </div>
+            ) : displayResources.length > 0 ? (
+              <>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {displayResources.map(resource => (
+                    <ScrollReveal key={resource.id}>
+                      {renderResourcePreview(resource)}
+                    </ScrollReveal>
+                  ))}
+                </div>
+                {visibleResourceCount < (publishedResources.data ?? []).length && (
+                  <div className="mt-10 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => setVisibleResourceCount(count => count + HOME_PREVIEW_COUNT)}
+                      className="inline-flex items-center gap-3 rounded-lg border-2 border-[#16243d] px-8 py-3 text-sm font-bold uppercase tracking-wider text-[#16243d] transition-all hover:bg-[#16243d] hover:text-white"
+                    >
+                      Load more
+                      <ChevronRight size={18} />
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="py-12 text-center text-base text-[#657084]">
+                No published resources yet.
+              </p>
+            )}
+            <div className="mt-10 flex justify-center">
+              <a
+                href="/resources"
+                className="inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-6 py-3 text-[10px] font-black uppercase tracking-[.12em] text-white transition-all hover:bg-[#0f172a]"
+              >
+                View all resources <ArrowUpRight size={14} />
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* Surveys Preview */}
+        <section className="bg-white py-24 lg:py-32">
+          <div className="container px-6 lg:px-8">
+            <div className="mb-12">
+              <p className="eyebrow text-[#7d5e1e]">Surveys</p>
+              <h2 className="display mt-5 text-4xl leading-[.98] tracking-[-.045em] sm:text-5xl">
+                Have your say
+              </h2>
+              <p className="mt-4 max-w-2xl text-base text-[#4a566a]">
+                Take part in our active polls, surveys, and product reviews. Your feedback helps shape what comes next.
+              </p>
+            </div>
+            {activeSurveys.isLoading ? (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: HOME_PREVIEW_COUNT }).map((_, index) => (
+                  <div key={index} className="h-48 animate-pulse rounded-xl border border-[#16243d]/10 bg-[#f7f3e8]" />
+                ))}
+              </div>
+            ) : displaySurveys.length > 0 ? (
+              <>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {displaySurveys.map(survey => (
+                    <ScrollReveal key={survey.id}>
+                      {renderSurveyPreview(survey)}
+                    </ScrollReveal>
+                  ))}
+                </div>
+                {visibleSurveyCount < (activeSurveys.data ?? []).length && (
+                  <div className="mt-10 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => setVisibleSurveyCount(count => count + HOME_PREVIEW_COUNT)}
+                      className="inline-flex items-center gap-3 rounded-lg border-2 border-[#16243d] px-8 py-3 text-sm font-bold uppercase tracking-wider text-[#16243d] transition-all hover:bg-[#16243d] hover:text-white"
+                    >
+                      Load more
+                      <ChevronRight size={18} />
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="mx-auto max-w-2xl text-center">
+                <Vote size={48} className="mx-auto text-[#c9a34e]" aria-hidden="true" />
+                <h3 className="display mt-6 text-3xl">No active surveys right now</h3>
+                <p className="mt-4 text-base text-[#4a566a]">
+                  Check back soon. We regularly run polls, surveys, and product reviews.
+                </p>
+              </div>
+            )}
+            <div className="mt-10 flex justify-center">
+              <a
+                href="/surveys"
+                className="inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-6 py-3 text-[10px] font-black uppercase tracking-[.12em] text-white transition-all hover:bg-[#0f172a]"
+              >
+                View all surveys <ArrowUpRight size={14} />
+              </a>
+            </div>
           </div>
         </section>
 

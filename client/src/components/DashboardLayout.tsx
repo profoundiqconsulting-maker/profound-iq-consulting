@@ -154,7 +154,11 @@ function DashboardLayoutContent({
   const sidebarRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
-  const userRole = role || user?.role || "user";
+  const normalizedUserRole = user?.role?.toLowerCase();
+  const userRole =
+    normalizedUserRole === "admin"
+      ? "admin"
+      : (role || normalizedUserRole || "user");
   const menuItems = useMemo(
     () => visibleDashboardNavItems(userRole),
     [userRole]
