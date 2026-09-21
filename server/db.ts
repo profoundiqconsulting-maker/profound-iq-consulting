@@ -12,6 +12,7 @@ import {
   like,
   lt,
   lte,
+  not,
   or,
   sql,
   type SQL,
@@ -148,7 +149,7 @@ export async function getDb() {
         password,
         database,
       });
-      _db = drizzle(connection);
+      _db = drizzle(connection as any);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -3751,13 +3752,13 @@ export async function searchUsers(query: string, excludeOpenId: string) {
     })
     .from(users)
     .where(
-      and(
-        or(
-          like(users.name, term),
-          like(users.email, term)
-        ),
-        users.openId !== excludeOpenId
-      )
+        and(
+          or(
+            like(users.name, term),
+            like(users.email, term)
+          ),
+          not(eq(users.openId, excludeOpenId))
+        )
     )
     .limit(20)
     .orderBy(users.name);
