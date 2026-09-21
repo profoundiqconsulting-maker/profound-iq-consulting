@@ -41,7 +41,7 @@ export default function AdminNewsletterPanel() {
     [state.search, state.status, state.fromDate, state.toDate]
   );
   const setFilter = <K extends keyof SubscriberFilters>(key: K, value: SubscriberFilters[K]) => {
-    setValue(key, value);
+    setValue(key, value as any);
     setValue("page", 1);
   };
 

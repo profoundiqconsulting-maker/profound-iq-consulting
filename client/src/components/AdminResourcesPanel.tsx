@@ -128,7 +128,6 @@ export default function AdminResourcesPanel() {
         fileSize: form.file?.size,
         coverImageUrl: coverBase64 || undefined,
         sortOrder: form.sortOrder,
-        status: form.status as "draft" | "published",
       });
     } catch (error) {
       toast.error("Could not read files", {

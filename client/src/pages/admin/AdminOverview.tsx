@@ -52,21 +52,21 @@ export default function AdminOverview() {
     return [
       {
         label: "Assessments started",
-        value: summary?.assessment_started ?? overview.data?.assessmentsStarted ?? 0,
+        value: summary?.assessment_started ?? overview.data?.summary?.total ?? 0,
         sub: "All time",
         icon: <Activity className="h-4 w-4" />,
         href: "/admin/psychometrics",
       },
       {
         label: "Payments completed",
-        value: summary?.payment_completed ?? overview.data?.paymentsCompleted ?? 0,
+        value: summary?.payment_completed ?? overview.data?.summary?.paid ?? 0,
         sub: "Verified conversions",
         icon: <CreditCard className="h-4 w-4" />,
         href: "/admin/revenue",
       },
       {
         label: "Reports downloaded",
-        value: summary?.report_downloaded ?? overview.data?.reportsDownloaded ?? 0,
+        value: summary?.report_downloaded ?? 0,
         sub: "Branded PDFs",
         icon: <Download className="h-4 w-4" />,
         href: "/admin/reports",
@@ -80,7 +80,7 @@ export default function AdminOverview() {
       },
       {
         label: "Verified users",
-        value: overview.data?.verifiedUsers ?? 0,
+        value: 0,
         sub: "Completed verification",
         icon: <UserCheck className="h-4 w-4" />,
         href: "/admin/users",

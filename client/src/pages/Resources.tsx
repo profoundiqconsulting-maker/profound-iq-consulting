@@ -150,8 +150,8 @@ export default function Resources() {
             </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {(resources.data ?? [])
-                .sort((a, b) => a.sortOrder - b.sortOrder)
-                .map((resource, index) => (
+                .sort((a: { sortOrder: number }, b: { sortOrder: number }) => a.sortOrder - b.sortOrder)
+                .map((resource: { id: number; title: string; description: string; category: string; price: number; currency: string; fileUrl?: string | null }, index: number) => (
                   <ScrollReveal key={resource.id} delay={index * 70}>
                     <article className="group border border-[#16243d]/10 bg-[#f7f3e8] p-8 transition-all duration-200 hover:-translate-y-1 hover:border-[#c9a34e] hover:bg-white hover:shadow-lg">
                       <div className="flex items-start justify-between gap-4">

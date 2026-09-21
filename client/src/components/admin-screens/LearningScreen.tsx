@@ -1,8 +1,8 @@
 import AdminCourseDeliveryPanel from "@/components/AdminCourseDeliveryPanel";
 import AdminPaymentExceptionsPanel from "@/components/AdminPaymentExceptionsPanel";
-import AdminCourseAccessAudit from "@/components/AdminCourseAccessAudit";
-import AdminCertificatePreview from "@/components/AdminCertificatePreview";
-import AdminRecentQCCertificates from "@/components/AdminRecentQCCertificates";
+import { AdminCourseAccessAudit } from "@/components/AdminCourseAccessAudit";
+import { AdminCertificatePreview } from "@/components/AdminCertificatePreview";
+import { AdminRecentQCCertificates } from "@/components/AdminRecentQCCertificates";
 
 interface LearningScreenProps {
   activeTab: string;

@@ -26,9 +26,9 @@ function CohortManagementInner() {
   const selected = table.selected as string[];
 
   const setSearch = (value: string) => setTable("search", value);
-  const setPage = (value: number) => setTable("page", value);
+  const setPage = (value: number | ((prev: number) => number)) => setTable("page", value);
   const setCohort = (value: string) => setTable("cohort", value);
-  const setSelected = (value: string[]) => setTable("selected", value);
+  const setSelected = (value: string[] | ((prev: string[]) => string[])) => setTable("selected", value);
   const [importStatus, setImportStatus] = useState("");
   const [importError, setImportError] = useState("");
 

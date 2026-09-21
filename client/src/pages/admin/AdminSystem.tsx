@@ -76,7 +76,7 @@ export default function AdminSystem() {
       ? "degraded"
       : "down";
 
-  const scheduleHealth: HealthStatus = scheduleStatus.data?.config?.scheduleTaskUid
+  const scheduleHealth: HealthStatus = scheduleStatus.data?.scheduleTaskUid
     ? "healthy"
     : "degraded";
 
@@ -127,8 +127,8 @@ export default function AdminSystem() {
                       ? "Connected"
                       : "Disconnected"}
                 </p>
-                {emailConnection.data?.error && (
-                  <p className="text-xs text-red-700">{emailConnection.data.error}</p>
+                {emailConnection.data && !emailConnection.data.connected && (
+                  <p className="text-xs text-red-700">Email service is not configured.</p>
                 )}
                 {!emailConnection.isLoading && (
                   <Button
@@ -154,12 +154,12 @@ export default function AdminSystem() {
                 <p className="exec-label-muted">Scheduled exports</p>
                 <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-[#0f172a]">
                   {statusIcon(scheduleHealth)}
-                  {scheduleStatus.data?.config?.scheduleTaskUid ? "Active" : "Inactive"}
+                  {scheduleStatus.data?.scheduleTaskUid ? "Active" : "Inactive"}
                 </p>
                 <p className="text-xs text-[#64748b]">
-                  {scheduleStatus.data?.config?.lastRunAt
-                    ? `Last run: ${new Date(scheduleStatus.data.config.lastRunAt).toLocaleString()}`
-                    : "No runs yet"}
+                  {scheduleStatus.data?.scheduleTaskUid
+                    ? `Task ID: ${scheduleStatus.data.scheduleTaskUid}`
+                    : "No scheduled task configured"}
                 </p>
               </div>
             </div>

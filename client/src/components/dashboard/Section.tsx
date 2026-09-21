@@ -4,7 +4,7 @@ interface SectionProps {
   id?: string;
   eyebrow?: string;
   title?: string;
-  description?: string;
+  description?: ReactNode;
   actions?: ReactNode;
   stats?: ReactNode;
   filters?: ReactNode;

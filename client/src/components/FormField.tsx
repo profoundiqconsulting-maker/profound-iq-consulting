@@ -27,7 +27,9 @@ type FormFieldProps = {
   label: React.ReactNode;
   labelClassName?: string;
   name: string;
-} & Omit<React.ComponentProps<"input">, "name" | "autoComplete">;
+} & Omit<React.ComponentProps<"input">, "name"> & {
+  autoComplete?: React.ComponentProps<"input">["autoComplete"];
+};
 
 export function FormField({
   label,

@@ -25,6 +25,7 @@ import {
 import { BrandLogo } from "@/components/BrandLogo";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { CourseShareActions } from "@/components/CourseShareActions";
+import { ScrollReveal, ScrollRevealGroup } from "@/components/ScrollReveal";
 import { trpc } from "@/lib/trpc";
 import {
   Tooltip,
@@ -244,7 +245,7 @@ export default function Home() {
 
   const displayResources = useMemo(() => {
     const data = (publishedResources.data ?? [])
-      .sort((a, b) => a.sortOrder - b.sortOrder);
+      .sort((a: { sortOrder: number }, b: { sortOrder: number }) => a.sortOrder - b.sortOrder);
     return data.slice(0, visibleResourceCount);
   }, [publishedResources.data, visibleResourceCount]);
 
@@ -892,7 +893,7 @@ export default function Home() {
             ) : displayResources.length > 0 ? (
               <>
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {displayResources.map(resource => (
+                  {(displayResources as Array<{ id: number; title: string; description: string; category: string; price: number; currency: string; fileUrl?: string | null }>).map(resource => (
                     <ScrollReveal key={resource.id}>
                       {renderResourcePreview(resource)}
                     </ScrollReveal>
@@ -948,7 +949,7 @@ export default function Home() {
             ) : displaySurveys.length > 0 ? (
               <>
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {displaySurveys.map(survey => (
+                  {(displaySurveys as Array<{ id: number; title: string; description: string; type: string; status: string; totalResponses: number }>).map(survey => (
                     <ScrollReveal key={survey.id}>
                       {renderSurveyPreview(survey)}
                     </ScrollReveal>

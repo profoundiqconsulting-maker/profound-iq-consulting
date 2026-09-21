@@ -129,6 +129,7 @@ import {
   listAllUsers,
   searchUsers,
   listResources,
+  listPublishedResources,
   getResource,
   createResource,
   updateResource,
@@ -6251,6 +6252,14 @@ export const appRouter = router({
     systemSettings: adminProcedure.query(({ ctx }) =>
       getAdminSystemSettings(ctx.user.openId)
     ),
+    emailConnection: adminProcedure.query(async () => {
+      const configured = Boolean(process.env.RESEND_API_KEY);
+      return { connected: configured, provider: "resend" };
+    }),
+    scheduleStatus: adminProcedure.query(async () => {
+      const configured = Boolean(process.env.RESEND_API_KEY);
+      return { configured, scheduleTaskUid: configured ? "resend-biweekly" : null };
+    }),
     upsertSystemSetting: adminProcedure
       .input(
         z.object({

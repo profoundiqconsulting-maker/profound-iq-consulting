@@ -43,7 +43,9 @@ export type RoleNavItem = {
     | "lessonReviews"
     | "reviewAnalytics"
     | "resources"
-    | "surveys";
+    | "surveys"
+    | "operations"
+    | "revenue";
   fallbackLabel: string;
   path: string;
   icon: LucideIcon;

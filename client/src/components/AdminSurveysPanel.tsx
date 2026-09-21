@@ -606,7 +606,7 @@ export default function AdminSurveysPanel() {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => startEdit(survey)}
+                  onClick={() => startEdit(survey as Parameters<typeof startEdit>[0])}
                   className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]"
                 >
                   Edit
