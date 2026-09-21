@@ -744,6 +744,7 @@ export async function updateCommunicationTicket(input: {
   assignedToName?: string;
   priority?: string;
   dueDate?: Date;
+  followUp?: string;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -753,6 +754,7 @@ export async function updateCommunicationTicket(input: {
   if (input.assignedToName !== undefined) updateSet.assignedToName = input.assignedToName;
   if (input.priority !== undefined) updateSet.priority = input.priority;
   if (input.dueDate !== undefined) updateSet.dueDate = input.dueDate;
+  if (input.followUp !== undefined) updateSet.followUp = input.followUp;
   await db.update(communicationTickets).set(updateSet).where(eq(communicationTickets.id, input.id));
   return getCommunicationTicket(input.id);
 }
@@ -3479,6 +3481,38 @@ export async function setInsightArticleStatus(input: {
   return { slug: input.slug, status: input.status };
 }
 
+export async function createInsightArticle(input: {
+  slug: string;
+  category: string;
+  title: string;
+  excerpt: string;
+  readTime: string;
+  accent: string;
+  sectionsJson: string;
+  status?: "draft" | "published";
+  socialImageUrl?: string | null;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const normalizedStatus = input.status === "published" ? "published" : "draft";
+  const publishedAt = normalizedStatus === "published" ? new Date() : null;
+  await db.insert(insightArticlesTable).values({
+    slug: input.slug,
+    category: input.category,
+    title: input.title,
+    excerpt: input.excerpt,
+    readTime: input.readTime,
+    accent: input.accent,
+    sectionsJson: input.sectionsJson,
+    status: normalizedStatus,
+    socialImageUrl: input.socialImageUrl ?? null,
+    publishedAt,
+  });
+  const row = await getInsightArticleBySlug(input.slug);
+  if (!row) throw new Error("Failed to create insight article");
+  return row;
+}
+
 async function recordContactInquiryAudit(
   db: Awaited<ReturnType<typeof getDb>>,
   input: {
@@ -3702,6 +3736,31 @@ export async function listAllUsers() {
     })
     .from(users)
     .orderBy(desc(users.createdAt));
+}
+
+export async function searchUsers(query: string, excludeOpenId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const term = `%${query}%`;
+  return db
+    .select({
+      openId: users.openId,
+      name: users.name,
+      email: users.email,
+      role: users.role,
+    })
+    .from(users)
+    .where(
+      and(
+        or(
+          like(users.name, term),
+          like(users.email, term)
+        ),
+        users.openId !== excludeOpenId
+      )
+    )
+    .limit(20)
+    .orderBy(users.name);
 }
 
 export async function getContactInquiryAuditHistory(inquiryId: number) {

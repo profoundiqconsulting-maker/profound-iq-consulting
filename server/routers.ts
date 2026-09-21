@@ -127,6 +127,7 @@ import {
   updateUserExportPreferences,
   updateUserExportLogo,
   listAllUsers,
+  searchUsers,
   listResources,
   getResource,
   createResource,
@@ -225,6 +226,7 @@ import {
   getInsightArticleBySlug,
   listInsightArticlesForAdmin,
   setInsightArticleStatus,
+  createInsightArticle,
   getDeliveryLogExportJobs,
   getEmailPreviewDeliveries,
   getEmailPreviewDeliveriesForExport,
@@ -621,6 +623,7 @@ export const appRouter = router({
             assignedToName: z.string().optional(),
             priority: z.enum(["low", "medium", "high"]).optional(),
             dueDate: z.string().datetime().optional(),
+            followUp: z.string().optional(),
           })
         )
         .mutation(async ({ input }) => {
@@ -631,6 +634,7 @@ export const appRouter = router({
             assignedToName: input.assignedToName,
             priority: input.priority,
             dueDate: input.dueDate ? new Date(input.dueDate) : undefined,
+            followUp: input.followUp,
           });
           return { success: true };
         }),
@@ -1218,6 +1222,11 @@ export const appRouter = router({
         return { success: true } as const;
       }),
     me: publicProcedure.query(opts => opts.ctx.user),
+    search: protectedProcedure
+      .input(z.object({ query: z.string().trim().min(1).max(120) }))
+      .query(async ({ ctx, input }) =>
+        searchUsers(input.query, ctx.user.openId)
+      ),
     logout: publicProcedure.mutation(async ({ ctx }) => {
       const sessionToken =
         parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
@@ -1834,6 +1843,60 @@ export const appRouter = router({
         return article;
       }),
     adminList: adminProcedure.query(() => listInsightArticlesForAdmin()),
+    create: adminProcedure
+      .input(
+        z.object({
+          slug: z.string().trim().min(1).max(160),
+          category: z.string().trim().min(1).max(120),
+          title: z.string().trim().min(1).max(240),
+          excerpt: z.string().trim().min(1),
+          readTime: z.string().trim().min(1).max(40),
+          accent: z.string().trim().min(1).max(180),
+          sectionsJson: z.string().min(1),
+          status: z.enum(["draft", "published"]).default("draft"),
+          socialImageUrl: z.string().max(12_000_000).nullable().optional(),
+          contentType: z
+            .enum(["image/png", "image/jpeg", "image/webp"])
+            .optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        let socialImageUrl = input.socialImageUrl ?? null;
+        if (socialImageUrl && socialImageUrl.startsWith("data:")) {
+          const raw = socialImageUrl.replace(/^data:[^;]+;base64,/, "");
+          const bytes = Buffer.from(raw, "base64");
+          if (bytes.length > 8 * 1024 * 1024) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Image must be 8 MB or smaller.",
+            });
+          }
+          const contentType = input.contentType ?? "image/png";
+          const extension =
+            contentType === "image/png"
+              ? "png"
+              : contentType === "image/webp"
+                ? "webp"
+                : "jpg";
+          const stored = await storagePut(
+            `insight-social/${input.slug}-${Date.now()}.${extension}`,
+            bytes,
+            contentType
+          );
+          socialImageUrl = stored.url;
+        }
+        return createInsightArticle({
+          slug: input.slug,
+          category: input.category,
+          title: input.title,
+          excerpt: input.excerpt,
+          readTime: input.readTime,
+          accent: input.accent,
+          sectionsJson: input.sectionsJson,
+          status: input.status,
+          socialImageUrl: socialImageUrl ?? null,
+        });
+      }),
     setStatus: adminProcedure
       .input(
         z.object({

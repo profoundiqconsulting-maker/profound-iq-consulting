@@ -1116,6 +1116,7 @@ export const communicationTickets = mysqlTable("communication_tickets", {
   relatedConversationId: int("relatedConversationId"),
   createdByOpenId: varchar("createdByOpenId", { length: 64 }).notNull(),
   dueDate: timestamp("dueDate"),
+  followUp: text("followUp"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -1153,3 +1154,5 @@ export type SurveyAnalysis = typeof surveyAnalysis.$inferSelect;
 export type InsertSurveyAnalysis = typeof surveyAnalysis.$inferInsert;
 export type ResourcePurchase = typeof resourcePurchases.$inferSelect;
 export type InsertResourcePurchase = typeof resourcePurchases.$inferInsert;
+export type InsightArticle = typeof insightArticles.$inferSelect;
+export type InsertInsightArticle = typeof insightArticles.$inferInsert;

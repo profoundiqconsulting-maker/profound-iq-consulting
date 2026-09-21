@@ -27,6 +27,7 @@ import {
   Forward,
   UserPlus,
   CheckCircle2,
+  X,
 } from "lucide-react";
 
 type Tab = "conversations" | "tickets";
@@ -104,12 +105,21 @@ function ComposeForm({ onClose }: { onClose: () => void }) {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedUsers, setSelectedUsers] = useState<Array<{ openId: string; name: string; email: string }>>([]);
+
+  const usersQuery = trpc.auth.search.useQuery(
+    { query: searchQuery },
+    { enabled: searchQuery.trim().length >= 2, retry: false }
+  );
 
   const createConversation = trpc.communication.conversations.create.useMutation({
     onSuccess: () => {
       setSubject("");
       setBody("");
       setSending(false);
+      setSelectedUsers([]);
+      setSearchQuery("");
       toast.success("Conversation started");
       onClose();
     },
@@ -126,10 +136,18 @@ function ComposeForm({ onClose }: { onClose: () => void }) {
     }
     setSending(true);
     createConversation.mutate({
-      participantOpenIds: [],
+      participantOpenIds: selectedUsers.map(u => u.openId),
       subject: subject.trim(),
       contextType: "general",
     });
+  };
+
+  const toggleUser = (u: { openId: string; name: string; email: string }) => {
+    setSelectedUsers(prev =>
+      prev.some(p => p.openId === u.openId)
+        ? prev.filter(p => p.openId !== u.openId)
+        : [...prev, u]
+    );
   };
 
   return (
@@ -137,7 +155,7 @@ function ComposeForm({ onClose }: { onClose: () => void }) {
       <CardHeader>
         <CardTitle className="text-lg">New Conversation</CardTitle>
         <CardDescription>
-          Start a new conversation with the Profound IQ team.
+          Start a new conversation with the Profound IQ team or select a recipient.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -150,6 +168,55 @@ function ComposeForm({ onClose }: { onClose: () => void }) {
             onChange={(event) => setSubject(event.target.value)}
             placeholder="What is this about?"
           />
+        </div>
+        <div className="grid gap-2">
+          <label className="text-xs font-bold uppercase tracking-[.1em]">
+            To
+          </label>
+          <div className="relative">
+            <Input
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search for a user by name or email..."
+            />
+            {usersQuery.data && usersQuery.data.length > 0 && (
+              <div className="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-lg">
+                {(usersQuery.data as Array<{ openId: string; name: string; email: string; role: string }>).map(u => (
+                  <button
+                    key={u.openId}
+                    type="button"
+                    onClick={() => toggleUser(u)}
+                    className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-slate-50 ${selectedUsers.some(p => p.openId === u.openId) ? "bg-[#16243d]/5" : ""}`}
+                  >
+                    <div className="min-w-0">
+                      <p className="font-medium text-slate-900 truncate">{u.name || u.email}</p>
+                      <p className="text-xs text-slate-500 truncate">{u.email}</p>
+                    </div>
+                    {selectedUsers.some(p => p.openId === u.openId) && (
+                      <span className="ml-2 text-[10px] font-black uppercase tracking-wider text-[#c9a34e]">Selected</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          {selectedUsers.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {selectedUsers.map(u => (
+                <span key={u.openId} className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700">
+                  {u.name || u.email}
+                  <button
+                    type="button"
+                    onClick={() => toggleUser(u)}
+                    className="rounded-full hover:bg-slate-200"
+                    aria-label={`Remove ${u.name || u.email}`}
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <div className="grid gap-2">
           <label className="text-xs font-bold uppercase tracking-[.1em]">
@@ -192,6 +259,7 @@ function ConversationList() {
   const conversations = trpc.communication.conversations.list.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: true,
+    refetchInterval: 15000,
   });
 
   if (conversations.isLoading) {
@@ -453,8 +521,16 @@ function TicketDesk() {
   const [status, setStatus] = useState<string | undefined>();
   const tickets = trpc.communication.tickets.list.useQuery(
     { status },
-    { retry: false, refetchOnWindowFocus: true }
+    { retry: false, refetchOnWindowFocus: true, refetchInterval: 15000 }
   );
+  const updateTicket = trpc.communication.tickets.update.useMutation({
+    onSuccess: () => tickets.refetch(),
+    onError: (error) => toast.error(error.message),
+  });
+
+  const handleStatusChange = (ticketId: number, newStatus: string) => {
+    updateTicket.mutate({ id: ticketId, status: newStatus });
+  };
 
   return (
     <Card>
@@ -502,6 +578,18 @@ function TicketDesk() {
                     )}
                   </div>
                 </div>
+                {(user?.role === "admin" || user?.role === "staff") && (
+                  <select
+                    value={ticket.status}
+                    onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
+                    className="ml-3 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 focus:border-[#c9a34e] focus:outline-none"
+                    aria-label={`Update status for ${ticket.title}`}
+                  >
+                    <option value="open">Open</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="closed">Closed</option>
+                  </select>
+                )}
               </div>
             ))}
           </div>

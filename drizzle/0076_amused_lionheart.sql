@@ -1,0 +1,1 @@
+ALTER TABLE `communication_tickets` ADD `followUp` text;

@@ -45,7 +45,7 @@ export default function AdminOverview() {
   const stats = useMemo<Stat[]>(() => {
     const summary = analytics.data?.summary;
     const totalUsers = users.data?.length ?? 0;
-    const pendingInquiries = inquiries.data?.rows.filter(
+    const pendingInquiries = (inquiries.data?.rows ?? []).filter(
       r => r.status === "new"
     ).length ?? 0;
 
@@ -178,10 +178,10 @@ export default function AdminOverview() {
                     <div key={i} className="h-12 animate-pulse rounded-lg bg-[#f7f3e8]" />
                   ))}
                 </div>
-              ) : inquiries.data?.rows.length === 0 ? (
+              ) : (inquiries.data?.rows?.length ?? 0) === 0 ? (
                 <p className="text-sm text-[#64748b]">No inquiries yet.</p>
               ) : (
-                inquiries.data.rows.slice(0, 5).map(inquiry => (
+                (inquiries.data?.rows ?? []).slice(0, 5).map(inquiry => (
                   <div
                     key={inquiry.id}
                     className="flex items-center justify-between rounded-lg border border-[#16243d]/10 bg-white p-3"

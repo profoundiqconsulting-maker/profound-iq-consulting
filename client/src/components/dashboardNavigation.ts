@@ -11,6 +11,7 @@ import {
   Folder,
   LayoutDashboard,
   Mail,
+  MessageSquare,
   Settings,
   Users,
 } from "lucide-react";
@@ -96,6 +97,14 @@ export const adminNavItems: RoleNavItem[] = [
     fallbackLabel: "Inquiries",
     path: "/admin/inquiries",
     icon: Mail,
+    group: "operations",
+  },
+  {
+    id: "admin-communications",
+    labelKey: "messages",
+    fallbackLabel: "Communications",
+    path: "/admin/communications",
+    icon: MessageSquare,
     group: "operations",
   },
   {

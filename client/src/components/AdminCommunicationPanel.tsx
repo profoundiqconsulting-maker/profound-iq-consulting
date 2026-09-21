@@ -239,6 +239,8 @@ function TicketManager() {
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
   const [assignedToOpenId, setAssignedToOpenId] = useState<string>("");
   const [creating, setCreating] = useState(false);
+  const [followUpValues, setFollowUpValues] = useState<Record<number, string>>({});
+  const [savingFollowUpId, setSavingFollowUpId] = useState<number | null>(null);
 
   const users = trpc.admin.listAllUsers.useQuery(undefined, {
     retry: false,
@@ -260,10 +262,30 @@ function TicketManager() {
     },
     onError: (error) => toast.error(error.message),
   });
+  const updateTicket = trpc.communication.tickets.update.useMutation({
+    onSuccess: () => {
+      tickets.refetch();
+      setSavingFollowUpId(null);
+    },
+    onError: (error) => {
+      toast.error(error.message);
+      setSavingFollowUpId(null);
+    },
+  });
 
   const staffUsers = (users.data ?? []).filter(
     u => u.role === "staff" || u.role === "admin"
   );
+
+  const handleFollowUpSave = (ticketId: number, followUp: string) => {
+    setSavingFollowUpId(ticketId);
+    updateTicket.mutate({ id: ticketId, followUp: followUp.trim() || undefined });
+    setFollowUpValues(prev => {
+      const next = { ...prev };
+      delete next[ticketId];
+      return next;
+    });
+  };
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
@@ -390,28 +412,78 @@ function TicketManager() {
             </div>
           ) : (
             <div className="space-y-2">
-              {(tickets.data ?? []).map(ticket => (
-                <div
-                  key={ticket.id}
-                  className="rounded-lg border border-slate-200 p-3"
-                >
-                  <p className="font-semibold text-slate-900">{ticket.title}</p>
-                  <p className="text-xs text-slate-600 line-clamp-1">{ticket.description}</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    <Badge variant="outline" className="capitalize">
-                      {ticket.status}
-                    </Badge>
-                    <Badge variant="outline" className="capitalize">
-                      {ticket.priority}
-                    </Badge>
-                    {ticket.assignedToName && (
-                      <span className="text-xs text-slate-600">
-                        Assigned to: {ticket.assignedToName}
-                      </span>
-                    )}
+              {(tickets.data ?? []).map(ticket => {
+                const isEditingFollowUp = followUpValues[ticket.id] !== undefined;
+                const followUpText = isEditingFollowUp
+                  ? followUpValues[ticket.id]
+                  : ticket.followUp ?? "";
+
+                return (
+                  <div
+                    key={ticket.id}
+                    className="rounded-lg border border-slate-200 p-3"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <p className="font-semibold text-slate-900">{ticket.title}</p>
+                        <p className="text-xs text-slate-600 line-clamp-1">{ticket.description}</p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <Badge variant="outline" className="capitalize">
+                            {ticket.status}
+                          </Badge>
+                          <Badge variant="outline" className="capitalize">
+                            {ticket.priority}
+                          </Badge>
+                          {ticket.assignedToName && (
+                            <span className="text-xs text-slate-600">
+                              Assigned to: {ticket.assignedToName}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <select
+                        value={ticket.status}
+                        onChange={(e) => updateTicket.mutate({ id: ticket.id, status: e.target.value })}
+                        className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 focus:border-[#c9a34e] focus:outline-none"
+                        aria-label={`Update status for ${ticket.title}`}
+                      >
+                        <option value="open">Open</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="closed">Closed</option>
+                      </select>
+                    </div>
+
+                    <div className="mt-3">
+                      <label className="text-[10px] font-bold uppercase tracking-[.1em] text-slate-500">
+                        Follow-up
+                      </label>
+                      <Textarea
+                        value={followUpText}
+                        onChange={(e) =>
+                          setFollowUpValues(prev => ({
+                            ...prev,
+                            [ticket.id]: e.target.value,
+                          }))
+                        }
+                        placeholder="Add follow-up notes..."
+                        rows={2}
+                        className="mt-1 text-xs"
+                      />
+                      <div className="mt-1 flex justify-end">
+                        <Button
+                          type="button"
+                          size="sm"
+                          disabled={savingFollowUpId === ticket.id}
+                          onClick={() => handleFollowUpSave(ticket.id, followUpText)}
+                          className="text-[10px] font-black uppercase tracking-[.08em]"
+                        >
+                          {savingFollowUpId === ticket.id ? "Saving…" : "Save follow-up"}
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </CardContent>

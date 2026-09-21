@@ -6,9 +6,42 @@ import {
   RefreshCw,
   Send,
   Undo2,
+  Plus,
 } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+type ArticleForm = {
+  slug: string;
+  category: string;
+  title: string;
+  excerpt: string;
+  readTime: string;
+  accent: string;
+  sectionsJson: string;
+  status: "draft" | "published";
+};
+
+const emptyForm: ArticleForm = {
+  slug: "",
+  category: "Education leadership",
+  title: "",
+  excerpt: "",
+  readTime: "5 min read",
+  accent: "",
+  sectionsJson: "",
+  status: "draft",
+};
 
 export default function AdminInsightsPanel() {
   const articles = trpc.insights.adminList.useQuery(undefined, {
@@ -23,10 +56,29 @@ export default function AdminInsightsPanel() {
     onError: error =>
       toast.error(error.message || "Unable to update article status."),
   });
+  const createArticle = trpc.insights.create.useMutation({
+    onSuccess: () => {
+      setForm(emptyForm);
+      setSocialImageFile(null);
+      setSocialImagePreview("");
+      setCreating(false);
+      toast.success("Insight article created.");
+      articles.refetch();
+    },
+    onError: (error) => {
+      setCreating(false);
+      toast.error(error.message || "Unable to create article.");
+    },
+  });
+  const [form, setForm] = useState<ArticleForm>(emptyForm);
+  const [creating, setCreating] = useState(false);
+  const [socialImageFile, setSocialImageFile] = useState<File | null>(null);
+  const [socialImagePreview, setSocialImagePreview] = useState("");
   const [previewFiles, setPreviewFiles] = useState<Record<string, File | null>>(
     {}
   );
   const [previewUrls, setPreviewUrls] = useState<Record<string, string>>({});
+
   const readFileAsBase64 = (slug: string, file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -36,6 +88,31 @@ export default function AdminInsightsPanel() {
       }));
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleCreate = () => {
+    if (!form.slug.trim() || !form.title.trim() || !form.excerpt.trim() || !form.accent.trim() || !form.sectionsJson.trim()) {
+      toast.error("Please complete all required fields.");
+      return;
+    }
+    setCreating(true);
+    createArticle.mutate({
+      ...form,
+      slug: form.slug.trim(),
+      category: form.category.trim(),
+      title: form.title.trim(),
+      excerpt: form.excerpt.trim(),
+      readTime: form.readTime.trim(),
+      accent: form.accent.trim(),
+      sectionsJson: form.sectionsJson.trim(),
+      status: form.status,
+      socialImageUrl: socialImagePreview || null,
+      contentType: socialImageFile?.type as
+        | "image/png"
+        | "image/jpeg"
+        | "image/webp"
+        | undefined,
+    });
   };
   return (
     <section
@@ -53,6 +130,164 @@ export default function AdminInsightsPanel() {
           </p>
         </div>
         <span className="text-xs font-bold text-[#7d5e1e]">Admin only</span>
+      </div>
+
+      <div className="mt-6 rounded-xl border border-[#16243d]/15 bg-white/80 p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[.12em] text-[#16243d]">
+              New post
+            </p>
+            <p className="text-xs text-[#657084]">
+              Create a new insight article. Required fields are marked with *.
+            </p>
+          </div>
+        </div>
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div className="grid gap-2">
+            <label className="text-xs font-bold uppercase tracking-[.1em]">
+              Slug *
+            </label>
+            <Input
+              value={form.slug}
+              onChange={(e) => setForm({ ...form, slug: e.target.value })}
+              placeholder="e.g. leading-without-losing-the-centre"
+            />
+          </div>
+          <div className="grid gap-2">
+            <label className="text-xs font-bold uppercase tracking-[.1em]">
+              Category *
+            </label>
+            <Select
+              value={form.category}
+              onValueChange={(value) => setForm({ ...form, category: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Education leadership">Education leadership</SelectItem>
+                <SelectItem value="Learning design">Learning design</SelectItem>
+                <SelectItem value="Professional growth">Professional growth</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-2 lg:col-span-2">
+            <label className="text-xs font-bold uppercase tracking-[.1em]">
+              Title *
+            </label>
+            <Input
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              placeholder="Article title"
+            />
+          </div>
+          <div className="grid gap-2 lg:col-span-2">
+            <label className="text-xs font-bold uppercase tracking-[.1em]">
+              Excerpt *
+            </label>
+            <Textarea
+              value={form.excerpt}
+              onChange={(e) => setForm({ ...form, excerpt: e.target.value })}
+              placeholder="Short summary for the card and SEO..."
+              rows={3}
+            />
+          </div>
+          <div className="grid gap-2">
+            <label className="text-xs font-bold uppercase tracking-[.1em]">
+              Read time *
+            </label>
+            <Input
+              value={form.readTime}
+              onChange={(e) => setForm({ ...form, readTime: e.target.value })}
+              placeholder="e.g. 6 min read"
+            />
+          </div>
+          <div className="grid gap-2">
+            <label className="text-xs font-bold uppercase tracking-[.1em]">
+              Accent line *
+            </label>
+            <Input
+              value={form.accent}
+              onChange={(e) => setForm({ ...form, accent: e.target.value })}
+              placeholder="Short italicised hook"
+            />
+          </div>
+          <div className="grid gap-2 lg:col-span-2">
+            <label className="text-xs font-bold uppercase tracking-[.1em]">
+              Sections (JSON) *
+            </label>
+            <Textarea
+              value={form.sectionsJson}
+              onChange={(e) => setForm({ ...form, sectionsJson: e.target.value })}
+              placeholder='[{"heading":"First section","paragraphs":["First paragraph.","Second paragraph."]}]'
+              rows={6}
+              className="font-mono text-xs"
+            />
+            <p className="text-[11px] text-[#657084]">
+              Provide a JSON array of sections. Each section needs a heading and an array of paragraphs.
+            </p>
+          </div>
+          <div className="grid gap-2">
+            <label className="text-xs font-bold uppercase tracking-[.1em]">
+              Status
+            </label>
+            <Select
+              value={form.status}
+              onValueChange={(value) =>
+                setForm({ ...form, status: value as "draft" | "published" })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="published">Published</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-2">
+            <label className="text-xs font-bold uppercase tracking-[.1em]">
+              Social image
+            </label>
+            <label className="flex items-center gap-2 text-xs text-[#657084]">
+              <ImagePlus size={15} className="text-[#7d5e1e]" />
+              <span className="sr-only">Social preview image</span>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="text-sm"
+                onChange={(event) => {
+                  const selected = event.target.files?.[0];
+                  if (!selected) return;
+                  setSocialImageFile(selected);
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    setSocialImagePreview(reader.result as string);
+                  };
+                  reader.readAsDataURL(selected);
+                }}
+              />
+              {socialImageFile && (
+                <span className="text-[11px] font-normal text-[#657084]">
+                  {socialImageFile.name} · {(socialImageFile.size / 1024).toFixed(1)} KB
+                </span>
+              )}
+            </label>
+          </div>
+        </div>
+        <div className="mt-4 flex justify-end">
+          <Button
+            type="button"
+            onClick={handleCreate}
+            disabled={creating}
+            className="bg-[#16243d] text-white"
+          >
+            <Plus size={14} className="mr-2" />
+            {creating ? "Creating…" : "Create post"}
+          </Button>
+        </div>
       </div>
       {articles.isLoading ? (
         <p className="mt-6 flex items-center gap-2 text-sm text-[#657084]">

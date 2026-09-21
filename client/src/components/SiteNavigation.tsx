@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { ArrowUp, ArrowUpRight, Menu, X } from "lucide-react";
+import { ArrowUp, ArrowUpRight, Menu, X, Bell } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { BrandLogo } from "@/components/BrandLogo";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { useUnreadCount } from "@/hooks/useUnreadCount";
 
 export const siteNavItems = [
   { label: "About", href: "/about" },
@@ -29,6 +30,7 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [location] = useLocation();
   const { isAuthenticated, user } = useAuth();
+  const { unreadCount } = useUnreadCount(isAuthenticated ? 30000 : 60000, isAuthenticated);
 
   useEffect(() => {
     const onScroll = () => {
@@ -40,6 +42,22 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (menuOpen) {
+      const originalOverflow = document.body.style.overflow;
+      const originalPaddingRight = document.body.style.paddingRight;
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = "hidden";
+      if (scrollbarWidth > 0) {
+        document.body.style.paddingRight = `${scrollbarWidth}px`;
+      }
+      return () => {
+        document.body.style.overflow = originalOverflow;
+        document.body.style.paddingRight = originalPaddingRight;
+      };
+    }
+  }, [menuOpen]);
 
   const navigateItems = siteNavItems.map((item) => ({
     ...item,
@@ -64,7 +82,7 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
       <header
         data-sticky-navigation
         data-compact={isCompact}
-        className={`sticky top-0 z-50 border-b backdrop-blur-xl transition-all duration-200 ${headerTone} ${isCompact ? "shadow-[0_14px_34px_rgba(7,17,35,.24)]" : ""}`}
+        className={`sticky top-0 z-50 border-b backdrop-blur-xl transition-all duration-200 ${headerTone} ${isCompact ? "shadow-[0_14px_34px_rgba(7,17,35,.24)]" : ""} overflow-x-hidden`}
       >
         <div className={`container flex items-center justify-between gap-4 transition-[min-height,padding] duration-200 sm:gap-5 ${isCompact ? "min-h-16 py-2" : "min-h-20 py-3 sm:py-4"}`}>
           <Link href="/" className="flex shrink-0 items-center gap-3" aria-label="Profound IQ Consulting home">
@@ -86,6 +104,16 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
 
           <div className="hidden items-center gap-3 md:flex">
             <LanguageSelector compact />
+            {isAuthenticated && (
+              <Link href="/dashboard/communication" className={`relative inline-flex items-center justify-center border p-2.5 ${dark ? "border-white/20 text-[#c9d1df] hover:text-[#c9a34e]" : "border-[#16243d]/20 text-[#16243d] hover:text-[#a27e2e]"}`} aria-label={`Messages, ${unreadCount} unread`}>
+                <Bell size={16} />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-[#c9a34e] px-1 text-[9px] font-black text-[#101d35]">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </Link>
+            )}
             {variant === "home" ? (
               <>
                 {isAuthenticated ? (
@@ -126,7 +154,7 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
         </div>
 
         {menuOpen && (
-          <nav id="site-navigation-mobile" className={`border-t px-5 py-5 shadow-[0_16px_30px_rgba(7,17,35,.18)] lg:hidden ${dark ? "border-white/10 bg-[#101d35]" : "border-[#16243d]/10 bg-[#f7f3e8]"}`} aria-label="Mobile navigation">
+          <nav id="site-navigation-mobile" className={`border-t px-4 py-5 shadow-[0_16px_30px_rgba(7,17,35,.18)] lg:hidden ${dark ? "border-white/10 bg-[#101d35]" : "border-[#16243d]/10 bg-[#f7f3e8]"}`} aria-label="Mobile navigation">
             <div className="container flex flex-col gap-1">
               {navigateItems.map((item) => (
                 <Link
@@ -141,38 +169,48 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
               ))}
 
                <div className="mt-4 flex flex-wrap items-center gap-3">
-                 <LanguageSelector compact onSelect={() => setMenuOpen(false)} />
-                 {isAuthenticated ? (
-                   <Link href="/dashboard" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-2 border px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] ${pillButton}`}>
-                     My workspace
-                   </Link>
-                 ) : (
-                   <>
-                     <Link href="/auth?mode=login" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-2 border px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] ${pillButton}`}>
-                       Sign in
-                     </Link>
-                     <Link href="/auth?mode=register" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-2 border px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] ${secondaryButton}`}>
-                       Create account
-                     </Link>
-                   </>
-                 )}
-                 <Link href="/contact" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-2 border px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] ${pillButton}`}>
-                   Contact <ArrowUpRight size={14} />
-                 </Link>
-               </div>
+                  <LanguageSelector compact onSelect={() => setMenuOpen(false)} />
+                  {isAuthenticated && (
+                    <Link href="/dashboard/communication" onClick={() => setMenuOpen(false)} className={`relative inline-flex items-center gap-2 border px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] ${pillButton}`}>
+                      <Bell size={14} />
+                      Messages
+                      {unreadCount > 0 && (
+                        <span className="inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-[#101d35] px-1 text-[9px] font-black text-[#c9a34e]">
+                          {unreadCount > 99 ? "99+" : unreadCount}
+                        </span>
+                      )}
+                    </Link>
+                  )}
+                  {isAuthenticated ? (
+                    <Link href="/dashboard" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-2 border px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] ${pillButton}`}>
+                      My workspace
+                    </Link>
+                  ) : (
+                    <>
+                      <Link href="/auth?mode=login" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-2 border px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] ${pillButton}`}>
+                        Sign in
+                      </Link>
+                      <Link href="/auth?mode=register" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-2 border px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] ${secondaryButton}`}>
+                        Create account
+                      </Link>
+                    </>
+                  )}
+                  <Link href="/contact" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-2 border px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] ${pillButton}`}>
+                    Contact <ArrowUpRight size={14} />
+                  </Link>
+                </div>
             </div>
           </nav>
         )}
       </header>
 
-      <button
-        type="button"
-        aria-label="Back to top"
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className={`fixed bottom-5 right-5 z-40 inline-flex h-11 w-11 items-center justify-center border border-[#c9a34e] bg-[#101d35] text-[#c9a34e] shadow-[0_10px_24px_rgba(7,17,35,.22)] transition-[opacity,transform] duration-200 hover:-translate-y-1 hover:bg-[#c9a34e] hover:text-[#101d35] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a34e] motion-reduce:transition-none ${showBackToTop ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-3 opacity-0"}`}
-      >
-        <ArrowUp size={17} aria-hidden="true" />
-      </button>
+      {menuOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden"
+          aria-hidden="true"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
     </>
   );
 }
