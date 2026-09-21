@@ -7,14 +7,17 @@ export function RoleBasedRedirect() {
   const { isAuthenticated, user } = useAuth();
 
   useEffect(() => {
-    if (!isAuthenticated || !user?.role) return;
+    if (!isAuthenticated || !user?.role) {
+      navigate("/auth?mode=login", { replace: true });
+      return;
+    }
     const role = user.role.toLowerCase();
     if (role === "admin") {
       navigate("/admin/overview", { replace: true });
     } else if (role === "staff") {
       navigate("/staff", { replace: true });
     } else {
-      navigate("/dashboard", { replace: true });
+      navigate("/dashboard/overview", { replace: true });
     }
   }, [isAuthenticated, user?.role, navigate]);
 

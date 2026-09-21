@@ -64,6 +64,14 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
     active: location === item.href || location.startsWith(`${item.href}/`),
   }));
 
+  const userRole = user?.role?.toLowerCase();
+  const workspaceHref =
+    userRole === "admin"
+      ? "/admin/overview"
+      : userRole === "staff"
+        ? "/staff"
+        : "/dashboard/overview";
+
   const headerTone = dark
     ? "border-white/15 bg-[#101d35]/95 text-[#f7f3e8] shadow-[0_10px_30px_rgba(7,17,35,.16)] supports-[backdrop-filter]:bg-[#101d35]/80"
     : "border-[#16243d]/10 bg-[#f7f3e8]/95 text-[#16243d] shadow-[0_10px_30px_rgba(8,15,26,.08)] supports-[backdrop-filter]:bg-[#f7f3e8]/85";
@@ -89,7 +97,7 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
             <BrandLogo context="public page" compact={isCompact} className="border border-[#c9a34e]/70" />
           </Link>
 
-          <nav id="site-navigation" className="hidden items-center gap-4 lg:flex xl:gap-5" aria-label="Primary navigation">
+          <nav id="site-navigation" className="hidden items-center gap-4 xl:flex xl:gap-5" aria-label="Primary navigation">
             {navigateItems.map((item) => (
               <Link
                 key={item.href}
@@ -102,7 +110,7 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
             ))}
           </nav>
 
-          <div className="hidden items-center gap-3 md:flex">
+          <div className="hidden items-center gap-3 xl:flex">
             <LanguageSelector compact />
             {isAuthenticated && (
               <Link href="/dashboard/communication" className={`relative inline-flex items-center justify-center border p-2.5 ${dark ? "border-white/20 text-[#c9d1df] hover:text-[#c9a34e]" : "border-[#16243d]/20 text-[#16243d] hover:text-[#a27e2e]"}`} aria-label={`Messages, ${unreadCount} unread`}>
@@ -117,23 +125,23 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
             {variant === "home" ? (
               <>
                 {isAuthenticated ? (
-                  <Link href="/dashboard" className={`hidden border px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] xl:inline-flex ${secondaryButton}`}>
-                    {user?.name ? "My workspace" : "Workspace"}
+                  <Link href={workspaceHref} className={`hidden border px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] 2xl:inline-flex ${secondaryButton}`}>
+                    {userRole === "admin" ? "Overview" : userRole === "staff" ? "Staff" : user?.name ? "My workspace" : "Workspace"}
                   </Link>
                 ) : (
                   <>
-                    <Link href="/auth?mode=login" className="hidden px-2 py-3 text-[10px] font-black uppercase tracking-[.12em] xl:inline-flex text-[#c9d1df] hover:text-[#c9a34e]">
+                    <Link href="/auth?mode=login" className="hidden px-2 py-3 text-[10px] font-black uppercase tracking-[.12em] 2xl:inline-flex text-[#c9d1df] hover:text-[#c9a34e]">
                       Sign in
                     </Link>
-                    <Link href="/auth?mode=register" className={`hidden border px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] xl:inline-flex ${secondaryButton}`}>
+                    <Link href="/auth?mode=register" className={`hidden border px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] 2xl:inline-flex ${secondaryButton}`}>
                       Create account
                     </Link>
                   </>
                 )}
               </>
             ) : (
-              <Link href={isAuthenticated ? "/dashboard" : "/auth?mode=login"} className={`hidden border px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] xl:inline-flex ${secondaryButton}`}>
-                {isAuthenticated ? "My Space" : "Sign in"}
+              <Link href={isAuthenticated ? workspaceHref : "/auth?mode=login"} className={`hidden border px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] 2xl:inline-flex ${secondaryButton}`}>
+                {isAuthenticated ? (userRole === "admin" ? "Overview" : userRole === "staff" ? "Staff" : "My Space") : "Sign in"}
               </Link>
             )}
 
@@ -144,7 +152,7 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
 
           <button
             type="button"
-            className={`inline-flex h-11 w-11 items-center justify-center border lg:hidden ${dark ? "border-white/20" : "border-[#16243d]/20"}`}
+            className={`inline-flex h-11 w-11 items-center justify-center border xl:hidden ${dark ? "border-white/20" : "border-[#16243d]/20"}`}
             aria-label={menuOpen ? "Close navigation" : "Open navigation"}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((open) => !open)}
@@ -182,8 +190,8 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
                     </Link>
                   )}
                   {isAuthenticated ? (
-                    <Link href="/dashboard" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-2 border px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] ${pillButton}`}>
-                      My workspace
+                    <Link href={workspaceHref} onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-2 border px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] ${pillButton}`}>
+                      {userRole === "admin" ? "Overview" : userRole === "staff" ? "Staff" : "My workspace"}
                     </Link>
                   ) : (
                     <>

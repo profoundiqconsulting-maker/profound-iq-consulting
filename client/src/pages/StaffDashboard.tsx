@@ -1,6 +1,6 @@
 ﻿import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   BarChart3,
   CheckCircle2,
@@ -41,9 +41,16 @@ type Status = "all" | "new" | "contacted" | "closed";
 type SortMode = "priority" | "dueDate" | "newest";
 type StaffTab = "inquiries" | "review";
 
-export default function StaffDashboard() {
-  
-  const [tab, setTab] = useState<StaffTab>("inquiries");
+interface StaffDashboardProps {
+  defaultTab?: StaffTab;
+}
+
+export default function StaffDashboard({ defaultTab = "inquiries" }: StaffDashboardProps) {
+  const [tab, setTab] = useState<StaffTab>(defaultTab);
+
+  useEffect(() => {
+    setTab(defaultTab);
+  }, [defaultTab]);
 
   return (
     <DashboardLayout role="staff" title="Staff Workspace">

@@ -1,5 +1,5 @@
 /* Profound IQ Consulting — Executive Observatory app shell. Keep the public landing page as the primary route and preserve the light theme provider so semantic tokens stay aligned with the custom global CSS. */
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch, useLocation } from "wouter";
@@ -10,6 +10,7 @@ import { WhatsAppSupportWidget } from "./components/WhatsAppSupportWidget";
 import { SeoHead } from "./components/SeoHead";
 import { RoleBasedRedirect } from "./components/RoleBasedRedirect";
 import { AdminRouteGuard } from "./components/AdminRouteGuard";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 const Home = lazy(() => import("./pages/Home"));
 const About = lazy(() => import("./pages/About"));
@@ -77,7 +78,23 @@ const NewsletterAction = lazy(() => import("./pages/NewsletterAction"));
 
 function MySpace() {
   const [, navigate] = useLocation();
-  navigate("/dashboard", { replace: true });
+  const { isAuthenticated, user } = useAuth();
+
+  useEffect(() => {
+    if (!isAuthenticated || !user?.role) {
+      navigate("/auth?mode=login", { replace: true });
+      return;
+    }
+    const role = user.role.toLowerCase();
+    if (role === "admin") {
+      navigate("/admin/overview", { replace: true });
+    } else if (role === "staff") {
+      navigate("/staff", { replace: true });
+    } else {
+      navigate("/dashboard/overview", { replace: true });
+    }
+  }, [isAuthenticated, user?.role, navigate]);
+
   return null;
 }
 
@@ -189,12 +206,15 @@ function Router() {
             return null;
           }}
         />
-        <Route path="/staff" component={StaffDashboard} />
+        <Route path="/staff" component={() => <StaffDashboard />} />
+        <Route path="/staff/inquiries" component={() => <StaffDashboard defaultTab="inquiries" />} />
+        <Route path="/staff/reviews" component={() => <StaffDashboard defaultTab="review" />} />
         <Route
           path="/dashboard/print-pathways"
           component={SavedPathwaysPrint}
         />
         <Route path="/dashboard" component={RoleBasedRedirect} />
+        <Route path="/dashboard/overview" component={UserDashboard} />
         <Route path="/dashboard/assessment" component={DashboardAssessment} />
         <Route path="/dashboard/careerpath" component={DashboardCareerPath} />
         <Route path="/dashboard/psychometrics" component={DashboardPsychometrics} />

@@ -177,14 +177,6 @@ export const staffNavItems: RoleNavItem[] = [
     group: "operations",
   },
   {
-    id: "staff-analytics",
-    labelKey: "reviewAnalytics",
-    fallbackLabel: "Review Analytics",
-    path: "/staff/analytics",
-    icon: BarChart3,
-    group: "operations",
-  },
-  {
     id: "staff-settings",
     labelKey: "settings",
     fallbackLabel: "Workspace Settings",
@@ -199,7 +191,7 @@ export const learnerNavItems: RoleNavItem[] = [
     id: "learner-space",
     labelKey: "overview",
     fallbackLabel: "My Space",
-    path: "/dashboard",
+    path: "/dashboard/overview",
     icon: LayoutDashboard,
     group: "mySpace",
   },
