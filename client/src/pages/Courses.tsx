@@ -18,6 +18,7 @@ import {
 import { toast } from "sonner";
 import { Link } from "wouter";
 import { BrandLogo } from "@/components/BrandLogo";
+import { TransformationNav } from "@/components/TransformationNav";
 import { trpc } from "@/lib/trpc";
 import { CourseCoverImage } from "@/components/CourseCoverImage";
 import { courseCatalog } from "@shared/courseCatalog";
@@ -85,7 +86,6 @@ const codeCourses: CourseCard[] = courseCatalog.map((course, index) => ({
 }));
 
 export default function Courses() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<CourseCard | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -377,63 +377,7 @@ export default function Courses() {
   }, [careerGoal, courses, currentLevel]);
   return (
     <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-      <header className="border-b border-[#16243d]/15 bg-[#101d35] text-[#f7f3e8]">
-        <div className="container flex items-center justify-between py-5">
-          <Link
-            href="/"
-            className="flex items-center"
-            aria-label="Profound IQ Consulting home"
-          >
-            <BrandLogo context="home" className="border border-[#c9a34e]/70" />
-          </Link>
-          <nav className="hidden items-center gap-8 text-[11px] font-extrabold uppercase tracking-[.16em] text-[#c9d1df] md:flex">
-            <Link href="/#approach" className="hover:text-[#c9a34e]">
-              {"Approach"}
-            </Link>
-            <Link href="/courses" className="text-[#c9a34e]">
-              {"Courses"}
-            </Link>
-            <Link href="/assessment" className="hover:text-[#c9a34e]">
-              {"Self Assessment"}
-            </Link>
-            <Link href="/#contact" className="hover:text-[#c9a34e]">
-              {"Contact"}
-            </Link>
-            <Link
-              href="/dashboard"
-              className="border border-white/25 px-3 py-3 hover:border-[#c9a34e] hover:text-[#c9a34e]"
-            >
-              {"My workspace"}
-            </Link>
-          </nav>
-          <button
-            type="button"
-            className="md:hidden"
-            aria-label="Toggle navigation"
-            onClick={() => setMenuOpen(open => !open)}
-          >
-            {menuOpen ? <X /> : <Menu />}
-          </button>
-        </div>
-        {menuOpen && (
-          <nav className="border-t border-white/10 px-5 py-5 md:hidden">
-            <div className="flex flex-col gap-5 text-xs font-extrabold uppercase tracking-[.15em]">
-              <Link href="/courses" onClick={() => setMenuOpen(false)}>
-                {"Courses"}
-              </Link>
-              <Link href="/assessment" onClick={() => setMenuOpen(false)}>
-                {"Self Assessment"}
-              </Link>
-              <Link href="/#contact" onClick={() => setMenuOpen(false)}>
-                {"Contact"}
-              </Link>
-              <Link href="/dashboard" onClick={() => setMenuOpen(false)}>
-                {"My workspace"}
-              </Link>
-            </div>
-          </nav>
-        )}
-      </header>
+      <TransformationNav active="courses" />
       <main>
         <section className="bg-[#101d35] px-5 pb-20 pt-16 text-[#f7f3e8] sm:px-10 lg:pb-28 lg:pt-24">
           <div className="container">
@@ -441,22 +385,22 @@ export default function Courses() {
               <span className="h-px w-10 bg-[#c9a34e]" /> 01 / COURSE CATALOG
             </p>
             <div className="mt-7 grid gap-10 lg:grid-cols-[1fr_320px] lg:items-end">
-              <h1 className="display max-w-4xl text-6xl leading-[.9] tracking-[-.055em] sm:text-8xl">
-                Capability is built{" "}
-                <em className="font-normal text-[#c9a34e]">in practice.</em>
-              </h1>
-              <p className="max-w-sm text-lg leading-8 text-[#c1cad7]">
+               <h1 className="display max-w-4xl heading-clamp-lg">
+                 Capability is built{" "}
+                 <em className="font-normal text-[#c9a34e]">in practice.</em>
+               </h1>
+               <p className="max-w-sm text-fluid-base leading-8 text-[#c1cad7]">
                 Professional learning for people who want insight to become a
                 repeatable way of working.
               </p>
             </div>
           </div>
         </section>
-        <section className="container py-16 lg:py-24">
-          <div className="mb-10 flex flex-col justify-between gap-5 border-b border-[#16243d]/15 pb-8 sm:flex-row sm:items-end">
+        <section className="container section-py-sm">
+          <div className="mb-8 flex flex-col justify-between gap-5 border-b border-[#16243d]/15 pb-8 sm:flex-row sm:items-end">
             <div>
               <p className="eyebrow text-[#7d5e1e]">02 / SELECT YOUR PATH</p>
-              <h2 className="display mt-3 text-4xl sm:text-5xl">
+              <h2 className="display mt-3 heading-clamp">
                 Choose the next capability.
               </h2>
             </div>
@@ -738,13 +682,13 @@ export default function Courses() {
             ))}
           </div>
         </section>
-        <section className="bg-[#16243d] px-5 py-16 text-[#f7f3e8] sm:px-10 lg:py-24">
-          <div className="container flex flex-col justify-between gap-8 sm:flex-row sm:items-end">
+        <section className="section-py bg-[#16243d] px-5 text-[#f7f3e8] sm:px-10">
+          <div className="container flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
             <div>
               <p className="eyebrow text-[#c9a34e]">
                 03 / NEED A DIFFERENT BRIEF?
               </p>
-              <h2 className="display mt-3 max-w-2xl text-4xl sm:text-5xl">
+              <h2 className="display mt-3 max-w-2xl heading-clamp">
                 Start with the capability your context requires.
               </h2>
             </div>

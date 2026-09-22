@@ -82,19 +82,19 @@ export default function Contact() {
       intro="Tell us what you are trying to improve, understand, or build. We will use your context to guide the next conversation."
       breadcrumbs={[{ label: "Contact" }]}
     >
-      <section className="bg-[#f7f3e8] py-24 lg:py-32">
-        <div className="container grid gap-16 lg:grid-cols-[.6fr_1.4fr] lg:gap-20 lg:items-start">
+      <section className="section-py bg-[#f7f3e8]">
+        <div className="container grid gap-12 lg:grid-cols-[.6fr_1.4fr] lg:gap-16 lg:items-start">
           <div>
             <p className="eyebrow text-[#7d5e1e]">Start here</p>
-            <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
+            <h2 className="display mt-5 heading-clamp">
               A useful first message is enough.
             </h2>
-            <p className="mt-7 max-w-md text-base leading-8 text-[#657084]">
+            <p className="mt-6 max-w-md text-fluid-base leading-8 text-[#657084]">
               You do not need to have the full brief ready. Share the situation,
               audience, and desired direction, and the team can help shape the
               right pathway.
             </p>
-            <div className="mt-12 space-y-6 border-t border-[#16243d]/10 pt-8">
+            <div className="mt-10 space-y-6 border-t border-[#16243d]/10 pt-8 sm:mt-12">
               <a
                 href="mailto:admin@profoundiqconsulting.com"
                 className="group flex items-start gap-5 transition-all"

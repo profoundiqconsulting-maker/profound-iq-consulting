@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { LikertScale } from "@/components/LikertScale";
+import { TransformationNav } from "@/components/TransformationNav";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { getPsychometricCourseRecommendations } from "@shared/psychometricRecommendations";
@@ -570,6 +571,7 @@ export default function Psychometrics() {
 
   return (
     <main className="min-h-screen bg-[#f7f3e8] px-4 py-8 text-[#16243d] sm:px-6">
+      <TransformationNav active="psychometrics" />
       <div className="container max-w-5xl">
         <nav
           aria-label="Psychometrics progress"

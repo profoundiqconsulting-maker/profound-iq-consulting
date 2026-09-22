@@ -110,6 +110,7 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 5.5rem;
+  font-size: clamp(14px, 0.97vw + 10px, 18px);
 }
 body {
   margin: 0;
@@ -117,6 +118,9 @@ body {
   color: #f7f3e8;
   font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  min-height: 100dvh;
 }
 button,
 a,
@@ -331,18 +335,52 @@ button:focus-visible,
   .container {
     width: 100%;
     margin: 0 auto;
-    padding: 0 1.25rem;
+    padding: 0 clamp(1rem, 3.5vw, 3.5rem);
+    max-width: 1280px;
   }
   @media (min-width: 640px) {
     .container {
-      padding: 0 2rem;
+      padding: 0 clamp(1.5rem, 4vw, 4rem);
     }
   }
   @media (min-width: 1024px) {
     .container {
       max-width: 1280px;
-      padding: 0 3.5rem;
+      padding: 0 clamp(2rem, 5vw, 6rem);
     }
+  }
+
+  /* Fluid typography scale */
+  .text-fluid-xs { font-size: clamp(0.7rem, 0.8vw + 0.4rem, 0.85rem); }
+  .text-fluid-sm { font-size: clamp(0.8rem, 0.9vw + 0.5rem, 1rem); }
+  .text-fluid-base { font-size: clamp(0.95rem, 1vw + 0.6rem, 1.15rem); }
+  .text-fluid-lg { font-size: clamp(1.1rem, 1.2vw + 0.7rem, 1.4rem); }
+  .text-fluid-xl { font-size: clamp(1.25rem, 1.5vw + 0.8rem, 1.8rem); }
+  .text-fluid-2xl { font-size: clamp(1.5rem, 2vw + 1rem, 2.5rem); }
+  .text-fluid-3xl { font-size: clamp(1.75rem, 2.5vw + 1.2rem, 3.5rem); }
+  .text-fluid-4xl { font-size: clamp(2rem, 3vw + 1.5rem, 4.5rem); }
+  .text-fluid-5xl { font-size: clamp(2.5rem, 4vw + 2rem, 6rem); }
+
+  /* Heading clamp helpers */
+  .heading-clamp {
+    font-size: clamp(1.75rem, 2.5vw + 1rem, 3.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+  }
+  .heading-clamp-lg {
+    font-size: clamp(2rem, 3vw + 1.2rem, 4.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+  }
+
+  /* Section spacing */
+  .section-py {
+    padding-top: clamp(3rem, 6vw, 6rem);
+    padding-bottom: clamp(3rem, 6vw, 6rem);
+  }
+  .section-py-sm {
+    padding-top: clamp(2rem, 4vw, 4rem);
+    padding-bottom: clamp(2rem, 4vw, 4rem);
   }
 
   /* Course typography scale — consistent hierarchy */
@@ -547,4 +585,12 @@ button:focus-visible,
   .lesson-panel-enter {
     animation: none;
   }
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

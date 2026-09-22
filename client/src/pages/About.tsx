@@ -60,16 +60,16 @@ export default function About() {
       breadcrumbs={[{ label: "About" }]}
       cta={{ label: "Explore our services", href: "/services" }}
     >
-      <section className="bg-[#f7f3e8] py-24 lg:py-32">
+      <section className="section-py bg-[#f7f3e8]">
         <ScrollReveal>
-          <div className="container grid gap-16 lg:grid-cols-[.7fr_1.3fr] lg:gap-20">
+          <div className="container grid gap-12 lg:grid-cols-[.7fr_1.3fr] lg:gap-16">
             <div>
               <p className="eyebrow text-[#7d5e1e]">Why we exist</p>
-              <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
+              <h2 className="display mt-5 heading-clamp">
                 Discovery should lead somewhere.
               </h2>
             </div>
-            <div className="space-y-7 text-base leading-8 text-[#4a566a]">
+            <div className="space-y-7 text-fluid-base leading-8 text-[#4a566a]">
               <p>
                 We bridge the gap between raw potential and purposeful impact.
                 Our work brings strategic insight into the fabric of
@@ -94,19 +94,19 @@ export default function About() {
           </div>
         </ScrollReveal>
       </section>
-      <section className="bg-[#172844] py-24 text-[#f7f3e8] lg:py-32">
+      <section className="section-py bg-[#172844] text-[#f7f3e8]">
         <div className="container">
           <div className="max-w-3xl">
             <p className="eyebrow text-[#c9a34e]">Who we serve</p>
-            <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
+            <h2 className="display mt-5 heading-clamp">
               One partner. Different pathways forward.
             </h2>
-            <p className="mt-7 text-lg leading-8 text-[#c1cad7]">
+            <p className="mt-6 text-fluid-base leading-8 text-[#c1cad7]">
               The right experience depends on where you are starting, what you
               are responsible for, and the change you want to make.
             </p>
           </div>
-          <div className="mt-16 grid gap-4 md:grid-cols-3">
+          <div className="mt-12 grid gap-4 md:grid-cols-3 sm:mt-16">
             {audiences.map(({ title, body, icon: Icon }, index) => (
               <ScrollReveal key={title} delay={index * 70}>
                 <article className="public-card-link group border border-[#c9a34e]/30 bg-[#1b3152]/60 p-8 backdrop-blur-sm transition-all duration-200 hover:-translate-y-1 hover:border-[#c9a34e] hover:bg-[#254263]">
@@ -131,16 +131,15 @@ export default function About() {
           </div>
         </div>
       </section>
-      <section className="bg-[#fffaf0] py-24 lg:py-32">
-        <div className="container">
-          <div className="grid gap-16 lg:grid-cols-[.65fr_1.35fr] lg:gap-20">
-            <div>
-              <p className="eyebrow text-[#7d5e1e]">Our method</p>
-              <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
-                Insight that becomes a way of working.
-              </h2>
-            </div>
-            <div className="space-y-px border-y border-[#16243d]/10">
+      <section className="section-py bg-[#fffaf0]">
+        <div className="container grid gap-12 lg:grid-cols-[.65fr_1.35fr] lg:gap-16">
+          <div>
+            <p className="eyebrow text-[#7d5e1e]">Our method</p>
+            <h2 className="display mt-5 heading-clamp">
+              Insight that becomes a way of working.
+            </h2>
+          </div>
+          <div className="space-y-px border-y border-[#16243d]/10">
               {method.map((step, index) => (
                 <ScrollReveal key={step.index} delay={index * 70}>
                   <article className="group grid gap-6 border-b border-[#16243d]/10 py-8 transition-colors hover:border-[#c9a34e]/40 sm:grid-cols-[60px_1fr] sm:items-start last:border-b-0">
@@ -160,15 +159,14 @@ export default function About() {
               ))}
             </div>
           </div>
-        </div>
-      </section>
-      <section className="bg-[#f7f3e8] py-20">
-        <div className="container flex flex-col items-start justify-between gap-8 border-t border-[#16243d]/10 pt-12 sm:flex-row sm:items-center">
+        </section>
+      <section className="section-py-sm bg-[#f7f3e8]">
+        <div className="container flex flex-col items-start justify-between gap-6 border-t border-[#16243d]/10 pt-10 sm:flex-row sm:items-center sm:gap-8">
           <div>
             <p className="eyebrow text-[#7d5e1e]">
               Ready for a clearer next step?
             </p>
-            <h2 className="display mt-4 text-4xl leading-tight sm:text-5xl">
+            <h2 className="display mt-4 heading-clamp">
               Make the learning visible.
             </h2>
           </div>

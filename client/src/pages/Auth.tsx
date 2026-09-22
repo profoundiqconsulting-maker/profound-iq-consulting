@@ -274,13 +274,13 @@ export default function Auth() {
           </Link>
         </div>
       </header>
-      <section className="container grid min-h-[calc(100vh-90px)] items-center gap-14 py-16 lg:grid-cols-[.8fr_1.2fr]">
+      <section className="container grid min-h-[calc(100vh-90px)] items-center gap-10 py-14 lg:grid-cols-[.8fr_1.2fr] lg:gap-16">
         <div>
           <p className="eyebrow text-[#c9a34e]">{authCopy.privateAccess}</p>
-          <h1 className="display mt-5 text-5xl leading-[.95] tracking-[-.045em] sm:text-7xl">
+          <h1 className="display mt-5 heading-clamp-lg">
             {authCopy.workspace}
           </h1>
-          <p className="mt-7 max-w-md text-lg leading-8 text-[#c1cad7]">
+          <p className="mt-6 max-w-md text-fluid-base leading-8 text-[#c1cad7]">
             Use your email or username and password to continue your assessment
             journey.
           </p>

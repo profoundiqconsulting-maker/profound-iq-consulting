@@ -428,7 +428,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-[#101d35]/90 via-[#101d35]/70 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#101d35]/50 to-transparent" />
 
-          <div className="container relative px-6 py-24 lg:px-8 lg:py-32">
+          <div className="container relative px-6 py-20 sm:px-8 sm:py-24 lg:px-8 lg:py-28 xl:py-32">
             <div className="grid items-center gap-16 lg:grid-cols-2">
               <div className="max-w-2xl">
                 <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a34e]/60 bg-[#c9a34e]/20 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
@@ -436,46 +436,46 @@ export default function Home() {
                   Executive Assessment & Development
                 </div>
 
-                <h1 className="mt-8 text-5xl leading-[1.1] tracking-tight lg:text-7xl">
+                <h1 className="mt-8 text-fluid-lg leading-[1.1] tracking-tight lg:text-fluid-xl">
                   Transform potential into{" "}
                   <span className="bg-gradient-to-r from-[#c9a34e] to-[#d4af5e] bg-clip-text text-transparent">
                     measurable impact
                   </span>
                 </h1>
 
-                <p className="mt-8 text-lg leading-relaxed text-[#e5eaf5] lg:text-xl">
+                <p className="mt-6 text-fluid-base leading-relaxed text-[#e5eaf5] lg:text-fluid-lg">
                   Profound IQ Consulting helps professionals and organizations
                   move from raw potential to purposeful impact through
                   evidence-based learning, assessment, and strategic
                   development.
                 </p>
 
-                <div className="mt-10 flex flex-wrap gap-4">
+                <div className="mt-8 flex flex-wrap gap-3 sm:gap-4">
                   <a
                     href="/assessment"
-                    className="group inline-flex items-center gap-3 rounded-lg bg-[#c9a34e] px-8 py-4 text-sm font-bold uppercase tracking-wider text-[#101d35] shadow-lg shadow-[#c9a34e]/25 transition-all hover:gap-4 hover:shadow-xl hover:shadow-[#c9a34e]/40"
+                    className="group inline-flex items-center gap-2 rounded-lg bg-[#c9a34e] px-5 py-3 text-fluid-xs font-bold uppercase tracking-wider text-[#101d35] shadow-lg shadow-[#c9a34e]/25 transition-all hover:gap-3 hover:shadow-xl hover:shadow-[#c9a34e]/40 sm:px-6 sm:py-4 sm:text-sm sm:gap-3"
                   >
                     Take the KES 399 assessment
                     <ArrowUpRight
-                      size={18}
-                      className="transition-transform group-hover:translate-x-0.5"
+                      size={16}
+                      className="transition-transform group-hover:translate-x-0.5 sm:h-4 sm:w-4"
                     />
                   </a>
                   <a
                     href="#offerings"
-                    className="inline-flex items-center gap-3 rounded-lg border-2 border-[#f7f3e8] px-8 py-4 text-sm font-bold uppercase tracking-wider text-[#f7f3e8] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e]"
+                    className="inline-flex items-center gap-2 rounded-lg border-2 border-[#f7f3e8] px-5 py-3 text-fluid-xs font-bold uppercase tracking-wider text-[#f7f3e8] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e] sm:px-6 sm:py-4 sm:text-sm sm:gap-3"
                   >
                     Explore services
-                    <ArrowDownRight size={18} />
+                    <ArrowDownRight size={16} className="sm:h-4 sm:w-4" />
                   </a>
                   <a
                     href="/courses"
-                    className="group inline-flex items-center gap-3 rounded-lg bg-[#16243d] px-8 py-4 text-sm font-bold uppercase tracking-wider text-[#f7f3e8] shadow-lg shadow-[#16243d]/25 transition-all hover:gap-4 hover:shadow-xl hover:shadow-[#16243d]/40"
+                    className="group inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-5 py-3 text-fluid-xs font-bold uppercase tracking-wider text-[#f7f3e8] shadow-lg shadow-[#16243d]/25 transition-all hover:gap-3 hover:shadow-xl hover:shadow-[#16243d]/40 sm:px-6 sm:py-4 sm:text-sm sm:gap-3"
                   >
                     Enroll for courses
                     <ArrowUpRight
-                      size={18}
-                      className="transition-transform group-hover:translate-x-0.5"
+                      size={16}
+                      className="transition-transform group-hover:translate-x-0.5 sm:h-4 sm:w-4"
                     />
                   </a>
                 </div>
@@ -548,33 +548,33 @@ export default function Home() {
               </div>
             </div>
 
-             {/* Stats Bar */}
-             <div className="mt-20 grid grid-cols-2 gap-8 border-t-2 border-[#f7f3e8]/20 pt-12 lg:grid-cols-4">
-               {stats.map((stat, index) => (
-                 <div key={index} className="text-center">
-                   <div className="text-4xl font-bold text-[#c9a34e] lg:text-5xl">
-                     {stat.value}
-                   </div>
-                   <div className="mt-2 text-sm text-[#d7deea]">
-                     {stat.label}
-                   </div>
-                 </div>
-               ))}
-             </div>
+              {/* Stats Bar */}
+              <div className="mt-16 grid grid-cols-2 gap-6 border-t-2 border-[#f7f3e8]/20 pt-10 sm:mt-20 sm:gap-8 sm:pt-12 lg:grid-cols-4">
+                {stats.map((stat, index) => (
+                  <div key={index} className="text-center">
+                    <div className="text-2xl font-bold text-[#c9a34e] sm:text-3xl lg:text-4xl xl:text-5xl">
+                      {stat.value}
+                    </div>
+                    <div className="mt-1.5 text-fluid-xs text-[#d7deea] sm:text-sm">
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
           </div>
         </section>
 
         {/* Services Section */}
-        <section id="offerings" className="bg-[#f7f3e8] py-24 lg:py-32">
+        <section id="offerings" className="section-py bg-[#f7f3e8]">
           <div className="container px-6 lg:px-8">
-            <div className="mb-16 text-center">
-              <p className="text-sm font-semibold uppercase tracking-wider text-[#c9a34e]">
+            <div className="mb-12 text-center sm:mb-16">
+              <p className="text-fluid-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
                 Our Services
               </p>
-              <h2 className="mt-4 text-4xl font-bold tracking-tight text-[#16243d] lg:text-5xl">
+              <h2 className="heading-clamp mt-4 font-bold tracking-tight text-[#16243d]">
                 Comprehensive development solutions
               </h2>
-              <p className="mt-4 max-w-2xl mx-auto text-lg text-[#657084]">
+              <p className="mt-4 max-w-2xl mx-auto text-fluid-base text-[#657084]">
                 From individual assessments to organizational consulting, we
                 provide the tools and expertise to drive meaningful growth.
               </p>
@@ -619,13 +619,13 @@ export default function Home() {
         </section>
 
         {/* Featured Services */}
-        <section className="bg-white py-24 lg:py-32">
+        <section className="section-py bg-white">
           <div className="container px-6 lg:px-8">
-            <div className="mb-16">
-              <p className="text-sm font-semibold uppercase tracking-wider text-[#c9a34e]">
+            <div className="mb-12 sm:mb-16">
+              <p className="text-fluid-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
                 Featured Programs
               </p>
-              <h2 className="mt-4 text-4xl font-bold tracking-tight text-[#16243d] lg:text-5xl">
+              <h2 className="heading-clamp mt-4 font-bold tracking-tight text-[#16243d]">
                 Tools for the work ahead
               </h2>
             </div>
@@ -669,14 +669,14 @@ export default function Home() {
         </section>
 
         {/* Testimonials */}
-        <section className="bg-[#101d35] py-24 lg:py-32">
+        <section className="section-py bg-[#101d35]">
           <div className="container px-6 lg:px-8">
             <div className="mx-auto max-w-4xl text-center">
-              <p className="text-sm font-semibold uppercase tracking-wider text-[#c9a34e]">
+              <p className="text-fluid-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
                 Client Success Stories
               </p>
-              <div className="mt-12">
-                <div className="relative h-64">
+              <div className="mt-8 sm:mt-12">
+                <div className="relative h-56 sm:h-64">
                   {testimonials.map((testimonial, index) => (
                     <div
                       key={index}
@@ -686,10 +686,10 @@ export default function Home() {
                           : "opacity-0 translate-y-8"
                       }`}
                     >
-                      <blockquote className="text-3xl font-light leading-relaxed text-[#f7f3e8] lg:text-4xl">
+                      <blockquote className="text-2xl font-light leading-relaxed text-[#f7f3e8] sm:text-3xl lg:text-4xl">
                         "{testimonial.quote}"
                       </blockquote>
-                      <div className="mt-8">
+                      <div className="mt-6 sm:mt-8">
                         <p className="font-semibold text-[#c9a34e]">
                           {testimonial.author}
                         </p>
@@ -740,23 +740,23 @@ export default function Home() {
         </section>
 
         {/* Course Catalog */}
-        <section id="courses" className="bg-[#f7f3e8] py-24 lg:py-32">
+        <section id="courses" className="section-py bg-[#f7f3e8]">
           <div className="container px-6 lg:px-8">
-            <div className="mb-16">
-              <p className="text-sm font-semibold uppercase tracking-wider text-[#c9a34e]">
+            <div className="mb-12">
+              <p className="text-fluid-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
                 Course Catalog
               </p>
-              <h2 className="mt-4 text-4xl font-bold tracking-tight text-[#16243d] lg:text-5xl">
+              <h2 className="heading-clamp mt-4 font-bold tracking-tight text-[#16243d]">
                 Choose the capability you want to build
               </h2>
-              <p className="mt-4 max-w-2xl text-lg text-[#657084]">
+              <p className="mt-4 max-w-2xl text-fluid-base text-[#657084]">
                 Each course is designed to meet professional standards while
                 giving you a practical path from reflection to measurable
                 progress.
               </p>
             </div>
 
-            <div className="mb-8 flex flex-wrap gap-3">
+            <div className="mb-6 flex flex-wrap gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={() => setCatalogLevel("All levels")}
@@ -790,23 +790,23 @@ export default function Home() {
                   key={course.index}
                   className="group rounded-2xl border border-[#16243d]/10 bg-white p-8 shadow-sm transition-all hover:shadow-lg hover:border-[#c9a34e]"
                 >
-                  <div className="grid gap-8 lg:grid-cols-[1fr_auto]">
+                  <div className="grid gap-6 sm:gap-8 lg:grid-cols-[1fr_auto]">
                     <div>
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3 sm:gap-4">
                         <span className="text-sm font-bold text-[#c9a34e]">
                           {course.index}
                         </span>
-                        <span className="rounded-full bg-[#c9a34e]/10 px-3 py-1 text-xs font-semibold text-[#7d5e1e]">
+                        <span className="rounded-full bg-[#c9a34e]/10 px-2.5 py-1 text-xs font-semibold text-[#7d5e1e] sm:px-3 sm:py-1">
                           {course.format}
                         </span>
                       </div>
-                      <h3 className="mt-4 text-2xl font-bold text-[#16243d]">
+                      <h3 className="mt-3 text-xl font-bold text-[#16243d] sm:text-2xl">
                         {course.title}
                       </h3>
-                      <p className="mt-3 text-base leading-relaxed text-[#657084]">
+                      <p className="mt-2 text-fluid-base leading-relaxed text-[#657084]">
                         {course.body}
                       </p>
-                      <div className="mt-6 flex flex-wrap gap-4">
+                      <div className="mt-4 flex flex-wrap gap-3 sm:mt-6 sm:gap-4">
                         {course.modules.length ? (
                           <a
                             href={`/courses/${course.slug}?workspace=1`}
@@ -873,14 +873,14 @@ export default function Home() {
         </section>
 
         {/* Resources Preview */}
-        <section className="bg-[#f7f3e8] py-24 lg:py-32">
+        <section className="section-py bg-[#f7f3e8]">
           <div className="container px-6 lg:px-8">
-            <div className="mb-12">
+            <div className="mb-10 sm:mb-12">
               <p className="eyebrow text-[#7d5e1e]">Resources</p>
-              <h2 className="display mt-5 text-4xl leading-[.98] tracking-[-.045em] sm:text-5xl">
+              <h2 className="display mt-5 heading-clamp">
                 Curated materials
               </h2>
-              <p className="mt-4 max-w-2xl text-base text-[#4a566a]">
+              <p className="mt-4 max-w-2xl text-fluid-base text-[#4a566a]">
                 Practical guides, templates, and tools to support better decisions and clearer next steps.
               </p>
             </div>
@@ -929,14 +929,14 @@ export default function Home() {
         </section>
 
         {/* Surveys Preview */}
-        <section className="bg-white py-24 lg:py-32">
+        <section className="section-py bg-white">
           <div className="container px-6 lg:px-8">
-            <div className="mb-12">
+            <div className="mb-10 sm:mb-12">
               <p className="eyebrow text-[#7d5e1e]">Surveys</p>
-              <h2 className="display mt-5 text-4xl leading-[.98] tracking-[-.045em] sm:text-5xl">
+              <h2 className="display mt-5 heading-clamp">
                 Have your say
               </h2>
-              <p className="mt-4 max-w-2xl text-base text-[#4a566a]">
+              <p className="mt-4 max-w-2xl text-fluid-base text-[#4a566a]">
                 Take part in our active polls, surveys, and product reviews. Your feedback helps shape what comes next.
               </p>
             </div>
@@ -989,17 +989,17 @@ export default function Home() {
         </section>
 
         {/* Contact Section */}
-        <section id="contact" className="bg-[#16243d] py-24 lg:py-32">
+        <section id="contact" className="section-py bg-[#16243d]">
           <div className="container px-6 lg:px-8">
-            <div className="grid gap-16 lg:grid-cols-2">
+            <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wider text-[#c9a34e]">
+                <p className="text-fluid-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
                   Get in Touch
                 </p>
-                <h2 className="mt-4 text-4xl font-bold tracking-tight text-[#f7f3e8] lg:text-5xl">
+                <h2 className="heading-clamp mt-4 font-bold tracking-tight text-[#f7f3e8]">
                   Make the next step deliberate
                 </h2>
-                <p className="mt-6 text-lg leading-relaxed text-[#c1cad7]">
+                <p className="mt-4 text-fluid-base leading-relaxed text-[#c1cad7] sm:text-lg">
                   Tell us what you are working toward. We will help you see the
                   path with more clarity.
                 </p>

@@ -125,19 +125,19 @@ export default function Services() {
       breadcrumbs={[{ label: "Services" }]}
       cta={{ label: "Discuss your context", href: "/contact" }}
     >
-      <section className="bg-[#f7f3e8] py-24 lg:py-32">
+      <section className="section-py bg-[#f7f3e8]">
         <div className="container">
           <div className="max-w-3xl">
             <p className="eyebrow text-[#7d5e1e]">The portfolio</p>
-            <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
+            <h2 className="display mt-5 heading-clamp">
               Choose the work that moves your question forward.
             </h2>
-            <p className="mt-7 text-lg leading-8 text-[#4a566a]">
+            <p className="mt-6 text-fluid-base leading-8 text-[#4a566a]">
               Every service is shaped around a real audience, a defined context,
               and a practical change to be made.
             </p>
           </div>
-          <div className="mt-16 grid gap-5 lg:grid-cols-2">
+          <div className="mt-12 grid gap-5 lg:grid-cols-2 sm:mt-16">
             {services.map(
               ({ title, tag, body, icon: Icon, audience, href }, index) => (
                 <ScrollReveal key={title} delay={index * 70}>
@@ -177,14 +177,14 @@ export default function Services() {
           </div>
         </div>
       </section>
-      <section className="bg-[#172844] py-24 text-[#f7f3e8] lg:py-32">
-        <div className="container grid gap-16 lg:grid-cols-[.6fr_1.4fr] lg:gap-20 lg:items-start">
+      <section className="section-py bg-[#172844] text-[#f7f3e8]">
+        <div className="container grid gap-12 lg:grid-cols-[.6fr_1.4fr] lg:gap-16 lg:items-start">
           <div>
             <p className="eyebrow text-[#c9a34e]">How we work</p>
-            <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
+            <h2 className="display mt-5 heading-clamp">
               A clear process, not a black box.
             </h2>
-            <p className="mt-7 text-base leading-8 text-[#c1cad7]">
+            <p className="mt-6 text-fluid-base leading-8 text-[#c1cad7]">
               The work is collaborative, evidence-informed, and designed to make
               the next decision easier.
             </p>
@@ -210,11 +210,11 @@ export default function Services() {
           </div>
         </div>
       </section>
-      <section className="bg-[#fffaf0] py-24 lg:py-32">
-        <div className="container grid gap-16 lg:grid-cols-[.65fr_1.35fr] lg:gap-20">
+      <section className="section-py bg-[#fffaf0]">
+        <div className="container grid gap-12 lg:grid-cols-[.65fr_1.35fr] lg:gap-16">
           <div>
             <p className="eyebrow text-[#7d5e1e]">Questions, answered</p>
-            <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
+            <h2 className="display mt-5 heading-clamp">
               Start with the context you have.
             </h2>
           </div>
@@ -235,11 +235,11 @@ export default function Services() {
           </div>
         </div>
       </section>
-      <section className="bg-[#f7f3e8] py-20">
-        <div className="container flex flex-col items-start justify-between gap-8 border-t border-[#16243d]/10 pt-12 sm:flex-row sm:items-center">
+      <section className="section-py-sm bg-[#f7f3e8]">
+        <div className="container flex flex-col items-start justify-between gap-6 border-t border-[#16243d]/10 pt-10 sm:flex-row sm:items-center sm:gap-8">
           <div>
             <p className="eyebrow text-[#7d5e1e]">Next step</p>
-            <h2 className="display mt-4 text-4xl leading-tight sm:text-5xl">
+            <h2 className="display mt-4 heading-clamp">
               Tell us what needs to change.
             </h2>
           </div>
