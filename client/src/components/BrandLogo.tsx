@@ -27,11 +27,14 @@ export function BrandLogo({
   compactOnMobile = false,
 }: BrandLogoProps) {
   const [failed, setFailed] = useState(false);
+  const isCompact = compact || compactOnMobile;
   const sizeClasses = compactOnMobile
     ? "h-11 w-11 sm:h-14 sm:w-[4.5rem]"
     : compact
       ? "h-11 w-11"
       : "h-16 w-20 sm:h-[4.5rem] sm:w-[5.75rem]";
+  const logoWidth = 160;
+  const logoHeight = 74;
   return (
     <span
       data-brand-logo
@@ -50,6 +53,8 @@ export function BrandLogo({
           className="h-full w-full object-contain p-1"
           loading="eager"
           decoding="async"
+          width={logoWidth}
+          height={logoHeight}
           onError={() => setFailed(true)}
         />
       )}

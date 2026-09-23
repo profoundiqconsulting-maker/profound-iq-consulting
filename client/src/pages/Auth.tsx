@@ -36,7 +36,14 @@ export default function Auth() {
 
   useEffect(() => {
     if (!loading && user) {
-      navigate("/dashboard");
+      const role = user.role.toLowerCase();
+      if (role === "admin") {
+        navigate("/admin/overview", { replace: true });
+      } else if (role === "staff") {
+        navigate("/staff", { replace: true });
+      } else {
+        navigate("/dashboard/overview", { replace: true });
+      }
     }
   }, [loading, user, navigate]);
 

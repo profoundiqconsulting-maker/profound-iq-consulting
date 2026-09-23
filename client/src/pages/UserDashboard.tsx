@@ -4312,14 +4312,16 @@ export default function UserDashboard() {
                 aria-label="Live cover page preview"
               >
                 <div className="mx-auto max-w-md">
-                  <img
-                    src={
-                      profile.data?.exportLogoUrl ??
-                      "/local-storage/ProfoundIQLogo-header.jpg"
-                    }
-                    alt=""
-                    className="mx-auto mb-3 h-12 max-w-28 object-contain"
-                  />
+                   <img
+                     src={
+                       profile.data?.exportLogoUrl ??
+                       "/local-storage/ProfoundIQLogo-header.jpg"
+                     }
+                     alt=""
+                     className="mx-auto mb-3 h-12 max-w-28 object-contain"
+                     width={160}
+                     height={74}
+                   />
                   <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#7d5e1e]">
                     PROFOUND IQ / CONSULTING
                   </p>

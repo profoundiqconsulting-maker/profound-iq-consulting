@@ -99,6 +99,8 @@ export default function InsightArticle() {
               src={article.socialImageUrl}
               alt=""
               className="aspect-[1.91/1] w-full object-cover"
+              width={1200}
+              height={628}
             />
           </div>
         </section>

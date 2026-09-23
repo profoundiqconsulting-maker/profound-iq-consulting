@@ -995,6 +995,8 @@ export default function MyIllustrations() {
                 src={zoomed.visualUrl}
                 alt={zoomed.visualAlt ?? zoomed.lessonTitle}
                 className="mt-6 max-h-[64vh] w-full object-contain"
+                width={1600}
+                height={900}
               />
             )}
             <p className="mt-5 max-w-3xl text-sm leading-7 text-muted-foreground">

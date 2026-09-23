@@ -3086,6 +3086,8 @@ export default function Assessment() {
               src={LOGO_URL}
               alt="Profound IQ Consulting"
               className="relative mx-auto h-14 w-auto object-contain"
+              width={160}
+              height={74}
             />
             <p className="relative mt-6 text-[10px] font-black uppercase tracking-[.35em] text-[#c9a34e]">
               Profound IQ Consulting
@@ -3123,6 +3125,8 @@ export default function Assessment() {
                 src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(certificatePreview.data.data)}`}
                 alt={`${assessmentCopy.certificatePreview} — ${name || "participant"}`}
                 className="mx-auto w-full"
+                width={1200}
+                height={800}
               />
             ) : (
               <p className="p-4 text-sm text-[#657084]">

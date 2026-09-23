@@ -4,9 +4,10 @@ import { useAuth } from "@/_core/hooks/useAuth";
 
 export function RoleBasedRedirect() {
   const [, navigate] = useLocation();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
 
   useEffect(() => {
+    if (loading) return;
     if (!isAuthenticated || !user?.role) {
       navigate("/auth?mode=login", { replace: true });
       return;
@@ -19,7 +20,7 @@ export function RoleBasedRedirect() {
     } else {
       navigate("/dashboard/overview", { replace: true });
     }
-  }, [isAuthenticated, user?.role, navigate]);
+  }, [isAuthenticated, user?.role, navigate, loading]);
 
   return null;
 }
