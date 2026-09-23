@@ -32,27 +32,26 @@ export function DashboardShell({
                      <a href="/dashboard/settings" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Settings</a>
                    </>
                  )}
-                 {role === "staff" && (
-                   <>
-                     <a href="/staff" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium bg-[#c9a34e]/10 text-[#7d5e1e] dark:text-[#7d5e1e]">Overview</a>
-                     <a href="/staff/inquiries" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Assigned Inquiries</a>
-                     <a href="/staff/reviews" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Lesson Reviews</a>
-                     <a href="/staff/analytics" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Review Analytics</a>
-                   </>
-                 )}
-                 {role === "admin" && (
-                   <>
-                     <a href="/admin" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium bg-[#c9a34e]/10 text-[#7d5e1e] dark:text-[#7d5e1e]">Overview</a>
-                     <a href="/admin/assessments" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Assessments</a>
-                     <a href="/admin/psychometrics" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Psychometrics</a>
-                     <a href="/admin/inquiries" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Inquiries</a>
-                     <a href="/admin/revenue" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Revenue</a>
-                     <a href="/admin/staff" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Staff & Catalog</a>
-                     <a href="/admin/courses" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Learning</a>
-                     <a href="/admin/security" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Security</a>
-                     <a href="/admin/organizations" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Organizations</a>
-                   </>
-                 )}
+                  {role === "staff" && (
+                    <>
+                      <a href="/staff" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium bg-[#c9a34e]/10 text-[#7d5e1e] dark:text-[#7d5e1e]">Overview</a>
+                      <a href="/staff/inquiries" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Assigned Inquiries</a>
+                      <a href="/staff/reviews" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Lesson Reviews</a>
+                    </>
+                  )}
+                  {role === "admin" && (
+                    <>
+                      <a href="/admin" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium bg-[#c9a34e]/10 text-[#7d5e1e] dark:text-[#7d5e1e]">Overview</a>
+                      <a href="/admin/overview" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Assessments</a>
+                      <a href="/admin/psychometrics" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Psychometrics</a>
+                      <a href="/admin/inquiries" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Inquiries</a>
+                      <a href="/admin/revenue" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Revenue</a>
+                      <a href="/admin/staff" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Staff & Catalog</a>
+                      <a href="/admin/cohorts" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Learning</a>
+                      <a href="/admin/security" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Security</a>
+                      <a href="/admin/organization" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#16243d] hover:bg-[#16243d]/5 dark:hover:bg-[#657084]/10">Organizations</a>
+                    </>
+                  )}
                </div>
             </nav>
           </aside>
