@@ -427,7 +427,10 @@ function FirstStageCheckout({ course }: { course: CourseDefinition }) {
             {
               onSuccess: payment => {
                 if ("paid" in payment && payment.paid) {
-                  window.location.reload();
+                  void utils.course.state.invalidate();
+                  toast.success("Payment verified", {
+                    description: "Your course access is updated.",
+                  });
                   return;
                 }
                 setInlineProduct({
@@ -455,7 +458,7 @@ function FirstStageCheckout({ course }: { course: CourseDefinition }) {
   return (
     <form
       onSubmit={submit}
-      className="mt-6 max-w-xl border border-white/15 bg-white/5 p-5 sm:p-6"
+      className="mt-6 max-w-xl rounded-xl border border-white/15 bg-white/5 p-5 shadow-sm sm:p-6"
     >
       <p className="text-xs font-black uppercase tracking-[.14em] text-accent-on-dark">
         First step · unlock Module 1
@@ -512,7 +515,7 @@ function FirstStageCheckout({ course }: { course: CourseDefinition }) {
       <button
         type="submit"
         disabled={pending || !name.trim() || !email.trim() || !consent}
-        className="mt-5 inline-flex items-center gap-2 bg-[#c9a34e] px-5 py-4 text-[10px] font-black uppercase tracking-[.15em] text-[#16243d] disabled:cursor-wait disabled:opacity-60"
+        className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#c9a34e] px-5 py-4 text-[10px] font-black uppercase tracking-[.15em] text-[#16243d] shadow-sm transition-all hover:shadow-md disabled:cursor-wait disabled:opacity-60"
       >
         {pending ? (
           <Loader2 size={14} className="animate-spin" aria-hidden="true" />
@@ -541,16 +544,12 @@ function FirstStageCheckout({ course }: { course: CourseDefinition }) {
                 toast.success("Payment verified", {
                   description: "Your course access is updated.",
                 });
+                void utils.course.state.invalidate();
                 void utils.dashboard.mine.refetch();
-                window.location.reload();
               },
               onError: error => {
                 toast.error("Payment verification failed", {
                   description: error.message,
-                  action: {
-                    label: "Retry",
-                    onClick: () => window.location.reload(),
-                  },
                 });
               },
             }
@@ -588,7 +587,7 @@ function CourseAccessGate({
         <div className="mx-auto max-w-4xl">
           <Link
             href="/courses"
-            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#5d4613]"
+            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#5d4613] transition-colors hover:text-[#16243d]"
           >
             <ArrowLeft size={14} /> {"Courses"}
           </Link>
@@ -606,7 +605,7 @@ function CourseAccessGate({
             courseTitle={course.title}
           />
           <div className="mt-10 grid gap-5 md:grid-cols-3">
-            <div className="border border-[#16243d]/15 bg-white/55 p-5">
+            <div className="rounded-xl border border-[#16243d]/15 bg-white/55 p-5 shadow-sm transition-all hover:shadow-md">
               <p className="eyebrow text-[#5d4613]">For</p>
               <p className="mt-3 text-sm leading-6">{course.audience}</p>
             </div>
@@ -644,40 +643,40 @@ function CourseAccessGate({
                 paidStages,
               })}
             </p>
-            {isAuthenticated ? (
-              <FirstStageCheckout course={course} />
-            ) : (
-              <div className="mt-6 flex flex-wrap gap-3">
+              {isAuthenticated ? (
+                <FirstStageCheckout course={course} />
+              ) : (
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Link
+                    href={`/auth?mode=login&returnTo=${encodeURIComponent(`/courses/${course.slug}?workspace=1`)}`}
+                    className="inline-flex items-center gap-2 rounded-lg bg-[#c9a34e] px-5 py-4 text-[10px] font-black uppercase tracking-[.15em] text-[#16243d] shadow-sm transition-all hover:shadow-md"
+                  >
+                    {"Sign in to continue"} <ArrowRight size={14} />
+                  </Link>
+                  <Link
+                    href={`/auth?mode=register&returnTo=${encodeURIComponent(`/courses/${course.slug}?workspace=1`)}`}
+                    className="inline-flex items-center gap-2 rounded-lg border border-[#c9a34e]/70 px-5 py-4 text-[10px] font-black uppercase tracking-[.15em] text-[#f7f3e8] transition-all hover:shadow-md"
+                  >
+                    {authCopy.createAccount} <ArrowRight size={14} />
+                  </Link>
+                </div>
+              )}
+              <div className="mt-4 flex flex-wrap gap-3">
+                {isAuthenticated && (
+                  <Link
+                    href="/dashboard"
+                    className="inline-flex items-center gap-2 rounded-md text-[10px] font-black uppercase tracking-[.15em] text-[#c1cad7] underline underline-offset-4 transition-colors hover:text-[#f7f3e8]"
+                  >
+                    {"My workspace"} <ArrowUpRight size={14} />
+                  </Link>
+                )}
                 <Link
-                  href={`/auth?mode=login&returnTo=${encodeURIComponent(`/courses/${course.slug}?workspace=1`)}`}
-                  className="inline-flex items-center gap-2 bg-[#c9a34e] px-5 py-4 text-[10px] font-black uppercase tracking-[.15em] text-[#16243d]"
+                  href="/courses"
+                  className="inline-flex items-center gap-2 rounded-md text-[10px] font-black uppercase tracking-[.15em] text-[#c1cad7] underline underline-offset-4 transition-colors hover:text-[#f7f3e8]"
                 >
-                  {"Sign in to continue"} <ArrowRight size={14} />
-                </Link>
-                <Link
-                  href={`/auth?mode=register&returnTo=${encodeURIComponent(`/courses/${course.slug}?workspace=1`)}`}
-                  className="inline-flex items-center gap-2 border border-[#c9a34e]/70 px-5 py-4 text-[10px] font-black uppercase tracking-[.15em] text-[#f7f3e8]"
-                >
-                  {authCopy.createAccount} <ArrowRight size={14} />
+                  {"Courses"} <ArrowUpRight size={14} />
                 </Link>
               </div>
-            )}
-            <div className="mt-4 flex flex-wrap gap-3">
-              {isAuthenticated && (
-                <Link
-                  href="/dashboard"
-                  className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#c1cad7] underline underline-offset-4 hover:text-[#f7f3e8]"
-                >
-                  {"My workspace"} <ArrowUpRight size={14} />
-                </Link>
-              )}
-              <Link
-                href="/courses"
-                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#c1cad7] underline underline-offset-4 hover:text-[#f7f3e8]"
-              >
-                {"Courses"} <ArrowUpRight size={14} />
-              </Link>
-            </div>
           </div>
         </div>
       </main>
@@ -1320,9 +1319,12 @@ function CourseWorkspaceUnlocked({
   }, [inlineModalOpen, inlineProduct?.reference, verifyMutation, courseState]);
   const startCheckout = (requestedStage?: number) => {
     if (!isAuthenticated) {
-      window.location.href =
+      window.history.pushState(
+        {},
+        "",
         "/auth?returnTo=" +
-        encodeURIComponent(window.location.pathname + window.location.search);
+          encodeURIComponent(window.location.pathname + window.location.search)
+      );
       return;
     }
     if (!currentEnrollment?.enrollment.id) {
@@ -1827,7 +1829,7 @@ function CourseWorkspaceUnlocked({
           <section>
             <Link
               href="/#courses"
-              className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#5d4613]"
+              className="inline-flex items-center gap-2 rounded-md text-[10px] font-black uppercase tracking-[.14em] text-[#5d4613] transition-colors hover:text-[#16243d]"
             >
               <ArrowLeft size={14} /> {"Courses"}
             </Link>
@@ -1862,7 +1864,7 @@ function CourseWorkspaceUnlocked({
             />
             <section
               aria-labelledby="course-progress-title"
-              className="mt-8 border-l-2 border-[#c9a34e] bg-white/60 p-5"
+              className="mt-8 rounded-xl border-l-2 border-[#c9a34e] bg-white/60 p-5 shadow-sm"
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
@@ -1958,7 +1960,7 @@ function CourseWorkspaceUnlocked({
                 available across your lessons.
               </p>
             )}
-            <section className="mt-10 border border-[#c9a34e]/45 bg-[#fffaf0] p-5 sm:p-6">
+            <section className="mt-10 rounded-xl border border-[#c9a34e]/45 bg-[#fffaf0] p-5 shadow-sm sm:p-6">
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
                   <p className="eyebrow text-[#5d4613]">
@@ -2011,20 +2013,21 @@ function CourseWorkspaceUnlocked({
               </div>
               <div className="mt-6 space-y-3">
                 {currentModule.lessons.map((lesson, index) => (
-                  <div
-                    key={lesson.id}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => openLesson(lesson.id)}
-                    onKeyDown={event => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        openLesson(lesson.id);
-                      }
-                    }}
-                    aria-disabled={quizOpen}
-                    className={`cursor-pointer border p-4 transition hover:border-[#c9a34e] hover:shadow-md ${quizOpen ? "cursor-not-allowed opacity-60" : ""} ${progress.lessons.includes(lesson.id) ? "border-[#c9a34e] bg-[#fffaf0]" : "border-[#16243d]/10 bg-[#f7f3e8]"}`}
-                  >
+                <div
+                  key={lesson.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => openLesson(lesson.id)}
+                  onKeyDown={event => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      openLesson(lesson.id);
+                    }
+                  }}
+                  aria-disabled={quizOpen}
+                  data-completed={progress.lessons.includes(lesson.id)}
+                  className={`flex h-full cursor-pointer flex-col rounded-xl border p-4 transition-all hover:border-[#c9a34e] hover:shadow-md ${quizOpen ? "cursor-not-allowed opacity-60" : ""} ${progress.lessons.includes(lesson.id) ? "border-[#c9a34e] bg-[#fffaf0]" : "border-[#16243d]/10 bg-[#f7f3e8]"}`}
+                >
                     <label className="flex cursor-pointer items-start gap-3">
                       <input
                         type="checkbox"
@@ -2055,8 +2058,8 @@ function CourseWorkspaceUnlocked({
                   </div>
                 ))}
               </div>
-              {isModuleReady && !moduleLocked && (
-                <div className="mt-6 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-[#f7f3e8]">
+                {isModuleReady && !moduleLocked && (
+                <div className="mt-6 rounded-xl border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-[#f7f3e8] shadow-sm">
                   <div className="flex items-start gap-3">
                     <Sparkles
                       size={18}
@@ -2081,7 +2084,7 @@ function CourseWorkspaceUnlocked({
                   </div>
                 </div>
               )}
-              {progress.quizScores[currentModule.id] !== undefined && (
+                {progress.quizScores[currentModule.id] !== undefined && (
                 <p
                   className={`mt-4 text-sm font-bold ${progress.quizScores[currentModule.id] >= COURSE_PASS_MARK ? "text-emerald-800" : "text-red-800"}`}
                 >
@@ -2098,33 +2101,34 @@ function CourseWorkspaceUnlocked({
                 variant="outline"
                 onClick={() => selectModule(Math.max(0, moduleIndex - 1))}
                 disabled={moduleIndex === 0 || quizOpen}
+                className="rounded-lg transition-all hover:shadow-sm"
               >
                 <ArrowLeft size={15} /> {assessmentCopy.previousModule}
               </Button>
               <span className="text-xs text-muted-foreground">
                 Progress saves automatically on this device.
               </span>
-              <Button
-                type="button"
-                onClick={() =>
-                  selectModule(
-                    Math.min(course.modules.length - 1, moduleIndex + 1)
-                  )
-                }
-                disabled={
-                  !isModuleReady ||
-                  progress.quizScores[currentModule.id] < COURSE_PASS_MARK ||
-                  moduleIndex === course.modules.length - 1 ||
-                  quizOpen
-                }
-                className="bg-[#16243d] text-[#f7f3e8]"
-              >
+                <Button
+                  type="button"
+                  onClick={() =>
+                    selectModule(
+                      Math.min(course.modules.length - 1, moduleIndex + 1)
+                    )
+                  }
+                  disabled={
+                    !isModuleReady ||
+                    progress.quizScores[currentModule.id] < COURSE_PASS_MARK ||
+                    moduleIndex === course.modules.length - 1 ||
+                    quizOpen
+                  }
+                  className="rounded-lg bg-[#16243d] text-[#f7f3e8] shadow-sm transition-all hover:shadow-md"
+                >
                 {assessmentCopy.nextModule} <ArrowRight size={15} />
               </Button>
             </div>
           </section>
           <aside className="space-y-5">
-            <div className="border border-[#16243d]/15 bg-[#16243d] p-5 text-[#f7f3e8]">
+            <div className="border border-[#16243d]/15 bg-[#16243d] p-5 text-[#f7f3e8] rounded-xl shadow-sm">
               <p className="eyebrow text-accent-on-dark">
                 {enrollmentCopy.payment}
               </p>
@@ -2172,7 +2176,7 @@ function CourseWorkspaceUnlocked({
                   disabled={
                     enrollMutation.isPending || checkoutMutation.isPending
                   }
-                  className="mt-6 w-full bg-[#c9a34e] text-[#16243d]"
+                  className="mt-6 w-full rounded-lg bg-[#c9a34e] text-[#16243d] shadow-sm transition-all hover:shadow-md"
                 >
                   {checkoutMutation.isPending || enrollMutation.isPending
                     ? "Preparing secure checkout…"
@@ -2184,7 +2188,7 @@ function CourseWorkspaceUnlocked({
                 before access is granted.
               </p>
             </div>
-            <div className="border-l-2 border-[#c9a34e] bg-white/60 p-5">
+            <div className="border-l-2 border-[#c9a34e] bg-white/60 p-5 rounded-xl shadow-sm">
               <p className="eyebrow text-[#5d4613]">
                 {enrollmentCopy.certificate}
               </p>
@@ -2202,7 +2206,7 @@ function CourseWorkspaceUnlocked({
                   requestCertificateMutation.isPending ||
                   (!qualityControl && !isCourseComplete)
                 }
-                className="mt-4 w-full bg-[#16243d] text-[#f7f3e8]"
+                className="mt-4 w-full rounded-lg bg-[#16243d] text-[#f7f3e8] shadow-sm transition-all hover:shadow-md"
               >
                 <LockKeyhole size={15} />{" "}
                 {requestCertificateMutation.isPending
@@ -2252,7 +2256,7 @@ function CourseWorkspaceUnlocked({
                   rel="noopener noreferrer"
                   onClick={() => void shareCertificate("linkedin")}
                   aria-disabled={!canonicalCertificate}
-                  className={`inline-flex items-center justify-center gap-2 border border-[#16243d]/25 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:border-[#16243d]/60 hover:bg-[#16243d]/5 disabled:opacity-50 ${
+                  className={`inline-flex items-center justify-center gap-2 rounded-lg border border-[#16243d]/25 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:shadow-sm ${
                     !canonicalCertificate
                       ? "opacity-50 pointer-events-none"
                       : ""
@@ -2275,7 +2279,7 @@ function CourseWorkspaceUnlocked({
                   rel="noopener noreferrer"
                   onClick={() => void shareCertificate("facebook")}
                   aria-disabled={!canonicalCertificate}
-                  className={`inline-flex items-center justify-center gap-2 border border-[#16243d]/25 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:border-[#16243d]/60 hover:bg-[#16243d]/5 disabled:opacity-50 ${
+                  className={`inline-flex items-center justify-center gap-2 rounded-lg border border-[#16243d]/25 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:shadow-sm ${
                     !canonicalCertificate
                       ? "opacity-50 pointer-events-none"
                       : ""
@@ -2298,7 +2302,7 @@ function CourseWorkspaceUnlocked({
                   rel="noopener noreferrer"
                   onClick={() => void shareCertificate("whatsapp")}
                   aria-disabled={!canonicalCertificate}
-                  className={`inline-flex items-center justify-center gap-2 border border-[#16243d]/25 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:border-[#16243d]/60 hover:bg-[#16243d]/5 disabled:opacity-50 ${
+                  className={`inline-flex items-center justify-center gap-2 rounded-lg border border-[#16243d]/25 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:shadow-sm ${
                     !canonicalCertificate
                       ? "opacity-50 pointer-events-none"
                       : ""
@@ -2321,7 +2325,7 @@ function CourseWorkspaceUnlocked({
                   rel="noopener noreferrer"
                   onClick={() => void shareCertificate("twitter")}
                   aria-disabled={!canonicalCertificate}
-                  className={`inline-flex items-center justify-center gap-2 border border-[#16243d]/25 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:border-[#16243d]/60 hover:bg-[#16243d]/5 disabled:opacity-50 ${
+                  className={`inline-flex items-center justify-center gap-2 rounded-lg border border-[#16243d]/25 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:shadow-sm ${
                     !canonicalCertificate
                       ? "opacity-50 pointer-events-none"
                       : ""
@@ -2371,14 +2375,14 @@ function CourseWorkspaceUnlocked({
                     type="button"
                     variant="outline"
                     onClick={() => setCertificatePrintOpen(true)}
-                    className="w-full border-[#16243d]/25 bg-white text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:border-[#16243d]/60 hover:bg-[#16243d]/5"
+                    className="w-full rounded-lg border border-[#16243d]/25 bg-white text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition hover:shadow-sm"
                   >
                     Print preview
                   </Button>
                 </div>
               )}
             </div>
-            <div className="border border-[#2f6f78]/25 bg-[#edf4ee] p-5">
+            <div className="border border-[#2f6f78]/25 bg-[#edf4ee] p-5 rounded-xl shadow-sm">
               <p className="eyebrow text-[#2f6f78]">Saved illustrations</p>
               <p className="mt-2 text-sm leading-6 text-[#315c4b]">
                 Return to the visual explanations you want to revisit.
@@ -2392,7 +2396,7 @@ function CourseWorkspaceUnlocked({
                         key={bookmark.id}
                         type="button"
                         onClick={() => openLesson(bookmark.lessonId)}
-                        className="block w-full border border-[#2f6f78]/20 bg-white/70 p-3 text-left hover:border-[#2f6f78]"
+                        className="block w-full rounded-lg border border-[#2f6f78]/20 bg-white/70 p-3 text-left transition hover:border-[#2f6f78] hover:shadow-sm"
                       >
                         <span className="block text-[10px] font-black uppercase tracking-[.1em] text-[#2f6f78]">
                           {bookmark.label}
@@ -2409,7 +2413,7 @@ function CourseWorkspaceUnlocked({
                 </p>
               )}
             </div>
-            <div className="border border-[#16243d]/10 bg-white/40 p-5">
+            <div className="border border-[#16243d]/10 bg-white/40 p-5 rounded-xl shadow-sm">
               <p className="text-xs font-bold">Course outcomes</p>
               {course.outcomes.map(outcome => (
                 <p
@@ -2425,12 +2429,12 @@ function CourseWorkspaceUnlocked({
       </main>
       {paymentRequiredStage !== null && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-[#071225]/80 p-4">
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="payment-required-title"
-            className="w-full max-w-lg border border-[#c9a34e]/70 bg-[#f7f3e8] p-6 text-[#16243d] shadow-2xl sm:p-8"
-          >
+              <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="payment-required-title"
+                className="w-full max-w-lg rounded-2xl border border-[#c9a34e]/70 bg-[#f7f3e8] p-6 text-[#16243d] shadow-2xl sm:p-8"
+              >
             <p className="eyebrow text-[#5d4613]">Payment required</p>
             <h2 id="payment-required-title" className="display mt-3 text-3xl">
               Unlock the next learning stage.
@@ -2480,13 +2484,14 @@ function CourseWorkspaceUnlocked({
               </div>
             </div>
             <div className="mt-6 flex flex-wrap justify-end gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setPaymentRequiredStage(null)}
-              >
-                Not now
-              </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setPaymentRequiredStage(null)}
+                  className="rounded-lg transition-all hover:shadow-sm"
+                >
+                  Not now
+                </Button>
               <Button
                 type="button"
                 onClick={() => {
@@ -2494,7 +2499,7 @@ function CourseWorkspaceUnlocked({
                   startCheckout(paymentRequiredStage);
                 }}
                 disabled={checkoutMutation.isPending}
-                className="bg-[#16243d] text-[#f7f3e8]"
+                className="rounded-lg bg-[#16243d] text-[#f7f3e8] shadow-sm transition-all hover:shadow-md"
               >
                 {checkoutMutation.isPending
                   ? "Preparing checkout…"
@@ -2510,7 +2515,7 @@ function CourseWorkspaceUnlocked({
             role="dialog"
             aria-modal="true"
             aria-labelledby="lesson-player-title"
-            className="relative mx-auto max-w-4xl overflow-hidden border border-[#c9a34e]/70 bg-[#f7f3e8] p-6 text-[#16243d] shadow-2xl sm:p-10"
+            className="relative mx-auto max-w-4xl overflow-hidden rounded-2xl border border-[#c9a34e]/70 bg-[#f7f3e8] p-6 text-[#16243d] shadow-2xl sm:p-10"
           >
             <div className="flex items-start justify-between gap-5 border-b border-[#16243d]/15 pb-6">
               <div>
@@ -2524,12 +2529,13 @@ function CourseWorkspaceUnlocked({
                   {activeLesson.summary}
                 </p>
               </div>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setActiveLessonId(null)}
-                aria-label={enrollmentCopy.close + " lesson"}
-              >
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setActiveLessonId(null)}
+                  aria-label={enrollmentCopy.close + " lesson"}
+                  className="rounded-lg transition-all hover:shadow-sm"
+                >
                 {enrollmentCopy.close}
               </Button>
             </div>
@@ -2542,32 +2548,32 @@ function CourseWorkspaceUnlocked({
               </div>
               <div key={activeLesson.id} className="lesson-panel-enter mt-6">
                 <div className="border border-[#c9a34e]/60 bg-[#16243d] p-4 text-[#f7f3e8]">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-[.14em] text-accent-on-dark">
-                        {enrollmentCopy.details} · 25-minute study timer
-                      </p>
-                      <p className="mt-1 text-xs leading-5 text-muted-on-dark">
-                        {activeLessonTimerComplete
-                          ? "Time complete — the next lesson is unlocked."
-                          : "Stay in this lesson until the timer reaches zero."}
-                      </p>
-                    </div>
-                    <span
-                      role="timer"
-                      aria-live="polite"
-                      aria-label={
-                        activeLessonTimerComplete
-                          ? "Lesson timer complete"
-                          : `${formatCountdown(activeLessonSecondsRemaining)} remaining`
-                      }
-                      className="font-mono text-2xl font-bold text-accent-on-dark"
-                    >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#5d4613]">
+                      25-minute study timer
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
                       {activeLessonTimerComplete
-                        ? "00:00"
-                        : formatCountdown(activeLessonSecondsRemaining)}
-                    </span>
+                        ? "Time complete — the next lesson is unlocked."
+                        : "Stay in this lesson until the timer reaches zero."}
+                    </p>
                   </div>
+                  <span
+                    role="timer"
+                    aria-live="polite"
+                    aria-label={
+                      activeLessonTimerComplete
+                        ? "Lesson timer complete"
+                        : `${formatCountdown(activeLessonSecondsRemaining)} remaining`
+                    }
+                    className="font-mono text-2xl font-bold text-accent-on-dark"
+                  >
+                    {activeLessonTimerComplete
+                      ? "00:00"
+                      : formatCountdown(activeLessonSecondsRemaining)}
+                  </span>
+                </div>
                   <div className="mt-3 h-2 overflow-hidden bg-white/15">
                     <div
                       className="h-full bg-[#c9a34e] transition-[width] duration-1000"
@@ -3113,7 +3119,7 @@ function CourseWorkspaceUnlocked({
                     </p>
                   </aside>
                 </div>
-                <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[#16243d]/15 pt-6">
+                <div className="mt-8 flex flex-wrap items-center justify-between gap-3 rounded-xl border-t border-[#16243d]/15 pt-6">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-xs text-muted-foreground">
                       Complete the lesson after reviewing the example,
@@ -3123,6 +3129,7 @@ function CourseWorkspaceUnlocked({
                       type="button"
                       variant="outline"
                       onClick={exportLessonNotes}
+                      className="rounded-lg transition-all hover:shadow-sm"
                     >
                       <Download size={14} /> Export notes
                     </Button>
@@ -3172,8 +3179,8 @@ function CourseWorkspaceUnlocked({
             role="dialog"
             aria-modal="true"
             aria-labelledby="course-quiz-title"
-            className="mx-auto max-w-3xl border border-[#c9a34e]/70 bg-[#f7f3e8] p-6 text-[#16243d] shadow-2xl sm:p-10"
-          >
+              className="mx-auto max-w-3xl rounded-2xl border border-[#c9a34e]/70 bg-[#f7f3e8] p-6 text-[#16243d] shadow-2xl sm:p-10"
+            >
             <div className="flex items-start justify-between gap-5">
               <div>
                 <p className="eyebrow text-[#5d4613]">
@@ -3256,11 +3263,11 @@ function CourseWorkspaceUnlocked({
                       whenever you are ready.
                     </p>
                   </div>
-                  <Button
-                    type="button"
-                    onClick={openQuiz}
-                    className="bg-[#c9a34e] text-[#16243d]"
-                  >
+                        <Button
+                          type="button"
+                          onClick={openQuiz}
+                          className="rounded-lg bg-[#c9a34e] text-[#16243d] shadow-sm transition-all hover:shadow-md"
+                        >
                     New randomized attempt <RotateCcw size={14} />
                   </Button>
                 </div>
@@ -3345,8 +3352,8 @@ function CourseWorkspaceUnlocked({
             role="dialog"
             aria-modal="true"
             aria-labelledby="checkout-identity-title"
-            className="w-full max-w-md border border-[#c9a34e]/70 bg-[#f7f3e8] p-6 text-[#16243d] shadow-2xl sm:p-8"
-          >
+              className="w-full max-w-md rounded-2xl border border-[#c9a34e]/70 bg-[#f7f3e8] p-6 text-[#16243d] shadow-2xl sm:p-8"
+            >
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="eyebrow text-[#5d4613]">
@@ -3502,7 +3509,7 @@ function CourseWorkspaceUnlocked({
             role="dialog"
             aria-modal="true"
             aria-labelledby="certificate-print-preview-title"
-            className="w-full max-w-5xl border border-[#c9a34e]/70 bg-[#16243d] p-4 text-[#f7f3e8] shadow-2xl sm:p-6"
+            className="w-full max-w-5xl rounded-2xl border border-[#c9a34e]/70 bg-[#16243d] p-4 text-[#f7f3e8] shadow-2xl sm:p-6"
           >
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -3523,7 +3530,7 @@ function CourseWorkspaceUnlocked({
               <button
                 type="button"
                 onClick={() => setCertificatePrintOpen(false)}
-                className="border border-white/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8]"
+                className="rounded-lg border border-white/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8] transition-colors hover:border-white/40"
               >
                 Close
               </button>
@@ -3575,7 +3582,7 @@ function CourseWorkspaceUnlocked({
             role="dialog"
             aria-modal="true"
             aria-labelledby="lesson-artwork-title"
-            className="w-full max-w-5xl border border-[#c9a34e]/70 bg-[#16243d] p-4 text-[#f7f3e8] shadow-2xl sm:p-6"
+            className="w-full max-w-5xl rounded-2xl border border-[#c9a34e]/70 bg-[#16243d] p-4 text-[#f7f3e8] shadow-2xl sm:p-6"
           >
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -3592,7 +3599,7 @@ function CourseWorkspaceUnlocked({
               <button
                 type="button"
                 onClick={() => setZoomedIllustration(null)}
-                className="border border-white/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8]"
+                className="rounded-lg border border-white/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8] transition-colors hover:border-white/40"
               >
                 Close
               </button>
@@ -3618,7 +3625,7 @@ function CourseWorkspaceUnlocked({
                     filename: `${course.slug}-${activeLesson?.id ?? "lesson"}-study-sheet.svg`,
                   })
                 }
-                className="inline-flex items-center gap-2 bg-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]"
+                className="inline-flex items-center gap-2 rounded-lg bg-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] shadow-sm transition-all hover:shadow-md"
               >
                 <Download size={14} /> Download SVG study sheet
               </button>
@@ -3634,14 +3641,14 @@ function CourseWorkspaceUnlocked({
                     filename: `${course.slug}-${activeLesson?.id ?? "lesson"}-study-sheet.svg`,
                   })
                 }
-                className="inline-flex items-center gap-2 border border-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8]"
+                className="inline-flex items-center gap-2 rounded-lg border border-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8] transition-all hover:shadow-sm"
               >
                 <Download size={14} /> Download PNG
               </button>
               <button
                 type="button"
                 onClick={() => setZoomedIllustration(null)}
-                className="border border-white/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8]"
+                className="rounded-lg border border-white/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8] transition-colors hover:border-white/40"
               >
                 Return to lesson
               </button>

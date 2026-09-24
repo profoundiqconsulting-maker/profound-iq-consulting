@@ -300,7 +300,7 @@ export default function Courses() {
                   if ("authorizationUrl" in payment && payment.authorizationUrl)
                     window.location.href = payment.authorizationUrl;
                   else if ("paid" in payment && payment.paid)
-                    window.location.href = `/courses/${selectedCourse.slug}?workspace=1`;
+                    window.history.pushState({}, "", `/courses/${selectedCourse.slug}?workspace=1`);
                   else
                     toast.error("Paystack did not return a checkout link", {
                       description: "Please try again shortly.",
@@ -313,7 +313,11 @@ export default function Courses() {
       );
       return;
     }
-    window.location.href = `/auth?mode=login&returnTo=${encodeURIComponent(`/courses/${selectedCourse.slug}?workspace=1`)}`;
+    window.history.pushState(
+      {},
+      "",
+      `/auth?mode=login&returnTo=${encodeURIComponent(`/courses/${selectedCourse.slug}?workspace=1`)}`
+    );
   };
   const syncComparison = (slugs: string[]) => {
     const next = slugs.slice(0, 3);
@@ -379,20 +383,21 @@ export default function Courses() {
     <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
       <TransformationNav active="courses" />
       <main>
-        <section className="bg-[#101d35] px-5 pb-20 pt-16 text-[#f7f3e8] sm:px-10 lg:pb-28 lg:pt-24">
-          <div className="container">
+        <section className="relative overflow-hidden bg-[#101d35] px-5 pb-20 pt-16 text-[#f7f3e8] sm:px-10 lg:pb-28 lg:pt-24">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#101d35]/95 via-[#16243d]/90 to-[#101d35]/95" />
+          <div className="relative container">
             <p className="eyebrow flex items-center gap-3 text-[#c9a34e]">
               <span className="h-px w-10 bg-[#c9a34e]" /> 01 / COURSE CATALOG
             </p>
             <div className="mt-7 grid gap-10 lg:grid-cols-[1fr_320px] lg:items-end">
-               <h1 className="display max-w-4xl heading-clamp-lg">
-                 Capability is built{" "}
-                 <em className="font-normal text-[#c9a34e]">in practice.</em>
-               </h1>
-               <p className="max-w-sm text-fluid-base leading-8 text-[#c1cad7]">
-                Professional learning for people who want insight to become a
-                repeatable way of working.
-              </p>
+                <h1 className="display max-w-4xl heading-clamp-lg">
+                  Capability is built{" "}
+                  <em className="font-normal text-[#c9a34e]">in practice.</em>
+                </h1>
+                <p className="max-w-sm text-fluid-base leading-8 text-[#c1cad7]">
+                 Professional learning for people who want insight to become a
+                 repeatable way of working.
+               </p>
             </div>
           </div>
         </section>
@@ -404,7 +409,7 @@ export default function Courses() {
                 Choose the next capability.
               </h2>
             </div>
-<p className="max-w-sm text-sm leading-6 text-[#4a566a]">
+            <p className="max-w-sm text-sm leading-6 text-[#4a566a]">
                 Every course includes an applied curriculum, interactive lessons,
                 repeatable practice, and a clear completion path.
               </p>
@@ -427,7 +432,7 @@ export default function Courses() {
               about your goals.
             </div>
           )}
-          <div className="mb-8 grid gap-3 border border-[#16243d]/15 bg-white/55 p-4 sm:grid-cols-[1fr_220px] sm:items-center">
+          <div className="mb-8 grid gap-3 rounded-xl border border-[#16243d]/15 bg-white/55 p-4 shadow-sm sm:grid-cols-[1fr_220px] sm:items-center">
             <label className="relative block">
               <Search
                 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7d5e1e]"
@@ -489,19 +494,19 @@ export default function Courses() {
                 Showing {filteredCourses.length} of {courses.length} courses
               </p>
               <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => setRecommendOpen(true)}
-                  className="inline-flex items-center gap-2 border border-[#c9a34e]/70 bg-[#fffaf0] px-3 py-2 font-black uppercase tracking-[.1em] text-[#7d5e1e]"
-                >
-                  <Sparkles size={14} /> Find my course
-                </button>
-                <button
-                  type="button"
-                  disabled={filteredCourses.length === 0}
-                  onClick={() => setComparisonOpen(true)}
-                  className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 font-black uppercase tracking-[.1em] text-[#7d5e1e] disabled:cursor-not-allowed disabled:opacity-40"
-                >
+              <button
+                type="button"
+                onClick={() => setRecommendOpen(true)}
+                className="inline-flex items-center gap-2 rounded-lg border border-[#c9a34e]/70 bg-[#fffaf0] px-3 py-2 font-black uppercase tracking-[.1em] text-[#7d5e1e] shadow-sm transition-all hover:shadow-md"
+              >
+                <Sparkles size={14} /> Find my course
+              </button>
+              <button
+                type="button"
+                disabled={filteredCourses.length === 0}
+                onClick={() => setComparisonOpen(true)}
+                className="inline-flex items-center gap-2 rounded-lg border border-[#16243d]/25 px-3 py-2 font-black uppercase tracking-[.1em] text-[#7d5e1e] transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40"
+              >
                   <ArrowDownUp size={14} /> Compare{" "}
                   {comparisonSlugs.length
                     ? `(${comparisonSlugs.length})`
@@ -534,35 +539,35 @@ export default function Courses() {
             {filteredCourses.map(course => (
               <article
                 key={course.slug}
-                className="border-t border-[#16243d]/20 py-7 transition-colors hover:border-[#c9a34e] lg:py-9"
+                className="group rounded-xl border border-[#16243d]/20 py-7 transition-all hover:border-[#c9a34e] hover:shadow-lg lg:py-9"
               >
                 <div className="grid gap-7 lg:grid-cols-[64px_1fr_190px] lg:items-start">
                   <span className="eyebrow text-[#7d5e1e]">{course.index}</span>
                   <div>
-                      <CourseCoverImage
-                        src={course.coverImage}
-                        alt=""
-                        loading="lazy"
-                        title={course.title}
-                        width={640}
-                        height={360}
-                        className="h-40 w-full object-cover"
-                      />
+                    <CourseCoverImage
+                      src={course.coverImage}
+                      alt=""
+                      loading="lazy"
+                      title={course.title}
+                      width={640}
+                      height={360}
+                      className="h-40 w-full rounded-lg object-cover shadow-sm transition-transform duration-300 group-hover:scale-[1.02]"
+                    />
                     <div className="flex flex-wrap items-baseline gap-3">
                       <h3 className="display text-3xl sm:text-4xl">
                         {course.title}
                       </h3>
-                      <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
+                      <span className="rounded-md bg-[#16243d]/5 px-2 py-1 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                         {course.format}
                       </span>
-                      <span className="border border-[#16243d]/20 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#4a566a]">
+                      <span className="rounded-md border border-[#16243d]/20 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#4a566a]">
                         {localizeCourseCategory(locale, course.category)}
                       </span>
-                      <span className="border border-[#c9a34e]/60 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
+                      <span className="rounded-md border border-[#c9a34e]/60 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                         {localizeCourseCategory(locale, course.skillLevel)}
                       </span>
                       {course.isDatabaseItem && (
-                        <span className="border border-[#c9a34e]/60 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
+                        <span className="rounded-md border border-[#c9a34e]/60 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                           New
                         </span>
                       )}
@@ -637,7 +642,7 @@ export default function Courses() {
                                 comparisonSlugs)
                         )
                       }
-                      className="inline-flex items-center gap-2 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] hover:border-[#c9a34e]"
+                      className="inline-flex items-center gap-2 rounded-lg border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] transition-all hover:border-[#c9a34e] hover:shadow-sm"
                       title="Add to course comparison"
                     >
                       <SlidersHorizontal size={13} />{" "}
@@ -647,10 +652,10 @@ export default function Courses() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setPreviewCourse(course)}
-                      className="mt-4 inline-flex items-center gap-2 border-b border-[#16243d]/25 pb-1 text-[10px] font-black uppercase tracking-[.12em] text-[#4a566a] hover:text-[#7d5e1e]"
+                      onClick={() => setPreviewCourse(null)}
+                      className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#16243d]/25 transition-colors hover:border-[#c9a34e]"
                     >
-                      <Eye size={13} /> Preview syllabus
+                      <X size={17} />
                     </button>
                     <p className="mt-5 display text-2xl">{course.price}</p>
                     <button
@@ -659,7 +664,7 @@ export default function Courses() {
                         setSelectedCourse(course);
                         setSubmitted(false);
                       }}
-                      className="mt-4 inline-flex items-center gap-2 border-b border-[#a27e2e] pb-1 text-[10px] font-black uppercase tracking-[.15em] text-[#7d5e1e]"
+                      className="mt-4 inline-flex items-center gap-2 border-b border-[#a27e2e] pb-1 text-[10px] font-black uppercase tracking-[.15em] text-[#7d5e1e] transition-colors hover:border-[#c9a34e]"
                     >
                       {"Enroll now"} <ArrowUpRight size={14} />
                     </button>
@@ -669,7 +674,7 @@ export default function Courses() {
                           ? `/courses/${course.slug}?workspace=1`
                           : "/#contact"
                       }
-                      className="mt-4 flex items-center justify-end gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#4a566a] hover:text-[#7d5e1e]"
+                      className="mt-4 flex items-center justify-end gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#4a566a] transition-colors hover:text-[#7d5e1e]"
                     >
                       {course.modules.length
                         ? "Open syllabus"
@@ -713,7 +718,7 @@ export default function Courses() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="recommendation-title"
-            className="max-h-[90vh] w-full max-w-3xl overflow-y-auto border border-[#c9a34e]/70 bg-[#f7f3e8] p-6 shadow-2xl sm:p-10"
+            className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-[#c9a34e]/70 bg-[#f7f3e8] p-6 shadow-2xl sm:p-10"
           >
             <div className="flex items-start justify-between gap-6">
               <div>
@@ -730,7 +735,7 @@ export default function Courses() {
                 type="button"
                 aria-label="Close course finder"
                 onClick={() => setRecommendOpen(false)}
-                className="grid h-9 w-9 place-items-center border border-[#16243d]/25"
+                className="grid h-9 w-9 place-items-center rounded-lg border border-[#16243d]/25 transition-colors hover:border-[#c9a34e]"
               >
                 <X size={17} />
               </button>
@@ -786,12 +791,12 @@ export default function Courses() {
                 </div>
                 <Compass className="text-[#c9a34e]" size={28} />
               </div>
-              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border border-[#16243d]/10 bg-white/60 p-4">
-                <p className="text-xs leading-5 text-[#4a566a]">
-                  Save these answers to personalize future suggestions in your
-                  workspace.
-                </p>
-                <button
+                <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border border-[#16243d]/10 bg-white/60 p-4 rounded-xl">
+                  <p className="text-xs leading-5 text-[#4a566a]">
+                    Save these answers to personalize future suggestions in your
+                    workspace.
+                  </p>
+                  <button
                   type="button"
                   disabled={saveRecommendationAnswers.isPending}
                   onClick={() => {
@@ -807,19 +812,19 @@ export default function Courses() {
                       skillLevel: currentLevel,
                     });
                   }}
-                  className="border border-[#c9a34e] px-3 py-2 text-[10px] font-black uppercase tracking-[.11em] text-[#7d5e1e] disabled:opacity-50"
-                >
-                  {saveRecommendationAnswers.isPending
-                    ? "Saving…"
-                    : "Save preferences"}
-                </button>
+                      className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#c9a34e] bg-[#fffaf0] px-4 py-3 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e] shadow-sm transition-all hover:shadow-md disabled:opacity-50"
+                    >
+                      {saveRecommendationAnswers.isPending
+                        ? "Saving…"
+                        : "Save preferences"}
+                    </button>
               </div>
-              <div className="mt-5 grid gap-3">
-                {recommendedCourses.map((course, index) => (
-                  <article
-                    key={course.slug}
-                    className="flex flex-col gap-4 border border-[#16243d]/15 bg-white/70 p-4 sm:flex-row sm:items-center"
-                  >
+                <div className="mt-5 grid gap-3">
+                  {recommendedCourses.map((course, index) => (
+                    <article
+                      key={course.slug}
+                      className="flex flex-col gap-4 rounded-xl border border-[#16243d]/15 bg-white/70 p-4 shadow-sm transition-all hover:shadow-md sm:flex-row sm:items-center"
+                    >
                     <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#16243d] text-xs font-black text-[#f7f3e8]">
                       0{index + 1}
                     </span>
@@ -837,7 +842,7 @@ export default function Courses() {
                         setPreviewCourse(course);
                         setRecommendOpen(false);
                       }}
-                      className="inline-flex shrink-0 items-center gap-2 border-b border-[#a27e2e] pb-1 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e]"
+                      className="inline-flex shrink-0 items-center gap-2 rounded-lg border-b border-[#a27e2e] pb-1 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e] transition-colors hover:border-[#c9a34e]"
                     >
                       Preview <Eye size={13} />
                     </button>
@@ -860,7 +865,7 @@ export default function Courses() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="syllabus-preview-title"
-            className="max-h-[90vh] w-full max-w-4xl overflow-y-auto border border-[#c9a34e]/70 bg-[#f7f3e8] shadow-2xl"
+            className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-[#c9a34e]/70 bg-[#f7f3e8] shadow-2xl"
           >
             <CourseCoverImage
               src={previewCourse.coverImage}
@@ -936,28 +941,28 @@ export default function Courses() {
                   <div className="mt-7 flex flex-col gap-3">
                     <button
                       type="button"
-                      disabled={toggleSavedCourse.isPending}
-                      onClick={() => {
-                        if (!isAuthenticated) {
-                          toast.info("Sign in to save courses", {
-                            description:
-                              "Create a workspace to revisit this pathway later.",
-                          });
-                          return;
-                        }
-                        toggleSavedCourse.mutate({
-                          courseSlug: previewCourse.slug,
-                          saved: true,
-                        });
-                      }}
-                      className="inline-flex items-center justify-center gap-2 border border-[#c9a34e] bg-[#fffaf0] px-4 py-3 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e] disabled:opacity-50"
-                    >
+                disabled={toggleSavedCourse.isPending}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    toast.info("Sign in to save courses", {
+                      description:
+                        "Create a workspace to revisit this pathway later.",
+                    });
+                    return;
+                  }
+                  toggleSavedCourse.mutate({
+                    courseSlug: previewCourse.slug,
+                    saved: true,
+                  });
+                }}
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#c9a34e] bg-[#fffaf0] px-4 py-3 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e] shadow-sm transition-all hover:shadow-md disabled:opacity-50"
+              >
                       {toggleSavedCourse.isPending ? "Saving…" : "Save course"}
                     </button>
                     <Link
                       href={`/courses/${previewCourse.slug}?workspace=1`}
                       onClick={() => setPreviewCourse(null)}
-                      className="inline-flex items-center justify-center gap-2 border border-[#16243d]/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e]"
+                      className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#16243d]/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e] transition-all hover:shadow-sm"
                     >
                       Open full syllabus <ChevronRight size={14} />
                     </Link>
@@ -968,7 +973,7 @@ export default function Courses() {
                         setPreviewCourse(null);
                         setSubmitted(false);
                       }}
-                      className="inline-flex items-center justify-center gap-2 bg-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.13em] text-[#16243d]"
+                      className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.13em] text-[#16243d] shadow-sm transition-all hover:shadow-md"
                     >
                       {"Enroll now"} <ArrowUpRight size={14} />
                     </button>
@@ -991,7 +996,7 @@ export default function Courses() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="course-comparison-title"
-            className="max-h-[90vh] w-full max-w-6xl overflow-y-auto border border-[#c9a34e]/70 bg-[#f7f3e8] p-6 shadow-2xl sm:p-10"
+            className="max-h-[90vh] w-full max-w-6xl overflow-y-auto rounded-2xl border border-[#c9a34e]/70 bg-[#f7f3e8] p-6 shadow-2xl sm:p-10"
           >
             <div className="flex items-start justify-between gap-6">
               <div>
@@ -1011,7 +1016,7 @@ export default function Courses() {
                 <button
                   type="button"
                   onClick={() => void shareComparison()}
-                  className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.11em] text-[#7d5e1e]"
+                  className="inline-flex items-center gap-2 rounded-lg border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.11em] text-[#7d5e1e] transition-all hover:shadow-sm"
                 >
                   <Copy size={14} /> Copy link
                 </button>
@@ -1019,7 +1024,7 @@ export default function Courses() {
                   type="button"
                   aria-label="Close course comparison"
                   onClick={() => setComparisonOpen(false)}
-                  className="grid h-9 w-9 items-center justify-center border border-[#16243d]/25"
+                  className="grid h-9 w-9 items-center justify-center rounded-lg border border-[#16243d]/25 transition-colors hover:border-[#c9a34e]"
                 >
                   <X size={17} />
                 </button>
@@ -1037,7 +1042,7 @@ export default function Courses() {
                   .map(course => (
                     <article
                       key={course.slug}
-                      className="border border-[#16243d]/15 bg-white/65 p-5"
+                      className="border border-[#16243d]/15 bg-white/65 p-5 rounded-xl"
                     >
                       <CourseCoverImage
                         src={course.coverImage}
@@ -1058,9 +1063,9 @@ export default function Courses() {
                               )
                             )
                           }
-                          aria-label={`Remove ${course.title} from comparison`}
-                          className="text-[#4a566a] hover:text-[#7d5e1e]"
-                        >
+                  aria-label={`Remove ${course.title} from comparison`}
+                  className="text-[#4a566a] transition-colors hover:text-[#7d5e1e]"
+                >
                           <X size={15} />
                         </button>
                       </div>
@@ -1136,7 +1141,7 @@ export default function Courses() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="course-enrollment-title"
-            className="max-h-[92vh] w-full max-w-xl overflow-y-auto border border-[#c9a34e]/70 bg-[#f7f3e8] p-7 shadow-2xl sm:p-10"
+            className="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-[#c9a34e]/70 bg-[#f7f3e8] p-7 shadow-2xl sm:p-10"
           >
             <div className="flex items-start justify-between gap-6">
               <div>
@@ -1150,14 +1155,14 @@ export default function Courses() {
                   {enrollmentCopy.reserveYourPlace}
                 </h2>
               </div>
-              <button
-                type="button"
-                aria-label={enrollmentCopy.close + " enrollment form"}
-                onClick={() => setSelectedCourse(null)}
-                className="grid h-9 w-9 place-items-center border border-[#16243d]/25"
-              >
-                <X size={17} />
-              </button>
+                <button
+                  type="button"
+                  aria-label={enrollmentCopy.close + " enrollment form"}
+                  onClick={() => setSelectedCourse(null)}
+                  className="grid h-9 w-9 place-items-center rounded-lg border border-[#16243d]/25 transition-colors hover:border-[#c9a34e]"
+                >
+                  <X size={17} />
+                </button>
             </div>
             {submitted ? (
               <div
@@ -1214,7 +1219,7 @@ export default function Courses() {
                         ) ?? selectedCourse
                       )
                     }
-                     className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent py-3 text-base font-semibold outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
+                     className="mt-3 w-full rounded-lg border-b border-[#16243d]/35 bg-transparent py-3 text-base font-semibold outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
                    >
                     <option value={selectedCourse.title}>
                       {selectedCourse.title} — {selectedCourse.price}
@@ -1235,20 +1240,20 @@ export default function Courses() {
                      name="name"
                      autoComplete="name"
                      defaultValue={user?.name ?? ""}
-                     className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent py-3 text-base outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
+                     className="mt-3 w-full rounded-lg border-b border-[#16243d]/35 bg-transparent py-3 text-base outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
                    />
-                </label>
-                <label className="mt-7 block text-xs font-black uppercase tracking-[.14em]">
-                  {enrollmentCopy.emailAddress}
-                   <input
-                     required
-                     type="email"
-                     name="email"
-                     autoComplete="email"
-                     defaultValue={user?.email ?? ""}
-                     className="mt-3 w-full border-b border-[#16243d]/35 bg-transparent py-3 text-base outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
-                   />
-                </label>
+                 </label>
+                 <label className="mt-7 block text-xs font-black uppercase tracking-[.14em]">
+                   {enrollmentCopy.emailAddress}
+                    <input
+                      required
+                      type="email"
+                      name="email"
+                      autoComplete="email"
+                      defaultValue={user?.email ?? ""}
+                      className="mt-3 w-full rounded-lg border-b border-[#16243d]/35 bg-transparent py-3 text-base outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
+                    />
+                 </label>
                 <div className="mt-6 border border-[#c9a34e]/40 bg-[#fffaf0] p-4">
                   <p className="text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e]">
                     What happens next
@@ -1272,7 +1277,7 @@ export default function Courses() {
                     courseEnrollment.isPending ||
                     stageCheckout.isPending
                   }
-                  className="mt-7 inline-flex items-center gap-2 bg-[#c9a34e] px-5 py-4 text-[10px] font-black uppercase tracking-[.15em] text-[#16243d] disabled:opacity-60"
+                  className="mt-7 inline-flex items-center gap-2 rounded-lg bg-[#c9a34e] px-5 py-4 text-[10px] font-black uppercase tracking-[.15em] text-[#16243d] shadow-sm transition-all hover:shadow-md disabled:cursor-wait disabled:opacity-60"
                 >
                   {enrollment.isPending ||
                   courseEnrollment.isPending ||
