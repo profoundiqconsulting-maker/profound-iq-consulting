@@ -28,7 +28,10 @@ function noCacheHtmlMiddleware(
 export async function setupVite(app: Express, server: Server) {
   const { createServer: createViteServer } = await import("vite");
   const viteConfigPath = "../../vite.config";
-  const { default: viteConfig } = await import(viteConfigPath);
+  const viteConfigModule = await import(viteConfigPath);
+  const viteConfig = typeof viteConfigModule.default === "function"
+    ? viteConfigModule.default({ mode: "development" })
+    : viteConfigModule.default;
 
   const serverOptions = {
     middlewareMode: true,

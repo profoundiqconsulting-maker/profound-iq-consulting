@@ -99,6 +99,8 @@ export default function Courses() {
   const [careerGoal, setCareerGoal] = useState("ai");
   const [currentLevel, setCurrentLevel] =
     useState<CourseCard["skillLevel"]>("Foundation");
+  const [activeTab, setActiveTab] = useState<string>("All");
+  const [visibleCount, setVisibleCount] = useState(6);
   
   const { user, isAuthenticated } = useAuth();
   const locale = "en";
@@ -224,18 +226,32 @@ export default function Courses() {
     ],
     [courses]
   );
+  const tabCategories = useMemo(
+    () => [
+      "All categories",
+      ...Array.from(
+        new Set(
+          courses
+            .map(courseCategory)
+            .map(value => localizeCourseCategory(locale, value))
+        )
+      ),
+    ],
+    [courses, locale]
+  );
   const filteredCourses = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
+    const selectedCategory =
+      activeTab === "All categories" ? category : activeTab;
     const result = courses.filter(
       course =>
         (!query ||
           `${course.title} ${course.strapline} ${course.description} ${course.outcomes.join(" ")} ${course.category} ${course.skillLevel}`
             .toLowerCase()
             .includes(query)) &&
-        (category === "All categories" ||
-          category === "All categories" ||
+        (selectedCategory === "All categories" ||
           localizeCourseCategory(locale, courseCategory(course)) ===
-            category) &&
+            selectedCategory) &&
         (skillLevel === "All levels" || course.skillLevel === skillLevel)
     );
     return [...result].sort((a, b) =>
@@ -249,7 +265,7 @@ export default function Courses() {
               ["Foundation", "Practitioner", "Advanced"].indexOf(b.skillLevel)
             : Number(a.index) - Number(b.index)
     );
-  }, [category, courses, searchTerm, locale, skillLevel, sortBy]);
+  }, [activeTab, category, courses, searchTerm, locale, skillLevel, sortBy]);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const shared = (params.get("compare") ?? "")
@@ -266,6 +282,14 @@ export default function Courses() {
       window.history.replaceState({}, "", "/courses");
     }
   }, [courses, selectedCourse]);
+  useEffect(() => {
+    if (activeTab === "All categories") return;
+    const localized = localizeCourseCategory(locale, activeTab);
+    if (localized !== category) setCategory(localized);
+  }, [activeTab, category, locale]);
+  useEffect(() => {
+    setVisibleCount(6);
+  }, [activeTab, category, searchTerm, skillLevel, sortBy]);
   useEffect(() => {
     if (!selectedCourse) return;
     const close = (event: KeyboardEvent) => {
@@ -432,6 +456,22 @@ export default function Courses() {
               about your goals.
             </div>
           )}
+          <div className="mb-6 flex gap-2 overflow-x-auto border-b border-[#16243d]/15 pb-0">
+            {tabCategories.map(item => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setActiveTab(item)}
+                className={`whitespace-nowrap border-b-2 px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] transition-all ${
+                  activeTab === item
+                    ? "border-[#c9a34e] text-[#16243d]"
+                    : "border-transparent text-[#4a566a] hover:text-[#16243d]"
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
           <div className="mb-8 grid gap-3 rounded-xl border border-[#16243d]/15 bg-white/55 p-4 shadow-sm sm:grid-cols-[1fr_220px] sm:items-center">
             <label className="relative block">
               <Search
@@ -491,7 +531,9 @@ export default function Courses() {
             </label>
             <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[#4a566a] sm:col-span-2">
               <p>
-                Showing {filteredCourses.length} of {courses.length} courses
+                {filteredCourses.length === courses.length
+                  ? `Showing all ${courses.length} courses`
+                  : `Showing ${filteredCourses.length} of ${courses.length} courses in ${activeTab === "All categories" ? "all categories" : activeTab}`}
               </p>
               <div className="flex flex-wrap gap-2">
               <button
@@ -536,7 +578,7 @@ export default function Courses() {
               </div>
             )}
           <div className="space-y-5">
-            {filteredCourses.map(course => (
+            {filteredCourses.slice(0, visibleCount).map(course => (
               <article
                 key={course.slug}
                 className="group rounded-xl border border-[#16243d]/20 py-7 transition-all hover:border-[#c9a34e] hover:shadow-lg lg:py-9"
@@ -686,6 +728,17 @@ export default function Courses() {
               </article>
             ))}
           </div>
+          {visibleCount < filteredCourses.length && (
+            <div className="mt-8 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setVisibleCount(prev => prev + 6)}
+                className="inline-flex items-center gap-2 rounded-lg border border-[#16243d]/25 px-5 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition-all hover:shadow-sm"
+              >
+                Load more <ArrowDownUp size={14} />
+              </button>
+            </div>
+          )}
         </section>
         <section className="section-py bg-[#16243d] px-5 text-[#f7f3e8] sm:px-10">
           <div className="container flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
