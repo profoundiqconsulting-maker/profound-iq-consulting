@@ -26,37 +26,6 @@ import CareerPath from "./pages/CareerPath";
 import Psychometrics from "./pages/Psychometrics";
 import CourseComparison from "./pages/CourseComparison";
 import CoursePaymentSuccess from "./pages/CoursePaymentSuccess";
-import CohortManagement from "./pages/CohortManagement";
-import AdminUsers from "./pages/AdminUsers";
-import AdminInquiries from "./pages/AdminInquiries";
-import AdminCertificates from "./pages/AdminCertificates";
-import AdminDashboard from "./pages/AdminDashboard";
-import AdminOverview from "./pages/admin/AdminOverview";
-import AdminOperations from "./pages/admin/AdminOperations";
-import AdminRevenue from "./pages/admin/AdminRevenue";
-import AdminIntelligence from "./pages/admin/AdminIntelligence";
-import AdminPsychometrics from "./pages/admin/AdminPsychometrics";
-import AdminInbox from "./pages/admin/AdminInbox";
-import AdminSystem from "./pages/admin/AdminSystem";
-import AdminStaff from "./pages/admin/AdminStaff";
-import AdminCommunications from "./pages/admin/AdminCommunications";
-import AdminSurveys from "./pages/admin/AdminSurveys";
-import AdminSecurity from "./pages/admin/AdminSecurity";
-import AdminOrganization from "./pages/admin/AdminOrganization";
-import AdminResources from "./pages/admin/AdminResources";
-import AdminReports from "./pages/admin/AdminReports";
-import StaffDashboard from "./pages/StaffDashboard";
-import SavedPathwaysPrint from "./pages/SavedPathwaysPrint";
-import UserDashboard from "./pages/UserDashboard";
-import DashboardAssessment from "./pages/DashboardAssessment";
-import DashboardCareerPath from "./pages/DashboardCareerPath";
-import DashboardPsychometrics from "./pages/DashboardPsychometrics";
-import DashboardEnrolledCourses from "./pages/DashboardEnrolledCourses";
-import DashboardMyWorkspaces from "./pages/DashboardMyWorkspaces";
-import MyCertificates from "./pages/MyCertificates";
-import MyIllustrations from "./pages/MyIllustrations";
-import Settings from "./pages/Settings";
-import CommunicationInbox from "./pages/CommunicationInbox";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import SharedReport from "./pages/SharedReport";
@@ -68,8 +37,39 @@ import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
 import NewsletterAction from "./pages/NewsletterAction";
 
-import CourseWorkspace from "./pages/CourseWorkspace";
 const Courses = lazy(() => import("./pages/Courses"));
+const CourseWorkspace = lazy(() => import("./pages/CourseWorkspace"));
+const CohortManagement = lazy(() => import("./pages/CohortManagement"));
+const AdminUsers = lazy(() => import("./pages/AdminUsers"));
+const AdminInquiries = lazy(() => import("./pages/AdminInquiries"));
+const AdminCertificates = lazy(() => import("./pages/AdminCertificates"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
+const AdminOperations = lazy(() => import("./pages/admin/AdminOperations"));
+const AdminRevenue = lazy(() => import("./pages/admin/AdminRevenue"));
+const AdminIntelligence = lazy(() => import("./pages/admin/AdminIntelligence"));
+const AdminPsychometrics = lazy(() => import("./pages/admin/AdminPsychometrics"));
+const AdminInbox = lazy(() => import("./pages/admin/AdminInbox"));
+const AdminSystem = lazy(() => import("./pages/admin/AdminSystem"));
+const AdminStaff = lazy(() => import("./pages/admin/AdminStaff"));
+const AdminCommunications = lazy(() => import("./pages/admin/AdminCommunications"));
+const AdminSurveys = lazy(() => import("./pages/admin/AdminSurveys"));
+const AdminSecurity = lazy(() => import("./pages/admin/AdminSecurity"));
+const AdminOrganization = lazy(() => import("./pages/admin/AdminOrganization"));
+const AdminResources = lazy(() => import("./pages/admin/AdminResources"));
+const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
+const StaffDashboard = lazy(() => import("./pages/StaffDashboard"));
+const SavedPathwaysPrint = lazy(() => import("./pages/SavedPathwaysPrint"));
+const UserDashboard = lazy(() => import("./pages/UserDashboard"));
+const DashboardAssessment = lazy(() => import("./pages/DashboardAssessment"));
+const DashboardCareerPath = lazy(() => import("./pages/DashboardCareerPath"));
+const DashboardPsychometrics = lazy(() => import("./pages/DashboardPsychometrics"));
+const DashboardEnrolledCourses = lazy(() => import("./pages/DashboardEnrolledCourses"));
+const DashboardMyWorkspaces = lazy(() => import("./pages/DashboardMyWorkspaces"));
+const MyCertificates = lazy(() => import("./pages/MyCertificates"));
+const MyIllustrations = lazy(() => import("./pages/MyIllustrations"));
+const Settings = lazy(() => import("./pages/Settings"));
+const CommunicationInbox = lazy(() => import("./pages/CommunicationInbox"));
 
 function MySpace() {
   const [, navigate] = useLocation();
@@ -186,27 +186,97 @@ function Router() {
         )}
       />
       <Route path="/admin/cohorts" component={() => (
-        <AdminRouteGuard>
-          <CohortManagement />
-        </AdminRouteGuard>
+        <Suspense fallback={<RouteLoading />}>
+          <AdminRouteGuard>
+            <CohortManagement />
+          </AdminRouteGuard>
+        </Suspense>
       )} />
-      <Route path="/admin/users" component={AdminUsers} />
-      <Route path="/admin/inquiries" component={AdminInquiries} />
-      <Route path="/admin/certificates" component={AdminCertificates} />
-      <Route path="/admin/overview" component={AdminOverview} />
-      <Route path="/admin/operations" component={AdminOperations} />
-      <Route path="/admin/revenue" component={AdminRevenue} />
-      <Route path="/admin/intelligence" component={AdminIntelligence} />
-      <Route path="/admin/psychometrics" component={AdminPsychometrics} />
-      <Route path="/admin/inbox" component={AdminInbox} />
-      <Route path="/admin/system" component={AdminSystem} />
-      <Route path="/admin/staff" component={AdminStaff} />
-      <Route path="/admin/communications" component={AdminCommunications} />
-      <Route path="/admin/surveys" component={AdminSurveys} />
-      <Route path="/admin/security" component={AdminSecurity} />
-      <Route path="/admin/organization" component={AdminOrganization} />
-      <Route path="/admin/resources" component={AdminResources} />
-      <Route path="/admin/reports" component={AdminReports} />
+      <Route path="/admin/users" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <AdminUsers />
+        </Suspense>
+      )} />
+      <Route path="/admin/inquiries" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <AdminInquiries />
+        </Suspense>
+      )} />
+      <Route path="/admin/certificates" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <AdminCertificates />
+        </Suspense>
+      )} />
+      <Route path="/admin/overview" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <AdminOverview />
+        </Suspense>
+      )} />
+      <Route path="/admin/operations" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <AdminOperations />
+        </Suspense>
+      )} />
+      <Route path="/admin/revenue" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <AdminRevenue />
+        </Suspense>
+      )} />
+      <Route path="/admin/intelligence" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <AdminIntelligence />
+        </Suspense>
+      )} />
+      <Route path="/admin/psychometrics" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <AdminPsychometrics />
+        </Suspense>
+      )} />
+      <Route path="/admin/inbox" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <AdminInbox />
+        </Suspense>
+      )} />
+      <Route path="/admin/system" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <AdminSystem />
+        </Suspense>
+      )} />
+      <Route path="/admin/staff" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <AdminStaff />
+        </Suspense>
+      )} />
+      <Route path="/admin/communications" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <AdminCommunications />
+        </Suspense>
+      )} />
+      <Route path="/admin/surveys" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <AdminSurveys />
+        </Suspense>
+      )} />
+      <Route path="/admin/security" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <AdminSecurity />
+        </Suspense>
+      )} />
+      <Route path="/admin/organization" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <AdminOrganization />
+        </Suspense>
+      )} />
+      <Route path="/admin/resources" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <AdminResources />
+        </Suspense>
+      )} />
+      <Route path="/admin/reports" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <AdminReports />
+        </Suspense>
+      )} />
       <Route
         path="/admin"
         component={() => {
@@ -214,25 +284,81 @@ function Router() {
           return null;
         }}
       />
-      <Route path="/staff" component={() => <StaffDashboard />} />
-      <Route path="/staff/inquiries" component={() => <StaffDashboard defaultTab="inquiries" />} />
-      <Route path="/staff/reviews" component={() => <StaffDashboard defaultTab="review" />} />
+      <Route path="/staff" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <StaffDashboard />
+        </Suspense>
+      )} />
+      <Route path="/staff/inquiries" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <StaffDashboard defaultTab="inquiries" />
+        </Suspense>
+      )} />
+      <Route path="/staff/reviews" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <StaffDashboard defaultTab="review" />
+        </Suspense>
+      )} />
       <Route
         path="/dashboard/print-pathways"
-        component={SavedPathwaysPrint}
+        component={() => (
+          <Suspense fallback={<RouteLoading />}>
+            <SavedPathwaysPrint />
+          </Suspense>
+        )}
       />
       <Route path="/dashboard" component={RoleBasedRedirect} />
-      <Route path="/dashboard/overview" component={UserDashboard} />
-      <Route path="/dashboard/assessment" component={DashboardAssessment} />
-      <Route path="/dashboard/careerpath" component={DashboardCareerPath} />
-      <Route path="/dashboard/psychometrics" component={DashboardPsychometrics} />
-      <Route path="/dashboard/certificates" component={MyCertificates} />
-      <Route path="/dashboard/settings" component={Settings} />
-      <Route path="/dashboard/communication" component={CommunicationInbox} />
-      <Route path="/dashboard/enrolled-courses" component={DashboardEnrolledCourses} />
-      <Route path="/dashboard/my-workspaces" component={DashboardMyWorkspaces} />
+      <Route path="/dashboard/overview" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <UserDashboard />
+        </Suspense>
+      )} />
+      <Route path="/dashboard/assessment" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <DashboardAssessment />
+        </Suspense>
+      )} />
+      <Route path="/dashboard/careerpath" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <DashboardCareerPath />
+        </Suspense>
+      )} />
+      <Route path="/dashboard/psychometrics" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <DashboardPsychometrics />
+        </Suspense>
+      )} />
+      <Route path="/dashboard/certificates" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <MyCertificates />
+        </Suspense>
+      )} />
+      <Route path="/dashboard/settings" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <Settings />
+        </Suspense>
+      )} />
+      <Route path="/dashboard/communication" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <CommunicationInbox />
+        </Suspense>
+      )} />
+      <Route path="/dashboard/enrolled-courses" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <DashboardEnrolledCourses />
+        </Suspense>
+      )} />
+      <Route path="/dashboard/my-workspaces" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <DashboardMyWorkspaces />
+        </Suspense>
+      )} />
       <Route path="/myspace" component={MySpace} />
-      <Route path="/my-illustrations" component={MyIllustrations} />
+      <Route path="/my-illustrations" component={() => (
+        <Suspense fallback={<RouteLoading />}>
+          <MyIllustrations />
+        </Suspense>
+      )} />
       <Route
         path="/settings"
         component={() => {
