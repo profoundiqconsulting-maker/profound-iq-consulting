@@ -109,7 +109,7 @@ export default function About() {
           <div className="mt-12 grid gap-4 md:grid-cols-3 sm:mt-16">
             {audiences.map(({ title, body, icon: Icon }, index) => (
               <ScrollReveal key={title} delay={index * 70}>
-                <article className="public-card-link group border border-[#c9a34e]/30 bg-[#1b3152]/60 p-8 backdrop-blur-sm transition-all duration-200 hover:-translate-y-1 hover:border-[#c9a34e] hover:bg-[#254263]">
+                <article className="public-card-link group border border-[#c9a34e]/30 bg-[#1b3152]/60 p-8 transition-all duration-200 hover:border-[#c9a34e] hover:bg-[#254263]">
                   <div className="inline-flex h-12 w-12 items-center justify-center rounded bg-[#c9a34e]/15">
                     <Icon size={22} className="text-[#c9a34e]" />
                   </div>
@@ -172,7 +172,7 @@ export default function About() {
           </div>
           <Link
             href="/contact"
-            className="inline-flex shrink-0 items-center justify-center gap-3 bg-[#16243d] px-6 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition-all hover:-translate-y-1 hover:shadow-lg"
+            className="inline-flex shrink-0 items-center justify-center gap-3 bg-[#16243d] px-6 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition-all hover:shadow-lg"
           >
             Talk to our consultants <ArrowUpRight size={15} />
           </Link>

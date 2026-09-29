@@ -166,7 +166,7 @@ export function PublicPageShell({
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Profound IQ Consulting on Facebook"
-                className="inline-flex h-10 w-10 items-center justify-center border border-white/15 text-[#c1cad7] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#1877F2] hover:bg-[#1877F2] hover:text-white"
+                className="inline-flex h-10 w-10 items-center justify-center border border-white/15 text-[#c1cad7] transition-all duration-200 hover:border-[#1877F2] hover:bg-[#1877F2] hover:text-white"
               >
                 <Facebook size={17} />
               </a>
@@ -175,7 +175,7 @@ export function PublicPageShell({
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Profound IQ Consulting on X"
-                className="inline-flex h-10 w-10 items-center justify-center border border-white/15 text-[#c1cad7] transition-all duration-200 hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-[#101d35]"
+                className="inline-flex h-10 w-10 items-center justify-center border border-white/15 text-[#c1cad7] transition-all duration-200 hover:border-white hover:bg-white hover:text-[#101d35]"
               >
                 <X size={17} />
               </a>
@@ -184,7 +184,7 @@ export function PublicPageShell({
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Profound IQ Consulting on LinkedIn"
-                className="inline-flex h-10 w-10 items-center justify-center border border-white/15 text-[#c1cad7] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#0A66C2] hover:bg-[#0A66C2] hover:text-white"
+                className="inline-flex h-10 w-10 items-center justify-center border border-white/15 text-[#c1cad7] transition-all duration-200 hover:border-[#0A66C2] hover:bg-[#0A66C2] hover:text-white"
               >
                 <Linkedin size={17} />
               </a>
@@ -193,7 +193,7 @@ export function PublicPageShell({
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Profound IQ Consulting on Instagram"
-                className="inline-flex h-10 w-10 items-center justify-center border border-white/15 text-[#c1cad7] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#E4405F] hover:bg-[#E4405F] hover:text-white"
+                className="inline-flex h-10 w-10 items-center justify-center border border-white/15 text-[#c1cad7] transition-all duration-200 hover:border-[#E4405F] hover:bg-[#E4405F] hover:text-white"
               >
                 <Instagram size={17} />
               </a>
@@ -202,7 +202,7 @@ export function PublicPageShell({
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Chat with Profound IQ Consulting on WhatsApp"
-                className="inline-flex h-10 w-10 items-center justify-center border border-[#25D366]/60 text-[#d9fbe5] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#25D366] hover:bg-[#25D366]/10"
+                className="inline-flex h-10 w-10 items-center justify-center border border-[#25D366]/60 text-[#d9fbe5] transition-all duration-200 hover:border-[#25D366] hover:bg-[#25D366]/10"
               >
                 <MessageCircle size={17} />
               </a>

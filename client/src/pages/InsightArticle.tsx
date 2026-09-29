@@ -146,13 +146,13 @@ export default function InsightArticle() {
             <div className="mt-14 flex flex-wrap gap-4 border-t border-[#16243d]/10 pt-9">
               <Link
                 href="/contact"
-                className="inline-flex min-h-12 items-center justify-center gap-3 bg-[#16243d] px-6 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition-all hover:-translate-y-1 hover:shadow-lg"
+                className="inline-flex min-h-12 items-center justify-center gap-3 bg-[#16243d] px-6 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition-all hover:shadow-lg"
               >
                 Discuss this topic <ArrowUpRight size={15} />
               </Link>
               <Link
                 href="/courses"
-                className="inline-flex min-h-12 items-center justify-center gap-3 border border-[#16243d]/20 px-6 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-all hover:-translate-y-1 hover:border-[#c9a34e] hover:text-[#7d5e1e]"
+                className="inline-flex min-h-12 items-center justify-center gap-3 border border-[#16243d]/20 px-6 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-all hover:border-[#c9a34e] hover:text-[#7d5e1e]"
               >
                 Explore courses <ArrowUpRight size={15} />
               </Link>

@@ -355,7 +355,7 @@ export default function DashboardEnrolledCourses() {
                 return (
                   <Card
                     key={record.enrollment.id}
-                    className={`overflow-hidden border transition-all duration-200 hover:shadow-lg hover:-translate-y-1 focus-within:shadow-lg ${
+                    className={`overflow-hidden border transition-all duration-200 hover:shadow-lg focus-within:shadow-lg ${
                       status === "completed"
                         ? "border-emerald-200 bg-emerald-50/50"
                         : status === "expired"
@@ -364,14 +364,13 @@ export default function DashboardEnrolledCourses() {
                     }`}
                   >
                     <div className="relative h-36 overflow-hidden bg-gradient-to-br from-[#16243d] to-[#101d35]">
-                      {course.coverImage && (
-                        <CourseCoverImage
-                          src={course.coverImage}
-                          alt={course.title}
-                          title={course.title}
-                          className="h-full w-full object-cover opacity-80 transition-transform duration-300 group-hover:scale-105"
-                        />
-                      )}
+                      <CourseCoverImage
+                        src={course.coverImage}
+                        slug={course.slug}
+                        alt={course.title}
+                        title={course.title}
+                        className="h-full w-full object-cover opacity-80"
+                      />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                       <div className="absolute bottom-3 left-4 right-4">
                         <p className="text-[9px] font-black uppercase tracking-[.14em] text-accent-on-dark dark:text-gold-on-light">
@@ -539,7 +538,7 @@ export default function DashboardEnrolledCourses() {
           description="Start your first professional course to see it here."
         >
           <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#f7f3e8] dark:bg-[#16243d] transition-transform hover:scale-110">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#f7f3e8] dark:bg-[#16243d] transition-shadow hover:shadow-md">
               <BookOpen size={28} className="text-muted-foreground" />
             </div>
             <p className="text-sm text-foreground max-w-sm">

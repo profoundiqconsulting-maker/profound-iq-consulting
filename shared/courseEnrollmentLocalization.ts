@@ -36,6 +36,3 @@ export const courseEnrollmentCopy: CourseEnrollmentCopy = {
   yourPlaceReady: "Your place is ready for checkout.",
 };
 
-export function getCourseEnrollmentCopy(_locale?: string): CourseEnrollmentCopy {
-  return courseEnrollmentCopy;
-}

@@ -25,6 +25,25 @@ function noCacheHtmlMiddleware(
   next();
 }
 
+/**
+ * Locate the Astro static output. The production bundle runs from `dist/`, while
+ * the dev server runs from `server/_core/`, so both roots are probed.
+ */
+function resolveAstroDist() {
+  const candidates = [
+    path.resolve(import.meta.dirname, "astro"),
+    path.resolve(import.meta.dirname, "../..", "dist", "astro"),
+  ];
+  return candidates.find(candidate => fs.existsSync(candidate)) ?? null;
+}
+
+function serveAstroRoutes(app: Express) {
+  const astroPath = resolveAstroDist();
+  if (!astroPath) return;
+  app.use(express.static(astroPath, { extensions: ["html"] }));
+}
+
+
 export async function setupVite(app: Express, server: Server) {
   const { createServer: createViteServer } = await import("vite");
   const viteConfigPath = "../../vite.config";
@@ -49,6 +68,9 @@ export async function setupVite(app: Express, server: Server) {
   // Install no-cache headers for HTML before any other middleware
   app.use(noCacheHtmlMiddleware);
   app.use(vite.middlewares);
+  // Astro owns the statically rendered routes that sit outside the client
+  // router, so they must resolve before the SPA shell claims them.
+  serveAstroRoutes(app);
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
 
@@ -96,6 +118,10 @@ export function serveStatic(app: Express) {
 
   // Install no-cache headers for HTML before serving static files
   app.use(noCacheHtmlMiddleware);
+
+  // Astro owns the statically rendered routes that sit outside the client
+  // router, so they are served before the SPA bundle claims them.
+  serveAstroRoutes(app);
 
   // Serve static assets with appropriate cache headers
   // - Hashed assets (with hash in filename) get long-term caching

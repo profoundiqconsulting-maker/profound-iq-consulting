@@ -341,15 +341,18 @@ storageGetSignedUrl(relKey, expirationSeconds); // Returns presigned URL
 
 ### ⚠️ Limitations (Manus Platform Features Stubbed Out)
 
-1. **Data API, Image Generation, LLM, Maps, Voice Transcription, Notifications**
-   - These files still reference `ENV.forgeApiUrl` and `ENV.forgeApiKey`
-   - Added backward-compatibility env vars, but these features won't work without Manus platform
-   - Solution: Either (a) remove these features, (b) replace with alternative APIs, (c) stub with placeholder implementations
+1. **LLM-backed features** (now provider-neutral)
+   - `server/_core/llm.ts` calls `${ENV.llmApiUrl}/v1/<path>` using `ENV.llmApiKey`
+   - Set `LLM_API_URL` and `LLM_API_KEY` for any OpenAI-compatible provider
+   - Unused Manus-only helpers (Data API, Image Generation, Maps, Voice
+     Transcription, Notifications) were deleted rather than stubbed
 
 2. **Scheduled Tasks (Cron Jobs)**
-   - Database schema doesn't have `isCron`, `taskUid` properties
-   - Current code accepts these as optional properties for compatibility
-   - Solution: Implement separate cron trigger system (e.g., node-cron, external service)
+   - Workers run in-process, registered in `server/_core/index.ts`
+   - `server/_core/heartbeat.ts` is now a local registry: it records which
+     schedules an admin has enabled and returns a stable `taskUid`, with no
+     platform dependency
+   - The `scheduleTaskUid` column on business rows is unchanged
 
 3. **Social OAuth (Google, LinkedIn)**
    - Not implemented in this migration
@@ -361,11 +364,10 @@ storageGetSignedUrl(relKey, expirationSeconds); // Returns presigned URL
 2. Set up DigitalOcean Spaces bucket for file storage
 3. Configure Paystack API keys for production
 4. Set up Resend email service for transactional emails
-5. Implement or replace scheduled task workers
-6. Deploy to DigitalOcean App Platform or Droplet
-7. Add Forge feature replacements (if needed)
-8. Test entire workflow in staging environment
-9. Configure domain name and SSL certificate
+5. Deploy to DigitalOcean App Platform or Droplet
+6. Set `LLM_API_URL` / `LLM_API_KEY` for the AI features
+7. Test entire workflow in staging environment
+8. Configure domain name and SSL certificate
 
 ---
 

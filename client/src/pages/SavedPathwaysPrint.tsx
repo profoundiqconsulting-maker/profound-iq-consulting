@@ -3,7 +3,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { BrandLogo } from "@/components/BrandLogo";
 import { trpc } from "@/lib/trpc";
 import { courseCatalog } from "@shared/courseCatalog";
-import { localizeCourseMetadata } from "@shared/courseMetadataLocalization";
+import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 
 import {
   ArrowLeft,
@@ -14,192 +14,50 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 
-const copy: Record<
-  string,
-  {
-    title: string;
-    description: string;
-    print: string;
-    back: string;
-    empty: string;
-    pathway: string;
-    outcomes: string;
-    prepared: string;
-    page: string;
-    watermark: string;
-    previous: string;
-    next: string;
-  }
-> = {
-  en: {
-    title: "Saved learning pathways",
-    description:
-      "A print-ready reference of the pathways you selected for future learning.",
-    print: "Print pathways",
-    back: "Back to My Space",
-    empty: "You have no saved pathways yet.",
-    pathway: "Pathway",
-    outcomes: "Outcomes",
-    prepared: "Prepared for",
-    page: "Page",
-    watermark: "Brand watermark",
-    previous: "Previous",
-    next: "Next",
-  },
-  sw: {
-    title: "Njia za kujifunza zilizohifadhiwa",
-    description:
-      "Marejeo yaliyotayarishwa kwa uchapishaji ya njia ulizochagua kwa kujifunza baadaye.",
-    print: "Chapisha njia",
-    back: "Rudi kwenye Nafasi Yangu",
-    empty: "Bado huna njia zilizohifadhiwa.",
-    pathway: "Njia",
-    outcomes: "Matokeo",
-    prepared: "Imeandaliwa kwa",
-    page: "Ukurasa",
-    watermark: "Alama ya chapa",
-    previous: "Iliyotangulia",
-    next: "Inayofuata",
-  },
-  fr: {
-    title: "Parcours d’apprentissage enregistrés",
-    description:
-      "Une référence prête à imprimer des parcours sélectionnés pour votre apprentissage futur.",
-    print: "Imprimer les parcours",
-    back: "Retour à mon espace",
-    empty: "Aucun parcours enregistré pour le moment.",
-    pathway: "Parcours",
-    outcomes: "Résultats",
-    prepared: "Préparé pour",
-    page: "Page",
-    watermark: "Filigrane de marque",
-    previous: "Précédent",
-    next: "Suivant",
-  },
-  es: {
-    title: "Rutas de aprendizaje guardadas",
-    description:
-      "Una referencia lista para imprimir de las rutas seleccionadas para tu aprendizaje futuro.",
-    print: "Imprimir rutas",
-    back: "Volver a Mi espacio",
-    empty: "Aún no tienes rutas guardadas.",
-    pathway: "Ruta",
-    outcomes: "Resultados",
-    prepared: "Preparado para",
-    page: "Página",
-    watermark: "Marca de agua",
-    previous: "Anterior",
-    next: "Siguiente",
-  },
-  pt: {
-    title: "Percursos de aprendizagem guardados",
-    description:
-      "Uma referência pronta para impressão dos percursos escolhidos para a sua aprendizagem futura.",
-    print: "Imprimir percursos",
-    back: "Voltar ao meu espaço",
-    empty: "Ainda não tem percursos guardados.",
-    pathway: "Percurso",
-    outcomes: "Resultados",
-    prepared: "Preparado para",
-    page: "Página",
-    watermark: "Marca de água",
-    previous: "Anterior",
-    next: "Seguinte",
-  },
-  ar: {
-    title: "مسارات التعلم المحفوظة",
-    description: "مرجع جاهز للطباعة للمسارات التي اخترتها للتعلم في المستقبل.",
-    print: "طباعة المسارات",
-    back: "العودة إلى مساحتي",
-    empty: "لا توجد مسارات محفوظة بعد.",
-    pathway: "المسار",
-    outcomes: "النتائج",
-    prepared: "أُعدّ لـ",
-    page: "صفحة",
-    watermark: "علامة مائية للعلامة التجارية",
-    previous: "السابق",
-    next: "التالي",
-  },
-  zh: {
-    title: "保存的学习路径",
-    description: "为您未来学习所选路径准备的可打印参考资料。",
-    print: "打印学习路径",
-    back: "返回我的空间",
-    empty: "您还没有保存的学习路径。",
-    pathway: "路径",
-    outcomes: "成果",
-    prepared: "准备给",
-    page: "页",
-    watermark: "品牌水印",
-    previous: "上一页",
-    next: "下一页",
-  },
-  hi: {
-    title: "सहेजे गए सीखने के पथ",
-    description:
-      "भविष्य के सीखने के लिए आपके चुने गए पथों का प्रिंट-तैयार संदर्भ।",
-    print: "पथ प्रिंट करें",
-    back: "मेरे स्पेस पर लौटें",
-    empty: "अभी कोई सहेजे गए पथ नहीं हैं।",
-    pathway: "पथ",
-    outcomes: "परिणाम",
-    prepared: "के लिए तैयार",
-    page: "पृष्ठ",
-    watermark: "ब्रांड वॉटरमार्क",
-    previous: "पिछला",
-    next: "अगला",
-  },
-  de: {
-    title: "Gespeicherte Lernpfade",
-    description:
-      "Eine druckfertige Übersicht der für Ihr weiteres Lernen ausgewählten Pfade.",
-    print: "Pfade drucken",
-    back: "Zurück zu Mein Bereich",
-    empty: "Noch keine Lernpfade gespeichert.",
-    pathway: "Pfad",
-    outcomes: "Ergebnisse",
-    prepared: "Vorbereitet für",
-    page: "Seite",
-    watermark: "Markenwasserzeichen",
-    previous: "Zurück",
-    next: "Weiter",
-  },
-  ja: {
-    title: "保存した学習パス",
-    description: "今後の学習のために選択したパスの印刷用リファレンスです。",
-    print: "学習パスを印刷",
-    back: "マイスペースに戻る",
-    empty: "保存された学習パスはまだありません。",
-    pathway: "パス",
-    outcomes: "成果",
-    prepared: "作成者",
-    page: "ページ",
-    watermark: "ブランド透かし",
-    previous: "前へ",
-    next: "次へ",
-  },
+const copy: {
+  title: string;
+  description: string;
+  print: string;
+  back: string;
+  empty: string;
+  pathway: string;
+  outcomes: string;
+  prepared: string;
+  page: string;
+  watermark: string;
+  previous: string;
+  next: string;
+} = {
+  title: "Saved learning pathways",
+  description:
+    "A print-ready reference of the pathways you selected for future learning.",
+  print: "Print pathways",
+  back: "Back to My Space",
+  empty: "You have no saved pathways yet.",
+  pathway: "Pathway",
+  outcomes: "Outcomes",
+  prepared: "Prepared for",
+  page: "Page",
+  watermark: "Brand watermark",
+  previous: "Previous",
+  next: "Next",
 };
 
 export default function SavedPathwaysPrint() {
   const { user, loading } = useAuth();
-  const locale = "en";
   const saved = trpc.course.savedCourses.useQuery(undefined, {
     enabled: Boolean(user),
     retry: false,
   });
-  const labels = copy[locale] ?? copy.en;
+  const labels = copy;
   const courses = (saved.data ?? [])
     .map(row => {
       const course = courseCatalog.find(item => item.slug === row.courseSlug);
       return course
         ? {
             slug: course.slug,
-            ...localizeCourseMetadata(
-              locale,
-              course.slug,
-              course.title,
-              course.description
-            ),
+            title: course.title,
+            description: course.description,
           }
         : null;
     })
@@ -412,7 +270,7 @@ export default function SavedPathwaysPrint() {
                   )}
                   <footer className="mt-10 flex justify-between border-t border-[#16243d]/15 pt-5 text-[10px] uppercase tracking-[.14em] text-[#657084]">
                     <span>
-                      profoundiq-vguqrhsm.manus.space · Profound IQ Consulting
+                      {PUBLISHED_SITE_ORIGIN.replace(/^https?:\/\//, "")} · Profound IQ Consulting
                     </span>
                     <span>
                       {labels.page} {pageIndex + 1} / {pages.length}
@@ -450,7 +308,7 @@ export default function SavedPathwaysPrint() {
           )}
           {saved.isLoading ? null : (
             <footer className="mt-10 border-t border-[#16243d]/15 pt-5 text-center text-[10px] uppercase tracking-[.14em] text-[#657084] print:hidden">
-              profoundiq-vguqrhsm.manus.space · Profound IQ Consulting
+              {PUBLISHED_SITE_ORIGIN.replace(/^https?:\/\//, "")} · Profound IQ Consulting
             </footer>
           )}
         </section>

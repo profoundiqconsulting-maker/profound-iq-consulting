@@ -8,6 +8,12 @@ import {
   getInsightArticleBySlug,
 } from "./db";
 import { insightArticles } from "../shared/insightsArticles";
+import {
+  COURSE_CATALOG_DESCRIPTION,
+  COURSE_CATALOG_LISTING_PATH,
+  COURSE_CATALOG_TITLE,
+  courseCatalogCanonical,
+} from "../shared/courseCatalogSeo";
 import { PUBLISHED_SITE_ORIGIN } from "../shared/siteOrigin";
 
 const SITE_ORIGIN = PUBLISHED_SITE_ORIGIN;
@@ -127,19 +133,6 @@ async function getPublicCourses(): Promise<PublicCourse[]> {
   }
 }
 
-const SITEMAP_LOCALES = [
-  "en",
-  "sw",
-  "fr",
-  "es",
-  "pt",
-  "ar",
-  "zh",
-  "hi",
-  "de",
-  "ja",
-];
-
 export function buildSitemapXml(courses: Array<{ slug: string }>) {
   const staticPaths = [
     "/",
@@ -167,23 +160,12 @@ export function buildSitemapXml(courses: Array<{ slug: string }>) {
     ])
   );
 
-  const entries: string[] = [];
-  for (const path of paths) {
-    for (const locale of SITEMAP_LOCALES) {
-      const localizedPath = `${path}?lang=${locale}`;
-      entries.push(
-        `  <url><loc>${escapeHtml(SITE_ORIGIN)}${escapeHtml(localizedPath)}</loc>`
-      );
-      for (const altLocale of SITEMAP_LOCALES) {
-        entries.push(
-          `  <xhtml:link rel="alternate" hreflang="${altLocale}" href="${escapeHtml(SITE_ORIGIN)}${escapeHtml(path)}?lang=${altLocale}" />`
-        );
-      }
-      entries.push(`</url>`);
-    }
-  }
+  const entries = paths.map(
+    path =>
+      `  <url><loc>${escapeHtml(SITE_ORIGIN)}${escapeHtml(path)}</loc></url>`
+  );
 
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${entries.join("\n")}\n</urlset>\n`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join("\n")}\n</urlset>\n`;
 }
 
 function findClientScript() {
@@ -216,7 +198,7 @@ export function renderCourseCatalogPage(
   const script = clientScript
     ? `<script type="module" src="${escapeHtml(clientScript)}"></script>`
     : "";
-  return `<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Professional Courses | Profound IQ Consulting</title><meta name="description" content="Explore globally relevant professional courses with interactive lessons, applied practice, quizzes, and completion certificates."/><link rel="canonical" href="${SITE_ORIGIN}/courses"/><meta property="og:title" content="Professional Courses | Profound IQ Consulting"/><meta property="og:description" content="Explore globally relevant professional courses with interactive lessons, applied practice, quizzes, and completion certificates."/><meta property="og:type" content="website"/><meta property="og:url" content="${SITE_ORIGIN}/courses"/><meta property="og:image" content="${socialImageUrl}"/><meta property="og:image:secure_url" content="${socialImageUrl}"/><meta property="og:image:type" content="image/png"/><meta property="og:image:width" content="${getSocialImageDimensions(socialImageUrl)[0]}"/><meta property="og:image:height" content="${getSocialImageDimensions(socialImageUrl)[1]}"/><meta property="og:image:alt" content="${socialImageUrl === DEFAULT_SOCIAL_IMAGE_URL ? "Profound IQ Consulting logo" : "Profound IQ Consulting branded social preview"}"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="Professional Courses | Profound IQ Consulting"/><meta name="twitter:description" content="Explore globally relevant professional courses with interactive lessons, applied practice, quizzes, and completion certificates."/><meta name="twitter:image" content="${socialImageUrl}"/><meta name="twitter:image:alt" content="${socialImageUrl === DEFAULT_SOCIAL_IMAGE_URL ? "Profound IQ Consulting logo" : "Profound IQ Consulting branded social preview"}"/><link rel="icon" href="/favicon.ico"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/><style>body{margin:0;background:#101d35;color:#f7f3e8;font-family:Manrope,Arial,sans-serif}.shell{max-width:1180px;margin:auto;padding:64px 24px}.eyebrow,.course-kicker{color:#c9a34e;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}.hero{padding:44px 0 58px;border-bottom:1px solid #ffffff22}.hero h1{max-width:760px;margin:16px 0;font:500 clamp(3rem,8vw,6.8rem)/.92 Fraunces,serif;letter-spacing:-.05em}.hero p{max-width:620px;color:#c9d1df;font-size:18px;line-height:1.8}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;padding-top:42px}.course-card{background:#f7f3e8;color:#16243d;padding:26px;min-height:280px;border:1px solid #c9a34e55}.course-card h2{font:600 30px/1 Fraunces,serif;margin:14px 0}.course-card p{line-height:1.65}.course-strapline{font-weight:700}.course-meta{color:#657084;font-size:13px}.course-card a{display:inline-block;margin-top:16px;color:#7d5e1e;font-weight:800;text-decoration:none;border-bottom:1px solid #7d5e1e;padding-bottom:4px}@media(max-width:640px){.shell{padding:32px 18px}.hero{padding-top:20px}.course-card{min-height:0}}</style></head><body><div id="root"><main class="shell"><section class="hero"><p class="eyebrow">01 / Course catalog</p><h1>Capability is built in <em>practice.</em></h1><p>Explore structured professional learning designed to turn insight into a repeatable way of working.</p></section><section class="grid" aria-label="Professional courses">${cards}</section></main></div>${script}</body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>${escapeHtml(COURSE_CATALOG_TITLE)}</title><meta name="description" content="${escapeHtml(COURSE_CATALOG_DESCRIPTION)}"/><link rel="canonical" href="${courseCatalogCanonical(SITE_ORIGIN)}"/><meta property="og:title" content="${escapeHtml(COURSE_CATALOG_TITLE)}"/><meta property="og:description" content="${escapeHtml(COURSE_CATALOG_DESCRIPTION)}"/><meta property="og:type" content="website"/><meta property="og:url" content="${courseCatalogCanonical(SITE_ORIGIN)}"/><meta property="og:image" content="${socialImageUrl}"/><meta property="og:image:secure_url" content="${socialImageUrl}"/><meta property="og:image:type" content="image/png"/><meta property="og:image:width" content="${getSocialImageDimensions(socialImageUrl)[0]}"/><meta property="og:image:height" content="${getSocialImageDimensions(socialImageUrl)[1]}"/><meta property="og:image:alt" content="${socialImageUrl === DEFAULT_SOCIAL_IMAGE_URL ? "Profound IQ Consulting logo" : "Profound IQ Consulting branded social preview"}"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="${escapeHtml(COURSE_CATALOG_TITLE)}"/><meta name="twitter:description" content="${escapeHtml(COURSE_CATALOG_DESCRIPTION)}"/><meta name="twitter:image" content="${socialImageUrl}"/><meta name="twitter:image:alt" content="${socialImageUrl === DEFAULT_SOCIAL_IMAGE_URL ? "Profound IQ Consulting logo" : "Profound IQ Consulting branded social preview"}"/><link rel="icon" href="/favicon.ico"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/><style>body{margin:0;background:#101d35;color:#f7f3e8;font-family:Manrope,Arial,sans-serif}.shell{max-width:1180px;margin:auto;padding:64px 24px}.eyebrow,.course-kicker{color:#c9a34e;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}.hero{padding:44px 0 58px;border-bottom:1px solid #ffffff22}.hero h1{max-width:760px;margin:16px 0;font:500 clamp(3rem,8vw,6.8rem)/.92 Fraunces,serif;letter-spacing:-.05em}.hero p{max-width:620px;color:#c9d1df;font-size:18px;line-height:1.8}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;padding-top:42px}.course-card{background:#f7f3e8;color:#16243d;padding:26px;min-height:280px;border:1px solid #c9a34e55}.course-card h2{font:600 30px/1 Fraunces,serif;margin:14px 0}.course-card p{line-height:1.65}.course-strapline{font-weight:700}.course-meta{color:#657084;font-size:13px}.course-card a{display:inline-block;margin-top:16px;color:#7d5e1e;font-weight:800;text-decoration:none;border-bottom:1px solid #7d5e1e;padding-bottom:4px}@media(max-width:640px){.shell{padding:32px 18px}.hero{padding-top:20px}.course-card{min-height:0}}</style></head><body><div id="root"><main class="shell"><section class="hero"><p class="eyebrow">01 / Course catalog</p><h1>Capability is built in <em>practice.</em></h1><p>Explore structured professional learning designed to turn insight into a repeatable way of working.</p><p><a href="${courseCatalogCanonical(SITE_ORIGIN)}">Browse the interactive course catalogue</a></p></section><section class="grid" aria-label="Professional courses">${cards}</section></main></div>${script}</body></html>`;
 }
 
 export function renderCourseDetailPage(
@@ -446,14 +428,8 @@ export function registerSeoRoutes(app: Express) {
     }
   );
   app.get(
-    "/courses",
-    async (req: Request, res: Response, next: NextFunction) => {
-      if (
-        typeof req.query.enroll === "string" ||
-        req.query.recommend === "1" ||
-        typeof req.query.compare === "string"
-      )
-        return next();
+    COURSE_CATALOG_LISTING_PATH,
+    async (_req: Request, res: Response) => {
       const courses = await getPublicCourses();
       res
         .type("html")

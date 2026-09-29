@@ -6,11 +6,10 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { CourseCoverImage } from "@/components/CourseCoverImage";
 import { CourseShareActions } from "@/components/CourseShareActions";
 import { courseCatalog } from "@shared/courseCatalog";
-import { localizeCourseCategory } from "@shared/courseCategoryLocalization";
+
 
 
 export default function CourseComparison() {
-  const locale = "en";
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
 
@@ -135,7 +134,7 @@ export default function CourseComparison() {
                     .join(" vs ") || "Profound IQ course comparison"
                 }
                 shareUrl={shareUrl}
-                shareLabel={locale === "en" ? "Share comparison" : undefined}
+                shareLabel="Share comparison"
                 pagePath="/courses/compare"
               />
             </div>
@@ -187,6 +186,7 @@ export default function CourseComparison() {
                       >
                         <CourseCoverImage
                           src={course.coverImage}
+                          slug={course.slug}
                           alt=""
                           title={course.title}
                           className="h-40 w-full object-cover"
@@ -196,16 +196,10 @@ export default function CourseComparison() {
                             <div>
                               <div className="flex flex-wrap gap-2 text-[9px] font-black uppercase tracking-[.1em]">
                                 <span className="border border-[#16243d]/20 px-2 py-1 text-[#657084]">
-                                  {localizeCourseCategory(
-                                    locale,
-                                    course.category
-                                  )}
+                                  {course.category}
                                 </span>
                                 <span className="border border-[#c9a34e]/60 px-2 py-1 text-[#7d5e1e]">
-                                  {localizeCourseCategory(
-                                    locale,
-                                    course.skillLevel
-                                  )}
+                                  {course.skillLevel}
                                 </span>
                               </div>
                               <h3 className="display mt-4 text-3xl leading-tight">

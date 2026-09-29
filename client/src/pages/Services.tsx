@@ -141,7 +141,7 @@ export default function Services() {
             {services.map(
               ({ title, tag, body, icon: Icon, audience, href }, index) => (
                 <ScrollReveal key={title} delay={index * 70}>
-                  <article className="public-card-link group border border-[#16243d]/10 bg-white/60 p-8 transition-all duration-200 hover:-translate-y-1 hover:border-[#c9a34e] hover:bg-white hover:shadow-lg sm:p-9">
+                  <article className="public-card-link group border border-[#16243d]/10 bg-white/60 p-8 transition-all duration-200 hover:border-[#c9a34e] hover:bg-white hover:shadow-lg sm:p-9">
                     <div className="flex items-start justify-between gap-4">
                       <div className="inline-flex h-14 w-14 items-center justify-center rounded-sm bg-[#16243d] text-[#c9a34e]">
                         <Icon size={24} />
@@ -245,7 +245,7 @@ export default function Services() {
           </div>
           <Link
             href="/contact"
-            className="inline-flex shrink-0 items-center justify-center gap-3 bg-[#c9a34e] px-6 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#101d35] transition-all hover:-translate-y-1 hover:shadow-lg hover:bg-[#d4b563]"
+            className="inline-flex shrink-0 items-center justify-center gap-3 bg-[#c9a34e] px-6 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#101d35] transition-all hover:shadow-lg hover:bg-[#d4b563]"
           >
             Book a conversation <ArrowUpRight size={15} />
           </Link>

@@ -22,12 +22,10 @@ export const ENV = {
   resendApiKey: process.env.RESEND_API_KEY ?? "",
   emailFrom: process.env.EMAIL_FROM ?? "noreply@profoundiq.com",
 
-  // Legacy/Optional: Manus platform integration (kept for compatibility with optional features)
-  forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
-  forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
-  oAuthServerUrl: process.env.OAUTH_SERVER_URL ?? "",
+  // LLM provider (OpenAI-compatible chat completions API)
+  llmApiUrl: process.env.LLM_API_URL ?? "https://api.openai.com",
+  llmApiKey: process.env.LLM_API_KEY ?? "",
   ownerOpenId: process.env.OWNER_OPEN_ID ?? "",
-  appId: process.env.VITE_APP_ID ?? "",
 
   // Environment
   isProduction: process.env.NODE_ENV === "production",

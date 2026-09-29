@@ -31,18 +31,18 @@ describe("course SEO server routes", () => {
       { slug: "new-course" },
     ]);
     expect(xml).toContain(
-      "http://localhost:3000/courses/leadership-development?lang=en"
+      "http://localhost:3000/courses/leadership-development"
     );
-    expect(xml).toContain("http://localhost:3000/courses/new-course?lang=ar");
-    expect(xml).toContain("http://localhost:3000/about?lang=en");
-    expect(xml).toContain("http://localhost:3000/school-solutions?lang=sw");
-    expect(xml).toContain("http://localhost:3000/contact?lang=ja");
+    expect(xml).toContain("http://localhost:3000/courses/new-course");
+    expect(xml).toContain("http://localhost:3000/about");
+    expect(xml).toContain("http://localhost:3000/school-solutions");
+    expect(xml).toContain("http://localhost:3000/contact");
     expect(xml).toContain(
-      `http://localhost:3000/blog/${insightArticles[0].slug}?lang=en`
+      `http://localhost:3000/blog/${insightArticles[0].slug}`
     );
-    expect(xml).toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"');
-    expect(xml).toContain('hreflang="sw"');
-    expect(xml.match(/<url>/g)?.length).toBe(210);
+    expect(xml).not.toContain("?lang=");
+    expect(xml).not.toContain("hreflang");
+    expect(xml.match(/<url>/g)?.length).toBe(21);
   });
 
   it("generates a course-specific absolute PNG preview image", async () => {
@@ -131,9 +131,32 @@ describe("course SEO server routes", () => {
     );
     expect(detail).toContain(">Start course registration</a>");
     const routes = readFileSync("server/seoRoutes.ts", "utf8");
-    expect(routes).toContain('typeof req.query.enroll === "string"');
-    expect(routes).toContain('req.query.recommend === "1"');
-    expect(routes).toContain('typeof req.query.compare === "string"');
+    expect(routes).toContain("COURSE_CATALOG_LISTING_PATH");
+    expect(routes).not.toContain('app.get(\n    "/courses",');
+  });
+
+  it("keeps the server-rendered listing on its own route and canonicalises to the catalogue", () => {
+    const html = renderCourseCatalogPage(
+      [
+        {
+          slug: "decision-lab",
+          title: "Decision Lab",
+          strapline: "Practice better decisions",
+          description: "A focused professional course.",
+          audience: "Leaders",
+          duration: "4 weeks",
+          priceKes: 4999,
+        },
+      ],
+      null
+    );
+    expect(html).toContain(
+      '<link rel="canonical" href="http://localhost:3000/courses"/>'
+    );
+    expect(html).not.toContain("http://localhost:3000/courses/catalogue");
+    expect(html).toContain(
+      'href="http://localhost:3000/courses">Browse the interactive course catalogue</a>'
+    );
   });
 
   it("renders Insights article metadata and draft content inside the app root", () => {

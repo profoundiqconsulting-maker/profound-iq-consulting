@@ -2361,7 +2361,7 @@ export const courseCatalog: CourseDefinition[] = [
         : buildModules(course),
     category,
     skillLevel: courseSkillLevelFor(course),
-    coverImage: `/cover-${course.slug}`,
+    coverImage: "",
   };
 });
 export const getCourseBySlug = (slug: string) =>

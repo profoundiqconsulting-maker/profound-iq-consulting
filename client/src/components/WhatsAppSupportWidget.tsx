@@ -120,7 +120,7 @@ export function WhatsAppSupportWidget() {
         onClick={() => setMinimizedState(false)}
         aria-label={"WhatsApp support"}
         title={"WhatsApp support"}
-        className="fixed bottom-4 right-4 z-40 inline-flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#f7f3e8] bg-[#25D366] text-[#062411] shadow-[0_10px_24px_rgba(0,0,0,.25)] transition-all duration-200 hover:-translate-y-1 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101d35] active:scale-95 sm:bottom-6 sm:right-6"
+        className="fixed bottom-4 right-4 z-40 inline-flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#f7f3e8] bg-[#25D366] text-[#062411] shadow-[0_10px_24px_rgba(0,0,0,.25)] transition-all duration-200 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101d35] active:scale-95 sm:bottom-6 sm:right-6"
       >
         <MessageCircle size={22} />
         <span
@@ -230,7 +230,7 @@ export function WhatsAppSupportWidget() {
             rel="noreferrer"
             aria-label={`Chat with Profound IQ Consulting on WhatsApp. Online now. ${greeting}`}
             title="Expected response time: usually within 15 minutes"
-            className="motion-safe:animate-pulse inline-flex min-h-14 w-full items-center gap-3 rounded-full bg-[#25D366] px-4 py-3 text-[#062411] shadow-[0_12px_28px_rgba(0,0,0,.28)] transition-all duration-200 hover:animate-none hover:-translate-y-1 hover:scale-[1.02] hover:bg-[#1ebe5d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7f3e8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101d35] active:scale-95"
+            className="motion-safe:animate-pulse inline-flex min-h-14 w-full items-center gap-3 rounded-full bg-[#25D366] px-4 py-3 text-[#062411] shadow-[0_12px_28px_rgba(0,0,0,.28)] transition-all duration-200 hover:animate-none hover:shadow-lg hover:bg-[#1ebe5d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7f3e8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101d35] active:scale-95"
           >
             <MessageCircle size={22} strokeWidth={2.25} className="shrink-0" />
             <span className="pr-1 text-left">

@@ -83,7 +83,6 @@ import {
 import { svgToPngBlob, triggerDownload } from "@/lib/visualDownload";
 import { isQaFixtureEnabled, QA_FIXTURE_STORAGE_KEY } from "@shared/qaFixture";
 import { courseCatalog, COURSE_PASS_MARK } from "@shared/courseCatalog";
-import { localizeCourseMetadata } from "@shared/courseMetadataLocalization";
 import { paginateDashboardItems } from "@/components/dashboardNavigation";
 import { summarizeQuizAnalytics } from "@shared/quizAnalytics";
 import { buildCourseCompletionShareSvg } from "@shared/courseCompletionVisual";
@@ -133,7 +132,6 @@ type CourseDeliveryRecord = {
 
 export default function UserDashboard() {
   const { user, loading: authLoading, logout } = useAuth();
-  const locale = "en";
 
   const pdfLayoutCopy = {
     summary: "Summary",
@@ -1368,7 +1366,7 @@ export default function UserDashboard() {
                   })
                 }
                 disabled={exportSavedPathways.isPending}
-                className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e] transition hover:-translate-y-0.5 hover:border-[#c9a34e] disabled:cursor-wait disabled:opacity-50"
+                className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e] transition hover:border-[#c9a34e] disabled:cursor-wait disabled:opacity-50"
               >
                 {exportSavedPathways.isPending ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -1381,7 +1379,7 @@ export default function UserDashboard() {
               </button>
               <Link
                 href="/courses"
-                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e] transition hover:-translate-y-0.5"
+                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e] transition-colors"
               >
                 Explore catalog <ArrowUpRight size={14} />
               </Link>
@@ -1404,7 +1402,7 @@ export default function UserDashboard() {
                   return (
                     <article
                       key={saved.id}
-                      className="group border border-[#16243d]/10 bg-white/70 p-4 transition hover:-translate-y-0.5 hover:border-[#c9a34e]"
+                      className="group border border-[#16243d]/10 bg-white/70 p-4 transition hover:border-[#c9a34e]"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <Link
@@ -2489,7 +2487,7 @@ export default function UserDashboard() {
                           ? `/assessment?attemptId=${item.id}`
                           : "/assessment"
                       }
-                      className="group border border-[#16243d]/10 bg-[#f7f3e8] p-4 transition hover:-translate-y-0.5 hover:border-[#c9a34e]"
+                      className="group border border-[#16243d]/10 bg-[#f7f3e8] p-4 transition hover:border-[#c9a34e]"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
@@ -2601,7 +2599,7 @@ export default function UserDashboard() {
                   {recommendations.data.recommendations.map((item, index) => (
                     <article
                       key={item.course.slug}
-                      className="border border-[#16243d]/12 bg-[#f7f3e8] p-5 transition hover:-translate-y-0.5 hover:border-[#c9a34e]"
+                      className="border border-[#16243d]/12 bg-[#f7f3e8] p-5 transition hover:border-[#c9a34e]"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
@@ -2672,7 +2670,7 @@ export default function UserDashboard() {
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
                 <Link
                   href="/assessment"
-                  className="border border-[#c9a34e]/60 bg-[#f7f3e8] p-4 text-[#16243d] transition hover:-translate-y-0.5"
+                  className="border border-[#c9a34e]/60 bg-[#f7f3e8] p-4 text-[#16243d] transition hover:shadow-sm"
                 >
                   <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                     Recommended for you
@@ -2699,7 +2697,7 @@ export default function UserDashboard() {
                 </Link>
                 <Link
                   href="/careerpath"
-                  className="border border-white/20 p-4 transition hover:-translate-y-0.5"
+                  className="border border-white/20 p-4 transition hover:shadow-sm"
                 >
                   <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
                     Explore next
@@ -4530,7 +4528,7 @@ export default function UserDashboard() {
       <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2">
         <Link
           href="/settings#payment-history"
-          className="inline-flex items-center gap-2 border border-[#16243d]/20 bg-[#f7f3e8] px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] shadow-lg transition hover:-translate-y-0.5 hover:border-[#c9a34e]"
+          className="inline-flex items-center gap-2 border border-[#16243d]/20 bg-[#f7f3e8] px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] shadow-lg transition hover:border-[#c9a34e]"
           title={"View enrollments and staged payments"}
         >
           <CreditCard size={14} className="text-[#7d5e1e]" />{" "}
@@ -4558,7 +4556,7 @@ export default function UserDashboard() {
         </div>
         <Link
           href="/assessment"
-          className="inline-flex items-center gap-2 rounded-full bg-[#c9a34e] px-5 py-4 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] shadow-xl transition hover:-translate-y-0.5 hover:bg-[#d7b762] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#16243d] focus-visible:ring-offset-2"
+          className="inline-flex items-center gap-2 rounded-full bg-[#c9a34e] px-5 py-4 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] shadow-xl transition hover:shadow-sm hover:bg-[#d7b762] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#16243d] focus-visible:ring-offset-2"
         >
           <span className="text-lg leading-none">+</span> New self-assessment
         </Link>
@@ -4603,12 +4601,7 @@ function PaymentHistoryTab({
   const courseLabel = (slug: string) => {
     const course = courseCatalog.find(item => item.slug === slug);
     return course
-      ? localizeCourseMetadata(
-          "en",
-          course.slug,
-          course.title,
-          course.description
-        ).title
+      ? course.title
       : slug;
   };
   const statusLabel = (status: string) =>

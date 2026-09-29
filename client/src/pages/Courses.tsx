@@ -24,9 +24,7 @@ import { CourseCoverImage } from "@/components/CourseCoverImage";
 import { courseCatalog } from "@shared/courseCatalog";
 
 import { useAuth } from "@/_core/hooks/useAuth";
-import { localizeCourseMetadata } from "@shared/courseMetadataLocalization";
-import { localizeCourseCategory } from "@shared/courseCategoryLocalization";
-import { getCourseEnrollmentCopy } from "@shared/courseEnrollmentLocalization";
+import { courseEnrollmentCopy } from "@shared/courseEnrollmentLocalization";
 
 type ModulePreview = { id: string; title: string; promise: string };
 type CourseCard = {
@@ -99,12 +97,11 @@ export default function Courses() {
   const [careerGoal, setCareerGoal] = useState("ai");
   const [currentLevel, setCurrentLevel] =
     useState<CourseCard["skillLevel"]>("Foundation");
-  const [activeTab, setActiveTab] = useState<string>("All");
+  const [activeTab, setActiveTab] = useState<string>("All categories");
   const [visibleCount, setVisibleCount] = useState(6);
   
   const { user, isAuthenticated } = useAuth();
-  const locale = "en";
-  const enrollmentCopy = getCourseEnrollmentCopy(locale);
+  const enrollmentCopy = courseEnrollmentCopy;
   const liveCatalog = trpc.catalog.listPublished.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: true,
@@ -191,33 +188,20 @@ export default function Courses() {
         isDatabaseItem: true,
       };
     });
-    return [...merged, ...Array.from(bySlug.values())].map(course => {
-      const metadata = localizeCourseMetadata(
-        locale,
-        course.slug,
-        course.title,
-        course.description
-      );
-      return {
-        ...course,
-        title: metadata.title,
-        description: metadata.description,
-        body: metadata.description,
-      };
-    });
-  }, [liveCatalog.data, locale]);
+    return [...merged, ...Array.from(bySlug.values())];
+  }, [liveCatalog.data]);
   const categories = useMemo(
     () => [
-      localizeCourseCategory(locale, "All categories"),
+      "All categories",
       ...Array.from(
         new Set(
           courses
             .map(courseCategory)
-            .map(value => localizeCourseCategory(locale, value))
+            .map(value => value)
         )
       ),
     ],
-    [courses, locale]
+    [courses]
   );
   const levels = useMemo(
     () => [
@@ -233,11 +217,11 @@ export default function Courses() {
         new Set(
           courses
             .map(courseCategory)
-            .map(value => localizeCourseCategory(locale, value))
+            .map(value => value)
         )
       ),
     ],
-    [courses, locale]
+    [courses]
   );
   const filteredCourses = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
@@ -250,7 +234,7 @@ export default function Courses() {
             .toLowerCase()
             .includes(query)) &&
         (selectedCategory === "All categories" ||
-          localizeCourseCategory(locale, courseCategory(course)) ===
+          courseCategory(course) ===
             selectedCategory) &&
         (skillLevel === "All levels" || course.skillLevel === skillLevel)
     );
@@ -265,7 +249,7 @@ export default function Courses() {
               ["Foundation", "Practitioner", "Advanced"].indexOf(b.skillLevel)
             : Number(a.index) - Number(b.index)
     );
-  }, [activeTab, category, courses, searchTerm, locale, skillLevel, sortBy]);
+  }, [activeTab, category, courses, searchTerm, skillLevel, sortBy]);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const shared = (params.get("compare") ?? "")
@@ -284,9 +268,8 @@ export default function Courses() {
   }, [courses, selectedCourse]);
   useEffect(() => {
     if (activeTab === "All categories") return;
-    const localized = localizeCourseCategory(locale, activeTab);
-    if (localized !== category) setCategory(localized);
-  }, [activeTab, category, locale]);
+    if (activeTab !== category) setCategory(activeTab);
+  }, [activeTab, category]);
   useEffect(() => {
     setVisibleCount(6);
   }, [activeTab, category, searchTerm, skillLevel, sortBy]);
@@ -511,7 +494,7 @@ export default function Courses() {
                   <option key={item} value={item}>
                     {item === "All levels"
                       ? item
-                      : localizeCourseCategory(locale, item)}
+                      : item}
                   </option>
                 ))}
               </select>
@@ -568,7 +551,7 @@ export default function Courses() {
                   onClick={() => {
                     setSearchTerm("");
                     setCategory(
-                      localizeCourseCategory(locale, "All categories")
+                      "All categories"
                     );
                   }}
                   className="ml-2 font-bold text-[#7d5e1e] underline"
@@ -588,6 +571,7 @@ export default function Courses() {
                   <div>
                     <CourseCoverImage
                       src={course.coverImage}
+                      slug={course.slug}
                       alt=""
                       loading="lazy"
                       title={course.title}
@@ -603,10 +587,10 @@ export default function Courses() {
                         {course.format}
                       </span>
                       <span className="rounded-md border border-[#16243d]/20 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#4a566a]">
-                        {localizeCourseCategory(locale, course.category)}
+                        {course.category}
                       </span>
                       <span className="rounded-md border border-[#c9a34e]/60 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
-                        {localizeCourseCategory(locale, course.skillLevel)}
+                        {course.skillLevel}
                       </span>
                       {course.isDatabaseItem && (
                         <span className="rounded-md border border-[#c9a34e]/60 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
@@ -922,6 +906,7 @@ export default function Courses() {
           >
             <CourseCoverImage
               src={previewCourse.coverImage}
+              slug={previewCourse.slug}
               alt=""
               title={previewCourse.title}
               className="h-40 w-full object-cover sm:h-56"
@@ -938,10 +923,10 @@ export default function Courses() {
                   </h2>
                   <div className="mt-4 flex flex-wrap gap-2 text-[9px] font-black uppercase tracking-[.1em]">
                     <span className="border border-[#16243d]/20 px-2 py-1 text-[#4a566a]">
-                      {localizeCourseCategory(locale, previewCourse.category)}
+                      {previewCourse.category}
                     </span>
                     <span className="border border-[#c9a34e]/60 px-2 py-1 text-[#7d5e1e]">
-                      {localizeCourseCategory(locale, previewCourse.skillLevel)}
+                      {previewCourse.skillLevel}
                     </span>
                     <span className="border border-[#16243d]/20 px-2 py-1 text-[#4a566a]">
                       {previewCourse.duration}
@@ -1099,6 +1084,7 @@ export default function Courses() {
                     >
                       <CourseCoverImage
                         src={course.coverImage}
+                        slug={course.slug}
                         alt=""
                         title={course.title}
                         className="h-28 w-full object-cover"
@@ -1124,10 +1110,10 @@ export default function Courses() {
                       </div>
                       <div className="mt-4 flex flex-wrap gap-2 text-[9px] font-black uppercase tracking-[.1em]">
                         <span className="border border-[#16243d]/20 px-2 py-1 text-[#4a566a]">
-                          {localizeCourseCategory(locale, course.category)}
+                          {course.category}
                         </span>
                         <span className="border border-[#c9a34e]/60 px-2 py-1 text-[#7d5e1e]">
-                          {localizeCourseCategory(locale, course.skillLevel)}
+                          {course.skillLevel}
                         </span>
                       </div>
                       <dl className="mt-5 space-y-4 text-sm">

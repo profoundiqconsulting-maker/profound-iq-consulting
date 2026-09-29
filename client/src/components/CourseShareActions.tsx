@@ -1,4 +1,4 @@
-/* Profound IQ Consulting — compact share rail with localized, accessible actions. */
+/* Profound IQ Consulting — compact share rail with accessible actions. */
 import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 
 import { SocialSharing } from "./SocialSharing";
@@ -18,7 +18,6 @@ export function CourseShareActions({
   shareLabel,
   pagePath,
 }: CourseShareActionsProps) {
-  const locale = "en";
   const getShareUrl = () =>
     providedShareUrl ??
     `${PUBLISHED_SITE_ORIGIN}/courses/${encodeURIComponent(courseSlug ?? "")}`;
@@ -30,8 +29,7 @@ export function CourseShareActions({
       summary={`${courseTitle} — Profound IQ Consulting.`}
       platforms={["linkedin", "x", "facebook", "whatsapp", "email", "copy", "native"]}
       label={shareLabel}
-      locale={locale}
-      onShare={platform => {
+          onShare={platform => {
         if (typeof window !== "undefined") {
           // Analytics hook point for course_shared events.
           void platform;

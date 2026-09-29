@@ -347,7 +347,7 @@ export default function AdminInsightsPanel() {
                         })
                       }
                       disabled={setStatus.isPending}
-                      className="inline-flex min-h-10 items-center gap-2 bg-[#16243d] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] transition hover:-translate-y-0.5 hover:bg-[#c9a34e] hover:text-[#101d35] disabled:opacity-50"
+                      className="inline-flex min-h-10 items-center gap-2 bg-[#16243d] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] transition hover:shadow-sm hover:bg-[#c9a34e] hover:text-[#101d35] disabled:opacity-50"
                     >
                       {published ? <Undo2 size={13} /> : <Send size={13} />}
                       {published ? "Move to draft" : "Publish article"}

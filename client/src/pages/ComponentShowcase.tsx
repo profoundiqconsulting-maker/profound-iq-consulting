@@ -159,7 +159,6 @@ import {
 } from "@/components/ui/tooltip";
 import { useTheme } from "@/contexts/ThemeContext";
 import { format } from "date-fns";
-import { zhCN } from "date-fns/locale";
 import {
   AlertCircle,
   CalendarIcon,
@@ -482,7 +481,7 @@ export default function ComponentsShowcase() {
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {datePickerDate ? (
-                          format(datePickerDate, "PPP HH:mm", { locale: zhCN })
+                          format(datePickerDate, "PPP HH:mm")
                         ) : (
                           <span>Select date and time</span>
                         )}
@@ -528,7 +527,6 @@ export default function ComponentsShowcase() {
                     <p className="text-sm text-muted-foreground">
                       Selected:{" "}
                       {format(datePickerDate, "yyyy/MM/dd  HH:mm", {
-                        locale: zhCN,
                       })}
                     </p>
                   )}

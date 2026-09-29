@@ -69,8 +69,7 @@ const copy = {
 
 export default function NotFound() {
   const [, setLocation] = useLocation();
-  const locale = "en";
-  const [title, description, detail, home] = copy[locale] ?? copy.en;
+  const [title, description, detail, home] = copy.en;
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#f7f3e8]">

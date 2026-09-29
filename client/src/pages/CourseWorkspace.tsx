@@ -52,13 +52,12 @@ import { AdminCourseQAChecklist } from "@/components/AdminCourseQAChecklist";
 import { CourseShareActions } from "@/components/CourseShareActions";
 
 import {
-  getLessonInteractiveCopy,
-  getLessonIllustrationCopy,
-  localizeCourseDefinition,
+  lessonIllustrationCopy,
+  lessonInteractiveCopy,
 } from "@shared/contentLocalization";
-import { getAuthCopy } from "@shared/authLocalization";
-import { getCourseEnrollmentCopy } from "@shared/courseEnrollmentLocalization";
-import { getAssessmentCopy } from "@shared/assessmentLocalization";
+import { authCopy } from "@shared/authLocalization";
+import { courseEnrollmentCopy } from "@shared/courseEnrollmentLocalization";
+import { assessmentCopy } from "@shared/assessmentLocalization";
 import {
   downloadIllustrationStudySheet,
   downloadIllustrationStudySheetPng,
@@ -283,12 +282,11 @@ const readProgress = (course: CourseDefinition): SavedProgress => {
 export default function CourseWorkspace() {
   const utils = trpc.useUtils();
   const [, params] = useRoute("/courses/:slug");
-  const locale = "en";
   const baseCourse = courseCatalog.find(item => item.slug === params?.slug);
   const course = useMemo(
     () =>
-      baseCourse ? localizeCourseDefinition(locale, baseCourse) : undefined,
-    [baseCourse, locale]
+      baseCourse ? baseCourse : undefined,
+    [baseCourse]
   );
   if (!course)
     return (
@@ -384,9 +382,8 @@ function CourseWorkspaceContent({ course }: { course: CourseDefinition }) {
 function FirstStageCheckout({ course }: { course: CourseDefinition }) {
   const utils = trpc.useUtils();
   const { user } = useAuth();
-  const locale = "en";
 
-  const enrollmentCopy = getCourseEnrollmentCopy(locale);
+  const enrollmentCopy = courseEnrollmentCopy;
   const [name, setName] = useState(user?.name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
   const [consent, setConsent] = useState(false);
@@ -577,10 +574,8 @@ function CourseAccessGate({
   isAuthenticated: boolean;
   paidStages: number;
 }) {
-  const locale = "en";
 
-  const authCopy = getAuthCopy(locale);
-  return (
+    return (
     <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
       <TransformationNav active="assessment" />
       <main className="container py-10 sm:py-16">
@@ -693,12 +688,10 @@ function CourseWorkspaceUnlocked({
   qualityControl?: boolean;
   accessOverride?: boolean;
 }) {
-  const locale = "en";
 
-  const enrollmentCopy = getCourseEnrollmentCopy(locale);
-  const assessmentCopy = getAssessmentCopy(locale);
-  const lessonCopy = getLessonInteractiveCopy(locale);
-  const illustrationCopy = getLessonIllustrationCopy(locale);
+  const enrollmentCopy = courseEnrollmentCopy;
+    const lessonCopy = lessonInteractiveCopy;
+  const illustrationCopy = lessonIllustrationCopy;
   const [progress, setProgress] = useState<SavedProgress>(() =>
     readProgress(course)
   );

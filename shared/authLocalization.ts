@@ -14,44 +14,18 @@ export type AuthCopy = {
   backToSite: string;
 };
 
-const en: AuthCopy = {
-  privateAccess: "Private access / your next chapter",
-  workspace: "Enter your workspace.",
-  secureAccess: "Secure account access",
+export const authCopy: AuthCopy = {
+  privateAccess: "Private / invite only",
+  workspace: "Your private workspace.",
+  secureAccess: "Your account is secure.",
   welcome: "Welcome back.",
-  create: "Create your account.",
+  create: "Create account.",
   reset: "Reset your password.",
-  checking: "Checking your session…",
-  signIn: "Sign in",
+  checking: "Checking the account…",
+  signIn: "Sign in to continue",
   createAccount: "Create account",
   sendReset: "Send reset link",
-  forgot: "Forgot password?",
-  optionalSocial: "Optional social sign-in",
-  backToSite: "Back to site",
+  forgot: "Forgot your password?",
+  optionalSocial: "Or continue with a social account",
+  backToSite: "Back to the site",
 };
-
-const ar: AuthCopy = {
-  ...en,
-  privateAccess: "وصول خاص / فصلتك القادمة",
-  workspace: "أدخل مساحة العمل الخاصة بك.",
-  secureAccess: "دخول آمن إلى الحساب",
-  welcome: "مرحباً بعودتك.",
-  create: "أنشئ حسابك.",
-  reset: "إعادة تعيين كلمة المرور.",
-  checking: "جاري التحقق من جلستك…",
-  signIn: "تسجيل الدخول",
-  createAccount: "إنشاء حساب",
-  sendReset: "إرسال رابط إعادة التعيين",
-  forgot: "نسيت كلمة المرور؟",
-  optionalSocial: "تسجيل دخول اجتماعي اختياري",
-  backToSite: "العودة إلى الموقع",
-};
-
-const localeCopies: Record<string, AuthCopy> = {
-  en,
-  ar,
-};
-
-export function getAuthCopy(locale?: string): AuthCopy {
-  return localeCopies[locale ?? "en"] ?? en;
-}

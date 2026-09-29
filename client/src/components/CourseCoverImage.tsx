@@ -2,10 +2,12 @@ import { useState, useMemo } from "react";
 import { CourseCoverGenerator } from "@/components/CourseCoverGenerator";
 import { cn } from "@/lib/utils";
 
-const PLACEHOLDER = "/cover-placeholder_e7060957.svg";
+const PLACEHOLDER = "/cover-people-practice_342ff6e3.svg";
 
 type CourseCoverImageProps = {
   src: string;
+  /** Course slug, used to render a deterministic cover when no image exists. */
+  slug?: string;
   alt?: string;
   className?: string;
   loading?: "lazy" | "eager";
@@ -16,6 +18,7 @@ type CourseCoverImageProps = {
 
 export function CourseCoverImage({
   src,
+  slug,
   alt = "Course cover",
   className,
   loading,
@@ -27,10 +30,11 @@ export function CourseCoverImage({
   const [useGenerated, setUseGenerated] = useState(false);
 
   const generatedSlug = useMemo(() => {
+    if (slug) return slug;
     if (!src) return "";
     const match = src.match(/\/cover-([^_/]+)/);
     return match ? match[1] : "";
-  }, [src]);
+  }, [slug, src]);
 
   if (!src || error || useGenerated) {
     if (generatedSlug) {

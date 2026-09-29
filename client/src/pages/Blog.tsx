@@ -292,7 +292,7 @@ export default function Blog() {
             <ScrollRevealGroup className="mt-8 grid gap-4 lg:grid-cols-3">
               {visibleArticles.map(article => (
                 <Link key={article.slug} href={`/blog/${article.slug}`}>
-                  <article className="flex min-h-[360px] flex-col border border-[#16243d]/15 bg-white/70 p-7 transition-all hover:-translate-y-1 hover:border-[#c9a34e] hover:shadow-lg sm:p-8">
+                  <article className="flex min-h-[360px] flex-col border border-[#16243d]/15 bg-white/70 p-7 transition-all hover:border-[#c9a34e] hover:shadow-lg sm:p-8">
                     <div className="flex items-start justify-between">
                       <p className="eyebrow text-[#7d5e1e]">{article.category}</p>
                       <span className="text-[10px] font-black tracking-[.16em] text-[#657084]">
@@ -324,7 +324,7 @@ export default function Blog() {
               <button
                 type="button"
                 onClick={() => setArticleLimit(limit => limit + 3)}
-                className="inline-flex min-h-12 items-center justify-center gap-3 border border-[#16243d]/25 px-5 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-all hover:-translate-y-0.5 hover:border-[#c9a34e] hover:bg-white"
+                className="inline-flex min-h-12 items-center justify-center gap-3 border border-[#16243d]/25 px-5 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-all hover:border-[#c9a34e] hover:bg-white"
               >
                 Load more Insights <ArrowUpRight size={15} />
               </button>
@@ -372,7 +372,7 @@ export default function Blog() {
                 </div>
                 <form
                   onSubmit={submitNewsletter}
-                  className="border border-[#16243d]/10 bg-white/75 p-8 sm:p-9 backdrop-blur-sm"
+                  className="border border-[#16243d]/10 bg-white/75 p-8 sm:p-9"
                 >
                   <label className="grid gap-2 text-sm font-semibold text-[#16243d]">
                     Email address
@@ -442,7 +442,7 @@ export default function Blog() {
                     <button
                       type="submit"
                       disabled={newsletter.isPending}
-                      className="mt-6 inline-flex min-h-12 items-center justify-center gap-3 bg-[#16243d] px-5 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition-all hover:-translate-y-0.5 hover:bg-[#c9a34e] hover:text-[#101d35] disabled:cursor-wait disabled:opacity-70"
+                      className="mt-6 inline-flex min-h-12 items-center justify-center gap-3 bg-[#16243d] px-5 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition-all hover:bg-[#c9a34e] hover:text-[#101d35] disabled:cursor-wait disabled:opacity-70"
                     >
                       {newsletter.isPending
                         ? "Saving subscription…"
@@ -479,7 +479,7 @@ export default function Blog() {
             {contributors.map(contributor => (
               <article
                 key={contributor.title}
-                className="public-card-link border border-[#c9a34e]/30 bg-[#1b3152]/60 p-8 backdrop-blur-sm sm:p-9"
+                className="public-card-link border border-[#c9a34e]/30 bg-[#1b3152]/60 p-8 sm:p-9"
               >
                 <div className="flex items-start gap-5">
                   <div
@@ -528,7 +528,7 @@ export default function Blog() {
             {themes.map(({ label, title, body, icon: Icon }, index) => (
               <article
                 key={title}
-                className="public-card-link group border border-[#16243d]/10 bg-white/60 p-8 transition-all hover:-translate-y-1 hover:border-[#c9a34e] hover:bg-white hover:shadow-lg sm:p-9"
+                className="public-card-link group border border-[#16243d]/10 bg-white/60 p-8 transition-all hover:border-[#c9a34e] hover:bg-white hover:shadow-lg sm:p-9"
               >
                 <div className="flex items-start justify-between gap-4">
                   <Icon size={26} className="text-[#7d5e1e]" />

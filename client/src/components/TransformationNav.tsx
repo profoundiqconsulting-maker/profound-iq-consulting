@@ -86,6 +86,7 @@ export function TransformationNav({
   });
   const [certificateAvailable, setCertificateAvailable] = useState(
     () =>
+      typeof window !== "undefined" &&
       window.localStorage.getItem("piq-new-certificate-available") === "true"
   );
   const { user, isAuthenticated, loading } = useAuth();

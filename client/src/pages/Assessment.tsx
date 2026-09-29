@@ -39,7 +39,7 @@ import { TransformationNav } from "@/components/TransformationNav";
 
 import { useAuth } from "@/_core/hooks/useAuth";
 import { LOGO_URL } from "@/components/BrandLogo";
-import { getAssessmentCopy } from "@shared/assessmentLocalization";
+import { assessmentCopy } from "@shared/assessmentLocalization";
 import {
   Sheet,
   SheetContent,
@@ -112,13 +112,13 @@ function AssessmentFlowPagination({
   return (
     <nav
       aria-label="Assessment progress"
-      className="sticky top-0 z-40 border-b border-[#16243d]/10 bg-[#f7f3e8]/95 py-3 backdrop-blur sm:py-4"
+      className="sticky top-0 z-40 border-b border-[#16243d]/10 bg-[#f7f3e8] py-3 sm:py-4"
     >
       <ol className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4">
         {steps.map((step, index) => (
           <li key={step.id} className="flex min-w-0 items-center gap-3">
             <span
-              className={`grid h-7 w-7 shrink-0 place-items-center border text-[10px] font-black transition-all duration-300 ${index === currentIndex ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d] scale-110" : index < currentIndex ? "border-[#a27e2e] text-[#7d5e1e]" : "border-[#16243d]/20 text-[#657084]"}`}
+              className={`grid h-7 w-7 shrink-0 place-items-center border text-[10px] font-black transition-colors duration-200 ${index === currentIndex ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : index < currentIndex ? "border-[#a27e2e] text-[#7d5e1e]" : "border-[#16243d]/20 text-[#657084]"}`}
             >
               {index < currentIndex ? "✓" : index + 1}
             </span>
@@ -193,10 +193,9 @@ function AssessmentContentPagination({
 export default function Assessment() {
   const utils = trpc.useUtils();
   const [, navigate] = useLocation();
-  const locale = "en";
 
   const { user, isAuthenticated } = useAuth();
-  const assessmentCopy = getAssessmentCopy(locale);
+  
   const [stage, setStage] = useState<AssessmentStage>(() =>
     getPendingReportReference() ? "waiting" : "intro"
   );
@@ -1722,7 +1721,7 @@ export default function Assessment() {
               </label>
               <button
                 type="submit"
-                className="mt-9 inline-flex items-center gap-3 bg-[#c9a34e] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#101d35] transition-all hover:-translate-y-1"
+                className="mt-9 inline-flex items-center gap-3 bg-[#c9a34e] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#101d35] transition-all hover:shadow-md"
               >
                 Begin assessment <ArrowRight size={16} />
               </button>
@@ -1794,7 +1793,7 @@ export default function Assessment() {
                 </div>
               </div>
             </div>
-            <div className="sticky top-2 z-20 -mx-2 mb-4 flex items-center justify-between gap-3 border border-[#c9a34e]/50 bg-[#f7f3e8]/95 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] shadow-sm backdrop-blur sm:hidden">
+            <div className="sticky top-2 z-20 -mx-2 mb-4 flex items-center justify-between gap-3 border border-[#c9a34e]/50 bg-[#f7f3e8] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] shadow-sm sm:hidden">
               <span>
                 {Math.round((answeredCount / assessmentQuestions.length) * 100)}
                 % complete
@@ -1923,7 +1922,7 @@ export default function Assessment() {
               </div>
             </div>
             <div
-              className="sticky top-14 z-10 -mx-2 mt-5 border-y border-[#c9a34e]/40 bg-[#f7f3e8]/95 p-4 shadow-sm backdrop-blur"
+              className="sticky top-14 z-10 -mx-2 mt-5 border-y border-[#c9a34e]/40 bg-[#f7f3e8] p-4 shadow-sm"
               aria-label="Module navigation"
             >
               <div className="mb-2 flex items-center justify-between gap-3">
@@ -2006,7 +2005,7 @@ export default function Assessment() {
                                 : `${module.label} — ${moduleScore} / 100`
                             }
                             aria-label={`${module.label}${complete ? ` completed with a score of ${moduleScore} out of 100` : ""}`}
-                            className={`${highPotentialOnly && (moduleScore === null || 100 - moduleScore < 20) ? "hidden" : ""} inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-[10px] font-black uppercase tracking-[.1em] transition-all ${moduleIndex === page ? "border-[#c9a34e] bg-[#16243d] text-[#f7f3e8] shadow-sm" : "border-[#16243d]/20 bg-white/50 text-[#657084] hover:-translate-y-0.5 hover:border-[#c9a34e] hover:shadow-sm"}`}
+                            className={`${highPotentialOnly && (moduleScore === null || 100 - moduleScore < 20) ? "hidden" : ""} inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-[10px] font-black uppercase tracking-[.1em] transition-all ${moduleIndex === page ? "border-[#c9a34e] bg-[#16243d] text-[#f7f3e8] shadow-sm" : "border-[#16243d]/20 bg-white/50 text-[#657084] hover:border-[#c9a34e] hover:shadow-sm"}`}
                           >
                             {complete ? (
                               <Check size={13} className="text-[#c9a34e]" />
@@ -2208,7 +2207,7 @@ export default function Assessment() {
                   type="button"
                   disabled={!pageComplete}
                   onClick={() => goToModule(Math.min(totalPages - 1, page + 1))}
-                  className="inline-flex items-center justify-center gap-2 bg-[#16243d] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#f7f3e8] transition-all hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex items-center justify-center gap-2 bg-[#16243d] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#f7f3e8] transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {assessmentCopy.nextModule} <ArrowRight size={14} />
                 </button>
@@ -2226,7 +2225,7 @@ export default function Assessment() {
                       : undefined
                   }
                   onClick={finishAndPay}
-                  className="inline-flex items-center justify-center gap-2 bg-[#c9a34e] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#101d35] transition-all hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex items-center justify-center gap-2 bg-[#c9a34e] px-5 py-4 text-[11px] font-black uppercase tracking-[.15em] text-[#101d35] transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {initializeInlinePayment.isPending ? (
                     <>

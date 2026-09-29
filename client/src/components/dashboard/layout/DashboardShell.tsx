@@ -15,7 +15,7 @@ export function DashboardShell({
     <div className="min-h-screen bg-gradient-to-br from-[#f7f3e8] via-[#f7f3e8] to-[#ead9ae] dark:from-[#0d1a2f] dark:via-[#101d35] dark:to-[#16243d]">
       <div className="mx-auto max-w-[1600px]">
         <div className="flex flex-col lg:flex-row">
-          <aside className="hidden lg:block w-64 shrink-0 border-r border-[#16243d]/10 dark:border-[#657084]/15 bg-white/60 dark:bg-[#16243d]/60 backdrop-blur-sm">
+          <aside className="hidden lg:block w-64 shrink-0 border-r border-[#16243d]/10 dark:border-[#657084]/15 bg-white dark:bg-[#16243d]">
             <nav aria-label="Dashboard navigation" className="p-4">
               <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e] dark:text-[#7d5e1e] mb-4">
                 {role === "admin" ? "Admin" : role === "staff" ? "Staff" : "Workspace"}

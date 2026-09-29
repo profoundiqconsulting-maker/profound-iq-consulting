@@ -3,17 +3,10 @@ import { storageGet } from "../storage";
 
 /**
  * Storage proxy for DigitalOcean Spaces.
- * Registers legacy /manus-storage/* and canonical /local-storage/* routes
- * so both prefixes resolve to the same DO Spaces files.
+ * Registers the /local-storage/* route so stored files resolve to their
+ * short-lived DO Spaces URLs.
  */
 export function registerStorageProxy(app: Express) {
-  app.get(
-    "/manus-storage/*",
-    async (req: Request, res: Response, next: NextFunction) => {
-      await proxyStorageRequest(req, res, next, "/manus-storage/");
-    }
-  );
-
   app.get(
     "/local-storage/*",
     async (req: Request, res: Response, next: NextFunction) => {

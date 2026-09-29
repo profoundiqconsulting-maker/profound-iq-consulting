@@ -22,13 +22,16 @@ export function ThemeProvider({
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
     if (!switchable) return defaultTheme;
-    const stored = localStorage.getItem("theme");
+    if (typeof window === "undefined") return defaultTheme;
+    const stored = window.localStorage.getItem("theme");
     return stored === "light" || stored === "dark" || stored === "auto"
       ? stored
       : "auto";
   });
   const [systemDark, setSystemDark] = useState(
-    () => window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false
+    () =>
+      typeof window !== "undefined" &&
+      (window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false)
   );
   useEffect(() => {
     const media = window.matchMedia?.("(prefers-color-scheme: dark)");
@@ -46,7 +49,7 @@ export function ThemeProvider({
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
     if (!prefersReducedMotion) root.classList.add("theme-transitioning");
     root.classList.toggle("dark", effectiveTheme === "dark");
-    if (switchable) localStorage.setItem("theme", theme);
+    if (switchable) window.localStorage.setItem("theme", theme);
     const timeout = window.setTimeout(
       () => root.classList.remove("theme-transitioning"),
       prefersReducedMotion ? 0 : 280

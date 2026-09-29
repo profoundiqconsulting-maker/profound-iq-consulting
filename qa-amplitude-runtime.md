@@ -1,5 +1,11 @@
 # Amplitude Runtime Error QA — 2026-08-31
 
+> Historical record. The managed-preview host and the external
+> instrumentation named below belonged to the former Manus preview environment.
+> The application is now self-hosted on `profoundiqconsulting.com` and no longer
+> loads that instrumentation. The observations are kept as the record of what was
+> seen at the time.
+
 The managed preview route `/courses/lead-with-clarity?workspace=1` rendered the protected course-detail/workspace surface with sign-in and create-account continuation controls. The browser console contained no project-owned error output. The reported stack originates from `files.manuscdn.com/manus-space-dispatcher/spaceEditor-*.js`, which is external Manus editor instrumentation rather than a source file or dependency in this project. Project network logs show the site-owned `manus-analytics.com/api/send` event endpoint returning HTTP 200 responses.
 
 The published route `https://profoundiq-vguqrhsm.manus.space/courses/lead-with-clarity?workspace=1` hydrated successfully after the initial skeleton and displayed the localized protected course page, share controls, and sign-in/create-account workflow. No application error appeared in the rendered page. The reported `spaceEditor-*.js` stack remains attributable to the Manus editor/preview instrumentation layer, not the published site bundle.

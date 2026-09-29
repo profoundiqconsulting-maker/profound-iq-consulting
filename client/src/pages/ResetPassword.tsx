@@ -6,13 +6,12 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { passwordStrength } from "../../../shared/localAuth";
 
-import { getAuthCopy } from "../../../shared/authLocalization";
+import { authCopy } from "../../../shared/authLocalization";
 
 export default function ResetPassword() {
   const [, navigate] = useLocation();
-  const locale = "en";
 
-  const authCopy = getAuthCopy(locale);
+  
   const [password, setPassword] = useState("");
   const token = new URLSearchParams(window.location.search).get("token") ?? "";
   const reset = trpc.auth.resetPassword.useMutation({

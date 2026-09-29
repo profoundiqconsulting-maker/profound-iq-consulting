@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 import {
   ArrowRight,
@@ -24,14 +23,14 @@ import { toast } from "sonner";
 import {
   passwordStrength,
 } from "../../../shared/localAuth";
-import { getAuthCopy } from "../../../shared/authLocalization";
+import { authCopy } from "../../../shared/authLocalization";
 
 type Mode = "login" | "register" | "forgot" | "reset";
 
 export default function Auth() {
   const { user, loading } = useAuth();
   const utils = trpc.useUtils();
-  const authCopy = getAuthCopy();
+  
   const [, navigate] = useLocation();
 
   useEffect(() => {
@@ -681,7 +680,7 @@ export default function Auth() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Profound IQ Consulting on Facebook"
-                className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:-translate-y-0.5 hover:border-[#1877F2] hover:bg-[#1877F2] hover:text-white"
+                className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:border-[#1877F2] hover:bg-[#1877F2] hover:text-white"
               >
                 <Facebook size={16} />
               </a>
@@ -690,7 +689,7 @@ export default function Auth() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Profound IQ Consulting on X"
-                className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-[#101d35]"
+                className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:border-white hover:bg-white hover:text-[#101d35]"
               >
                 <X size={16} />
               </a>
@@ -699,7 +698,7 @@ export default function Auth() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Profound IQ Consulting on LinkedIn"
-                className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:-translate-y-0.5 hover:border-[#0A66C2] hover:bg-[#0A66C2] hover:text-white"
+                className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:border-[#0A66C2] hover:bg-[#0A66C2] hover:text-white"
               >
                 <Linkedin size={16} />
               </a>
@@ -708,7 +707,7 @@ export default function Auth() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Profound IQ Consulting on Instagram"
-                className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:-translate-y-0.5 hover:border-[#E4405F] hover:bg-[#E4405F] hover:text-white"
+                className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:border-[#E4405F] hover:bg-[#E4405F] hover:text-white"
               >
                 <Instagram size={16} />
               </a>
@@ -717,7 +716,7 @@ export default function Auth() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Chat with Profound IQ Consulting on WhatsApp"
-                className="inline-flex h-9 w-9 items-center justify-center border border-[#25D366]/60 text-[#d9fbe5] transition-all hover:-translate-y-0.5 hover:border-[#25D366] hover:bg-[#25D366]/10"
+                className="inline-flex h-9 w-9 items-center justify-center border border-[#25D366]/60 text-[#d9fbe5] transition-all hover:border-[#25D366] hover:bg-[#25D366]/10"
               >
                 <MessageCircle size={16} />
               </a>

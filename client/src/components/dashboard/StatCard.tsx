@@ -28,7 +28,7 @@ export function StatCard({
 
   const content = (
     <Card
-      className={`border border-border bg-card backdrop-blur-sm p-5 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 focus-within:shadow-md ${className}`}
+      className={`border border-border bg-card backdrop-blur-sm p-5 transition-all duration-200 hover:shadow-md focus-within:shadow-md ${className}`}
     >
       <div className="flex items-center justify-between">
         <p className="text-[10px] font-black uppercase tracking-[.12em] text-foreground">

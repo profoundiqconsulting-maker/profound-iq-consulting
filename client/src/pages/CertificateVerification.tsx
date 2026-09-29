@@ -353,8 +353,7 @@ export default function CertificateVerification() {
     [certificateNumber]
   );
   const [copied, setCopied] = useState(false);
-  const locale = "en";
-  const actions = actionCopy[locale] ?? actionCopy.en;
+  const actions = actionCopy.en;
   const nativeShareSupported =
     typeof navigator !== "undefined" && "share" in navigator;
   const recordShare = trpc.course.recordCertificateShare.useMutation();
@@ -457,7 +456,7 @@ export default function CertificateVerification() {
     notFoundBody,
     unavailable,
     explore,
-  ] = copy[locale] ?? copy.en;
+  ] = copy.en;
   const status = (icon: React.ReactNode, heading: string, body: string) => (
     <section className="mt-10 flex items-start gap-4 border-l-2 border-[#c9a34e] bg-white/65 p-6 sm:p-8">
       <div>{icon}</div>

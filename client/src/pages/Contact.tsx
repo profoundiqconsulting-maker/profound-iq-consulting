@@ -301,7 +301,7 @@ export default function Contact() {
                 <button
                   type="submit"
                   disabled={inquiry.isPending}
-                  className="inline-flex min-h-12 items-center justify-center gap-3 bg-[#16243d] px-6 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition-all hover:-translate-y-0.5 hover:bg-[#c9a34e] hover:text-[#101d35] disabled:cursor-wait disabled:opacity-70"
+                  className="inline-flex min-h-12 items-center justify-center gap-3 bg-[#16243d] px-6 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition-all hover:bg-[#c9a34e] hover:text-[#101d35] disabled:cursor-wait disabled:opacity-70"
                 >
                   {inquiry.isPending ? "Sending inquiry…" : "Send inquiry"}{" "}
                   <Send size={15} />

@@ -64,7 +64,7 @@ function CareerPathStepIndicator({ current }: { current: Page }) {
   return (
     <nav
       aria-label="CareerPath progress"
-      className="sticky top-0 z-40 border-b border-[#16243d]/10 bg-[#f7f3e8]/95 px-5 py-3 sm:px-8 backdrop-blur"
+      className="sticky top-0 z-40 border-b border-[#16243d]/10 bg-[#f7f3e8] px-5 py-3 sm:px-8"
     >
       <ol className="mx-auto flex max-w-6xl items-center gap-2">
         {steps.map((step, index) => {
@@ -79,7 +79,7 @@ function CareerPathStepIndicator({ current }: { current: Page }) {
                 className={`flex min-w-0 items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${isActive ? "text-[#16243d]" : isComplete ? "text-[#7d5e1e]" : "text-[#657084]"}`}
               >
                 <span
-                  className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[10px] transition-all duration-300 ${isActive ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243] scale-110" : isComplete ? "border-[#a27e2e] bg-[#a27e2e] text-white" : "border-[#16243d]/20"}`}
+                  className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[10px] transition-colors duration-200 ${isActive ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243]" : isComplete ? "border-[#a27e2e] bg-[#a27e2e] text-white" : "border-[#16243d]/20"}`}
                 >
                   {isComplete ? "✓" : index + 1}
                 </span>
@@ -549,7 +549,7 @@ function AssessmentPlayer({
             before moving to the next.
           </p>
         </div>
-        <div className="sticky top-2 z-20 -mx-2 mb-5 border-y border-[#c9a34e]/40 bg-[#f7f3e8]/95 p-3 shadow-sm backdrop-blur">
+        <div className="sticky top-2 z-20 -mx-2 mb-5 border-y border-[#c9a34e]/40 bg-[#f7f3e8] p-3 shadow-sm">
           <div className="flex items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
             <span>
               Module {currentModule + 1} of {grouped.length}
@@ -1132,7 +1132,7 @@ function ReportsPage({
                   (pathway: CareerPathwayResult, index: number) => (
                     <article
                       key={pathway.key}
-                      className={`border p-5 transition-transform sm:p-7 hover:-translate-y-1 ${index === 0 ? "border-[#a27e2e] bg-[#16243d] text-[#f7f3e8] shadow-sm" : "border-[#16243d]/15 bg-white/55"}`}
+                      className={`border p-5 transition-transform sm:p-7 hover:shadow-lg ${index === 0 ? "border-[#a27e2e] bg-[#16243d] text-[#f7f3e8] shadow-sm" : "border-[#16243d]/15 bg-white/55"}`}
                     >
                       <p className="text-[10px] font-black uppercase tracking-[.16em] opacity-70">
                         {index === 0
@@ -1167,7 +1167,7 @@ function ReportsPage({
                   {report.subPathways.map(subPathway => (
                     <article
                       key={subPathway.key}
-                      className="border border-[#16243d]/12 bg-[#f7f3e8] p-5 transition-transform hover:-translate-y-0.5"
+                      className="border border-[#16243d]/12 bg-[#f7f3e8] p-5 transition-transform hover:shadow-sm"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <h3 className="text-sm font-bold">

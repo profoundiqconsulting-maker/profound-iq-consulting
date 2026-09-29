@@ -19,7 +19,7 @@ export function ReportSectionTabs({
       defaultValue={defaultValue ?? sections[0].id}
       className={`w-full ${className}`}
     >
-      <TabsList className="sticky top-0 z-20 mb-8 h-auto w-full flex-wrap justify-start gap-1 overflow-x-auto border border-[#16243d]/15 bg-[#f7f3e8]/95 p-1 backdrop-blur supports-[backdrop-filter]:bg-[#f7f3e8]/80">
+      <TabsList className="sticky top-0 z-20 mb-8 h-auto w-full flex-wrap justify-start gap-1 overflow-x-auto border border-[#16243d]/15 bg-[#f7f3e8] p-1">
         {sections.map(section => (
           <TabsTrigger
             key={section.id}

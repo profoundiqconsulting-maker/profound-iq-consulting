@@ -233,7 +233,7 @@ export default function AdminReportsPanel() {
         {statCards.map((stat, index) => (
           <div
             key={index}
-            className={`rounded-xl border border-[#16243d]/10 ${stat.color} p-5 text-white shadow-sm transition-transform hover:-translate-y-0.5`}
+            className={`rounded-xl border border-[#16243d]/10 ${stat.color} p-5 text-white shadow-sm transition-shadow hover:shadow-md`}
           >
             <div className="flex items-center justify-between">
               <div>

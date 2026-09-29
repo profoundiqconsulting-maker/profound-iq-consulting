@@ -25,7 +25,6 @@ import {
   markPsychometricReportEmailSent,
   markPsychometricReportEmailFailed,
 } from "./db";
-import { notifyOwner } from "./_core/notification";
 import type { PsychometricReport } from "../shared/psychometrics";
 import { getGeneratedCopy } from "../shared/generatedCopy";
 import { PUBLISHED_SITE_ORIGIN } from "../shared/siteOrigin";
@@ -423,11 +422,9 @@ export async function emailPsychometricReportIfNeeded(input: {
     return true;
   } catch (error) {
     await markPsychometricReportEmailFailed(input.attemptId);
-    void notifyOwner({
-      title: "Psychometric report email failed",
-      content: `Delivery failed for ${input.report.title} · attempt ${input.attemptId} · recipient ${input.email}. ${error instanceof Error ? error.message.slice(0, 500) : "Provider returned an unknown error."}`,
-    }).catch(notificationError =>
-      console.warn("[PsychometricEmail] Admin alert failed:", notificationError)
+    console.error(
+      `[PsychometricEmail] Delivery failed for ${input.report.title} · attempt ${input.attemptId} · recipient ${input.email}.`,
+      error instanceof Error ? error.message : "Provider returned an unknown error."
     );
     throw error;
   }
@@ -515,7 +512,6 @@ export async function sendCourseCertificateEmail(input: {
   courseTitle: string;
   certificateNumber: string;
   certificateSvg: string;
-  locale?: string;
 }) {
   const copy = getGeneratedCopy();
   const config = getSmtpConfig();
@@ -544,7 +540,6 @@ export async function sendOrganizationReviewRequestEmail(input: {
   learnerName: string;
   courseTitle: string;
   certificateNumber: string;
-  locale?: string;
 }): Promise<void> {
   const config = getSmtpConfig();
   const subject = `Profound IQ certificate review request · ${input.learnerName}`;

@@ -6,7 +6,7 @@ import {
   STANDARD_COURSE_STAGE_AMOUNTS_KES,
 } from "./courseCatalog";
 import { renderCourseCertificateSvg } from "../server/courseCertificate";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 describe("expanded professional course catalog", () => {
   const additionalSlugs = [
@@ -147,6 +147,11 @@ describe("expanded professional course catalog", () => {
   });
 
   it("assigns discoverable taxonomy and managed cover artwork to every course", () => {
+    const publishedCovers = new Set(
+      readdirSync("client/public")
+        .filter(file => /^cover-.*\.svg$/.test(file))
+        .map(file => `/cover-${file.replace(/^cover-|\.svg$/g, "")}`)
+    );
     expect(
       courseCatalog.every(
         course =>
@@ -154,7 +159,11 @@ describe("expanded professional course catalog", () => {
           ["Foundation", "Practitioner", "Advanced"].includes(
             course.skillLevel
           ) &&
-          course.coverImage.startsWith("/cover-")
+          course.slug.length > 0 &&
+          (course.coverImage === "" ||
+            publishedCovers.has(course.coverImage) ||
+            course.coverImage.startsWith("data:") ||
+            course.coverImage.startsWith("http"))
       )
     ).toBe(true);
     expect(

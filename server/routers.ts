@@ -350,7 +350,6 @@ import { WEEKLY_EXPORT_KEY } from "./scheduledEnrollmentExport";
 import { BIWEEKLY_NEWSLETTER_KEY } from "./scheduledNewsletter";
 import { PSYCHOMETRIC_WEEKLY_EXPORT_KEY } from "./scheduledPsychometricAnalytics";
 import { COURSE_REVIEW_WEEKLY_EXPORT_KEY } from "./scheduledCourseLessonReviewAnalytics";
-import { localizeCourseMetadata } from "../shared/courseMetadataLocalization";
 import { DELIVERY_LOG_EXPORT_KEY } from "./deliveryLogExport";
 import { createHash, randomUUID } from "node:crypto";
 import {
@@ -2109,20 +2108,6 @@ export const appRouter = router({
           .object({
             layout: z.enum(["summary", "detailed"]).default("detailed"),
             pageSize: z.enum(["A4", "LETTER"]).default("A4"),
-            locale: z
-              .enum([
-                "en",
-                "sw",
-                "fr",
-                "es",
-                "pt",
-                "ar",
-                "zh",
-                "hi",
-                "de",
-                "ja",
-              ])
-              .optional(),
             watermark: z.boolean().default(true),
             coverPage: z.boolean().default(false),
             coverTemplate: z
@@ -2158,12 +2143,7 @@ export const appRouter = router({
           coverTemplate: input.coverTemplate,
           customLogoUrl: profile?.exportLogoUrl ?? undefined,
           courses: courses.map(course => ({
-            title: localizeCourseMetadata(
-              "en",
-              course.slug,
-              course.title,
-              course.description
-            ).title,
+            title: course.title,
             category: course.category,
             skillLevel: course.skillLevel,
             duration: course.duration,
@@ -3507,8 +3487,7 @@ export const appRouter = router({
         if (existing?.scheduleTaskUid) {
           await updateHeartbeatJob(
             existing.scheduleTaskUid,
-            { cron, enable: true },
-            sessionToken
+            { cron, enable: true }
           );
           await updateScheduledExport(COURSE_REVIEW_WEEKLY_EXPORT_KEY, {
             pausedAt: null,
@@ -3528,8 +3507,7 @@ export const appRouter = router({
             path: "/api/scheduled/weeklyCourseLessonReviewAnalytics",
             description:
               "Email the branded course lesson review analytics report to staff every week.",
-          },
-          sessionToken
+          }
         );
         await updateScheduledExport(COURSE_REVIEW_WEEKLY_EXPORT_KEY, {
           scheduleTaskUid: job.taskUid,
@@ -3558,8 +3536,7 @@ export const appRouter = router({
         });
       await updateHeartbeatJob(
         record.scheduleTaskUid,
-        { enable: false },
-        sessionToken
+        { enable: false }
       );
       await updateScheduledExport(COURSE_REVIEW_WEEKLY_EXPORT_KEY, {
         pausedAt: new Date(),
@@ -4559,8 +4536,7 @@ export const appRouter = router({
             path: "/api/scheduled/biweeklyNewsletter",
             description:
               "Send the Profound IQ Insights newsletter every other Monday at 09:00 UTC to confirmed subscribers.",
-          },
-          sessionToken
+          }
         );
         await updateScheduledExport(BIWEEKLY_NEWSLETTER_KEY, {
           scheduleTaskUid: job.taskUid,
@@ -4594,8 +4570,7 @@ export const appRouter = router({
             path: "/api/scheduled/weeklyPsychometricAnalytics",
             description:
               "Email the branded psychometric analytics report to administrators every Monday at 09:00 UTC.",
-          },
-          sessionToken
+          }
         );
         await updateScheduledExport(PSYCHOMETRIC_WEEKLY_EXPORT_KEY, {
           scheduleTaskUid: job.taskUid,
@@ -5508,8 +5483,7 @@ export const appRouter = router({
           path: "/api/scheduled/deliveryLogExportWorker",
           description:
             "Process one queued delivery-log CSV export each minute.",
-        },
-        sessionToken
+        }
       );
       await updateScheduledExport(DELIVERY_LOG_EXPORT_KEY, {
         scheduleTaskUid: job.taskUid,
@@ -6077,8 +6051,7 @@ export const appRouter = router({
           path: "/api/scheduled/weeklyEnrollmentExport",
           description:
             "Generate and store the weekly course enrollment CSV export.",
-        },
-        sessionToken
+        }
       );
       await updateScheduledExport(WEEKLY_EXPORT_KEY, {
         scheduleTaskUid: job.taskUid,

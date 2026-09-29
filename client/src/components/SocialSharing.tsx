@@ -26,26 +26,11 @@ type SocialSharingProps = {
   onShare?: (platform: SocialPlatform) => void;
 };
 
-const copyFor = (locale?: string) => {
-  const isSw = locale === "sw";
-  const isFr = locale === "fr";
-  const isEs = locale === "es";
-  const isPt = locale === "pt";
-  const isAr = locale === "ar";
-  const isZh = locale === "zh";
-  const isHi = locale === "hi";
-  const isDe = locale === "de";
-  const isJa = locale === "ja";
-  if (isSw) return { label: "Shiriki", copied: "Imenakiliwa", copyError: "Kiungo hakikunakiliwa", success: "Kiungo kimenakiliwa" };
-  if (isFr) return { label: "Partager", copied: "Copié", copyError: "Impossible de copier le lien", success: "Lien copié" };
-  if (isEs) return { label: "Compartir", copied: "Copiado", copyError: "No se pudo copiar el enlace", success: "Enlace copiado" };
-  if (isPt) return { label: "Partilhar", copied: "Copiado", copyError: "Não foi possível copiar o link", success: "Link copiado" };
-  if (isAr) return { label: "icipate", copied: "تم النسخ", copyError: "تعذر نسخ الرابط", success: "تم نسخ الرابط" };
-  if (isZh) return { label: "分享", copied: "已复制", copyError: "无法复制分享链接", success: "链接已复制" };
-  if (isHi) return { label: "साझा करें", copied: "कॉपी हुआ", copyError: "शेयर लिंक कॉपी नहीं हो सका", success: "शेयर लिंक कॉपी हुआ" };
-  if (isDe) return { label: "Teilen", copied: "Kopiert", copyError: "Freigabelink konnte nicht kopiert werden", success: "Freigabelink kopiert" };
-  if (isJa) return { label: "共有", copied: "コピー済み", copyError: "共有リンクをコピーできません", success: "共有リンクをコピーしました" };
-  return { label: "Share", copied: "Copied", copyError: "Could not copy link", success: "Link copied" };
+const copy = {
+  label: "Share",
+  copied: "Copied",
+  copyError: "Could not copy link",
+  success: "Link copied",
 };
 
 const platformMeta: Record<
@@ -70,12 +55,10 @@ export function SocialSharing({
   image,
   platforms = ["linkedin", "x", "facebook", "instagram", "whatsapp", "copy", "native"],
   label,
-  locale,
   className = "",
   onShare,
-}: SocialSharingProps & { locale?: string }) {
+}: SocialSharingProps) {
   const [copied, setCopied] = useState(false);
-  const copy = copyFor(locale);
   const shareText = summary || text || title;
 
   const buildDestination = (platform: SocialPlatform): string => {
@@ -143,7 +126,7 @@ export function SocialSharing({
 
   return (
     <div
-      className={`mt-7 border border-border bg-card p-3 shadow-sm transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-md ${className}`}
+      className={`mt-7 border border-border bg-card p-3 shadow-sm transition-shadow duration-200 hover:shadow-md ${className}`}
       aria-label={`${label ?? copy.label}: ${title}`}
     >
       <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[.14em] text-foreground">

@@ -265,7 +265,7 @@ export default function Home() {
     currency: string;
     fileUrl?: string | null;
   }) => (
-    <article className="flex h-full flex-col justify-between border border-[#16243d]/10 bg-white p-6 transition-all hover:-translate-y-1 hover:border-[#c9a34e] hover:shadow-lg">
+    <article className="flex h-full flex-col justify-between border border-[#16243d]/10 bg-white p-6 transition-all hover:border-[#c9a34e] hover:shadow-lg">
       <div>
         <span className="text-[10px] font-black uppercase tracking-[.16em] text-[#7d5e1e]">
           {resource.category}
@@ -303,7 +303,7 @@ export default function Home() {
     type: string;
     totalResponses: number;
   }) => (
-    <article className="flex h-full flex-col justify-between border border-[#16243d]/10 bg-white p-6 transition-all hover:-translate-y-1 hover:border-[#c9a34e] hover:shadow-lg">
+    <article className="flex h-full flex-col justify-between border border-[#16243d]/10 bg-white p-6 transition-all hover:border-[#c9a34e] hover:shadow-lg">
       <div>
         <span className="inline-flex rounded-full bg-[#c9a34e]/10 px-3 py-1 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
           {survey.type}
@@ -587,7 +587,7 @@ export default function Home() {
                   <a
                     key={service.index}
                     href={service.href}
-                    className="group relative overflow-hidden rounded-2xl bg-white p-8 shadow-sm transition-all hover:shadow-xl hover:-translate-y-1"
+                    className="group relative overflow-hidden rounded-2xl bg-white p-8 shadow-sm transition-all hover:shadow-xl"
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-[#f7f3e8] to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                     <div className="relative">
@@ -637,7 +637,7 @@ export default function Home() {
                   <a
                     key={service.index}
                     href={service.href}
-                    className="group relative overflow-hidden rounded-2xl bg-[#16243d] p-10 text-[#f7f3e8] shadow-xl transition-all hover:shadow-2xl hover:-translate-y-1"
+                    className="group relative overflow-hidden rounded-2xl bg-[#16243d] p-10 text-[#f7f3e8] shadow-xl transition-all hover:shadow-2xl"
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-[#c9a34e]/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                     <div className="relative">
@@ -657,7 +657,7 @@ export default function Home() {
                         Open service
                         <ArrowUpRight
                           size={16}
-                          className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                          className="transition-transform group-hover:translate-x-0.5"
                         />
                       </div>
                     </div>

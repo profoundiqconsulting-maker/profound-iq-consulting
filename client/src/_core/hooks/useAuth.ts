@@ -1,5 +1,5 @@
 import { startLogin } from "@/const";
-import { setLoggingOut } from "@/main";
+import { setLoggingOut } from "@/lib/apiRuntime";
 import { trpc } from "@/lib/trpc";
 import { TRPCClientError } from "@trpc/client";
 import { useEffect, useMemo, useState } from "react";

@@ -76,7 +76,7 @@ export function DashboardHero({
           {stats.map((stat, index) => (
             <Card
               key={index}
-              className="border border-border bg-card backdrop-blur-sm p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+              className="border border-border bg-card backdrop-blur-sm p-4 transition-all duration-200 hover:shadow-md"
             >
               <p className="text-[10px] font-black uppercase tracking-[.12em] text-foreground">
                 {stat.label}

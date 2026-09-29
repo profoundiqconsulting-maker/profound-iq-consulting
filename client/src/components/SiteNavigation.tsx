@@ -65,8 +65,8 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
         : "/dashboard/overview";
 
   const headerTone = dark
-    ? "border-white/15 bg-[#101d35]/95 text-[#f7f3e8] shadow-[0_10px_30px_rgba(7,17,35,.16)] supports-[backdrop-filter]:bg-[#101d35]/80"
-    : "border-[#16243d]/10 bg-[#f7f3e8]/95 text-[#16243d] shadow-[0_10px_30px_rgba(8,15,26,.08)] supports-[backdrop-filter]:bg-[#f7f3e8]/85";
+    ? "border-white/15 bg-[#101d35] text-[#f7f3e8] shadow-[0_10px_30px_rgba(7,17,35,.16)]"
+    : "border-[#16243d]/10 bg-[#f7f3e8] text-[#16243d] shadow-[0_10px_30px_rgba(8,15,26,.08)]";
 
   const navText = dark ? "text-[#c9d1df] hover:text-[#c9a34e]" : "text-[#4a566a] hover:text-[#a27e2e]";
   const activeText = dark ? "text-[#c9a34e]" : "text-[#a27e2e]";
@@ -105,7 +105,7 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
       <header
         data-sticky-navigation
         data-compact={isCompact}
-        className={`sticky top-0 z-50 border-b backdrop-blur-xl transition-all duration-200 ${headerTone} ${isCompact ? "shadow-[0_14px_34px_rgba(7,17,35,.24)]" : ""} overflow-x-hidden`}
+        className={`sticky top-0 z-50 border-b transition-all duration-200 ${headerTone} ${isCompact ? "shadow-[0_14px_34px_rgba(7,17,35,.24)]" : ""} overflow-x-hidden`}
       >
         <div className={`container flex items-center justify-between gap-3 transition-[min-height,padding] duration-200 sm:gap-4 ${isCompact ? "min-h-14 py-1.5" : "min-h-16 py-2 sm:py-3"}`}>
           <Link href="/" className="flex shrink-0 items-center gap-3" aria-label="Profound IQ Consulting home">

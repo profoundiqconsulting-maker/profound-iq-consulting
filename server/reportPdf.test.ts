@@ -152,7 +152,6 @@ describe("renderSavedCoursePathwaysPdf", () => {
     const { renderSavedCoursePathwaysPdf } = await import("./reportPdf");
     const pdf = await renderSavedCoursePathwaysPdf({
       participantName: "Amina Njeri",
-      locale: "fr",
       layout: "detailed",
       pageSize: "LETTER",
       coverPage: true,

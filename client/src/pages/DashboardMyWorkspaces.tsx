@@ -7,7 +7,6 @@ import { courseCatalog } from "@shared/courseCatalog";
 import { BookOpen, ChevronRight, Clock3, PlayCircle } from "lucide-react";
 
 export default function DashboardMyWorkspaces() {
-  const locale = "en";
   const courses = useMemo(() => courseCatalog, []);
 
   return (

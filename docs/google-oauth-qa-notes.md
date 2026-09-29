@@ -8,16 +8,16 @@ Official references consulted:
 
 Current project values:
 
-- Application home page: https://profoundiq-vguqrhsm.manus.space/
-- Privacy policy: https://profoundiq-vguqrhsm.manus.space/privacy-policy
-- Terms of service: https://profoundiq-vguqrhsm.manus.space/terms-of-service
-- Authorized domains shown in Google Auth Platform: profoundiqconsulting.com and manus.space.
+- Application home page: https://profoundiqconsulting.com/
+- Privacy policy: https://profoundiqconsulting.com/privacy-policy
+- Terms of service: https://profoundiqconsulting.com/terms-of-service
+- Authorized domains shown in Google Auth Platform: profoundiqconsulting.com.
 
 Automated checks:
 
 - GOOGLE_OAUTH_CLIENT_ID is present in the backend environment; only length and suffix were inspected.
 - GOOGLE_OAUTH_CLIENT_SECRET is present in the backend environment; only length and suffix were inspected.
-- Live Google OAuth start endpoint returns a Google authorization URL with client_id, state, nonce, and callback https://profoundiq-vguqrhsm.manus.space/api/oauth/google/callback.
+- Live Google OAuth start endpoint returns a Google authorization URL with client_id, state, nonce, and callback https://profoundiqconsulting.com/api/oauth/google/callback.
 - Browser consent completed successfully and returned to /dashboard with an authenticated session.
 - Deterministic OAuth tests cover exact callback construction, state/nonce cookie validation, mocked token exchange, profile persistence, and session-cookie creation.
 

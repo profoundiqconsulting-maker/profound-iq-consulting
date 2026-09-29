@@ -644,81 +644,14 @@ export async function renderSavedCoursePathwaysPdf(
 ): Promise<Buffer> {
   const copy = getGeneratedCopy();
   const labels = {
-    savedPathways: {
-      en: "Your saved learning pathways",
-      sw: "Njia zako za kujifunza zilizohifadhiwa",
-      fr: "Vos parcours d’apprentissage enregistrés",
-      es: "Tus rutas de aprendizaje guardadas",
-      pt: "Os seus percursos de aprendizagem guardados",
-      ar: "مسارات التعلم المحفوظة",
-      zh: "您保存的学习路径",
-      hi: "आपके सहेजे गए सीखने के पथ",
-      de: "Ihre gespeicherten Lernpfade",
-      ja: "保存した学習パス",
-    },
-    preparedFor: {
-      en: "Prepared for",
-      sw: "Imeandaliwa kwa",
-      fr: "Préparé pour",
-      es: "Preparado para",
-      pt: "Preparado para",
-      ar: "أُعدّ لـ",
-      zh: "准备给",
-      hi: "के लिए तैयार",
-      de: "Vorbereitet für",
-      ja: "作成者",
-    },
-    generated: copy.generated,
-    pathway: {
-      en: "PATHWAY",
-      sw: "NJIA",
-      fr: "PARCOURS",
-      es: "RUTA",
-      pt: "PERCURSO",
-      ar: "المسار",
-      zh: "路径",
-      hi: "पथ",
-      de: "PFAD",
-      ja: "パス",
-    },
-    outcomes: {
-      en: "OUTCOMES",
-      sw: "MATOKEO",
-      fr: "RÉSULTATS",
-      es: "RESULTADOS",
-      pt: "RESULTADOS",
-      ar: "النتائج",
-      zh: "成果",
-      hi: "परिणाम",
-      de: "ERGEBNISSE",
-      ja: "成果",
-    },
-    noSaved: {
-      en: "No saved pathways yet.",
-      sw: "Bado hakuna njia zilizohifadhiwa.",
-      fr: "Aucun parcours enregistré pour le moment.",
-      es: "Aún no hay rutas guardadas.",
-      pt: "Ainda não há percursos guardados.",
-      ar: "لا توجد مسارات محفوظة بعد.",
-      zh: "尚无保存的学习路径。",
-      hi: "अभी कोई सहेजे गए पथ नहीं हैं।",
-      de: "Noch keine Lernpfade gespeichert.",
-      ja: "保存された学習パスはまだありません。",
-    },
-    returnToCatalog: {
-      en: "Return to the course catalog to save a pathway for later reference.",
-      sw: "Rudi kwenye katalogi ya kozi kuhifadhi njia kwa marejeo ya baadaye.",
-      fr: "Retournez au catalogue pour enregistrer un parcours.",
-      es: "Vuelve al catálogo para guardar una ruta.",
-      pt: "Volte ao catálogo para guardar um percurso.",
-      ar: "ارجع إلى كتالوج الدورات لحفظ مسار للرجوع إليه لاحقًا.",
-      zh: "返回课程目录以保存学习路径。",
-      hi: "बाद में संदर्भ के लिए पथ सहेजने हेतु पाठ्यक्रम कैटलॉग पर लौटें।",
-      de: "Kehren Sie zum Kurskatalog zurück, um einen Lernpfad zu speichern.",
-      ja: "後で参照できるようコースカタログに戻ってパスを保存してください。",
-    },
+    savedPathways: "Your saved learning pathways",
+    preparedFor: "Prepared for",
+    pathway: "PATHWAY",
+    outcomes: "OUTCOMES",
+    noSaved: "No saved pathways yet.",
+    returnToCatalog:
+      "Return to the course catalog to save a pathway for later reference.",
   };
-  const localeKey = "en" as keyof typeof labels.savedPathways;
   const regularFont = pdfFont();
   const boldFont = pdfFont(true);
   const doc = new PDFDocument({
@@ -726,9 +659,9 @@ export async function renderSavedCoursePathwaysPdf(
     compress: false,
     margins: { top: 52, right: 52, bottom: 52, left: 52 },
     info: {
-      Title: `Profound IQ Saved Learning Pathways — ${labels.savedPathways[localeKey]}`,
+      Title: `Profound IQ Saved Learning Pathways — ${labels.savedPathways}`,
       Author: "Profound IQ Consulting",
-      Subject: `Saved course pathways · ${labels.savedPathways[localeKey]}`,
+      Subject: `Saved course pathways · ${labels.savedPathways}`,
     },
   });
   const chunks: Buffer[] = [];
@@ -785,7 +718,7 @@ export async function renderSavedCoursePathwaysPdf(
       .font(boldFont)
       .fontSize(template === "editorial" ? 32 : 28)
       .text(
-        labels.savedPathways[localeKey],
+        labels.savedPathways,
         coverX,
         template === "signal" ? 250 : 280,
         { width: doc.page.width - 104, align: coverAlign }
@@ -795,7 +728,7 @@ export async function renderSavedCoursePathwaysPdf(
       .font(regularFont)
       .fontSize(13)
       .text(
-        `${labels.preparedFor[localeKey]} ${input.participantName}`,
+        `${labels.preparedFor} ${input.participantName}`,
         coverX,
         template === "signal" ? 355 : 355,
         { width: doc.page.width - 104, align: coverAlign }
@@ -815,7 +748,7 @@ export async function renderSavedCoursePathwaysPdf(
       .font(regularFont)
       .fontSize(9)
       .text(
-        `${input.courses.length} ${labels.pathway[localeKey].toLowerCase()}`,
+        `${input.courses.length} ${labels.pathway.toLowerCase()}`,
         coverX,
         430,
         { width: doc.page.width - 104, align: coverAlign }
@@ -861,13 +794,13 @@ export async function renderSavedCoursePathwaysPdf(
     .fillColor(NAVY)
     .font(boldFont)
     .fontSize(25)
-    .text(labels.savedPathways[localeKey], 52, 145);
+    .text(labels.savedPathways, 52, 145);
   doc
     .fillColor(MUTED)
     .font(regularFont)
     .fontSize(10)
     .text(
-      `${labels.preparedFor[localeKey]} ${input.participantName}${input.email ? ` · ${input.email}` : ""}`,
+      `${labels.preparedFor} ${input.participantName}${input.email ? ` · ${input.email}` : ""}`,
       52,
       180
     );
@@ -881,12 +814,12 @@ export async function renderSavedCoursePathwaysPdf(
       .fillColor(NAVY)
       .font(boldFont)
       .fontSize(14)
-      .text(labels.noSaved[localeKey], 52, y);
+      .text(labels.noSaved, 52, y);
     doc
       .fillColor(MUTED)
       .font(regularFont)
       .fontSize(10)
-      .text(labels.returnToCatalog[localeKey], 52, y + 24, { width: 490 });
+      .text(labels.returnToCatalog, 52, y + 24, { width: 490 });
   }
   input.courses.forEach((course, index) => {
     if (y > 690) {
@@ -899,7 +832,7 @@ export async function renderSavedCoursePathwaysPdf(
       .font(boldFont)
       .fontSize(9)
       .text(
-        `${labels.pathway[localeKey]} ${String(index + 1).padStart(2, "0")}`,
+        `${labels.pathway} ${String(index + 1).padStart(2, "0")}`,
         52,
         y,
         { characterSpacing: 1.2 }
@@ -925,7 +858,7 @@ export async function renderSavedCoursePathwaysPdf(
         .fillColor(GOLD)
         .font(boldFont)
         .fontSize(8)
-        .text(labels.outcomes[localeKey], 52, y, { characterSpacing: 1.1 });
+        .text(labels.outcomes, 52, y, { characterSpacing: 1.1 });
       y += 16;
       y = writeBullets(doc, course.outcomes.slice(0, 5), y, 9.5, MUTED) + 16;
     } else {

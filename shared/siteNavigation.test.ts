@@ -48,19 +48,6 @@ describe("sitewide navigation alignment", () => {
     expect(verification).toContain('recordShareEvent("native")');
     expect(verification).toContain("recordCertificateShare");
     expect(verification).toContain("actions.copied");
-    for (const locale of [
-      "en",
-      "sw",
-      "fr",
-      "es",
-      "pt",
-      "ar",
-      "zh",
-      "hi",
-      "de",
-      "ja",
-    ])
-      expect(verification).toContain(`${locale}: {`);
     expect(verification).toContain("nativeShareSupported");
   });
 

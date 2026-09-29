@@ -28,10 +28,7 @@ import {
   downloadIllustrationStudySheetPng,
 } from "@/lib/illustrationStudySheet";
 import { courseCatalog, type CourseDefinition } from "@shared/courseCatalog";
-import {
-  getLessonIllustrationCopy,
-  localizeCourseDefinition,
-} from "@shared/contentLocalization";
+import { lessonIllustrationCopy } from "@shared/contentLocalization";
 import {
   DashboardHero,
   Section,
@@ -330,7 +327,6 @@ const updateLabel = "Save";
 
 export default function MyIllustrations() {
   const { user, loading, isAuthenticated } = useAuth();
-  const locale = "en";
 
   const [query, setQuery] = useState("");
   const [folderQuery, setFolderQuery] = useState("");
@@ -450,14 +446,10 @@ export default function MyIllustrations() {
   const cards = useMemo<GalleryCard[]>(
     () =>
       (bookmarksQuery.data?.rows ?? []).map(bookmark => {
-        const locale = "en";
-        const baseCourse = courseCatalog.find(
+              const baseCourse = courseCatalog.find(
           course => course.slug === bookmark.courseSlug
         );
-        const localizedCourse = baseCourse
-          ? localizeCourseDefinition(locale, baseCourse)
-          : undefined;
-        const lesson = findLesson(localizedCourse, bookmark.lessonId);
+        const lesson = findLesson(baseCourse, bookmark.lessonId);
         const mode = (
           bookmark.illustrationMode in modeLabels
             ? bookmark.illustrationMode
@@ -466,12 +458,12 @@ export default function MyIllustrations() {
         return {
           id: bookmark.id,
           courseSlug: bookmark.courseSlug,
-          courseTitle: localizedCourse?.title ?? bookmark.courseSlug,
+          courseTitle: baseCourse?.title ?? bookmark.courseSlug,
           lessonId: bookmark.lessonId,
           lessonTitle: lesson?.title ?? bookmark.title,
           mode,
           modeLabel:
-            getLessonIllustrationCopy(locale)[mode] || modeLabels[mode],
+            lessonIllustrationCopy[mode] || modeLabels[mode],
           title: bookmark.title,
           content: lesson?.illustration[mode] ?? bookmark.content,
           folder: bookmark.folder || "Unsorted",
@@ -638,7 +630,7 @@ export default function MyIllustrations() {
                         : "border-[#16243d]/25"
                     }
                   >
-                    {mode === "all" ? "All modes" : getLessonIllustrationCopy(locale)[mode]}
+                    {mode === "all" ? "All modes" : lessonIllustrationCopy[mode]}
                   </Button>
                 ))}
                 <Select value={folderFilter} onValueChange={setFolderFilter}>
@@ -841,7 +833,7 @@ export default function MyIllustrations() {
           description="Open a course lesson, choose an illustration that helps you learn, and select Save to build this collection."
         >
           <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#f7f3e8] transition-transform hover:scale-110">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#f7f3e8] transition-shadow hover:shadow-md">
               <Bookmark size={28} className="text-[#16243d]/70" />
             </div>
             <p className="text-sm text-[#16243d] max-w-sm">

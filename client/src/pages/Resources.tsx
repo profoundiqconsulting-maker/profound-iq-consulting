@@ -153,7 +153,7 @@ export default function Resources() {
                 .sort((a: { sortOrder: number }, b: { sortOrder: number }) => a.sortOrder - b.sortOrder)
                 .map((resource: { id: number; title: string; description: string; category: string; price: number; currency: string; fileUrl?: string | null }, index: number) => (
                   <ScrollReveal key={resource.id} delay={index * 70}>
-                    <article className="group border border-[#16243d]/10 bg-[#f7f3e8] p-8 transition-all duration-200 hover:-translate-y-1 hover:border-[#c9a34e] hover:bg-white hover:shadow-lg">
+                    <article className="group border border-[#16243d]/10 bg-[#f7f3e8] p-8 transition-all duration-200 hover:border-[#c9a34e] hover:bg-white hover:shadow-lg">
                       <div className="flex items-start justify-between gap-4">
                         <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-[#16243d] text-[#c9a34e]">
                           <BookOpen size={22} />
@@ -243,7 +243,7 @@ export default function Resources() {
           <div className="mt-16 grid gap-5 md:grid-cols-2">
             {resourceTypes.map(({ title, body, icon: Icon, href }, index) => (
               <ScrollReveal key={title} delay={index * 70}>
-                <article className="public-card-link group border border-[#16243d]/10 bg-white/60 p-8 transition-all duration-200 hover:-translate-y-1 hover:border-[#c9a34e] hover:bg-white hover:shadow-lg sm:p-9">
+                <article className="public-card-link group border border-[#16243d]/10 bg-white/60 p-8 transition-all duration-200 hover:border-[#c9a34e] hover:bg-white hover:shadow-lg sm:p-9">
                   <div className="flex items-start justify-between gap-4">
                     <div className="inline-flex h-14 w-14 items-center justify-center rounded-sm bg-[#16243d] text-[#c9a34e]">
                       <Icon size={24} />

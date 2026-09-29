@@ -20,7 +20,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { getPsychometricCourseRecommendations } from "@shared/psychometricRecommendations";
 
-import { getPsychometricWorkflowCopy } from "@shared/psychometricWorkflowLocalization";
+import { psychometricWorkflowCopy as workflowCopy } from "@shared/psychometricWorkflowLocalization";
 import PaystackInlineModal, {
   type PaystackInlineProduct,
 } from "@/components/PaystackInlineModal";
@@ -33,9 +33,8 @@ export default function Psychometrics() {
   const utils = trpc.useUtils();
   const [, params] = useRoute("/psychometrics/:slug");
   const [, navigate] = useLocation();
-  const locale = "en";
 
-  const workflowCopy = getPsychometricWorkflowCopy(locale);
+  
   const slug = params?.slug;
   const catalog = trpc.psychometric.catalog.useQuery(undefined, {
     enabled: !slug,
@@ -474,7 +473,7 @@ export default function Psychometrics() {
                   }).map(course => (
                     <div
                       key={course.slug}
-                      className="rounded-xl border border-[#16243d]/10 bg-[#f7f3e8] p-4 transition hover:-translate-y-0.5 hover:border-[#c9a34e]"
+                      className="rounded-xl border border-[#16243d]/10 bg-[#f7f3e8] p-4 transition hover:border-[#c9a34e]"
                     >
                       <Link href={`/courses/${course.slug}`}>
                         <span className="block text-sm font-bold text-[#16243d]">

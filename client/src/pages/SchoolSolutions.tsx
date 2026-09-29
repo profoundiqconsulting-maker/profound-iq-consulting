@@ -99,7 +99,7 @@ export default function SchoolSolutions() {
           <div className="mt-16 grid gap-5 md:grid-cols-2">
             {solutionAreas.map(({ title, body, icon: Icon }, index) => (
               <ScrollReveal key={title} delay={index * 70}>
-                <article className="public-card-link group border-t-4 border-[#c9a34e] bg-white/70 p-8 transition-all duration-200 hover:-translate-y-1 hover:bg-white hover:shadow-lg sm:p-9">
+                <article className="public-card-link group border-t-4 border-[#c9a34e] bg-white/70 p-8 transition-all duration-200 hover:bg-white hover:shadow-lg sm:p-9">
                   <div className="flex items-start justify-between gap-5">
                     <Icon size={26} className="text-[#7d5e1e]" />
                     <span className="text-[10px] font-black tracking-[.16em] text-[#657084]">
@@ -161,7 +161,7 @@ export default function SchoolSolutions() {
             </div>
             <Link
               href="/contact"
-              className="inline-flex shrink-0 items-center justify-center gap-3 bg-[#16243d] px-6 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition-all hover:-translate-y-1 hover:shadow-lg"
+              className="inline-flex shrink-0 items-center justify-center gap-3 bg-[#16243d] px-6 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition-all hover:shadow-lg"
             >
               Request a consultation <ArrowUpRight size={15} />
             </Link>

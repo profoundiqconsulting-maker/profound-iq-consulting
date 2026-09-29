@@ -110,7 +110,7 @@ export default function NewsletterAction({ action }: { action: Action }) {
             <Link
               href="/blog"
               onClick={() => navigate("/blog")}
-              className="mt-8 inline-flex min-h-12 items-center justify-center bg-[#16243d] px-5 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition hover:-translate-y-0.5 hover:bg-[#c9a34e] hover:text-[#101d35]"
+              className="mt-8 inline-flex min-h-12 items-center justify-center bg-[#16243d] px-5 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition hover:bg-[#c9a34e] hover:text-[#101d35]"
             >
               Return to Insights
             </Link>

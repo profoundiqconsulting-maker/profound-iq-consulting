@@ -1,18 +1,3 @@
-export const psychometricWorkflowLocales = [
-  "en",
-  "sw",
-  "fr",
-  "es",
-  "pt",
-  "ar",
-  "zh",
-  "hi",
-  "de",
-  "ja",
-] as const;
-
-export type PsychometricWorkflowLocale = (typeof psychometricWorkflowLocales)[number];
-
 export type PsychometricWorkflowCopy = {
   progress: string;
   previous: string;
@@ -40,8 +25,3 @@ export const psychometricWorkflowCopy: PsychometricWorkflowCopy = {
   generateProfile: "and generate profile",
 };
 
-export function getPsychometricWorkflowCopy(
-  _locale?: string
-): PsychometricWorkflowCopy {
-  return psychometricWorkflowCopy;
-}

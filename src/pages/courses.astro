@@ -1,0 +1,75 @@
+---
+import {
+  COURSE_CATALOG_DESCRIPTION,
+  COURSE_CATALOG_TITLE,
+  courseCatalogCanonical,
+} from '@shared/courseCatalogSeo';
+import { PUBLISHED_SITE_ORIGIN } from '@shared/siteOrigin';
+import CoursesIsland from '../islands/CoursesIsland';
+
+const canonical = courseCatalogCanonical(PUBLISHED_SITE_ORIGIN);
+const socialImage = `${PUBLISHED_SITE_ORIGIN}/ProfoundIQSocialSharingImage.png`;
+const catalogueJsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Profound IQ Consulting professional courses',
+  description: COURSE_CATALOG_DESCRIPTION,
+  url: canonical,
+}).replace(/</g, '\\u003c');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{COURSE_CATALOG_TITLE}</title>
+    <meta name="description" content={COURSE_CATALOG_DESCRIPTION} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:title" content={COURSE_CATALOG_TITLE} />
+    <meta property="og:description" content={COURSE_CATALOG_DESCRIPTION} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta property="og:image:secure_url" content={socialImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1733" />
+    <meta property="og:image:height" content="908" />
+    <meta property="og:image:alt" content="Profound IQ Consulting logo" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={COURSE_CATALOG_TITLE} />
+    <meta name="twitter:description" content={COURSE_CATALOG_DESCRIPTION} />
+    <meta name="twitter:image" content={socialImage} />
+    <meta name="twitter:image:alt" content="Profound IQ Consulting logo" />
+    <script type="application/ld+json" set:html={catalogueJsonLd} />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  </head>
+  <body>
+    <div class="courses-shell" id="courses-root">
+      <CoursesIsland client:load ssrPath={Astro.url.pathname} />
+    </div>
+  </body>
+</html>
+
+<style>
+  .courses-shell {
+    min-height: 100vh;
+    background: #f7f3e8;
+    color: #16243d;
+  }
+
+  .courses-shell :global(a) {
+    text-decoration: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .courses-shell :global(*),
+    .courses-shell :global(*::before),
+    .courses-shell :global(*::after) {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+</style>
