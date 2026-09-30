@@ -42,7 +42,7 @@ export function ExecutiveHeader({
               {breadcrumbs.map((crumb, index) => (
                 <div key={index} className="flex items-center gap-2">
                   {index > 0 && (
-                    <ChevronRight className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
+                    <ChevronRight className="h-3.5 w-3.5 text-slate-500" aria-hidden="true" />
                   )}
                   {crumb.href && index < breadcrumbs.length - 1 ? (
                     <Link
@@ -68,7 +68,7 @@ export function ExecutiveHeader({
               Search
             </label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden="true" />
               <Input
                 id="global-search"
                 type="search"
@@ -165,7 +165,7 @@ export function ExecutiveHeader({
             <label htmlFor="mobile-search" className="sr-only">
               Search
             </label>
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden="true" />
             <Input
               id="mobile-search"
               type="search"

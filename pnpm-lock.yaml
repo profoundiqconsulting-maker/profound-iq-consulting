@@ -224,12 +224,6 @@ importers:
       '@astrojs/react':
         specifier: ^7.0.0
         version: 7.0.0(@types/node@24.7.0)(@types/react-dom@19.2.1(@types/react@19.2.1))(@types/react@19.2.1)(esbuild@0.25.10)(jiti@2.6.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(tsx@4.20.6)(yaml@2.9.1)
-      '@astrojs/tailwind':
-        specifier: ^6.0.2
-        version: 6.0.2(astro@7.3.5(@types/node@24.7.0)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.9.1))(tailwindcss@4.1.14)
-      '@builder.io/vite-plugin-jsx-loc':
-        specifier: ^0.1.1
-        version: 0.1.1(vite@7.1.9(@types/node@24.7.0)(jiti@2.6.1)(lightningcss@1.33.0)(tsx@4.20.6)(yaml@2.9.1))
       '@playwright/test':
         specifier: ^1.62.1
         version: 1.62.1
@@ -308,9 +302,6 @@ importers:
       vite:
         specifier: ^7.1.7
         version: 7.1.9(@types/node@24.7.0)(jiti@2.6.1)(lightningcss@1.33.0)(tsx@4.20.6)(yaml@2.9.1)
-      vite-plugin-manus-runtime:
-        specifier: 0.0.59
-        version: 0.0.59
       vitest:
         specifier: ^2.1.4
         version: 2.1.9(@types/node@24.7.0)(lightningcss@1.33.0)
@@ -412,12 +403,6 @@ packages:
     peerDependenciesMeta:
       oxc-transform-react:
         optional: true
-
-  '@astrojs/tailwind@6.0.2':
-    resolution: {integrity: sha512-j3mhLNeugZq6A8dMNXVarUa8K6X9AW+QHU9u3lKNrPLMHhOQ0S7VeWhHwEeJFpEK1BTKEUY1U78VQv2gN6hNGg==}
-    peerDependencies:
-      astro: ^3.0.0 || ^4.0.0 || ^5.0.0
-      tailwindcss: ^3.0.24
 
   '@astrojs/telemetry@3.3.3':
     resolution: {integrity: sha512-C1TLn5sPJr0x4vk56piHWKbnqlEB8BKyte5Y45V02U+D7BGO5eMqZDH5aPjnkXQWJggvmsTXxH03QMZ9NgWLzQ==}
@@ -650,14 +635,6 @@ packages:
     resolution: {integrity: sha512-C3IfPvfvMXmlzBxaMPKFS1XiuV9pu2mC7YqkPk7PSvTgPZ8gbdASIpHpztDLvTTQjqZ0z1Ol8tK5X+V6XXC0wQ==}
     cpu: [x64]
     os: [win32]
-
-  '@builder.io/jsx-loc-internals@0.0.1':
-    resolution: {integrity: sha512-cSADapVCi07DDhcuDmcAVItqSVmji7DNyD3xxYTHyNCwhWMNnTpZjyvDIWwYFJLleyDCJ9VUtbaXtUjjqBiRqw==}
-
-  '@builder.io/vite-plugin-jsx-loc@0.1.1':
-    resolution: {integrity: sha512-iAHFkaLBDJBC+EkGO1hF7hnIW2+oKKYVOl8NFAQH//3xeNEzvGdS9tOALRPR+JjR/M5NLyj+FG0VV7WFb1aJmw==}
-    peerDependencies:
-      vite: ^4.0.0 || ^5.0.0
 
   '@capsizecss/unpack@4.0.1':
     resolution: {integrity: sha512-CuNiSqg7+e1cO/GjffyMOm5Tt2jUF9CWHHnvQ/UkqvtkGfHdgwEC0wpmq7fkN3gxwpRnrAN0WzO3vREKmNolMQ==}
@@ -1636,9 +1613,6 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
-
-  '@medv/finder@4.0.2':
-    resolution: {integrity: sha512-RraNY9SCcx4KZV0Dh6BEW6XEW2swkqYca74pkFFRw6hHItSHiy+O/xMnpbofjYbzXj0tSpBGthUF1hHTsr3vIQ==}
 
   '@mermaid-js/parser@0.6.3':
     resolution: {integrity: sha512-lnjOhe7zyHjc+If7yT4zoedx2vo4sHaTmtkl1+or8BRTnCtDmcTpAjpzDSfCZrshM5bCoz0GyidzadJAH1xobA==}
@@ -3734,9 +3708,6 @@ packages:
   estree-util-is-identifier-name@3.0.0:
     resolution: {integrity: sha512-hFtqIDZTIUZ9BXLb8y4pYGyk6+wekIivNVTcmvk8NoOh+VeRn5y6cEHzbURrWbfp1fIqdVipilzj+lfaadNZmg==}
 
-  estree-walker@2.0.2:
-    resolution: {integrity: sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==}
-
   estree-walker@3.0.3:
     resolution: {integrity: sha512-7RUKfXgSMMkzt6ZuXmqapOurLGPPfgj6l9uRZ7lRGolvk0y2yocc35LdcxKC5PQZdn2DMqioAQ2NoWcrTKmm6g==}
 
@@ -4243,10 +4214,6 @@ packages:
     resolution: {integrity: sha512-WkUDrojuJs0xkgGf2udWxa3yGBRxPtxUkB79i6aCZLRgc7PM8fZe9TosfPDcvEpQZbuFASnHYmRLBLUbmLOIIA==}
     engines: {node: '>= 12.0.0'}
 
-  lilconfig@3.1.3:
-    resolution: {integrity: sha512-/vlFKAoH5Cgt3Ie+JLhRbwOsCQePABiU3tJ1egGvyQ+33R/vcwM2Zl2QR/LzjsBeItPt3oSVXapn+m4nQDvpzw==}
-    engines: {node: '>=14'}
-
   linebreak@1.1.0:
     resolution: {integrity: sha512-MHp03UImeVhB7XZtjd0E4n6+3xr5Dq/9xI/5FptGk5FrbDR3zagPa2DS6U8ks/3HjbKWG9Q1M2ufOzxV2qLYSQ==}
 
@@ -4501,9 +4468,6 @@ packages:
   mlly@1.8.0:
     resolution: {integrity: sha512-l8D9ODSRWLe2KHJSifWGwBqpTZXIXTeo8mlKjY+E2HAakaTeNpqAyBZ8GSqLzHgw4XmHmC8whvpjJNMbFZN7/g==}
 
-  modern-screenshot@4.6.6:
-    resolution: {integrity: sha512-8tF0xEpe7yx37mK95UcIghSCWYeu628K2hLJl+ZNY2ANmRzYLlRLpquPHAQcL8keF6BoeEzTEw4GrgmUpGuZ8w==}
-
   motion-dom@12.23.21:
     resolution: {integrity: sha512-5xDXx/AbhrfgsQmSE7YESMn4Dpo6x5/DTZ4Iyy4xqDvVHWvFVoV+V2Ri2S/ksx+D40wrZ7gPYiMWshkdoqNgNQ==}
 
@@ -4743,18 +4707,6 @@ packages:
 
   postal-mime@2.7.6:
     resolution: {integrity: sha512-UUlyE2KlxmvwMGq060onF/VWU3zD6dVW31FwokQ5v26jWd35fbs2MoTFzh+jXnPwAyV2MULMKXcBInGOl5TO6Q==}
-
-  postcss-load-config@4.0.2:
-    resolution: {integrity: sha512-bSVhyJGL00wMVoPUzAVAnbEoWyqRxkjv64tUl427SKnPrENtq6hJwUojroMz2VB+Q1edmi4IfrAPpami5VVgMQ==}
-    engines: {node: '>= 14'}
-    peerDependencies:
-      postcss: '>=8.0.9'
-      ts-node: '>=9.0.0'
-    peerDependenciesMeta:
-      postcss:
-        optional: true
-      ts-node:
-        optional: true
 
   postcss-selector-parser@6.0.10:
     resolution: {integrity: sha512-IQ7TZdoaqbT+LCpShg46jnZVlhWD2w6iQYAcYXfHARZ7X1t/UGhhceQDs5X0cGqKvYlHNOuv7Oa1xmb0oQuA3w==}
@@ -5469,9 +5421,6 @@ packages:
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
 
-  vite-plugin-manus-runtime@0.0.59:
-    resolution: {integrity: sha512-rgEEON7T63R+/2SHAJ0YoKR0skSWKYuCuIZBeRcVnjSWGsZsTigXFHfjpe9/wJCJAeqPVAUhTv0D+CTlPxnCiw==}
-
   vite@5.4.20:
     resolution: {integrity: sha512-j3lYzGC3P+B5Yfy/pfKNgVEg4+UtcIJcVRt2cDjIOmhLourAqPqf8P7acgxeiSgUB7E3p2P8/3gNIgDLpwzs4g==}
     engines: {node: ^18.0.0 || >=20.0.0}
@@ -5816,16 +5765,6 @@ snapshots:
       - tsx
       - yaml
 
-  '@astrojs/tailwind@6.0.2(astro@7.3.5(@types/node@24.7.0)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.9.1))(tailwindcss@4.1.14)':
-    dependencies:
-      astro: 7.3.5(@types/node@24.7.0)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.9.1)
-      autoprefixer: 10.4.21(postcss@8.5.6)
-      postcss: 8.5.6
-      postcss-load-config: 4.0.2(postcss@8.5.6)
-      tailwindcss: 4.1.14
-    transitivePeerDependencies:
-      - ts-node
-
   '@astrojs/telemetry@3.3.3':
     dependencies:
       ci-info: 4.4.0
@@ -6166,17 +6105,6 @@ snapshots:
 
   '@bruits/satteri-win32-x64-msvc@0.10.5':
     optional: true
-
-  '@builder.io/jsx-loc-internals@0.0.1':
-    dependencies:
-      '@babel/parser': 7.28.4
-      estree-walker: 2.0.2
-      magic-string: 0.30.19
-
-  '@builder.io/vite-plugin-jsx-loc@0.1.1(vite@7.1.9(@types/node@24.7.0)(jiti@2.6.1)(lightningcss@1.33.0)(tsx@4.20.6)(yaml@2.9.1))':
-    dependencies:
-      '@builder.io/jsx-loc-internals': 0.0.1
-      vite: 7.1.9(@types/node@24.7.0)(jiti@2.6.1)(lightningcss@1.33.0)(tsx@4.20.6)(yaml@2.9.1)
 
   '@capsizecss/unpack@4.0.1':
     dependencies:
@@ -6819,8 +6747,6 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
-
-  '@medv/finder@4.0.2': {}
 
   '@mermaid-js/parser@0.6.3':
     dependencies:
@@ -8974,8 +8900,6 @@ snapshots:
 
   estree-util-is-identifier-name@3.0.0: {}
 
-  estree-walker@2.0.2: {}
-
   estree-walker@3.0.3:
     dependencies:
       '@types/estree': 1.0.8
@@ -9514,8 +9438,6 @@ snapshots:
       lightningcss-win32-arm64-msvc: 1.33.0
       lightningcss-win32-x64-msvc: 1.33.0
 
-  lilconfig@3.1.3: {}
-
   linebreak@1.1.0:
     dependencies:
       base64-js: 0.0.8
@@ -10005,8 +9927,6 @@ snapshots:
       pkg-types: 1.3.1
       ufo: 1.6.1
 
-  modern-screenshot@4.6.6: {}
-
   motion-dom@12.23.21:
     dependencies:
       motion-utils: 12.23.6
@@ -10215,13 +10135,6 @@ snapshots:
       points-on-curve: 0.2.0
 
   postal-mime@2.7.6: {}
-
-  postcss-load-config@4.0.2(postcss@8.5.6):
-    dependencies:
-      lilconfig: 3.1.3
-      yaml: 2.9.1
-    optionalDependencies:
-      postcss: 8.5.6
 
   postcss-selector-parser@6.0.10:
     dependencies:
@@ -11089,16 +11002,6 @@ snapshots:
       - supports-color
       - terser
 
-  vite-plugin-manus-runtime@0.0.59:
-    dependencies:
-      '@medv/finder': 4.0.2
-      clsx: 2.1.1
-      modern-screenshot: 4.6.6
-      nanoid: 5.1.6
-      react: 19.2.1
-      react-dom: 19.2.1(react@19.2.1)
-      tailwind-merge: 3.3.1
-
   vite@5.4.20(@types/node@24.7.0)(lightningcss@1.33.0):
     dependencies:
       esbuild: 0.21.5
@@ -11245,7 +11148,8 @@ snapshots:
 
   yallist@5.0.0: {}
 
-  yaml@2.9.1: {}
+  yaml@2.9.1:
+    optional: true
 
   yargs-parser@18.1.3:
     dependencies:

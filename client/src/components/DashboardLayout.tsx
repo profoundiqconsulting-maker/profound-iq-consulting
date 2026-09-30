@@ -280,7 +280,7 @@ function DashboardLayoutContent({
                     }`}
                   >
                     {!isCollapsed && (
-                      <p className="px-2.5 pb-1.5 text-[10px] font-bold uppercase tracking-[.2em] text-slate-500">
+                      <p className="px-2.5 pb-1.5 text-[10px] font-bold uppercase tracking-[.2em] text-slate-400">
                         {group.fallbackLabel}
                       </p>
                     )}
@@ -388,7 +388,7 @@ function DashboardLayoutContent({
               {role && (
                 <span
                   aria-label={`Role: ${role}`}
-                  className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[.1em] ring-1 ring-amber-400/30 bg-amber-400/10 text-amber-600"
+                  className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[.1em] ring-1 ring-amber-400/30 bg-amber-400/10 text-amber-700 dark:text-amber-400"
                 >
                   {role === "admin"
                     ? "Admin"

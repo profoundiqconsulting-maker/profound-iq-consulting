@@ -147,7 +147,7 @@ function getStatusConfig(status: CourseStatus) {
           "Courses you have finished. Review your achievements or download your certificate.",
         actionLabel: "Review",
         actionIcon: Trophy,
-        colorClass: "text-emerald-700",
+        colorClass: "text-emerald-700 dark:text-emerald-400",
         badgeVariant: "default" as const,
       };
     case "expired":
@@ -455,7 +455,9 @@ export default function DashboardEnrolledCourses() {
                             Latest quiz:
                           </span>
                           <span
-                            className={`font-bold ${latestQuiz.passed ? "text-emerald-700" : "text-[#7d5e1e]"}`}
+                            className={`font-bold ${latestQuiz.passed
+                  ? "text-emerald-700 dark:text-emerald-400"
+                  : "text-[#7d5e1e] dark:text-accent-on-dark"}`}
                           >
                             {latestQuiz.score}%
                           </span>

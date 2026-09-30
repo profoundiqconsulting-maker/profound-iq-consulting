@@ -51,7 +51,7 @@ export function Section({
                 </h2>
               )}
               {description && (
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-foreground">
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
                   {description}
                 </p>
               )}

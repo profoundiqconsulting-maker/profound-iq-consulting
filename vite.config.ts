@@ -1,10 +1,9 @@
-import { jsxLocPlugin } from "@builder.io/vite-plugin-jsx-loc";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
 import { defineConfig, loadEnv } from "vite";
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin()];
+const plugins = [react(), tailwindcss()];
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, path.resolve(import.meta.dirname), "");

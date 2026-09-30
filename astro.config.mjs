@@ -1,4 +1,3 @@
-import { jsxLocPlugin } from "@builder.io/vite-plugin-jsx-loc";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@astrojs/react";
 import path from "node:path";
@@ -18,7 +17,7 @@ export default defineConfig({
   },
   vite: {
     envDir: root,
-    plugins: [tailwindcss(), jsxLocPlugin()],
+    plugins: [tailwindcss()],
     resolve: {
       alias: {
         "@": path.resolve(root, "client", "src").replace(/\\/g, "/"),

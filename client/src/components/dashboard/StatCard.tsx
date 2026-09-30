@@ -31,7 +31,7 @@ export function StatCard({
       className={`border border-border bg-card backdrop-blur-sm p-5 transition-all duration-200 hover:shadow-md focus-within:shadow-md ${className}`}
     >
       <div className="flex items-center justify-between">
-        <p className="text-[10px] font-black uppercase tracking-[.12em] text-foreground">
+        <p className="text-[10px] font-black uppercase tracking-[.12em] text-muted-foreground">
           {label}
         </p>
         {icon && (
@@ -50,7 +50,7 @@ export function StatCard({
               trend.value > 0
                 ? "text-emerald-700 dark:text-emerald-400"
                 : trend.value < 0
-                  ? "text-red-600 dark:text-red-400"
+                  ? "text-red-700 dark:text-red-400"
                   : "text-muted-foreground"
             }`}
           />

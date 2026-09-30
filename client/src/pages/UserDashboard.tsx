@@ -2339,7 +2339,7 @@ export default function UserDashboard() {
                                     <span
                                       className={
                                         attempt?.passed
-                                          ? "font-bold text-emerald-700"
+                                          ? "font-bold text-emerald-700 dark:text-emerald-400"
                                           : "font-bold text-[#7d5e1e]"
                                       }
                                     >
@@ -2368,7 +2368,7 @@ export default function UserDashboard() {
                                 </p>
                               </>
                             ) : (
-                              <p className="mt-2 text-xs font-semibold leading-5 text-emerald-700">
+                              <p className="mt-2 text-xs font-semibold leading-5 text-emerald-700 dark:text-emerald-400">
                                 No payment due. Certificate stage is verified.
                               </p>
                             )}

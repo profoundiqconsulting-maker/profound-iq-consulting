@@ -54,12 +54,12 @@ export function DashboardHero({
             {title}
           </h1>
           {description && (
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-foreground">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
               {description}
             </p>
           )}
           {user && (
-            <p className="mt-2 text-xs text-foreground">
+            <p className="mt-2 text-xs text-muted-foreground">
               Welcome back,{" "}
               <span className="font-semibold text-foreground">
                 {displayName}
@@ -78,7 +78,7 @@ export function DashboardHero({
               key={index}
               className="border border-border bg-card backdrop-blur-sm p-4 transition-all duration-200 hover:shadow-md"
             >
-              <p className="text-[10px] font-black uppercase tracking-[.12em] text-foreground">
+              <p className="text-[10px] font-black uppercase tracking-[.12em] text-muted-foreground">
                 {stat.label}
               </p>
               <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">
