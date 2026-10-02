@@ -62,8 +62,8 @@
   --ring: oklch(0.74 0.12 78);
   --gold-on-light: oklch(0.34 0.12 78);
   --success-on-light: oklch(0.45 0.15 155);
-  --accent-on-dark: oklch(0.85 0.16 75);
-  --muted-on-dark: oklch(0.82 0.01 255);
+  --accent-on-dark: oklch(0.30 0.10 75);
+  --muted-on-dark: oklch(0.32 0.03 255);
   --muted-on-light: oklch(0.30 0.03 255);
   --gold-soft: oklch(0.44 0.12 78);
   --navy-deep: oklch(0.16 0.03 255);
