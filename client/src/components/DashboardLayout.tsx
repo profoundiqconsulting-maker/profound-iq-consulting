@@ -96,9 +96,7 @@ export default function DashboardLayout({
             size="lg"
             className="w-full bg-slate-900 text-white shadow-lg hover:bg-slate-800 hover:shadow-xl transition-all"
           >
-            <Link href="/auth?mode=login&returnTo=%2Fdashboard">
-              Sign in
-            </Link>
+            <Link href="/auth?mode=login&returnTo=%2Fdashboard">Sign in</Link>
           </Button>
         </div>
       </div>
@@ -159,7 +157,7 @@ function DashboardLayoutContent({
   const userRole =
     normalizedUserRole === "admin"
       ? "admin"
-      : (role || normalizedUserRole || "user");
+      : role || normalizedUserRole || "user";
   const menuItems = useMemo(
     () => visibleDashboardNavItems(userRole),
     [userRole]
@@ -220,22 +218,22 @@ function DashboardLayoutContent({
           className="border-r-0 bg-slate-900 text-white h-screen"
           disableTransition={isResizing}
         >
-          <SidebarHeader className="h-14 border-b border-slate-800 bg-slate-900">
+          <SidebarHeader className="h-14 border-b border-slate-700 bg-slate-900">
             <div className="flex h-full items-center gap-3 px-3 transition-all w-full">
               <button
                 onClick={toggleSidebar}
-                className="h-9 w-9 flex items-center justify-center rounded-lg hover:bg-slate-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 shrink-0"
+                className="h-9 w-9 flex items-center justify-center rounded-lg hover:bg-slate-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 shrink-0"
                 aria-label="Toggle navigation"
               >
-                <PanelLeft className="h-4 w-4 text-slate-400" />
+                <PanelLeft className="h-4 w-4 text-slate-300" />
               </button>
               {!isCollapsed && (
                 <Link
                   href="/"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-slate-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 shrink-0"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-slate-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 shrink-0"
                   aria-label="Go to home page"
                 >
-                  <Home className="h-4 w-4 text-slate-400" />
+                  <Home className="h-4 w-4 text-slate-300" />
                 </Link>
               )}
               {!isCollapsed && (
@@ -247,7 +245,7 @@ function DashboardLayoutContent({
                     {role && (
                       <span
                         aria-label={`Role: ${role}`}
-                        className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[.1em] ring-1 ring-amber-400/30 bg-amber-400/10 text-amber-400 shrink-0"
+                        className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[.1em] ring-1 ring-amber-400/30 bg-amber-400/10 text-amber-300 shrink-0"
                       >
                         {role === "admin"
                           ? "Admin"
@@ -281,7 +279,7 @@ function DashboardLayoutContent({
                     }`}
                   >
                     {!isCollapsed && (
-                      <p className="px-2 pb-0.5 pt-1 text-[10px] font-bold uppercase tracking-[.18em] text-slate-500">
+                      <p className="px-2 pb-0.5 pt-1 text-[10px] font-bold uppercase tracking-[.18em] text-slate-400">
                         {group.fallbackLabel}
                       </p>
                     )}
@@ -295,20 +293,20 @@ function DashboardLayoutContent({
                             isActive={isActive}
                             onClick={() => setLocation(item.path)}
                             tooltip={item.fallbackLabel}
-                            className={`h-8 font-medium transition-all rounded-md ${
+                            className={`h-8 font-medium transition-all rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 ${
                               isActive
-                                ? "bg-amber-500 text-slate-900 font-semibold shadow-lg shadow-amber-500/20"
+                                ? "bg-amber-400 text-slate-900 font-semibold shadow-lg shadow-amber-500/20"
                                 : "text-slate-300 hover:bg-slate-800 hover:text-white"
                             }`}
                           >
                             <item.icon
                               className={`h-4 w-4 shrink-0 ${
-                                isActive
-                                  ? "text-slate-900"
-                                  : "text-slate-400"
+                                isActive ? "text-slate-900" : "text-slate-300"
                               }`}
                             />
-                            <span className={`truncate ${isActive ? "font-semibold" : ""}`}>
+                            <span
+                              className={`truncate ${isActive ? "font-semibold" : ""}`}
+                            >
                               {item.fallbackLabel}
                             </span>
                           </SidebarMenuButton>
@@ -320,11 +318,11 @@ function DashboardLayoutContent({
               })}
             </SidebarMenu>
           </SidebarContent>
-          <SidebarFooter className="border-t border-slate-800 bg-slate-900 p-2.5">
+          <SidebarFooter className="border-t border-slate-700 bg-slate-900 p-2.5">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex h-11 w-full items-center gap-3 rounded-lg px-2 hover:bg-slate-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-500/10 text-xs font-bold text-amber-400">
+                <button className="flex h-11 w-full items-center gap-3 rounded-lg px-2 hover:bg-slate-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-400/10 text-xs font-bold text-amber-300">
                     {user?.name?.charAt(0).toUpperCase()}
                   </div>
                   {!isCollapsed && (
@@ -332,24 +330,27 @@ function DashboardLayoutContent({
                       <p className="truncate text-sm font-medium text-white">
                         {user?.name || "-"}
                       </p>
-                      <p className="truncate text-xs text-slate-400">
+                      <p className="truncate text-xs text-slate-300">
                         {user?.email || "-"}
                       </p>
                     </div>
                   )}
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 bg-slate-900 border-slate-800 text-white">
+              <DropdownMenuContent
+                align="end"
+                className="w-48 bg-slate-900 border-slate-700 text-white"
+              >
                 <DropdownMenuItem
                   asChild
                   className="cursor-pointer text-slate-300 focus:text-white focus:bg-slate-800"
                 >
                   <Link href="/settings">Settings</Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-slate-800" />
+                <DropdownMenuSeparator className="bg-slate-700" />
                 <DropdownMenuItem
                   onClick={logout}
-                  className="cursor-pointer text-red-400 focus:text-red-400 focus:bg-slate-800"
+                  className="cursor-pointer text-red-300 focus:text-red-300 focus:bg-slate-800"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Sign out</span>
@@ -359,7 +360,7 @@ function DashboardLayoutContent({
           </SidebarFooter>
         </Sidebar>
         <div
-          className={`absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-amber-500/30 transition-colors ${isCollapsed ? "hidden" : ""}`}
+          className={`absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-amber-400/30 transition-colors ${isCollapsed ? "hidden" : ""}`}
           onMouseDown={() => {
             if (isCollapsed) return;
             setIsResizing(true);
@@ -372,8 +373,8 @@ function DashboardLayoutContent({
         {isMobile && (
           <div className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-slate-200 bg-white px-4">
             <div className="flex items-center gap-3">
-              <SidebarTrigger className="h-9 w-9 rounded-lg bg-slate-100 hover:bg-slate-200">
-                <Menu className="h-4 w-4" />
+              <SidebarTrigger className="h-9 w-9 rounded-lg bg-slate-100 hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50">
+                <Menu className="h-4 w-4 text-slate-600" />
               </SidebarTrigger>
               <Link
                 href="/"
@@ -389,7 +390,7 @@ function DashboardLayoutContent({
               {role && (
                 <span
                   aria-label={`Role: ${role}`}
-                  className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[.1em] ring-1 ring-amber-400/30 bg-amber-400/10 text-amber-700 dark:text-amber-400"
+                  className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[.1em] ring-1 ring-amber-400/30 bg-amber-400/10 text-amber-700"
                 >
                   {role === "admin"
                     ? "Admin"

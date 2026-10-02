@@ -1266,7 +1266,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
   if (authLoading)
     return (
       <div className="grid min-h-screen place-items-center bg-[#f7f3e8] text-[#16243d]">
-        <RefreshCw className="animate-spin text-[#7d5e1e]" />
+        <RefreshCw className="animate-spin text-[#b8860b]" />
       </div>
     );
 
@@ -1425,7 +1425,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
               />
             </div>
             <div className="mt-4 flex flex-wrap items-center gap-3 border-b border-[#16243d]/10 pb-4">
-              <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+              <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
                 Quick actions
               </span>
               <QuickActionButton
@@ -1462,7 +1462,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 <AdminSurveysPanel />
               </Suspense>
               <div className="mt-4">
-                <Link href="/surveys" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                <Link href="/surveys" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
                   View public surveys <ArrowUpRight size={13} />
                 </Link>
               </div>
@@ -1475,7 +1475,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 <AdminResourcesPanel />
               </Suspense>
               <div className="mt-4">
-                <Link href="/resources" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                <Link href="/resources" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
                   View public resources <ArrowUpRight size={13} />
                 </Link>
               </div>
@@ -1488,7 +1488,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 <AdminReportsPanel />
               </Suspense>
               <div className="mt-4">
-                <Link href="/admin/overview" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                <Link href="/admin/overview" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
                   View reports <ArrowUpRight size={13} />
                 </Link>
               </div>
@@ -1504,7 +1504,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                    description={
                      <span>
                        Track assessment payments, completed transactions, and outstanding balances.
-                       <Link href="/admin/revenue" className="ml-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                       <Link href="/admin/revenue" className="ml-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
                          View revenue <ArrowUpRight size={13} />
                        </Link>
                      </span>
@@ -1549,7 +1549,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 description={
                   <span>
                     Aggregated analytics, conversion benchmarks, and trend analysis across all assessment and enrollment journeys.
-                    <Link href="/admin/overview" className="ml-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                    <Link href="/admin/overview" className="ml-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
                       View reports <ArrowUpRight size={13} />
                     </Link>
                   </span>
@@ -1674,7 +1674,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       key={platform.key}
                       className="border border-[#16243d]/10 bg-white p-4 text-center"
                     >
-                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
                         {platform.label}
                       </p>
                       <p className="mt-1 text-2xl font-bold">
@@ -1712,7 +1712,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 </div>
               </div>
               <div className="mt-4">
-                <Link href="/admin/staff" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                <Link href="/admin/staff" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
                   Manage staff <ArrowUpRight size={13} />
                 </Link>
               </div>
@@ -1734,7 +1734,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 >
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <div className="border border-[#16243d]/10 bg-white p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
                         Export retention
                       </p>
                       <p className="mt-1 text-lg font-bold">
@@ -1742,7 +1742,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       </p>
                     </div>
                     <div className="border border-[#16243d]/10 bg-white p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
                         Last export
                       </p>
                       <p className="mt-1 text-sm font-bold">
@@ -1754,7 +1754,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       </p>
                     </div>
                     <div className="border border-[#16243d]/10 bg-white p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
                         Report runs
                       </p>
                       <p className="mt-1 text-lg font-bold">
@@ -1762,7 +1762,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       </p>
                     </div>
                     <div className="border border-[#16243d]/10 bg-white p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
                         Status
                       </p>
                       <p className="mt-1 text-sm font-bold text-emerald-800">
@@ -1850,7 +1850,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 <AdminRecentQCCertificates />
               </Suspense>
               <div className="mt-4">
-                <Link href="/admin/learning" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                <Link href="/admin/learning" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
                   Learning overview <ArrowUpRight size={13} />
                 </Link>
               </div>
@@ -1872,7 +1872,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 <AdminInsightsPanel />
               </Suspense>
               <div className="mt-4">
-                <Link href="/admin/communications" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                <Link href="/admin/communications" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
                   Communications <ArrowUpRight size={13} />
                 </Link>
               </div>
@@ -1887,7 +1887,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
               >
                 <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                   <div>
-                    <p className="eyebrow text-[#7d5e1e]">
+                    <p className="eyebrow text-[#b8860b]">
                       Psychometric suite / conversion intelligence
                     </p>
                     <h2 className="display mt-2 text-2xl">
@@ -2074,7 +2074,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
               <section className="mt-10 border border-[#c9a34e]/60 bg-white p-5 sm:p-6">
                 <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                   <div>
-                    <p className="eyebrow text-[#7d5e1e]">
+                    <p className="eyebrow text-[#b8860b]">
                       Psychometric suite / operations
                     </p>
                     <h2 className="display mt-2 text-2xl">
@@ -2085,7 +2085,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       without exposing raw responses or report payloads.
                     </p>
                   </div>
-                  <span className="text-xs font-bold text-[#7d5e1e]">
+                  <span className="text-xs font-bold text-[#b8860b]">
                     {psychometricAttempts.data?.length ?? 0} shown
                   </span>
                 </div>
@@ -2189,7 +2189,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
               <section className="mt-10 border border-[#c9a34e]/60 bg-white p-5 sm:p-6">
                 <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                   <div>
-                    <p className="eyebrow text-[#7d5e1e]">Weekly delivery</p>
+                    <p className="eyebrow text-[#b8860b]">Weekly delivery</p>
                     <h2 className="display mt-2 text-2xl">
                       Keep the signal moving.
                     </h2>
@@ -2280,7 +2280,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 <div className="mt-6 border-t border-[#16243d]/10 pt-5">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
                         Failure acknowledgement
                       </p>
                       <p className="mt-1 text-xs text-[#16243d]">
@@ -2367,14 +2367,14 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 </div>
               </div>
               <div className="mt-4">
-                <Link href="/admin/inquiries" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                <Link href="/admin/inquiries" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
                   View inquiries <ArrowUpRight size={13} />
                 </Link>
               </div>
               <section className="mt-8 border border-[#16243d]/15 bg-white p-5 sm:p-6">
                 <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                   <div>
-                    <p className="eyebrow text-[#7d5e1e]">
+                    <p className="eyebrow text-[#b8860b]">
                       Acknowledgement audit
                     </p>
                     <h3 className="display mt-2 text-xl">
@@ -2436,7 +2436,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 description={
                   <span>
                     Monitor scheduled exports, delivery log jobs, and automated analytics pipelines.
-                    <Link href="/admin/operations" className="ml-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
+                    <Link href="/admin/operations" className="ml-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
                       Operations <ArrowUpRight size={13} />
                     </Link>
                   </span>
@@ -2556,7 +2556,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                             job.status === "completed"
                               ? "text-emerald-800"
                               : job.status === "running"
-                                ? "text-[#7d5e1e]"
+                                ? "text-[#b8860b]"
                                 : "text-red-800"
                           }`}
                         >
@@ -2591,7 +2591,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
               >
                 <div className="flex flex-col justify-between gap-4 border-b border-[#c9a34e]/35 pb-5 sm:flex-row sm:items-end">
                   <div>
-                    <p className="eyebrow text-[#7d5e1e]">
+                    <p className="eyebrow text-[#b8860b]">
                       Security observatory
                     </p>
 
@@ -2632,7 +2632,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                     </div>
 
                     <ShieldCheck
-                      className="hidden text-[#7d5e1e] sm:block"
+                      className="hidden text-[#b8860b] sm:block"
                       size={24}
                     />
                   </div>
@@ -2642,7 +2642,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   <div className="border border-[#c1cad7]/15 bg-[#101d35]/70 p-4 sm:p-5">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
+                        <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]">
                           Access outcomes
                         </p>
 
@@ -2653,7 +2653,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       </div>
 
                       <div className="flex gap-3 text-[10px] font-black uppercase tracking-[.1em]">
-                        <span className="text-[#7d5e1e]">Success</span>
+                        <span className="text-[#b8860b]">Success</span>
 
                         <span className="text-red-300">Blocked</span>
                       </div>
@@ -2739,7 +2739,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
                   <div className="border border-[#c1cad7]/15 bg-[#101d35]/70 p-4 sm:p-5">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
+                      <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]">
                         Device classifications
                       </p>
 
@@ -2820,7 +2820,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                               dataKey="unknown"
                               name="Unknown"
                               stackId="devices"
-                              fill="#657084"
+                              fill="#475569"
                             />
                           </BarChart>
                         </ResponsiveContainer>
@@ -2844,7 +2844,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       </span>
 
                       <span>
-                        <i className="mr-1 inline-block h-2 w-2 bg-[#657084]" />
+                        <i className="mr-1 inline-block h-2 w-2 bg-[#475569]" />
                         Unknown
                       </span>
                     </div>
@@ -2862,7 +2862,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       Events in view
                     </p>
 
-                    <p className="mt-1 text-2xl font-bold text-[#7d5e1e]">
+                    <p className="mt-1 text-2xl font-bold text-[#b8860b]">
                       {failedLoginEvents.data?.total ?? 0}
                     </p>
                   </div>
@@ -2870,7 +2870,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 className="mt-8 bg-[#16243d] text-[#f7f3e8]"
               >
                 <div className="mt-5 border border-[#a27e2e]/30 bg-[#f7f3e8] p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
+                  <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]">
                     Manual reset
                   </p>
 
@@ -3104,7 +3104,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
           {activeTab === "organization" && (
             <>
               <div className="mb-6">
-                <p className="eyebrow text-[#7d5e1e]">Organization</p>
+                <p className="eyebrow text-[#b8860b]">Organization</p>
                 <h2 className="display mt-2 text-4xl">
                   Team and access management.
                 </h2>
@@ -3146,7 +3146,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
               >
                 <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                   <div>
-                    <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
+                    <p className="eyebrow flex items-center gap-2 text-[#b8860b]">
                       <BarChart3 size={13} /> Platform signals
                     </p>
 
@@ -3283,7 +3283,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                           {item.label}
                         </p>
 
-                        <p className="display mt-3 text-3xl text-[#7d5e1e]">
+                        <p className="display mt-3 text-3xl text-[#b8860b]">
                           {item.value}
                         </p>
                       </div>
@@ -3298,7 +3298,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
               >
                 <div className="flex items-end justify-between gap-4">
                   <div>
-                    <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
+                    <p className="eyebrow flex items-center gap-2 text-[#b8860b]">
                       <Share2 size={13} /> Share observatory
                     </p>
 
@@ -3337,7 +3337,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                             {item.platform}
                           </p>
 
-                          <span className="text-lg font-semibold text-[#7d5e1e]">
+                          <span className="text-lg font-semibold text-[#b8860b]">
                             {item.count}
                           </span>
                         </div>
@@ -3364,9 +3364,9 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
               <section className="mt-6 border border-[#16243d]/15 bg-[#16243d] p-5 text-[#f7f3e8]">
                 <div className="flex items-center gap-2">
-                  <BarChart3 size={14} className="text-[#7d5e1e]" />
+                  <BarChart3 size={14} className="text-[#b8860b]" />
 
-                  <p className="eyebrow text-[#7d5e1e]">Assessment funnel</p>
+                  <p className="eyebrow text-[#b8860b]">Assessment funnel</p>
                 </div>
 
                 <div className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -3388,7 +3388,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       </p>
 
                       <p
-                        className={`mt-2 text-[10px] uppercase tracking-[.1em] ${stage.rate >= stage.benchmark ? "text-[#7d5e1e]" : "text-red-300"}`}
+                        className={`mt-2 text-[10px] uppercase tracking-[.1em] ${stage.rate >= stage.benchmark ? "text-[#b8860b]" : "text-red-300"}`}
                       >
                         {stage.rate >= stage.benchmark
                           ? `Benchmark ${stage.benchmark}% · on track`
@@ -3466,7 +3466,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   hasFilters && (
                     <button
                       onClick={resetFilters}
-                      className="inline-flex items-center gap-2 self-start text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]"
+                      className="inline-flex items-center gap-2 self-start text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]"
                     >
                       <X size={14} /> Clear filters
                     </button>
@@ -3581,7 +3581,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
                               <td className="px-5 py-5">
                                 <span
-                                  className={`inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] ${attempt.paymentStatus === "paid" ? "text-emerald-800" : "text-[#7d5e1e]"}`}
+                                  className={`inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] ${attempt.paymentStatus === "paid" ? "text-emerald-800" : "text-[#b8860b]"}`}
                                 >
                                   <span
                                     className={`h-2 w-2 rounded-full ${attempt.paymentStatus === "paid" ? "bg-emerald-600" : "bg-[#c9a34e]"}`}
@@ -3598,7 +3598,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                                   </span>
                                 ) : (
                                   <div>
-                                    <span className="display text-2xl text-[#7d5e1e]">
+                                    <span className="display text-2xl text-[#b8860b]">
                                       {attempt.overallScore}
                                     </span>
 
@@ -3715,7 +3715,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
                         <div className="flex flex-wrap items-center gap-3">
                           <span
-                            className={`inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${account.emailVerifiedAt ? "text-emerald-800" : "text-[#7d5e1e]"}`}
+                            className={`inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${account.emailVerifiedAt ? "text-emerald-800" : "text-[#b8860b]"}`}
                           >
                             <span
                               className={`h-2 w-2 rounded-full ${account.emailVerifiedAt ? "bg-emerald-600" : "bg-[#c9a34e]"}`}
@@ -3982,7 +3982,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   <div className="border border-[#16243d]/15 bg-white/45 p-6 sm:p-8">
                     <div className="flex items-start justify-between gap-5">
                       <div>
-                        <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
+                        <p className="eyebrow flex items-center gap-2 text-[#b8860b]">
                           <Mail size={13} /> Branded communications
                         </p>
 
@@ -3999,10 +3999,10 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                     <p className="mt-4 text-sm leading-6 text-[#16243d]">
                       Prepare reusable copy for future report delivery and
                       course follow-up. Supported fields:{" "}
-                      <code className="text-[#7d5e1e]">{"{{name}}"}</code>,{" "}
-                      <code className="text-[#7d5e1e]">{"{{email}}"}</code>,{" "}
-                      <code className="text-[#7d5e1e]">{"{{date}}"}</code>, and{" "}
-                      <code className="text-[#7d5e1e]">{"{{course}}"}</code>.
+                      <code className="text-[#b8860b]">{"{{name}}"}</code>,{" "}
+                      <code className="text-[#b8860b]">{"{{email}}"}</code>,{" "}
+                      <code className="text-[#b8860b]">{"{{date}}"}</code>, and{" "}
+                      <code className="text-[#b8860b]">{"{{course}}"}</code>.
                     </p>
 
                     <div className="mt-6 grid gap-4">
@@ -4082,7 +4082,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                     </div>
 
                     <div className="border-l-2 border-[#c9a34e] bg-[#16243d] p-4 text-sm leading-6 text-[#c1cad7]">
-                      <p className="eyebrow text-[#7d5e1e]">Live preview</p>
+                      <p className="eyebrow text-[#b8860b]">Live preview</p>
 
                       <div className="prose prose-sm prose-invert mt-3 max-w-none">
                         <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
@@ -4137,7 +4137,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
                     <div className="mt-6 border-t border-[#16243d]/15 pt-5">
                       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-                        <p className="eyebrow text-[#7d5e1e]">
+                        <p className="eyebrow text-[#b8860b]">
                           Preview history
                         </p>
 
@@ -4270,7 +4270,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                                     <a
                                       href={job.fileUrl}
                                       download
-                                      className="font-black uppercase tracking-[.1em] text-[#7d5e1e]"
+                                      className="font-black uppercase tracking-[.1em] text-[#b8860b]"
                                     >
                                       Download
                                     </a>
@@ -4324,7 +4324,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                                       })
                                     }
                                     disabled={retryTemplateTestEmail.isPending}
-                                    className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]"
+                                    className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]"
                                   >
                                     {retryTemplateTestEmail.isPending ? (
                                       <RefreshCw
@@ -4402,7 +4402,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 description="Securely generated enrollment reports remain available here for admin download."
                 actions={
                   <span
-                    className={`text-[10px] font-black uppercase tracking-[.13em] ${scheduleStatus.data?.config?.scheduleTaskUid ? "text-emerald-800" : "text-[#7d5e1e]"}`}
+                    className={`text-[10px] font-black uppercase tracking-[.13em] ${scheduleStatus.data?.config?.scheduleTaskUid ? "text-emerald-800" : "text-[#b8860b]"}`}
                   >
                     {scheduleStatus.data?.config?.scheduleTaskUid
                       ? "Enabled"
@@ -4431,7 +4431,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       Reports saved
                     </p>
 
-                    <p className="mt-2 text-2xl font-bold text-[#7d5e1e]">
+                    <p className="mt-2 text-2xl font-bold text-[#b8860b]">
                       {scheduleStatus.data?.runs.length ?? 0}
                     </p>
                   </div>
@@ -4441,7 +4441,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       Latest rows
                     </p>
 
-                    <p className="mt-2 text-2xl font-bold text-[#7d5e1e]">
+                    <p className="mt-2 text-2xl font-bold text-[#b8860b]">
                       {scheduleStatus.data?.runs[0]?.rowCount ?? 0}
                     </p>
                   </div>
@@ -4503,7 +4503,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         <a
                           href={run.fileUrl}
                           download
-                          className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e] hover:text-[#16243d]"
+                          className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.13em] text-[#b8860b] hover:text-[#16243d]"
                         >
                           <Download size={14} /> Download CSV
                         </a>
@@ -4575,7 +4575,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   <div className="w-full max-w-lg border-t-2 border-[#c9a34e] bg-[#f7f3e8] p-6 text-[#16243d] shadow-2xl sm:p-8">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="eyebrow text-[#7d5e1e]">
+                        <p className="eyebrow text-[#b8860b]">
                           Verification control
                         </p>
 
@@ -4664,7 +4664,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
               <div className="mt-10 flex items-start gap-3 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-sm leading-6 text-[#c1cad7]">
                 <ShieldCheck
                   size={18}
-                  className="mt-0.5 shrink-0 text-[#7d5e1e]"
+                  className="mt-0.5 shrink-0 text-[#b8860b]"
                 />
 
                 <p>
@@ -5073,7 +5073,7 @@ function OrganizationApprovalQueue() {
                   </p>
                 </div>
                 <span
-                  className={`inline-flex w-fit items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] ${invitation.status === "approved" ? "text-emerald-800" : invitation.status === "rejected" ? "text-red-800" : urgent ? "text-red-800" : "text-[#7d5e1e]"}`}
+                  className={`inline-flex w-fit items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] ${invitation.status === "approved" ? "text-emerald-800" : invitation.status === "rejected" ? "text-red-800" : urgent ? "text-red-800" : "text-[#b8860b]"}`}
                 >
                   <Clock3 size={13} />{" "}
                   {invitation.status === "pending"
@@ -5179,7 +5179,7 @@ function AdminSectionMenu() {
       className="mt-4 overflow-x-auto border border-[#16243d]/10 bg-white p-2"
     >
       <div className="flex min-w-max items-center gap-1">
-        <span className="px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+        <span className="px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
           Jump to
         </span>
 

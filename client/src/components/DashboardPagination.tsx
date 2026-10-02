@@ -104,3 +104,4 @@ function getVisiblePages(
     return [1, null, pageCount - 3, pageCount - 2, pageCount - 1, pageCount];
   return [1, null, page - 1, page, page + 1, null, pageCount];
 }
+

@@ -7,7 +7,8 @@
  */
 .admin-observatory {
   --exec-accent: #c9a34e;
-  --exec-accent-2: #7d5e1e;
+  --exec-accent-2: #b8860b;
+  --exec-accent-text: #b8860b;
   --exec-accent-soft: #f1e8d4;
   --exec-surface: #ffffff;
   --exec-surface-2: #f8fafc;
@@ -15,8 +16,8 @@
   --exec-border: #e2e8f0;
   --exec-border-soft: #f1f5f9;
   --exec-text: #0f172a;
-  --exec-text-muted: #64748b;
-  --exec-text-secondary: #475569;
+  --exec-text-muted: #475569;
+  --exec-text-secondary: #334159;
   --exec-success: #16a34a;
   --exec-success-bg: #dcfce7;
   --exec-warning: #d97706;
@@ -96,7 +97,7 @@
   font-weight: 600;
   letter-spacing: 0.19em;
   text-transform: uppercase;
-  color: var(--exec-accent);
+  color: var(--exec-accent-text);
 }
 .admin-observatory .exec-label {
   font-size: 0.69rem;
@@ -110,7 +111,7 @@
   font-weight: 600;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: var(--exec-accent-2);
+  color: var(--exec-accent-text);
 }
 .admin-observatory .exec-label-muted {
   font-size: 0.69rem;
@@ -131,7 +132,7 @@
   color: var(--exec-text-secondary);
 }
 .admin-observatory .exec-gold {
-  color: var(--exec-accent-2);
+  color: var(--exec-accent-text);
 }
 
 /* ── Form controls (executive) ────────────────────────────────────── */
@@ -205,6 +206,11 @@
 .admin-observatory button:active,
 .admin-observatory .exec-btn:active {
   transform: translateY(1px);
+}
+.admin-observatory button:focus-visible,
+.admin-observatory .exec-btn:focus-visible {
+  outline: 2px solid var(--exec-accent);
+  outline-offset: 2px;
 }
 
 /* ── Neutral form labels that sit above inputs ────────────────────── */
@@ -345,7 +351,7 @@
 }
 .admin-observatory .exec-btn-secondary:where(:hover, :focus-visible) {
   border-color: var(--exec-accent);
-  color: var(--exec-accent-2);
+  color: var(--exec-accent-text);
 }
 .admin-observatory .exec-selected {
   background-color: var(--exec-dark-surface);
@@ -367,10 +373,10 @@
 
 /* ── Color utilities (semantic, palette-driven) ─────────────────────── */
 .admin-observatory .exec-accent-text {
-  color: var(--exec-accent);
+  color: var(--exec-accent-text);
 }
 .admin-observatory .exec-accent-2-text {
-  color: var(--exec-accent-2);
+  color: var(--exec-accent-text);
 }
 .admin-observatory .exec-accent-soft-bg {
   background-color: var(--exec-accent-soft);

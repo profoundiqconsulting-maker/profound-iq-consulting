@@ -195,7 +195,7 @@ export default function AdminReportsPanel() {
       value: adminUsers,
       icon: <ShieldCheck size={18} />,
       trend: null,
-      color: "bg-[#7d5e1e]",
+      color: "bg-[#b8860b]",
     },
     {
       label: "Staff Users",
@@ -217,13 +217,13 @@ export default function AdminReportsPanel() {
     <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
+          <p className="eyebrow flex items-center gap-2 text-[#b8860b]">
             <LineChart size={13} /> Reports & exports
           </p>
           <h2 className="display mt-3 text-3xl">
             Executive Dashboard
           </h2>
-          <p className="mt-2 max-w-2xl text-sm text-[#657084]">
+          <p className="mt-2 max-w-2xl text-sm text-[#475569]">
             Platform overview, key metrics, and downloadable reports. Filter by date range and choose your preferred format.
           </p>
         </div>
@@ -266,10 +266,10 @@ export default function AdminReportsPanel() {
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-[#7d5e1e]">{category.icon}</span>
+                  <span className="text-[#b8860b]">{category.icon}</span>
                   <span className="font-semibold">{category.label}</span>
                 </div>
-                <p className="mt-1 text-xs text-[#657084]">{category.description}</p>
+                <p className="mt-1 text-xs text-[#475569]">{category.description}</p>
               </button>
             ))}
           </nav>
@@ -279,10 +279,10 @@ export default function AdminReportsPanel() {
           {selectedCategoryData && (
             <div>
               <div className="mb-4 flex items-center gap-2">
-                <span className="text-[#7d5e1e]">{selectedCategoryData.icon}</span>
+                <span className="text-[#b8860b]">{selectedCategoryData.icon}</span>
                 <h3 className="text-lg font-bold">{selectedCategoryData.label}</h3>
               </div>
-              <p className="mb-4 text-sm text-[#657084]">{selectedCategoryData.description}</p>
+              <p className="mb-4 text-sm text-[#475569]">{selectedCategoryData.description}</p>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 {selectedCategoryData.reports.map(report => {
@@ -299,9 +299,9 @@ export default function AdminReportsPanel() {
                       <div className="flex items-start justify-between">
                         <div>
                           <p className="font-semibold">{report.label}</p>
-                          <p className="mt-1 text-xs text-[#657084]">{report.description}</p>
+                          <p className="mt-1 text-xs text-[#475569]">{report.description}</p>
                         </div>
-                        <FileSpreadsheet size={18} className="text-[#7d5e1e]" />
+                        <FileSpreadsheet size={18} className="text-[#b8860b]" />
                       </div>
 
                       {error && (
@@ -337,3 +337,5 @@ export default function AdminReportsPanel() {
     </section>
   );
 }
+
+

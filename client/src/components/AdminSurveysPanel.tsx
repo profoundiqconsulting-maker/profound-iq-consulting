@@ -266,7 +266,7 @@ export default function AdminSurveysPanel() {
   };
 
   const statusIcon = {
-    draft: <Clock3 size={14} className="text-[#7d5e1e]" />,
+    draft: <Clock3 size={14} className="text-[#b8860b]" />,
     published: <CheckCircle2 size={14} className="text-emerald-600" />,
     closed: <XCircle size={14} className="text-red-600" />,
   };
@@ -277,13 +277,13 @@ export default function AdminSurveysPanel() {
     <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
+          <p className="eyebrow flex items-center gap-2 text-[#b8860b]">
             <BarChart3 size={13} /> Engagement & feedback
           </p>
           <h2 className="display mt-3 text-3xl">
             {editingId ? "Edit survey" : "Surveys, polls, and reviews"}
           </h2>
-          <p className="mt-2 max-w-2xl text-sm text-[#657084]">
+          <p className="mt-2 max-w-2xl text-sm text-[#475569]">
             Create structured surveys with multiple question types, or use simple polls for quick feedback.
           </p>
         </div>
@@ -300,7 +300,7 @@ export default function AdminSurveysPanel() {
 
       <div className="mt-8 grid gap-4 border border-[#16243d]/10 bg-[#f7f3e8] p-4">
         <div className="grid gap-4 lg:grid-cols-2">
-          <label className="lg:col-span-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+          <label className="lg:col-span-2 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
             Title
             <input
               value={title}
@@ -309,7 +309,7 @@ export default function AdminSurveysPanel() {
               className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
             />
           </label>
-          <label className="lg:col-span-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+          <label className="lg:col-span-2 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
             Description
             <textarea
               value={description}
@@ -319,7 +319,7 @@ export default function AdminSurveysPanel() {
               className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
             />
           </label>
-          <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+          <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
             Type
             <select
               value={type}
@@ -331,7 +331,7 @@ export default function AdminSurveysPanel() {
               <option value="review">Product review</option>
             </select>
           </label>
-          <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+          <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
             Status
             <select
               value={status}
@@ -347,7 +347,7 @@ export default function AdminSurveysPanel() {
 
         <div className="mt-4 border-t border-[#16243d]/10 pt-4">
           <div className="flex items-center justify-between">
-            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
               Questions ({questions.length})
             </p>
             <div className="flex gap-2">
@@ -374,7 +374,7 @@ export default function AdminSurveysPanel() {
                       className="block w-full px-3 py-2 text-left text-xs hover:bg-[#f7f3e8]"
                     >
                       <p className="font-bold">{qt.label}</p>
-                      <p className="text-[10px] text-[#657084]">{qt.description}</p>
+                      <p className="text-[10px] text-[#475569]">{qt.description}</p>
                     </button>
                   ))}
                 </div>
@@ -385,14 +385,14 @@ export default function AdminSurveysPanel() {
           {previewMode ? (
             <div className="mt-4 space-y-4">
               {questions.length === 0 ? (
-                <p className="py-6 text-sm text-[#657084]">No questions added yet.</p>
+                <p className="py-6 text-sm text-[#475569]">No questions added yet.</p>
               ) : (
                 questions.map((q, index) => (
                   <div key={q.id} className="border border-[#16243d]/10 bg-white p-4">
-                    <p className="text-xs font-bold text-[#657084]">Q{index + 1}. {q.type.replace("_", " ")}</p>
+                    <p className="text-xs font-bold text-[#475569]">Q{index + 1}. {q.type.replace("_", " ")}</p>
                     <p className="mt-1 font-semibold">{q.title || "Untitled question"}</p>
-                    {q.description && <p className="mt-1 text-sm text-[#657084]">{q.description}</p>}
-                    <p className="mt-2 text-xs text-[#657084]">{q.required ? "Required" : "Optional"}</p>
+                    {q.description && <p className="mt-1 text-sm text-[#475569]">{q.description}</p>}
+                    <p className="mt-2 text-xs text-[#475569]">{q.required ? "Required" : "Optional"}</p>
                   </div>
                 ))
               )}
@@ -400,7 +400,7 @@ export default function AdminSurveysPanel() {
           ) : (
             <div className="mt-4 space-y-3">
               {questions.length === 0 && (
-                <p className="py-6 text-sm text-[#657084]">No questions yet. Add a question to get started.</p>
+                <p className="py-6 text-sm text-[#475569]">No questions yet. Add a question to get started.</p>
               )}
               {questions.map((q, index) => (
                 <div key={q.id} className="border border-[#16243d]/10 bg-white">
@@ -421,8 +421,8 @@ export default function AdminSurveysPanel() {
                     >
                       <ChevronDown size={14} />
                     </button>
-                    <span className="text-xs font-bold text-[#657084]">Q{index + 1}</span>
-                    <span className="text-xs font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+                    <span className="text-xs font-bold text-[#475569]">Q{index + 1}</span>
+                    <span className="text-xs font-black uppercase tracking-[.1em] text-[#b8860b]">
                       {q.type.replace("_", " ")}
                     </span>
                     <span className="flex-1 truncate text-sm font-semibold">
@@ -431,7 +431,7 @@ export default function AdminSurveysPanel() {
                     <button
                       type="button"
                       onClick={() => setExpandedQuestion(expandedQuestion === q.id ? null : q.id)}
-                      className="text-[#657084]"
+                      className="text-[#475569]"
                     >
                       <Settings size={14} />
                     </button>
@@ -445,7 +445,7 @@ export default function AdminSurveysPanel() {
                   </div>
                   {expandedQuestion === q.id && (
                     <div className="space-y-3 p-4">
-                      <label className="block text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+                      <label className="block text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
                         Question type
                         <select
                           value={q.type}
@@ -457,7 +457,7 @@ export default function AdminSurveysPanel() {
                           ))}
                         </select>
                       </label>
-                      <label className="block text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+                      <label className="block text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
                         Question title
                         <input
                           value={q.title}
@@ -466,7 +466,7 @@ export default function AdminSurveysPanel() {
                           className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm"
                         />
                       </label>
-                      <label className="block text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+                      <label className="block text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
                         Description (optional)
                         <input
                           value={q.description || ""}
@@ -487,7 +487,7 @@ export default function AdminSurveysPanel() {
 
                       {(q.type === "single_choice" || q.type === "multiple_choice") && (
                         <div>
-                          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">Options</p>
+                          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">Options</p>
                           <div className="mt-2 space-y-2">
                             {(q.options || []).map((option, optIndex) => (
                               <div key={optIndex} className="flex gap-2">
@@ -511,7 +511,7 @@ export default function AdminSurveysPanel() {
                             <button
                               type="button"
                               onClick={() => addOption(q.id)}
-                              className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]"
+                              className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]"
                             >
                               + Add option
                             </button>
@@ -521,7 +521,7 @@ export default function AdminSurveysPanel() {
 
                       {q.type === "rating" && (
                         <div className="grid gap-4 sm:grid-cols-2">
-                          <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+                          <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
                             Minimum rating
                             <input
                               type="number"
@@ -532,7 +532,7 @@ export default function AdminSurveysPanel() {
                               className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm"
                             />
                           </label>
-                          <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+                          <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
                             Maximum rating
                             <input
                               type="number"
@@ -574,9 +574,9 @@ export default function AdminSurveysPanel() {
 
       <div className="mt-8 divide-y divide-[#16243d]/10 border-y border-[#16243d]/10">
         {surveys.isLoading ? (
-          <p className="py-6 text-sm text-[#657084]">Loading surveys…</p>
+          <p className="py-6 text-sm text-[#475569]">Loading surveys…</p>
         ) : (surveys.data ?? []).length === 0 ? (
-          <p className="py-6 text-sm text-[#657084]">No surveys yet.</p>
+          <p className="py-6 text-sm text-[#475569]">No surveys yet.</p>
         ) : (
           (surveys.data ?? []).map(survey => (
             <div
@@ -586,14 +586,14 @@ export default function AdminSurveysPanel() {
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <p className="font-bold">{survey.title}</p>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-[#16243d]/15 px-2 py-0.5 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[#16243d]/15 px-2 py-0.5 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
                     {survey.type}
                   </span>
                 </div>
-                <p className="mt-1 text-xs text-[#657084]">
+                <p className="mt-1 text-xs text-[#475569]">
                   {survey.description}
                 </p>
-                <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-[#657084]">
+                <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-[#475569]">
                   <span className="inline-flex items-center gap-1">
                     {statusIcon[survey.status as keyof typeof statusIcon]}
                     {survey.status}
@@ -607,7 +607,7 @@ export default function AdminSurveysPanel() {
                 <button
                   type="button"
                   onClick={() => startEdit(survey as Parameters<typeof startEdit>[0])}
-                  className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]"
+                  className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]"
                 >
                   Edit
                 </button>
@@ -640,3 +640,5 @@ export default function AdminSurveysPanel() {
     </section>
   );
 }
+
+

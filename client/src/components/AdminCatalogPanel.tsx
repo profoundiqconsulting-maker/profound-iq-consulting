@@ -119,7 +119,7 @@ export default function AdminCatalogPanel() {
       <section className="mt-10 border border-[#c9a34e]/60 bg-[#16243d] p-5 text-[#f7f3e8] sm:p-6">
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
           <div>
-            <p className="eyebrow text-[#c9a34e]">Content operations</p>
+            <p className="eyebrow text-[#b8860b]">Content operations</p>
             <h2 className="display mt-2 text-3xl">Keep the catalog moving.</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[#c1cad7]">
               Create a catalog item once. Published items flow into the public

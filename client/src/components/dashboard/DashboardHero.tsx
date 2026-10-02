@@ -30,7 +30,7 @@ export function DashboardHero({
   stats,
 }: DashboardHeroProps) {
   const { user } = useAuth();
-  
+
   const displayName = user?.name?.split(" ")[0] || "there";
 
   return (
@@ -38,7 +38,7 @@ export function DashboardHero({
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div className="min-w-0">
           <div className="flex items-center gap-3 mb-2">
-            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e] dark:text-accent-on-dark">
+            <p className="text-[10px] font-black uppercase tracking-[.14em] text-slate-600 dark:text-accent-on-dark">
               {eyebrow}
             </p>
             {badge && (
@@ -86,7 +86,7 @@ export function DashboardHero({
               </p>
               {stat.trend && (
                 <p
-                  className={`mt-1 text-xs font-medium ${stat.trend.value >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}
+                  className={`mt-1 text-xs font-medium ${stat.trend.value >= 0 ? "text-emerald-800 dark:text-emerald-400" : "text-red-800 dark:text-red-400"}`}
                 >
                   {stat.trend.value >= 0 ? "+" : ""}
                   {stat.trend.value} {stat.trend.label}

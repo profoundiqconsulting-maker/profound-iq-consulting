@@ -101,23 +101,23 @@ export default function AdminStaffPanel() {
     >
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
+          <p className="eyebrow flex items-center gap-2 text-[#b8860b]">
             <UserPlus size={13} /> Team operations
           </p>
           <h2 id="staff-ops-title" className="display mt-3 text-3xl">
             Staff access & performance.
           </h2>
-          <p className="mt-2 max-w-2xl text-sm text-[#657084]">
+          <p className="mt-2 max-w-2xl text-sm text-[#475569]">
             Invite trusted team members, manage roles, and review how assigned
             inquiries are moving through the desk.
           </p>
         </div>
-        <span className="text-xs font-bold uppercase tracking-[.12em] text-[#657084]">
+        <span className="text-xs font-bold uppercase tracking-[.12em] text-[#475569]">
           Admin only
         </span>
       </div>
       <div className="mt-6 grid gap-3 border border-[#16243d]/10 bg-[#f7f3e8] p-4 md:grid-cols-[1fr_1fr_auto_auto]">
-        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           Name
           <input
             value={name}
@@ -126,7 +126,7 @@ export default function AdminStaffPanel() {
             className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
           />
         </label>
-        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           Email
           <input
             type="email"
@@ -136,7 +136,7 @@ export default function AdminStaffPanel() {
             className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
           />
         </label>
-        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           Role
           <select
             value={role}
@@ -163,7 +163,7 @@ export default function AdminStaffPanel() {
       </div>
       {inviteLink && (
         <div className="mt-3 flex flex-col gap-3 border-l-2 border-[#c9a34e] bg-[#f7f3e8] p-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="min-w-0 break-all text-xs text-[#657084]">
+          <p className="min-w-0 break-all text-xs text-[#475569]">
             {inviteLink}
           </p>
           <button
@@ -179,7 +179,7 @@ export default function AdminStaffPanel() {
         <div>
           <h3 className="font-bold">All users</h3>
           {allUsers.isLoading ? (
-            <p className="mt-3 text-sm text-[#657084]">Loading users…</p>
+            <p className="mt-3 text-sm text-[#475569]">Loading users…</p>
           ) : (
             <div className="mt-3 divide-y divide-[#16243d]/10 border-y border-[#16243d]/10">
               {(allUsers.data ?? []).map((user: { openId: string; name: string | null; email: string | null; role: string }) => (
@@ -191,7 +191,7 @@ export default function AdminStaffPanel() {
                     <p className="font-bold">
                       {user.name ?? "Unnamed member"}
                     </p>
-                    <p className="text-xs text-[#657084]">
+                    <p className="text-xs text-[#475569]">
                       {user.email ?? user.openId}
                     </p>
                   </div>
@@ -219,7 +219,7 @@ export default function AdminStaffPanel() {
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
               <h3 className="font-bold">Performance summary</h3>
-              <p className="mt-1 text-xs text-[#657084]">
+              <p className="mt-1 text-xs text-[#475569]">
                 Filter assignment and resolution metrics by inquiry creation
                 date.
               </p>
@@ -239,7 +239,7 @@ export default function AdminStaffPanel() {
             </button>
           </div>
           <div className="mt-3 flex flex-wrap items-end gap-2">
-            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
               From
               <input
                 type="date"
@@ -248,7 +248,7 @@ export default function AdminStaffPanel() {
                 className="mt-1 border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs"
               />
             </label>
-            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
               To
               <input
                 type="date"
@@ -263,18 +263,18 @@ export default function AdminStaffPanel() {
                 setPerformanceFrom("");
                 setPerformanceTo("");
               }}
-              className="px-2 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]"
+              className="px-2 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]"
             >
               Clear
             </button>
           </div>
           {performance.isLoading ? (
-            <p className="mt-3 text-sm text-[#657084]">Loading performance…</p>
+            <p className="mt-3 text-sm text-[#475569]">Loading performance…</p>
           ) : (
             <div className="mt-3 overflow-x-auto border-y border-[#16243d]/10">
               <table className="w-full min-w-[480px] text-left text-xs">
                 <thead>
-                  <tr className="border-b border-[#16243d]/10 text-[10px] uppercase tracking-[.1em] text-[#657084]">
+                  <tr className="border-b border-[#16243d]/10 text-[10px] uppercase tracking-[.1em] text-[#475569]">
                     <th className="py-3 pr-3">Member</th>
                     <th className="py-3 pr-3">Assigned</th>
                     <th className="py-3 pr-3">Closed</th>
@@ -314,7 +314,7 @@ export default function AdminStaffPanel() {
               <p className="font-bold">
                 {inv.name} · {inv.role}
               </p>
-              <p className="mt-1 text-[#657084]">{inv.email}</p>
+              <p className="mt-1 text-[#475569]">{inv.email}</p>
               <p className="mt-1 text-[10px] uppercase tracking-[.1em] text-[#8a94a4]">
                 {inv.acceptedAt ? (
                   <>
@@ -332,3 +332,5 @@ export default function AdminStaffPanel() {
     </section>
   );
 }
+
+

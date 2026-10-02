@@ -47,23 +47,23 @@ export default function AdminRevenuePanel() {
     >
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
+          <p className="eyebrow flex items-center gap-2 text-[#b8860b]">
             <BarChart3 size={13} /> Revenue observatory
           </p>
           <h2 id="revenue-title" className="display mt-3 text-3xl">
             Collected revenue.
           </h2>
-          <p className="mt-2 text-sm text-[#657084]">
+          <p className="mt-2 text-sm text-[#475569]">
             Successful Paystack payments across assessments, CareerPath, and
             professional courses.
           </p>
         </div>
-        <span className="text-xs font-bold uppercase tracking-[.12em] text-[#657084]">
+        <span className="text-xs font-bold uppercase tracking-[.12em] text-[#475569]">
           Admin only
         </span>
       </div>
       <div className="mt-6 flex flex-wrap items-end gap-2">
-        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           From
           <input
             type="date"
@@ -73,7 +73,7 @@ export default function AdminRevenuePanel() {
             aria-label="Revenue from date"
           />
         </label>
-        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           To
           <input
             type="date"
@@ -100,13 +100,13 @@ export default function AdminRevenuePanel() {
         <button
           type="button"
           onClick={clearDates}
-          className="px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]"
+          className="px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]"
         >
           Clear
         </button>
       </div>
       {report.isLoading ? (
-        <div className="mt-8 flex items-center gap-2 text-sm text-[#657084]">
+        <div className="mt-8 flex items-center gap-2 text-sm text-[#475569]">
           <RefreshCw size={15} className="animate-spin" /> Loading revenue
           report…
         </div>
@@ -118,7 +118,7 @@ export default function AdminRevenuePanel() {
         <>
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
             <div className="border border-[#16243d]/10 bg-[#f7f3e8] p-4">
-              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
                 Total collected
               </p>
               <p className="mt-2 text-2xl font-bold text-[#16243d]">
@@ -126,7 +126,7 @@ export default function AdminRevenuePanel() {
               </p>
             </div>
             <div className="border border-[#16243d]/10 bg-[#f7f3e8] p-4">
-              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
                 Successful payments
               </p>
               <p className="mt-2 text-2xl font-bold text-[#16243d]">
@@ -134,7 +134,7 @@ export default function AdminRevenuePanel() {
               </p>
             </div>
             <div className="border border-[#16243d]/10 bg-[#f7f3e8] p-4">
-              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
                 Average payment
               </p>
               <p className="mt-2 text-2xl font-bold text-[#16243d]">
@@ -209,3 +209,5 @@ export default function AdminRevenuePanel() {
     </section>
   );
 }
+
+

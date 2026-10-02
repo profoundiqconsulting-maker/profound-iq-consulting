@@ -64,17 +64,17 @@ function InquiryAuditHistory({
   if (!open) return null;
   return (
     <div className="mt-3 border-t border-[#16243d]/10 pt-3">
-      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
         Change history
       </p>
       {audit.isLoading ? (
-        <p className="mt-2 text-xs text-[#657084]">Loading history…</p>
+        <p className="mt-2 text-xs text-[#475569]">Loading history…</p>
       ) : audit.data?.length ? (
         <div className="mt-2 space-y-2">
           {audit.data.map(entry => (
             <div
               key={entry.id}
-              className="flex flex-wrap gap-x-2 gap-y-1 text-xs text-[#657084]"
+              className="flex flex-wrap gap-x-2 gap-y-1 text-xs text-[#475569]"
             >
               <span className="font-bold text-[#16243d]">{entry.action}</span>
               <span>
@@ -88,7 +88,7 @@ function InquiryAuditHistory({
           ))}
         </div>
       ) : (
-        <p className="mt-2 text-xs text-[#657084]">No changes recorded yet.</p>
+        <p className="mt-2 text-xs text-[#475569]">No changes recorded yet.</p>
       )}
     </div>
   );
@@ -257,18 +257,18 @@ export default function AdminInquiryPanel() {
     >
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
+          <p className="eyebrow flex items-center gap-2 text-[#b8860b]">
             <Mail size={13} /> Contact desk
           </p>
           <h2 id="inquiries-title" className="display mt-3 text-3xl">
             Submitted inquiries.
           </h2>
-          <p className="mt-2 text-sm text-[#657084]">
+          <p className="mt-2 text-sm text-[#475569]">
             Review, triage, and close questions submitted through the public
             website.
           </p>
         </div>
-        <span className="text-xs font-bold uppercase tracking-[.12em] text-[#657084]">
+        <span className="text-xs font-bold uppercase tracking-[.12em] text-[#475569]">
           {inquiries.data?.total ?? 0} total
         </span>
       </div>
@@ -276,7 +276,7 @@ export default function AdminInquiryPanel() {
         <label className="relative lg:col-span-2">
           <span className="sr-only">Search inquiries</span>
           <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#657084]"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#475569]"
             size={15}
           />
           <input
@@ -335,7 +335,7 @@ export default function AdminInquiryPanel() {
             </option>
           ))}
         </select>
-        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           From
           <input
             type="date"
@@ -345,7 +345,7 @@ export default function AdminInquiryPanel() {
             className="mt-1 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs font-normal tracking-normal text-[#16243d]"
           />
         </label>
-        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           To
           <input
             type="date"
@@ -380,7 +380,7 @@ export default function AdminInquiryPanel() {
           <button
             type="button"
             onClick={clearDates}
-            className="px-2 py-2 text-[9px] font-black uppercase tracking-[.08em] text-[#657084]"
+            className="px-2 py-2 text-[9px] font-black uppercase tracking-[.08em] text-[#475569]"
           >
             Clear dates
           </button>
@@ -414,7 +414,7 @@ export default function AdminInquiryPanel() {
             )}{" "}
             Select visible
           </button>
-          <span className="text-xs text-[#657084]">
+          <span className="text-xs text-[#475569]">
             {state.selected.length} selected
           </span>
         </div>
@@ -445,7 +445,7 @@ export default function AdminInquiryPanel() {
         </div>
       </div>
       {inquiries.isLoading ? (
-        <div className="mt-6 flex items-center gap-2 text-sm text-[#657084]">
+        <div className="mt-6 flex items-center gap-2 text-sm text-[#475569]">
           <RefreshCw size={15} className="animate-spin" /> Loading inquiries…
         </div>
       ) : inquiries.isError ? (
@@ -460,7 +460,7 @@ export default function AdminInquiryPanel() {
                 type="button"
                 onClick={() => toggleSelected(inquiry.id)}
                 aria-label={`${state.selected.includes(inquiry.id) ? "Deselect" : "Select"} inquiry from ${inquiry.name}`}
-                className="mt-1 shrink-0 text-[#7d5e1e]"
+                className="mt-1 shrink-0 text-[#b8860b]"
               >
                 {state.selected.includes(inquiry.id) ? (
                   <CheckSquare size={17} />
@@ -474,20 +474,20 @@ export default function AdminInquiryPanel() {
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="font-bold">{inquiry.name}</h3>
                       {inquiry.ticketNumber && (
-                        <span className="font-mono text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+                        <span className="font-mono text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
                           #{inquiry.ticketNumber}
                         </span>
                       )}
-                      <span className="border border-[#c9a34e]/60 px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+                      <span className="border border-[#c9a34e]/60 px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
                         {subjectLabel(inquiry.category)}
                       </span>
-                      <span className="border border-[#16243d]/15 px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+                      <span className="border border-[#16243d]/15 px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
                         {inquiry.status}
                       </span>
                     </div>
                     <a
                       href={`mailto:${inquiry.email}`}
-                      className="mt-1 inline-block text-sm text-[#7d5e1e] hover:underline"
+                      className="mt-1 inline-block text-sm text-[#b8860b] hover:underline"
                     >
                       {inquiry.email}
                     </a>
@@ -589,7 +589,7 @@ export default function AdminInquiryPanel() {
                   </div>
                 </div>
                 <div className="border-l-2 border-[#c9a34e]/60 bg-[#f7f3e8] p-3">
-                  <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+                  <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
                     Internal team notes
                     <textarea
                       rows={2}
@@ -632,7 +632,7 @@ export default function AdminInquiryPanel() {
                         current === inquiry.id ? null : inquiry.id
                       )
                     }
-                    className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]"
+                    className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]"
                   >
                     <ClipboardList size={13} />{" "}
                     {auditOpen === inquiry.id ? "Hide history" : "View history"}
@@ -647,7 +647,7 @@ export default function AdminInquiryPanel() {
           ))}
         </div>
       ) : (
-        <div className="mt-6 border border-dashed border-[#16243d]/20 p-6 text-sm text-[#657084]">
+        <div className="mt-6 border border-dashed border-[#16243d]/20 p-6 text-sm text-[#475569]">
           No inquiries match the current filters.
         </div>
       )}
@@ -660,7 +660,7 @@ export default function AdminInquiryPanel() {
         >
           <ChevronLeft size={13} /> Previous
         </button>
-        <span className="text-xs text-[#657084]">
+        <span className="text-xs text-[#475569]">
           Page {inquiries.data?.page ?? state.page} of{" "}
           {inquiries.data?.totalPages ?? 1}
         </span>
@@ -682,14 +682,14 @@ export default function AdminInquiryPanel() {
       <div className="mt-10 border-t border-[#16243d]/10 pt-6">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="eyebrow text-[#7d5e1e]">Last 30 days</p>
+            <p className="eyebrow text-[#b8860b]">Last 30 days</p>
             <h3 className="display mt-2 text-2xl">Inquiry mix by subject.</h3>
           </div>
-          <span className="text-xs text-[#657084]">Category volume</span>
+          <span className="text-xs text-[#475569]">Category volume</span>
         </div>
         <div className="mt-4 h-64">
           {chart.isLoading ? (
-            <div className="flex h-full items-center justify-center text-sm text-[#657084]">
+            <div className="flex h-full items-center justify-center text-sm text-[#475569]">
               Loading chart…
             </div>
           ) : (
@@ -724,3 +724,4 @@ export default function AdminInquiryPanel() {
     </section>
   );
 }
+

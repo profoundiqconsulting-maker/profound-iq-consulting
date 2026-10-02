@@ -74,7 +74,7 @@ export function AdminRecentQCCertificates() {
     >
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
         <div>
-          <div className="flex items-center gap-2 text-[#7d5e1e]">
+          <div className="flex items-center gap-2 text-[#b8860b]">
             <ShieldCheck size={16} />
             <p className="eyebrow">Quality control tracking</p>
           </div>
@@ -84,14 +84,14 @@ export function AdminRecentQCCertificates() {
           >
             Recently generated certificates
           </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#475569]">
             Review the latest course certificates created through the canonical
             certificate pipeline. Filters are server-backed and limited to
             administrators.
           </p>
         </div>
         <div className="border border-[#c9a34e]/50 bg-white px-3 py-2 text-right">
-          <p className="text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
+          <p className="text-[9px] font-black uppercase tracking-[.12em] text-[#b8860b]">
             Visible records
           </p>
           <p className="mt-1 text-2xl font-bold">
@@ -101,8 +101,8 @@ export function AdminRecentQCCertificates() {
       </div>
       <div className="mt-5 grid gap-3 border-y border-[#16243d]/10 py-4 sm:grid-cols-2 lg:grid-cols-5">
         <div className="sm:col-span-2 lg:col-span-5">
-          <p className="eyebrow text-[#7d5e1e]">Generate QC certificate</p>
-          <p className="mt-1 text-xs leading-5 text-[#657084]">
+          <p className="eyebrow text-[#b8860b]">Generate QC certificate</p>
+          <p className="mt-1 text-xs leading-5 text-[#475569]">
             Issue a quality-control review certificate for an existing enrollment
             without requiring completion or payment.
           </p>
@@ -132,12 +132,12 @@ export function AdminRecentQCCertificates() {
             </Button>
           </div>
         </div>
-        <label className="flex flex-col gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="flex flex-col gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           <span>Search</span>
           <span className="relative">
             <Search
               size={14}
-              className="absolute left-3 top-2.5 text-[#7d5e1e]"
+              className="absolute left-3 top-2.5 text-[#b8860b]"
             />
             <input
               value={search}
@@ -147,7 +147,7 @@ export function AdminRecentQCCertificates() {
             />
           </span>
         </label>
-        <label className="flex flex-col gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="flex flex-col gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           <span>Course</span>
           <select
             value={courseSlug}
@@ -162,7 +162,7 @@ export function AdminRecentQCCertificates() {
             ))}
           </select>
         </label>
-        <label className="flex flex-col gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="flex flex-col gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           <span>Status</span>
           <select
             value={status}
@@ -174,12 +174,12 @@ export function AdminRecentQCCertificates() {
             <option value="revoked">Revoked</option>
           </select>
         </label>
-        <label className="flex flex-col gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="flex flex-col gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           <span>From</span>
           <span className="relative">
             <CalendarDays
               size={14}
-              className="absolute left-3 top-2.5 text-[#7d5e1e]"
+              className="absolute left-3 top-2.5 text-[#b8860b]"
             />
             <input
               type="date"
@@ -189,12 +189,12 @@ export function AdminRecentQCCertificates() {
             />
           </span>
         </label>
-        <label className="flex flex-col gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="flex flex-col gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           <span>To</span>
           <span className="relative">
             <CalendarDays
               size={14}
-              className="absolute left-3 top-2.5 text-[#7d5e1e]"
+              className="absolute left-3 top-2.5 text-[#b8860b]"
             />
             <input
               type="date"
@@ -207,7 +207,7 @@ export function AdminRecentQCCertificates() {
       </div>
       {certificates.isLoading ? (
         <div
-          className="grid min-h-32 place-items-center border border-dashed border-[#16243d]/20 text-sm text-[#657084]"
+          className="grid min-h-32 place-items-center border border-dashed border-[#16243d]/20 text-sm text-[#475569]"
           role="status"
         >
           Loading recent certificates…
@@ -217,14 +217,14 @@ export function AdminRecentQCCertificates() {
           Unable to load QC certificates. {certificates.error.message}
         </div>
       ) : rows.length === 0 ? (
-        <div className="border border-dashed border-[#16243d]/20 p-6 text-sm text-[#657084]">
+        <div className="border border-dashed border-[#16243d]/20 p-6 text-sm text-[#475569]">
           No generated certificates match these filters.
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead>
-              <tr className="border-b border-[#16243d]/15 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+              <tr className="border-b border-[#16243d]/15 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
                 <th className="px-3 py-3">Certificate</th>
                 <th className="px-3 py-3">Respondent</th>
                 <th className="px-3 py-3">Course</th>
@@ -251,10 +251,10 @@ export function AdminRecentQCCertificates() {
                       {row.status}
                     </span>
                   </td>
-                  <td className="whitespace-nowrap px-3 py-3 text-[#657084]">
+                  <td className="whitespace-nowrap px-3 py-3 text-[#475569]">
                     {new Date(row.createdAt).toLocaleString()}
                   </td>
-                  <td className="px-3 py-3 font-mono text-[10px] text-[#657084]">
+                  <td className="px-3 py-3 font-mono text-[10px] text-[#475569]">
                     {row.artifactHash
                       ? `${row.artifactHash.slice(0, 12)}…`
                       : "—"}
@@ -268,3 +268,5 @@ export function AdminRecentQCCertificates() {
     </section>
   );
 }
+
+

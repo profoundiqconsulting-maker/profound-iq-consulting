@@ -511,7 +511,7 @@ export function AdminCertificatePreview() {
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="eyebrow text-[#7d5e1e]">Quality control</p>
+          <p className="eyebrow text-[#b8860b]">Quality control</p>
           <h2
             id="admin-certificate-preview-title"
             className="display mt-2 text-3xl"
@@ -523,12 +523,12 @@ export function AdminCertificatePreview() {
             future certificate generations after saving.
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs font-bold text-[#7d5e1e]">
+        <div className="flex items-center gap-2 text-xs font-bold text-[#b8860b]">
           <Eye size={16} /> Sample data only
         </div>
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-2 border border-[#16243d]/15 bg-white p-3">
-        <span className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+        <span className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
           Design versions
         </span>
         <button
@@ -562,7 +562,7 @@ export function AdminCertificatePreview() {
         ))}
       </div>
       <div className="mt-5 grid gap-4 md:grid-cols-2">
-        <label className="block text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
+        <label className="block text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]">
           Trainer name
           <input
             value={trainerName}
@@ -571,7 +571,7 @@ export function AdminCertificatePreview() {
             maxLength={160}
           />
         </label>
-        <label className="block text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
+        <label className="block text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]">
           Trainer title
           <input
             value={trainerTitle}
@@ -630,7 +630,7 @@ export function AdminCertificatePreview() {
                 onPointerCancel={endAssetPointer}
               />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-[.08em] text-[#657084]">
+            <span className="text-[10px] font-black uppercase tracking-[.08em] text-[#475569]">
               Drag / resize
             </span>
           </div>
@@ -647,7 +647,7 @@ export function AdminCertificatePreview() {
             }}
           />
         </label>
-        <span className="text-xs text-[#657084]">
+        <span className="text-xs text-[#475569]">
           {signatureDataUri
             ? "A signature image is ready to save."
             : "Using the default signature until you save a replacement."}
@@ -680,7 +680,7 @@ export function AdminCertificatePreview() {
       </div>
       <div className="mt-5 grid gap-4 lg:grid-cols-[210px_1fr]">
         <div className="border border-[#16243d]/15 bg-white p-3">
-          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
+          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
             Certificate fields
           </p>
           <div className="mt-3 space-y-2">
@@ -694,7 +694,7 @@ export function AdminCertificatePreview() {
                 className={`flex w-full items-center justify-between border px-3 py-2 text-left text-xs ${selectedField === field ? "border-[#c9a34e] bg-[#fff5cf]" : "border-[#16243d]/10 bg-[#f7f3e8]"}`}
               >
                 <span>{fieldLabels[field]}</span>
-                <span className="text-[10px] text-[#657084]">
+                <span className="text-[10px] text-[#475569]">
                   {fieldLayout[field]?.visible === false ? "Hidden" : "Visible"}
                 </span>
               </button>
@@ -704,7 +704,7 @@ export function AdminCertificatePreview() {
         <div className="border border-[#16243d]/15 bg-[#f7f3e8] p-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
+              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
                 Edit selected field
               </p>
               <h3 className="mt-1 text-lg font-bold">
@@ -745,7 +745,7 @@ export function AdminCertificatePreview() {
             </div>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
               Horizontal position
               <input
                 type="range"
@@ -761,7 +761,7 @@ export function AdminCertificatePreview() {
                 {selected.x ?? 0}
               </span>
             </label>
-            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
               Vertical position
               <input
                 type="range"
@@ -795,7 +795,7 @@ export function AdminCertificatePreview() {
             "logo",
             "signature",
           ].includes(selectedField) && (
-            <label className="mt-3 block text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+            <label className="mt-3 block text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
               Custom display text
               <input
                 value={selected.text ?? ""}
@@ -809,7 +809,7 @@ export function AdminCertificatePreview() {
         </div>
       </div>
       <div className="mt-5 grid gap-4 md:grid-cols-2">
-        <label className="block text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
+        <label className="block text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]">
           Course title
           <select
             value={courseTitle}
@@ -823,7 +823,7 @@ export function AdminCertificatePreview() {
             ))}
           </select>
         </label>
-        <label className="block text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
+        <label className="block text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]">
           Print paper size
           <select
             value={pageSize}
@@ -838,7 +838,7 @@ export function AdminCertificatePreview() {
         </label>
       </div>
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border border-[#c9a34e]/50 bg-[#fffaf0] px-3 py-2 text-xs">
-        <span className="font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+        <span className="font-black uppercase tracking-[.1em] text-[#b8860b]">
           Artifact equality hash
         </span>
         <span
@@ -864,7 +864,7 @@ export function AdminCertificatePreview() {
       </div>
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <div className="inline-flex items-center gap-1 border border-[#16243d]/20 bg-white px-2 py-1">
-          <span className="px-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+          <span className="px-2 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
             Preview {Math.round(zoom * 100)}%
           </span>
           <button
@@ -947,17 +947,17 @@ export function AdminCertificatePreview() {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <BarChart3 size={15} className="text-[#7d5e1e]" />
-              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
+              <BarChart3 size={15} className="text-[#b8860b]" />
+              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
                 Certificate usage observatory
               </p>
             </div>
-            <p className="mt-2 text-xs leading-5 text-[#657084]">
+            <p className="mt-2 text-xs leading-5 text-[#475569]">
               Filter verified learner activity by UTC date range.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <label className="text-[9px] font-black uppercase tracking-[.1em] text-[#657084]">
+            <label className="text-[9px] font-black uppercase tracking-[.1em] text-[#475569]">
               From
               <input
                 type="date"
@@ -966,7 +966,7 @@ export function AdminCertificatePreview() {
                 className="ml-1 border border-[#16243d]/20 px-2 py-1 text-xs font-normal tracking-normal"
               />
             </label>
-            <label className="text-[9px] font-black uppercase tracking-[.1em] text-[#657084]">
+            <label className="text-[9px] font-black uppercase tracking-[.1em] text-[#475569]">
               To
               <input
                 type="date"
@@ -1007,7 +1007,7 @@ export function AdminCertificatePreview() {
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <div className="border-t-2 border-[#c9a34e] bg-[#fffaf0] p-3">
-            <p className="text-[9px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+            <p className="text-[9px] font-black uppercase tracking-[.1em] text-[#b8860b]">
               Downloads in range
             </p>
             <p className="mt-2 text-3xl font-bold">
@@ -1015,7 +1015,7 @@ export function AdminCertificatePreview() {
             </p>
           </div>
           <div className="border-t-2 border-[#16243d]/30 bg-[#f7f3e8] p-3">
-            <p className="text-[9px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+            <p className="text-[9px] font-black uppercase tracking-[.1em] text-[#b8860b]">
               Shares in range
             </p>
             <p className="mt-2 text-3xl font-bold">
@@ -1025,7 +1025,7 @@ export function AdminCertificatePreview() {
         </div>
         <div className="mt-5 grid gap-5 lg:grid-cols-2">
           <div>
-            <p className="text-[9px] font-black uppercase tracking-[.12em] text-[#657084]">
+            <p className="text-[9px] font-black uppercase tracking-[.12em] text-[#475569]">
               Downloads by platform
             </p>
             {platformDownloads.length ? (
@@ -1040,14 +1040,14 @@ export function AdminCertificatePreview() {
                     <XAxis
                       type="number"
                       allowDecimals={false}
-                      stroke="#657084"
+                      stroke="#475569"
                       fontSize={10}
                     />
                     <YAxis
                       type="category"
                       dataKey="platform"
                       width={62}
-                      stroke="#657084"
+                      stroke="#475569"
                       fontSize={10}
                     />
                     <Tooltip
@@ -1067,13 +1067,13 @@ export function AdminCertificatePreview() {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <p className="mt-3 border border-dashed border-[#16243d]/20 p-4 text-xs text-[#657084]">
+              <p className="mt-3 border border-dashed border-[#16243d]/20 p-4 text-xs text-[#475569]">
                 No certificate downloads in this range.
               </p>
             )}
           </div>
           <div>
-            <p className="text-[9px] font-black uppercase tracking-[.12em] text-[#657084]">
+            <p className="text-[9px] font-black uppercase tracking-[.12em] text-[#475569]">
               Daily download trend
             </p>
             {dailyDownloads.length ? (
@@ -1084,10 +1084,10 @@ export function AdminCertificatePreview() {
                     margin={{ left: 0, right: 8 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#d9deea" />
-                    <XAxis dataKey="day" stroke="#657084" fontSize={10} />
+                    <XAxis dataKey="day" stroke="#475569" fontSize={10} />
                     <YAxis
                       allowDecimals={false}
-                      stroke="#657084"
+                      stroke="#475569"
                       fontSize={10}
                     />
                     <Tooltip
@@ -1109,7 +1109,7 @@ export function AdminCertificatePreview() {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <p className="mt-3 border border-dashed border-[#16243d]/20 p-4 text-xs text-[#657084]">
+              <p className="mt-3 border border-dashed border-[#16243d]/20 p-4 text-xs text-[#475569]">
                 No daily download activity in this range.
               </p>
             )}
@@ -1118,10 +1118,10 @@ export function AdminCertificatePreview() {
         <div className="mt-5 border-t border-[#c9a34e]/50 pt-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
+              <p className="text-[9px] font-black uppercase tracking-[.12em] text-[#b8860b]">
                 Public verification shares
               </p>
-              <p className="mt-1 text-xs text-[#657084]">
+              <p className="mt-1 text-xs text-[#475569]">
                 Native and platform shares recorded from public certificate
                 verification pages.
               </p>
@@ -1142,7 +1142,7 @@ export function AdminCertificatePreview() {
               ))}
             </div>
           ) : (
-            <p className="mt-3 border border-dashed border-[#16243d]/20 p-3 text-xs text-[#657084]">
+            <p className="mt-3 border border-dashed border-[#16243d]/20 p-3 text-xs text-[#475569]">
               No public verification shares in this range.
             </p>
           )}
@@ -1151,3 +1151,5 @@ export function AdminCertificatePreview() {
     </section>
   );
 }
+
+

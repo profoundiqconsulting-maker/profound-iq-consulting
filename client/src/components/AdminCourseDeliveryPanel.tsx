@@ -34,9 +34,9 @@ export default function AdminCourseDeliveryPanel() {
     <section className="mt-8 border border-[#16243d]/15 bg-white/55 p-5 sm:p-6">
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow text-[#7d5e1e]">Delivery observatory</p>
+          <p className="eyebrow text-[#b8860b]">Delivery observatory</p>
           <h2 className="display mt-2 text-2xl">Course result handoffs.</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#475569]">
             Monitor learner email, organization-review requests, and
             social-image outcomes without exposing report contents.
           </p>
@@ -45,17 +45,17 @@ export default function AdminCourseDeliveryPanel() {
           size={17}
           className={
             outcomes.isFetching
-              ? "animate-spin text-[#7d5e1e]"
-              : "text-[#7d5e1e]"
+              ? "animate-spin text-[#b8860b]"
+              : "text-[#b8860b]"
           }
           aria-label="Delivery outcomes refresh automatically"
         />
       </div>
       <div className="mt-5 grid gap-3 sm:grid-cols-3">
-        <label className="relative text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+        <label className="relative text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
           <Search
             size={14}
-            className="absolute bottom-3 left-3 text-[#7d5e1e]"
+            className="absolute bottom-3 left-3 text-[#b8860b]"
           />
           <span className="sr-only">Search recipients</span>
           <input
@@ -65,7 +65,7 @@ export default function AdminCourseDeliveryPanel() {
             placeholder="Search email or organization"
           />
         </label>
-        <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+        <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
           Step
           <select
             value={step}
@@ -78,7 +78,7 @@ export default function AdminCourseDeliveryPanel() {
             <option value="social">Social image</option>
           </select>
         </label>
-        <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+        <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
           Status
           <select
             value={state.status}
@@ -95,18 +95,18 @@ export default function AdminCourseDeliveryPanel() {
         </label>
       </div>
       {outcomes.isLoading ? (
-        <p className="mt-5 text-sm text-[#657084]">
+        <p className="mt-5 text-sm text-[#475569]">
           Loading delivery outcomes…
         </p>
       ) : rows.length === 0 ? (
-        <p className="mt-5 border border-dashed border-[#16243d]/15 p-4 text-sm text-[#657084]">
+        <p className="mt-5 border border-dashed border-[#16243d]/15 p-4 text-sm text-[#475569]">
           No delivery outcomes match the selected filters.
         </p>
       ) : (
         <div className="mt-5 overflow-x-auto">
           <table className="w-full min-w-[640px] text-left text-xs">
             <thead>
-              <tr className="border-b border-[#16243d]/15 text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
+              <tr className="border-b border-[#16243d]/15 text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
                 <th className="px-3 py-3">Step</th>
                 <th className="px-3 py-3">Status</th>
                 <th className="px-3 py-3">Recipient</th>
@@ -116,14 +116,14 @@ export default function AdminCourseDeliveryPanel() {
             <tbody>
               {rows.map(row => (
                 <tr key={row.id} className="border-b border-[#16243d]/10">
-                  <td className="px-3 py-3 font-semibold text-[#7d5e1e]">
+                  <td className="px-3 py-3 font-semibold text-[#b8860b]">
                     {row.step}
                   </td>
                   <td className="px-3 py-3">{row.status}</td>
                   <td className="px-3 py-3">
                     {row.organizationName || row.recipientEmail || "Personal"}
                   </td>
-                  <td className="px-3 py-3 text-[#657084]">
+                  <td className="px-3 py-3 text-[#475569]">
                     {new Date(row.createdAt).toLocaleString()}
                   </td>
                 </tr>
@@ -135,3 +135,4 @@ export default function AdminCourseDeliveryPanel() {
     </section>
   );
 }
+

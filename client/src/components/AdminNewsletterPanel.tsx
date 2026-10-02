@@ -139,11 +139,11 @@ export default function AdminNewsletterPanel() {
     >
       <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow text-[#7d5e1e]">Audience / newsletter</p>
+          <p className="eyebrow text-[#b8860b]">Audience / newsletter</p>
           <h2 className="display mt-2 text-2xl">
             Keep the conversation permission-based.
           </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#475569]">
             Review consented Insights subscribers, narrow the list by email,
             status, or consent date, and export only the records needed for an
             approved communication workflow.
@@ -200,10 +200,10 @@ export default function AdminNewsletterPanel() {
         </button>
       </div>
       <div className="mt-5 grid gap-3 border border-[#16243d]/10 bg-white/55 p-4 md:grid-cols-[1.4fr_.8fr_.8fr_.8fr_auto] md:items-end">
-        <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[#657084]">
+        <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[#475569]">
           Search email or source
           <span className="flex min-h-11 items-center gap-2 border border-[#16243d]/15 bg-[#fffaf0] px-3">
-            <Search size={15} className="text-[#7d5e1e]" />
+            <Search size={15} className="text-[#b8860b]" />
              <input
               id="newsletter-search"
               name="search"
@@ -215,7 +215,7 @@ export default function AdminNewsletterPanel() {
             />
           </span>
         </label>
-        <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[#657084]">
+        <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[#475569]">
           Status
              <select
               id="newsletter-status"
@@ -237,7 +237,7 @@ export default function AdminNewsletterPanel() {
             <option value="unsubscribed">Unsubscribed</option>
           </select>
         </label>
-        <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[#657084]">
+        <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[#475569]">
           From date
            <input
              id="newsletter-from-date"
@@ -249,7 +249,7 @@ export default function AdminNewsletterPanel() {
              className="min-h-11 border border-[#16243d]/15 bg-[#fffaf0] px-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
            />
         </label>
-        <label className="grid gap-2 text-xs font-black uppercase tracking-[.08em] text-[#657084]">
+        <label className="grid gap-2 text-xs font-black uppercase tracking-[.08em] text-[#475569]">
           To date
            <input
              id="newsletter-to-date"
@@ -265,14 +265,14 @@ export default function AdminNewsletterPanel() {
           type="button"
           onClick={clearFilters}
           disabled={!hasFilters}
-          className="inline-flex min-h-11 items-center justify-center gap-2 border border-[#16243d]/20 px-3 text-[10px] font-black uppercase tracking-[.08em] text-[#657084] hover:border-[#c9a34e] hover:text-[#16243d] disabled:opacity-40"
+          className="inline-flex min-h-11 items-center justify-center gap-2 border border-[#16243d]/20 px-3 text-[10px] font-black uppercase tracking-[.08em] text-[#475569] hover:border-[#c9a34e] hover:text-[#16243d] disabled:opacity-40"
         >
           <SlidersHorizontal size={14} /> Clear
         </button>
       </div>
       {subscribers.isLoading ? (
-        <div className="mt-6 flex items-center gap-3 text-sm text-[#657084]">
-          <RefreshCw size={16} className="animate-spin text-[#7d5e1e]" />{" "}
+        <div className="mt-6 flex items-center gap-3 text-sm text-[#475569]">
+          <RefreshCw size={16} className="animate-spin text-[#b8860b]" />{" "}
           Loading subscribers…
         </div>
       ) : subscribers.isError ? (
@@ -287,19 +287,19 @@ export default function AdminNewsletterPanel() {
         </div>
       ) : (
         <>
-          <div className="mt-5 flex items-center gap-3 text-xs font-bold uppercase tracking-[.1em] text-[#657084]">
-            <Mail size={15} className="text-[#7d5e1e]" />{" "}
+          <div className="mt-5 flex items-center gap-3 text-xs font-bold uppercase tracking-[.1em] text-[#475569]">
+            <Mail size={15} className="text-[#b8860b]" />{" "}
             {subscribers.data?.total ?? 0} matching address
             {(subscribers.data?.total ?? 0) === 1 ? "" : "es"}
           </div>
           {(subscribers.data?.rows.length ?? 0) === 0 ? (
-            <div className="mt-5 border border-dashed border-[#16243d]/20 bg-white/60 p-5 text-sm text-[#657084]">
+            <div className="mt-5 border border-dashed border-[#16243d]/20 bg-white/60 p-5 text-sm text-[#475569]">
               No newsletter subscribers match the current filters.
             </div>
           ) : (
             <div className="mt-5 overflow-x-auto">
               <table className="w-full min-w-[650px] text-left text-sm">
-                <thead className="border-b border-[#16243d]/15 text-[10px] uppercase tracking-[.12em] text-[#657084]">
+                <thead className="border-b border-[#16243d]/15 text-[10px] uppercase tracking-[.12em] text-[#475569]">
                   <tr>
                     <th className="py-3 pr-4">Email</th>
                     <th className="py-3 pr-4">Source</th>
@@ -316,7 +316,7 @@ export default function AdminNewsletterPanel() {
                       <td className="py-3 pr-4 font-semibold">
                         {subscriber.email}
                       </td>
-                      <td className="py-3 pr-4 text-xs text-[#657084]">
+                      <td className="py-3 pr-4 text-xs text-[#475569]">
                         {subscriber.source}
                       </td>
                       <td className="py-3 pr-4">
@@ -331,7 +331,7 @@ export default function AdminNewsletterPanel() {
                             })
                           }
                           aria-label={`Update status for ${subscriber.email}`}
-                          className={`border-0 bg-transparent p-0 text-xs font-bold outline-none focus:ring-2 focus:ring-[#c9a34e]/40 ${subscriber.status === "confirmed" || subscriber.status === "subscribed" ? "text-emerald-800" : subscriber.status === "unsubscribed" ? "text-[#8b4f63]" : "text-[#7d5e1e]"}`}
+                          className={`border-0 bg-transparent p-0 text-xs font-bold outline-none focus:ring-2 focus:ring-[#c9a34e]/40 ${subscriber.status === "confirmed" || subscriber.status === "subscribed" ? "text-emerald-800" : subscriber.status === "unsubscribed" ? "text-[#8b4f63]" : "text-[#b8860b]"}`}
                         >
                           <option value="pending">Pending</option>
                           <option value="confirmed">Confirmed</option>
@@ -339,7 +339,7 @@ export default function AdminNewsletterPanel() {
                           <option value="unsubscribed">Unsubscribed</option>
                         </select>
                       </td>
-                      <td className="py-3 text-xs text-[#657084]">
+                      <td className="py-3 text-xs text-[#475569]">
                         {new Date(subscriber.consentedAt).toLocaleString()}
                       </td>
                     </tr>
@@ -361,3 +361,4 @@ export default function AdminNewsletterPanel() {
     </section>
   );
 }
+

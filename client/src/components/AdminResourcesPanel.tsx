@@ -179,13 +179,13 @@ export default function AdminResourcesPanel() {
     <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
+          <p className="eyebrow flex items-center gap-2 text-[#b8860b]">
             <Upload size={13} /> Resource library
           </p>
           <h2 className="display mt-3 text-3xl">
             {editingId ? "Edit resource" : "Upload and manage resources"}
           </h2>
-          <p className="mt-2 max-w-2xl text-sm text-[#657084]">
+          <p className="mt-2 max-w-2xl text-sm text-[#475569]">
             Add guides, templates, videos, and other resources to the public
             Resources page. Use price 0 for free resources.
           </p>
@@ -202,7 +202,7 @@ export default function AdminResourcesPanel() {
       </div>
 
       <div className="mt-8 grid gap-4 border border-[#16243d]/10 bg-[#f7f3e8] p-4 sm:grid-cols-2">
-        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           Title
           <input
             value={form.title}
@@ -211,7 +211,7 @@ export default function AdminResourcesPanel() {
             className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
           />
         </label>
-        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           Category
           <input
             value={form.category}
@@ -220,7 +220,7 @@ export default function AdminResourcesPanel() {
             className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
           />
         </label>
-        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           Price (KES)
           <input
             type="number"
@@ -231,7 +231,7 @@ export default function AdminResourcesPanel() {
             className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
           />
         </label>
-        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           Currency
           <input
             value={form.currency}
@@ -240,7 +240,7 @@ export default function AdminResourcesPanel() {
             className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
           />
         </label>
-        <label className="sm:col-span-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="sm:col-span-2 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           Description
           <textarea
             value={form.description}
@@ -250,7 +250,7 @@ export default function AdminResourcesPanel() {
             className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
           />
         </label>
-        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           File
           <input
             type="file"
@@ -258,12 +258,12 @@ export default function AdminResourcesPanel() {
             className="mt-1 block w-full text-sm"
           />
           {form.file && (
-            <span className="mt-1 block text-[11px] font-normal text-[#657084]">
+            <span className="mt-1 block text-[11px] font-normal text-[#475569]">
               {form.file.name} · {(form.file.size / 1024).toFixed(1)} KB
             </span>
           )}
         </label>
-        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           Cover image
           <input
             type="file"
@@ -274,12 +274,12 @@ export default function AdminResourcesPanel() {
             className="mt-1 block w-full text-sm"
           />
           {form.coverImage && (
-            <span className="mt-1 block text-[11px] font-normal text-[#657084]">
+            <span className="mt-1 block text-[11px] font-normal text-[#475569]">
               {form.coverImage.name} · {(form.coverImage.size / 1024).toFixed(1)} KB
             </span>
           )}
         </label>
-        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           Sort order
           <input
             type="number"
@@ -288,7 +288,7 @@ export default function AdminResourcesPanel() {
             className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
           />
         </label>
-        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           Status
           <select
             value={form.status}
@@ -318,9 +318,9 @@ export default function AdminResourcesPanel() {
 
       <div className="mt-8 divide-y divide-[#16243d]/10 border-y border-[#16243d]/10">
         {resources.isLoading ? (
-          <p className="py-6 text-sm text-[#657084]">Loading resources…</p>
+          <p className="py-6 text-sm text-[#475569]">Loading resources…</p>
         ) : (resources.data ?? []).length === 0 ? (
-          <p className="py-6 text-sm text-[#657084]">No resources yet.</p>
+          <p className="py-6 text-sm text-[#475569]">No resources yet.</p>
         ) : (
           (resources.data ?? []).map(resource => (
             <div
@@ -329,8 +329,8 @@ export default function AdminResourcesPanel() {
             >
               <div className="min-w-0">
                 <p className="font-bold">{resource.title}</p>
-                <p className="text-xs text-[#657084]">{resource.description}</p>
-                <div className="mt-1 flex flex-wrap gap-2 text-[10px] uppercase tracking-[.1em] text-[#7d5e1e]">
+                <p className="text-xs text-[#475569]">{resource.description}</p>
+                <div className="mt-1 flex flex-wrap gap-2 text-[10px] uppercase tracking-[.1em] text-[#b8860b]">
                   <span className="rounded-full border border-[#16243d]/15 px-2 py-0.5">
                     {resource.category}
                   </span>
@@ -345,7 +345,7 @@ export default function AdminResourcesPanel() {
                       href={resource.fileUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1 rounded-full border border-[#16243d]/15 px-2 py-0.5 hover:text-[#7d5e1e]"
+                      className="inline-flex items-center gap-1 rounded-full border border-[#16243d]/15 px-2 py-0.5 hover:text-[#b8860b]"
                     >
                       <ExternalLink size={10} /> File
                     </a>
@@ -356,7 +356,7 @@ export default function AdminResourcesPanel() {
                 <button
                   type="button"
                   onClick={() => startEdit(resource)}
-                  className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]"
+                  className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]"
                 >
                   Edit
                 </button>
@@ -375,3 +375,5 @@ export default function AdminResourcesPanel() {
     </section>
   );
 }
+
+

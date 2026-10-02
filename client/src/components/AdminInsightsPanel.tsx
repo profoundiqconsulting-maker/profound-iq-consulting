@@ -121,15 +121,15 @@ export default function AdminInsightsPanel() {
     >
       <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow text-[#7d5e1e]">Editorial / Insights</p>
+          <p className="eyebrow text-[#b8860b]">Editorial / Insights</p>
           <h2 className="display mt-2 text-2xl">Publish with intention.</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#475569]">
             Move approved article drafts into the public library, keep
             work-in-progress pieces private, and attach a branded social preview
             image when one is ready.
           </p>
         </div>
-        <span className="text-xs font-bold text-[#7d5e1e]">Admin only</span>
+        <span className="text-xs font-bold text-[#b8860b]">Admin only</span>
       </div>
 
       <div className="mt-6 rounded-xl border border-[#16243d]/15 bg-white/80 p-5">
@@ -138,7 +138,7 @@ export default function AdminInsightsPanel() {
             <p className="text-sm font-bold uppercase tracking-[.12em] text-[#16243d]">
               New post
             </p>
-            <p className="text-xs text-[#657084]">
+            <p className="text-xs text-[#475569]">
               Create a new insight article. Required fields are marked with *.
             </p>
           </div>
@@ -224,7 +224,7 @@ export default function AdminInsightsPanel() {
               rows={6}
               className="font-mono text-xs"
             />
-            <p className="text-[11px] text-[#657084]">
+            <p className="text-[11px] text-[#475569]">
               Provide a JSON array of sections. Each section needs a heading and an array of paragraphs.
             </p>
           </div>
@@ -251,8 +251,8 @@ export default function AdminInsightsPanel() {
             <label className="text-xs font-bold uppercase tracking-[.1em]">
               Social image
             </label>
-            <label className="flex items-center gap-2 text-xs text-[#657084]">
-              <ImagePlus size={15} className="text-[#7d5e1e]" />
+            <label className="flex items-center gap-2 text-xs text-[#475569]">
+              <ImagePlus size={15} className="text-[#b8860b]" />
               <span className="sr-only">Social preview image</span>
               <input
                 type="file"
@@ -270,7 +270,7 @@ export default function AdminInsightsPanel() {
                 }}
               />
               {socialImageFile && (
-                <span className="text-[11px] font-normal text-[#657084]">
+                <span className="text-[11px] font-normal text-[#475569]">
                   {socialImageFile.name} · {(socialImageFile.size / 1024).toFixed(1)} KB
                 </span>
               )}
@@ -290,7 +290,7 @@ export default function AdminInsightsPanel() {
         </div>
       </div>
       {articles.isLoading ? (
-        <p className="mt-6 flex items-center gap-2 text-sm text-[#657084]">
+        <p className="mt-6 flex items-center gap-2 text-sm text-[#475569]">
           <RefreshCw size={15} className="animate-spin" /> Loading editorial
           records…
         </p>
@@ -311,10 +311,10 @@ export default function AdminInsightsPanel() {
               >
                 <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
                   <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
+                    <div className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
                       <span>{article.category}</span>
                       <span
-                        className={`inline-flex items-center gap-1 border px-2 py-1 ${published ? "border-emerald-800/30 text-emerald-800" : "border-[#7d5e1e]/30 text-[#7d5e1e]"}`}
+                        className={`inline-flex items-center gap-1 border px-2 py-1 ${published ? "border-emerald-800/30 text-emerald-800" : "border-[#b8860b]/30 text-[#b8860b]"}`}
                       >
                         {published ? (
                           <CheckCircle2 size={12} />
@@ -327,7 +327,7 @@ export default function AdminInsightsPanel() {
                     <h3 className="mt-3 text-xl font-semibold text-[#16243d]">
                       {article.title}
                     </h3>
-                    <p className="mt-2 max-w-3xl text-sm leading-6 text-[#657084]">
+                    <p className="mt-2 max-w-3xl text-sm leading-6 text-[#475569]">
                       {article.excerpt}
                     </p>
                   </div>
@@ -354,8 +354,8 @@ export default function AdminInsightsPanel() {
                     </button>
                   </div>
                 </div>
-                <label className="mt-4 flex items-center gap-2 text-xs text-[#657084]">
-                  <ImagePlus size={15} className="text-[#7d5e1e]" />
+                <label className="mt-4 flex items-center gap-2 text-xs text-[#475569]">
+                  <ImagePlus size={15} className="text-[#b8860b]" />
                   <span className="sr-only">
                     Social preview image for {article.title}
                   </span>
@@ -381,7 +381,7 @@ export default function AdminInsightsPanel() {
                     }}
                   />
                   {file && (
-                    <span className="text-[11px] font-normal text-[#657084]">
+                    <span className="text-[11px] font-normal text-[#475569]">
                       {file.name} · {(file.size / 1024).toFixed(1)} KB
                     </span>
                   )}
@@ -394,3 +394,5 @@ export default function AdminInsightsPanel() {
     </section>
   );
 }
+
+

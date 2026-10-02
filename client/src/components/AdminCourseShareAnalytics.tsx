@@ -47,7 +47,7 @@ function PreviewImage({ src, alt }: { src: string; alt: string }) {
   const [ok, setOk] = useState(true);
   if (!ok) {
     return (
-      <div className="flex aspect-[1200/630] w-full items-center justify-center text-xs text-[#657084] bg-[#f1f5f9]">
+      <div className="flex aspect-[1200/630] w-full items-center justify-center text-xs text-[#475569] bg-[#f1f5f9]">
         Preview unavailable
       </div>
     );
@@ -123,7 +123,7 @@ export default function AdminCourseShareAnalytics() {
         : ArrowDownRight;
   const trendColor =
     trend.direction === "neutral"
-      ? "text-[#657084]"
+      ? "text-[#475569]"
       : trend.direction === "up"
         ? "text-emerald-800"
         : "text-rose-800";
@@ -206,14 +206,14 @@ export default function AdminCourseShareAnalytics() {
     >
       <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow text-[#7d5e1e]">Social intelligence</p>
+          <p className="eyebrow text-[#b8860b]">Social intelligence</p>
           <h2
             id="course-share-analytics-title"
             className="display mt-2 text-2xl"
           >
             Course sharing by platform.
           </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#475569]">
             Compare which courses and channels generate the most sharing
             activity from real recorded share events.
           </p>
@@ -282,7 +282,7 @@ export default function AdminCourseShareAnalytics() {
             All time
           </button>
         </div>
-        <label className="flex items-center gap-2 self-end px-2 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="flex items-center gap-2 self-end px-2 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           <input
             type="checkbox"
             checked={excludeAdminShares}
@@ -291,7 +291,7 @@ export default function AdminCourseShareAnalytics() {
           />{" "}
           Public shares only
         </label>
-        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           Date range · From
           <input
             type="date"
@@ -300,7 +300,7 @@ export default function AdminCourseShareAnalytics() {
             className="ml-2 border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm font-normal tracking-normal text-[#16243d]"
           />
         </label>
-        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           To
           <input
             type="date"
@@ -312,7 +312,7 @@ export default function AdminCourseShareAnalytics() {
       </div>
       <div className="mt-5 grid gap-3 sm:grid-cols-3">
         <div className="border border-[#16243d]/10 bg-[#fffaf0] p-4">
-          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
             Total shares
           </p>
           <p className="mt-2 text-2xl font-semibold">
@@ -328,7 +328,7 @@ export default function AdminCourseShareAnalytics() {
           )}
         </div>
         <div className="border border-[#16243d]/10 bg-[#fffaf0] p-4">
-          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
             Top course
           </p>
           <p className="mt-2 truncate text-sm font-bold">
@@ -336,7 +336,7 @@ export default function AdminCourseShareAnalytics() {
           </p>
         </div>
         <div className="border border-[#16243d]/10 bg-[#fffaf0] p-4">
-          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
             Top platform
           </p>
           <p className="mt-2 text-sm font-bold">
@@ -347,18 +347,18 @@ export default function AdminCourseShareAnalytics() {
       <div className="mt-6 border-t border-[#16243d]/10 pt-6">
         <div className="flex items-end justify-between gap-3">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
               Comparison momentum
             </p>
             <h3 className="mt-1 text-xl font-semibold">
               Most shared comparisons.
             </h3>
-            <p className="mt-1 text-sm text-[#657084]">
+            <p className="mt-1 text-sm text-[#475569]">
               Ranked from recorded comparison share events in the selected date
               range.
             </p>
           </div>
-          <span className="text-xs text-[#657084]">
+          <span className="text-xs text-[#475569]">
             {analytics.data?.byComparison?.length ?? 0} comparison
             {(analytics.data?.byComparison?.length ?? 0) === 1 ? "" : "s"}
           </span>
@@ -371,10 +371,10 @@ export default function AdminCourseShareAnalytics() {
                 className="border border-[#16243d]/10 bg-[#fffaf0] p-4"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
+                  <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
                     #{index + 1}
                   </span>
-                  <span className="text-xs font-bold text-[#7d5e1e]">
+                  <span className="text-xs font-bold text-[#b8860b]">
                     {item.shares} share{item.shares === 1 ? "" : "s"}
                   </span>
                 </div>
@@ -385,7 +385,7 @@ export default function AdminCourseShareAnalytics() {
             ))}
           </div>
         ) : (
-          <div className="mt-4 border border-dashed border-[#16243d]/20 p-4 text-sm text-[#657084]">
+          <div className="mt-4 border border-dashed border-[#16243d]/20 p-4 text-sm text-[#475569]">
             Comparison rankings will appear after visitors share a multi-course
             shortlist.
           </div>
@@ -394,18 +394,18 @@ export default function AdminCourseShareAnalytics() {
       <div className="mt-8 border-t border-[#16243d]/10 pt-6">
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
               Preview lab
             </p>
             <h3 className="mt-1 text-xl font-semibold">
               See the card before it is shared.
             </h3>
-            <p className="mt-1 text-sm text-[#657084]">
+            <p className="mt-1 text-sm text-[#475569]">
               Preview the generated 1200 × 630 image in the proportions used by
               major social platforms.
             </p>
           </div>
-          <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+          <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
             Course
             <select
               value={previewSlug || selectedCourse?.slug || ""}
@@ -432,11 +432,11 @@ export default function AdminCourseShareAnalytics() {
               </div>
               <PreviewImage src={previewUrl} alt={`Twitter preview for ${selectedCourse.title}`} />
               <div className="p-4">
-                <p className="text-[10px] uppercase tracking-[.12em] text-[#657084]">
+                <p className="text-[10px] uppercase tracking-[.12em] text-[#475569]">
                   {PUBLISHED_SITE_ORIGIN.replace(/^https?:\/\//, "")}
                 </p>
                 <p className="mt-1 font-bold">{selectedCourse.title}</p>
-                <p className="mt-1 text-sm text-[#657084]">
+                <p className="mt-1 text-sm text-[#475569]">
                   {selectedCourse.strapline}
                 </p>
               </div>
@@ -450,18 +450,18 @@ export default function AdminCourseShareAnalytics() {
               </div>
               <PreviewImage src={previewUrl} alt={`Facebook preview for ${selectedCourse.title}`} />
               <div className="p-4">
-                <p className="text-[10px] uppercase tracking-[.12em] text-[#657084]">
+                <p className="text-[10px] uppercase tracking-[.12em] text-[#475569]">
                   PROFOUND IQ CONSULTING
                 </p>
                 <p className="mt-1 font-bold">{selectedCourse.title}</p>
-                <p className="mt-1 text-sm text-[#657084]">
+                <p className="mt-1 text-sm text-[#475569]">
                   {selectedCourse.description.slice(0, 120)}…
                 </p>
               </div>
             </article>
           </div>
         ) : (
-          <div className="mt-5 grid min-h-32 place-items-center border border-dashed border-[#16243d]/20 text-sm text-[#657084]">
+          <div className="mt-5 grid min-h-32 place-items-center border border-dashed border-[#16243d]/20 text-sm text-[#475569]">
             Create or select a database course to preview its generated social
             card.
           </div>
@@ -476,7 +476,7 @@ export default function AdminCourseShareAnalytics() {
           >
             <Download size={13} /> Download generated card
           </button>
-          <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+          <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
             <Share2 size={13} /> Quick share
           </span>
           <button
@@ -510,11 +510,11 @@ export default function AdminCourseShareAnalytics() {
         </div>
       )}
       <div className="mt-8 border-t border-[#16243d]/10 pt-6">
-        <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+        <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
           Comparison shares over time
         </p>
         <h3 className="mt-1 text-xl font-semibold">Shortlist sharing trend</h3>
-        <p className="mt-1 text-sm text-[#657084]">
+        <p className="mt-1 text-sm text-[#475569]">
           Daily volume of shares generated from multi-course comparisons.
         </p>
         {comparisonShareTrendData.length > 1 ? (
@@ -547,7 +547,7 @@ export default function AdminCourseShareAnalytics() {
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="mt-4 grid min-h-32 place-items-center border border-dashed border-[#16243d]/20 text-sm text-[#657084]">
+          <div className="mt-4 grid min-h-32 place-items-center border border-dashed border-[#16243d]/20 text-sm text-[#475569]">
             Comparison trend data will appear after multiple dates of shortlist
             sharing.
           </div>
@@ -555,7 +555,7 @@ export default function AdminCourseShareAnalytics() {
       </div>
       {trendData.length > 1 && (
         <div className="mt-8 border-t border-[#16243d]/10 pt-6">
-          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
+          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
             Performance over time
           </p>
           <h3 className="mt-1 text-xl font-semibold">
@@ -645,9 +645,9 @@ export default function AdminCourseShareAnalytics() {
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="mt-6 grid min-h-40 place-items-center border border-dashed border-[#16243d]/20 text-sm text-[#657084]">
+        <div className="mt-6 grid min-h-40 place-items-center border border-dashed border-[#16243d]/20 text-sm text-[#475569]">
           <div className="text-center">
-            <BarChart3 className="mx-auto mb-2 text-[#7d5e1e]" size={24} />
+            <BarChart3 className="mx-auto mb-2 text-[#b8860b]" size={24} />
             <p>
               Share data will appear after visitors use the course share
               controls.
@@ -658,3 +658,5 @@ export default function AdminCourseShareAnalytics() {
     </section>
   );
 }
+
+

@@ -95,7 +95,7 @@ export function AdminCourseQAChecklist({
             <ShieldCheck size={19} />
           </span>
           <div>
-            <p className="eyebrow text-[#7d5e1e]">
+            <p className="eyebrow text-[#b8860b]">
               Admin quality-control checklist
             </p>
             <h2 id="admin-qa-checklist-title" className="display mt-2 text-2xl">
@@ -111,7 +111,7 @@ export function AdminCourseQAChecklist({
         <button
           type="button"
           onClick={reset}
-          className="inline-flex items-center gap-2 border border-[#7d5e1e]/40 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e] hover:bg-white/60"
+          className="inline-flex items-center gap-2 border border-[#b8860b]/40 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b] hover:bg-white/60"
         >
           <RotateCcw size={13} /> Reset checklist
         </button>
@@ -123,7 +123,7 @@ export function AdminCourseQAChecklist({
             style={{ width: `${(completed / checklistItems.length) * 100}%` }}
           />
         </div>
-        <span className="text-xs font-bold text-[#7d5e1e]">
+        <span className="text-xs font-bold text-[#b8860b]">
           {completed}/{checklistItems.length}
         </span>
       </div>
@@ -131,7 +131,7 @@ export function AdminCourseQAChecklist({
         {checklistItems.map(item => (
           <label
             key={item.id}
-            className={`flex cursor-pointer gap-3 border p-3 transition-colors ${checked[item.id] ? "border-[#a27e2e]/60 bg-white/60" : "border-[#7d5e1e]/20 bg-white/30 hover:border-[#a27e2e]"}`}
+            className={`flex cursor-pointer gap-3 border p-3 transition-colors ${checked[item.id] ? "border-[#a27e2e]/60 bg-white/60" : "border-[#b8860b]/20 bg-white/30 hover:border-[#a27e2e]"}`}
           >
             <input
               type="checkbox"
@@ -156,3 +156,4 @@ export function AdminCourseQAChecklist({
     </section>
   );
 }
+

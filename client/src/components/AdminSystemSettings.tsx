@@ -53,9 +53,9 @@ export default function AdminSystemSettings() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="eyebrow text-[#7d5e1e]">Infrastructure</p>
+          <p className="eyebrow text-[#b8860b]">Infrastructure</p>
           <h2 className="display mt-2 text-2xl">System settings</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#475569]">
             Manage API keys, Resend, payment, and OAuth credentials required to run the platform.
           </p>
         </div>
@@ -74,7 +74,7 @@ export default function AdminSystemSettings() {
           <div key={item.key} className="grid gap-3 sm:grid-cols-[220px_minmax(0,1fr)_auto] sm:items-center">
             <div>
               <p className="text-sm font-semibold text-[#16243d]">{item.label}</p>
-              <p className="text-[10px] uppercase tracking-[.12em] text-[#657084]">{item.key}</p>
+              <p className="text-[10px] uppercase tracking-[.12em] text-[#475569]">{item.key}</p>
             </div>
             <Input
               value={form[item.key] ?? ""}
@@ -96,3 +96,5 @@ export default function AdminSystemSettings() {
     </div>
   );
 }
+
+

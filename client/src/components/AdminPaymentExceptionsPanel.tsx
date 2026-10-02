@@ -74,11 +74,11 @@ export default function AdminPaymentExceptionsPanel() {
     <section className="mt-10 border border-[#c9a34e]/60 bg-[#fffaf0] p-5 sm:p-6">
       <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 lg:flex-row lg:items-end">
         <div>
-          <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
+          <p className="eyebrow flex items-center gap-2 text-[#b8860b]">
             <ShieldCheck size={13} /> Payments / exception control
           </p>
           <h2 className="display mt-3 text-3xl">Reconcile the edges.</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657084]">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#475569]">
             Review pending or mismatched staged transactions, verify them
             against Paystack, and keep course access aligned with confirmed
             payment evidence.
@@ -115,7 +115,7 @@ export default function AdminPaymentExceptionsPanel() {
               }
               className={`border p-3 text-left ${state.status === (key === "total" ? "all" : key) ? "border-[#c9a34e] bg-[#ead9ae]/40" : "border-[#16243d]/10 bg-white/60"}`}
             >
-              <p className="text-[9px] font-black uppercase tracking-[.12em] text-[#657084]">
+              <p className="text-[9px] font-black uppercase tracking-[.12em] text-[#475569]">
                 {key}
               </p>
               <p className="mt-1 display text-2xl">
@@ -127,7 +127,7 @@ export default function AdminPaymentExceptionsPanel() {
       </div>
       <div className="mt-5 flex flex-col gap-3 sm:flex-row">
         <label className="relative flex-1">
-          <Search size={15} className="absolute left-3 top-3 text-[#657084]" />
+          <Search size={15} className="absolute left-3 top-3 text-[#475569]" />
           <input
             value={state.search}
             onChange={event => setSearch(event.target.value)}
@@ -149,8 +149,8 @@ export default function AdminPaymentExceptionsPanel() {
         </select>
       </div>
       {payments.isLoading ? (
-        <div className="mt-6 flex items-center gap-2 text-sm text-[#657084]">
-          <RefreshCw size={15} className="animate-spin text-[#7d5e1e]" />{" "}
+        <div className="mt-6 flex items-center gap-2 text-sm text-[#475569]">
+          <RefreshCw size={15} className="animate-spin text-[#b8860b]" />{" "}
           Loading payment records…
         </div>
       ) : payments.isError ? (
@@ -179,12 +179,12 @@ export default function AdminPaymentExceptionsPanel() {
                       )}
                       {stage.paymentStatus}
                     </span>
-                    <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
+                    <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
                       Stage {stage.stage} / 4
                     </span>
                   </div>
                   <h3 className="display mt-2 text-2xl">{enrollment.name}</h3>
-                  <p className="mt-1 text-sm text-[#657084]">
+                  <p className="mt-1 text-sm text-[#475569]">
                     {enrollment.email} · {enrollment.courseSlug}
                   </p>
                 </div>
@@ -192,12 +192,12 @@ export default function AdminPaymentExceptionsPanel() {
                   <p className="display text-2xl">
                     KES {stage.amountKes.toLocaleString()}
                   </p>
-                  <p className="mt-1 break-all text-[10px] text-[#657084]">
+                  <p className="mt-1 break-all text-[10px] text-[#475569]">
                     {stage.paystackReference ?? "No reference yet"}
                   </p>
                 </div>
               </div>
-              <div className="mt-4 grid gap-3 border-t border-[#16243d]/10 pt-4 text-xs text-[#657084] sm:grid-cols-3">
+              <div className="mt-4 grid gap-3 border-t border-[#16243d]/10 pt-4 text-xs text-[#475569] sm:grid-cols-3">
                 <span>
                   Initialized:{" "}
                   {stage.initializedAt
@@ -266,7 +266,7 @@ export default function AdminPaymentExceptionsPanel() {
           ))}
         </div>
       ) : (
-        <div className="mt-6 border border-dashed border-[#16243d]/20 bg-white/55 p-5 text-sm text-[#657084]">
+        <div className="mt-6 border border-dashed border-[#16243d]/20 bg-white/55 p-5 text-sm text-[#475569]">
           No payment records match this view.
         </div>
       )}
@@ -276,11 +276,11 @@ export default function AdminPaymentExceptionsPanel() {
         </p>
       ) : (
         <div className="mt-8 border-t border-[#16243d]/10 pt-6">
-          <p className="eyebrow flex items-center gap-2 text-[#7d5e1e]">
+          <p className="eyebrow flex items-center gap-2 text-[#b8860b]">
             <Clock size={13} /> Reconciliation activity
           </p>
           {recentLog.data?.length === 0 && !recentLog.isLoading ? (
-            <p className="mt-2 text-xs text-[#657084]">
+            <p className="mt-2 text-xs text-[#475569]">
               No reconciliation actions recorded yet.
             </p>
           ) : (
@@ -288,16 +288,16 @@ export default function AdminPaymentExceptionsPanel() {
               <table className="exec-table min-w-[380px] text-left text-xs">
                 <thead>
                   <tr>
-                    <th className="px-2 py-1 text-[10px] uppercase text-[#657084]">
+                    <th className="px-2 py-1 text-[10px] uppercase text-[#475569]">
                       When
                     </th>
-                    <th className="px-2 py-1 text-[10px] uppercase text-[#657084]">
+                    <th className="px-2 py-1 text-[10px] uppercase text-[#475569]">
                       Operator
                     </th>
-                    <th className="px-2 py-1 text-[10px] uppercase text-[#657084]">
+                    <th className="px-2 py-1 text-[10px] uppercase text-[#475569]">
                       Action
                     </th>
-                    <th className="px-2 py-1 text-[10px] uppercase text-[#657084]">
+                    <th className="px-2 py-1 text-[10px] uppercase text-[#475569]">
                       Outcome
                     </th>
                   </tr>
@@ -326,7 +326,7 @@ export default function AdminPaymentExceptionsPanel() {
             </div>
           )}
           {recentLog.isLoading && (
-            <p className="mt-3 flex items-center gap-2 text-xs text-[#657084]">
+            <p className="mt-3 flex items-center gap-2 text-xs text-[#475569]">
               <RefreshCw size={12} className="animate-spin" /> Loading…
             </p>
           )}
@@ -335,3 +335,4 @@ export default function AdminPaymentExceptionsPanel() {
     </section>
   );
 }
+
