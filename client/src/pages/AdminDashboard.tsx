@@ -53,6 +53,7 @@ import {
   YAxis,
 } from "recharts";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense } from "react";
 import { Link } from "wouter";
 import { BrandLogo } from "@/components/BrandLogo";
 import { clsx } from "clsx";
@@ -83,39 +84,29 @@ import {
 } from "@/components/dashboard";
 import { AnalyticsBarChart, AnalyticsLineChart } from "@/components/dashboard/charts/AnalyticsCharts";
 import "@/components/dashboard/admin-observatory.css";
-import AdminInquiryPanel from "@/components/AdminInquiryPanel";
-import AdminRevenuePanel from "@/components/AdminRevenuePanel";
-import AdminStaffPanel from "@/components/AdminStaffPanel";
-import AdminSystemSettings from "@/components/AdminSystemSettings";
-import AdminCourseDeliveryPanel from "@/components/AdminCourseDeliveryPanel";
-import AdminReportsPanel from "@/components/AdminReportsPanel";
-import AdminPaymentExceptionsPanel from "@/components/AdminPaymentExceptionsPanel";
-import AdminNewsletterPanel from "@/components/AdminNewsletterPanel";
-import AdminInsightsPanel from "@/components/AdminInsightsPanel";
-import AdminCommunicationPanel from "@/components/AdminCommunicationPanel";
-import AdminResearchSurveyPanel from "@/components/AdminResearchSurveyPanel";
-import { AdminCourseAccessAudit } from "@/components/AdminCourseAccessAudit";
-import { AdminCertificatePreview } from "@/components/AdminCertificatePreview";
-import { AdminRecentQCCertificates } from "@/components/AdminRecentQCCertificates";
-import AdminCourseShareAnalytics from "@/components/AdminCourseShareAnalytics";
-import AdminResourcesPanel from "@/components/AdminResourcesPanel";
-import AdminSurveysPanel from "@/components/AdminSurveysPanel";
 import { buildFunnelComparison } from "@shared/adminAnalytics";
 import { renderEmailTemplate } from "@shared/emailTemplate";
-import { Streamdown } from "streamdown";
+import ReactMarkdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github-dark.css";
 import { toast } from "sonner";
-import {
-  OverviewScreen,
-  RevenueScreen,
-  InquiriesScreen,
-  StaffScreen,
-  SystemScreen,
-  CommunicationsScreen,
-  LearningScreen,
-  SurveysScreen,
-  ResourcesScreen,
-  OrganizationScreen,
-} from "@/components/admin-screens";
+
+const AdminInquiryPanel = lazy(() => import("@/components/AdminInquiryPanel"));
+const AdminRevenuePanel = lazy(() => import("@/components/AdminRevenuePanel"));
+const AdminStaffPanel = lazy(() => import("@/components/AdminStaffPanel"));
+const AdminSystemSettings = lazy(() => import("@/components/AdminSystemSettings"));
+const AdminCourseDeliveryPanel = lazy(() => import("@/components/AdminCourseDeliveryPanel"));
+const AdminReportsPanel = lazy(() => import("@/components/AdminReportsPanel"));
+const AdminPaymentExceptionsPanel = lazy(() => import("@/components/AdminPaymentExceptionsPanel"));
+const AdminNewsletterPanel = lazy(() => import("@/components/AdminNewsletterPanel"));
+const AdminInsightsPanel = lazy(() => import("@/components/AdminInsightsPanel"));
+const AdminCommunicationPanel = lazy(() => import("@/components/AdminCommunicationPanel"));
+const AdminCourseAccessAudit = lazy(() => import("@/components/AdminCourseAccessAudit").then(module => ({ default: module.AdminCourseAccessAudit })));
+const AdminCertificatePreview = lazy(() => import("@/components/AdminCertificatePreview").then(module => ({ default: module.AdminCertificatePreview })));
+const AdminRecentQCCertificates = lazy(() => import("@/components/AdminRecentQCCertificates").then(module => ({ default: module.AdminRecentQCCertificates })));
+const AdminCourseShareAnalytics = lazy(() => import("@/components/AdminCourseShareAnalytics"));
+const AdminResourcesPanel = lazy(() => import("@/components/AdminResourcesPanel"));
+const AdminSurveysPanel = lazy(() => import("@/components/AdminSurveysPanel"));
 
 
 function statusLabel(status: string) {
@@ -144,6 +135,14 @@ function isValidAdminTab(tab: string): boolean {
     "surveys",
     "resources",
   ].includes(tab);
+}
+
+function PanelLoader() {
+  return (
+    <div className="flex items-center justify-center py-12">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#16243d] border-t-[#c9a34e]" />
+    </div>
+  );
 }
 
 type PaymentFilter = "all" | "paid" | "pending";
@@ -1459,7 +1458,9 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
         <div className="mt-8 space-y-8">
           {activeTab === "surveys" && (
             <div id="surveys" className="scroll-mt-8">
-              <AdminSurveysPanel />
+              <Suspense fallback={<PanelLoader />}>
+                <AdminSurveysPanel />
+              </Suspense>
               <div className="mt-4">
                 <Link href="/surveys" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
                   View public surveys <ArrowUpRight size={13} />
@@ -1470,7 +1471,9 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
           {activeTab === "resources" && (
             <div id="resources" className="scroll-mt-8">
-              <AdminResourcesPanel />
+              <Suspense fallback={<PanelLoader />}>
+                <AdminResourcesPanel />
+              </Suspense>
               <div className="mt-4">
                 <Link href="/resources" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
                   View public resources <ArrowUpRight size={13} />
@@ -1481,7 +1484,9 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
           {activeTab === "overview" && (
             <div id="reports" className="scroll-mt-8">
-              <AdminReportsPanel />
+              <Suspense fallback={<PanelLoader />}>
+                <AdminReportsPanel />
+              </Suspense>
               <div className="mt-4">
                 <Link href="/admin/overview" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
                   View reports <ArrowUpRight size={13} />
@@ -1528,7 +1533,9 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 </Section>
               </div>
               <div className="mt-10">
-                <AdminRevenuePanel />
+                <Suspense fallback={<PanelLoader />}>
+                  <AdminRevenuePanel />
+                </Suspense>
               </div>
             </>
           )}
@@ -1710,7 +1717,9 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 </Link>
               </div>
               <div id="staff" className="scroll-mt-8">
-                <AdminStaffPanel />
+                <Suspense fallback={<PanelLoader />}>
+                  <AdminStaffPanel />
+                </Suspense>
               </div>
             </>
           )}
@@ -1766,7 +1775,9 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 </Section>
               </div>
               <div className="mt-10">
-                <AdminSystemSettings />
+                <Suspense fallback={<PanelLoader />}>
+                  <AdminSystemSettings />
+                </Suspense>
               </div>
 
               <Section
@@ -1813,21 +1824,31 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
           {activeTab === "learning" && (
             <>
               <div id="course-delivery" className="scroll-mt-8">
-                <AdminCourseDeliveryPanel />
+                <Suspense fallback={<PanelLoader />}>
+                  <AdminCourseDeliveryPanel />
+                </Suspense>
               </div>
 
               <div id="payment-exceptions" className="scroll-mt-8">
-                <AdminPaymentExceptionsPanel />
+                <Suspense fallback={<PanelLoader />}>
+                  <AdminPaymentExceptionsPanel />
+                </Suspense>
               </div>
 
               <div id="course-access-audit" className="mt-8">
-                <AdminCourseAccessAudit />
+                <Suspense fallback={<PanelLoader />}>
+                  <AdminCourseAccessAudit />
+                </Suspense>
               </div>
 
               <div id="certificate-preview" className="mt-8">
-                <AdminCertificatePreview />
+                <Suspense fallback={<PanelLoader />}>
+                  <AdminCertificatePreview />
+                </Suspense>
               </div>
-              <AdminRecentQCCertificates />
+              <Suspense fallback={<PanelLoader />}>
+                <AdminRecentQCCertificates />
+              </Suspense>
               <div className="mt-4">
                 <Link href="/admin/learning" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
                   Learning overview <ArrowUpRight size={13} />
@@ -1838,12 +1859,18 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
           {activeTab === "communications" && (
             <>
-              <AdminCommunicationPanel />
+              <Suspense fallback={<PanelLoader />}>
+                <AdminCommunicationPanel />
+              </Suspense>
               <div id="newsletter-subscribers" className="scroll-mt-8">
-                <AdminNewsletterPanel />
+                <Suspense fallback={<PanelLoader />}>
+                  <AdminNewsletterPanel />
+                </Suspense>
               </div>
 
-              <AdminInsightsPanel />
+              <Suspense fallback={<PanelLoader />}>
+                <AdminInsightsPanel />
+              </Suspense>
               <div className="mt-4">
                 <Link href="/admin/communications" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] underline-offset-4 hover:underline">
                   Communications <ArrowUpRight size={13} />
@@ -2394,7 +2421,9 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
               </section>
               \n{" "}
               <div id="inquiries" className="scroll-mt-8">
-                <AdminInquiryPanel />
+                <Suspense fallback={<PanelLoader />}>
+                  <AdminInquiryPanel />
+                </Suspense>
               </div>
             </>
           )}
@@ -4056,7 +4085,9 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       <p className="eyebrow text-[#7d5e1e]">Live preview</p>
 
                       <div className="prose prose-sm prose-invert mt-3 max-w-none">
-                        <Streamdown>{previewBody}</Streamdown>
+                        <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
+                          {previewBody}
+                        </ReactMarkdown>
                       </div>
                     </div>
 

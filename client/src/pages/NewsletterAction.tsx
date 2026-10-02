@@ -57,12 +57,12 @@ export default function NewsletterAction({ action }: { action: Action }) {
         action === "confirm" ? (
           <>
             Your inbox is now{" "}
-            <em className="font-normal text-[#c9a34e]">in the loop.</em>
+            <em className="font-normal text-[#8b6914]">in the loop.</em>
           </>
         ) : (
           <>
             Your preferences are{" "}
-            <em className="font-normal text-[#c9a34e]">updated.</em>
+            <em className="font-normal text-[#8b6914]">updated.</em>
           </>
         )
       }

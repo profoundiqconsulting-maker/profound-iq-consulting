@@ -280,12 +280,12 @@ export default function Psychometrics() {
       <main className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
         <section className="bg-[#16243d] px-6 py-20 text-[#f7f3e8]">
           <div className="container">
-            <p className="eyebrow text-[#c9a34e]">
+            <p className="eyebrow text-[#8b6914]">
               PROFOUND IQ / TRANSFORMATION SERVICES
             </p>
             <h1 className="display mt-5 max-w-4xl text-6xl leading-[.95]">
               Professional psychometric profiles for{" "}
-              <em className="text-[#c9a34e]">better decisions.</em>
+              <em className="text-[#8b6914]">better decisions.</em>
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-[#d7deea]">
               Six complementary assessments for career exploration, cognitive
@@ -378,8 +378,8 @@ export default function Psychometrics() {
             <CardContent>
               <div className="grid gap-5 md:grid-cols-[1fr_1.5fr]">
                 <div className="rounded-2xl bg-[#16243d] p-7 text-[#f7f3e8]">
-                  <p className="eyebrow text-[#c9a34e]">Overall signal</p>
-                  <p className="display mt-4 text-7xl text-[#c9a34e]">
+                  <p className="eyebrow text-[#8b6914]">Overall signal</p>
+                  <p className="display mt-4 text-7xl text-[#8b6914]">
                     {report.overallScore}
                     <span className="text-2xl text-[#f7f3e8]">/100</span>
                   </p>
@@ -700,7 +700,7 @@ export default function Psychometrics() {
             </div>
           </div>
           <aside className="h-fit rounded-2xl bg-[#16243d] p-6 text-[#f7f3e8] lg:sticky lg:top-6">
-            <p className="eyebrow text-[#c9a34e]">
+            <p className="eyebrow text-[#8b6914]">
               {workflowCopy.beforeYouBegin}
             </p>
             <h2 className="display mt-3 text-3xl">
@@ -712,11 +712,11 @@ export default function Psychometrics() {
               determine your future.
             </p>
             <div className="mt-6 flex items-center gap-2 text-sm">
-              <Clock3 size={16} className="text-[#c9a34e]" />{" "}
+              <Clock3 size={16} className="text-[#8b6914]" />{" "}
               {test.estimatedMinutes} minutes
             </div>
             <div className="mt-2 flex items-center gap-2 text-sm">
-              <LockKeyhole size={16} className="text-[#c9a34e]" />{" "}
+              <LockKeyhole size={16} className="text-[#8b6914]" />{" "}
               {displayPrice} after completion
             </div>
           </aside>

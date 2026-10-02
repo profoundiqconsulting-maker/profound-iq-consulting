@@ -14,6 +14,8 @@ type SocialPlatform =
   | "copy"
   | "native";
 
+export type { SocialPlatform };
+
 type SocialSharingProps = {
   url: string;
   title: string;

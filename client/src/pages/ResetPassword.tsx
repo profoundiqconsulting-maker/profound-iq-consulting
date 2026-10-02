@@ -47,7 +47,7 @@ export default function ResetPassword() {
           </Link>
           <Link
             href="/auth"
-            className="text-[10px] font-black uppercase tracking-[.16em] text-[#c9d1df] hover:text-[#c9a34e]"
+            className="text-[10px] font-black uppercase tracking-[.16em] text-[#c9d1df] hover:text-[#8b6914]"
           >
             {authCopy.signIn}
           </Link>

@@ -427,45 +427,6 @@ button:focus-visible,
   }
 }
 
-@keyframes piqMobileReviewSlideIn {
-  from {
-    opacity: 0;
-    transform: translateX(14px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-.mobile-review-mode {
-  animation: piqMobileReviewSlideIn 240ms cubic-bezier(0.23, 1, 0.32, 1) both;
-}
-@media (prefers-reduced-motion: reduce) {
-  .mobile-review-mode {
-    animation: none;
-  }
-}
-
-@keyframes piqDrawerHandleBounce {
-  0%,
-  100% {
-    transform: translateY(0);
-    opacity: 0.68;
-  }
-  50% {
-    transform: translateY(3px);
-    opacity: 1;
-  }
-}
-.careerpath-drawer-handle {
-  animation: piqDrawerHandleBounce 1.8s cubic-bezier(0.23, 1, 0.32, 1) infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .careerpath-drawer-handle {
-    animation: none;
-  }
-}
-
 /* Locale changes: brief opacity/transform settle, while direction-aware layout changes remain accessible. */
 @media (prefers-reduced-motion: no-preference) {
   html.locale-transitioning body {

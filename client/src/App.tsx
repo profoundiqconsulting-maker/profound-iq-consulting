@@ -13,51 +13,32 @@ import { AdminRouteGuard } from "./components/AdminRouteGuard";
 import { useAuth } from "@/_core/hooks/useAuth";
 
 import Home from "./pages/Home";
-import About from "./pages/About";
-import Services from "./pages/Services";
-import SchoolSolutions from "./pages/SchoolSolutions";
-import Resources from "./pages/Resources";
-import Surveys from "./pages/Surveys";
-import Blog from "./pages/Blog";
-import InsightArticle from "./pages/InsightArticle";
-import Contact from "./pages/Contact";
-import Assessment from "./pages/Assessment";
-import CareerPath from "./pages/CareerPath";
-import Psychometrics from "./pages/Psychometrics";
-import CourseComparison from "./pages/CourseComparison";
-import CoursePaymentSuccess from "./pages/CoursePaymentSuccess";
-import Auth from "./pages/Auth";
-import ResetPassword from "./pages/ResetPassword";
-import SharedReport from "./pages/SharedReport";
-import CertificateVerification from "./pages/CertificateVerification";
-import AssessmentVerification from "./pages/AssessmentVerification";
-import PsychometricVerification from "./pages/PsychometricVerification";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import NotFound from "./pages/NotFound";
-import NewsletterAction from "./pages/NewsletterAction";
+const About = lazy(() => import("./pages/About"));
+const Services = lazy(() => import("./pages/Services"));
+const SchoolSolutions = lazy(() => import("./pages/SchoolSolutions"));
+const Resources = lazy(() => import("./pages/Resources"));
+const Surveys = lazy(() => import("./pages/Surveys"));
+const Blog = lazy(() => import("./pages/Blog"));
+const InsightArticle = lazy(() => import("./pages/InsightArticle"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Assessment = lazy(() => import("./pages/Assessment"));
+const CareerPath = lazy(() => import("./pages/CareerPath"));
+const Psychometrics = lazy(() => import("./pages/Psychometrics"));
+const CourseComparison = lazy(() => import("./pages/CourseComparison"));
+const CoursePaymentSuccess = lazy(() => import("./pages/CoursePaymentSuccess"));
+const Auth = lazy(() => import("./pages/Auth"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const SharedReport = lazy(() => import("./pages/SharedReport"));
+const CertificateVerification = lazy(() => import("./pages/CertificateVerification"));
+const AssessmentVerification = lazy(() => import("./pages/AssessmentVerification"));
+const PsychometricVerification = lazy(() => import("./pages/PsychometricVerification"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const NewsletterAction = lazy(() => import("./pages/NewsletterAction"));
 
 const Courses = lazy(() => import("./pages/Courses"));
 const CourseWorkspace = lazy(() => import("./pages/CourseWorkspace"));
-const CohortManagement = lazy(() => import("./pages/CohortManagement"));
-const AdminUsers = lazy(() => import("./pages/AdminUsers"));
-const AdminInquiries = lazy(() => import("./pages/AdminInquiries"));
-const AdminCertificates = lazy(() => import("./pages/AdminCertificates"));
-const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
-const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
-const AdminOperations = lazy(() => import("./pages/admin/AdminOperations"));
-const AdminRevenue = lazy(() => import("./pages/admin/AdminRevenue"));
-const AdminIntelligence = lazy(() => import("./pages/admin/AdminIntelligence"));
-const AdminPsychometrics = lazy(() => import("./pages/admin/AdminPsychometrics"));
-const AdminInbox = lazy(() => import("./pages/admin/AdminInbox"));
-const AdminSystem = lazy(() => import("./pages/admin/AdminSystem"));
-const AdminStaff = lazy(() => import("./pages/admin/AdminStaff"));
-const AdminCommunications = lazy(() => import("./pages/admin/AdminCommunications"));
-const AdminSurveys = lazy(() => import("./pages/admin/AdminSurveys"));
-const AdminSecurity = lazy(() => import("./pages/admin/AdminSecurity"));
-const AdminOrganization = lazy(() => import("./pages/admin/AdminOrganization"));
-const AdminResources = lazy(() => import("./pages/admin/AdminResources"));
-const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
 const StaffDashboard = lazy(() => import("./pages/StaffDashboard"));
 const SavedPathwaysPrint = lazy(() => import("./pages/SavedPathwaysPrint"));
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
@@ -70,6 +51,7 @@ const MyCertificates = lazy(() => import("./pages/MyCertificates"));
 const MyIllustrations = lazy(() => import("./pages/MyIllustrations"));
 const Settings = lazy(() => import("./pages/Settings"));
 const CommunicationInbox = lazy(() => import("./pages/CommunicationInbox"));
+const AdminApp = lazy(() => import("./pages/admin/AdminApp"));
 
 function MySpace() {
   const [, navigate] = useLocation();
@@ -80,7 +62,7 @@ function MySpace() {
       navigate("/auth?mode=login", { replace: true });
       return;
     }
-    const role = user.role.toLowerCase();
+    const role = user.role?.toLowerCase();
     if (role === "admin") {
       navigate("/admin/overview", { replace: true });
     } else if (role === "staff") {
@@ -139,275 +121,125 @@ function RouteLoading() {
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/about" component={About} />
-      <Route path="/services" component={Services} />
-      <Route path="/school-solutions" component={SchoolSolutions} />
-      <Route path="/resources" component={Resources} />
-      <Route path="/surveys" component={Surveys} />
-      <Route path="/blog" component={Blog} />
-      <Route path="/blog/:slug" component={InsightArticle} />
-      <Route path="/contact" component={Contact} />
-      <Route
-        path="/newsletter/confirm"
-        component={() => <NewsletterAction action="confirm" />}
-      />
-      <Route
-        path="/newsletter/unsubscribe"
-        component={() => <NewsletterAction action="unsubscribe" />}
-      />
-      <Route path="/assessment" component={Assessment} />
-      <Route path="/careerpath" component={CareerPath} />
-      <Route path="/careerpath/assessment" component={CareerPath} />
-      <Route path="/careerpath/checkout" component={CareerPath} />
-      <Route path="/careerpath/reports" component={CareerPath} />
-      <Route path="/psychometrics" component={Psychometrics} />
-      <Route path="/psychometrics/:slug" component={Psychometrics} />
-      <Route
-        path="/courses"
-        component={() => (
-          <Suspense fallback={<RouteLoading />}>
-            <Courses />
-          </Suspense>
-        )}
-      />
-      <Route path="/courses/compare" component={CourseComparison} />
-      <Route
-        path="/courses/payment-success"
-        component={CoursePaymentSuccess}
-      />
-      <Route
-        path="/courses/:slug"
-        component={() => (
-          <Suspense fallback={<RouteLoading />}>
-            <CourseWorkspace />
-          </Suspense>
-        )}
-      />
-      <Route path="/admin/cohorts" component={() => (
-        <Suspense fallback={<RouteLoading />}>
+    <Suspense fallback={<RouteLoading />}>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/about" component={About} />
+        <Route path="/services" component={Services} />
+        <Route path="/school-solutions" component={SchoolSolutions} />
+        <Route path="/resources" component={Resources} />
+        <Route path="/surveys" component={Surveys} />
+        <Route path="/blog" component={Blog} />
+        <Route path="/blog/:slug" component={InsightArticle} />
+        <Route path="/contact" component={Contact} />
+        <Route
+          path="/newsletter/confirm"
+          component={() => <NewsletterAction action="confirm" />}
+        />
+        <Route
+          path="/newsletter/unsubscribe"
+          component={() => <NewsletterAction action="unsubscribe" />}
+        />
+        <Route path="/assessment" component={Assessment} />
+        <Route path="/careerpath" component={CareerPath} />
+        <Route path="/careerpath/assessment" component={CareerPath} />
+        <Route path="/careerpath/checkout" component={CareerPath} />
+        <Route path="/careerpath/reports" component={CareerPath} />
+        <Route path="/psychometrics" component={Psychometrics} />
+        <Route path="/psychometrics/:slug" component={Psychometrics} />
+        <Route path="/courses" component={Courses} />
+        <Route path="/courses/compare" component={CourseComparison} />
+        <Route
+          path="/courses/payment-success"
+          component={CoursePaymentSuccess}
+        />
+        <Route path="/courses/:slug" component={CourseWorkspace} />
+        <Route path="/admin/*" component={() => (
           <AdminRouteGuard>
-            <CohortManagement />
+            <AdminApp />
           </AdminRouteGuard>
-        </Suspense>
-      )} />
-      <Route path="/admin/users" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <AdminUsers />
-        </Suspense>
-      )} />
-      <Route path="/admin/inquiries" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <AdminInquiries />
-        </Suspense>
-      )} />
-      <Route path="/admin/certificates" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <AdminCertificates />
-        </Suspense>
-      )} />
-      <Route path="/admin/overview" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <AdminOverview />
-        </Suspense>
-      )} />
-      <Route path="/admin/operations" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <AdminOperations />
-        </Suspense>
-      )} />
-      <Route path="/admin/revenue" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <AdminRevenue />
-        </Suspense>
-      )} />
-      <Route path="/admin/intelligence" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <AdminIntelligence />
-        </Suspense>
-      )} />
-      <Route path="/admin/psychometrics" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <AdminPsychometrics />
-        </Suspense>
-      )} />
-      <Route path="/admin/inbox" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <AdminInbox />
-        </Suspense>
-      )} />
-      <Route path="/admin/system" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <AdminSystem />
-        </Suspense>
-      )} />
-      <Route path="/admin/staff" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <AdminStaff />
-        </Suspense>
-      )} />
-      <Route path="/admin/communications" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <AdminCommunications />
-        </Suspense>
-      )} />
-      <Route path="/admin/surveys" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <AdminSurveys />
-        </Suspense>
-      )} />
-      <Route path="/admin/security" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <AdminSecurity />
-        </Suspense>
-      )} />
-      <Route path="/admin/organization" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <AdminOrganization />
-        </Suspense>
-      )} />
-      <Route path="/admin/resources" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <AdminResources />
-        </Suspense>
-      )} />
-      <Route path="/admin/reports" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <AdminReports />
-        </Suspense>
-      )} />
-      <Route
-        path="/admin"
-        component={() => {
-          useLocation()[1]("/admin/overview", { replace: true });
-          return null;
-        }}
-      />
-      <Route path="/staff" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <StaffDashboard />
-        </Suspense>
-      )} />
-      <Route path="/staff/inquiries" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <StaffDashboard defaultTab="inquiries" />
-        </Suspense>
-      )} />
-      <Route path="/staff/reviews" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <StaffDashboard defaultTab="review" />
-        </Suspense>
-      )} />
-      <Route
-        path="/dashboard/print-pathways"
-        component={() => (
+        )} />
+        <Route path="/staff" component={() => (
           <Suspense fallback={<RouteLoading />}>
-            <SavedPathwaysPrint />
+            <StaffDashboard />
           </Suspense>
-        )}
-      />
-      <Route path="/dashboard" component={RoleBasedRedirect} />
-      <Route path="/dashboard/overview" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <UserDashboard />
-        </Suspense>
-      )} />
-      <Route path="/dashboard/assessment" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <DashboardAssessment />
-        </Suspense>
-      )} />
-      <Route path="/dashboard/careerpath" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <DashboardCareerPath />
-        </Suspense>
-      )} />
-      <Route path="/dashboard/psychometrics" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <DashboardPsychometrics />
-        </Suspense>
-      )} />
-      <Route path="/dashboard/certificates" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <MyCertificates />
-        </Suspense>
-      )} />
-      <Route path="/dashboard/settings" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <Settings />
-        </Suspense>
-      )} />
-      <Route path="/dashboard/communication" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <CommunicationInbox />
-        </Suspense>
-      )} />
-      <Route path="/dashboard/enrolled-courses" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <DashboardEnrolledCourses />
-        </Suspense>
-      )} />
-      <Route path="/dashboard/my-workspaces" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <DashboardMyWorkspaces />
-        </Suspense>
-      )} />
-      <Route path="/myspace" component={MySpace} />
-      <Route path="/my-illustrations" component={() => (
-        <Suspense fallback={<RouteLoading />}>
-          <MyIllustrations />
-        </Suspense>
-      )} />
-      <Route
-        path="/settings"
-        component={() => {
-          useLocation()[1]("/dashboard/settings", { replace: true });
-          return null;
-        }}
-      />
-      <Route path="/auth" component={Auth} />
-      <Route
-        path="/login"
-        component={() => {
-          const params = new URLSearchParams(window.location.search);
-          const returnTo = params.get("returnTo");
-          const invite = params.get("invite");
-          const query = new URLSearchParams();
-          query.set("mode", "login");
-          if (returnTo) query.set("returnTo", returnTo);
-          if (invite) query.set("invite", invite);
-          useLocation()[1](`/auth?${query.toString()}`, { replace: true });
-          return null;
-        }}
-      />
-      <Route
-        path="/signup"
-        component={() => {
-          const params = new URLSearchParams(window.location.search);
-          const returnTo = params.get("returnTo");
-          const invite = params.get("invite");
-          const query = new URLSearchParams();
-          query.set("mode", "register");
-          if (returnTo) query.set("returnTo", returnTo);
-          if (invite) query.set("invite", invite);
-          useLocation()[1](`/auth?${query.toString()}`, { replace: true });
-          return null;
-        }}
-      />
-      <Route path="/reset-password" component={ResetPassword} />
-      <Route path="/shared-report" component={SharedReport} />
-      <Route path="/verify/assessment" component={AssessmentVerification} />
-      <Route path="/verify/certificate" component={CertificateVerification} />
-      <Route
-        path="/verify/psychometric"
-        component={PsychometricVerification}
-      />
-      <Route path="/privacy-policy" component={PrivacyPolicy} />
-      <Route path="/terms-of-service" component={TermsOfService} />
-      <Route path="/404" component={NotFound} />
-      <Route component={NotFound} />
-    </Switch>
+        )} />
+        <Route path="/staff/inquiries" component={() => (
+          <Suspense fallback={<RouteLoading />}>
+            <StaffDashboard defaultTab="inquiries" />
+          </Suspense>
+        )} />
+        <Route path="/staff/reviews" component={() => (
+          <Suspense fallback={<RouteLoading />}>
+            <StaffDashboard defaultTab="review" />
+          </Suspense>
+        )} />
+        <Route
+          path="/dashboard/print-pathways"
+          component={SavedPathwaysPrint}
+        />
+        <Route path="/dashboard" component={RoleBasedRedirect} />
+        <Route path="/dashboard/overview" component={UserDashboard} />
+        <Route path="/dashboard/assessment" component={DashboardAssessment} />
+        <Route path="/dashboard/careerpath" component={DashboardCareerPath} />
+        <Route path="/dashboard/psychometrics" component={DashboardPsychometrics} />
+        <Route path="/dashboard/certificates" component={MyCertificates} />
+        <Route path="/dashboard/settings" component={Settings} />
+        <Route path="/dashboard/communication" component={CommunicationInbox} />
+        <Route path="/dashboard/enrolled-courses" component={DashboardEnrolledCourses} />
+        <Route path="/dashboard/my-workspaces" component={DashboardMyWorkspaces} />
+        <Route path="/myspace" component={MySpace} />
+        <Route path="/my-illustrations" component={MyIllustrations} />
+        <Route
+          path="/settings"
+          component={() => {
+            useLocation()[1]("/dashboard/settings", { replace: true });
+            return null;
+          }}
+        />
+        <Route path="/auth" component={Auth} />
+        <Route
+          path="/login"
+          component={() => {
+            const params = new URLSearchParams(window.location.search);
+            const returnTo = params.get("returnTo");
+            const invite = params.get("invite");
+            const query = new URLSearchParams();
+            query.set("mode", "login");
+            if (returnTo) query.set("returnTo", returnTo);
+            if (invite) query.set("invite", invite);
+            useLocation()[1](`/auth?${query.toString()}`, { replace: true });
+            return null;
+          }}
+        />
+        <Route
+          path="/signup"
+          component={() => {
+            const params = new URLSearchParams(window.location.search);
+            const returnTo = params.get("returnTo");
+            const invite = params.get("invite");
+            const query = new URLSearchParams();
+            query.set("mode", "register");
+            if (returnTo) query.set("returnTo", returnTo);
+            if (invite) query.set("invite", invite);
+            useLocation()[1](`/auth?${query.toString()}`, { replace: true });
+            return null;
+          }}
+        />
+        <Route path="/reset-password" component={ResetPassword} />
+        <Route path="/shared-report" component={SharedReport} />
+        <Route path="/verify/assessment" component={AssessmentVerification} />
+        <Route path="/verify/certificate" component={CertificateVerification} />
+        <Route
+          path="/verify/psychometric"
+          component={PsychometricVerification}
+        />
+        <Route path="/privacy-policy" component={PrivacyPolicy} />
+        <Route path="/terms-of-service" component={TermsOfService} />
+        <Route path="/404" component={NotFound} />
+        <Route component={NotFound} />
+      </Switch>
+    </Suspense>
   );
 }
 

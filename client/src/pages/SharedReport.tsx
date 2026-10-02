@@ -51,7 +51,7 @@ export default function SharedReport() {
           <BrandLogo />
           <Link
             href="/"
-            className="text-[10px] font-black uppercase tracking-[.14em] text-[#c1cad7] hover:text-[#c9a34e]"
+            className="text-[10px] font-black uppercase tracking-[.14em] text-[#c1cad7] hover:text-[#8b6914]"
           >
             {"Back to site"}
           </Link>
@@ -70,7 +70,7 @@ export default function SharedReport() {
             expires {new Date(data.expiresAt).toLocaleDateString()}
           </p>
           <section className="mt-10 border border-[#c9a34e] bg-[#16243d] p-6 text-[#f7f3e8] sm:p-8">
-            <p className="eyebrow text-[#c9a34e]">{lens.label}</p>
+            <p className="eyebrow text-[#8b6914]">{lens.label}</p>
             <h2 className="display mt-3 text-2xl">
               Tailored context for this conversation
             </h2>
@@ -87,7 +87,7 @@ export default function SharedReport() {
                 </p>
               ))}
             </div>
-            <p className="eyebrow mt-8 text-[#c9a34e]">Executive summary</p>
+            <p className="eyebrow mt-8 text-[#8b6914]">Executive summary</p>
             <h2 className="display mt-3 text-3xl">
               {report.executiveSummary?.headline ??
                 `${report.overallBand}: a practical view of the current capability pattern`}
@@ -159,8 +159,8 @@ export default function SharedReport() {
               </ul>
             </div>
             <div className="bg-[#16243d] p-6 text-[#c1cad7]">
-              <ShieldCheck className="mb-4 text-[#c9a34e]" />
-              <p className="eyebrow text-[#c9a34e]">Important context</p>
+              <ShieldCheck className="mb-4 text-[#8b6914]" />
+              <p className="eyebrow text-[#8b6914]">Important context</p>
               <ul className="mt-4 space-y-3 text-sm leading-6">
                 {report.importantContext.map(item => (
                   <li key={item}>＋ {item}</li>

@@ -598,6 +598,8 @@ function CourseAccessGate({
           <CourseShareActions
             courseSlug={course.slug}
             courseTitle={course.title}
+            shareLabel="Share this course"
+            platforms={["facebook", "linkedin", "whatsapp", "email", "x", "copy", "native"]}
           />
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             <div className="rounded-xl border border-[#16243d]/15 bg-white/55 p-5 shadow-sm transition-all hover:shadow-md">

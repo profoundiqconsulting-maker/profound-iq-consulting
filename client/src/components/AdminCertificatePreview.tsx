@@ -842,7 +842,7 @@ export function AdminCertificatePreview() {
           Artifact equality hash
         </span>
         <span
-          className={`font-black uppercase tracking-[.1em] ${previewHash && preview.data?.artifactHash === previewHash ? "text-emerald-700" : "text-amber-700"}`}
+          className={`font-black uppercase tracking-[.1em] ${previewHash && preview.data?.artifactHash === previewHash ? "text-emerald-800" : "text-amber-700"}`}
         >
           {previewHash
             ? preview.data?.artifactHash === previewHash

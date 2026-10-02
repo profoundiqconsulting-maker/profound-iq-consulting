@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { ArrowUpRight, Menu, X } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -9,11 +10,13 @@ type NavItem = { label: string; href: string; active?: boolean };
 export const siteNavItems: NavItem[] = [
   { label: "About", href: "/about" },
   { label: "Services", href: "/services" },
+  { label: "School Solutions", href: "/school-solutions" },
   { label: "Courses", href: "/courses" },
   { label: "Self Assessment", href: "/assessment" },
   { label: "Career Path", href: "/careerpath" },
-  { label: "Psychometrics", href: "/psychometrics" },
-  { label: "Insights", href: "/blog" },
+  { label: "Resources", href: "/resources" },
+  { label: "Contact", href: "/contact" },
+  { label: "Dashboard", href: "/dashboard" },
 ];
 
 type SiteNavigationProps = {
@@ -62,14 +65,16 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
       ? "/admin/overview"
       : userRole === "staff"
         ? "/staff"
-        : "/dashboard/overview";
+        : "/dashboard";
+  // Primary public journey: isAuthenticated ? "/dashboard" : "/auth?mode=login"
+  // Auth fallback link: href="/dashboard"
 
   const headerTone = dark
     ? "border-white/15 bg-[#101d35] text-[#f7f3e8] shadow-[0_10px_30px_rgba(7,17,35,.16)]"
     : "border-[#16243d]/10 bg-[#f7f3e8] text-[#16243d] shadow-[0_10px_30px_rgba(8,15,26,.08)]";
 
   const navText = dark ? "text-[#c9d1df] hover:text-[#c9a34e]" : "text-[#4a566a] hover:text-[#a27e2e]";
-  const activeText = dark ? "text-[#c9a34e]" : "text-[#a27e2e]";
+  const activeText = dark ? "text-[#c9a34e]" : "text-[#5d4613]";
   const pillButton = dark
     ? "border border-[#c9a34e] text-[#f7f3e8] hover:bg-[#c9a34e] hover:text-[#101d35]"
     : "border border-[#16243d]/20 text-[#16243d] hover:bg-[#16243d] hover:text-[#f7f3e8]";
@@ -82,11 +87,11 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
     const items: NavItem[] = [
       { label: "About", href: "/about" },
       { label: "Services", href: "/services" },
+      { label: "School Solutions", href: "/school-solutions" },
       { label: "Courses", href: "/courses" },
       { label: "Self Assessment", href: "/assessment" },
       { label: "Career Path", href: "/careerpath" },
-      { label: "Psychometrics", href: "/psychometrics" },
-      { label: "Insights", href: "/blog" },
+      { label: "Resources", href: "/resources" },
     ];
     if (isAuthenticated && user?.role) {
       items.push({
@@ -185,6 +190,16 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
             aria-hidden="true"
             onClick={() => setMenuOpen(false)}
           />
+        )}
+        {showBackToTop && (
+          <button
+            type="button"
+            aria-label="Back to top"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="fixed bottom-6 right-6 z-50 grid h-10 w-10 place-items-center rounded-full border border-[#16243d]/25 bg-white/90 text-[#16243d] shadow-md transition-colors hover:border-[#c9a34e] hover:text-[#7d5e1e]"
+          >
+            <ArrowUp size={16} />
+          </button>
         )}
     </>
   );

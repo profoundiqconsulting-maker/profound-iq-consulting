@@ -78,7 +78,7 @@ export default function NotFound() {
           <div className="flex justify-center mb-6">
             <div className="relative">
               <div className="absolute inset-0 bg-[#c9a34e]/20 rounded-full animate-pulse" />
-              <AlertCircle className="relative h-16 w-16 text-[#c9a34e]" />
+              <AlertCircle className="relative h-16 w-16 text-[#8b6914]" />
             </div>
           </div>
           <h1 className="text-4xl font-bold text-[#16243d] mb-2">404</h1>

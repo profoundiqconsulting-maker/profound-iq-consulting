@@ -34,18 +34,9 @@ import {
 } from "@/components/ui/tooltip";
 import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { courseCatalog, COURSE_PRICE_KES } from "@shared/courseCatalog";
 import { ASSESSMENT_PRICE_KES } from "@shared/assessment";
 import { CAREER_PATH_PRICE_KES } from "@shared/careerPath";
 import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
-
-const baseCourses = courseCatalog.map(course => ({
-  ...course,
-  price: `KES ${COURSE_PRICE_KES.toLocaleString()}`,
-  format: course.duration,
-  body: course.description,
-  isDatabaseItem: false,
-}));
 
 const transformationServices = [
   {
@@ -170,6 +161,10 @@ export default function Home() {
   const enrollment = trpc.enrollment.create.useMutation();
   const inquiry = trpc.inquiry.create.useMutation();
   const { user, isAuthenticated } = useAuth();
+  const catalog = trpc.course.catalog.useQuery(undefined, {
+    retry: false,
+    refetchOnWindowFocus: true,
+  });
   const liveCatalog = trpc.catalog.listPublished.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: true,
@@ -183,6 +178,13 @@ export default function Home() {
     refetchOnWindowFocus: true,
   });
   const courses = useMemo(() => {
+    const baseCourses = (catalog.data?.courses ?? []).map(course => ({
+      ...course,
+      price: `KES ${course.priceKes.toLocaleString()}`,
+      format: course.duration,
+      body: course.description,
+      isDatabaseItem: false,
+    }));
     const overlays = (liveCatalog.data ?? []).map(item => ({
       slug: item.slug,
       index: `D${String(item.id).padStart(2, "0")}`,
@@ -216,7 +218,7 @@ export default function Home() {
       ...merged,
       ...Array.from(bySlug.values()),
     ] as (typeof baseCourses)[number][];
-  }, [liveCatalog.data]);
+  }, [catalog.data?.courses, liveCatalog.data]);
 
   const uniqueLevels = Array.from(
     new Set(courses.map(course => course.skillLevel).filter(Boolean))
@@ -431,7 +433,7 @@ export default function Home() {
           <div className="container relative px-6 py-20 sm:px-8 sm:py-24 lg:px-8 lg:py-28 xl:py-32">
             <div className="grid items-center gap-16 lg:grid-cols-2">
               <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a34e]/60 bg-[#c9a34e]/20 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a34e]/60 bg-[#c9a34e]/20 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#8b6914]">
                   <Sparkles size={14} />
                   Executive Assessment & Development
                 </div>
@@ -463,7 +465,7 @@ export default function Home() {
                   </a>
                   <a
                     href="#offerings"
-                    className="inline-flex items-center gap-2 rounded-lg border-2 border-[#f7f3e8] px-5 py-3 text-fluid-xs font-bold uppercase tracking-wider text-[#f7f3e8] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e] sm:px-6 sm:py-4 sm:text-sm sm:gap-3"
+                    className="inline-flex items-center gap-2 rounded-lg border-2 border-[#f7f3e8] px-5 py-3 text-fluid-xs font-bold uppercase tracking-wider text-[#f7f3e8] transition-all hover:border-[#c9a34e] hover:text-[#8b6914] sm:px-6 sm:py-4 sm:text-sm sm:gap-3"
                   >
                     Explore services
                     <ArrowDownRight size={16} className="sm:h-4 sm:w-4" />
@@ -552,7 +554,7 @@ export default function Home() {
               <div className="mt-16 grid grid-cols-2 gap-6 border-t-2 border-[#f7f3e8]/20 pt-10 sm:mt-20 sm:gap-8 sm:pt-12 lg:grid-cols-4">
                 {stats.map((stat, index) => (
                   <div key={index} className="text-center">
-                    <div className="text-2xl font-bold text-[#c9a34e] sm:text-3xl lg:text-4xl xl:text-5xl">
+                    <div className="text-2xl font-bold text-[#8b6914] sm:text-3xl lg:text-4xl xl:text-5xl">
                       {stat.value}
                     </div>
                     <div className="mt-1.5 text-fluid-xs text-[#d7deea] sm:text-sm">
@@ -568,7 +570,7 @@ export default function Home() {
         <section id="offerings" className="section-py bg-[#f7f3e8]">
           <div className="container px-6 lg:px-8">
             <div className="mb-12 text-center sm:mb-16">
-              <p className="text-fluid-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
+              <p className="text-fluid-xs font-semibold uppercase tracking-wider text-[#8b6914]">
                 Our Services
               </p>
               <h2 className="heading-clamp mt-4 font-bold tracking-tight text-[#16243d]">
@@ -594,7 +596,7 @@ export default function Home() {
                       <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-[#c9a34e] text-white shadow-lg shadow-[#c9a34e]/25">
                         <Icon size={24} />
                       </div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-[#8b6914]">
                         {service.tag}
                       </p>
                       <h3 className="mt-3 text-xl font-bold text-[#16243d]">
@@ -603,7 +605,7 @@ export default function Home() {
                       <p className="mt-3 text-sm leading-relaxed text-[#657084]">
                         {service.body}
                       </p>
-                      <div className="mt-6 flex items-center gap-2 text-sm font-semibold text-[#c9a34e]">
+                      <div className="mt-6 flex items-center gap-2 text-sm font-semibold text-[#8b6914]">
                         Learn more
                         <ArrowUpRight
                           size={16}
@@ -622,7 +624,7 @@ export default function Home() {
         <section className="section-py bg-white">
           <div className="container px-6 lg:px-8">
             <div className="mb-12 sm:mb-16">
-              <p className="text-fluid-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
+              <p className="text-fluid-xs font-semibold uppercase tracking-wider text-[#8b6914]">
                 Featured Programs
               </p>
               <h2 className="heading-clamp mt-4 font-bold tracking-tight text-[#16243d]">
@@ -641,10 +643,10 @@ export default function Home() {
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-[#c9a34e]/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                     <div className="relative">
-                      <div className="mb-8 inline-flex h-16 w-16 items-center justify-center rounded-xl bg-[#c9a34e]/20 text-[#c9a34e]">
+                      <div className="mb-8 inline-flex h-16 w-16 items-center justify-center rounded-xl bg-[#c9a34e]/20 text-[#8b6914]">
                         <Icon size={28} />
                       </div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-[#8b6914]">
                         {service.tag}
                       </p>
                       <h3 className="mt-3 text-3xl font-bold">
@@ -653,7 +655,7 @@ export default function Home() {
                       <p className="mt-4 text-base leading-relaxed text-[#c1cad7]">
                         {service.body}
                       </p>
-                      <div className="mt-8 flex items-center gap-2 text-sm font-semibold text-[#c9a34e]">
+                      <div className="mt-8 flex items-center gap-2 text-sm font-semibold text-[#8b6914]">
                         Open service
                         <ArrowUpRight
                           size={16}
@@ -672,7 +674,7 @@ export default function Home() {
         <section className="section-py bg-[#101d35]">
           <div className="container px-6 lg:px-8">
             <div className="mx-auto max-w-4xl text-center">
-              <p className="text-fluid-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
+              <p className="text-fluid-xs font-semibold uppercase tracking-wider text-[#8b6914]">
                 Client Success Stories
               </p>
               <div className="mt-8 sm:mt-12">
@@ -690,7 +692,7 @@ export default function Home() {
                         "{testimonial.quote}"
                       </blockquote>
                       <div className="mt-6 sm:mt-8">
-                        <p className="font-semibold text-[#c9a34e]">
+                        <p className="font-semibold text-[#8b6914]">
                           {testimonial.author}
                         </p>
                         <p className="text-sm text-[#aab5c6]">
@@ -705,7 +707,7 @@ export default function Home() {
                     type="button"
                     onClick={() => setTestimonialsPaused(paused => !paused)}
                     aria-label={testimonialsPaused ? "Play testimonial carousel" : "Pause testimonial carousel"}
-                    className="inline-flex items-center gap-2 rounded-full border border-[#16243d]/20 px-4 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#aab5c6] transition-colors hover:border-[#c9a34e] hover:text-[#c9a34e]"
+                    className="inline-flex items-center gap-2 rounded-full border border-[#16243d]/20 px-4 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#aab5c6] transition-colors hover:border-[#c9a34e] hover:text-[#8b6914]"
                   >
                     {testimonialsPaused ? (
                       <>
@@ -743,7 +745,7 @@ export default function Home() {
         <section id="courses" className="section-py bg-[#f7f3e8]">
           <div className="container px-6 lg:px-8">
             <div className="mb-12">
-              <p className="text-fluid-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
+              <p className="text-fluid-xs font-semibold uppercase tracking-wider text-[#8b6914]">
                 Course Catalog
               </p>
               <h2 className="heading-clamp mt-4 font-bold tracking-tight text-[#16243d]">
@@ -793,7 +795,7 @@ export default function Home() {
                   <div className="grid gap-6 sm:gap-8 lg:grid-cols-[1fr_auto]">
                     <div>
                       <div className="flex items-center gap-3 sm:gap-4">
-                        <span className="text-sm font-bold text-[#c9a34e]">
+                        <span className="text-sm font-bold text-[#8b6914]">
                           {course.index}
                         </span>
                         <span className="rounded-full bg-[#c9a34e]/10 px-2.5 py-1 text-xs font-semibold text-[#7d5e1e] sm:px-3 sm:py-1">
@@ -807,32 +809,20 @@ export default function Home() {
                         {course.body}
                       </p>
                       <div className="mt-4 flex flex-wrap gap-3 sm:mt-6 sm:gap-4">
-                        {course.modules.length ? (
-                          <a
-                            href={`/courses/${course.slug}?workspace=1`}
-                            className="inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-all hover:bg-[#0f172a]"
-                          >
-                            Enroll now
-                            <ArrowUpRight size={14} />
-                          </a>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={(event) => openEnrollment(course, event.currentTarget)}
-                            aria-pressed={selectedCourse?.index === course.index}
-                            className="inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-all hover:bg-[#0f172a]"
-                          >
-                            Enroll now
-                            <ArrowUpRight size={14} />
-                          </button>
-                        )}
+                        <a
+                          href={`/courses/${course.slug}?workspace=1`}
+                          className="inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-all hover:bg-[#0f172a]"
+                        >
+                          Enroll now
+                          <ArrowUpRight size={14} />
+                        </a>
                         <a
                           href={
                             course.modules.length
                               ? `/courses/${course.slug}`
                               : "#contact"
                           }
-                          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#657084] transition-colors hover:text-[#c9a34e]"
+                          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#657084] transition-colors hover:text-[#8b6914]"
                         >
                           {course.modules.length
                             ? "Open syllabus"
@@ -970,7 +960,7 @@ export default function Home() {
               </>
             ) : (
               <div className="mx-auto max-w-2xl text-center">
-                <Vote size={48} className="mx-auto text-[#c9a34e]" aria-hidden="true" />
+                <Vote size={48} className="mx-auto text-[#8b6914]" aria-hidden="true" />
                 <h3 className="display mt-6 text-3xl">No active surveys right now</h3>
                 <p className="mt-4 text-base text-[#4a566a]">
                   Check back soon. We regularly run polls, surveys, and product reviews.
@@ -993,7 +983,7 @@ export default function Home() {
           <div className="container px-6 lg:px-8">
             <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
               <div>
-                <p className="text-fluid-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
+                <p className="text-fluid-xs font-semibold uppercase tracking-wider text-[#8b6914]">
                   Get in Touch
                 </p>
                 <h2 className="heading-clamp mt-4 font-bold tracking-tight text-[#f7f3e8]">
@@ -1006,7 +996,7 @@ export default function Home() {
                 <div className="mt-10 space-y-6">
                   <a
                     href="mailto:admin@profoundiqconsulting.com"
-                    className="flex items-center gap-4 text-[#c1cad7] transition-colors hover:text-[#c9a34e]"
+                    className="flex items-center gap-4 text-[#c1cad7] transition-colors hover:text-[#8b6914]"
                   >
                     <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#16243d] text-[#c9a34e]">
                       <Mail size={20} />
@@ -1018,7 +1008,7 @@ export default function Home() {
                   </a>
                   <a
                     href="tel:+254727374055"
-                    className="flex items-center gap-4 text-[#c1cad7] transition-colors hover:text-[#c9a34e]"
+                    className="flex items-center gap-4 text-[#c1cad7] transition-colors hover:text-[#8b6914]"
                   >
                     <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#16243d] text-[#c9a34e]">
                       <Phone size={20} />
@@ -1198,7 +1188,7 @@ export default function Home() {
           >
             <div className="flex items-start justify-between gap-6">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#8b6914]">
                   Enrollment / next step
                 </p>
                 <h2
@@ -1237,7 +1227,7 @@ export default function Home() {
                     setSelectedCourse(null);
                     enrollmentTriggerRef.current?.focus();
                   }}
-                  className="mt-6 text-sm font-semibold text-[#c9a34e] underline underline-offset-4"
+                  className="mt-6 text-sm font-semibold text-[#8b6914] underline underline-offset-4"
                 >
                   Close form
                 </button>
@@ -1304,7 +1294,7 @@ export default function Home() {
                       id="enrollment-consent"
                       name="enrollment-consent"
                       type="checkbox"
-                      className="mt-1 h-4 w-4 rounded border-[#16243d]/20 text-[#c9a34e] focus:ring-[#c9a34e]"
+                      className="mt-1 h-4 w-4 rounded border-[#16243d]/20 text-[#8b6914] focus:ring-[#c9a34e]"
                     />
                     <label
                       htmlFor="enrollment-consent"
@@ -1345,7 +1335,7 @@ export default function Home() {
               </p>
               <a
                 href="/contact"
-                className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-[#c9a34e] transition-colors hover:text-[#d4af5e]"
+                className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-[#8b6914] transition-colors hover:text-[#d4af5e]"
               >
                 Talk to our consultants
                 <ArrowUpRight size={16} />
@@ -1356,7 +1346,7 @@ export default function Home() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Profound IQ Consulting on Facebook"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#16243d] text-[#aab5c6] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e]"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#16243d] text-[#aab5c6] transition-all hover:border-[#c9a34e] hover:text-[#8b6914]"
                 >
                   <Facebook size={18} />
                 </a>
@@ -1374,7 +1364,7 @@ export default function Home() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Profound IQ Consulting on LinkedIn"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#16243d] text-[#aab5c6] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e]"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#16243d] text-[#aab5c6] transition-all hover:border-[#c9a34e] hover:text-[#8b6914]"
                 >
                   <Linkedin size={18} />
                 </a>
@@ -1383,7 +1373,7 @@ export default function Home() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Profound IQ Consulting on Instagram"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#16243d] text-[#aab5c6] transition-all hover:border-[#c9a34e] hover:text-[#c9a34e]"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#16243d] text-[#aab5c6] transition-all hover:border-[#c9a34e] hover:text-[#8b6914]"
                 >
                   <Instagram size={18} />
                 </a>
@@ -1391,7 +1381,7 @@ export default function Home() {
             </div>
 
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-[#c9a34e]">
+              <p className="text-sm font-semibold uppercase tracking-wider text-[#8b6914]">
                 Quick Links
               </p>
               <div className="mt-6 grid gap-3">
@@ -1435,7 +1425,7 @@ export default function Home() {
             </div>
 
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-[#c9a34e]">
+              <p className="text-sm font-semibold uppercase tracking-wider text-[#8b6914]">
                 Legal
               </p>
               <div className="mt-6 grid gap-3">

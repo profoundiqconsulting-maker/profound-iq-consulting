@@ -309,7 +309,7 @@ export default function AdminReportsPanel() {
                       )}
 
                       {Boolean(data) && !error && (
-                        <p className="mt-2 text-xs text-emerald-700 font-semibold">
+                        <p className="mt-2 text-xs text-emerald-800 font-semibold">
                           {Array.isArray(data) ? `${(data as unknown[]).length} records` : "Data available"}
                         </p>
                       )}

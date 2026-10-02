@@ -53,7 +53,7 @@ export default function About() {
       title={
         <>
           Transforming potential into{" "}
-          <em className="font-normal text-[#c9a34e]">purposeful impact.</em>
+          <em className="font-normal text-[#8b6914]">purposeful impact.</em>
         </>
       }
       intro="Profound IQ Consulting is a transformational learning and education consulting partner for people, leaders, schools, and organizations navigating a rapidly changing global landscape."
@@ -97,7 +97,7 @@ export default function About() {
       <section className="section-py bg-[#172844] text-[#f7f3e8]">
         <div className="container">
           <div className="max-w-3xl">
-            <p className="eyebrow text-[#c9a34e]">Who we serve</p>
+            <p className="eyebrow text-[#8b6914]">Who we serve</p>
             <h2 className="display mt-5 heading-clamp">
               One partner. Different pathways forward.
             </h2>
@@ -111,7 +111,7 @@ export default function About() {
               <ScrollReveal key={title} delay={index * 70}>
                 <article className="public-card-link group border border-[#c9a34e]/30 bg-[#1b3152]/60 p-8 transition-all duration-200 hover:border-[#c9a34e] hover:bg-[#254263]">
                   <div className="inline-flex h-12 w-12 items-center justify-center rounded bg-[#c9a34e]/15">
-                    <Icon size={22} className="text-[#c9a34e]" />
+                    <Icon size={22} className="text-[#8b6914]" />
                   </div>
                   <h3 className="mt-8 text-lg font-semibold leading-tight">
                     {title}
@@ -121,7 +121,7 @@ export default function About() {
                   </p>
                   <Link
                     href="/contact"
-                    className="mt-7 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e] transition-colors group-hover:text-[#f7f3e8]"
+                    className="mt-7 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#8b6914] transition-colors group-hover:text-[#f7f3e8]"
                   >
                     Find your pathway <ArrowUpRight size={14} />
                   </Link>

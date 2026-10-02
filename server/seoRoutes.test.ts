@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeAll, afterAll } from "vitest";
 import { readFileSync } from "node:fs";
 
 const ORIGIN = "http://localhost:3000";
@@ -10,6 +10,34 @@ vi.mock("../shared/siteOrigin", () => {
     publishedSiteUrl: (path = "") =>
       `${origin}${path.startsWith("/") || path.length === 0 ? path : `/${path}`}`,
   };
+});
+
+const originalFetch = globalThis.fetch;
+
+beforeAll(() => {
+  globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+    if (url.includes("invalid.example")) {
+      return new Response(null, { status: 404, statusText: "Not Found" });
+    }
+    if (url.includes("ProfoundIQLogo.png")) {
+      const png = Buffer.from(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="160" height="74"></svg>`
+      );
+      return new Response(png, {
+        status: 200,
+        headers: { "Content-Type": "image/png" },
+      });
+    }
+    if (originalFetch) {
+      return originalFetch(input, init);
+    }
+    return new Response(null, { status: 404, statusText: "Not Found" });
+  };
+});
+
+afterAll(() => {
+  globalThis.fetch = originalFetch;
 });
 
 import {

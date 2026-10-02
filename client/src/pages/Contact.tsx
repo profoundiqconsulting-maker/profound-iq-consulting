@@ -76,7 +76,7 @@ export default function Contact() {
       title={
         <>
           Bring us the question{" "}
-          <em className="font-normal text-[#c9a34e]">behind the question.</em>
+          <em className="font-normal text-[#8b6914]">behind the question.</em>
         </>
       }
       intro="Tell us what you are trying to improve, understand, or build. We will use your context to guide the next conversation."

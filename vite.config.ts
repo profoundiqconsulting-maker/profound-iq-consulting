@@ -2,6 +2,7 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
 import { defineConfig, loadEnv } from "vite";
+import { visualizer } from "rollup-plugin-visualizer";
 
 const plugins = [react(), tailwindcss()];
 
@@ -9,9 +10,11 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, path.resolve(import.meta.dirname), "");
   const basePath = env.VITE_BASE_PATH?.replace(/\/+$/, "") || "";
 
+  const isAnalyze = mode === "analyze";
+
   return {
     base: basePath ? `${basePath}/` : "/",
-    plugins,
+    plugins: isAnalyze ? [...plugins, visualizer({ filename: "dist/stats.html", open: false, gzipSize: true, brotliSize: true })] : plugins,
     resolve: {
       alias: {
         "@": path.resolve(import.meta.dirname, "client", "src").replace(/\\/g, "/"),
@@ -26,60 +29,30 @@ export default defineConfig(({ mode }) => {
       outDir: path.resolve(import.meta.dirname, "dist/public"),
       emptyOutDir: true,
       chunkSizeWarningLimit: 3000,
-      minify: "esbuild",
-      cssMinify: "esbuild",
       sourcemap: false,
       reportCompressedSize: false,
-      rollupOptions: {
+      rolldownOptions: {
         output: {
-          manualChunks: {
-            "vendor-react": ["react", "react-dom", "wouter"],
-            "vendor-trpc": ["@trpc/client", "@trpc/react-query", "@tanstack/react-query"],
-            "vendor-icons": ["lucide-react"],
-            "vendor-radix": [
-              "@radix-ui/react-accordion",
-              "@radix-ui/react-alert-dialog",
-              "@radix-ui/react-aspect-ratio",
-              "@radix-ui/react-avatar",
-              "@radix-ui/react-checkbox",
-              "@radix-ui/react-collapsible",
-              "@radix-ui/react-context-menu",
-              "@radix-ui/react-dialog",
-              "@radix-ui/react-dropdown-menu",
-              "@radix-ui/react-hover-card",
-              "@radix-ui/react-label",
-              "@radix-ui/react-menubar",
-              "@radix-ui/react-navigation-menu",
-              "@radix-ui/react-popover",
-              "@radix-ui/react-progress",
-              "@radix-ui/react-radio-group",
-              "@radix-ui/react-scroll-area",
-              "@radix-ui/react-select",
-              "@radix-ui/react-separator",
-              "@radix-ui/react-slider",
-              "@radix-ui/react-slot",
-              "@radix-ui/react-switch",
-              "@radix-ui/react-tabs",
-              "@radix-ui/react-toggle",
-              "@radix-ui/react-toggle-group",
-              "@radix-ui/react-tooltip",
-            ],
-            "vendor-charts": ["recharts"],
-            "vendor-utils": [
-              "clsx",
-              "class-variance-authority",
-              "date-fns",
-              "next-themes",
-            ],
-            "vendor-forms": ["react-hook-form"],
-            "vendor-framer-motion": ["framer-motion"],
-            "vendor-sonner": ["sonner"],
-            "vendor-streamdown": ["streamdown"],
-            "vendor-ui-extras": [
-              "input-otp",
-              "react-resizable-panels",
-              "vaul",
-            ],
+          manualChunks: (id) => {
+            if (id.includes("node_modules/react")) return "vendor-react";
+            if (id.includes("node_modules/react-dom")) return "vendor-react";
+            if (id.includes("node_modules/wouter")) return "vendor-react";
+            if (id.includes("node_modules/@trpc")) return "vendor-trpc";
+            if (id.includes("node_modules/@tanstack")) return "vendor-trpc";
+            if (id.includes("node_modules/lucide-react")) return "vendor-icons";
+            if (id.includes("node_modules/@radix-ui")) return "vendor-radix";
+            if (id.includes("node_modules/recharts")) return "vendor-charts";
+            if (id.includes("node_modules/clsx")) return "vendor-utils";
+            if (id.includes("node_modules/class-variance-authority")) return "vendor-utils";
+            if (id.includes("node_modules/date-fns")) return "vendor-utils";
+            if (id.includes("node_modules/next-themes")) return "vendor-utils";
+            if (id.includes("node_modules/react-hook-form")) return "vendor-forms";
+            if (id.includes("node_modules/framer-motion")) return "vendor-framer-motion";
+            if (id.includes("node_modules/sonner")) return "vendor-sonner";
+            if (id.includes("node_modules/streamdown")) return "vendor-streamdown";
+            if (id.includes("node_modules/input-otp")) return "vendor-ui-extras";
+            if (id.includes("node_modules/react-resizable-panels")) return "vendor-ui-extras";
+            if (id.includes("node_modules/vaul")) return "vendor-ui-extras";
           },
         },
       },

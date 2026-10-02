@@ -47,7 +47,7 @@ export default function PsychometricVerification() {
     <main className="grid min-h-screen place-items-center bg-[#f7f3e8] px-4 py-12 text-[#16243d]">
       <Card className="w-full max-w-xl border-[#c9a34e]/60 bg-[#fffdf7]">
         <CardHeader className="bg-[#16243d] text-[#f7f3e8]">
-          <p className="eyebrow text-[#c9a34e]">
+          <p className="eyebrow text-[#8b6914]">
             PROFOUND IQ / AUTHENTICITY CHECK
           </p>
           <CardTitle className="display mt-3 text-4xl">

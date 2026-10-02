@@ -53,7 +53,7 @@ export default function TermsOfService() {
         <div className="container flex items-center justify-between gap-4 py-5">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e] transition-opacity hover:opacity-80"
+            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#8b6914] transition-opacity hover:opacity-80"
           >
             <ArrowLeft size={15} /> {"Back to site"}
           </Link>

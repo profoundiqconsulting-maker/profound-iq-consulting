@@ -35,7 +35,7 @@ export default function Auth() {
 
   useEffect(() => {
     if (!loading && user) {
-      const role = user.role.toLowerCase();
+      const role = user.role?.toLowerCase();
       if (role === "admin") {
         navigate("/admin/overview", { replace: true });
       } else if (role === "staff") {
@@ -274,7 +274,7 @@ export default function Auth() {
           </Link>
           <Link
             href="/"
-            className="text-[10px] font-black uppercase tracking-[.16em] text-[#c9d1df] hover:text-[#c9a34e]"
+            className="text-[10px] font-black uppercase tracking-[.16em] text-[#c9d1df] hover:text-[#8b6914]"
           >
             {authCopy.backToSite}
           </Link>
@@ -282,7 +282,7 @@ export default function Auth() {
       </header>
       <section className="container grid min-h-[calc(100vh-90px)] items-center gap-10 py-14 lg:grid-cols-[.8fr_1.2fr] lg:gap-16">
         <div>
-          <p className="eyebrow text-[#c9a34e]">{authCopy.privateAccess}</p>
+          <p className="eyebrow text-[#8b6914]">{authCopy.privateAccess}</p>
           <h1 className="display mt-5 heading-clamp-lg">
             {authCopy.workspace}
           </h1>

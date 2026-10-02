@@ -58,7 +58,7 @@ export default function PrivacyPolicy() {
         <div className="container flex items-center justify-between gap-4 py-5">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e] transition-opacity hover:opacity-80"
+            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#8b6914] transition-opacity hover:opacity-80"
           >
             <ArrowLeft size={15} /> {"Back to site"}
           </Link>
@@ -108,7 +108,7 @@ export default function PrivacyPolicy() {
                         href={`#${id}`}
                         className="flex gap-3 py-2 text-xs leading-5 text-[#657084] transition-colors hover:text-[#7d5e1e]"
                       >
-                        <span className="font-black text-[#c9a34e]">
+                        <span className="font-black text-[#8b6914]">
                           {String(index + 1).padStart(2, "0")}
                         </span>
                         <span>{title}</span>
@@ -120,7 +120,7 @@ export default function PrivacyPolicy() {
                       href="#questions"
                       className="flex gap-3 py-2 text-xs leading-5 text-[#657084] transition-colors hover:text-[#7d5e1e]"
                     >
-                      <span className="font-black text-[#c9a34e]">10</span>
+                      <span className="font-black text-[#8b6914]">10</span>
                       <span>{"Questions or requests?"}</span>
                     </a>
                   </li>

@@ -1,7 +1,7 @@
 /* Profound IQ Consulting — compact share rail with accessible actions. */
 import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 
-import { SocialSharing } from "./SocialSharing";
+import { SocialSharing, type SocialPlatform } from "./SocialSharing";
 
 type CourseShareActionsProps = {
   courseSlug?: string;
@@ -9,6 +9,7 @@ type CourseShareActionsProps = {
   shareUrl?: string;
   shareLabel?: string;
   pagePath?: string;
+  platforms?: SocialPlatform[];
 };
 
 export function CourseShareActions({
@@ -17,6 +18,7 @@ export function CourseShareActions({
   shareUrl: providedShareUrl,
   shareLabel,
   pagePath,
+  platforms,
 }: CourseShareActionsProps) {
   const getShareUrl = () =>
     providedShareUrl ??
@@ -27,7 +29,7 @@ export function CourseShareActions({
       url={getShareUrl()}
       title={courseTitle}
       summary={`${courseTitle} — Profound IQ Consulting.`}
-      platforms={["linkedin", "x", "facebook", "whatsapp", "email", "copy", "native"]}
+      platforms={platforms}
       label={shareLabel}
           onShare={platform => {
         if (typeof window !== "undefined") {

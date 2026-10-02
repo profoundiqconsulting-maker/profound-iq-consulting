@@ -150,7 +150,7 @@ export default function Blog() {
       title={
         <>
           The thinking behind{" "}
-          <em className="font-normal text-[#c9a34e]">the work.</em>
+          <em className="font-normal text-[#8b6914]">the work.</em>
         </>
       }
       intro="A developing editorial space for useful ideas about education, leadership, professional growth, curriculum, and the changing world of work."
@@ -462,7 +462,7 @@ export default function Blog() {
           <ScrollReveal>
             <div className="grid gap-16 lg:grid-cols-[.65fr_1.35fr] lg:gap-20">
               <div>
-                <p className="eyebrow text-[#c9a34e]">Contributor profiles</p>
+                <p className="eyebrow text-[#8b6914]">Contributor profiles</p>
                 <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
                   A human voice behind every useful idea.
                 </h2>
@@ -483,13 +483,13 @@ export default function Blog() {
               >
                 <div className="flex items-start gap-5">
                   <div
-                    className="inline-flex h-16 w-16 shrink-0 items-center justify-center border border-[#c9a34e]/50 bg-[#101d35] text-sm font-black tracking-[.1em] text-[#c9a34e]"
+                    className="inline-flex h-16 w-16 shrink-0 items-center justify-center border border-[#c9a34e]/50 bg-[#101d35] text-sm font-black tracking-[.1em] text-[#8b6914]"
                     aria-label="Contributor profile placeholder"
                   >
                     <UserRound size={20} />
                   </div>
                   <div>
-                    <p className="eyebrow text-[#c9a34e]">{contributor.role}</p>
+                    <p className="eyebrow text-[#8b6914]">{contributor.role}</p>
                     <h3 className="mt-2 text-lg font-semibold">
                       {contributor.title}
                     </h3>
@@ -498,7 +498,7 @@ export default function Blog() {
                 <p className="mt-6 text-sm leading-7 text-[#c1cad7]">
                   {contributor.bio}
                 </p>
-                <span className="mt-7 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e]">
+                <span className="mt-7 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#8b6914]">
                   Profile details to be added <ArrowUpRight size={14} />
                 </span>
               </article>
@@ -558,7 +558,7 @@ export default function Blog() {
         <ScrollReveal>
           <div className="container flex flex-col items-start justify-between gap-8 sm:flex-row sm:items-center">
             <div>
-              <p className="eyebrow text-[#c9a34e]">Learn in the meantime</p>
+              <p className="eyebrow text-[#8b6914]">Learn in the meantime</p>
               <h2 className="display mt-4 text-4xl leading-tight sm:text-5xl">
                 Choose an experience, not just a headline.
               </h2>

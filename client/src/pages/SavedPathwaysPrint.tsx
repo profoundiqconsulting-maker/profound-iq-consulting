@@ -197,7 +197,7 @@ export default function SavedPathwaysPrint() {
             <section className="print-cover mt-8 grid place-items-center bg-[#16243d] p-10 text-center text-[#f7f3e8]">
               <div>
                 <BrandLogo context="my space" />
-                <p className="mt-10 text-[10px] font-black uppercase tracking-[.2em] text-[#c9a34e]">
+                <p className="mt-10 text-[10px] font-black uppercase tracking-[.2em] text-[#8b6914]">
                   PROFOUND IQ / CONSULTING
                 </p>
                 <h2 className="mt-5 font-serif text-4xl leading-tight">

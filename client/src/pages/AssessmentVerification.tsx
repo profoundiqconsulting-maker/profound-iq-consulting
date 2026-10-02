@@ -90,7 +90,7 @@ export default function AssessmentVerification() {
             <section className="mt-10 border border-[#c9a34e]/70 bg-white/70 p-6 shadow-sm sm:p-10">
               <div className="flex items-start gap-4">
                 <CheckCircle2
-                  className="mt-1 shrink-0 text-emerald-700"
+                  className="mt-1 shrink-0 text-emerald-800"
                   size={30}
                 />
                 <div className="min-w-0 flex-1">

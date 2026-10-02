@@ -992,7 +992,7 @@ export default function Settings() {
 
         <Card className="mt-8 border-l-4 border-[#c9a34e] bg-[#16243d] p-5 text-sm leading-6 text-[#f7f3e8]">
           <div className="flex items-start gap-3">
-            <LockKeyhole size={18} className="mt-0.5 shrink-0 text-[#c9a34e]" />
+            <LockKeyhole size={18} className="mt-0.5 shrink-0 text-[#8b6914]" />
             <p>
               <strong className="text-[#f7f3e8]">Account privacy.</strong> Your
               preferences are saved to your authenticated account and are not

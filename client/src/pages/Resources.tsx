@@ -91,7 +91,7 @@ export default function Resources() {
       title={
         <>
           Useful thinking for the{" "}
-          <em className="font-normal text-[#c9a34e]">next decision.</em>
+          <em className="font-normal text-[#8b6914]">next decision.</em>
         </>
       }
       intro="Explore the ideas, learning pathways, and practical tools that help people and institutions move from reflection to purposeful action."
@@ -274,7 +274,7 @@ export default function Resources() {
         <ScrollReveal>
           <div className="container grid gap-16 lg:grid-cols-[.6fr_1.4fr] lg:gap-20 lg:items-start">
             <div>
-              <p className="eyebrow text-[#c9a34e]">For now</p>
+              <p className="eyebrow text-[#8b6914]">For now</p>
               <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
                 Start with a guided experience.
               </h2>
@@ -284,13 +284,13 @@ export default function Resources() {
                 href="/assessment"
                 className="group border border-[#c9a34e]/40 bg-[#1b3152]/60 p-8 transition-all hover:border-[#c9a34e] hover:bg-[#254263] backdrop-blur-sm"
               >
-                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e]">
+                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#8b6914]">
                   Personal insight
                 </p>
                 <h3 className="mt-6 text-lg font-semibold leading-tight">
                   Take the Self Assessment
                 </h3>
-                <span className="mt-8 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e] group-hover:text-[#f7f3e8]">
+                <span className="mt-8 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#8b6914] group-hover:text-[#f7f3e8]">
                   Begin <ArrowUpRight size={14} />
                 </span>
               </Link>
@@ -298,13 +298,13 @@ export default function Resources() {
                 href="/contact"
                 className="group border border-white/20 bg-[#1b3152]/40 p-8 transition-all hover:border-[#c9a34e] hover:bg-[#254263] backdrop-blur-sm"
               >
-                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e]">
+                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#8b6914]">
                   Organizational insight
                 </p>
                 <h3 className="mt-6 text-lg font-semibold leading-tight">
                   Talk to a consultant
                 </h3>
-                <span className="mt-8 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e] group-hover:text-[#f7f3e8]">
+                <span className="mt-8 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#8b6914] group-hover:text-[#f7f3e8]">
                   Start a conversation <ArrowUpRight size={14} />
                 </span>
               </Link>

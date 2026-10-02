@@ -731,7 +731,7 @@ function CheckoutPage({
 
           {paymentState === "verifying" && (
             <div className="mt-8 flex items-center gap-3 border-l-2 border-[#c9a34e] bg-[#16243d] px-5 py-4 text-sm text-[#f7f3e8]">
-              <Loader2 className="animate-spin text-[#c9a34e]" size={18} />
+              <Loader2 className="animate-spin text-[#8b6914]" size={18} />
               <span>
                 <strong>Payment received.</strong> We are confirming the
                 Paystack transaction before unlocking your report.
@@ -757,7 +757,7 @@ function CheckoutPage({
             <div className="mt-8 border border-[#16243d]/15 bg-[#16243d] p-5 text-[#f7f3e8] sm:p-7">
               <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="eyebrow text-[#c9a34e]">
+                  <p className="eyebrow text-[#8b6914]">
                     CareerPath Talent Fit
                   </p>
                   <p className="mt-2 text-sm text-[#d7deea]">
@@ -1005,7 +1005,7 @@ function ReportsPage({
       <div className="mt-10 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-[#f7f3e8] sm:p-7">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="eyebrow text-[#c9a34e]">Keep the momentum visible.</p>
+            <p className="eyebrow text-[#8b6914]">Keep the momentum visible.</p>
             <h2 className="display mt-2 text-3xl">
               Retake periodically to track your progress.
             </h2>
@@ -1087,7 +1087,7 @@ function ReportsPage({
                                 className="border border-[#16243d]/12 bg-[#f7f3e8] p-4"
                               >
                                 <div className="mb-3 overflow-hidden border border-[#c9a34e]/60 bg-[#16243d] p-3 text-[#f7f3e8]">
-                                  <p className="text-[9px] font-black uppercase tracking-[.16em] text-[#c9a34e]">
+                                  <p className="text-[9px] font-black uppercase tracking-[.16em] text-[#8b6914]">
                                     Profound IQ Consulting
                                   </p>
                                   <p className="display mt-2 text-xl">
@@ -1143,7 +1143,7 @@ function ReportsPage({
                       </p>
                       <h2 className="display mt-4 text-3xl">{pathway.label}</h2>
                       <p
-                        className={`mt-4 text-5xl ${index === 0 ? "text-[#c9a34e]" : "text-[#7d5e1e]"}`}
+                        className={`mt-4 text-5xl ${index === 0 ? "text-[#8b6914]" : "text-[#7d5e1e]"}`}
                       >
                         {pathway.score}
                         <span className="text-base"> / 100</span>
@@ -1196,7 +1196,7 @@ function ReportsPage({
               <section className="mt-10 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-[#f7f3e8] sm:p-7">
                 <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <p className="eyebrow text-[#c9a34e]">
+                    <p className="eyebrow text-[#8b6914]">
                       A completed development signal
                     </p>
                     <h2 className="display mt-2 text-3xl">
@@ -1288,7 +1288,7 @@ function ReportsPage({
                   ))}
                 </article>
                 <article className="border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-[#c1cad7] sm:p-8">
-                  <Sparkles size={19} className="text-[#c9a34e]" />
+                  <Sparkles size={19} className="text-[#8b6914]" />
                   <h2 className="display mt-3 text-3xl text-[#f7f3e8]">
                     Important context.
                   </h2>

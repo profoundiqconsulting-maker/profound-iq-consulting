@@ -167,7 +167,7 @@ export default function CoursePaymentSuccess() {
       <TransformationNav active="assessment" />
       <main className="container grid min-h-[70vh] place-items-center py-16">
         <div className="w-full max-w-2xl border border-[#c9a34e]/60 bg-white/60 p-7 text-center shadow-sm sm:p-12">
-          <CheckCircle2 className="mx-auto text-emerald-700" size={42} />
+          <CheckCircle2 className="mx-auto text-emerald-800" size={42} />
           <p className="eyebrow mt-6 text-[#7d5e1e]">Payment successful</p>
           <h1 className="display mt-3 text-5xl">
             Your learning path is ready.

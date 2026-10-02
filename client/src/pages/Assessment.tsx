@@ -1468,14 +1468,14 @@ export default function Assessment() {
                 </div>
               </div>
               <aside className="border-t border-[#c9a34e] bg-[#16243d] p-7 text-[#f7f3e8] lg:border-t-0 lg:border-l-0">
-                <Sparkles className="text-[#c9a34e]" size={20} />
-                <p className="eyebrow mt-7 text-[#c9a34e]">Before you begin</p>
+                <Sparkles className="text-[#8b6914]" size={20} />
+                <p className="eyebrow mt-7 text-[#8b6914]">Before you begin</p>
                 <p className="mt-4 text-sm leading-6 text-[#c1cad7]">
                   Answer honestly and quickly. There are no right answers; the
                   value is in noticing your current patterns.
                 </p>
                 <div className="mt-8 flex items-center gap-2 text-xs text-[#c1cad7]">
-                  <LockKeyhole size={15} className="text-[#c9a34e]" /> Secure
+                  <LockKeyhole size={15} className="text-[#8b6914]" /> Secure
                   Paystack checkout
                 </div>
               </aside>
@@ -1876,7 +1876,7 @@ export default function Assessment() {
                           </span>
                           {complete ? (
                             <CheckCircle2
-                              className="shrink-0 text-emerald-700"
+                              className="shrink-0 text-emerald-800"
                               size={19}
                             />
                           ) : (
@@ -2008,7 +2008,7 @@ export default function Assessment() {
                             className={`${highPotentialOnly && (moduleScore === null || 100 - moduleScore < 20) ? "hidden" : ""} inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-[10px] font-black uppercase tracking-[.1em] transition-all ${moduleIndex === page ? "border-[#c9a34e] bg-[#16243d] text-[#f7f3e8] shadow-sm" : "border-[#16243d]/20 bg-white/50 text-[#657084] hover:border-[#c9a34e] hover:shadow-sm"}`}
                           >
                             {complete ? (
-                              <Check size={13} className="text-[#c9a34e]" />
+                              <Check size={13} className="text-[#8b6914]" />
                             ) : (
                               <span className="grid h-4 w-4 place-items-center border border-current text-[9px]">
                                 {moduleIndex + 1}
@@ -2023,14 +2023,14 @@ export default function Assessment() {
                               role="tooltip"
                               className="pointer-events-none invisible absolute left-1/2 top-full z-30 mt-3 w-44 -translate-x-1/2 border border-[#c9a34e] bg-[#16243d] p-3.5 text-left text-[#f7f3e8] opacity-0 shadow-lg transition group-hover:pointer-events-auto group-hover:visible group-hover:opacity-100"
                             >
-                              <span className="block text-[10px] font-black uppercase tracking-[.12em] text-[#c9a34e]">
+                              <span className="block text-[10px] font-black uppercase tracking-[.12em] text-[#8b6914]">
                                 Section score
                               </span>
                               <span className="mt-1 block text-sm">
                                 {moduleScore} / 100
                               </span>
                               <span
-                                className="mt-1 block text-[10px] text-[#c9a34e]"
+                                className="mt-1 block text-[10px] text-[#8b6914]"
                                 aria-label={`Potential improvement ${100 - (moduleScore ?? 0)} points`}
                               >
                                 Potential +{100 - (moduleScore ?? 0)} pts
@@ -2081,7 +2081,7 @@ export default function Assessment() {
                         stroke="currentColor"
                         strokeWidth="4"
                         strokeLinecap="round"
-                        className="text-[#c9a34e]"
+                        className="text-[#8b6914]"
                         strokeDasharray={`${Math.round((answeredCount / assessmentQuestions.length) * 100)} 100`}
                         pathLength="100"
                       />
@@ -2128,7 +2128,7 @@ export default function Assessment() {
             {mobileReviewMode && (
               <div className="mb-4 flex items-center justify-between border-l-2 border-[#c9a34e] bg-[#16243d] p-4 text-[#f7f3e8] sm:hidden">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#c9a34e]">
+                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b6914]">
                     Focused review mode
                   </p>
                   <p className="mt-1 text-xs text-[#c1cad7]">
@@ -2305,7 +2305,7 @@ export default function Assessment() {
                     <section className="border border-[#c9a34e] bg-[#16243d] p-6 text-[#f7f3e8] sm:p-8">
                       <div className="flex items-start justify-between gap-5">
                         <div>
-                          <p className="eyebrow text-[#c9a34e]">
+                          <p className="eyebrow text-[#8b6914]">
                             Executive summary · managers & coaching
                           </p>
                           <h2 className="display mt-3 text-3xl">
@@ -2313,7 +2313,7 @@ export default function Assessment() {
                               `${report.overallBand}: a practical view of your current capability pattern`}
                           </h2>
                         </div>
-                        <span className="hidden border border-[#c9a34e]/60 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#c9a34e] sm:block">
+                        <span className="hidden border border-[#c9a34e]/60 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#8b6914] sm:block">
                           One-page brief
                         </span>
                       </div>
@@ -2323,7 +2323,7 @@ export default function Assessment() {
                       </p>
                       <div className="mt-7 grid gap-6 border-t border-[#c9a34e]/30 pt-6 lg:grid-cols-2">
                         <div>
-                          <p className="eyebrow text-[#c9a34e]">
+                          <p className="eyebrow text-[#8b6914]">
                             Recommended priorities
                           </p>
                           <ul className="mt-4 space-y-3 text-sm leading-6 text-[#c1cad7]">
@@ -2341,7 +2341,7 @@ export default function Assessment() {
                           </ul>
                         </div>
                         <div>
-                          <p className="eyebrow text-[#c9a34e]">
+                          <p className="eyebrow text-[#8b6914]">
                             Discussion prompts
                           </p>
                           <ul className="mt-4 space-y-3 text-sm leading-6 text-[#c1cad7]">
@@ -2584,7 +2584,7 @@ export default function Assessment() {
                             </ul>
                           </div>
                           <div className="bg-[#16243d] p-5 text-[#f7f3e8]">
-                            <p className="eyebrow text-[#c9a34e]">
+                            <p className="eyebrow text-[#8b6914]">
                               {lensReadout.label} prompts
                             </p>
                             <ul className="mt-4 space-y-3 text-sm leading-6 text-[#c1cad7]">
@@ -2661,13 +2661,13 @@ export default function Assessment() {
                           </ul>
                         </section>
                         <section className="bg-[#16243d] p-6 text-[#f7f3e8]">
-                          <p className="eyebrow text-[#c9a34e]">
+                          <p className="eyebrow text-[#8b6914]">
                             Important context
                           </p>
                           <ul className="mt-5 space-y-4 text-sm leading-6 text-[#c1cad7]">
                             {report.importantContext.map(point => (
                               <li key={point} className="flex gap-3">
-                                <span className="text-[#c9a34e]">＋</span>
+                                <span className="text-[#8b6914]">＋</span>
                                 <span>{point}</span>
                               </li>
                             ))}
@@ -2684,7 +2684,7 @@ export default function Assessment() {
                     <>
                       <div className="mt-14 border-l-2 border-[#c9a34e] bg-[#16243d] p-6 text-sm leading-6 text-[#c1cad7]">
                         <ShieldCheck
-                          className="mb-4 text-[#c9a34e]"
+                          className="mb-4 text-[#8b6914]"
                           size={19}
                         />
                         <strong className="text-[#f7f3e8]">
@@ -3088,7 +3088,7 @@ export default function Assessment() {
               width={160}
               height={74}
             />
-            <p className="relative mt-6 text-[10px] font-black uppercase tracking-[.35em] text-[#c9a34e]">
+            <p className="relative mt-6 text-[10px] font-black uppercase tracking-[.35em] text-[#8b6914]">
               Profound IQ Consulting
             </p>
             <p className="relative mt-10 font-serif text-3xl sm:text-5xl">

@@ -49,7 +49,7 @@ export default function SchoolSolutions() {
       title={
         <>
           Helping schools strengthen{" "}
-          <em className="font-normal text-[#c9a34e]">
+          <em className="font-normal text-[#8b6914]">
             teaching, leadership, and learner outcomes.
           </em>
         </>
@@ -122,7 +122,7 @@ export default function SchoolSolutions() {
         <ScrollReveal>
           <div className="container grid gap-16 lg:grid-cols-[.6fr_1.4fr] lg:gap-20">
             <div>
-              <p className="eyebrow text-[#c9a34e]">
+              <p className="eyebrow text-[#8b6914]">
                 What an engagement can include
               </p>
               <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
@@ -140,7 +140,7 @@ export default function SchoolSolutions() {
                   key={item}
                   className="flex gap-5 border-b border-[#c9a34e]/20 py-6 text-sm leading-7 text-[#d6dce6] transition-colors hover:bg-[#1b3152]/50 hover:pl-2 last:border-b-0"
                 >
-                  <Check size={20} className="mt-0.5 shrink-0 text-[#c9a34e]" />
+                  <Check size={20} className="mt-0.5 shrink-0 text-[#8b6914]" />
                   {item}
                 </li>
               ))}

@@ -407,7 +407,7 @@ function TicketManager() {
             <p className="py-8 text-center text-sm text-slate-600">Loading…</p>
           ) : (tickets.data ?? []).length === 0 ? (
             <div className="py-8 text-center">
-              <CheckCircle2 className="mx-auto mb-3 text-[#c9a34e]" size={32} />
+              <CheckCircle2 className="mx-auto mb-3 text-[#8b6914]" size={32} />
               <p className="text-sm text-slate-600">No tickets found.</p>
             </div>
           ) : (

@@ -70,7 +70,7 @@ export function LikertScale({
                       className="sr-only"
                     />
                     <span
-                      className={`text-lg font-bold ${isSelected ? "text-[#c9a34e]" : "text-[#16243d]"}`}
+                      className={`text-lg font-bold ${isSelected ? "text-[#8b6914]" : "text-[#16243d]"}`}
                     >
                       {option.label}
                     </span>

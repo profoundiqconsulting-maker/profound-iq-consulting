@@ -21,7 +21,6 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { TransformationNav } from "@/components/TransformationNav";
 import { trpc } from "@/lib/trpc";
 import { CourseCoverImage } from "@/components/CourseCoverImage";
-import { courseCatalog } from "@shared/courseCatalog";
 
 import { useAuth } from "@/_core/hooks/useAuth";
 import { courseEnrollmentCopy } from "@shared/courseEnrollmentLocalization";
@@ -57,31 +56,6 @@ const skillFallback = (slug: string): CourseCard["skillLevel"] =>
         )
       ? "Foundation"
       : "Practitioner";
-const codeCourses: CourseCard[] = courseCatalog.map((course, index) => ({
-  slug: course.slug,
-  index: String(index + 1).padStart(2, "0"),
-  title: course.title,
-  strapline: course.strapline,
-  description: course.description,
-  audience: course.audience,
-  duration: course.duration,
-  outcomes: [...course.outcomes],
-  modules: course.modules.map(module => ({
-    id: module.id,
-    title: module.title,
-    promise: module.promise,
-  })),
-  price: `KES ${course.priceKes.toLocaleString()}`,
-  stagePlan: course.stageAmountsKes
-    .map(amount => `KES ${amount.toLocaleString()}`)
-    .join(" / "),
-  format: course.duration,
-  body: course.description,
-  category: course.category,
-  skillLevel: course.skillLevel,
-  coverImage: course.coverImage,
-  isDatabaseItem: false,
-}));
 
 export default function Courses() {
   const [selectedCourse, setSelectedCourse] = useState<CourseCard | null>(null);
@@ -99,13 +73,79 @@ export default function Courses() {
     useState<CourseCard["skillLevel"]>("Foundation");
   const [activeTab, setActiveTab] = useState<string>("All categories");
   const [visibleCount, setVisibleCount] = useState(6);
-  
+
   const { user, isAuthenticated } = useAuth();
   const enrollmentCopy = courseEnrollmentCopy;
+  const catalog = trpc.course.catalog.useQuery(undefined, {
+    retry: false,
+    refetchOnWindowFocus: true,
+  });
   const liveCatalog = trpc.catalog.listPublished.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: true,
   });
+  const codeCourses = useMemo<CourseCard[]>(() => {
+    const baseCourses = (catalog.data?.courses ?? []).map((course, index) => ({
+      slug: course.slug,
+      index: String(index + 1).padStart(2, "0"),
+      title: course.title,
+      strapline: course.strapline,
+      description: course.description,
+      audience: course.audience,
+      duration: course.duration,
+      outcomes: [...course.outcomes],
+      modules: course.modules.map(module => ({
+        id: module.id,
+        title: module.title,
+        promise: module.promise,
+      })),
+      price: `KES ${course.priceKes.toLocaleString()}`,
+      stagePlan: course.stageAmountsKes
+        .map(amount => `KES ${amount.toLocaleString()}`)
+        .join(" / "),
+      format: course.duration,
+      body: course.description,
+      category: course.category,
+      skillLevel: course.skillLevel,
+      coverImage: course.coverImage,
+      isDatabaseItem: false,
+    }));
+    const overlays = (liveCatalog.data ?? []).map(item => ({
+      slug: item.slug,
+      index: `D${String(item.id).padStart(2, "0")}`,
+      title: item.title,
+      strapline: item.strapline,
+      description: item.description,
+      audience: item.audience,
+      duration: item.duration,
+      outcomes: item.outcomes,
+      modules: [] as never[],
+      price: `KES ${item.priceKes.toLocaleString()}`,
+      stagePlan: "",
+      format: item.duration,
+      body: item.description,
+      category: (item as any).category ?? "Professional development",
+      skillLevel: (item as any).skillLevel ?? "Practitioner",
+      coverImage: item.coverImageUrl ?? coverFallback,
+      isDatabaseItem: true,
+    }));
+    const bySlug = new Map(overlays.map(item => [item.slug, item]));
+    const merged = baseCourses.map(course => {
+      const overlay = bySlug.get(course.slug);
+      if (!overlay) return course;
+      bySlug.delete(course.slug);
+      return {
+        ...course,
+        ...overlay,
+        modules: course.modules,
+        isDatabaseItem: true,
+      };
+    });
+    return [
+      ...merged,
+      ...Array.from(bySlug.values()),
+    ] as CourseCard[];
+  }, [catalog.data?.courses, liveCatalog.data]);
   const enrollment = trpc.enrollment.create.useMutation({
     onSuccess: () => {
       setSubmitted(true);
@@ -320,11 +360,7 @@ export default function Courses() {
       );
       return;
     }
-    window.history.pushState(
-      {},
-      "",
-      `/auth?mode=login&returnTo=${encodeURIComponent(`/courses/${selectedCourse.slug}?workspace=1`)}`
-    );
+    window.location.href = `/auth?mode=login&returnTo=${encodeURIComponent(`/courses/${selectedCourse.slug}?workspace=1`)}`;
   };
   const syncComparison = (slugs: string[]) => {
     const next = slugs.slice(0, 3);
@@ -393,13 +429,13 @@ export default function Courses() {
         <section className="relative overflow-hidden bg-[#101d35] px-5 pb-20 pt-16 text-[#f7f3e8] sm:px-10 lg:pb-28 lg:pt-24">
           <div className="absolute inset-0 bg-gradient-to-br from-[#101d35]/95 via-[#16243d]/90 to-[#101d35]/95" />
           <div className="relative container">
-            <p className="eyebrow flex items-center gap-3 text-[#c9a34e]">
+            <p className="eyebrow flex items-center gap-3 text-[#8b6914]">
               <span className="h-px w-10 bg-[#c9a34e]" /> 01 / COURSE CATALOG
             </p>
             <div className="mt-7 grid gap-10 lg:grid-cols-[1fr_320px] lg:items-end">
                 <h1 className="display max-w-4xl heading-clamp-lg">
                   Capability is built{" "}
-                  <em className="font-normal text-[#c9a34e]">in practice.</em>
+                  <em className="font-normal text-[#8b6914]">in practice.</em>
                 </h1>
                 <p className="max-w-sm text-fluid-base leading-8 text-[#c1cad7]">
                  Professional learning for people who want insight to become a
@@ -566,7 +602,7 @@ export default function Courses() {
                 key={course.slug}
                 className="group rounded-xl border border-[#16243d]/20 py-7 transition-all hover:border-[#c9a34e] hover:shadow-lg lg:py-9"
               >
-                <div className="grid gap-7 lg:grid-cols-[64px_1fr_190px] lg:items-start">
+                <div className="grid gap-7 lg:grid-cols-[64px_minmax(0,1fr)_190px] lg:items-start">
                   <span className="eyebrow text-[#7d5e1e]">{course.index}</span>
                   <div>
                     <CourseCoverImage
@@ -580,9 +616,12 @@ export default function Courses() {
                       className="h-40 w-full rounded-lg object-cover shadow-sm transition-transform duration-300 group-hover:scale-[1.02]"
                     />
                     <div className="flex flex-wrap items-baseline gap-3">
-                      <h3 className="display text-3xl sm:text-4xl">
+                      <Link
+                        href={`/courses/${course.slug}`}
+                        className="display text-2xl sm:text-3xl text-[#16243d] transition-colors hover:text-[#7d5e1e]"
+                      >
                         {course.title}
-                      </h3>
+                      </Link>
                       <span className="rounded-md bg-[#16243d]/5 px-2 py-1 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
                         {course.format}
                       </span>
@@ -676,24 +715,13 @@ export default function Courses() {
                         ? "In comparison"
                         : "Compare"}
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setPreviewCourse(null)}
-                      className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#16243d]/25 transition-colors hover:border-[#c9a34e]"
-                    >
-                      <X size={17} />
-                    </button>
                     <p className="mt-5 display text-2xl">{course.price}</p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedCourse(course);
-                        setSubmitted(false);
-                      }}
+                    <Link
+                      href={`/courses/${course.slug}?workspace=1`}
                       className="mt-4 inline-flex items-center gap-2 border-b border-[#a27e2e] pb-1 text-[10px] font-black uppercase tracking-[.15em] text-[#7d5e1e] transition-colors hover:border-[#c9a34e]"
                     >
                       {"Enroll now"} <ArrowUpRight size={14} />
-                    </button>
+                    </Link>
                     <Link
                       href={
                         course.modules.length
@@ -727,7 +755,7 @@ export default function Courses() {
         <section className="section-py bg-[#16243d] px-5 text-[#f7f3e8] sm:px-10">
           <div className="container flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
             <div>
-              <p className="eyebrow text-[#c9a34e]">
+              <p className="eyebrow text-[#8b6914]">
                 03 / NEED A DIFFERENT BRIEF?
               </p>
               <h2 className="display mt-3 max-w-2xl heading-clamp">
@@ -826,7 +854,7 @@ export default function Courses() {
                     Start with these three.
                   </h3>
                 </div>
-                <Compass className="text-[#c9a34e]" size={28} />
+                <Compass className="text-[#8b6914]" size={28} />
               </div>
                 <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border border-[#16243d]/10 bg-white/60 p-4 rounded-xl">
                   <p className="text-xs leading-5 text-[#4a566a]">
@@ -866,9 +894,12 @@ export default function Courses() {
                       0{index + 1}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <h4 className="display text-2xl leading-tight">
+                      <Link
+                        href={`/courses/${course.slug}`}
+                        className="display text-2xl leading-tight text-[#16243d] transition-colors hover:text-[#7d5e1e]"
+                      >
                         {course.title}
-                      </h4>
+                      </Link>
                       <p className="mt-1 text-xs leading-5 text-[#4a566a]">
                         {course.outcomes.slice(0, 2).join(" · ")}
                       </p>
@@ -1004,17 +1035,12 @@ export default function Courses() {
                     >
                       Open full syllabus <ChevronRight size={14} />
                     </Link>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedCourse(previewCourse);
-                        setPreviewCourse(null);
-                        setSubmitted(false);
-                      }}
+                    <Link
+                      href={`/courses/${previewCourse.slug}?workspace=1`}
                       className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.13em] text-[#16243d] shadow-sm transition-all hover:shadow-md"
                     >
                       {"Enroll now"} <ArrowUpRight size={14} />
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -1090,9 +1116,12 @@ export default function Courses() {
                         className="h-28 w-full object-cover"
                       />
                       <div className="mt-5 flex items-start justify-between gap-3">
-                        <h3 className="display text-2xl leading-tight">
+                        <Link
+                          href={`/courses/${course.slug}`}
+                          className="display text-2xl leading-tight text-[#16243d] transition-colors hover:text-[#7d5e1e]"
+                        >
                           {course.title}
-                        </h3>
+                        </Link>
                         <button
                           type="button"
                           onClick={() =>
@@ -1208,8 +1237,8 @@ export default function Courses() {
                 role="status"
                 className="mt-8 border-l-2 border-[#c9a34e] bg-[#16243d] p-6 text-[#f7f3e8]"
               >
-                <Check size={18} className="text-[#c9a34e]" />
-                <p className="mt-4 text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e]">
+                <Check size={18} className="text-[#8b6914]" />
+                <p className="mt-4 text-[10px] font-black uppercase tracking-[.14em] text-[#8b6914]">
                   Step 01 complete · Details saved
                 </p>
                 <h3 className="display mt-3 text-2xl">

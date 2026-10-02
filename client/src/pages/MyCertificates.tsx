@@ -180,7 +180,7 @@ export default function MyCertificates() {
     return (
       <DashboardLayout>
         <div className="grid place-items-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-[#c9a34e]" />
+          <Loader2 className="h-8 w-8 animate-spin text-[#8b6914]" />
         </div>
       </DashboardLayout>
     );
@@ -190,7 +190,7 @@ export default function MyCertificates() {
     return (
       <DashboardLayout>
         <div className="mx-auto max-w-md py-20 text-center">
-          <Award className="mx-auto h-12 w-12 text-[#c9a34e]" />
+          <Award className="mx-auto h-12 w-12 text-[#8b6914]" />
           <h1 className="mt-6 display text-3xl text-[#16243d]">
             Sign in to view your certificates
           </h1>
@@ -243,7 +243,7 @@ export default function MyCertificates() {
           </div>
         ) : allCertificates.length === 0 ? (
           <div className="border border-dashed border-[#16243d]/20 py-16 text-center">
-            <Award className="mx-auto h-10 w-10 text-[#c9a34e]/60" />
+            <Award className="mx-auto h-10 w-10 text-[#8b6914]/60" />
             <h2 className="mt-5 display text-2xl text-[#16243d]">
               No certificates yet
             </h2>
@@ -266,7 +266,7 @@ export default function MyCertificates() {
                 className="group flex flex-col border border-[#16243d]/10 bg-white p-5 transition-all hover:border-[#c9a34e] hover:shadow-[0_8px_24px_rgba(16,29,53,.08)]"
               >
                 <div className="flex items-start justify-between">
-                  <Award className="h-7 w-7 text-[#c9a34e]" />
+                  <Award className="h-7 w-7 text-[#8b6914]" />
                   {cert.emailStatus === "sent" ||
                   cert.emailStatus === "delivered" ? (
                     <span className="inline-flex items-center gap-1 border border-[#c9a34e]/40 bg-[#c9a34e]/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">

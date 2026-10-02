@@ -103,7 +103,7 @@ export default function CourseComparison() {
           </Link>
           <Link
             href="/courses"
-            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#d8dfeb] hover:text-[#c9a34e]"
+            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#d8dfeb] hover:text-[#8b6914]"
           >
             <ArrowLeft size={14} /> Back to courses
           </Link>
@@ -112,14 +112,14 @@ export default function CourseComparison() {
       <main>
         <section className="bg-[#101d35] px-5 pb-20 pt-14 text-[#f7f3e8] sm:px-10 lg:pb-24 lg:pt-20">
           <div className="container">
-            <p className="eyebrow flex items-center gap-3 text-[#c9a34e]">
+            <p className="eyebrow flex items-center gap-3 text-[#8b6914]">
               <span className="h-px w-10 bg-[#c9a34e]" /> COURSE COMPARISON
             </p>
             <div className="mt-7 flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
               <div>
                 <h1 className="display max-w-4xl text-5xl leading-[.95] sm:text-7xl">
                   Choose with{" "}
-                  <em className="font-normal text-[#c9a34e]">confidence.</em>
+                  <em className="font-normal text-[#8b6914]">confidence.</em>
                 </h1>
                 <p className="mt-5 max-w-2xl text-base leading-7 text-[#c1cad7]">
                   A focused view of the pathways you selected—so the next step

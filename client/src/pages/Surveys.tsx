@@ -266,7 +266,7 @@ export default function Surveys() {
       title={
         <>
           Have your say. <br />
-          <em className="font-normal text-[#c9a34e]">Shape what comes next.</em>
+          <em className="font-normal text-[#8b6914]">Shape what comes next.</em>
         </>
       }
       intro="Participate in our polls, surveys, and product reviews. Your feedback directly influences our programs and services."
@@ -279,7 +279,7 @@ export default function Surveys() {
             <p className="text-center text-sm text-[#657084]" role="status" aria-live="polite">Loading surveys…</p>
           ) : activeSurveys.length === 0 ? (
             <div className="mx-auto max-w-2xl text-center">
-              <Vote size={48} className="mx-auto text-[#c9a34e]" aria-hidden="true" />
+              <Vote size={48} className="mx-auto text-[#8b6914]" aria-hidden="true" />
               <h2 className="display mt-6 text-3xl">
                 No active surveys right now
               </h2>

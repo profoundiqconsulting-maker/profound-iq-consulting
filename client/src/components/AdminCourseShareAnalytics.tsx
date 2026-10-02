@@ -125,8 +125,8 @@ export default function AdminCourseShareAnalytics() {
     trend.direction === "neutral"
       ? "text-[#657084]"
       : trend.direction === "up"
-        ? "text-emerald-700"
-        : "text-rose-700";
+        ? "text-emerald-800"
+        : "text-rose-800";
   const previewUrl = selectedCourse
     ? `${PUBLISHED_SITE_ORIGIN}/og/course/${encodeURIComponent(selectedCourse.slug)}.png`
     : "";

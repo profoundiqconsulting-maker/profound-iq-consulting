@@ -118,7 +118,7 @@ export default function Services() {
       title={
         <>
           Practical solutions for{" "}
-          <em className="font-normal text-[#c9a34e]">meaningful progress.</em>
+          <em className="font-normal text-[#8b6914]">meaningful progress.</em>
         </>
       }
       intro="From school improvement and curriculum consulting to leadership development, assessment, and digital learning, Profound IQ helps people and institutions turn insight into action."
@@ -180,7 +180,7 @@ export default function Services() {
       <section className="section-py bg-[#172844] text-[#f7f3e8]">
         <div className="container grid gap-12 lg:grid-cols-[.6fr_1.4fr] lg:gap-16 lg:items-start">
           <div>
-            <p className="eyebrow text-[#c9a34e]">How we work</p>
+            <p className="eyebrow text-[#8b6914]">How we work</p>
             <h2 className="display mt-5 heading-clamp">
               A clear process, not a black box.
             </h2>
@@ -193,7 +193,7 @@ export default function Services() {
             {process.map(([index, title, body], stepIndex) => (
               <ScrollReveal key={index} delay={stepIndex * 65}>
                 <article className="group grid gap-6 border-b border-[#c9a34e]/20 py-9 transition-colors hover:border-[#c9a34e]/60 sm:grid-cols-[60px_1fr] sm:items-start last:border-b-0">
-                  <span className="text-xs font-black tracking-[.18em] text-[#c9a34e]">
+                  <span className="text-xs font-black tracking-[.18em] text-[#8b6914]">
                     {index}
                   </span>
                   <div>

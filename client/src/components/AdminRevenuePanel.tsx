@@ -155,7 +155,7 @@ export default function AdminRevenuePanel() {
                     <XAxis dataKey="source" tick={{ fontSize: 10 }} />
                     <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
                     <Tooltip
-                      formatter={(value: number) => kes(value)}
+                      formatter={(value) => kes(Number(value ?? 0))}
                       contentStyle={{
                         background: "var(--popover)",
                         border: "1px solid var(--popover-foreground)",
@@ -184,7 +184,7 @@ export default function AdminRevenuePanel() {
                     <XAxis dataKey="date" tick={{ fontSize: 9 }} />
                     <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
                     <Tooltip
-                      formatter={(value: number) => kes(value)}
+                      formatter={(value) => kes(Number(value ?? 0))}
                       contentStyle={{
                         background: "var(--popover)",
                         border: "1px solid var(--popover-foreground)",

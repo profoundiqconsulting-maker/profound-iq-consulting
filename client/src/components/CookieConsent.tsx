@@ -92,7 +92,7 @@ export function CookieConsent() {
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[.15em] text-[#c9a34e]">
+                <p className="text-[10px] font-black uppercase tracking-[.15em] text-[#8b6914]">
                   {"Your privacy choices"}
                 </p>
                 <h2 className="mt-1 text-base font-semibold">
@@ -126,13 +126,13 @@ export function CookieConsent() {
                   <button
                     type="button"
                     onClick={() => setCustomizing(true)}
-                    className="inline-flex items-center gap-2 border border-[#aab5c6]/40 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8] transition-colors hover:border-[#c9a34e] hover:text-[#c9a34e]"
+                    className="inline-flex items-center gap-2 border border-[#aab5c6]/40 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8] transition-colors hover:border-[#c9a34e] hover:text-[#8b6914]"
                   >
                     <Settings2 size={13} /> {"Customize"}
                   </button>
                   <a
                     href="/privacy-policy"
-                    className="inline-flex items-center px-2 py-2 text-[10px] font-bold uppercase tracking-[.12em] text-[#c9a34e] underline underline-offset-4"
+                    className="inline-flex items-center px-2 py-2 text-[10px] font-bold uppercase tracking-[.12em] text-[#8b6914] underline underline-offset-4"
                   >
                     {"Privacy Policy"}
                   </a>
@@ -149,7 +149,7 @@ export function CookieConsent() {
                       Required for sessions, security, and saved progress.
                     </p>
                   </div>
-                  <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#c9a34e]">
+                  <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b6914]">
                     {"Always active"}
                   </span>
                 </div>
