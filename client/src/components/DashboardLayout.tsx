@@ -107,6 +107,7 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider
+      defaultOpen
       style={
         {
           "--sidebar-width": `${sidebarWidth}px`,
@@ -213,10 +214,10 @@ function DashboardLayoutContent({
 
   return (
     <>
-      <div className="relative" ref={sidebarRef}>
+      <div className="relative h-screen" ref={sidebarRef}>
         <Sidebar
           collapsible="icon"
-          className="border-r-0 bg-slate-900 text-white"
+          className="border-r-0 bg-slate-900 text-white h-screen"
           disableTransition={isResizing}
         >
           <SidebarHeader className="h-14 border-b border-slate-800 bg-slate-900">
@@ -261,8 +262,8 @@ function DashboardLayoutContent({
             </div>
           </SidebarHeader>
 
-          <SidebarContent className="gap-0 bg-slate-900">
-            <SidebarMenu className="gap-0.5 px-2 py-3">
+          <SidebarContent className="gap-0 bg-slate-900 flex min-h-0 flex-1 overflow-y-auto">
+            <SidebarMenu className="gap-0 px-1 py-1">
               {navGroups.map(group => {
                 const groupItems = menuItems.filter(
                   item => item.group === group.id
@@ -273,14 +274,14 @@ function DashboardLayoutContent({
                 return (
                   <div
                     key={group.id}
-                    className={`mb-3 last:mb-0 ${
+                    className={`mb-1 last:mb-0 ${
                       isOperationsSticky
                         ? "sticky bottom-0 bg-slate-900 z-10"
                         : ""
                     }`}
                   >
                     {!isCollapsed && (
-                      <p className="px-2.5 pb-1.5 text-[10px] font-bold uppercase tracking-[.2em] text-slate-400">
+                      <p className="px-2 pb-0.5 pt-1 text-[10px] font-bold uppercase tracking-[.18em] text-slate-500">
                         {group.fallbackLabel}
                       </p>
                     )}
@@ -294,7 +295,7 @@ function DashboardLayoutContent({
                             isActive={isActive}
                             onClick={() => setLocation(item.path)}
                             tooltip={item.fallbackLabel}
-                            className={`h-10 font-medium transition-all rounded-lg ${
+                            className={`h-8 font-medium transition-all rounded-md ${
                               isActive
                                 ? "bg-amber-500 text-slate-900 font-semibold shadow-lg shadow-amber-500/20"
                                 : "text-slate-300 hover:bg-slate-800 hover:text-white"
@@ -307,7 +308,7 @@ function DashboardLayoutContent({
                                   : "text-slate-400"
                               }`}
                             />
-                            <span className={isActive ? "font-semibold" : ""}>
+                            <span className={`truncate ${isActive ? "font-semibold" : ""}`}>
                               {item.fallbackLabel}
                             </span>
                           </SidebarMenuButton>
