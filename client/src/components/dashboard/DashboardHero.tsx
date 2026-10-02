@@ -38,7 +38,7 @@ export function DashboardHero({
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div className="min-w-0">
           <div className="flex items-center gap-3 mb-2">
-            <p className="text-[10px] font-black uppercase tracking-[.14em] text-slate-600 dark:text-accent-on-dark">
+            <p className="text-[10px] font-black uppercase tracking-[.14em] text-slate-600 dark:text-amber-300">
               {eyebrow}
             </p>
             {badge && (

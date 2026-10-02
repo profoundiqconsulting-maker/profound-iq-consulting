@@ -41,7 +41,7 @@ export function Section({
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div className="min-w-0">
               {eyebrow && (
-                <p className="text-[10px] font-black uppercase tracking-[.14em] text-slate-600 dark:text-accent-on-dark">
+                <p className="text-[10px] font-black uppercase tracking-[.14em] text-slate-600 dark:text-amber-300">
                   {eyebrow}
                 </p>
               )}
