@@ -1,6 +1,5 @@
 /* Profound IQ Consulting — Executive Observatory app shell. Keep the public landing page as the primary route and preserve the light theme provider so semantic tokens stay aligned with the custom global CSS. */
 import { lazy, Suspense, useEffect } from "react";
-import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -11,6 +10,12 @@ import { SeoHead } from "./components/SeoHead";
 import { RoleBasedRedirect } from "./components/RoleBasedRedirect";
 import { AdminRouteGuard } from "./components/AdminRouteGuard";
 import { useAuth } from "@/_core/hooks/useAuth";
+
+const Toaster = lazy(() =>
+  import("@/components/ui/sonner").then(({ Toaster }) => ({
+    default: Toaster,
+  }))
+);
 
 import Home from "./pages/Home";
 const About = lazy(() => import("./pages/About"));
@@ -248,7 +253,9 @@ export default function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light" switchable>
         <TooltipProvider>
-          <Toaster />
+          <Suspense fallback={null}>
+            <Toaster />
+          </Suspense>
           <SeoHead />
           <Router />
           <WhatsAppSupportWidget />

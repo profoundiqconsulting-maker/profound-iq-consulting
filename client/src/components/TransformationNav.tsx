@@ -241,17 +241,8 @@ export function TransformationNav({
   ) => {
     event.preventDefault();
     closeMenus();
-    const navigate = () => {
-      window.location.href = href;
-    };
-    if ("startViewTransition" in document)
-      (
-        document as Document & {
-          startViewTransition: (callback: () => void) => void;
-        }
-      ).startViewTransition(navigate);
-    else navigate();
-  };
+    window.location.href = href;
+};
 
   return (
     <header className="border-b border-[#16243d]/15 bg-[#101d35] text-[#f7f3e8]">

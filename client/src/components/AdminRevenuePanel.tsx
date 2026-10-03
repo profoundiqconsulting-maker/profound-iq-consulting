@@ -66,6 +66,8 @@ export default function AdminRevenuePanel() {
         <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           From
           <input
+            id="revenue-from-date"
+            name="revenueFromDate"
             type="date"
             value={fromDate}
             onChange={event => setFromDate(event.target.value)}
@@ -76,6 +78,8 @@ export default function AdminRevenuePanel() {
         <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
           To
           <input
+            id="revenue-to-date"
+            name="revenueToDate"
             type="date"
             value={toDate}
             onChange={event => setToDate(event.target.value)}

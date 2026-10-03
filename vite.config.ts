@@ -34,21 +34,17 @@ export default defineConfig(({ mode }) => {
       rolldownOptions: {
         output: {
           manualChunks: (id) => {
-            if (id.includes("node_modules/react")) return "vendor-react";
-            if (id.includes("node_modules/react-dom")) return "vendor-react";
+            if (id.includes("node_modules/react/")) return "vendor-react";
+            if (id.includes("node_modules/react-dom/")) return "vendor-react";
             if (id.includes("node_modules/wouter")) return "vendor-react";
             if (id.includes("node_modules/@trpc")) return "vendor-trpc";
             if (id.includes("node_modules/@tanstack")) return "vendor-trpc";
-            if (id.includes("node_modules/lucide-react")) return "vendor-icons";
-            if (id.includes("node_modules/@radix-ui")) return "vendor-radix";
-            if (id.includes("node_modules/recharts")) return "vendor-charts";
             if (id.includes("node_modules/clsx")) return "vendor-utils";
             if (id.includes("node_modules/class-variance-authority")) return "vendor-utils";
             if (id.includes("node_modules/date-fns")) return "vendor-utils";
             if (id.includes("node_modules/next-themes")) return "vendor-utils";
             if (id.includes("node_modules/react-hook-form")) return "vendor-forms";
             if (id.includes("node_modules/framer-motion")) return "vendor-framer-motion";
-            if (id.includes("node_modules/sonner")) return "vendor-sonner";
             if (id.includes("node_modules/streamdown")) return "vendor-streamdown";
             if (id.includes("node_modules/input-otp")) return "vendor-ui-extras";
             if (id.includes("node_modules/react-resizable-panels")) return "vendor-ui-extras";
