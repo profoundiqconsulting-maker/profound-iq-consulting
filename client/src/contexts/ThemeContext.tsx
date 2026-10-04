@@ -26,7 +26,7 @@ export function ThemeProvider({
     const stored = window.localStorage.getItem("theme");
     return stored === "light" || stored === "dark" || stored === "auto"
       ? stored
-      : "auto";
+      : defaultTheme;
   });
   const [systemDark, setSystemDark] = useState(
     () =>

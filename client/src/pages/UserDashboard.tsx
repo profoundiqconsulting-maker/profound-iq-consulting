@@ -1366,7 +1366,7 @@ export default function UserDashboard() {
                   })
                 }
                 disabled={exportSavedPathways.isPending}
-                className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b] transition hover:border-[#c9a34e] disabled:cursor-wait disabled:opacity-50"
+                className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14] transition hover:border-[#c9a34e] disabled:cursor-wait disabled:opacity-50"
               >
                 {exportSavedPathways.isPending ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -1379,7 +1379,7 @@ export default function UserDashboard() {
               </button>
               <Link
                 href="/courses"
-                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.13em] text-[#b8860b] transition-colors"
+                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.13em] text-[#8b5e14] transition-colors"
               >
                 Explore catalog <ArrowUpRight size={14} />
               </Link>
@@ -1409,7 +1409,7 @@ export default function UserDashboard() {
                           href={`/courses/${saved.courseSlug}`}
                           className="min-w-0 flex-1"
                         >
-                          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+                          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
                             {course?.category ?? "Saved course"}
                           </p>
                           <h3 className="display mt-2 text-2xl leading-tight">
@@ -1419,7 +1419,7 @@ export default function UserDashboard() {
                             {course?.strapline ??
                               "Return to your saved learning pathway."}
                           </p>
-                          <span className="mt-4 inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+                          <span className="mt-4 inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
                             Resume preview{" "}
                             <ArrowUpRight
                               size={13}
@@ -1488,7 +1488,7 @@ export default function UserDashboard() {
               No saved courses yet. Open a syllabus preview in the{" "}
               <Link
                 href="/courses"
-                className="font-bold text-[#b8860b] underline"
+                className="font-bold text-[#8b5e14] underline"
               >
                 course catalog
               </Link>{" "}
@@ -1509,7 +1509,7 @@ export default function UserDashboard() {
                 level.
               </p>
               <div className="mt-5 border-t border-[#16243d]/10 pt-4">
-                <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+                <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
                   Suggested follow-up
                 </p>
                 <div className="mt-3 grid gap-2 md:grid-cols-3">
@@ -1547,7 +1547,7 @@ export default function UserDashboard() {
             >
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
                     Course finder history
                   </p>
                   <h3
@@ -1563,7 +1563,7 @@ export default function UserDashboard() {
                 </div>
                 <Link
                   href="/courses?recommend=1"
-                  className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]"
+                  className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14]"
                 >
                   Retake finder <ArrowUpRight size={13} />
                 </Link>
@@ -1596,7 +1596,7 @@ export default function UserDashboard() {
             <div className="mt-5 border-t border-[#16243d]/10 pt-5">
               <Link
                 href="/courses?recommend=1"
-                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]"
+                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14]"
               >
                 Retake course finder <ArrowUpRight size={13} />
               </Link>
@@ -1655,7 +1655,7 @@ export default function UserDashboard() {
           />
         )}
         <div className="border-b border-[#16243d]/20 pb-8">
-          <p className="eyebrow text-accent dark:text-accent-on-dark">
+          <p className="eyebrow text-accent">
             Private workspace / personal development
           </p>
           <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -1664,7 +1664,7 @@ export default function UserDashboard() {
             </h1>
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 rounded-full bg-[#c9a34e] animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]">
+              <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#8b5e14]">
                 Active workspace
               </span>
             </div>
@@ -1674,7 +1674,7 @@ export default function UserDashboard() {
               <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
                 Progress summary
               </span>
-              <span className="text-sm font-bold text-[#b8860b]">
+              <span className="text-sm font-bold text-[#8b5e14]">
                 {displayHistory.length
                   ? `${Math.round((paidVersions.length / Math.max(displayHistory.length, 1)) * 100)}% unlocked`
                   : "Ready to begin"}
@@ -1682,7 +1682,11 @@ export default function UserDashboard() {
             </div>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#16243d]/10">
               <div
-                className="h-full rounded-full bg-[#c9a34e] transition-all"
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={displayHistory.length ? Math.min(100, Math.round((paidVersions.length / Math.max(displayHistory.length, 1)) * 100)) : 0}
+                className="h-full rounded-full bg-[#b8860b] transition-all"
                 style={{
                   width: `${displayHistory.length ? Math.min(100, Math.round((paidVersions.length / Math.max(displayHistory.length, 1)) * 100)) : 0}%`,
                 }}
@@ -1720,7 +1724,7 @@ export default function UserDashboard() {
             <section className="mt-10 grid gap-4 sm:grid-cols-3">
               <StatCard
                 icon={<FileText size={18} />}
-                label="Assessments"
+                label="Assessment attempts"
                 value={displayHistory.length}
                 className="border-[#16243d]/10 bg-white shadow-sm transition hover:border-[#c9a34e] hover:shadow-md"
               />
@@ -1746,7 +1750,7 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#c9a34e]/55 bg-[#fffaf0] p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-accent dark:text-accent-on-dark">Course investment</p>
+                  <p className="eyebrow text-accent">Course investment</p>
                   <h2 className="display mt-2 text-2xl">
                     Track your access stage.
                   </h2>
@@ -1806,23 +1810,27 @@ export default function UserDashboard() {
                         >
                           <div className="flex items-start justify-between gap-4">
                             <div>
-                              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+                              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
                                 Incomplete enrollment
                               </p>
                               <h3 className="display mt-2 text-2xl">
                                 {course?.title ?? record.enrollment.courseSlug}
                               </h3>
                             </div>
-                            <span className="whitespace-nowrap text-xs font-bold text-[#b8860b]">
+                            <span className="whitespace-nowrap text-xs font-bold text-[#8b5e14]">
                               {rollup.paidStages}/{rollup.totalStages} paid
                             </span>
                           </div>
-                          <div className="mt-5 h-2 overflow-hidden bg-[#16243d]/10">
-                            <div
-                              className="h-full bg-[#c9a34e] transition-all"
-                              style={{ width: `${rollup.paymentPercent}%` }}
-                            />
-                          </div>
+                           <div className="mt-5 h-2 overflow-hidden bg-[#16243d]/10">
+                             <div
+                               role="progressbar"
+                               aria-valuemin={0}
+                               aria-valuemax={100}
+                               aria-valuenow={Math.round(rollup.paymentPercent)}
+                               className="h-full bg-[#b8860b] transition-all"
+                               style={{ width: `${rollup.paymentPercent}%` }}
+                             />
+                           </div>
                           <div className="mt-3 flex flex-wrap justify-between gap-2 text-xs text-[#16243d]">
                             <span>
                               KES {rollup.paidAmountKes.toLocaleString()} paid
@@ -1836,7 +1844,7 @@ export default function UserDashboard() {
                             {[1, 2, 3, 4].map(stage => (
                               <div
                                 key={stage}
-                                className={`border p-3 text-[10px] font-black uppercase tracking-[.08em] ${stage <= rollup.paidStages ? "border-[#c9a34e] bg-[#ead9ae]/50 text-[#b8860b]" : stage === rollup.nextStage ? "border-[#16243d]/35 bg-white text-[#16243d]" : "border-[#16243d]/10 text-[#475569]"}`}
+                                className={`border p-3 text-[10px] font-black uppercase tracking-[.08em] ${stage <= rollup.paidStages ? "border-[#c9a34e] bg-[#ead9ae]/50 text-[#8b5e14]" : stage === rollup.nextStage ? "border-[#16243d]/35 bg-white text-[#16243d]" : "border-[#16243d]/10 text-[#475569]"}`}
                               >
                                 <span className="block">Stage {stage}</span>
                                 <span className="mt-1 block font-medium normal-case tracking-normal">
@@ -1851,10 +1859,10 @@ export default function UserDashboard() {
                           </div>
                           <div className="mt-5 border-t border-[#16243d]/10 pt-4">
                             <div className="flex items-center justify-between gap-3">
-                              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+                              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
                                 Module badges
                               </p>
-                              <span className="text-xs font-bold text-[#b8860b]">
+                              <span className="text-xs font-bold text-[#8b5e14]">
                                 {earnedBadges.length}/{badges.length} earned
                               </span>
                             </div>
@@ -1926,7 +1934,7 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-accent dark:text-accent-on-dark">Psychometric suite</p>
+                  <p className="eyebrow text-accent">Psychometric suite</p>
                   <h2 className="display mt-2 text-2xl">
                     Your professional profiles.
                   </h2>
@@ -1965,7 +1973,7 @@ export default function UserDashboard() {
                       >
                         <div className="flex items-start justify-between gap-4">
                           <div>
-                            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+                            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
                               {item.testTitle ?? item.testSlug}
                             </p>
                             <h3 className="display mt-1 text-xl">
@@ -2025,7 +2033,7 @@ export default function UserDashboard() {
                         </div>
                         {item.paymentStatus === "paid" && item.report && (
                           <div className="mt-5 border-t border-[#16243d]/10 pt-4">
-                            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+                            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
                               Recommended next steps
                             </p>
                             <div className="mt-3 grid gap-2">
@@ -2056,7 +2064,7 @@ export default function UserDashboard() {
                                       {course.reason}
                                     </span>
                                     {course.scoreSignal && (
-                                      <span className="mt-2 block text-[10px] font-semibold uppercase tracking-[.05em] text-[#b8860b]">
+                                      <span className="mt-2 block text-[10px] font-semibold uppercase tracking-[.05em] text-[#8b5e14]">
                                         {course.scoreSignal}
                                       </span>
                                     )}
@@ -2101,7 +2109,7 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#c9a34e]/45 bg-[#fffaf0] p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-accent dark:text-accent-on-dark">Quiz analytics</p>
+                  <p className="eyebrow text-accent">Quiz analytics</p>
                   <h2 className="display mt-2 text-2xl">
                     Learn from your attempts.
                   </h2>
@@ -2111,7 +2119,7 @@ export default function UserDashboard() {
                     focused review.
                   </p>
                 </div>
-                <span className="text-xs font-bold text-[#b8860b]">
+                <span className="text-xs font-bold text-[#8b5e14]">
                   {quizAnalytics.attempts.length} attempt
                   {quizAnalytics.attempts.length === 1 ? "" : "s"}
                 </span>
@@ -2120,7 +2128,7 @@ export default function UserDashboard() {
                 <>
                   <div className="mt-5 grid gap-3 sm:grid-cols-3">
                     <div className="border border-[#16243d]/10 bg-white/70 p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
+                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14]">
                         Average score
                       </p>
                       <p className="display mt-2 text-3xl">
@@ -2128,7 +2136,7 @@ export default function UserDashboard() {
                       </p>
                     </div>
                     <div className="border border-[#16243d]/10 bg-white/70 p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
+                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14]">
                         Pass rate
                       </p>
                       <p className="display mt-2 text-3xl">
@@ -2136,7 +2144,7 @@ export default function UserDashboard() {
                       </p>
                     </div>
                     <div className="border border-[#16243d]/10 bg-white/70 p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
+                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14]">
                         Passed attempts
                       </p>
                       <p className="display mt-2 text-3xl">
@@ -2146,7 +2154,7 @@ export default function UserDashboard() {
                   </div>
                   <div className="mt-5 grid gap-5 lg:grid-cols-[1.1fr_.9fr]">
                     <div className="border border-[#16243d]/10 bg-white/70 p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
+                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14]">
                         Recent score trend
                       </p>
                       <div className="mt-3 h-44">
@@ -2178,7 +2186,7 @@ export default function UserDashboard() {
                       </div>
                     </div>
                     <div className="border border-[#16243d]/10 bg-white/70 p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
+                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14]">
                         Areas to improve
                       </p>
                       {quizImprovementAreas.length ? (
@@ -2194,12 +2202,16 @@ export default function UserDashboard() {
                                   {area.score}%
                                 </strong>
                               </div>
-                              <div className="mt-1 h-1.5 bg-[#16243d]/10">
-                                <div
-                                  className="h-full bg-[#8b4f63]"
-                                  style={{ width: `${area.score}%` }}
-                                />
-                              </div>
+                               <div className="mt-1 h-1.5 bg-[#16243d]/10">
+                                 <div
+                                   role="progressbar"
+                                   aria-valuemin={0}
+                                   aria-valuemax={100}
+                                   aria-valuenow={Math.round(area.score)}
+                                   className="h-full bg-[#8b4f63]"
+                                   style={{ width: `${area.score}%` }}
+                                 />
+                               </div>
                             </div>
                           ))}
                         </div>
@@ -2223,7 +2235,7 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-accent dark:text-accent-on-dark">
+                  <p className="eyebrow text-accent">
                     Student course dashboard
                   </p>
                   <h2 className="display mt-2 text-2xl">
@@ -2292,7 +2304,7 @@ export default function UserDashboard() {
                       >
                         <div className="flex items-start justify-between gap-4">
                           <div>
-                            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+                            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
                               {course?.index ?? "Course"} · {rollup.paidStages}/
                               {rollup.totalStages} installments paid
                             </p>
@@ -2300,13 +2312,17 @@ export default function UserDashboard() {
                               {course?.title ?? record.enrollment.courseSlug}
                             </h3>
                           </div>
-                          <span className="text-sm font-bold text-[#b8860b]">
+                          <span className="text-sm font-bold text-[#8b5e14]">
                             {rollup.learningPercent}%
                           </span>
                         </div>
                         <div className="mt-4 h-2 overflow-hidden bg-[#16243d]/10">
                           <div
-                            className="h-full bg-[#c9a34e] transition-all"
+                            role="progressbar"
+                            aria-valuemin={0}
+                            aria-valuemax={100}
+                            aria-valuenow={Math.round(rollup.learningPercent)}
+                            className="h-full bg-[#b8860b] transition-all"
                             style={{ width: `${rollup.learningPercent}%` }}
                           />
                         </div>
@@ -2323,7 +2339,7 @@ export default function UserDashboard() {
                         </div>
                         <div className="mt-5 grid gap-3 sm:grid-cols-2">
                           <div className="border border-[#16243d]/10 bg-white/60 p-3">
-                            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
+                            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14]">
                               Quiz performance
                             </p>
                             {latestScores.length ? (
@@ -2339,8 +2355,8 @@ export default function UserDashboard() {
                                     <span
                                       className={
                                         attempt?.passed
-                                          ? "font-bold text-emerald-700 dark:text-emerald-400"
-                                          : "font-bold text-[#b8860b]"
+                                          ? "font-bold text-emerald-700"
+                                          : "font-bold text-[#8b5e14]"
                                       }
                                     >
                                       {attempt?.score}%
@@ -2355,7 +2371,7 @@ export default function UserDashboard() {
                             )}
                           </div>
                           <div className="border border-[#16243d]/10 bg-white/60 p-3">
-                            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
+                            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14]">
                               Upcoming installment
                             </p>
                             {nextStage ? (
@@ -2368,7 +2384,7 @@ export default function UserDashboard() {
                                 </p>
                               </>
                             ) : (
-                              <p className="mt-2 text-xs font-semibold leading-5 text-emerald-700 dark:text-emerald-400">
+                              <p className="mt-2 text-xs font-semibold leading-5 text-emerald-700">
                                 No payment due. Certificate stage is verified.
                               </p>
                             )}
@@ -2395,7 +2411,7 @@ export default function UserDashboard() {
                                   setDeliveryEnrollmentId(record.enrollment.id);
                                   setCertificatePrintOpen(true);
                                 }}
-                                className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b] hover:border-[#c9a34e]"
+                                className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14] hover:border-[#c9a34e]"
                                 aria-label={`Preview ${record.certificates[0].courseTitle} certificate for printing`}
                               >
                                 <Printer size={13} /> Print preview
@@ -2417,7 +2433,7 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-accent dark:text-accent-on-dark">Profile completion</p>
+                  <p className="eyebrow text-accent">Profile completion</p>
                   <h2 className="display mt-2 text-2xl">
                     Make your workspace yours.
                   </h2>
@@ -2432,14 +2448,18 @@ export default function UserDashboard() {
                     <button
                       type="button"
                       onClick={() => setProfileModalOpen(true)}
-                      className="text-[#b8860b] underline-offset-4 hover:underline"
+                      className="text-[#8b5e14] underline-offset-4 hover:underline"
                     >
                       Complete profile
                     </button>
                   </div>
                   <div className="mt-2 h-2 bg-[#16243d]/10">
                     <div
-                      className="h-full bg-[#c9a34e] transition-all"
+                      role="progressbar"
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={Math.round(profileCompletion)}
+                      className="h-full bg-[#b8860b] transition-all"
                       style={{ width: `${profileCompletion}%` }}
                     />
                   </div>
@@ -2447,7 +2467,7 @@ export default function UserDashboard() {
               </div>
               <div className="mt-10 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-accent dark:text-accent-on-dark">Recent activity</p>
+                  <p className="eyebrow text-accent">Recent activity</p>
                   <h2 className="display mt-2 text-2xl">
                     Your latest movement.
                   </h2>
@@ -2520,7 +2540,7 @@ export default function UserDashboard() {
                               void handleDownload(item.id);
                             }}
                             disabled={downloadReport.isPending}
-                            className="inline-flex items-center gap-2 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b] hover:border-[#c9a34e] disabled:cursor-wait disabled:opacity-60"
+                            className="inline-flex items-center gap-2 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14] hover:border-[#c9a34e] disabled:cursor-wait disabled:opacity-60"
                           >
                             {downloadReport.isPending ? (
                               <Loader2 size={13} className="animate-spin" />
@@ -2539,7 +2559,7 @@ export default function UserDashboard() {
                               void shareResultByEmail(item.id);
                             }}
                             disabled={createShareLink.isPending}
-                            className="inline-flex items-center gap-2 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b] hover:border-[#c9a34e] disabled:cursor-wait disabled:opacity-60"
+                            className="inline-flex items-center gap-2 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14] hover:border-[#c9a34e] disabled:cursor-wait disabled:opacity-60"
                           >
                             <Mail size={13} />{" "}
                             {createShareLink.isPending
@@ -2564,7 +2584,7 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-accent dark:text-accent-on-dark">
+                  <p className="eyebrow text-accent">
                     CareerPath recommendations
                   </p>
                   <h2 className="display mt-2 text-2xl">
@@ -2602,10 +2622,10 @@ export default function UserDashboard() {
                       className="border border-[#16243d]/12 bg-[#f7f3e8] p-5 transition hover:border-[#c9a34e]"
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]">
+                        <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#8b5e14]">
                           Priority {index + 1}
                         </span>
-                        <span className="text-xs font-bold text-[#b8860b]">
+                        <span className="text-xs font-bold text-[#8b5e14]">
                           {item.fitScore}% fit signal
                         </span>
                       </div>
@@ -2622,7 +2642,7 @@ export default function UserDashboard() {
                         {item.matchedSignals.map(signal => (
                           <span
                             key={signal.key}
-                            className="border border-[#c9a34e]/60 bg-[#fffaf0] px-2 py-1 text-[10px] font-black uppercase tracking-[.08em] text-[#b8860b]"
+                            className="border border-[#c9a34e]/60 bg-[#fffaf0] px-2 py-1 text-[10px] font-black uppercase tracking-[.08em] text-[#8b5e14]"
                           >
                             {signal.label} · {signal.score}
                           </span>
@@ -2650,7 +2670,7 @@ export default function UserDashboard() {
                   </p>
                   <Link
                     href="/assessment"
-                    className="mt-3 inline-flex text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b] underline-offset-4 hover:underline"
+                    className="mt-3 inline-flex text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14] underline-offset-4 hover:underline"
                   >
                     Start self-assessment →
                   </Link>
@@ -2658,7 +2678,7 @@ export default function UserDashboard() {
               )}
             </section>
             <section className="mt-10 border border-[#c9a34e]/50 bg-[#16243d] p-5 text-[#f7f3e8] sm:p-6">
-              <p className="eyebrow text-accent dark:text-accent-on-dark">Recommended next step</p>
+              <p className="eyebrow text-accent">Recommended next step</p>
               <h2 className="display mt-2 text-2xl">
                 A useful signal to explore.
               </h2>
@@ -2672,7 +2692,7 @@ export default function UserDashboard() {
                   href="/assessment"
                   className="border border-[#c9a34e]/60 bg-[#f7f3e8] p-4 text-[#16243d] transition hover:shadow-sm"
                 >
-                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
                     Recommended for you
                   </p>
                   <p className="mt-2 text-sm font-bold">
@@ -2690,7 +2710,7 @@ export default function UserDashboard() {
                           : "Completing your profile helps us keep this recommendation relevant to your development context.",
                       })
                     }
-                    className="mt-3 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b] underline-offset-4 hover:underline"
+                    className="mt-3 text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14] underline-offset-4 hover:underline"
                   >
                     View details
                   </button>
@@ -2714,7 +2734,7 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#c9a34e] bg-[#16243d] p-5 text-[#f7f3e8] sm:p-6">
               <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-accent dark:text-accent-on-dark">
+                  <p className="eyebrow text-accent">
                     Completion delivery queue
                   </p>
                   <h2 className="display mt-2 text-2xl">
@@ -2764,7 +2784,7 @@ export default function UserDashboard() {
                     <div className="mt-6 border border-white/15 bg-white/5 p-4 sm:p-5">
                       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
                         <div>
-                          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]">
+                          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#8b5e14]">
                             {activeCertificate.courseTitle}
                           </p>
                           <p className="mt-2 text-sm font-bold">
@@ -2940,7 +2960,7 @@ export default function UserDashboard() {
             <section className="mt-10 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6">
               <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-accent dark:text-accent-on-dark">Delivery history</p>
+                  <p className="eyebrow text-accent">Delivery history</p>
                   <h2 className="display mt-2 text-2xl">Your outward trail.</h2>
                   <p className="mt-2 text-sm leading-6 text-[#16243d]">
                     Track learner email, organization-review, and social-image
@@ -2964,7 +2984,7 @@ export default function UserDashboard() {
                       className="flex flex-col justify-between gap-2 border border-[#16243d]/10 bg-[#f7f3e8] p-4 sm:flex-row sm:items-center"
                     >
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+                        <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
                           {event.step} · {event.status}
                         </p>
                         <p className="mt-1 text-xs text-[#16243d]">
@@ -2987,7 +3007,7 @@ export default function UserDashboard() {
               )}
             </section>
             <section className="mt-12">
-              <p className="eyebrow text-accent dark:text-accent-on-dark">Report versions</p>
+              <p className="eyebrow text-accent">Report versions</p>
               <h2 className="display mt-3 text-3xl">
                 See your movement over time.
               </h2>
@@ -3273,7 +3293,7 @@ export default function UserDashboard() {
                                 ),
                               }))
                             }
-                            className={`border px-2 py-1 text-[9px] font-black uppercase tracking-[.08em] ${visibleDimensions[dimension.key] === false ? "border-[#16243d]/15 text-[#9aa2ad] line-through" : "border-[#a27e2e]/50 text-[#b8860b]"}`}
+                            className={`border px-2 py-1 text-[9px] font-black uppercase tracking-[.08em] ${visibleDimensions[dimension.key] === false ? "border-[#16243d]/15 text-[#9aa2ad] line-through" : "border-[#a27e2e]/50 text-[#8b5e14]"}`}
                           >
                             {dimension.label}
                           </button>
@@ -3361,7 +3381,7 @@ export default function UserDashboard() {
               {currentVersion && currentVersion.paymentStatus === "paid" && (
                 <div className="mt-6 grid gap-4 border border-[#c9a34e]/45 bg-[#fffaf0] p-5 sm:grid-cols-3">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
                       Latest score
                     </p>
                     <p className="display mt-2 text-4xl text-[#16243d]">
@@ -3370,7 +3390,7 @@ export default function UserDashboard() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
                       Readout
                     </p>
                     <p className="mt-2 text-sm font-semibold text-[#16243d]">
@@ -3398,7 +3418,7 @@ export default function UserDashboard() {
               >
                 <div className="flex flex-wrap items-end justify-between gap-3">
                   <div>
-                    <p className="eyebrow text-accent dark:text-accent-on-dark">Results</p>
+                    <p className="eyebrow text-accent">Results</p>
                     <h2
                       id="report-history-title"
                       className="display mt-1 text-2xl"
@@ -3541,8 +3561,8 @@ export default function UserDashboard() {
                               Paid
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] text-[#b8860b]">
-                              <span className="h-2 w-2 rounded-full bg-[#c9a34e]" />{" "}
+<span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] text-[#8b5e14]">
+                            <span className="h-2 w-2 rounded-full bg-[#c9a34e]" />{" "}
                               Pending
                             </span>
                           )}
@@ -3558,7 +3578,7 @@ export default function UserDashboard() {
                                     type="button"
                                     onClick={() => handleResend(item.id)}
                                     disabled={resendReportEmail.isPending}
-                                    className="inline-flex items-center gap-2 border border-[#a27e2e]/40 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] disabled:cursor-wait disabled:opacity-60"
+                                    className="inline-flex items-center gap-2 border border-[#a27e2e]/40 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14] disabled:cursor-wait disabled:opacity-60"
                                     aria-label={`Resend PDF report email for assessment ${item.id}`}
                                   >
                                     {resendReportEmail.isPending ? (
@@ -3595,7 +3615,7 @@ export default function UserDashboard() {
                               disabled={
                                 createShareLink.isPending || !shareConsent
                               }
-                              className="inline-flex items-center gap-2 border border-[#a27e2e]/40 px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]"
+                              className="inline-flex items-center gap-2 border border-[#a27e2e]/40 px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#8b5e14]"
                             >
                               {createShareLink.isPending
                                 ? "Creating…"
@@ -3643,7 +3663,7 @@ export default function UserDashboard() {
           <div className="mt-10 flex items-start gap-3 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-sm leading-6 text-[#c1cad7]">
               <ShieldCheck
                 size={18}
-                className="mt-0.5 shrink-0 text-accent dark:text-accent-on-dark"
+                className="mt-0.5 shrink-0 text-accent"
               />
               <p>
                 <strong className="text-[#f7f3e8]">Your privacy.</strong> This
@@ -3657,7 +3677,7 @@ export default function UserDashboard() {
         <section className="mt-12 border-t border-[#16243d]/20 pt-10">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="eyebrow text-accent dark:text-accent-on-dark">Professional courses</p>
+              <p className="eyebrow text-accent">Professional courses</p>
               <h2 className="display mt-3 text-3xl">
                 Your learning and certificates.
               </h2>
@@ -3694,20 +3714,24 @@ export default function UserDashboard() {
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]">
+                          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#8b5e14]">
                             Course enrollment
                           </p>
                           <h3 className="display mt-2 text-2xl">
                             {item.enrollment.courseSlug.replace(/-/g, " ")}
                           </h3>
                         </div>
-                        <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
-                          {paidStages}/4 stages paid
+<span className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
+                  {paidStages}/4 stages paid
                         </span>
                       </div>
                       <div className="mt-5 h-2 bg-[#16243d]/10">
                         <div
-                          className="h-2 bg-[#c9a34e]"
+                          role="progressbar"
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-valuenow={Math.round((item.lessons.length / 70) * 70 + (new Set(item.quizAttempts.filter(attempt => attempt.passed).map(attempt => attempt.moduleId)).size / 10) * 30)}
+                          className="h-2 bg-[#b8860b]"
                           style={{
                             width: `${Math.round((item.lessons.length / 70) * 70 + (new Set(item.quizAttempts.filter(attempt => attempt.passed).map(attempt => attempt.moduleId)).size / 10) * 30)}%`,
                           }}
@@ -3742,7 +3766,7 @@ export default function UserDashboard() {
                         )}
                         <Link
                           href={`/courses/${item.enrollment.courseSlug}`}
-                          className="inline-flex items-center gap-2 border-b border-[#16243d]/25 pb-1 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]"
+                          className="inline-flex items-center gap-2 border-b border-[#16243d]/25 pb-1 text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14]"
                         >
                           Open course{" "}
                           <ArrowLeft className="rotate-180" size={13} />
@@ -3760,7 +3784,7 @@ export default function UserDashboard() {
             ))}
         </section>
         <section className="mt-12 border-t border-[#16243d]/20 pt-10">
-          <p className="eyebrow text-accent dark:text-accent-on-dark">CareerPath / talent fit</p>
+          <p className="eyebrow text-accent">CareerPath / talent fit</p>
           <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="display text-3xl">Your pathway history.</h2>
@@ -3799,7 +3823,7 @@ export default function UserDashboard() {
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]">
+                        <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#8b5e14]">
                           CareerPath report #{item.id}
                         </p>
                         <p className="mt-2 text-sm font-bold">
@@ -3810,7 +3834,7 @@ export default function UserDashboard() {
                         </p>
                       </div>
                       <span
-                        className={`text-[10px] font-black uppercase tracking-[.12em] ${item.paymentStatus === "paid" ? "text-emerald-800" : "text-[#b8860b]"}`}
+                        className={`text-[10px] font-black uppercase tracking-[.12em] ${item.paymentStatus === "paid" ? "text-emerald-800" : "text-[#8b5e14]"}`}
                       >
                         {item.paymentStatus === "paid"
                           ? "Paid"
@@ -3898,8 +3922,8 @@ export default function UserDashboard() {
                       {bookmark.kind === "simulation" ? "S" : "§"}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
-                        {bookmark.course.title} ·{" "}
+<p className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
+                      {bookmark.course.title} ·{" "}
                         {bookmark.kind === "simulation"
                           ? "Decision simulation"
                           : `Lesson section ${Number(bookmark.index) + 1}`}
@@ -3910,7 +3934,7 @@ export default function UserDashboard() {
                     </div>
                     <Link
                       href={`/courses/${bookmark.course.slug}`}
-                      className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b] hover:text-[#b8860b]"
+                      className="text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14] hover:text-[#8b5e14]"
                     >
                       Open lesson →
                     </Link>
@@ -3954,12 +3978,12 @@ export default function UserDashboard() {
                     key={`${item.course.slug}-${item.lesson.id}`}
                     className="border border-[#16243d]/10 bg-[#f7f3e8] p-4"
                   >
-                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
                       {item.course.title}
                     </p>
                     <Link
                       href={`/courses/${item.course.slug}`}
-                      className="mt-1 block text-sm font-bold text-[#16243d] underline-offset-4 hover:text-[#b8860b] hover:underline"
+                      className="mt-1 block text-sm font-bold text-[#16243d] underline-offset-4 hover:text-[#8b5e14] hover:underline"
                     >
                       {item.lesson.title} →
                     </Link>
@@ -3969,7 +3993,7 @@ export default function UserDashboard() {
                         .replace(/&nbsp;/g, " ")}
                     </p>
                     {item.summary && (
-                      <p className="mt-3 whitespace-pre-wrap border-l-2 border-[#c9a34e] bg-[#fffaf0] p-3 text-xs leading-5 text-[#b8860b]">
+                      <p className="mt-3 whitespace-pre-wrap border-l-2 border-[#c9a34e] bg-[#fffaf0] p-3 text-xs leading-5 text-[#8b5e14]">
                         {item.summary}
                       </p>
                     )}
@@ -3992,11 +4016,11 @@ export default function UserDashboard() {
             )}
           </Section>
         </main>
-      {achievements.data && (
+        {achievements.data && (
         <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
           <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#16243d]/15 pb-5">
             <div>
-              <p className="eyebrow text-accent dark:text-accent-on-dark">
+              <p className="eyebrow text-accent">
                 Personal achievement gallery
               </p>
               <h2 className="display mt-2 text-3xl">Earned, remembered.</h2>
@@ -4006,7 +4030,7 @@ export default function UserDashboard() {
                 module quiz.
               </p>
             </div>
-            <div className="flex items-center gap-3 text-xs font-bold text-[#b8860b]">
+            <div className="flex items-center gap-3 text-xs font-bold text-[#8b5e14]">
               <Medal className="h-5 w-5" aria-hidden="true" />{" "}
               {achievements.data.earnedBadges} earned
             </div>
@@ -4022,11 +4046,11 @@ export default function UserDashboard() {
                     <div className="grid h-11 w-11 place-items-center rounded-full bg-[#16243d] text-accent-on-dark">
                       <Award className="h-5 w-5" aria-hidden="true" />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-[.1em] text-accent dark:text-accent-on-dark">
+                    <span className="text-[10px] font-black uppercase tracking-[.1em] text-accent">
                       {badge.certificateLabel}
                     </span>
                   </div>
-                  <p className="mt-4 text-[10px] font-black uppercase tracking-[.12em] text-accent dark:text-accent-on-dark">
+                  <p className="mt-4 text-[10px] font-black uppercase tracking-[.12em] text-accent">
                     {badge.courseTitle}
                   </p>
                   <h3 className="mt-1 text-lg font-bold text-[#16243d]">
@@ -4234,7 +4258,7 @@ export default function UserDashboard() {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="eyebrow text-accent dark:text-accent-on-dark">Saved pathways</p>
+                <p className="eyebrow text-accent">Saved pathways</p>
                 <h2
                   id="saved-pathways-preview-title"
                   className="display mt-2 text-3xl"
@@ -4320,7 +4344,7 @@ export default function UserDashboard() {
                      width={160}
                      height={74}
                    />
-                  <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#b8860b]">
+                  <p className={`text-[9px] font-black uppercase tracking-[.18em] ${savedPathwaysCoverTemplate === "editorial" ? "text-[#8b5e14]" : "text-[#b8860b]"}`}>
                     PROFOUND IQ / CONSULTING
                   </p>
                   <p className="mt-3 font-serif text-2xl">
@@ -4389,7 +4413,7 @@ export default function UserDashboard() {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="eyebrow text-accent dark:text-accent-on-dark">
+                <p className="eyebrow text-accent">
                   Certificate print preview
                 </p>
                 <h2
@@ -4458,7 +4482,7 @@ export default function UserDashboard() {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="eyebrow text-accent dark:text-accent-on-dark">Workspace setup</p>
+                <p className="eyebrow text-accent">Workspace setup</p>
                 <h2
                   id="profile-complete-title"
                   className="display mt-2 text-3xl"
@@ -4549,7 +4573,7 @@ export default function UserDashboard() {
                 "true"
               );
             }}
-            className="ml-2 font-black uppercase tracking-[.08em] text-[#b8860b]"
+            className="ml-2 font-black uppercase tracking-[.08em] text-[#8b5e14]"
           >
             Dismiss
           </button>
@@ -4627,7 +4651,7 @@ function PaymentHistoryTab({
     >
       <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 lg:flex-row lg:items-start">
         <div>
-          <p className="eyebrow text-accent dark:text-accent-on-dark">
+          <p className="eyebrow text-accent">
             {"Payment history"}
           </p>
           <h2 className="display mt-2 text-3xl">{"Course enrollment status"}</h2>
@@ -4814,7 +4838,7 @@ function PaymentHistoryTab({
                         KES {row.amountKes.toLocaleString()}
                       </td>
                       <td
-                        className={`px-4 py-4 font-bold ${row.paymentStatus === "paid" ? "text-emerald-800" : "text-[#b8860b]"}`}
+                        className={`px-4 py-4 font-bold ${row.paymentStatus === "paid" ? "text-emerald-800" : "text-[#8b5e14]"}`}
                       >
                         {statusLabel(row.paymentStatus)}
                       </td>
@@ -4878,7 +4902,7 @@ function ReportEmailStatus({
   if (status === "sending")
     return (
       <span
-        className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] text-[#b8860b]"
+        className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] text-[#8b5e14]"
         title="Report email is being prepared"
       >
         <Clock3 size={14} aria-hidden="true" /> Email in progress
@@ -4886,7 +4910,7 @@ function ReportEmailStatus({
     );
   return (
     <span
-      className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] text-[#b8860b]"
+      className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] text-[#8b5e14]"
       title="Report email is pending and will be retried"
     >
       <MailWarning size={14} aria-hidden="true" /> Email pending

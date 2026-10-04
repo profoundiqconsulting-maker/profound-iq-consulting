@@ -188,16 +188,16 @@ function IllustrationCard({
               aria-label={`Select ${card.lessonTitle}`}
               className="mt-1 accent-[#a27e2e]"
             />
-            <span>
-              <p
-                className={`text-[10px] font-black uppercase tracking-[.14em] ${style.accent}`}
-              >
-                {card.modeLabel}
-              </p>
-              <h2 className="display mt-2 text-2xl leading-tight text-[#16243d]">
-                {card.lessonTitle}
-              </h2>
-            </span>
+              <span>
+                <p
+                  className={`text-[10px] font-black uppercase tracking-[.14em] ${style.accent}`}
+                >
+                  {card.modeLabel}
+                </p>
+                <h2 className="display mt-2 text-2xl leading-tight text-foreground">
+                  {card.lessonTitle}
+                </h2>
+              </span>
           </label>
           <button
             type="button"
@@ -208,25 +208,23 @@ function IllustrationCard({
             <Bookmark size={18} fill="currentColor" />
           </button>
         </div>
-        <p className="mt-2 text-xs font-semibold text-muted-foreground">
-          {card.courseTitle}
-        </p>
-        <p className="mt-2 text-sm leading-6 text-[#16243d]">{card.content}</p>
-        <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-          <Folder size={13} className="text-[#7d5e1e]" />
+        <p className="mt-2 text-xs font-semibold text-foreground/75">{card.courseTitle}</p>
+        <p className="mt-2 text-sm leading-6 text-foreground">{card.content}</p>
+        <div className="mt-4 flex items-center gap-2 text-xs text-foreground/70">
+          <Folder size={13} className="text-accent" />
           <span>{card.folder}</span>
           <button
             type="button"
             onClick={() => onStartFolderEdit(card)}
-            className="ml-auto text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] underline decoration-[#c9a34e] underline-offset-4"
+            className="ml-auto text-[10px] font-black uppercase tracking-[.1em] text-foreground underline decoration-accent underline-offset-4"
           >
             Organize
           </button>
         </div>
         {editingFolderId === card.id && (
-          <div className="mt-3 border border-[#c9a34e]/40 bg-white/70 p-3">
+              <div className="mt-3 border border-accent/40 bg-background/70 p-3">
             <label
-              className="block text-[10px] font-black uppercase tracking-[.12em] text-muted-foreground"
+              className="block text-[10px] font-black uppercase tracking-[.12em] text-foreground/75"
               htmlFor={`folder-${card.id}`}
             >
               Create or move to folder
@@ -237,7 +235,7 @@ function IllustrationCard({
                 value={folderDraft}
                 onChange={event => onFolderDraftChange(event.target.value)}
                 maxLength={80}
-                className="min-w-0 flex-1 border border-[#16243d]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#c9a34e]"
+                className="min-w-0 flex-1 border border-foreground/15 bg-background px-3 py-2 text-sm outline-none focus:border-accent"
                 placeholder="e.g. Leadership ideas"
                 list={`folders-${card.id}`}
               />
@@ -249,20 +247,20 @@ function IllustrationCard({
               <button
                 type="button"
                 onClick={() => onSaveFolder(card)}
-                className="inline-flex items-center gap-1 bg-[#16243d] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8]"
+                className="inline-flex items-center gap-1 bg-foreground px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-background"
               >
                 {updateLabel}
               </button>
             </div>
-            <p className="mt-2 text-[11px] text-muted-foreground">
-              Type a new name to create a folder, or reuse an existing one.
-            </p>
+              <p className="mt-2 text-[11px] text-foreground/75">
+                Type a new name to create a folder, or reuse an existing one.
+              </p>
           </div>
         )}
-        <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-[#16243d]/10 pt-4">
+        <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-foreground/10 pt-4">
           <Link
             href={`/courses/${card.courseSlug}`}
-            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.11em] text-[#16243d] hover:text-[#7d5e1e]"
+            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.11em] text-foreground hover:text-accent"
           >
             Open lesson <ArrowUpRight size={13} />
           </Link>
@@ -271,7 +269,7 @@ function IllustrationCard({
               <button
                 type="button"
                 onClick={() => downloadIllustrationStudySheet(studySheetInput)}
-                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.11em] text-[#16243d] hover:text-[#7d5e1e]"
+                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.11em] text-foreground hover:text-accent"
               >
                 <Download size={13} /> SVG
               </button>
@@ -279,7 +277,7 @@ function IllustrationCard({
                 type="button"
                 onClick={() => onDownloadPng(card)}
                 disabled={pngBusy}
-                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.11em] text-[#16243d] hover:text-[#7d5e1e] disabled:opacity-50"
+                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.11em] text-foreground hover:text-accent disabled:opacity-50"
               >
                 {pngBusy ? (
                   <Loader2 size={13} className="animate-spin" />
@@ -290,35 +288,35 @@ function IllustrationCard({
             </>
           )}
         </div>
-        <div className="mt-4 flex items-center justify-between border-t border-[#16243d]/10 pt-3">
-          <span
-            className="cursor-grab text-[10px] font-black uppercase tracking-[.1em] text-muted-foreground"
-            title="Drag to reorder within this folder"
-          >
-            Drag to reorder
-          </span>
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => onMove(card.id, -1)}
-              aria-label={`Move ${card.lessonTitle} earlier`}
-              className="border border-[#16243d]/15 p-1 text-muted-foreground hover:text-[#16243d] transition-colors"
+        <div className="mt-4 flex items-center justify-between border-t border-foreground/10 pt-3">
+            <span
+              className="cursor-grab text-[10px] font-black uppercase tracking-[.1em] text-foreground/70"
+              title="Drag to reorder within this folder"
             >
-              <ChevronUp size={15} />
-            </button>
-            <button
-              type="button"
-              onClick={() => onMove(card.id, 1)}
-              aria-label={`Move ${card.lessonTitle} later`}
-              className="border border-[#16243d]/15 p-1 text-muted-foreground hover:text-[#16243d] transition-colors"
-            >
-              <ChevronDown size={15} />
-            </button>
+              Drag to reorder
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => onMove(card.id, -1)}
+                aria-label={`Move ${card.lessonTitle} earlier`}
+                className="border border-foreground/15 p-1 text-foreground/70 hover:text-foreground transition-colors"
+              >
+                <ChevronUp size={15} />
+              </button>
+              <button
+                type="button"
+                onClick={() => onMove(card.id, 1)}
+                aria-label={`Move ${card.lessonTitle} later`}
+                className="border border-foreground/15 p-1 text-foreground/70 hover:text-foreground transition-colors"
+              >
+                <ChevronDown size={15} />
+              </button>
+            </div>
           </div>
-        </div>
-        <p className="mt-3 text-[10px] text-muted-foreground">
-          Saved {new Date(card.updatedAt).toLocaleDateString()}
-        </p>
+          <p className="mt-3 text-[10px] text-foreground/70">
+            Saved {new Date(card.updatedAt).toLocaleDateString()}
+          </p>
       </div>
     </Card>
   );
@@ -614,7 +612,7 @@ export default function MyIllustrations() {
                   value={query}
                   onChange={event => setQuery(event.target.value)}
                   placeholder="Search courses, lessons, or illustration notes"
-                  className="pl-9 h-9 bg-white dark:bg-[#16243d]"
+                  className="pl-9 h-9"
                 />
               </div>
               <div className="flex flex-wrap items-center gap-2">
@@ -626,15 +624,15 @@ export default function MyIllustrations() {
                     onClick={() => setModeFilter(mode)}
                     className={
                       modeFilter === mode
-                        ? "bg-[#16243d] text-[#f7f3e8]"
-                        : "border-[#16243d]/25"
+                        ? "bg-foreground text-background"
+                        : "border-foreground/25 text-foreground hover:bg-foreground/10"
                     }
                   >
                     {mode === "all" ? "All modes" : lessonIllustrationCopy[mode]}
                   </Button>
                 ))}
                 <Select value={folderFilter} onValueChange={setFolderFilter}>
-                  <SelectTrigger className="h-9 min-w-[140px] bg-white dark:bg-[#16243d]">
+                  <SelectTrigger className="h-9 min-w-[140px]">
                     <SelectValue placeholder="All folders" />
                   </SelectTrigger>
                   <SelectContent>
@@ -655,12 +653,12 @@ export default function MyIllustrations() {
                   value={folderQuery}
                   onChange={event => setFolderQuery(event.target.value)}
                   placeholder="Search custom folders"
-                  className="pl-9 h-9 bg-white dark:bg-[#16243d]"
+                  className="pl-9 h-9"
                 />
               </div>
-              <p className="text-xs text-muted-foreground">
-                {folders.length} matching folder{folders.length === 1 ? "" : "s"}
-              </p>
+               <p className="text-xs text-foreground/70">
+                 {folders.length} matching folder{folders.length === 1 ? "" : "s"}
+               </p>
             </div>
           </div>
         </div>
@@ -680,7 +678,7 @@ export default function MyIllustrations() {
                   value={folderManageName}
                   onChange={event => setFolderManageName(event.target.value)}
                   placeholder="New folder name"
-                  className="bg-white dark:bg-[#16243d]"
+                  className="bg-background"
                 />
                 <Button
                   onClick={() => {
@@ -695,7 +693,7 @@ export default function MyIllustrations() {
                     });
                   }}
                   disabled={renameFolder.isPending || deleteFolder.isPending}
-                  className="bg-[#16243d] text-[#f7f3e8]"
+                  className="bg-foreground text-background"
                 >
                   {renameFolder.isPending ? (
                     <Loader2 size={14} className="animate-spin" />
@@ -764,7 +762,7 @@ export default function MyIllustrations() {
                 disabled={
                   allMatchingIdsQuery.isLoading || !allMatchingIds.length
                 }
-                className="border-[#16243d]/20"
+                className="border-foreground/20"
               >
                 {allMatchingSelected ? "Deselect all" : "Select all results"}
               </Button>
@@ -773,20 +771,20 @@ export default function MyIllustrations() {
                 size="sm"
                 onClick={clearSelection}
                 disabled={!selectedIds.length}
-                className="border-[#16243d]/20 motion-safe:animate-[pulse_650ms_ease-out]"
+                className="border-foreground/20 motion-safe:animate-[pulse_650ms_ease-out]"
               >
                 Clear selection
               </Button>
             </div>
             <div className="flex min-w-0 flex-1 gap-2 sm:ml-auto sm:max-w-xl">
-              <Input
-                value={bulkFolder}
-                onChange={event => setBulkFolder(event.target.value)}
-                list="bulk-folders"
-                placeholder="Folder for selected illustrations"
-                maxLength={80}
-                className="bg-white dark:bg-[#16243d]"
-              />
+               <Input
+                  value={bulkFolder}
+                  onChange={event => setBulkFolder(event.target.value)}
+                  list="bulk-folders"
+                  placeholder="Folder for selected illustrations"
+                  maxLength={80}
+                  className="bg-background"
+                />
               <datalist id="bulk-folders">
                 {bookmarksQuery.data?.folders?.map(folder => (
                   <option key={folder} value={folder} />
@@ -795,7 +793,7 @@ export default function MyIllustrations() {
               <Button
                 onClick={submitBulkMove}
                 disabled={!selectedIds.length || bulkMove.isPending}
-                className="bg-[#16243d] text-[#f7f3e8]"
+                className="bg-foreground text-background"
               >
                 {bulkMove.isPending ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -822,8 +820,8 @@ export default function MyIllustrations() {
       {bookmarksQuery.isLoading ? (
         <Section title="Loading illustrations" isEmpty>
           <div className="flex flex-col items-center justify-center gap-3 py-12">
-            <Loader2 className="animate-spin text-[#7d5e1e]" size={24} />
-            <p className="text-sm text-muted-foreground">Loading your illustrations...</p>
+            <Loader2 className="animate-spin text-accent" size={24} />
+            <p className="text-sm text-foreground/70">Loading your illustrations...</p>
           </div>
         </Section>
       ) : cards.length === 0 ? (
@@ -833,17 +831,17 @@ export default function MyIllustrations() {
           description="Open a course lesson, choose an illustration that helps you learn, and select Save to build this collection."
         >
           <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#f7f3e8] transition-shadow hover:shadow-md">
-              <Bookmark size={28} className="text-[#16243d]/70" />
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent/10 transition-shadow hover:shadow-md">
+                <Bookmark size={28} className="text-foreground/70" />
             </div>
             <p className="text-sm text-[#16243d] max-w-sm">
               You have not saved any illustrations yet. Explore courses to start building your visual study library.
             </p>
-            <Link href="/courses">
-              <Button className="bg-[#16243d] text-[#f7f3e8] hover:bg-[#0f1a2e] transition-colors">
-                {"Courses"} <ArrowUpRight size={14} />
-              </Button>
-            </Link>
+              <Link href="/courses">
+                <Button className="bg-foreground text-background hover:bg-foreground/90 transition-colors">
+                  {"Courses"} <ArrowUpRight size={14} />
+                </Button>
+              </Link>
           </div>
         </Section>
       ) : (
@@ -901,7 +899,7 @@ export default function MyIllustrations() {
             ))}
           </div>
           <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[#16243d]/15 pt-5">
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-foreground/70">
               Showing {((page - 1) * pageSize) + 1}–
               {Math.min(page * pageSize, bookmarksQuery.data?.total ?? 0)}{" "}
               of {bookmarksQuery.data?.total ?? 0} saved illustrations
@@ -916,7 +914,7 @@ export default function MyIllustrations() {
               >
                 <ChevronLeft size={14} /> Previous
               </Button>
-              <span className="px-2 text-xs font-bold text-muted-foreground">
+              <span className="px-2 text-xs font-bold text-foreground/70">
                 Page {page} of {bookmarksQuery.data?.pageCount ?? 1}
               </span>
               <Button
@@ -942,7 +940,7 @@ export default function MyIllustrations() {
           </div>
         </>
       )}
-      <p className="mt-8 text-xs text-muted-foreground">
+      <p className="mt-8 text-xs text-foreground/70">
         Your collection is available across every course workspace.
       </p>
 
@@ -962,7 +960,7 @@ export default function MyIllustrations() {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="eyebrow text-[#8b6914]">{zoomed.modeLabel}</p>
+                <p className="eyebrow text-accent">{zoomed.modeLabel}</p>
                 <h2
                   id="gallery-artwork-title"
                   className="display mt-2 text-3xl"

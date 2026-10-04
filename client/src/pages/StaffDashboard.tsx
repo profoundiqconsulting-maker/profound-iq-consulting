@@ -54,7 +54,7 @@ export default function StaffDashboard({ defaultTab = "inquiries" }: StaffDashbo
 
   return (
     <DashboardLayout role="staff" title="Staff Workspace">
-      <main className="min-h-screen bg-gradient-to-br from-[#f7f3e8] via-[#f7f3e8] to-[#ead9ae] dark:from-[#0d1a2f] dark:via-[#101d35] dark:to-[#16243d] px-4 py-8 text-[#16243d] dark:text-[#f7f3e8] sm:px-8 lg:px-12">
+      <main className="min-h-screen bg-gradient-to-br from-[#f7f3e8] via-[#f7f3e8] to-[#ead9ae] px-4 py-8 text-[#16243d] sm:px-8 lg:px-12">
         <div className="mx-auto max-w-6xl">
           <DashboardHero
             eyebrow="Staff workspace"
@@ -164,11 +164,11 @@ function InquiryDesk() {
               value={search}
               onChange={event => setFilter(setSearch, event.target.value)}
               placeholder="Search name, email, ticket number, or message"
-              className="w-full border border-[#16243d]/20 bg-white/80 dark:bg-[#16243d] py-3 pl-9 pr-3 text-sm outline-none focus:border-[#c9a34e] transition-colors"
+              className="w-full border border-[#16243d]/20 bg-white/80 py-3 pl-9 pr-3 text-sm outline-none focus:border-[#c9a34e] transition-colors"
             />
           </div>
           <Select value={status} onValueChange={value => setFilter(setStatus, value)}>
-            <SelectTrigger className="w-full md:w-[180px] bg-white/80 dark:bg-[#16243d]">
+            <SelectTrigger className="w-full md:w-[180px] bg-white/80">
               <SelectValue placeholder="All statuses" />
             </SelectTrigger>
             <SelectContent>
@@ -179,7 +179,7 @@ function InquiryDesk() {
             </SelectContent>
           </Select>
           <Select value={sortMode} onValueChange={value => setFilter(setSortMode, value)}>
-            <SelectTrigger className="w-full md:w-[180px] bg-white/80 dark:bg-[#16243d]">
+            <SelectTrigger className="w-full md:w-[180px] bg-white/80">
               <SelectValue placeholder="Sort by priority" />
             </SelectTrigger>
             <SelectContent>
@@ -206,24 +206,24 @@ function InquiryDesk() {
         ) : (
           <div className="mt-5 space-y-4">
             {sortedRows.map(inquiry => (
-              <article key={inquiry.id} className="group rounded-xl border border-[#16243d]/10 bg-white/80 dark:bg-[#16243d]/60 p-5 transition-all hover:border-[#c9a34e]/40 hover:shadow-lg">
+              <article key={inquiry.id} className="group rounded-xl border border-[#16243d]/10 bg-white/80 p-5 transition-all hover:border-[#c9a34e]/40 hover:shadow-lg">
                 <div className="flex flex-col justify-between gap-4 lg:flex-row">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-base font-semibold text-[#16243d] dark:text-[#f7f3e8]">{inquiry.name}</h2>
+                      <h2 className="text-base font-semibold text-[#16243d]">{inquiry.name}</h2>
                       {inquiry.ticketNumber && (
                         <span className="font-mono text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
                           #{inquiry.ticketNumber}
                         </span>
                       )}
-                      <span className="rounded-full border border-[#c9a34e]/60 px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e] dark:text-[#7d5e1e]">
+                      <span className="rounded-full border border-[#c9a34e]/60 px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
                         {inquiry.category.replaceAll("-", " ")}
                       </span>
                       <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] ${inquiry.priority === "urgent" ? "bg-red-700 text-white" : inquiry.priority === "high" ? "bg-[#c9a34e] text-[#16243d]" : "border border-[#16243d]/15 text-[#16243d]"}`}>
                         {inquiry.priority ?? "normal"}
                       </span>
                       {isInquiryOverdue(inquiry) && (
-                        <span className="rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] text-red-800 dark:bg-red-900/20 dark:text-red-400">
+                        <span className="rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] text-red-800">
                           Overdue
                         </span>
                       )}
@@ -232,13 +232,13 @@ function InquiryDesk() {
                       <Mail size={13} />
                       {inquiry.email}
                     </a>
-                    <p className="mt-3 text-sm leading-6 text-[#16243d]/80 dark:text-[#f7f3e8]/80">
+                    <p className="mt-3 text-sm leading-6 text-[#16243d]/80">
                       {inquiry.message}
                     </p>
                     <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[.1em] text-[#16243d]">
                       <span>Received {new Date(inquiry.createdAt).toLocaleString()}</span>
                       {inquiry.dueDate && (
-                        <span className={isInquiryOverdue(inquiry) ? "font-bold text-red-800 dark:text-red-400" : ""}>
+                        <span className={isInquiryOverdue(inquiry) ? "font-bold text-red-800" : ""}>
                           · Due {new Date(inquiry.dueDate).toLocaleDateString()}
                         </span>
                       )}
@@ -246,7 +246,7 @@ function InquiryDesk() {
                   </div>
                   <div className="flex shrink-0 flex-col gap-2 lg:w-64">
                     <Select value={inquiry.status} onValueChange={value => updateStatus.mutate({ id: inquiry.id, status: value as "new" | "contacted" | "closed" })}>
-                      <SelectTrigger className="bg-white/80 dark:bg-[#16243d]">
+                      <SelectTrigger className="bg-white/80">
                         <SelectValue placeholder="Update status" />
                       </SelectTrigger>
                       <SelectContent>
@@ -263,7 +263,7 @@ function InquiryDesk() {
                           updateNotes.mutate({ id: inquiry.id, internalNotes: noteDrafts[inquiry.id] });
                       }}
                       placeholder="Internal notes"
-                      className="w-full rounded-lg border border-[#16243d]/20 bg-white/80 dark:bg-[#16243d] px-3 py-2 text-xs transition-colors focus:border-[#c9a34e]"
+                      className="w-full rounded-lg border border-[#16243d]/20 bg-white/80 px-3 py-2 text-xs transition-colors focus:border-[#c9a34e]"
                       rows={3}
                     />
                   </div>
@@ -386,11 +386,11 @@ function InstructorReviewPanel() {
               value={search}
               onChange={event => setFilter(event.target.value)}
               placeholder="Search learner, lesson, or response"
-              className="w-full border border-[#16243d]/20 bg-white/80 dark:bg-[#16243d] py-3 pl-9 pr-3 text-sm outline-none focus:border-[#c9a34e] transition-colors"
+              className="w-full border border-[#16243d]/20 bg-white/80 py-3 pl-9 pr-3 text-sm outline-none focus:border-[#c9a34e] transition-colors"
             />
           </div>
           <Select value={courseSlug} onValueChange={value => { setCourseSlug(value); setPage(1); }}>
-            <SelectTrigger className="w-full md:w-[220px] bg-white/80 dark:bg-[#16243d]">
+            <SelectTrigger className="w-full md:w-[220px] bg-white/80">
               <SelectValue placeholder="All courses" />
             </SelectTrigger>
             <SelectContent>
@@ -401,7 +401,7 @@ function InstructorReviewPanel() {
             </SelectContent>
           </Select>
           <Select value={reviewStatus} onValueChange={value => { setReviewStatus(value as typeof reviewStatus); setPage(1); }}>
-            <SelectTrigger className="w-full md:w-[180px] bg-white/80 dark:bg-[#16243d]">
+            <SelectTrigger className="w-full md:w-[180px] bg-white/80">
               <SelectValue placeholder="Needs review" />
             </SelectTrigger>
             <SelectContent>
@@ -411,8 +411,8 @@ function InstructorReviewPanel() {
             </SelectContent>
           </Select>
           <div className="flex gap-2">
-            <input type="date" value={fromDate} onChange={event => { setFromDate(event.target.value); setPage(1); }} aria-label="From date" className="w-full border border-[#16243d]/20 bg-white/80 dark:bg-[#16243d] px-3 py-3 text-sm" />
-            <input type="date" value={toDate} onChange={event => { setToDate(event.target.value); setPage(1); }} aria-label="To date" className="w-full border border-[#16243d]/20 bg-white/80 dark:bg-[#16243d] px-3 py-3 text-sm" />
+            <input type="date" value={fromDate} onChange={event => { setFromDate(event.target.value); setPage(1); }} aria-label="From date" className="w-full border border-[#16243d]/20 bg-white/80 px-3 py-3 text-sm" />
+            <input type="date" value={toDate} onChange={event => { setToDate(event.target.value); setPage(1); }} aria-label="To date" className="w-full border border-[#16243d]/20 bg-white/80 px-3 py-3 text-sm" />
           </div>
           <Button type="button" onClick={resetFilters} variant="ghost" size="sm" className="text-[10px] font-black uppercase tracking-[.08em]">
             Reset
@@ -440,17 +440,17 @@ function InstructorReviewPanel() {
               const reviewStatus = row.review?.status ?? "needs-review";
               const responseText = typeof row.response === "string" ? row.response : (row.response?.responseHtml ?? "");
               return (
-                <div key={row.response.id} className="rounded-xl border border-[#16243d]/10 bg-white/80 dark:bg-[#16243d]/60 p-5 transition-all hover:border-[#c9a34e]/40 hover:shadow-lg">
+                <div key={row.response.id} className="rounded-xl border border-[#16243d]/10 bg-white/80 p-5 transition-all hover:border-[#c9a34e]/40 hover:shadow-lg">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-semibold text-[#16243d] dark:text-[#f7f3e8]">{learnerName}</span>
-                    <span className="rounded-full border border-[#c9a34e]/60 px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e] dark:text-[#7d5e1e]">
+                    <span className="text-sm font-semibold text-[#16243d]">{learnerName}</span>
+                    <span className="rounded-full border border-[#c9a34e]/60 px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
                       {courseTitle}
                     </span>
-                    <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] ${reviewStatus === "reviewed" ? "border border-emerald-700/30 text-emerald-800 dark:text-emerald-400" : "border border-[#7d5e1e]/30 text-[#7d5e1e]"}`}>
+                    <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] ${reviewStatus === "reviewed" ? "border border-emerald-700/30 text-emerald-800" : "border border-[#7d5e1e]/30 text-[#7d5e1e]"}`}>
                       {reviewStatus}
                     </span>
                   </div>
-                  <p className="mt-3 text-sm leading-6 text-[#16243d]/80 dark:text-[#f7f3e8]/80">
+                  <p className="mt-3 text-sm leading-6 text-[#16243d]/80">
                     {stripResponseHtml(responseText)}
                   </p>
                   <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -463,7 +463,7 @@ function InstructorReviewPanel() {
                           reviewMutation.mutate({ responseId: row.response.id, enrollmentId: row.response.enrollmentId, lessonId: row.response.lessonId, taskId: row.response.taskId, feedback: draft ?? "", status: (row.review?.status ?? "needs-review") as "reviewed" | "needs-review" });
                       }}
                       placeholder="Feedback"
-                      className="w-full rounded-lg border border-[#16243d]/20 bg-white/80 dark:bg-[#16243d] px-3 py-2 text-xs transition-colors focus:border-[#c9a34e] sm:w-96"
+                      className="w-full rounded-lg border border-[#16243d]/20 bg-white/80 px-3 py-2 text-xs transition-colors focus:border-[#c9a34e] sm:w-96"
                       rows={2}
                     />
                     <Button type="button" onClick={() => reviewMutation.mutate({ responseId: row.response.id, enrollmentId: row.response.enrollmentId, lessonId: row.response.lessonId, taskId: row.response.taskId, feedback: feedbackDrafts[row.response.id] ?? row.review?.feedback ?? "", status: (row.review?.status ?? "needs-review") as "reviewed" | "needs-review" })} disabled={reviewMutation.isPending} size="sm" className="text-[10px] font-black uppercase tracking-[.08em]">

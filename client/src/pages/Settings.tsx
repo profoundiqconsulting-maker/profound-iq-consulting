@@ -340,7 +340,7 @@ export default function Settings() {
               </div>
               <div className="flex-1">
                 <label
-                  className={`inline-flex items-center gap-2 border border-[#16243d]/20 px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] ${uploadAvatar.isPending ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
+                  className={`inline-flex items-center gap-2 border border-foreground/20 px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] ${uploadAvatar.isPending ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
                 >
                   Choose avatar
                   <input
@@ -562,25 +562,25 @@ export default function Settings() {
             title="Display preference"
             description="Choose light, dark, or automatic system-synced appearance."
           >
-            <div className="mt-6 grid grid-cols-3 border border-[#16243d]/15 p-1">
+            <div className="mt-6 grid grid-cols-3 border border-foreground/15 bg-background/50 p-1">
               <button
                 type="button"
                 onClick={() => setTheme("light")}
-                className={`px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] ${theme === "light" ? "bg-[#16243d] text-[#f7f3e8]" : "text-[#16243d]"}`}
+                className={`px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] transition-colors ${theme === "light" ? "bg-foreground text-background" : "text-foreground hover:bg-foreground/10"}`}
               >
                 Light
               </button>
               <button
                 type="button"
                 onClick={() => setTheme("dark")}
-                className={`px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] ${theme === "dark" ? "bg-[#16243d] text-[#f7f3e8]" : "text-[#16243d]"}`}
+                className={`px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] transition-colors ${theme === "dark" ? "bg-foreground text-background" : "text-foreground hover:bg-foreground/10"}`}
               >
                 Dark
               </button>
               <button
                 type="button"
                 onClick={() => setTheme("auto")}
-                className={`px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] ${theme === "auto" ? "bg-[#c9a34e] text-[#16243d]" : "text-[#16243d]"}`}
+                className={`px-3 py-3 text-[10px] font-black uppercase tracking-[.12em] transition-colors ${theme === "auto" ? "bg-accent text-background" : "text-foreground hover:bg-foreground/10"}`}
               >
                 Auto
               </button>

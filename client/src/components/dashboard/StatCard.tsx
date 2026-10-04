@@ -31,7 +31,7 @@ export function StatCard({
       className={`border border-border bg-card backdrop-blur-sm p-5 transition-all duration-200 hover:shadow-md focus-within:shadow-md ${className}`}
     >
       <div className="flex items-center justify-between">
-        <p className="text-[10px] font-black uppercase tracking-[.12em] text-slate-600 dark:text-slate-400">
+        <p className="text-[10px] font-black uppercase tracking-[.12em] text-slate-600">
           {label}
         </p>
         {icon && (
@@ -48,19 +48,19 @@ export function StatCard({
           <TrendIcon
             className={`h-3.5 w-3.5 ${
               trend.value > 0
-                ? "text-emerald-800 dark:text-emerald-400"
+                ? "text-emerald-800"
                 : trend.value < 0
-                  ? "text-red-800 dark:text-red-400"
-                  : "text-slate-600 dark:text-slate-400"
+                  ? "text-red-800"
+                  : "text-slate-600"
             }`}
           />
           <span
             className={
               trend.value > 0
-                ? "text-emerald-800 dark:text-emerald-400"
+                ? "text-emerald-800"
                 : trend.value < 0
-                  ? "text-red-800 dark:text-red-400"
-                  : "text-slate-600 dark:text-slate-400"
+                  ? "text-red-800"
+                  : "text-slate-600"
             }
           >
             {trend.value > 0 ? "+" : ""}

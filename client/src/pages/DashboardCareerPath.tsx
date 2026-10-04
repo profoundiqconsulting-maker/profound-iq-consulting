@@ -45,7 +45,7 @@ export default function DashboardCareerPath() {
   if (history.isError) {
     return (
       <DashboardLayout role="user" title="CareerPath Reports">
-        <div className="border-l-2 border-red-700 bg-red-50 p-5 text-sm text-red-900 dark:bg-red-950/40 dark:text-red-200">
+        <div className="border-l-2 border-red-700 bg-red-50 p-5 text-sm text-red-900">
           Unable to load CareerPath history.
         </div>
       </DashboardLayout>
@@ -83,7 +83,7 @@ export default function DashboardCareerPath() {
                       <span
                         className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[.1em] ${
                           attempt.paymentStatus === "paid"
-                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
+                            ? "bg-emerald-100 text-emerald-700"
                             : "border border-border text-muted-foreground"
                         }`}
                       >

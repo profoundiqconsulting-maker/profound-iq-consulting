@@ -55,34 +55,15 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import { lazy, Suspense } from "react";
 import { Link } from "wouter";
-import { BrandLogo } from "@/components/BrandLogo";
 import { clsx } from "clsx";
 import DashboardLayout from "@/components/DashboardLayout";
 import { DashboardPagination } from "@/components/DashboardPagination";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
 import {
   DashboardHero,
   Section,
   StatCard,
-  FilterBar,
 } from "@/components/dashboard";
-import { AnalyticsBarChart, AnalyticsLineChart } from "@/components/dashboard/charts/AnalyticsCharts";
 import "@/components/dashboard/admin-observatory.css";
 import { buildFunnelComparison } from "@shared/adminAnalytics";
 import { renderEmailTemplate } from "@shared/emailTemplate";
@@ -1850,7 +1831,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 <AdminRecentQCCertificates />
               </Suspense>
               <div className="mt-4">
-                <Link href="/admin/learning" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
+                <Link href="/admin/learning" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14] underline-offset-4 hover:underline hover:text-[#6b4410]">
                   Learning overview <ArrowUpRight size={13} />
                 </Link>
               </div>
@@ -1872,7 +1853,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 <AdminInsightsPanel />
               </Suspense>
               <div className="mt-4">
-                <Link href="/admin/communications" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
+                <Link href="/admin/communications" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14] underline-offset-4 hover:underline hover:text-[#6b4410]">
                   Communications <ArrowUpRight size={13} />
                 </Link>
               </div>

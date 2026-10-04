@@ -130,7 +130,7 @@ type DashboardLayoutContentProps = {
   children: React.ReactNode;
   searchOpen: boolean;
   setSearchOpen: (open: boolean) => void;
-  setSidebarWidth: (width: number) => void;
+  setSidebarWidth: React.Dispatch<React.SetStateAction<number>>;
   title?: string;
   role?: "user" | "staff" | "admin";
   user: NonNullable<ReturnType<typeof useAuth>["user"]>;
@@ -190,7 +190,7 @@ function DashboardLayoutContent({
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizing) return;
       const sidebarLeft = sidebarRef.current?.getBoundingClientRect().left ?? 0;
-      const newWidth = e.clientX - sidebarLeft;
+      const newWidth = Math.round(e.clientX - sidebarLeft);
       if (newWidth >= MIN_WIDTH && newWidth <= MAX_WIDTH) {
         setSidebarWidth(newWidth);
       }
@@ -209,6 +209,18 @@ function DashboardLayoutContent({
       document.body.style.userSelect = "";
     };
   }, [isResizing, setSidebarWidth]);
+
+  const handleResizerKeyDown = (e: React.KeyboardEvent) => {
+    if (isCollapsed) return;
+    const step = e.shiftKey ? 20 : 5;
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      setSidebarWidth(prev => Math.max(MIN_WIDTH, prev - step));
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      setSidebarWidth(prev => Math.min(MAX_WIDTH, prev + step));
+    }
+  };
 
   return (
     <>
@@ -360,11 +372,16 @@ function DashboardLayoutContent({
           </SidebarFooter>
         </Sidebar>
         <div
-          className={`absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-amber-400/30 transition-colors ${isCollapsed ? "hidden" : ""}`}
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize sidebar"
+          tabIndex={0}
+          className={`absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-amber-400/30 transition-colors focus:outline-none focus-visible:bg-amber-400/50 ${isCollapsed ? "hidden" : ""}`}
           onMouseDown={() => {
             if (isCollapsed) return;
             setIsResizing(true);
           }}
+          onKeyDown={handleResizerKeyDown}
           style={{ zIndex: 50 }}
         />
       </div>
@@ -411,9 +428,9 @@ function DashboardLayoutContent({
             user={user}
           />
         )}
-        <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8 text-slate-900">
+        <div className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8 text-slate-900">
           {children}
-        </main>
+        </div>
       </SidebarInset>
     </>
   );

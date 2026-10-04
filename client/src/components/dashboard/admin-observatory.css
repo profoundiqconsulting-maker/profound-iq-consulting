@@ -8,7 +8,7 @@
 .admin-observatory {
   --exec-accent: #c9a34e;
   --exec-accent-2: #b8860b;
-  --exec-accent-text: #b8860b;
+  --exec-accent-text: #8b5e14;
   --exec-accent-soft: #f1e8d4;
   --exec-surface: #ffffff;
   --exec-surface-2: #f8fafc;
@@ -29,6 +29,25 @@
   --exec-dark-border: #334159;
   --exec-dark-text: #f1f5f9;
   --exec-dark-text-muted: #cbd5e1;
+}
+
+/* ── Force readable text on admin light surfaces ───────────────────── */
+.admin-observatory {
+  color: var(--exec-text);
+}
+.admin-observatory h1,
+.admin-observatory h2,
+.admin-observatory h3,
+.admin-observatory h4,
+.admin-observatory h5,
+.admin-observatory h6 {
+  color: var(--exec-text);
+}
+.admin-observatory .text-foreground {
+  color: var(--exec-text) !important;
+}
+.admin-observatory .text-muted-foreground {
+  color: var(--exec-text-muted) !important;
 }
 
 /* ── Surface primitives ────────────────────────────────────────────── */
@@ -301,7 +320,7 @@
 
 /* ── Segmented control (tab navigation) ───────────────────────────── */
 .admin-observatory .exec-segmented {
-  display: inline-inline-flex;
+  display: inline-flex;
   flex-wrap: wrap;
   gap: 0.25rem;
   padding: 0.25rem;
