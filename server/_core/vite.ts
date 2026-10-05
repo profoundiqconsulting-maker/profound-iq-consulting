@@ -71,7 +71,7 @@ export async function setupVite(app: Express, server: Server) {
   // Astro owns the statically rendered routes that sit outside the client
   // router, so they must resolve before the SPA shell claims them.
   serveAstroRoutes(app);
-  app.use("*", async (req, res, next) => {
+  app.use("/{*path}", async (req, res, next) => {
     const url = req.originalUrl;
 
     try {
@@ -146,7 +146,7 @@ export function serveStatic(app: Express) {
   );
 
   // fall through to index.html if the file doesn't exist (SPA routing)
-  app.use("*", (_req, res) => {
+  app.use("/{*path}", (_req, res) => {
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");

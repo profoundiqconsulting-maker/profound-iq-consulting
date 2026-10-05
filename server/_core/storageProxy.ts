@@ -7,8 +7,8 @@ import { storageGet } from "../storage";
  * short-lived DO Spaces URLs.
  */
 export function registerStorageProxy(app: Express) {
-  app.get(
-    "/local-storage/*",
+  app.use(
+    "/local-storage",
     async (req: Request, res: Response, next: NextFunction) => {
       await proxyStorageRequest(req, res, next, "/local-storage/");
     }

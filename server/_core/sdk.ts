@@ -1,5 +1,5 @@
 import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
-import { parse as parseCookieHeader } from "cookie";
+import { parseCookie } from "cookie";
 import type { Request } from "express";
 import { SignJWT, jwtVerify } from "jose";
 import type { User } from "../../drizzle/schema";
@@ -163,7 +163,7 @@ class SessionManager {
     if (!cookieHeader) {
       return new Map();
     }
-    const parsed = parseCookieHeader(cookieHeader);
+    const parsed = parseCookie(cookieHeader);
     return new Map(Object.entries(parsed));
   }
 }

@@ -31,7 +31,7 @@ import {
 } from "../shared/courseCatalog";
 import { buildCoursePaymentSuccessPath } from "../shared/coursePaymentRouting";
 import { PUBLISHED_SITE_ORIGIN } from "../shared/siteOrigin";
-import { parse as parseCookie } from "cookie";
+import { parseCookie } from "cookie";
 
 import { paystackRequest } from "./_core/paystack";
 import { reconcileStalePendingPayments } from "./paymentReconciliationJob";
