@@ -71,8 +71,8 @@ export default function Courses() {
   const [careerGoal, setCareerGoal] = useState("ai");
   const [currentLevel, setCurrentLevel] =
     useState<CourseCard["skillLevel"]>("Foundation");
-  const [activeTab, setActiveTab] = useState<string>("All categories");
-  const [visibleCount, setVisibleCount] = useState(6);
+  const [activeTab, setActiveTab] = useState<string>("");
+  const [visibleCount, setVisibleCount] = useState(4);
 
   const { user, isAuthenticated } = useAuth();
   const enrollmentCopy = courseEnrollmentCopy;
@@ -314,6 +314,11 @@ export default function Courses() {
     setVisibleCount(6);
   }, [activeTab, category, searchTerm, skillLevel, sortBy]);
   useEffect(() => {
+    if (!activeTab && tabCategories.length > 1) {
+      setActiveTab(tabCategories[1]);
+    }
+  }, [activeTab, tabCategories]);
+  useEffect(() => {
     if (!selectedCourse) return;
     const close = (event: KeyboardEvent) => {
       if (event.key === "Escape") setSelectedCourse(null);
@@ -473,6 +478,56 @@ export default function Courses() {
                 Talk to the team
               </Link>{" "}
               about your goals.
+            </div>
+          )}
+          {!liveCatalog.isLoading && courses.length > 0 && (
+            <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab("All categories");
+                  setCategory("All categories");
+                }}
+                className={`rounded-xl border p-4 text-left transition-all ${
+                  activeTab === "All categories"
+                    ? "border-[#c9a34e] bg-[#fffaf0] shadow-md"
+                    : "border-[#16243d]/15 bg-white/55 hover:border-[#c9a34e]/50 hover:shadow-sm"
+                }`}
+              >
+                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
+                  All categories
+                </p>
+                <p className="display mt-2 text-2xl">{courses.length}</p>
+                <p className="mt-1 text-xs text-[#4a566a]">
+                  {courses.length === 1 ? "course" : "courses"}
+                </p>
+              </button>
+              {tabCategories.filter(cat => cat !== "All categories").map(cat => {
+                const count = courses.filter(course => courseCategory(course) === cat).length;
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => {
+                      setActiveTab(cat);
+                      setCategory(cat);
+                    }}
+                    className={`rounded-xl border p-4 text-left transition-all ${
+                      activeTab === cat
+                        ? "border-[#c9a34e] bg-[#fffaf0] shadow-md"
+                        : "border-[#16243d]/15 bg-white/55 hover:border-[#c9a34e]/50 hover:shadow-sm"
+                    }`}
+                  >
+                    <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
+                      {cat}
+                    </p>
+                    <p className="display mt-2 text-2xl">{count}</p>
+                    <p className="mt-1 text-xs text-[#4a566a]">
+                      {count === 1 ? "course" : "courses"}
+                    </p>
+                  </button>
+                );
+              })}
             </div>
           )}
           <div className="mb-6 flex gap-2 overflow-x-auto border-b border-[#16243d]/15 pb-0">
@@ -744,7 +799,7 @@ export default function Courses() {
             <div className="mt-8 flex justify-center">
               <button
                 type="button"
-                onClick={() => setVisibleCount(prev => prev + 6)}
+                onClick={() => setVisibleCount(prev => prev + 4)}
                 className="inline-flex items-center gap-2 rounded-lg border border-[#16243d]/25 px-5 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition-all hover:shadow-sm"
               >
                 Load more <ArrowDownUp size={14} />

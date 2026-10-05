@@ -12,7 +12,7 @@ import { registerDeliveryLogExportWorker } from "../deliveryLogExport";
 import { registerWeeklyPsychometricAnalytics } from "../scheduledPsychometricAnalytics";
 import { registerWeeklyCourseLessonReviewAnalytics } from "../scheduledCourseLessonReviewAnalytics";
 import { verifySmtpConnection, getSmtpConfig } from "../email";
-import { serveStatic, setupVite } from "./vite";
+import { serveStatic } from "./static";
 import { registerSeoRoutes } from "../seoRoutes";
 import { ensureAdminUser } from "../db";
 
@@ -55,12 +55,13 @@ async function startServer() {
     res.status(404).json({ error: { message: "API procedure not found" } });
   });
   registerSeoRoutes(app);
-  // development mode uses Vite, production mode uses static files
+  // Development uses Vite; production serves the pre-built static files.
   if (process.env.NODE_ENV === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
+  const { setupVite } = await import("./vite");
+  await setupVite(app, server);
+} else {
+  serveStatic(app);
+}
 
   const port = Number(process.env.PORT || "3000");
 
