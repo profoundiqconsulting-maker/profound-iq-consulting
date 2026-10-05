@@ -5,8 +5,8 @@ import {
   Copy,
   Download,
   ExternalLink,
-  Facebook,
-  Linkedin,
+  facebook,
+  linkedin,
   Share2,
   ShieldCheck,
   X,
@@ -582,14 +582,14 @@ export default function CertificateVerification() {
                           onClick={() => openShare("linkedin")}
                           className="inline-flex items-center gap-2 border border-[#0A66C2]/50 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#0A66C2] hover:bg-[#0A66C2] hover:text-white"
                         >
-                          <Linkedin size={14} /> {actions.linkedIn}
+                          <linkedin size={14} /> {actions.linkedIn}
                         </button>
                         <button
                           type="button"
                           onClick={() => openShare("facebook")}
                           className="inline-flex items-center gap-2 border border-[#1877F2]/50 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#1877F2] hover:bg-[#1877F2] hover:text-white"
                         >
-                          <Facebook size={14} /> {actions.facebook}
+                          <facebook size={14} /> {actions.facebook}
                         </button>
                         <button
                           type="button"

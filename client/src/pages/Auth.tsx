@@ -5,9 +5,9 @@ import {
   CheckCircle2,
   Eye,
   EyeOff,
-  Facebook,
-  Instagram,
-  Linkedin,
+  facebook,
+  instagram,
+  linkedin,
   LockKeyhole,
   Loader2,
   MessageCircle,
@@ -682,7 +682,7 @@ export default function Auth() {
                 aria-label="Profound IQ Consulting on Facebook"
                 className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:border-[#1877F2] hover:bg-[#1877F2] hover:text-white"
               >
-                <Facebook size={16} />
+                <facebook size={16} />
               </a>
               <a
                 href="https://x.com/ProfoundIQC"
@@ -700,7 +700,7 @@ export default function Auth() {
                 aria-label="Profound IQ Consulting on LinkedIn"
                 className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:border-[#0A66C2] hover:bg-[#0A66C2] hover:text-white"
               >
-                <Linkedin size={16} />
+                <linkedin size={16} />
               </a>
               <a
                 href="https://www.instagram.com/profoundiqconsulting/"
@@ -709,7 +709,7 @@ export default function Auth() {
                 aria-label="Profound IQ Consulting on Instagram"
                 className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:border-[#E4405F] hover:bg-[#E4405F] hover:text-white"
               >
-                <Instagram size={16} />
+                <instagram size={16} />
               </a>
               <a
                 href="https://wa.me/254727374055"

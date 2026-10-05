@@ -11,7 +11,7 @@ import {
   CheckCircle2,
   CreditCard,
   Download,
-  Facebook,
+  facebook,
   Loader2,
   Mail,
   MessageCircle,
@@ -1244,7 +1244,7 @@ function ReportsPage({
                       onClick={() => shareResult("facebook")}
                       className="border-[#c1cad7]/30 bg-transparent text-[#f7f3e8]"
                     >
-                      <Facebook size={15} /> Facebook
+                      <facebook size={15} /> Facebook
                     </Button>
                   </div>
                 </div>

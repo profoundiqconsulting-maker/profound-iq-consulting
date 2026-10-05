@@ -6,10 +6,10 @@ import {
   Check,
   ChevronRight,
   Clock3,
-  Facebook,
+  facebook,
   FileText,
-  Instagram,
-  Linkedin,
+  instagram,
+  linkedin,
   Mail,
   MessageCircle,
   Phone,
@@ -1348,7 +1348,7 @@ export default function Home() {
                   aria-label="Profound IQ Consulting on Facebook"
                   className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#16243d] text-[#aab5c6] transition-all hover:border-[#c9a34e] hover:text-[#8b6914]"
                 >
-                  <Facebook size={18} />
+                   <facebook size={18} />
                 </a>
                 <a
                   href="https://x.com/ProfoundIQC"
@@ -1366,7 +1366,7 @@ export default function Home() {
                   aria-label="Profound IQ Consulting on LinkedIn"
                   className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#16243d] text-[#aab5c6] transition-all hover:border-[#c9a34e] hover:text-[#8b6914]"
                 >
-                  <Linkedin size={18} />
+                   <linkedin size={18} />
                 </a>
                 <a
                   href="https://www.instagram.com/profoundiqconsulting/"
@@ -1375,7 +1375,7 @@ export default function Home() {
                   aria-label="Profound IQ Consulting on Instagram"
                   className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#16243d] text-[#aab5c6] transition-all hover:border-[#c9a34e] hover:text-[#8b6914]"
                 >
-                  <Instagram size={18} />
+                   <instagram size={18} />
                 </a>
               </div>
             </div>
