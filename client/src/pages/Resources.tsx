@@ -52,10 +52,10 @@ export default function Resources() {
     retry: false,
     refetchOnWindowFocus: true,
   });
-  const [paymentResource, setPaymentResource] = useState<{ id: number; title: string; price: number; currency: string; reference?: string } | null>(null);
+  const [paymentResource, setPaymentResource] = useState<{ id: number; title: string; price: number; currency: string; reference?: string; accessCode?: string } | null>(null);
   const initializePayment = trpc.resources.initializePayment.useMutation({
     onSuccess: data => {
-      setPaymentResource(prev => prev ? { ...prev, reference: data.reference } : prev);
+      setPaymentResource(prev => prev ? { ...prev, reference: data.reference, accessCode: data.accessCode } : prev);
     },
     onError: error => toast.error(error.message),
   });
@@ -316,7 +316,7 @@ export default function Resources() {
         <PaystackInlineModal
           open={!!paymentResource.reference}
           product={{
-            accessCode: "",
+            accessCode: paymentResource.accessCode ?? "",
             reference: paymentResource.reference || "",
             amountKes: paymentResource.price,
             productName: paymentResource.title,

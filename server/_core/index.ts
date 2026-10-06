@@ -1,4 +1,5 @@
 import "dotenv/config";
+import path from "path";
 import express from "express";
 import { createServer } from "http";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
@@ -59,9 +60,10 @@ async function startServer() {
   if (process.env.NODE_ENV === "development") {
   const { setupVite } = await import("./vite");
   await setupVite(app, server);
-} else {
-  serveStatic(app);
-}
+  } else {
+    const staticPath = path.resolve(import.meta.dirname, "public");
+    serveStatic(app, staticPath);
+  }
 
   const port = Number(process.env.PORT || "3000");
 

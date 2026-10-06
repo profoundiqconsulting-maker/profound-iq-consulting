@@ -31,9 +31,10 @@ import {
 } from "../shared/courseCatalog";
 import { buildCoursePaymentSuccessPath } from "../shared/coursePaymentRouting";
 import { PUBLISHED_SITE_ORIGIN } from "../shared/siteOrigin";
-import { parseCookie } from "cookie";
+import { createRequire } from "node:module";
 
-import { paystackRequest } from "./_core/paystack";
+const require = createRequire(import.meta.url);
+const cookieNs = require("cookie");import { paystackRequest } from "./_core/paystack";
 import { reconcileStalePendingPayments } from "./paymentReconciliationJob";
 
 const PUBLIC_SITE_ORIGIN = PUBLISHED_SITE_ORIGIN;
@@ -1229,7 +1230,7 @@ export const appRouter = router({
       ),
     logout: publicProcedure.mutation(async ({ ctx }) => {
       const sessionToken =
-        parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
+        cookieNs.parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
       if (sessionToken && ctx.user) {
         const session = await getSessionByTokenHash(
           hashRateLimitKey(sessionToken)
@@ -1264,7 +1265,7 @@ export const appRouter = router({
       ),
     sessions: protectedProcedure.query(async ({ ctx }) => {
       const cookie =
-        parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
+        cookieNs.parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
       const current = cookie
         ? await getSessionByTokenHash(hashRateLimitKey(cookie))
         : undefined;
@@ -1281,7 +1282,7 @@ export const appRouter = router({
       }),
     revokeCurrentSession: protectedProcedure.mutation(async ({ ctx }) => {
       const cookie =
-        parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
+        cookieNs.parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
       if (cookie) {
         const session = await getSessionByTokenHash(hashRateLimitKey(cookie));
         if (session) await revokeUserSession(ctx.user.openId, session.id);
@@ -1294,7 +1295,7 @@ export const appRouter = router({
     }),
     revokeOtherSessions: protectedProcedure.mutation(async ({ ctx }) => {
       const cookie =
-        parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
+        cookieNs.parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
       if (!cookie)
         throw new TRPCError({
           code: "UNAUTHORIZED",
@@ -1591,6 +1592,7 @@ export const appRouter = router({
             }),
           }),
         });
+        const accessCode = payment.data as { access_code?: string; authorization_url?: string };
         await createResourcePurchase({
           resourceId: input.resourceId,
           userOpenId: ctx.user.openId,
@@ -1601,7 +1603,8 @@ export const appRouter = router({
           paymentStatus: "pending",
         });
         return {
-          authorizationUrl: payment.data.authorization_url as string,
+          authorizationUrl: accessCode.authorization_url as string,
+          accessCode: accessCode.access_code as string,
           reference,
         };
       }),
@@ -2027,6 +2030,28 @@ export const appRouter = router({
         });
         return { recorded: true as const };
       }),
+    catalogList: publicProcedure.query(() =>
+      courseCatalog.map(course => ({
+        slug: course.slug,
+        index: course.index,
+        title: course.title,
+        strapline: course.strapline,
+        description: course.description,
+        audience: course.audience,
+        duration: course.duration,
+        outcomes: course.outcomes,
+        priceKes: course.priceKes,
+        stageAmountsKes: course.stageAmountsKes,
+        modules: course.modules.map(module => ({
+          id: module.id,
+          title: module.title,
+          promise: module.promise,
+        })),
+        category: course.category,
+        skillLevel: course.skillLevel,
+        coverImage: course.coverImage,
+      }))
+    ),
     catalog: publicProcedure.query(() => ({
       courses: courseCatalog,
       priceKes: COURSE_PRICE_KES,
@@ -3477,7 +3502,7 @@ export const appRouter = router({
           COURSE_REVIEW_WEEKLY_EXPORT_KEY
         );
         const sessionToken =
-          parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
+          cookieNs.parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
         if (!sessionToken)
           throw new TRPCError({
             code: "UNAUTHORIZED",
@@ -3527,7 +3552,7 @@ export const appRouter = router({
       if (!record?.scheduleTaskUid)
         return { paused: false, reason: "not-enabled" as const };
       const sessionToken =
-        parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
+        cookieNs.parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
       if (!sessionToken)
         throw new TRPCError({
           code: "UNAUTHORIZED",
@@ -4522,7 +4547,7 @@ export const appRouter = router({
         if (existing?.scheduleTaskUid)
           return { taskUid: existing.scheduleTaskUid, alreadyEnabled: true };
         const sessionToken =
-          parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
+          cookieNs.parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
         if (!sessionToken)
           throw new TRPCError({
             code: "UNAUTHORIZED",
@@ -4556,7 +4581,7 @@ export const appRouter = router({
         if (existing?.scheduleTaskUid)
           return { taskUid: existing.scheduleTaskUid, alreadyEnabled: true };
         const sessionToken =
-          parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
+          cookieNs.parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
         if (!sessionToken)
           throw new TRPCError({
             code: "UNAUTHORIZED",
@@ -5469,7 +5494,7 @@ export const appRouter = router({
       if (existing?.scheduleTaskUid)
         return { taskUid: existing.scheduleTaskUid, alreadyEnabled: true };
       const sessionToken =
-        parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
+        cookieNs.parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
       if (!sessionToken)
         throw new TRPCError({
           code: "UNAUTHORIZED",
@@ -6038,7 +6063,7 @@ export const appRouter = router({
       if (existing?.scheduleTaskUid)
         return { taskUid: existing.scheduleTaskUid, alreadyEnabled: true };
       const sessionToken =
-        parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
+        cookieNs.parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
       if (!sessionToken)
         throw new TRPCError({
           code: "UNAUTHORIZED",

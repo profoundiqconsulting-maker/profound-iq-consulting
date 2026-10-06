@@ -11,7 +11,6 @@ import {
   CheckCircle2,
   CreditCard,
   Download,
-  facebook,
   Loader2,
   Mail,
   MessageCircle,
@@ -20,6 +19,7 @@ import {
   Sparkles,
   Sun,
 } from "lucide-react";
+import { SocialIcon } from "@/components/SocialMediaIcons";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -731,7 +731,7 @@ function CheckoutPage({
 
           {paymentState === "verifying" && (
             <div className="mt-8 flex items-center gap-3 border-l-2 border-[#c9a34e] bg-[#16243d] px-5 py-4 text-sm text-[#f7f3e8]">
-              <Loader2 className="animate-spin text-[#8b6914]" size={18} />
+              <Loader2 className="animate-spin text-[#c9a34e]" size={18} />
               <span>
                 <strong>Payment received.</strong> We are confirming the
                 Paystack transaction before unlocking your report.
@@ -757,7 +757,7 @@ function CheckoutPage({
             <div className="mt-8 border border-[#16243d]/15 bg-[#16243d] p-5 text-[#f7f3e8] sm:p-7">
               <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="eyebrow text-[#8b6914]">
+                  <p className="eyebrow text-[#c9a34e]">
                     CareerPath Talent Fit
                   </p>
                   <p className="mt-2 text-sm text-[#d7deea]">
@@ -1051,7 +1051,7 @@ function ReportsPage({
               onClick={() => shareResult("facebook")}
               className="border-[#c1cad7]/30 bg-transparent text-[#f7f3e8]"
             >
-              <Facebook size={15} /> Facebook
+              <SocialIcon platform="facebook" /> Facebook
             </Button>
           </div>
         </div>
@@ -1087,7 +1087,7 @@ function ReportsPage({
                                 className="border border-[#16243d]/12 bg-[#f7f3e8] p-4"
                               >
                                 <div className="mb-3 overflow-hidden border border-[#c9a34e]/60 bg-[#16243d] p-3 text-[#f7f3e8]">
-                                  <p className="text-[9px] font-black uppercase tracking-[.16em] text-[#8b6914]">
+                                  <p className="text-[9px] font-black uppercase tracking-[.16em] text-[#c9a34e]">
                                     Profound IQ Consulting
                                   </p>
                                   <p className="display mt-2 text-xl">
@@ -1244,7 +1244,7 @@ function ReportsPage({
                       onClick={() => shareResult("facebook")}
                       className="border-[#c1cad7]/30 bg-transparent text-[#f7f3e8]"
                     >
-                      <facebook size={15} /> Facebook
+                      <SocialIcon platform="facebook" /> Facebook
                     </Button>
                   </div>
                 </div>

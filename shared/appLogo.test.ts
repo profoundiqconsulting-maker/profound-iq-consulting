@@ -18,7 +18,7 @@ describe("shared app logo configuration", () => {
       '<link rel="icon" type="image/x-icon" href="/favicon.ico" />'
     );
     expect(documentHead).toContain(
-      '<meta property="og:image" content="http://localhost:3000/ProfoundIQSocialSharingImage.png" />'
+      '<meta property="og:image" content="https://profoundiqconsulting.com/ProfoundIQSocialSharingImage.png" />'
     );
     expect(documentHead).toContain(
       '<meta property="og:image:width" content="1733" />'

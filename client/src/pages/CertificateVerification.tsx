@@ -5,13 +5,12 @@ import {
   Copy,
   Download,
   ExternalLink,
-  facebook,
-  linkedin,
   Share2,
   ShieldCheck,
   X,
   XCircle,
 } from "lucide-react";
+import { SocialIcon } from "@/components/SocialMediaIcons";
 import { Link } from "wouter";
 import { TransformationNav } from "@/components/TransformationNav";
 import { trpc } from "@/lib/trpc";
@@ -582,14 +581,14 @@ export default function CertificateVerification() {
                           onClick={() => openShare("linkedin")}
                           className="inline-flex items-center gap-2 border border-[#0A66C2]/50 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#0A66C2] hover:bg-[#0A66C2] hover:text-white"
                         >
-                          <linkedin size={14} /> {actions.linkedIn}
+                          <SocialIcon platform="linkedin" /> {actions.linkedIn}
                         </button>
                         <button
                           type="button"
                           onClick={() => openShare("facebook")}
                           className="inline-flex items-center gap-2 border border-[#1877F2]/50 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#1877F2] hover:bg-[#1877F2] hover:text-white"
                         >
-                          <facebook size={14} /> {actions.facebook}
+                          <SocialIcon platform="facebook" /> {actions.facebook}
                         </button>
                         <button
                           type="button"

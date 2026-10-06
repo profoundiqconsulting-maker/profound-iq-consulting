@@ -384,7 +384,7 @@ export function registerSeoRoutes(app: Express) {
   app.get(
     "/og/insight/:slug.png",
     async (req: Request, res: Response, next: NextFunction) => {
-      const article = await getInsightArticleBySlug(req.params.slug);
+      const article = await getInsightArticleBySlug(req.params.slug as string);
       if (!article || article.status !== "Published") return next();
       const image = await renderInsightSocialImage(article);
       res
@@ -419,7 +419,7 @@ export function registerSeoRoutes(app: Express) {
   app.get(
     "/blog/:slug",
     async (req: Request, res: Response, next: NextFunction) => {
-      const article = await getInsightArticleBySlug(req.params.slug);
+      const article = await getInsightArticleBySlug(req.params.slug as string);
       if (!article) return next();
       res
         .type("html")

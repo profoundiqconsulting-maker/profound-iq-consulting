@@ -105,14 +105,15 @@ export async function setupVite(app: Express, server: Server) {
   });
 }
 
-export function serveStatic(app: Express) {
-  const distPath =
-    process.env.NODE_ENV === "development"
+export function serveStatic(app: Express, distPath?: string) {
+  const resolvedDistPath =
+    distPath ??
+    (process.env.NODE_ENV === "development"
       ? path.resolve(import.meta.dirname, "../..", "dist", "public")
-      : path.resolve(import.meta.dirname, "public");
-  if (!fs.existsSync(distPath)) {
+      : path.resolve(import.meta.dirname, "public"));
+  if (!fs.existsSync(resolvedDistPath)) {
     console.error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`
+      `Could not find the build directory: ${resolvedDistPath}, make sure to build the client first`
     );
   }
 
@@ -127,7 +128,7 @@ export function serveStatic(app: Express) {
   // - Hashed assets (with hash in filename) get long-term caching
   // - Non-hashed assets get short-term caching with revalidation
   app.use(
-    express.static(distPath, {
+    express.static(resolvedDistPath, {
       setHeaders: (res, filePath) => {
         if (filePath.endsWith(".html")) {
           res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -150,6 +151,6 @@ export function serveStatic(app: Express) {
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
-    res.sendFile(path.resolve(distPath, "index.html"));
+    res.sendFile(path.resolve(resolvedDistPath, "index.html"));
   });
 }

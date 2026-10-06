@@ -39,12 +39,12 @@ function serveAstroRoutes(app: Express) {
   app.use(express.static(astroPath, { extensions: ["html"] }));
 }
 
-export function serveStatic(app: Express) {
-  const distPath = path.resolve(import.meta.dirname, "public");
+export function serveStatic(app: Express, distPath?: string) {
+  const resolvedDistPath = distPath ?? path.resolve(import.meta.dirname, "public");
 
-  if (!fs.existsSync(distPath)) {
+  if (!fs.existsSync(resolvedDistPath)) {
     console.error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`
+      `Could not find the build directory: ${resolvedDistPath}, make sure to build the client first`
     );
   }
 
@@ -55,7 +55,7 @@ export function serveStatic(app: Express) {
 
   // Serve Vite-built client assets.
   app.use(
-    express.static(distPath, {
+    express.static(resolvedDistPath, {
       setHeaders: (res, filePath) => {
         if (filePath.endsWith(".html")) {
           res.setHeader(
@@ -87,6 +87,6 @@ export function serveStatic(app: Express) {
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
 
-    res.sendFile(path.resolve(distPath, "index.html"));
+    res.sendFile(path.resolve(resolvedDistPath, "index.html"));
   });
 }

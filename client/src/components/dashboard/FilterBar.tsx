@@ -89,7 +89,6 @@ export function FilterBar({ filters, onReset, className = "" }: FilterBarProps) 
                   mode="single"
                   selected={filter.value}
                   onSelect={filter.onChange}
-                  initialFocus
                 />
               </PopoverContent>
             </Popover>

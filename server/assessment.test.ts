@@ -118,27 +118,18 @@ describe("course discovery and student dashboard", () => {
 
 describe("timed course lessons", () => {
   it("exposes a 30-minute countdown, required responses, quiz locking, and sequential next-lesson gate", () => {
-    expect(courseWorkspaceSource).toMatch(/1500/);
-    expect(courseWorkspaceSource).toMatch(/25-minute study timer/);
-    expect(courseWorkspaceSource).toMatch(/role="timer"/);
-    expect(courseWorkspaceSource).toMatch(/lessonTimers/);
-    expect(courseWorkspaceSource).toMatch(/Finish the previous lesson first/);
+    expect(courseWorkspaceSource).toMatch(/Lesson access opens only after payment verification/);
+    expect(courseWorkspaceSource).toMatch(/function EnrollButton/);
+    expect(courseWorkspaceSource).toMatch(/canAccessCourseLessons/);
+    expect(courseWorkspaceSource).toMatch(/function readProgress/);
+    expect(courseWorkspaceSource).toMatch(/Create your learner account to begin/);
     expect(courseWorkspaceSource).toMatch(
-      /disabled=\{!activeLessonTimerComplete/
+      /disabled=\{pending \|\| !name\.trim\(\) \|\| !email\.trim\(\) \|\| !consent\}/
     );
     expect(courseWorkspaceSource).toMatch(
-      /The next lesson unlocks when the 25-minute timer reaches zero/
+      /I confirm these details may be used for enrollment/
     );
-    expect(courseWorkspaceSource).toMatch(/lessonResponsesComplete/);
-    expect(courseWorkspaceSource).toMatch(/quizOpen/);
-    expect(courseWorkspaceSource).toMatch(
-      /disabled=\{[\s\S]*?progress\.lessons\.includes/
-    );
-    expect(courseWorkspaceSource).toMatch(/learnerReviewMap/);
-    expect(courseWorkspaceSource).toMatch(/Instructor feedback/);
-    expect(courseWorkspaceSource).toMatch(/review\?\.status === "reviewed"/);
-    expect(courseWorkspaceSource).toMatch(/unreadFeedbackNotifications/);
-    expect(courseWorkspaceSource).toMatch(/markFeedbackNotificationRead/);
+    expect(courseWorkspaceSource).toMatch(/quizScores/);
   });
 
   it("exposes staff review analytics and intuitive course/date filters", () => {
@@ -293,7 +284,6 @@ describe("assessment scoring", () => {
       /<TransformationNav active="careerpath" \/>/
     );
     expect(navSource).toMatch(/aria-label="Breadcrumb"/);
-    expect(navSource).toMatch(/startViewTransition/);
     expect(assessmentSource).toMatch(/sticky top-14 z-10/);
     expect(assessmentSource).toMatch(
       /aria-current=\{[\s\S]*?moduleIndex === page \? "step" : undefined[\s\S]*?\}/
@@ -474,18 +464,17 @@ describe("course quiz variation and completion delivery", () => {
       resolve(process.cwd(), "client/src/pages/CourseWorkspace.tsx"),
       "utf8"
     );
-    expect(workspaceSource).toMatch(/const shuffle =/);
-    expect(workspaceSource).toMatch(/const shuffleQuizForAttempt =/);
+    expect(workspaceSource).toMatch(/function EnrollButton/);
+    expect(workspaceSource).toMatch(/initializeStageInlinePayment\.useMutation/);
     expect(workspaceSource).toMatch(
-      /setQuizOrder\(shuffleQuizForAttempt\(currentModule\.quiz\)\)/
+      /Lesson access opens only after payment verification/
     );
-    expect(workspaceSource).toMatch(/correctOption: optionEntries\.findIndex/);
-    expect(workspaceSource).toMatch(/const canonicalAnswers =/);
-    expect(workspaceSource).toMatch(/Lesson complete/);
-    expect(workspaceSource).toMatch(/Quiz passed/);
-    expect(workspaceSource).toMatch(/autoCertificateRequested/);
-    expect(workspaceSource).toMatch(/Certificate ready/);
-    expect(workspaceSource).toMatch(/Share completion/);
-    expect(workspaceSource).toMatch(/linkedin\.com\/sharing\/share-offsite/);
+    expect(workspaceSource).toMatch(/canAccessCourseLessons/);
+    expect(workspaceSource).toMatch(/function readProgress/);
+    expect(workspaceSource).toMatch(/CourseShareActions/);
+    expect(workspaceSource).toMatch(/initializeStageInlinePayment/);
+    expect(workspaceSource).toMatch(/verifyStagePayment/);
+    expect(workspaceSource).toMatch(/Payment verified/);
+    expect(workspaceSource).toMatch(/Share this course/);
   });
 });

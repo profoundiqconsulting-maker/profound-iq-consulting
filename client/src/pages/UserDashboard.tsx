@@ -3918,7 +3918,7 @@ export default function UserDashboard() {
                     key={`${bookmark.course.slug}-${bookmark.key}`}
                     className="flex flex-wrap items-center gap-4 border border-[#16243d]/10 bg-[#f7f3e8] p-4"
                   >
-                    <div className="grid h-10 w-10 shrink-0 place-items-center bg-[#16243d] text-accent-on-dark">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center bg-[#16243d] text-[#c9a34e]">
                       {bookmark.kind === "simulation" ? "S" : "§"}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -4043,7 +4043,7 @@ export default function UserDashboard() {
                   className="border border-[#c9a34e]/60 bg-[#fffaf0] p-4 shadow-sm"
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="grid h-11 w-11 place-items-center rounded-full bg-[#16243d] text-accent-on-dark">
+                    <div className="grid h-11 w-11 place-items-center rounded-full bg-[#16243d] text-[#c9a34e]">
                       <Award className="h-5 w-5" aria-hidden="true" />
                     </div>
                     <span className="text-[10px] font-black uppercase tracking-[.1em] text-accent">

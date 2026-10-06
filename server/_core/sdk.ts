@@ -1,5 +1,4 @@
 import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
-import { parseCookie } from "cookie";
 import type { Request } from "express";
 import { SignJWT, jwtVerify } from "jose";
 import type { User } from "../../drizzle/schema";
@@ -7,6 +6,10 @@ import { hashRateLimitKey } from "../localAuthCrypto";
 import { getRequestSecurityMetadata } from "../securityMetadata";
 import * as db from "../db";
 import { ENV } from "./env";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+const cookieNs = require("cookie");
 
 const isNonEmptyString = (value: unknown): value is string =>
   typeof value === "string" && value.length > 0;
@@ -163,8 +166,8 @@ class SessionManager {
     if (!cookieHeader) {
       return new Map();
     }
-    const parsed = parseCookie(cookieHeader);
-    return new Map(Object.entries(parsed));
+    const parsed = cookieNs.parseCookie(cookieHeader);
+    return new Map(Object.entries(parsed).filter((entry) => entry[1] !== undefined) as [string, string][]);
   }
 }
 

@@ -1,6 +1,7 @@
 /* Profound IQ Consulting — accessible social sharing rail for reports and certificates. */
 import { useState } from "react";
-import { Copy, facebook, instagram, linkedin, MessageCircle, Share2, Twitter, X } from "lucide-react";
+import { Copy, MessageCircle, Share2, X } from "lucide-react";
+import { SocialIcon } from "@/components/SocialMediaIcons";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
@@ -39,10 +40,10 @@ const platformMeta: Record<
   SocialPlatform,
   { label: string; icon: React.ReactNode; shortLabel: string }
 > = {
-  linkedin: { label: "LinkedIn", shortLabel: "LinkedIn", icon: <linkedin size={14} /> },
+  linkedin: { label: "LinkedIn", shortLabel: "LinkedIn", icon: <SocialIcon platform="linkedin" /> },
   x: { label: "X", shortLabel: "X", icon: <X size={14} /> },
-  facebook: { label: "Facebook", shortLabel: "Facebook", icon: <facebook size={14} /> },
-  instagram: { label: "Instagram", shortLabel: "Instagram", icon: <instagram size={14} /> },
+  facebook: { label: "Facebook", shortLabel: "Facebook", icon: <SocialIcon platform="facebook" /> },
+  instagram: { label: "Instagram", shortLabel: "Instagram", icon: <SocialIcon platform="instagram" /> },
   whatsapp: { label: "WhatsApp", shortLabel: "WhatsApp", icon: <MessageCircle size={14} /> },
   email: { label: "Email", shortLabel: "Email", icon: <Copy size={14} /> },
   copy: { label: "Copy link", shortLabel: "Copy", icon: <Copy size={14} /> },

@@ -5,15 +5,13 @@ import {
   CheckCircle2,
   Eye,
   EyeOff,
-  facebook,
-  instagram,
-  linkedin,
   LockKeyhole,
   Loader2,
   MessageCircle,
   RefreshCw,
   X,
 } from "lucide-react";
+import { SocialIcon } from "@/components/SocialMediaIcons";
 import { Link, useLocation } from "wouter";
 import { BrandLogo } from "@/components/BrandLogo";
 import { startLogin } from "@/const";
@@ -682,7 +680,7 @@ export default function Auth() {
                 aria-label="Profound IQ Consulting on Facebook"
                 className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:border-[#1877F2] hover:bg-[#1877F2] hover:text-white"
               >
-                <facebook size={16} />
+                <SocialIcon platform="facebook" />
               </a>
               <a
                 href="https://x.com/ProfoundIQC"
@@ -700,7 +698,7 @@ export default function Auth() {
                 aria-label="Profound IQ Consulting on LinkedIn"
                 className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:border-[#0A66C2] hover:bg-[#0A66C2] hover:text-white"
               >
-                <linkedin size={16} />
+                <SocialIcon platform="linkedin" />
               </a>
               <a
                 href="https://www.instagram.com/profoundiqconsulting/"
@@ -709,7 +707,7 @@ export default function Auth() {
                 aria-label="Profound IQ Consulting on Instagram"
                 className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:border-[#E4405F] hover:bg-[#E4405F] hover:text-white"
               >
-                <instagram size={16} />
+                <SocialIcon platform="instagram" />
               </a>
               <a
                 href="https://wa.me/254727374055"

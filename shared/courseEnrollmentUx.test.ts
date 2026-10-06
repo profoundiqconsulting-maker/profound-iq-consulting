@@ -60,7 +60,7 @@ describe("course enrollment access flow", () => {
   });
 
   it("creates an authenticated enrollment and initializes stage one before redirecting to Paystack", () => {
-    expect(workspaceSource).toContain("function FirstStageCheckout");
+    expect(workspaceSource).toContain("function EnrollButton");
     expect(workspaceSource).toContain("trpc.course.enroll.useMutation");
     expect(workspaceSource).toContain("stage: 1");
     expect(workspaceSource).toContain(
@@ -70,7 +70,7 @@ describe("course enrollment access flow", () => {
       "Lesson access opens only after payment verification"
     );
     expect(workspaceSource).toContain(
-      "checkoutMutation.mutate("
+      "checkout.mutate("
     );
     expect(workspaceSource).toContain(
       "enrollmentId: result.enrollmentId, stage: 1"
@@ -80,10 +80,10 @@ describe("course enrollment access flow", () => {
   it("keeps lesson content behind auth-session resolution and staged payment gates", () => {
     expect(workspaceSource).toContain("loading: authLoading");
     expect(workspaceSource).toContain(
-      "Your lessons remain protected while we confirm your signed-in"
+      "Checking your workspace"
     );
     expect(workspaceSource).toContain("canAccessCourseLessons");
-    expect(accessSource).toContain("Complete the first 25% enrollment payment");
+    expect(accessSource).toContain("Detailed lessons are available");
   });
 
   it("keeps server lesson mutations behind the same staged-payment policy", () => {

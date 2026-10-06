@@ -86,11 +86,11 @@ export default function CoursePaymentSuccess() {
             />
             <p className="eyebrow mt-5 text-[#7d5e1e]">Secure verification</p>
             <h1 className="display mt-3 text-4xl">Confirming your payment.</h1>
-            <p className="mt-4 text-sm text-[#657084]">
+            <p className="mt-4 text-sm text-[#4a566a]">
               We are checking the Paystack transaction before unlocking your
               next course step.
             </p>
-            <p className="mt-2 text-xs text-[#657084]">
+            <p className="mt-2 text-xs text-[#4a566a]">
               Retrying automatically… attempt {attempt + 1} of {MAX_ATTEMPTS}
             </p>
           </div>
@@ -108,7 +108,7 @@ export default function CoursePaymentSuccess() {
             <h1 className="display mt-4 text-4xl">
               Sign in to confirm payment.
             </h1>
-            <p className="mt-4 text-sm leading-6 text-[#657084]">
+            <p className="mt-4 text-sm leading-6 text-[#4a566a]">
               Return to your authenticated workspace so we can securely match
               this payment to your course enrollment.
             </p>
@@ -133,7 +133,7 @@ export default function CoursePaymentSuccess() {
             <h1 className="display mt-4 text-4xl">
               Payment needs another check.
             </h1>
-            <p className="mt-4 text-sm leading-6 text-[#657084]">
+            <p className="mt-4 text-sm leading-6 text-[#4a566a]">
               We could not verify this transaction yet. We are retrying in the
               background, or you can try again. If this still fails, your
               payment record is on file and an administrator can verify it
@@ -195,7 +195,7 @@ export default function CoursePaymentSuccess() {
               Open dashboard
             </Link>
           </div>
-          <p className="mt-7 text-[11px] text-[#657084]">
+          <p className="mt-7 text-[11px] text-[#4a566a]">
             Keep this page for your records. Your receipt and payment history
             are available in your dashboard.
           </p>

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
+  ArrowUpRight,
   Bookmark,
   CheckCircle2,
   ChevronDown,
@@ -27,6 +28,7 @@ import { TransformationNav } from "@/components/TransformationNav";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { CourseShareActions } from "@/components/CourseShareActions";
+import PaystackInlineModal from "@/components/PaystackInlineModal";
 import { courseEnrollmentCopy } from "@shared/courseEnrollmentLocalization";
 
 type LessonTimerState = { startedAt: number; completedAt?: number };
@@ -183,7 +185,7 @@ export default function CourseWorkspace() {
               </div>
               
               <div className="rounded-2xl border border-[#c9a34e]/40 bg-[#16243d] p-6 text-[#f7f3e8] sm:p-8">
-                <p className="eyebrow text-accent-on-dark">
+                <p className="eyebrow text-[#c9a34e]">
                   Detailed lessons are protected
                 </p>
                 <h2 className="display mt-3 text-2xl text-[#f7f3e8]">
@@ -356,7 +358,7 @@ function EnrollButton({ course }: { course: CourseDefinition }) {
     reference: string;
     amountKes: number;
     productName: string;
-    productType: string;
+    productType: "course_stage";
     enrollmentId: number;
     courseSlug: string;
     stage: number;
@@ -429,19 +431,19 @@ function EnrollButton({ course }: { course: CourseDefinition }) {
       onSubmit={submit}
       className="mt-6 max-w-xl rounded-xl border border-white/15 bg-white/5 p-5 shadow-sm sm:p-6"
     >
-      <p className="text-xs font-black uppercase tracking-[.14em] text-accent-on-dark">
+      <p className="text-xs font-black uppercase tracking-[.14em] text-[#c9a34e]">
         First step · unlock Module 1
       </p>
-      <p className="mt-2 text-sm leading-6 text-muted-on-dark">
+      <p className="mt-2 text-sm leading-6 text-[#f7f3e8]">
         Create or refresh your enrollment, then pay the first staged installment
         of{" "}
-        <strong className="text-[#f7f3e8]">
+        <strong className="text-[#c9a34e]">
           KES {(course.stageAmountsKes[0] ?? 0).toLocaleString()}
         </strong>{" "}
         through Paystack. Lesson access opens only after payment verification.
       </p>
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        <label className="grid gap-2 text-[10px] font-black uppercase tracking-[.12em] text-muted-on-dark">
+        <label className="grid gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8]">
           {courseEnrollmentCopy.yourName}
           <input
             id="workspace-enrollment-name"
@@ -454,7 +456,7 @@ function EnrollButton({ course }: { course: CourseDefinition }) {
             className="border border-white/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
           />
         </label>
-        <label className="grid gap-2 text-[10px] font-black uppercase tracking-[.12em] text-muted-on-dark">
+        <label className="grid gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8]">
           {courseEnrollmentCopy.emailAddress}
           <input
             id="workspace-enrollment-email"
@@ -468,7 +470,7 @@ function EnrollButton({ course }: { course: CourseDefinition }) {
           />
         </label>
       </div>
-      <label className="mt-4 flex items-start gap-3 text-xs leading-5 text-muted-on-dark">
+      <label className="mt-4 flex items-start gap-3 text-xs leading-5 text-[#f7f3e8]">
         <input
           type="checkbox"
           required
@@ -495,6 +497,40 @@ function EnrollButton({ course }: { course: CourseDefinition }) {
           ? "Processing..."
           : `${courseEnrollmentCopy.payment} · KES ${(course.stageAmountsKes[0] ?? 0).toLocaleString()}`}
       </button>
+      <PaystackInlineModal
+        open={inlineModalOpen}
+        product={inlineProduct}
+        customerEmail={email}
+        onClose={() => {
+          setInlineModalOpen(false);
+          setInlineProduct(null);
+        }}
+        onSuccess={reference => {
+          setInlineModalOpen(false);
+          setInlineProduct(null);
+          verify.mutate(
+            { reference },
+            {
+              onSuccess: () => {
+                void utils.course.state.invalidate();
+                toast.success("Payment verified", {
+                  description: "Your course access is updated.",
+                });
+              },
+              onError: error => {
+                toast.error("Payment verification needs attention", {
+                  description: error.message,
+                });
+              },
+            }
+          );
+        }}
+        onError={message => {
+          setInlineModalOpen(false);
+          setInlineProduct(null);
+          toast.error("Payment failed", { description: message });
+        }}
+      />
     </form>
   );
 }

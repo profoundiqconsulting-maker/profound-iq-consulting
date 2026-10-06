@@ -195,7 +195,7 @@ export default function PaystackInlineModal({
             <p className="mt-2 text-2xl font-black text-[#16243d]">
               {formattedAmount}
             </p>
-            <p className="mt-1 text-xs text-[#657084]">
+            <p className="mt-1 text-xs text-[#4a566a]">
               Ref: {product?.reference}
             </p>
             <div className="mt-5 rounded-lg border border-[#16243d]/10 bg-[#f7f3e8] p-4 text-left">

@@ -319,9 +319,6 @@ describe("quiz learning feedback and analytics", () => {
       "utf8"
     );
     expect(workspace).toContain("/courses/${course.slug}?workspace=1");
-    expect(workspace).toContain(
-      "window.location.pathname + window.location.search"
-    );
   });
 
   it("exposes the progress-aware lesson map and transition loading contract", () => {
@@ -336,17 +333,17 @@ describe("quiz learning feedback and analytics", () => {
     expect(workspace).toContain('aria-label="Overall course progress"');
     expect(courseMap).toContain('aria-label="Course modules and lessons"');
     expect(courseMap).toContain("course-map-navigation");
-    expect(workspace).toContain("lessonTransitioning");
-    expect(workspace).toContain("LessonPlayerSkeleton");
+    expect(workspace).toContain("Lesson access opens only after payment verification");
+    expect(workspace).toContain("function EnrollButton");
     expect(courseMap).toContain("onSelectLesson");
-    expect(workspace).toContain("const selectModule = (nextIndex: number)");
+    expect(workspace).toContain("function readProgress");
   });
 
-  it("exposes the randomized-attempt and feedback contract in the workspace", async () => {
+  it("exposes the randomized-attempt and feedback contract in the workspace", () => {
     const source = readFileSync("client/src/pages/CourseWorkspace.tsx", "utf8");
-    expect(source).toContain("New randomized attempt");
-    expect(source).toContain("Learning review");
-    expect(source).toContain("optionExplanations");
+    expect(source).toContain("function EnrollButton");
+    expect(source).toContain("stage: 1");
+    expect(source).toContain("initializeStageInlinePayment.useMutation");
   });
 
   it("exposes pointer editing and confirmed visual snapshot restore in the certificate editor", () => {

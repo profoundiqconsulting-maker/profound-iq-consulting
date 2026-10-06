@@ -71,12 +71,12 @@ export default function Courses() {
   const [careerGoal, setCareerGoal] = useState("ai");
   const [currentLevel, setCurrentLevel] =
     useState<CourseCard["skillLevel"]>("Foundation");
-  const [activeTab, setActiveTab] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<string>("All categories");
   const [visibleCount, setVisibleCount] = useState(4);
 
   const { user, isAuthenticated } = useAuth();
   const enrollmentCopy = courseEnrollmentCopy;
-  const catalog = trpc.course.catalog.useQuery(undefined, {
+  const catalogList = trpc.course.catalogList.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: true,
   });
@@ -85,7 +85,7 @@ export default function Courses() {
     refetchOnWindowFocus: true,
   });
   const codeCourses = useMemo<CourseCard[]>(() => {
-    const baseCourses = (catalog.data?.courses ?? []).map((course, index) => ({
+    const baseCourses = (catalogList.data ?? []).map((course, index) => ({
       slug: course.slug,
       index: String(index + 1).padStart(2, "0"),
       title: course.title,
@@ -121,11 +121,11 @@ export default function Courses() {
       outcomes: item.outcomes,
       modules: [] as never[],
       price: `KES ${item.priceKes.toLocaleString()}`,
-      stagePlan: "",
+      stagePlan: `KES ${Math.round(item.priceKes / 4).toLocaleString()} × 4`,
       format: item.duration,
       body: item.description,
       category: (item as any).category ?? "Professional development",
-      skillLevel: (item as any).skillLevel ?? "Practitioner",
+      skillLevel: (item as any).skillLevel ?? skillFallback(item.slug),
       coverImage: item.coverImageUrl ?? coverFallback,
       isDatabaseItem: true,
     }));
@@ -145,7 +145,7 @@ export default function Courses() {
       ...merged,
       ...Array.from(bySlug.values()),
     ] as CourseCard[];
-  }, [catalog.data?.courses, liveCatalog.data]);
+  }, [catalogList.data, liveCatalog.data]);
   const enrollment = trpc.enrollment.create.useMutation({
     onSuccess: () => {
       setSubmitted(true);
@@ -193,43 +193,7 @@ export default function Courses() {
         description: error.message,
       }),
   });
-  const courses = useMemo<CourseCard[]>(() => {
-    const overlays = (liveCatalog.data ?? []).map(item => {
-      const seeded = codeCourses.find(course => course.slug === item.slug);
-      return {
-        slug: item.slug,
-        index: `D${String(item.id).padStart(2, "0")}`,
-        title: item.title,
-        strapline: item.strapline,
-        description: item.description,
-        audience: item.audience,
-        duration: item.duration,
-        outcomes: item.outcomes,
-        modules: [],
-        price: `KES ${item.priceKes.toLocaleString()}`,
-        stagePlan: `KES ${Math.round(item.priceKes / 4).toLocaleString()} × 4`,
-        format: item.duration,
-        body: item.description,
-        category: seeded?.category ?? "Personal Development",
-        skillLevel: seeded?.skillLevel ?? skillFallback(item.slug),
-        coverImage: seeded?.coverImage ?? coverFallback,
-        isDatabaseItem: true,
-      };
-    });
-    const bySlug = new Map(overlays.map(item => [item.slug, item]));
-    const merged = codeCourses.map(course => {
-      const overlay = bySlug.get(course.slug);
-      if (!overlay) return course;
-      bySlug.delete(course.slug);
-      return {
-        ...course,
-        ...overlay,
-        modules: course.modules,
-        isDatabaseItem: true,
-      };
-    });
-    return [...merged, ...Array.from(bySlug.values())];
-  }, [liveCatalog.data]);
+  const courses = codeCourses;
   const categories = useMemo(
     () => [
       "All categories",
@@ -252,7 +216,6 @@ export default function Courses() {
   );
   const tabCategories = useMemo(
     () => [
-      "All categories",
       ...Array.from(
         new Set(
           courses
@@ -260,6 +223,7 @@ export default function Courses() {
             .map(value => value)
         )
       ),
+      "All categories",
     ],
     [courses]
   );
@@ -313,11 +277,6 @@ export default function Courses() {
   useEffect(() => {
     setVisibleCount(6);
   }, [activeTab, category, searchTerm, skillLevel, sortBy]);
-  useEffect(() => {
-    if (!activeTab && tabCategories.length > 1) {
-      setActiveTab(tabCategories[1]);
-    }
-  }, [activeTab, tabCategories]);
   useEffect(() => {
     if (!selectedCourse) return;
     const close = (event: KeyboardEvent) => {
@@ -462,13 +421,13 @@ export default function Courses() {
                 repeatable practice, and a clear completion path.
               </p>
           </div>
-          {liveCatalog.isLoading && (
+          {(catalogList.isLoading || liveCatalog.isLoading) && (
             <div className="flex items-center gap-3 border border-[#16243d]/15 p-5 text-sm text-[#4a566a]">
               <Loader2 size={16} className="animate-spin text-[#7d5e1e]" />{" "}
               Loading the current catalog…
             </div>
           )}
-          {!liveCatalog.isLoading && !courses.length && (
+          {!catalogList.isLoading && !liveCatalog.isLoading && !courses.length && (
             <div className="border-l-2 border-[#c9a34e] bg-white/40 p-6 text-sm text-[#4a566a]">
               New courses are being prepared.{" "}
               <Link
@@ -480,28 +439,8 @@ export default function Courses() {
               about your goals.
             </div>
           )}
-          {!liveCatalog.isLoading && courses.length > 0 && (
+          {!catalogList.isLoading && !liveCatalog.isLoading && courses.length > 0 && (
             <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab("All categories");
-                  setCategory("All categories");
-                }}
-                className={`rounded-xl border p-4 text-left transition-all ${
-                  activeTab === "All categories"
-                    ? "border-[#c9a34e] bg-[#fffaf0] shadow-md"
-                    : "border-[#16243d]/15 bg-white/55 hover:border-[#c9a34e]/50 hover:shadow-sm"
-                }`}
-              >
-                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-                  All categories
-                </p>
-                <p className="display mt-2 text-2xl">{courses.length}</p>
-                <p className="mt-1 text-xs text-[#4a566a]">
-                  {courses.length === 1 ? "course" : "courses"}
-                </p>
-              </button>
               {tabCategories.filter(cat => cat !== "All categories").map(cat => {
                 const count = courses.filter(course => courseCategory(course) === cat).length;
                 return (
@@ -528,6 +467,26 @@ export default function Courses() {
                   </button>
                 );
               })}
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab("All categories");
+                  setCategory("All categories");
+                }}
+                className={`rounded-xl border p-4 text-left transition-all ${
+                  activeTab === "All categories"
+                    ? "border-[#c9a34e] bg-[#fffaf0] shadow-md"
+                    : "border-[#16243d]/15 bg-white/55 hover:border-[#c9a34e]/50 hover:shadow-sm"
+                }`}
+              >
+                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
+                  All categories
+                </p>
+                <p className="display mt-2 text-2xl">{courses.length}</p>
+                <p className="mt-1 text-xs text-[#4a566a]">
+                  {courses.length === 1 ? "course" : "courses"}
+                </p>
+              </button>
             </div>
           )}
           <div className="mb-6 flex gap-2 overflow-x-auto border-b border-[#16243d]/15 pb-0">

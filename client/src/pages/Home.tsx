@@ -6,10 +6,7 @@ import {
   Check,
   ChevronRight,
   Clock3,
-  facebook,
   FileText,
-  instagram,
-  linkedin,
   Mail,
   MessageCircle,
   Phone,
@@ -22,6 +19,7 @@ import {
   BrainCircuit,
   BarChart3,
 } from "lucide-react";
+import { SocialIcon } from "@/components/SocialMediaIcons";
 import { BrandLogo } from "@/components/BrandLogo";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { CourseShareActions } from "@/components/CourseShareActions";
@@ -161,7 +159,7 @@ export default function Home() {
   const enrollment = trpc.enrollment.create.useMutation();
   const inquiry = trpc.inquiry.create.useMutation();
   const { user, isAuthenticated } = useAuth();
-  const catalog = trpc.course.catalog.useQuery(undefined, {
+  const catalogList = trpc.course.catalogList.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: true,
   });
@@ -178,7 +176,7 @@ export default function Home() {
     refetchOnWindowFocus: true,
   });
   const courses = useMemo(() => {
-    const baseCourses = (catalog.data?.courses ?? []).map(course => ({
+    const baseCourses = (catalogList.data ?? []).map(course => ({
       ...course,
       price: `KES ${course.priceKes.toLocaleString()}`,
       format: course.duration,
@@ -218,7 +216,7 @@ export default function Home() {
       ...merged,
       ...Array.from(bySlug.values()),
     ] as (typeof baseCourses)[number][];
-  }, [catalog.data?.courses, liveCatalog.data]);
+  }, [catalogList.data, liveCatalog.data]);
 
   const uniqueLevels = Array.from(
     new Set(courses.map(course => course.skillLevel).filter(Boolean))
@@ -1348,7 +1346,7 @@ export default function Home() {
                   aria-label="Profound IQ Consulting on Facebook"
                   className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#16243d] text-[#aab5c6] transition-all hover:border-[#c9a34e] hover:text-[#8b6914]"
                 >
-                   <facebook size={18} />
+                   <SocialIcon platform="facebook" />
                 </a>
                 <a
                   href="https://x.com/ProfoundIQC"
@@ -1366,7 +1364,7 @@ export default function Home() {
                   aria-label="Profound IQ Consulting on LinkedIn"
                   className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#16243d] text-[#aab5c6] transition-all hover:border-[#c9a34e] hover:text-[#8b6914]"
                 >
-                   <linkedin size={18} />
+                   <SocialIcon platform="linkedin" />
                 </a>
                 <a
                   href="https://www.instagram.com/profoundiqconsulting/"
@@ -1375,7 +1373,7 @@ export default function Home() {
                   aria-label="Profound IQ Consulting on Instagram"
                   className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#16243d] text-[#aab5c6] transition-all hover:border-[#c9a34e] hover:text-[#8b6914]"
                 >
-                   <instagram size={18} />
+                   <SocialIcon platform="instagram" />
                 </a>
               </div>
             </div>
