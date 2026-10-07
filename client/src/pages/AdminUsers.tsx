@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
 import { Users } from "lucide-react";
+import { Link } from "wouter";
 
 const ROLE_FILTERS = [
   { value: "all", label: "All levels" },
@@ -84,7 +85,12 @@ export default function AdminUsers() {
                   {filteredUsers.map(user => (
                     <tr key={user.openId}>
                       <td className="font-medium text-[#0f172a]">
-                        {user.name ?? "—"}
+                        <Link
+                          href={`/admin/users/${encodeURIComponent(user.openId)}`}
+                          className="text-[#7d5e1e] underline underline-offset-4 hover:text-[#5c4513]"
+                        >
+                          {user.name ?? "—"}
+                        </Link>
                       </td>
                       <td className="text-[#475569]">{user.email}</td>
                       <td>

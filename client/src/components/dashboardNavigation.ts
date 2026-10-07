@@ -118,6 +118,38 @@ export const adminNavItems: RoleNavItem[] = [
     group: "operations",
   },
   {
+    id: "admin-psychometrics",
+    labelKey: "psychometrics",
+    fallbackLabel: "Psychometrics",
+    path: "/admin/psychometrics",
+    icon: BrainCircuit,
+    group: "learning",
+  },
+  {
+    id: "admin-courses",
+    labelKey: "courses",
+    fallbackLabel: "Courses",
+    path: "/admin/courses",
+    icon: BookOpen,
+    group: "learning",
+  },
+  {
+    id: "admin-assessment",
+    labelKey: "selfAssessmentReports",
+    fallbackLabel: "Assessment",
+    path: "/admin/assessment",
+    icon: ClipboardCheck,
+    group: "learning",
+  },
+  {
+    id: "admin-careerpath",
+    labelKey: "careerPathReports",
+    fallbackLabel: "CareerPath",
+    path: "/admin/careerpath",
+    icon: Users,
+    group: "learning",
+  },
+  {
     id: "admin-staff",
     labelKey: "staffWorkspace",
     fallbackLabel: "Staff",
@@ -158,6 +190,14 @@ export const staffNavItems: RoleNavItem[] = [
     fallbackLabel: "Staff Workspace",
     path: "/staff",
     icon: ClipboardList,
+    group: "workspace",
+  },
+  {
+    id: "staff-psychometrics",
+    labelKey: "psychometrics",
+    fallbackLabel: "Psychometrics",
+    path: "/psychometrics",
+    icon: BrainCircuit,
     group: "workspace",
   },
   {
@@ -303,6 +343,7 @@ export const learnerNavItems: RoleNavItem[] = [
 
 export const adminGroups = [
   { id: "platform", fallbackLabel: "Platform" },
+  { id: "learning", fallbackLabel: "Learning" },
   { id: "operations", fallbackLabel: "Operations" },
   { id: "system", fallbackLabel: "System" },
 ] as const;

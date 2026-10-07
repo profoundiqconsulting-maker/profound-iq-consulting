@@ -18,6 +18,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
+  ClipboardCheck,
   Database,
   Download,
   FileText,
@@ -77,6 +78,7 @@ const AdminRevenuePanel = lazy(() => import("@/components/AdminRevenuePanel"));
 const AdminStaffPanel = lazy(() => import("@/components/AdminStaffPanel"));
 const AdminSystemSettings = lazy(() => import("@/components/AdminSystemSettings"));
 const AdminCourseDeliveryPanel = lazy(() => import("@/components/AdminCourseDeliveryPanel"));
+const AdminCourseChronologyPanel = lazy(() => import("@/components/AdminCourseChronologyPanel"));
 const AdminReportsPanel = lazy(() => import("@/components/AdminReportsPanel"));
 const AdminPaymentExceptionsPanel = lazy(() => import("@/components/AdminPaymentExceptionsPanel"));
 const AdminNewsletterPanel = lazy(() => import("@/components/AdminNewsletterPanel"));
@@ -88,6 +90,8 @@ const AdminRecentQCCertificates = lazy(() => import("@/components/AdminRecentQCC
 const AdminCourseShareAnalytics = lazy(() => import("@/components/AdminCourseShareAnalytics"));
 const AdminResourcesPanel = lazy(() => import("@/components/AdminResourcesPanel"));
 const AdminSurveysPanel = lazy(() => import("@/components/AdminSurveysPanel"));
+const AdminAssessmentPanel = lazy(() => import("@/components/AdminAssessmentPanel"));
+const AdminCareerPathPanel = lazy(() => import("@/components/AdminCareerPathPanel"));
 
 
 function statusLabel(status: string) {
@@ -115,6 +119,9 @@ function isValidAdminTab(tab: string): boolean {
     "intelligence",
     "surveys",
     "resources",
+    "courses",
+    "assessment",
+    "careerPath",
   ].includes(tab);
 }
 
@@ -174,6 +181,9 @@ const adminTabTitles: Record<string, string> = {
   organization: "Organization",
   learning: "Learning",
   resources: "Resources",
+  courses: "Courses",
+  assessment: "Assessment",
+  careerPath: "CareerPath",
 };
 
 export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDashboardProps = {}) {
@@ -238,6 +248,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
     },
     { enabled: Boolean(user?.role === "admin"), retry: false }
   );
+
+  const psychometricDownload = trpc.psychometric.downloadReport.useMutation();
 
   const exportPsychometricAnalytics =
     trpc.admin.exportPsychometricAnalytics.useMutation({
@@ -1338,6 +1350,27 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 onTabChange={setActiveTab}
               />
               <TabButton
+                tab="courses"
+                label="Courses"
+                icon={<BookOpen size={14} />}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+              <TabButton
+                tab="assessment"
+                label="Assessment"
+                icon={<ClipboardCheck size={14} />}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+              <TabButton
+                tab="careerPath"
+                label="CareerPath"
+                icon={<Users size={14} />}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+              <TabButton
                 tab="inquiries"
                 label="Inquiries"
                 icon={<Mail size={14} />}
@@ -1838,6 +1871,37 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
             </>
           )}
 
+          {activeTab === "courses" && (
+            <>
+              <div id="course-chronology" className="scroll-mt-8">
+                <Suspense fallback={<PanelLoader />}>
+                  <AdminCourseChronologyPanel />
+                </Suspense>
+              </div>
+              <div className="mt-4">
+                <Link href="/admin/learning" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14] underline-offset-4 hover:underline hover:text-[#6b4410]">
+                  Learning overview <ArrowUpRight size={13} />
+                </Link>
+              </div>
+            </>
+          )}
+
+          {activeTab === "assessment" && (
+            <div id="assessment-admin" className="scroll-mt-8">
+              <Suspense fallback={<PanelLoader />}>
+                <AdminAssessmentPanel />
+              </Suspense>
+            </div>
+          )}
+
+          {activeTab === "careerPath" && (
+            <div id="careerpath-admin" className="scroll-mt-8">
+              <Suspense fallback={<PanelLoader />}>
+                <AdminCareerPathPanel />
+              </Suspense>
+            </div>
+          )}
+
           {activeTab === "communications" && (
             <>
               <Suspense fallback={<PanelLoader />}>
@@ -2115,6 +2179,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         <tr>
                           <th className="py-3">Participant</th>
                           <th className="py-3">Profile</th>
+                          <th className="py-3">Reference</th>
                           <th className="py-3">Payment</th>
                           <th className="py-3">Score</th>
                           <th className="py-3">Email delivery</th>
@@ -2122,18 +2187,58 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         </tr>
                       </thead>
                       <tbody>
-                        {psychometricAttempts.data.map(attempt => (
-                          <tr
-                            key={attempt.id}
-                            className="border-b border-[#16243d]/10"
-                          >
-                            <td className="py-3">
-                              <strong>{attempt.name}</strong>
-                              <span className="block text-xs text-[#16243d]">
-                                {attempt.email}
-                              </span>
-                            </td>
-                            <td className="py-3 text-xs">{attempt.testSlug}</td>
+                        {psychometricAttempts.data.map(attempt => {
+                          const reference = attempt.paystackReference ?? "";
+                          return (
+                            <tr
+                              key={attempt.id}
+                              className="border-b border-[#16243d]/10"
+                            >
+                              <td className="py-3">
+                                <strong>{attempt.name}</strong>
+                                <span className="block text-xs text-[#16243d]">
+                                  {attempt.email}
+                                </span>
+                              </td>
+                              <td className="py-3 text-xs">{attempt.testSlug}</td>
+                              <td className="py-3 text-xs">
+                                {reference ? (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      psychometricDownload.mutate(
+                                        { reference },
+                                        {
+                                          onSuccess: result => {
+                                            const binary = atob(result.data);
+                                            const bytes = Uint8Array.from(
+                                              binary,
+                                              char => char.charCodeAt(0)
+                                            );
+                                            const blob = new Blob([bytes], {
+                                              type: result.contentType,
+                                            });
+                                            const url = URL.createObjectURL(blob);
+                                            const anchor = document.createElement("a");
+                                            anchor.href = url;
+                                            anchor.download = result.filename;
+                                            document.body.appendChild(anchor);
+                                            anchor.click();
+                                            anchor.remove();
+                                            URL.revokeObjectURL(url);
+                                          },
+                                        }
+                                      )
+                                    }
+                                    disabled={psychometricDownload.isPending}
+                                    className="text-[#7d5e1e] underline underline-offset-4 hover:text-[#5c4513] disabled:opacity-50"
+                                  >
+                                    {reference}
+                                  </button>
+                                ) : (
+                                  "—"
+                                )}
+                              </td>
                             <td className="py-3">
                               <span
                                 className={
@@ -2156,7 +2261,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                               {new Date(attempt.createdAt).toLocaleString()}
                             </td>
                           </tr>
-                        ))}
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>

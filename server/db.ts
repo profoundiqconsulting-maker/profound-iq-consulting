@@ -100,7 +100,8 @@ import {
   type Message,
   type MessageNotification,
 } from "../drizzle/schema";
-import { compareReports, type AssessmentReport } from "../shared/assessment";
+import { buildRoleLens, compareReports, type AssessmentReport } from "../shared/assessment";
+import { renderAssessmentReportPdf } from "../server/reportPdf";
 import {
   aggregateWeeklyAnalytics,
   summarizeAnalyticsEvents,
@@ -1669,6 +1670,51 @@ export async function updateUserProfile(
   return getUserProfile(openId);
 }
 
+export async function adminUpdateUserProfile(
+  openId: string,
+  input: {
+    name: string;
+    timezone: string;
+    learningGoals?: string[];
+    notificationPreferences: NotificationPreferences;
+    leaderboardOptIn?: boolean;
+    leaderboardDisplayName?: string | null;
+    exportPreferences?: {
+      pageSize: "A4" | "LETTER";
+      watermark: boolean;
+      coverPage: boolean;
+      coverTemplate?: "classic" | "editorial" | "signal";
+    };
+  }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db
+    .update(users)
+    .set({
+      name: input.name,
+      timezone: input.timezone,
+      learningGoals: input.learningGoals ?? [],
+      notificationPreferences: input.notificationPreferences,
+      ...(input.exportPreferences
+        ? { exportPreferences: input.exportPreferences }
+        : {}),
+      ...(input.leaderboardOptIn === undefined
+        ? {}
+        : {
+            leaderboardOptIn: input.leaderboardOptIn,
+            leaderboardDisplayName: input.leaderboardOptIn
+              ? normalizeLeaderboardDisplayName(
+                  input.leaderboardDisplayName,
+                  normalizeLeaderboardDisplayName(input.name)
+                )
+              : null,
+          }),
+    })
+    .where(eq(users.openId, openId));
+  return getUserProfile(openId);
+}
+
 export async function updateUserAvatar(openId: string, avatarUrl: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -1868,6 +1914,45 @@ export async function markCareerPathPaid(id: number, report: unknown) {
     .update(careerPathAttempts)
     .set({ paymentStatus: "paid", report, paidAt: new Date() })
     .where(eq(careerPathAttempts.id, id));
+}
+
+export async function getCareerPathAdminOverview() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+
+  const rows = await db
+    .select({
+      id: careerPathAttempts.id,
+      name: careerPathAttempts.name,
+      email: careerPathAttempts.email,
+      paymentStatus: careerPathAttempts.paymentStatus,
+      paystackReference: careerPathAttempts.paystackReference,
+      createdAt: careerPathAttempts.createdAt,
+      paidAt: careerPathAttempts.paidAt,
+      report: careerPathAttempts.report,
+    })
+    .from(careerPathAttempts)
+    .orderBy(desc(careerPathAttempts.createdAt))
+    .limit(250);
+
+  const attempts = rows.map(row => ({
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    paymentStatus: row.paymentStatus,
+    paystackReference: row.paystackReference,
+    createdAt: row.createdAt,
+    paidAt: row.paidAt,
+  }));
+
+  return {
+    attempts,
+    summary: {
+      total: attempts.length,
+      paid: attempts.filter(attempt => attempt.paymentStatus === "paid").length,
+      pending: attempts.filter(attempt => attempt.paymentStatus !== "paid").length,
+    },
+  };
 }
 
 export async function setPaystackReference(id: number, reference: string) {
@@ -4984,6 +5069,29 @@ export async function getAssessmentAdminOverview() {
   };
 }
 
+export async function adminDownloadAssessmentReport(attemptId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const attempt = await getAssessmentAttempt(attemptId);
+  if (!attempt || attempt.paymentStatus !== "paid" || !attempt.report) {
+    throw new Error("Assessment report not available.");
+  }
+  const report = attempt.report as import("../shared/assessment").AssessmentReport;
+  const pdf = await renderAssessmentReportPdf({
+    attemptId: attempt.id,
+    participantName: attempt.name,
+    email: attempt.email,
+    createdAt: attempt.createdAt,
+    report,
+    lens: buildRoleLens(report, "leadership"),
+  });
+  return {
+    contentType: "application/pdf",
+    filename: `assessment-${attempt.id}-report.pdf`,
+    data: pdf.toString("base64"),
+  };
+}
+
 export async function getOrCreateCourseEnrollment(input: {
   userOpenId: string;
   courseSlug: string;
@@ -6738,8 +6846,22 @@ export async function getCourseCertificateByEnrollmentId(
   return (
     (
       await db
-        .select()
+        .select({
+          certificateNumber: courseCertificates.certificateNumber,
+          recipientName: courseCertificates.recipientName,
+          courseTitle: courseCertificates.courseTitle,
+          status: courseCertificates.status,
+          fileKey: courseCertificates.fileKey,
+          fileUrl: courseCertificates.fileUrl,
+          artifactHash: courseCertificates.artifactHash,
+          createdAt: courseCertificates.createdAt,
+          courseSlug: courseLearnerEnrollments.courseSlug,
+        })
         .from(courseCertificates)
+        .innerJoin(
+          courseLearnerEnrollments,
+          eq(courseCertificates.enrollmentId, courseLearnerEnrollments.id)
+        )
         .where(eq(courseCertificates.enrollmentId, enrollmentId))
         .limit(1)
     )[0] ?? null

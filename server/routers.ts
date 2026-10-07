@@ -219,6 +219,8 @@ import {
   getCourseAccessDeniedAnalytics,
   getCourseShareAnalytics,
   getAssessmentAdminOverview,
+  adminDownloadAssessmentReport,
+  getCareerPathAdminOverview,
   getCourseEnrollments,
   getDeliveryLogExportJob,
   confirmNewsletterSubscription,
@@ -364,6 +366,7 @@ import {
   createStaffInvitation,
   listStaffInvitations,
   updateUserRole,
+  adminUpdateUserProfile,
   updateContactInquiryWorkload,
   getStaffPerformanceSummary,
   findUserByLocalIdentifier,
@@ -4418,6 +4421,68 @@ export const appRouter = router({
           status: certificate?.status,
         };
       }),
+    adminDownloadCertificatePdf: adminProcedure
+      .input(z.object({ enrollmentId: z.number().int().positive() }))
+      .mutation(async ({ input }) => {
+        const certificate = await getCourseCertificateByEnrollmentId(input.enrollmentId);
+        if (!certificate) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Issued certificate not found.",
+          });
+        }
+        const settings = await getAdminCertificateSettings(
+          ENV.ownerOpenId || ""
+        );
+        const origin = PUBLIC_SITE_ORIGIN;
+        const canonicalSvgUrl = certificate.fileKey
+          ? await storageGetSignedUrl(certificate.fileKey)
+          : certificate.fileUrl
+            ? new URL(certificate.fileUrl, origin).toString()
+            : undefined;
+        const canonicalSvgResponse = canonicalSvgUrl
+          ? await fetch(canonicalSvgUrl)
+          : null;
+        const canonicalSvg = canonicalSvgResponse?.ok
+          ? await canonicalSvgResponse.text()
+          : undefined;
+        const pdf = await renderCourseCertificatePdf({
+          recipientName: certificate.recipientName,
+          courseTitle: certificate.courseTitle,
+          certificateNumber: certificate.certificateNumber,
+          issuedOn: certificate.createdAt,
+          verificationUrl: `${origin}/verify/certificate?certificate=${encodeURIComponent(certificate.certificateNumber)}`,
+          trainerName: settings.trainerName,
+          trainerTitle: settings.trainerTitle,
+          signatureDataUri: settings.signatureDataUri,
+          customElements:
+            (
+              settings as typeof settings & {
+                customElements?: Record<string, string>;
+              }
+            ).customElements ?? undefined,
+          fieldLayout: settings.fieldLayout as
+            | Record<
+                string,
+                {
+                  x?: number;
+                  y?: number;
+                  width?: number;
+                  height?: number;
+                  visible?: boolean;
+                  text?: string;
+                }
+              >
+            | undefined,
+          certificateSvg: canonicalSvg,
+          artifactHash: certificate.artifactHash ?? undefined,
+        });
+        return {
+          contentType: "application/pdf",
+          filename: `${certificate.courseSlug}-certificate.pdf`,
+          data: pdf.toString("base64"),
+        };
+      }),
     setCourseAccessGrant: adminProcedure
       .input(
         z.object({
@@ -4844,6 +4909,41 @@ export const appRouter = router({
       )
       .mutation(({ input }) => updateUserRole(input.openId, input.role)),
     listAllUsers: adminProcedure.query(() => listAllUsers()),
+    getUserProfile: adminProcedure
+      .input(z.object({ openId: z.string().min(1).max(64) }))
+      .query(({ input }) => getUserProfile(input.openId)),
+    adminUpdateUserProfile: adminProcedure
+      .input(
+        z.object({
+          openId: z.string().min(1).max(64),
+          name: z.string().trim().min(2).max(160),
+          timezone: z.string().trim().max(120).optional(),
+          learningGoals: z.array(z.string().trim().max(120)).optional(),
+          notificationPreferences: z.object({
+            assessmentUpdates: z.boolean(),
+            courseAnnouncements: z.boolean(),
+            monthlyInsights: z.boolean(),
+            showAvatar: z.boolean().default(true),
+          }),
+          leaderboardOptIn: z.boolean().optional(),
+          leaderboardDisplayName: z.string().trim().max(160).nullable().optional(),
+        })
+      )
+      .mutation(({ input }) =>
+        adminUpdateUserProfile(input.openId, {
+          name: input.name,
+          timezone: input.timezone ?? "Africa/Nairobi",
+          learningGoals: input.learningGoals,
+          notificationPreferences: {
+            assessmentUpdates: input.notificationPreferences?.assessmentUpdates ?? true,
+            courseAnnouncements: input.notificationPreferences?.courseAnnouncements ?? true,
+            monthlyInsights: input.notificationPreferences?.monthlyInsights ?? false,
+            showAvatar: input.notificationPreferences?.showAvatar ?? true,
+          },
+          leaderboardOptIn: input.leaderboardOptIn,
+          leaderboardDisplayName: input.leaderboardDisplayName,
+        })
+      ),
     listResources: adminProcedure.query(() => listResources()),
     createResource: adminProcedure
       .input(
@@ -7686,9 +7786,13 @@ export const appRouter = router({
           createdAt: attempt.createdAt,
         };
       }),
+    adminOverview: adminProcedure.query(() => getCareerPathAdminOverview()),
   }),
   assessment: router({
     adminOverview: adminProcedure.query(() => getAssessmentAdminOverview()),
+    adminDownloadAssessmentReport: adminProcedure
+      .input(z.object({ attemptId: z.number().int().positive() }))
+      .mutation(async ({ input }) => adminDownloadAssessmentReport(input.attemptId)),
     saveDraft: publicProcedure
       .input(
         z.object({

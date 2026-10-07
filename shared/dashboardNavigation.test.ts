@@ -37,6 +37,7 @@ describe("dashboard navigation registry", () => {
   it("surfaces role-specific nav groups", () => {
     expect(visibleDashboardNavGroups("admin").map(group => group.id)).toEqual([
       "platform",
+      "learning",
       "operations",
       "system",
     ]);

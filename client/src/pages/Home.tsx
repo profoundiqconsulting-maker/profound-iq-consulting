@@ -1408,6 +1408,12 @@ export default function Home() {
                   Self Assessment
                 </a>
                 <a
+                  href="/psychometrics"
+                  className="text-sm text-[#aab5c6] transition-colors hover:text-[#f7f3e8]"
+                >
+                  Psychometrics
+                </a>
+                <a
                   href="/resources"
                   className="text-sm text-[#aab5c6] transition-colors hover:text-[#f7f3e8]"
                 >

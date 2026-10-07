@@ -7,6 +7,9 @@ const AdminOperations = lazy(() => import("./AdminOperations"));
 const AdminRevenue = lazy(() => import("./AdminRevenue"));
 const AdminIntelligence = lazy(() => import("./AdminIntelligence"));
 const AdminPsychometrics = lazy(() => import("./AdminPsychometrics"));
+const AdminCourses = lazy(() => import("./AdminCourses"));
+const AdminAssessment = lazy(() => import("./AdminAssessment"));
+const AdminCareerPath = lazy(() => import("./AdminCareerPath"));
 const AdminInbox = lazy(() => import("./AdminInbox"));
 const AdminSystem = lazy(() => import("./AdminSystem"));
 const AdminStaff = lazy(() => import("./AdminStaff"));
@@ -17,6 +20,7 @@ const AdminOrganization = lazy(() => import("./AdminOrganization"));
 const AdminResources = lazy(() => import("./AdminResources"));
 const AdminReports = lazy(() => import("./AdminReports"));
 const AdminUsers = lazy(() => import("../AdminUsers"));
+const AdminUserProfile = lazy(() => import("./AdminUserProfile"));
 const AdminInquiries = lazy(() => import("../AdminInquiries"));
 const AdminCertificates = lazy(() => import("../AdminCertificates"));
 const CohortManagement = lazy(() => import("../CohortManagement"));
@@ -43,6 +47,9 @@ function AdminApp() {
         <Route path="/admin/revenue" component={AdminRevenue} />
         <Route path="/admin/intelligence" component={AdminIntelligence} />
         <Route path="/admin/psychometrics" component={AdminPsychometrics} />
+        <Route path="/admin/courses" component={AdminCourses} />
+        <Route path="/admin/assessment" component={AdminAssessment} />
+        <Route path="/admin/careerpath" component={AdminCareerPath} />
         <Route path="/admin/inbox" component={AdminInbox} />
         <Route path="/admin/system" component={AdminSystem} />
         <Route path="/admin/staff" component={AdminStaff} />
@@ -53,6 +60,7 @@ function AdminApp() {
         <Route path="/admin/resources" component={AdminResources} />
         <Route path="/admin/reports" component={AdminReports} />
         <Route path="/admin/users" component={AdminUsers} />
+        <Route path="/admin/users/:openId" component={AdminUserProfile} />
         <Route path="/admin/inquiries" component={AdminInquiries} />
         <Route path="/admin/certificates" component={AdminCertificates} />
         <Route path="/admin/cohorts" component={() => (
