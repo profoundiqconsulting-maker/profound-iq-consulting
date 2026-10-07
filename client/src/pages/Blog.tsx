@@ -150,7 +150,7 @@ export default function Blog() {
       title={
         <>
           The thinking behind{" "}
-          <em className="font-normal text-[#8b6914]">the work.</em>
+          <em className="font-normal text-[#c9a34e]">the work.</em>
         </>
       }
       intro="A developing editorial space for useful ideas about education, leadership, professional growth, curriculum, and the changing world of work."
@@ -169,7 +169,7 @@ export default function Blog() {
                 Good insight should be useful before it is impressive.
               </h2>
             </div>
-            <div className="space-y-7 text-base leading-8 text-[#4a566a]">
+            <div className="space-y-7 text-base leading-8 text-muted-foreground">
               <p>
                 The Profound IQ editorial space is being developed around the
                 questions our learners, clients, and partners are already
@@ -228,7 +228,7 @@ export default function Blog() {
                     setArticleLimit(3);
                   }}
                   placeholder="Search preview topics"
-                  className="min-h-12 w-full bg-transparent text-base font-normal outline-none placeholder:text-[#657084] focus:outline-none"
+                  className="min-h-12 w-full bg-transparent text-base font-normal outline-none placeholder:text-muted-foreground focus:outline-none"
                 />
               </span>
             </label>
@@ -250,7 +250,7 @@ export default function Blog() {
               </select>
             </label>
           </div>
-          <div className="mt-4 flex items-center justify-between text-xs text-[#657084]">
+          <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
             <span>
               {filteredArticles.length} of {insightsSearch.data?.total ?? 0}{" "}
               preview articles shown
@@ -284,7 +284,7 @@ export default function Blog() {
               <p className="font-semibold">
                 No preview articles match those filters.
               </p>
-              <p className="mt-2 text-sm leading-6 text-[#657084]">
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 Try another keyword or return to all topics.
               </p>
             </div>
@@ -295,7 +295,7 @@ export default function Blog() {
                   <article className="flex min-h-[360px] flex-col border border-[#16243d]/15 bg-white/70 p-7 transition-all hover:border-[#c9a34e] hover:shadow-lg sm:p-8">
                     <div className="flex items-start justify-between">
                       <p className="eyebrow text-[#7d5e1e]">{article.category}</p>
-                      <span className="text-[10px] font-black tracking-[.16em] text-[#657084]">
+                      <span className="text-[10px] font-black tracking-[.16em] text-muted-foreground">
                         {article.index}
                       </span>
                     </div>
@@ -305,10 +305,10 @@ export default function Blog() {
                     <h3 className="mt-4 text-2xl font-semibold leading-tight text-[#16243d]">
                       {article.title}
                     </h3>
-                    <p className="mt-4 flex-1 text-base leading-7 text-[#657084]">
+                    <p className="mt-4 flex-1 text-base leading-7 text-muted-foreground">
                       {article.excerpt}
                     </p>
-                    <div className="mt-7 flex items-center justify-between border-t border-[#16243d]/10 pt-5 text-[10px] font-black uppercase tracking-[.13em] text-[#657084]">
+                    <div className="mt-7 flex items-center justify-between border-t border-[#16243d]/10 pt-5 text-[10px] font-black uppercase tracking-[.13em] text-muted-foreground">
                       <span className="inline-flex items-center gap-2">
                         <Clock3 size={14} /> {article.readTime}
                       </span>
@@ -334,7 +334,7 @@ export default function Blog() {
               <p className="text-sm font-semibold text-[#16243d]">
                 These are preview cards, not published articles.
               </p>
-              <p className="mt-2 text-sm text-[#657084]">
+              <p className="mt-2 text-sm text-muted-foreground">
                 Full articles are being developed.{" "}
                 <Link
                   href="/contact"
@@ -363,7 +363,7 @@ export default function Blog() {
                   <h3 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
                     A considered note when there is something worth sharing.
                   </h3>
-                  <p className="mt-7 text-base leading-8 text-[#657084]">
+                  <p className="mt-7 text-base leading-8 text-muted-foreground">
                     Subscribe for future Profound IQ insights on education,
                     leadership, professional growth, curriculum, and the
                     changing world of work. We will only use your email for this
@@ -396,14 +396,14 @@ export default function Blog() {
                     />
                     <span
                       id="newsletter-email-hint"
-                      className={`text-xs font-normal ${newsletterEmailTouched && !newsletterEmailIsValid ? "text-[#8b4f63]" : "text-[#657084]"}`}
+                      className={`text-xs font-normal ${newsletterEmailTouched && !newsletterEmailIsValid ? "text-[#8b4f63]" : "text-muted-foreground"}`}
                     >
                       {newsletterEmailTouched && !newsletterEmailIsValid
                         ? "Enter a valid email address."
                         : "Use an address you check regularly."}
                     </span>
                   </label>
-                  <label className="mt-4 flex items-start gap-3 text-xs leading-5 text-[#657084]">
+                  <label className="mt-4 flex items-start gap-3 text-xs leading-5 text-muted-foreground">
                     <input
                       name="newsletterConsent"
                       type="checkbox"
@@ -462,7 +462,7 @@ export default function Blog() {
           <ScrollReveal>
             <div className="grid gap-16 lg:grid-cols-[.65fr_1.35fr] lg:gap-20">
               <div>
-                <p className="eyebrow text-[#8b6914]">Contributor profiles</p>
+                <p className="eyebrow text-[#c9a34e]">Contributor profiles</p>
                 <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
                   A human voice behind every useful idea.
                 </h2>
@@ -483,13 +483,13 @@ export default function Blog() {
               >
                 <div className="flex items-start gap-5">
                   <div
-                    className="inline-flex h-16 w-16 shrink-0 items-center justify-center border border-[#c9a34e]/50 bg-[#101d35] text-sm font-black tracking-[.1em] text-[#8b6914]"
+                    className="inline-flex h-16 w-16 shrink-0 items-center justify-center border border-[#c9a34e]/50 bg-[#101d35] text-sm font-black tracking-[.1em] text-[#c9a34e]"
                     aria-label="Contributor profile placeholder"
                   >
                     <UserRound size={20} />
                   </div>
                   <div>
-                    <p className="eyebrow text-[#8b6914]">{contributor.role}</p>
+                    <p className="eyebrow text-[#c9a34e]">{contributor.role}</p>
                     <h3 className="mt-2 text-lg font-semibold">
                       {contributor.title}
                     </h3>
@@ -498,7 +498,7 @@ export default function Blog() {
                 <p className="mt-6 text-sm leading-7 text-[#c1cad7]">
                   {contributor.bio}
                 </p>
-                <span className="mt-7 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#8b6914]">
+                <span className="mt-7 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e]">
                   Profile details to be added <ArrowUpRight size={14} />
                 </span>
               </article>
@@ -517,7 +517,7 @@ export default function Blog() {
                   Start with a question worth carrying forward.
                 </h2>
               </div>
-              <p className="max-w-lg text-base leading-8 text-[#4a566a]">
+              <p className="max-w-lg text-base leading-8 text-muted-foreground">
                 Until the first articles are approved and published, these
                 themes show how readers can move from a useful question to a
                 relevant experience.
@@ -532,7 +532,7 @@ export default function Blog() {
               >
                 <div className="flex items-start justify-between gap-4">
                   <Icon size={26} className="text-[#7d5e1e]" />
-                  <span className="text-[10px] font-black tracking-[.16em] text-[#657084]">
+                  <span className="text-[10px] font-black tracking-[.16em] text-muted-foreground">
                     0{index + 1}
                   </span>
                 </div>
@@ -542,7 +542,7 @@ export default function Blog() {
                 <h3 className="mt-4 text-xl font-semibold leading-tight">
                   {title}
                 </h3>
-                <p className="mt-5 text-sm leading-7 text-[#657084]">{body}</p>
+                <p className="mt-5 text-sm leading-7 text-muted-foreground">{body}</p>
                 <Link
                   href="/contact"
                   className="mt-8 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-colors group-hover:text-[#7d5e1e]"
@@ -558,7 +558,7 @@ export default function Blog() {
         <ScrollReveal>
           <div className="container flex flex-col items-start justify-between gap-8 sm:flex-row sm:items-center">
             <div>
-              <p className="eyebrow text-[#8b6914]">Learn in the meantime</p>
+              <p className="eyebrow text-[#c9a34e]">Learn in the meantime</p>
               <h2 className="display mt-4 text-4xl leading-tight sm:text-5xl">
                 Choose an experience, not just a headline.
               </h2>

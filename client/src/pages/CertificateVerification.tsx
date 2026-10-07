@@ -461,7 +461,7 @@ export default function CertificateVerification() {
       <div>{icon}</div>
       <div>
         <h2 className="display text-2xl">{heading}</h2>
-        <p className="mt-3 text-sm leading-6 text-[#657084]">{body}</p>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">{body}</p>
       </div>
     </section>
   );
@@ -474,7 +474,7 @@ export default function CertificateVerification() {
           <h1 className="display mt-4 text-5xl leading-none sm:text-7xl">
             {title}
           </h1>
-          <p className="mt-6 max-w-2xl text-base leading-7 text-[#4a566a]">
+          <p className="mt-6 max-w-2xl text-base leading-7 text-muted-foreground">
             {intro}
           </p>
           {!certificateNumber ? (
@@ -508,7 +508,7 @@ export default function CertificateVerification() {
                   </h2>
                   <dl className="mt-7 grid gap-5 border-t border-[#16243d]/12 pt-6 sm:grid-cols-2">
                     <div>
-                      <dt className="text-[10px] font-black uppercase tracking-[.14em] text-[#657084]">
+                      <dt className="text-[10px] font-black uppercase tracking-[.14em] text-muted-foreground">
                         {awarded}
                       </dt>
                       <dd className="mt-2 text-lg font-semibold">
@@ -516,7 +516,7 @@ export default function CertificateVerification() {
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-[10px] font-black uppercase tracking-[.14em] text-[#657084]">
+                      <dt className="text-[10px] font-black uppercase tracking-[.14em] text-muted-foreground">
                         {number}
                       </dt>
                       <dd className="mt-2 break-all font-mono text-sm">
@@ -524,7 +524,7 @@ export default function CertificateVerification() {
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-[10px] font-black uppercase tracking-[.14em] text-[#657084]">
+                      <dt className="text-[10px] font-black uppercase tracking-[.14em] text-muted-foreground">
                         {issued}
                       </dt>
                       <dd className="mt-2 text-sm">
@@ -532,30 +532,30 @@ export default function CertificateVerification() {
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-[10px] font-black uppercase tracking-[.14em] text-[#657084]">
+                      <dt className="text-[10px] font-black uppercase tracking-[.14em] text-muted-foreground">
                         {issuer}
                       </dt>
                       <dd className="mt-2 text-sm">Profound IQ Consulting</dd>
                     </div>
                     {certificate.artifactHash && (
                       <div className="sm:col-span-2">
-                        <dt className="text-[10px] font-black uppercase tracking-[.14em] text-[#657084]">
+                        <dt className="text-[10px] font-black uppercase tracking-[.14em] text-muted-foreground">
                           Artifact hash
                         </dt>
-                        <dd className="mt-2 break-all font-mono text-xs text-[#4a566a]">
+                        <dd className="mt-2 break-all font-mono text-xs text-muted-foreground">
                           {certificate.artifactHash}
                         </dd>
-                        <p className="mt-2 text-xs leading-5 text-[#657084]">
+                        <p className="mt-2 text-xs leading-5 text-muted-foreground">
                           This SHA-256 fingerprint identifies the exact issued
                           certificate artwork used for its generated formats.
                         </p>
                       </div>
                     )}
                     <div className="sm:col-span-2 border-t border-[#16243d]/12 pt-5">
-                      <dt className="text-[10px] font-black uppercase tracking-[.14em] text-[#657084]">
+                      <dt className="text-[10px] font-black uppercase tracking-[.14em] text-muted-foreground">
                         {actions.verificationUrl}
                       </dt>
-                      <dd className="mt-2 break-all rounded-sm bg-[#16243d]/5 p-3 font-mono text-xs text-[#4a566a]">
+                      <dd className="mt-2 break-all rounded-sm bg-[#16243d]/5 p-3 font-mono text-xs text-muted-foreground">
                         {verificationUrl}
                       </dd>
                       <div className="mt-3 flex flex-wrap gap-2">

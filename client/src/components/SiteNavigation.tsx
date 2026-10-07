@@ -73,14 +73,14 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
     ? "border-white/15 bg-[#101d35] text-[#f7f3e8] shadow-[0_10px_30px_rgba(7,17,35,.16)]"
     : "border-[#16243d]/10 bg-[#f7f3e8] text-[#16243d] shadow-[0_10px_30px_rgba(8,15,26,.08)]";
 
-  const navText = dark ? "text-[#c9d1df] hover:text-[#c9a34e]" : "text-[#4a566a] hover:text-[#a27e2e]";
+  const navText = dark ? "text-[#c9d1df] hover:text-[#c9a34e]" : "text-muted-foreground hover:text-[#7d5e1e]";
   const activeText = dark ? "text-[#c9a34e]" : "text-[#5d4613]";
   const pillButton = dark
     ? "border border-[#c9a34e] text-[#f7f3e8] hover:bg-[#c9a34e] hover:text-[#101d35]"
     : "border border-[#16243d]/20 text-[#16243d] hover:bg-[#16243d] hover:text-[#f7f3e8]";
   const secondaryButton = dark
     ? "border border-white/20 text-[#c9d1df] hover:border-[#c9a34e] hover:text-[#c9a34e]"
-    : "border border-[#16243d]/20 text-[#16243d] hover:border-[#a27e2e] hover:text-[#a27e2e]";
+    : "border border-[#16243d]/20 text-[#16243d] hover:border-[#a27e2e] hover:text-[#7d5e1e]";
   const compactNavClass = `text-[9px] font-black uppercase tracking-[.08em] transition-colors`;
 
   const mainNavItems = useMemo<NavItem[]>(() => {
@@ -162,7 +162,7 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
                   href={item.href}
                   aria-current={item.active ? "page" : undefined}
                   onClick={() => setMenuOpen(false)}
-                  className={`border-b px-1 py-3 text-[10px] font-black uppercase tracking-[.12em] transition-colors ${item.active ? activeText : dark ? "border-white/10 text-[#d6dce6] hover:text-[#c9a34e]" : "border-[#16243d]/10 text-[#16243d] hover:text-[#a27e2e]"}`}
+                  className={`border-b px-1 py-3 text-[10px] font-black uppercase tracking-[.12em] transition-colors ${item.active ? activeText : dark ? "border-white/10 text-[#d6dce6] hover:text-[#c9a34e]" : "border-[#16243d]/10 text-[#16243d] hover:text-[#7d5e1e]"}`}
                 >
                   {item.label}
                 </Link>

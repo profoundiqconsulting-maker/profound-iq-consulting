@@ -15,16 +15,21 @@ const files = [
   'client/src/components/dashboard/DashboardHero.tsx',
   'client/src/components/dashboard/FilterBar.tsx',
   'client/src/components/DashboardLayout.tsx',
+  'client/src/pages/Assessment.tsx',
+  'client/src/pages/Psychometrics.tsx',
+  'client/src/pages/Auth.tsx',
+  'client/src/pages/CertificateVerification.tsx',
+  'client/src/pages/Blog.tsx',
+  'client/src/pages/Home.tsx',
+  'client/src/components/SiteNavigation.tsx',
+  'client/src/components/AdminSurveysPanel.tsx',
+  'client/src/pages/admin/AdminSystem.tsx',
 ];
 
 const replacements = [
-  // Fix muted text globally - CSS variable now lighter
   { from: /text-\[#657084\]/g, to: 'text-muted-foreground' },
-  // Fix secondary text globally
   { from: /text-\[#4a566a\]/g, to: 'text-muted-foreground' },
-  // Fix dark gold on light backgrounds - darker variant passes everywhere
   { from: /text-\[#a27e2e\]/g, to: 'text-[#7d5e1e]' },
-  // Fix emerald on white backgrounds
   { from: /text-emerald-600/g, to: 'text-emerald-700' },
 ];
 

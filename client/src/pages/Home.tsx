@@ -273,7 +273,7 @@ export default function Home() {
         <h3 className="mt-3 text-lg font-semibold leading-tight text-[#16243d]">
           {resource.title}
         </h3>
-        <p className="mt-2 line-clamp-2 text-sm text-[#657084]">
+        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
           {resource.description}
         </p>
       </div>
@@ -311,12 +311,12 @@ export default function Home() {
         <h3 className="mt-3 text-lg font-semibold leading-tight text-[#16243d]">
           {survey.title}
         </h3>
-        <p className="mt-2 line-clamp-2 text-sm text-[#657084]">
+        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
           {survey.description}
         </p>
       </div>
       <div className="mt-5 flex items-center justify-between gap-3">
-        <span className="text-xs text-[#657084]">
+        <span className="text-xs text-muted-foreground">
           {survey.totalResponses} response{survey.totalResponses === 1 ? "" : "s"}
         </span>
         <a
@@ -574,7 +574,7 @@ export default function Home() {
               <h2 className="heading-clamp mt-4 font-bold tracking-tight text-[#16243d]">
                 Comprehensive development solutions
               </h2>
-              <p className="mt-4 max-w-2xl mx-auto text-fluid-base text-[#657084]">
+              <p className="mt-4 max-w-2xl mx-auto text-fluid-base text-muted-foreground">
                 From individual assessments to organizational consulting, we
                 provide the tools and expertise to drive meaningful growth.
               </p>
@@ -600,7 +600,7 @@ export default function Home() {
                       <h3 className="mt-3 text-xl font-bold text-[#16243d]">
                         {service.title}
                       </h3>
-                      <p className="mt-3 text-sm leading-relaxed text-[#657084]">
+                      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                         {service.body}
                       </p>
                       <div className="mt-6 flex items-center gap-2 text-sm font-semibold text-[#8b6914]">
@@ -749,7 +749,7 @@ export default function Home() {
               <h2 className="heading-clamp mt-4 font-bold tracking-tight text-[#16243d]">
                 Choose the capability you want to build
               </h2>
-              <p className="mt-4 max-w-2xl text-fluid-base text-[#657084]">
+              <p className="mt-4 max-w-2xl text-fluid-base text-muted-foreground">
                 Each course is designed to meet professional standards while
                 giving you a practical path from reflection to measurable
                 progress.
@@ -763,7 +763,7 @@ export default function Home() {
                 className={`rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition-all ${
                   catalogLevel === "All levels"
                     ? "bg-[#16243d] text-white"
-                    : "bg-white text-[#657084] border border-[#16243d]/10 hover:border-[#16243d]"
+                    : "bg-white text-muted-foreground border border-[#16243d]/10 hover:border-[#16243d]"
                 }`}
               >
                 All levels
@@ -776,7 +776,7 @@ export default function Home() {
                   className={`rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition-all ${
                     catalogLevel === level
                       ? "bg-[#16243d] text-white"
-                      : "bg-white text-[#657084] border border-[#16243d]/10 hover:border-[#16243d]"
+                      : "bg-white text-muted-foreground border border-[#16243d]/10 hover:border-[#16243d]"
                   }`}
                 >
                   {level}
@@ -803,7 +803,7 @@ export default function Home() {
                       <h3 className="mt-3 text-xl font-bold text-[#16243d] sm:text-2xl">
                         {course.title}
                       </h3>
-                      <p className="mt-2 text-fluid-base leading-relaxed text-[#657084]">
+                      <p className="mt-2 text-fluid-base leading-relaxed text-muted-foreground">
                         {course.body}
                       </p>
                       <div className="mt-4 flex flex-wrap gap-3 sm:mt-6 sm:gap-4">
@@ -820,7 +820,7 @@ export default function Home() {
                               ? `/courses/${course.slug}`
                               : "#contact"
                           }
-                          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#657084] transition-colors hover:text-[#8b6914]"
+                          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground transition-colors hover:text-[#8b6914]"
                         >
                           {course.modules.length
                             ? "Open syllabus"
@@ -853,7 +853,7 @@ export default function Home() {
             )}
 
             {filteredCatalog.length === 0 && (
-              <p className="py-12 text-center text-base text-[#657084]">
+              <p className="py-12 text-center text-base text-muted-foreground">
                 No courses match the selected filters.
               </p>
             )}
@@ -868,7 +868,7 @@ export default function Home() {
               <h2 className="display mt-5 heading-clamp">
                 Curated materials
               </h2>
-              <p className="mt-4 max-w-2xl text-fluid-base text-[#4a566a]">
+              <p className="mt-4 max-w-2xl text-fluid-base text-muted-foreground">
                 Practical guides, templates, and tools to support better decisions and clearer next steps.
               </p>
             </div>
@@ -901,7 +901,7 @@ export default function Home() {
                 )}
               </>
             ) : (
-              <p className="py-12 text-center text-base text-[#657084]">
+              <p className="py-12 text-center text-base text-muted-foreground">
                 No published resources yet.
               </p>
             )}
@@ -924,7 +924,7 @@ export default function Home() {
               <h2 className="display mt-5 heading-clamp">
                 Have your say
               </h2>
-              <p className="mt-4 max-w-2xl text-fluid-base text-[#4a566a]">
+              <p className="mt-4 max-w-2xl text-fluid-base text-muted-foreground">
                 Take part in our active polls, surveys, and product reviews. Your feedback helps shape what comes next.
               </p>
             </div>
@@ -960,7 +960,7 @@ export default function Home() {
               <div className="mx-auto max-w-2xl text-center">
                 <Vote size={48} className="mx-auto text-[#8b6914]" aria-hidden="true" />
                 <h3 className="display mt-6 text-3xl">No active surveys right now</h3>
-                <p className="mt-4 text-base text-[#4a566a]">
+                <p className="mt-4 text-base text-muted-foreground">
                   Check back soon. We regularly run polls, surveys, and product reviews.
                 </p>
               </div>
@@ -1036,7 +1036,7 @@ export default function Home() {
                 <h3 className="text-2xl font-bold text-[#16243d]">
                   Start with a question
                 </h3>
-                <p className="mt-2 text-sm text-[#657084]">
+                <p className="mt-2 text-sm text-muted-foreground">
                   Fill out the form below and we'll get back to you within 24
                   hours.
                 </p>
@@ -1139,7 +1139,7 @@ export default function Home() {
                     <label htmlFor="inquiry-math" className="block text-xs font-bold uppercase tracking-wider text-[#16243d]">
                       Quick verification
                     </label>
-                    <p className="mt-2 text-sm text-[#657084]">
+                    <p className="mt-2 text-sm text-muted-foreground">
                       What is {mathA} + {mathB}?
                     </p>
                     <input
@@ -1203,7 +1203,7 @@ export default function Home() {
                   setSelectedCourse(null);
                   enrollmentTriggerRef.current?.focus();
                 }}
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#16243d]/10 text-[#657084] transition-colors hover:border-[#16243d] hover:text-[#16243d]"
+                className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#16243d]/10 text-muted-foreground transition-colors hover:border-[#16243d] hover:text-[#16243d]"
               >
                 <X size={20} />
               </button>
@@ -1211,11 +1211,11 @@ export default function Home() {
 
             {enrollmentSubmitted ? (
               <div className="mt-10 rounded-xl border border-emerald-200 bg-emerald-50 p-6">
-                <Check size={24} className="text-emerald-600" />
+                <Check size={24} className="text-emerald-700" />
                 <h3 className="mt-4 text-xl font-bold text-[#16243d]">
                   Your interest is recorded.
                 </h3>
-                <p className="mt-3 text-sm leading-relaxed text-[#657084]">
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                   Thank you for choosing {selectedCourse.title}. Our team will
                   follow up using the email you provided.
                 </p>
@@ -1296,7 +1296,7 @@ export default function Home() {
                     />
                     <label
                       htmlFor="enrollment-consent"
-                      className="text-sm leading-relaxed text-[#657084]"
+                      className="text-sm leading-relaxed text-muted-foreground"
                     >
                       I consent to Profound IQ Consulting using my name and
                       email to respond to this enrollment inquiry, in line with
@@ -1451,10 +1451,10 @@ export default function Home() {
 
           <div className="mt-16 border-t border-[#16243d] pt-8">
             <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-              <p className="text-sm text-[#657084]">
+              <p className="text-sm text-muted-foreground">
                 © 2026 Profound IQ Consulting. All rights reserved.
               </p>
-              <p className="text-sm text-[#657084]">
+              <p className="text-sm text-muted-foreground">
                 Online / Kenya / Global reach
               </p>
             </div>

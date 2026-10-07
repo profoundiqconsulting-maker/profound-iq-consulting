@@ -267,7 +267,7 @@ export default function AdminSurveysPanel() {
 
   const statusIcon = {
     draft: <Clock3 size={14} className="text-[#b8860b]" />,
-    published: <CheckCircle2 size={14} className="text-emerald-600" />,
+    published: <CheckCircle2 size={14} className="text-emerald-700" />,
     closed: <XCircle size={14} className="text-red-600" />,
   };
 

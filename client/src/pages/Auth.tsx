@@ -272,7 +272,7 @@ export default function Auth() {
           </Link>
           <Link
             href="/"
-            className="text-[10px] font-black uppercase tracking-[.16em] text-[#c9d1df] hover:text-[#8b6914]"
+            className="text-[10px] font-black uppercase tracking-[.16em] text-[#c9d1df] hover:text-[#c9a34e]"
           >
             {authCopy.backToSite}
           </Link>
@@ -280,7 +280,7 @@ export default function Auth() {
       </header>
       <section className="container grid min-h-[calc(100vh-90px)] items-center gap-10 py-14 lg:grid-cols-[.8fr_1.2fr] lg:gap-16">
         <div>
-          <p className="eyebrow text-[#8b6914]">{authCopy.privateAccess}</p>
+          <p className="eyebrow text-[#c9a34e]">{authCopy.privateAccess}</p>
           <h1 className="display mt-5 heading-clamp-lg">
             {authCopy.workspace}
           </h1>
@@ -304,10 +304,10 @@ export default function Auth() {
             </div>
           </div>
           {loading ? (
-            <p className="mt-8 text-sm text-[#657084]">{authCopy.checking}</p>
+            <p className="mt-8 text-sm text-muted-foreground">{authCopy.checking}</p>
           ) : user ? (
             <div className="mt-8">
-              <p className="text-sm leading-7 text-[#4a566a]">
+              <p className="text-sm leading-7 text-muted-foreground">
                 You are signed in as <strong>{user.email ?? user.name}</strong>.
               </p>
               <Link
@@ -321,7 +321,7 @@ export default function Auth() {
             <>
               <form onSubmit={submit} className="mt-8 grid gap-4">
                 {mode === "register" && inviteToken && (
-                  <div className="border-l-2 border-[#c9a34e] bg-[#16243d]/5 p-3 text-sm text-[#4a566a]">
+                  <div className="border-l-2 border-[#c9a34e] bg-[#16243d]/5 p-3 text-sm text-muted-foreground">
                     You are joining Profound IQ Consulting as an invited team
                     member. Register with the invited email address to activate
                     your staff access.
@@ -354,7 +354,7 @@ export default function Auth() {
                   <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
                     Email address
                     {mode === "register" && (
-                      <span className="font-normal normal-case tracking-normal text-[#657084]">
+                      <span className="font-normal normal-case tracking-normal text-muted-foreground">
                         Optional when you use a username; email is recommended
                         for password recovery.
                       </span>
@@ -379,7 +379,7 @@ export default function Auth() {
                   <div className="grid gap-4 sm:grid-cols-2">
                     <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
                       Phone number{" "}
-                      <span className="font-normal normal-case tracking-normal text-[#657084]">
+                      <span className="font-normal normal-case tracking-normal text-muted-foreground">
                         Optional profile detail
                       </span>
                       <input
@@ -405,7 +405,7 @@ export default function Auth() {
                 {mode !== "forgot" && (
                   <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
                     Password
-                    <span className="font-normal normal-case tracking-normal text-[#657084]">
+                    <span className="font-normal normal-case tracking-normal text-muted-foreground">
                       At least 10 characters, including letters and numbers.
                     </span>
                     <div className="relative">
@@ -425,7 +425,7 @@ export default function Auth() {
                           showPassword ? "Hide password" : "Show password"
                         }
                         onClick={() => setShowPassword(value => !value)}
-                        className="absolute right-3 top-1/2 -translate-y-0.5 text-[#657084] hover:text-[#7d5e1e]"
+                        className="absolute right-3 top-1/2 -translate-y-0.5 text-muted-foreground hover:text-[#7d5e1e]"
                       >
                         {showPassword ? (
                           <EyeOff size={16} />
@@ -451,7 +451,7 @@ export default function Auth() {
                             />
                           ))}
                         </div>
-                        <p className="mt-1 text-[11px] font-normal normal-case tracking-normal text-[#657084]">
+                        <p className="mt-1 text-[11px] font-normal normal-case tracking-normal text-muted-foreground">
                           {password
                             ? strengthLabel
                             : "Use length, upper and lowercase letters, numbers, and symbols."}
@@ -463,7 +463,7 @@ export default function Auth() {
                 {mode === "login" && (
                   <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
                     Verification
-                    <span className="font-normal normal-case tracking-normal text-[#657084]">
+                    <span className="font-normal normal-case tracking-normal text-muted-foreground">
                       Solve {mathA} + {mathB} = ?
                     </span>
                     <input
@@ -536,7 +536,7 @@ export default function Auth() {
                 )}
                 {mode === "reset" && securityQuestions && (
                   <>
-                    <div className="border-l-2 border-[#c9a34e] bg-[#16243d]/5 p-3 text-sm text-[#4a566a]">
+                    <div className="border-l-2 border-[#c9a34e] bg-[#16243d]/5 p-3 text-sm text-muted-foreground">
                       <p className="font-semibold">Question 1: {securityQuestions.question1}</p>
                       <input
                         required
@@ -547,7 +547,7 @@ export default function Auth() {
                         className="mt-2 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm outline-none focus:border-[#c9a34e]"
                       />
                     </div>
-                    <div className="border-l-2 border-[#c9a34e] bg-[#16243d]/5 p-3 text-sm text-[#4a566a]">
+                    <div className="border-l-2 border-[#c9a34e] bg-[#16243d]/5 p-3 text-sm text-muted-foreground">
                       <p className="font-semibold">Question 2: {securityQuestions.question2}</p>
                       <input
                         required
@@ -560,7 +560,7 @@ export default function Auth() {
                     </div>
                     <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
                       New password
-                      <span className="font-normal normal-case tracking-normal text-[#657084]">
+                      <span className="font-normal normal-case tracking-normal text-muted-foreground">
                         At least 10 characters, including letters and numbers.
                       </span>
                       <div className="relative">
@@ -576,7 +576,7 @@ export default function Auth() {
                           type="button"
                           aria-label={showPassword ? "Hide password" : "Show password"}
                           onClick={() => setShowPassword(value => !value)}
-                          className="absolute right-3 top-1/2 -translate-y-0.5 text-[#657084] hover:text-[#7d5e1e]"
+                          className="absolute right-3 top-1/2 -translate-y-0.5 text-muted-foreground hover:text-[#7d5e1e]"
                         >
                           {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
@@ -633,7 +633,7 @@ export default function Auth() {
                   <button
                     type="button"
                     onClick={() => setMode("forgot")}
-                    className="text-[#657084] underline-offset-4 hover:underline"
+                    className="text-muted-foreground underline-offset-4 hover:underline"
                   >
                     Forgot password?
                   </button>
@@ -642,7 +642,7 @@ export default function Auth() {
                   <button
                     type="button"
                     onClick={() => setMode("register")}
-                    className="text-[#657084] underline-offset-4 hover:underline"
+                    className="text-muted-foreground underline-offset-4 hover:underline"
                   >
                     Need an account?
                   </button>
@@ -650,7 +650,7 @@ export default function Auth() {
               </div>
             </>
           )}
-          <div className="mt-8 border-t border-[#16243d]/15 pt-6 text-xs leading-6 text-[#657084]">
+          <div className="mt-8 border-t border-[#16243d]/15 pt-6 text-xs leading-6 text-muted-foreground">
             <p className="flex items-start gap-2">
               <CheckCircle2
                 size={15}
