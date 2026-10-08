@@ -1,6 +1,5 @@
 /* Profound IQ Consulting — Executive Observatory public-page shell: editorial navy fields, ivory reading surfaces, antique-gold route markers, and restrained motion. */
 import {
-  ArrowUp,
   ArrowUpRight,
   ChevronRight,
   MessageCircle,
@@ -11,7 +10,6 @@ import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { BrandLogo } from "@/components/BrandLogo";
 import { SiteNavigation } from "@/components/SiteNavigation";
-
 
 const navItems = [
   { label: "About", href: "/about" },

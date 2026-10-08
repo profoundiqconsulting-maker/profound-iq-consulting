@@ -31,12 +31,6 @@ export function CourseShareActions({
       summary={`${courseTitle} — Profound IQ Consulting.`}
       platforms={platforms}
       label={shareLabel}
-          onShare={platform => {
-        if (typeof window !== "undefined") {
-          // Analytics hook point for course_shared events.
-          void platform;
-        }
-      }}
     />
   );
 }

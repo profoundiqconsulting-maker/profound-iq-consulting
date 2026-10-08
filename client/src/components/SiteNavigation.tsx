@@ -67,8 +67,6 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
       : userRole === "staff"
         ? "/staff"
         : "/dashboard";
-  // Primary public journey: isAuthenticated ? "/dashboard" : "/auth?mode=login"
-  // Auth fallback link: href="/dashboard"
 
   const headerTone = dark
     ? "border-white/15 bg-[#101d35] text-[#f7f3e8] shadow-[0_10px_30px_rgba(7,17,35,.16)]"

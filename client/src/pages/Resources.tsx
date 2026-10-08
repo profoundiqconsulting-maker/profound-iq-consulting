@@ -7,8 +7,6 @@ import {
   FileSearch,
   Mic2,
   ScrollText,
-  Share2,
-  Lock,
 } from "lucide-react";
 import { Link } from "wouter";
 import { PublicPageShell } from "@/components/PublicPageShell";

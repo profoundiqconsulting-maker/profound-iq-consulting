@@ -173,6 +173,3 @@ export default function SharedReport() {
     </div>
   );
 }
-
-// Shared links are intentionally read-only and never expose raw answers or payment references.
-void SharedReport;

@@ -18,13 +18,6 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { BrandLogo } from "@/components/BrandLogo";
 import { useTheme } from "@/contexts/ThemeContext";
 
-
-const serviceLabels = {
-  assessment: "Self Assessment",
-  careerpath: "CareerPath",
-  psychometrics: "Psychometrics",
-  courses: "Courses",
-} as const;
 const searchItems = [
   {
     label: "Clarity and direction",

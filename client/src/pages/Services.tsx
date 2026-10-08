@@ -4,7 +4,6 @@ import {
   BrainCircuit,
   GraduationCap,
   Laptop,
-  Search,
   School,
   UsersRound,
 } from "lucide-react";
