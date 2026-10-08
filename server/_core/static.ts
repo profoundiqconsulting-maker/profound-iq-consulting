@@ -79,7 +79,7 @@ export function serveStatic(app: Express, distPath?: string) {
   );
 
   // SPA fallback.
-  app.use("/{*path}", (_req, res) => {
+  app.use("*", (_req, res) => {
     res.setHeader(
       "Cache-Control",
       "no-cache, no-store, must-revalidate"
