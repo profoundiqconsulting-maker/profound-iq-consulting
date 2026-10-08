@@ -18,6 +18,7 @@ const navItems = [
   { label: "Services", href: "/services" },
   { label: "School solutions", href: "/school-solutions" },
   { label: "Courses", href: "/courses" },
+  { label: "Psychometrics", href: "/psychometrics" },
   { label: "Insights", href: "/blog" },
   { label: "Self Assessment", href: "/assessment" },
   { label: "CareerPath", href: "/careerpath" },

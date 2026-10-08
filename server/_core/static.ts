@@ -23,7 +23,7 @@ function noCacheHtmlMiddleware(
 function resolveAstroDist() {
   const candidates = [
     path.resolve(import.meta.dirname, "astro"),
-    path.resolve(import.meta.dirname, "../dist", "astro"),
+    path.resolve(import.meta.dirname, "../..", "dist", "astro"),
   ];
 
   return candidates.find(candidate => fs.existsSync(candidate)) ?? null;
