@@ -1,0 +1,46 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "Profound IQ Consulting",
+    "identifier": "did:web:profoundiqconsulting.com",
+    "documentationUrl": "https://profoundiqconsulting.com/about"
+  },
+  "entries": [
+    {
+      "identifier": "urn:air:profoundiqconsulting.com:content:llms-txt",
+      "displayName": "Profound IQ Consulting - LLM guidance (llms.txt)",
+      "type": "text/markdown",
+      "url": "https://profoundiqconsulting.com/llms.txt",
+      "description": "Curated Markdown index of the site's most useful pages for large language models and AI agents.",
+      "tags": ["llms", "markdown", "discovery"],
+      "representativeQueries": [
+        "What services does Profound IQ Consulting offer?",
+        "How do I book a psychometric assessment?",
+        "What courses and learning programmes are available?"
+      ],
+      "updatedAt": "2026-10-12T00:00:00Z"
+    },
+    {
+      "identifier": "urn:air:profoundiqconsulting.com:content:home",
+      "displayName": "Profound IQ Consulting - Home",
+      "type": "text/html",
+      "url": "https://profoundiqconsulting.com/",
+      "description": "Landing page introducing Profound IQ Consulting's learning, consulting, and assessment offerings.",
+      "tags": ["landing", "overview"],
+      "representativeQueries": [
+        "What is Profound IQ Consulting?",
+        "Who are these services designed for?"
+      ],
+      "updatedAt": "2026-10-12T00:00:00Z"
+    },
+    {
+      "identifier": "urn:air:profoundiqconsulting.com:content:sitemap",
+      "displayName": "Profound IQ Consulting - Sitemap",
+      "type": "application/xml",
+      "url": "https://profoundiqconsulting.com/sitemap.xml",
+      "description": "XML sitemap listing the indexable URLs published on this site.",
+      "tags": ["sitemap", "discovery"],
+      "updatedAt": "2026-10-12T00:00:00Z"
+    }
+  ]
+}

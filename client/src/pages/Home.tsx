@@ -156,6 +156,7 @@ export default function Home() {
   const [visibleSurveyCount, setVisibleSurveyCount] = useState(3);
   const HOME_PREVIEW_COUNT = 3;
   const enrollmentTriggerRef = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
+  const enrollmentDialogRef = useRef<HTMLDivElement>(null);
   const enrollment = trpc.enrollment.create.useMutation();
   const inquiry = trpc.inquiry.create.useMutation();
   const { user, isAuthenticated } = useAuth();
@@ -336,10 +337,14 @@ export default function Home() {
   useEffect(() => {
     if (!selectedCourse) return;
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setSelectedCourse(null);
+      if (event.key === "Escape") {
+        enrollmentTriggerRef.current?.focus();
+        setSelectedCourse(null);
+      }
     };
     document.addEventListener("keydown", handleKeyDown);
     document.body.style.overflow = "hidden";
+    enrollmentDialogRef.current?.focus();
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
@@ -431,16 +436,14 @@ export default function Home() {
           <div className="container relative px-6 py-20 sm:px-8 sm:py-24 lg:px-8 lg:py-28 xl:py-32">
             <div className="grid items-center gap-16 lg:grid-cols-2">
               <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a34e]/60 bg-[#c9a34e]/20 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#8b6914]">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a34e]/60 bg-[#c9a34e]/20 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
                   <Sparkles size={14} />
                   Executive Assessment & Development
                 </div>
 
                 <h1 className="mt-8 text-fluid-lg leading-[1.1] tracking-tight lg:text-fluid-xl">
                   Transform potential into{" "}
-                  <span className="bg-gradient-to-r from-[#c9a34e] to-[#d4af5e] bg-clip-text text-transparent">
-                    measurable impact
-                  </span>
+                  <span className="text-[#c9a34e]">measurable impact</span>
                 </h1>
 
                 <p className="mt-6 text-fluid-base leading-relaxed text-[#e5eaf5] lg:text-fluid-lg">
@@ -552,7 +555,7 @@ export default function Home() {
               <div className="mt-16 grid grid-cols-2 gap-6 border-t-2 border-[#f7f3e8]/20 pt-10 sm:mt-20 sm:gap-8 sm:pt-12 lg:grid-cols-4">
                 {stats.map((stat, index) => (
                   <div key={index} className="text-center">
-                    <div className="text-2xl font-bold text-[#8b6914] sm:text-3xl lg:text-4xl xl:text-5xl">
+                    <div className="text-2xl font-bold text-[#c9a34e] sm:text-3xl lg:text-4xl xl:text-5xl">
                       {stat.value}
                     </div>
                     <div className="mt-1.5 text-fluid-xs text-[#d7deea] sm:text-sm">
@@ -641,10 +644,10 @@ export default function Home() {
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-[#c9a34e]/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                     <div className="relative">
-                      <div className="mb-8 inline-flex h-16 w-16 items-center justify-center rounded-xl bg-[#c9a34e]/20 text-[#8b6914]">
+                      <div className="mb-8 inline-flex h-16 w-16 items-center justify-center rounded-xl bg-[#c9a34e]/20 text-[#c9a34e]">
                         <Icon size={28} />
                       </div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-[#8b6914]">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
                         {service.tag}
                       </p>
                       <h3 className="mt-3 text-3xl font-bold">
@@ -653,7 +656,7 @@ export default function Home() {
                       <p className="mt-4 text-base leading-relaxed text-[#c1cad7]">
                         {service.body}
                       </p>
-                      <div className="mt-8 flex items-center gap-2 text-sm font-semibold text-[#8b6914]">
+                      <div className="mt-8 flex items-center gap-2 text-sm font-semibold text-[#c9a34e]">
                         Open service
                         <ArrowUpRight
                           size={16}
@@ -672,7 +675,7 @@ export default function Home() {
         <section className="section-py bg-[#101d35]">
           <div className="container px-6 lg:px-8">
             <div className="mx-auto max-w-4xl text-center">
-              <p className="text-fluid-xs font-semibold uppercase tracking-wider text-[#8b6914]">
+              <p className="text-fluid-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
                 Client Success Stories
               </p>
               <div className="mt-8 sm:mt-12">
@@ -680,6 +683,7 @@ export default function Home() {
                   {testimonials.map((testimonial, index) => (
                     <div
                       key={index}
+                      aria-hidden={index !== currentTestimonial}
                       className={`absolute inset-0 transition-all duration-700 ${
                         index === currentTestimonial
                           ? "opacity-100 translate-y-0"
@@ -690,7 +694,7 @@ export default function Home() {
                         "{testimonial.quote}"
                       </blockquote>
                       <div className="mt-6 sm:mt-8">
-                        <p className="font-semibold text-[#8b6914]">
+                        <p className="font-semibold text-[#c9a34e]">
                           {testimonial.author}
                         </p>
                         <p className="text-sm text-[#aab5c6]">
@@ -719,18 +723,25 @@ export default function Home() {
                       </>
                     )}
                   </button>
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-2">
                     {testimonials.map((_, index) => (
                       <button
                         key={index}
+                        type="button"
                         onClick={() => setCurrentTestimonial(index)}
-                        className={`h-2 rounded-full transition-all ${
-                          index === currentTestimonial
-                            ? "w-8 bg-[#c9a34e]"
-                            : "w-2 bg-[#16243d] hover:bg-[#1f3050]"
+                        className={`group flex h-6 items-center justify-center ${
+                          index === currentTestimonial ? "w-8" : "w-6"
                         }`}
                         aria-label={`Testimonial ${index + 1}`}
-                      />
+                      >
+                        <span
+                          className={`block h-2 rounded-full transition-all ${
+                            index === currentTestimonial
+                              ? "w-8 bg-[#c9a34e]"
+                              : "w-2 bg-[#16243d] group-hover:bg-[#1f3050]"
+                          }`}
+                        />
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -809,6 +820,7 @@ export default function Home() {
                       <div className="mt-4 flex flex-wrap gap-3 sm:mt-6 sm:gap-4">
                         <a
                           href={`/courses/${course.slug}?workspace=1`}
+                          aria-label={`Enroll now in ${course.title}`}
                           className="inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-all hover:bg-[#0f172a]"
                         >
                           Enroll now
@@ -819,6 +831,11 @@ export default function Home() {
                             course.modules.length
                               ? `/courses/${course.slug}`
                               : "#contact"
+                          }
+                          aria-label={
+                            course.modules.length
+                              ? `Open syllabus for ${course.title}`
+                              : `Discuss ${course.title}`
                           }
                           className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground transition-colors hover:text-[#8b6914]"
                         >
@@ -981,7 +998,7 @@ export default function Home() {
           <div className="container px-6 lg:px-8">
             <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
               <div>
-                <p className="text-fluid-xs font-semibold uppercase tracking-wider text-[#8b6914]">
+                <p className="text-fluid-xs font-semibold uppercase tracking-wider text-[#c9a34e]">
                   Get in Touch
                 </p>
                 <h2 className="heading-clamp mt-4 font-bold tracking-tight text-[#f7f3e8]">
@@ -1029,6 +1046,11 @@ export default function Home() {
               </div>
 
               <form
+                {...({
+                  toolname: "submit_inquiry",
+                  tooldescription:
+                    "Send an inquiry to Profound IQ Consulting from the landing page. A human reviews it before anything is sent.",
+                } as Record<string, string>)}
                 onSubmit={submitInquiry}
                 className="rounded-2xl bg-white p-8 shadow-xl lg:p-10"
                 aria-live="polite"
@@ -1179,6 +1201,8 @@ export default function Home() {
           }}
         >
           <div
+            ref={enrollmentDialogRef}
+            tabIndex={-1}
             role="dialog"
             aria-modal="true"
             aria-labelledby="enrollment-title"
@@ -1333,7 +1357,7 @@ export default function Home() {
               </p>
               <a
                 href="/contact"
-                className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-[#8b6914] transition-colors hover:text-[#d4af5e]"
+                className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-[#c9a34e] transition-colors hover:text-[#d4af5e]"
               >
                 Talk to our consultants
                 <ArrowUpRight size={16} />
@@ -1379,7 +1403,7 @@ export default function Home() {
             </div>
 
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-[#8b6914]">
+              <p className="text-sm font-semibold uppercase tracking-wider text-[#c9a34e]">
                 Quick Links
               </p>
               <div className="mt-6 grid gap-3">
@@ -1429,7 +1453,7 @@ export default function Home() {
             </div>
 
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-[#8b6914]">
+              <p className="text-sm font-semibold uppercase tracking-wider text-[#c9a34e]">
                 Legal
               </p>
               <div className="mt-6 grid gap-3">
@@ -1451,10 +1475,10 @@ export default function Home() {
 
           <div className="mt-16 border-t border-[#16243d] pt-8">
             <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[#aab5c6]">
                 © 2026 Profound IQ Consulting. All rights reserved.
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[#aab5c6]">
                 Online / Kenya / Global reach
               </p>
             </div>

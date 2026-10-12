@@ -371,6 +371,11 @@ export default function Blog() {
                   </p>
                 </div>
                 <form
+                  {...({
+                    toolname: "subscribe_newsletter",
+                    tooldescription:
+                      "Subscribe an email address to the Profound IQ Insights newsletter with consent. A human confirms before subscribing.",
+                  } as Record<string, string>)}
                   onSubmit={submitNewsletter}
                   className="border border-[#16243d]/10 bg-white/75 p-8 sm:p-9"
                 >

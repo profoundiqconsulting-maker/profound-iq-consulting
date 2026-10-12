@@ -50,6 +50,21 @@ export function serveStatic(app: Express, distPath?: string) {
 
   app.use(noCacheHtmlMiddleware);
 
+  // AI-agent discoverability manifests. express.static ignores dot-prefixed
+  // paths by default (and the bundled `send` doesn't accept a dotfiles policy
+  // fn), so serve these well-known files via explicit routes with correct
+  // content types before the SPA fallback can claim them.
+  app.get("/.well-known/ai-catalog.json", (_req, res) => {
+    res.type("application/ai-catalog+json");
+    res.sendFile(path.resolve(resolvedDistPath, ".well-known", "ai-catalog.json"), {
+      dotfiles: "allow",
+    });
+  });
+  app.get("/llms.txt", (_req, res) => {
+    res.type("text/markdown");
+    res.sendFile(path.resolve(resolvedDistPath, "llms.txt"));
+  });
+
   // Astro owns statically rendered routes.
   serveAstroRoutes(app);
 

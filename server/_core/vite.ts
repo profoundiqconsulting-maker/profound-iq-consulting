@@ -89,6 +89,8 @@ export async function setupVite(app: Express, server: Server) {
         `src="/src/main.tsx?v=${nanoid()}"`
       );
       const page = await vite.transformIndexHtml(url, template);
+      const nonce = (res.locals?.cspNonce as string | undefined) ?? "";
+      const securedPage = page.replace(/<script\b/g, `<script nonce="${nonce}"`);
       res
         .status(200)
         .set({
@@ -97,7 +99,7 @@ export async function setupVite(app: Express, server: Server) {
           Pragma: "no-cache",
           Expires: "0",
         })
-        .end(page);
+        .end(securedPage);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
       next(e);

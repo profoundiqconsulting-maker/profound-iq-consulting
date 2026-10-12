@@ -1,6 +1,8 @@
 import { useState } from "react";
 
 const LOGO_URL = "/ProfoundIQLogo.png";
+const LOGO_192_PNG = "/ProfoundIQLogo-192.png";
+const LOGO_192_WEBP = "/ProfoundIQLogo-192.webp";
 
 function LogoFallback({ context }: { context?: string }) {
   return (
@@ -43,20 +45,23 @@ export function BrandLogo({
       {failed ? (
         <LogoFallback context={context} />
       ) : (
-        <img
-          src={LOGO_URL}
-          alt={
-            context
-              ? `Profound IQ Consulting — ${context}`
-              : "Profound IQ Consulting"
-          }
-          className="h-full w-full object-contain p-1"
-          loading="eager"
-          decoding="async"
-          width={logoWidth}
-          height={logoHeight}
-          onError={() => setFailed(true)}
-        />
+        <picture>
+          <source type="image/webp" srcSet={LOGO_192_WEBP} />
+          <img
+            src={LOGO_192_PNG}
+            alt={
+              context
+                ? `Profound IQ Consulting — ${context}`
+                : "Profound IQ Consulting"
+            }
+            className="h-full w-full object-contain p-1"
+            loading="eager"
+            decoding="async"
+            width={logoWidth}
+            height={logoHeight}
+            onError={() => setFailed(true)}
+          />
+        </picture>
       )}
     </span>
   );

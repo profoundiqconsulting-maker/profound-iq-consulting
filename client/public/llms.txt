@@ -1,0 +1,27 @@
+# Profound IQ Consulting
+
+> Profound IQ Consulting helps people and organizations move from raw potential to purposeful impact through transformational learning, educational consulting, school improvement, psychometric insight, and professional development. This file guides large language models and AI agents to the site's most useful pages.
+
+## Core offerings
+
+- [Services](https://profoundiqconsulting.com/services): Consulting across school improvement, curriculum, leadership, and assessment.
+- [School Solutions](https://profoundiqconsulting.com/school-solutions): School improvement and institutional performance programmes.
+- [Courses](https://profoundiqconsulting.com/courses): Professional, expert-led courses and learning programmes.
+- [Self Assessment](https://profoundiqconsulting.com/assessment): Guided 100-question self assessment with development insights.
+- [Psychometrics](https://profoundiqconsulting.com/psychometrics): Psychometric testing and evidence-based insight.
+- [Career Path](https://profoundiqconsulting.com/careerpath): Pathway and talent-fit assessment for competency direction.
+
+## Insights and content
+
+- [Blog](https://profoundiqconsulting.com/blog): Articles on learning, leadership, and assessment.
+- [Resources](https://profoundiqconsulting.com/resources): Guides, templates, and tools for better decisions.
+
+## Company
+
+- [About](https://profoundiqconsulting.com/about): Who Profound IQ Consulting is and how it works.
+- [Contact](https://profoundiqconsulting.com/contact): Reach the team to discuss your context.
+
+## Machine-readable
+
+- [AI catalog](https://profoundiqconsulting.com/.well-known/ai-catalog.json): ARD / AI Catalog manifest describing this site's discoverable resources.
+- [Sitemap](https://profoundiqconsulting.com/sitemap.xml): Full list of indexable site URLs.

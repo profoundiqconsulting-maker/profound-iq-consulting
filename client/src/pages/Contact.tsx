@@ -195,7 +195,15 @@ export default function Contact() {
                 </button>
               </div>
             ) : (
-              <form className="mt-8 space-y-5" onSubmit={submit}>
+              <form
+                {...({
+                  toolname: "submit_contact_inquiry",
+                  tooldescription:
+                    "Send a message to Profound IQ Consulting about services, courses, or school solutions. A human reviews it before anything is sent.",
+                } as Record<string, string>)}
+                className="mt-8 space-y-5"
+                onSubmit={submit}
+              >
                 <div className="grid gap-5 sm:grid-cols-2">
                   <label className="grid gap-2 text-sm font-semibold text-[#16243d]">
                     Name

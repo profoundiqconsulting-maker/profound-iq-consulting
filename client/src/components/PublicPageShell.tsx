@@ -93,7 +93,7 @@ export function PublicPageShell({
             )}
             <div className="grid max-w-6xl gap-12 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-end">
               <div className="max-w-4xl">
-                <p className="eyebrow flex items-center gap-3 text-[#8b6914]">
+                <p className={`eyebrow flex items-center gap-3 ${darkHero ? "text-[#c9a34e]" : "text-[#8b6914]"}`}>
                   <span className="h-px w-12 bg-[#c9a34e]" />
                   {eyebrow}
                 </p>
@@ -150,7 +150,7 @@ export function PublicPageShell({
             </p>
               <Link
                 href={isAuthenticated ? "/dashboard" : "/contact"}
-                className="mt-7 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#8b6914]"
+                className="mt-7 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e]"
               >
                 {isAuthenticated ? "My workspace" : "Talk to our consultants"} <ArrowUpRight size={14} />
               </Link>
@@ -206,7 +206,7 @@ export function PublicPageShell({
             </div>
           </div>
           <div>
-            <p className="eyebrow text-[#8b6914]">Explore</p>
+            <p className="eyebrow text-[#c9a34e]">Explore</p>
             <div className="mt-5 grid gap-3 text-sm text-[#c1cad7]">
               {navItems.map(item => (
                 <Link
@@ -220,7 +220,7 @@ export function PublicPageShell({
             </div>
           </div>
           <div>
-            <p className="eyebrow text-[#8b6914]">Trust & access</p>
+            <p className="eyebrow text-[#c9a34e]">Trust &amp; access</p>
             <div className="mt-5 grid gap-3 text-sm text-[#c1cad7]">
               <Link
                 href="/verify/certificate"

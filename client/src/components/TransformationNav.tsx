@@ -248,7 +248,7 @@ export function TransformationNav({
           <BrandLogo context="assessment" compactOnMobile />
         </Link>
         <nav
-          className="hidden items-center gap-5 text-[10px] font-black uppercase tracking-[.14em] md:flex"
+          className="hidden items-center gap-5 text-[12px] font-black uppercase tracking-[.14em] md:flex"
           aria-label="Transformation services navigation"
         >
           <Link href="/" className="text-[#c1cad7] hover:text-[#c9a34e]">
@@ -546,7 +546,7 @@ export function TransformationNav({
           className="border-t border-white/10 bg-[#101d35] px-5 py-5 md:hidden"
           aria-label="Mobile transformation services navigation"
         >
-          <div className="flex flex-col gap-4 text-[10px] font-black uppercase tracking-[.14em]">
+          <div className="flex flex-col gap-4 text-[12px] font-black uppercase tracking-[.14em]">
             <Link href="/" onClick={closeMenus} className="text-[#c1cad7]">
               Home
             </Link>

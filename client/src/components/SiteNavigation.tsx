@@ -8,6 +8,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 type NavItem = { label: string; href: string; active?: boolean };
 
 export const siteNavItems: NavItem[] = [
+  { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Services", href: "/services" },
   { label: "School Solutions", href: "/school-solutions" },
@@ -84,6 +85,7 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
 
   const mainNavItems = useMemo<NavItem[]>(() => {
     const items: NavItem[] = [
+      { label: "Home", href: "/" },
       { label: "About", href: "/about" },
       { label: "Services", href: "/services" },
       { label: "School Solutions", href: "/school-solutions" },

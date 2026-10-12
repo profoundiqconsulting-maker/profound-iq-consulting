@@ -92,7 +92,7 @@ export function CookieConsent() {
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[.15em] text-[#8b6914]">
+                <p className="text-[10px] font-black uppercase tracking-[.15em] text-[#c9a34e]">
                   {"Your privacy choices"}
                 </p>
                 <h2 className="mt-1 text-base font-semibold">
@@ -132,7 +132,7 @@ export function CookieConsent() {
                   </button>
                   <a
                     href="/privacy-policy"
-                    className="inline-flex items-center px-2 py-2 text-[10px] font-bold uppercase tracking-[.12em] text-[#8b6914] underline underline-offset-4"
+                    className="inline-flex items-center px-2 py-2 text-[10px] font-bold uppercase tracking-[.12em] text-[#c9a34e] underline underline-offset-4"
                   >
                     {"Privacy Policy"}
                   </a>
@@ -149,7 +149,7 @@ export function CookieConsent() {
                       Required for sessions, security, and saved progress.
                     </p>
                   </div>
-                  <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b6914]">
+                  <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#c9a34e]">
                     {"Always active"}
                   </span>
                 </div>

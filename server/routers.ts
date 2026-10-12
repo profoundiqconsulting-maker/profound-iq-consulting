@@ -1502,16 +1502,23 @@ export const appRouter = router({
     submitSurveyResponse: publicProcedure
       .input(z.object({ id: z.number().int().positive(), optionIndex: z.number().int().min(0) }))
       .mutation(async ({ input }) => submitSurveyResponse(input.id, input.optionIndex)),
-    activeSurveys: publicProcedure.query(() => {
+    activeSurveys: publicProcedure.query(async () => {
       const now = new Date();
-      return listSurveys().then(surveys =>
-        surveys.filter(s => {
+      try {
+        const all = await listSurveys();
+        return all.filter(s => {
           if (s.status !== "published") return false;
           if (s.startsAt && new Date(s.startsAt) > now) return false;
           if (s.endsAt && new Date(s.endsAt) < now) return false;
           return true;
-        })
-      );
+        });
+      } catch (error) {
+        console.error(
+          "[activeSurveys] failed to load surveys; degrading to empty list",
+          error
+        );
+        return [];
+      }
     }),
     submitResearchResponse: publicProcedure
       .input(

@@ -151,6 +151,7 @@ function DashboardLayoutContent({
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const sidebarLeftRef = useRef(0);
   const isMobile = useIsMobile();
 
   const normalizedUserRole = user?.role?.toLowerCase();
@@ -189,8 +190,7 @@ function DashboardLayoutContent({
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizing) return;
-      const sidebarLeft = sidebarRef.current?.getBoundingClientRect().left ?? 0;
-      const newWidth = Math.round(e.clientX - sidebarLeft);
+      const newWidth = Math.round(e.clientX - sidebarLeftRef.current);
       if (newWidth >= MIN_WIDTH && newWidth <= MAX_WIDTH) {
         setSidebarWidth(newWidth);
       }
@@ -379,6 +379,8 @@ function DashboardLayoutContent({
           className={`absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-amber-400/30 transition-colors focus:outline-none focus-visible:bg-amber-400/50 ${isCollapsed ? "hidden" : ""}`}
           onMouseDown={() => {
             if (isCollapsed) return;
+            sidebarLeftRef.current =
+              sidebarRef.current?.getBoundingClientRect().left ?? 0;
             setIsResizing(true);
           }}
           onKeyDown={handleResizerKeyDown}

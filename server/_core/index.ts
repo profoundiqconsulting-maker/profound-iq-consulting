@@ -1,5 +1,7 @@
 import "dotenv/config";
 import path from "path";
+import fs from "node:fs";
+import crypto from "node:crypto";
 import express from "express";
 import { createServer } from "http";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
@@ -20,6 +22,103 @@ import { ensureAdminUser } from "../db";
 async function startServer() {
   const app = express();
   const server = createServer(app);
+
+  // Content Security Policy (XSS hardening). A per-request nonce backs the
+  // single inline SPA bootstrap script and the self-origin bundle; no
+  // 'unsafe-inline'/'unsafe-eval' is used in script-src, so the policy is
+  // effective against injected scripts. The analytics origin is allowlisted
+  // only when configured. The nonce is injected into HTML <script> tags served
+  // from disk (SPA shell) so the inline bootstrap keeps executing.
+  app.use((req, res, next) => {
+    const nonce = crypto.randomBytes(16).toString("base64");
+    res.locals.cspNonce = nonce;
+    const isDev = process.env.NODE_ENV !== "production";
+    const analyticsOrigin = process.env.VITE_ANALYTICS_ENDPOINT;
+    // Dev runs Vite, which injects inline scripts (HMR client, React refresh)
+    // via its own HTML fallback — ahead of this middleware — so a strict nonce
+    // policy can't cover them and would break HMR. Relax script-src (and skip
+    // trusted-types) in dev; production keeps the strict, nonce-backed,
+    // XSS-effective policy injected into the served SPA shell.
+    let scriptSrc = isDev
+      ? `'self' 'unsafe-inline' 'unsafe-eval'`
+      : `'self' 'nonce-${nonce}'`;
+    let connectSrc = "'self'";
+    if (analyticsOrigin) {
+      try {
+        const origin = new URL(analyticsOrigin).origin;
+        scriptSrc += ` ${origin}`;
+        connectSrc += ` ${origin}`;
+      } catch {
+        /* ignore malformed analytics endpoint */
+      }
+    }
+    const csp = [
+      "default-src 'self'",
+      `script-src ${scriptSrc}`,
+      ...(isDev ? [] : ["require-trusted-types-for 'script'"]),
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data:",
+      "font-src 'self' data:",
+      `connect-src ${connectSrc}`,
+      "worker-src 'self' blob:",
+      "manifest-src 'self'",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'self'",
+    ].join("; ");
+    res.setHeader("Content-Security-Policy", csp);
+    // Strong HSTS: force HTTPS for a year across subdomains. Browsers ignore
+    // this on plain-HTTP responses (per RFC 6797), so setting it
+    // unconditionally is safe whether or not TLS is terminated upstream.
+    res.setHeader(
+      "Strict-Transport-Security",
+      "max-age=31536000; includeSubDomains"
+    );
+    // Isolate the top-level window from cross-origin openers while still
+    // allowing popups this page opens (payments/auth) to keep references.
+    res.setHeader(
+      "Cross-Origin-Opener-Policy",
+      "same-origin-allow-popups"
+    );
+    // Clickjacking protection. CSP `frame-ancestors 'self'` (above) is the
+    // modern control; X-Frame-Options backs it up for browsers/proxies that
+    // don't honor CSP framing directives. SAMEORIGIN matches frame-ancestors.
+    res.setHeader("X-Frame-Options", "SAMEORIGIN");
+
+    const injectNonce = (html: string) =>
+      html.replace(/<script\b/g, `<script nonce="${nonce}"`);
+
+    const originalSendFile = res.sendFile.bind(res);
+    res.sendFile = ((filePath: unknown, options?: unknown) => {
+      if (typeof filePath === "string" && filePath.endsWith(".html")) {
+        const resolved = path.isAbsolute(filePath)
+          ? filePath
+          : path.resolve(
+              ((options as { root?: string })?.root) || process.cwd(),
+              filePath
+            );
+        fs.promises.readFile(resolved, "utf-8")
+          .then(html => {
+            res.type("html");
+            res.setHeader(
+              "Cache-Control",
+              "no-cache, no-store, must-revalidate"
+            );
+            res.send(injectNonce(html));
+          })
+          .catch(next);
+        return res;
+      }
+      return (originalSendFile as (p: string, o?: unknown) => unknown)(
+        filePath as string,
+        options
+      );
+    }) as typeof res.sendFile;
+
+    next();
+  });
+
   try {
     await ensureAdminUser();
   } catch (error) {
