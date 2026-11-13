@@ -27,9 +27,9 @@ export type CourseAccessInput = {
   paidStages: number;
 };
 
-/** Returns the installment required before a module's lessons may be opened. Modules are 1-indexed in the learner-facing copy. */
+/** Returns the installment required before a module's lessons may be opened. Module 1 is free (stage 0). Modules are 1-indexed in the learner-facing copy. */
 export function requiredPaymentStageForModule(moduleIndex: number) {
-  return moduleIndex >= 6 ? 3 : moduleIndex >= 3 ? 2 : 1;
+  return moduleIndex >= 7 ? 4 : moduleIndex >= 4 ? 3 : moduleIndex >= 1 ? 2 : 0;
 }
 
 export function canAccessModuleLessons({
@@ -46,7 +46,7 @@ export function canAccessCourseLessons({
   isAuthenticated,
   paidStages,
 }: CourseAccessInput) {
-  return isAuthenticated && paidStages >= 1;
+  return isAuthenticated;
 }
 
 export function courseAccessReason({
@@ -54,8 +54,8 @@ export function courseAccessReason({
   paidStages,
 }: CourseAccessInput) {
   if (!isAuthenticated)
-    return "Sign in or register first. After the first 25% enrollment payment is verified, the full lesson player becomes available.";
+    return "Sign in or register first. Module 1 is free; stages 2–4 require payment.";
   if (paidStages < 1)
-    return "Complete the first 25% enrollment payment to unlock the full lesson player, simulations, notes, and module progression.";
+    return "Module 1 is free. Complete Stage 2 to unlock Modules 2–4, Stage 3 for Modules 5–7, and Stage 4 for Modules 8–10.";
   return "Detailed lessons are available.";
 }

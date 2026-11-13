@@ -2291,12 +2291,12 @@ export default function UserDashboard() {
                     );
                     const milestone = nextStage
                       ? [
-                          "Before Module 1",
-                          "Before Module 4",
-                          "Before Module 7",
+                          "Before Module 2",
+                          "Before Module 5",
+                          "Before Module 8",
                           "Certificate request",
                         ][nextStage.stage - 1]
-                      : "All four stages verified";
+                      : "All stages verified";
                     return (
                       <article
                         key={record.enrollment.id}

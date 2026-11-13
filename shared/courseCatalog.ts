@@ -2,7 +2,7 @@ export const COURSE_PRICE_KES = 4999;
 export const COURSE_STAGE_AMOUNT_KES = 1250;
 export const STANDARD_COURSE_PRICE_KES = 4999;
 export const STANDARD_COURSE_STAGE_AMOUNTS_KES = [
-  1250, 1250, 1250, 1249,
+  0, 1666, 1666, 1667,
 ] as const;
 export const COURSE_PASS_MARK = 50;
 
@@ -18,6 +18,9 @@ export type LessonResponseTask = {
   placeholder: string;
   required: boolean;
 };
+import type { GeneratedVisualAsset } from "./courseVisuals";
+import { generateLessonVisuals } from "./courseVisuals";
+
 export type LessonIllustration = {
   label: string;
   caption: string;
@@ -47,6 +50,7 @@ export type CourseLesson = {
   reflectionPrompt: string;
   keyTakeaway: string;
   illustration: LessonIllustration;
+  visualAssets: GeneratedVisualAsset[];
 };
 export type CourseQuizQuestion = {
   id: string;
@@ -283,7 +287,9 @@ const moduleThemes: Record<string, string[]> = {
 };
 
 const lessonContent = (
+  courseSlug: string,
   courseTitle: string,
+  category: CourseCategory,
   theme: string,
   lessonTitle: string,
   lessonIndex: number,
@@ -308,6 +314,71 @@ const lessonContent = (
     "turning an intention into a small habit that can survive a busy week",
   ];
   const dailyContext = dailyContexts[lessonIndex];
+
+  const visualAssets = generateLessonVisuals(
+    courseSlug,
+    courseTitle,
+    category,
+    theme,
+    lessonTitle,
+    moduleIndex,
+    lessonIndex
+  );
+
+  const sections: LessonSection[] = [
+    {
+      heading: "Build the mental model",
+      body: `${lessonTitle} is a practical way of seeing and responding, not a definition to memorise. In ${courseTitle}, it helps you interpret ${theme} with more precision: first identify the situation, then separate facts from assumptions, choose a response that fits the purpose, and review what happened. The concept becomes useful when it changes what you notice, what you say, or what you do next.`,
+      callout:
+        "Read slowly, pause at the examples, and connect each idea to one real moment from your week.",
+    },
+    {
+      heading: "Understand the mechanism",
+      body: `Most people move through ${theme} using familiar defaults. A trigger creates a first interpretation; that interpretation shapes emotion and attention; attention influences behaviour; and behaviour produces consequences that can reinforce the original pattern. ${lessonTitle} creates a deliberate pause in that chain. Ask: What is happening? What matters here? What response would serve the intended outcome? What evidence would show that the response helped?`,
+    },
+    {
+      heading: "Apply it in daily life",
+      body: `Imagine that you are ${dailyContext}. A reactive approach might follow the loudest demand, send the first emotional reply, or abandon the plan when conditions change. A more skilful approach is to ${practice}: name the outcome, identify the constraint, choose the smallest useful move, and set a time to review it. The same pattern transfers between work, study, family conversations, personal finances, health routines, and community responsibilities because each setting rewards clear observation and intentional action.`,
+      callout:
+        "Application test: if the idea cannot improve an ordinary Tuesday, it has not yet become a usable capability.",
+    },
+    {
+      heading: "Study the worked example",
+      body: `A project lead notices that meetings are full but decisions remain unclear. They write the desired decision at the top of the agenda, ask each person to name one relevant constraint, and close by recording the owner and review date. At home, the same learner uses the method to plan a shared errand: agree on the outcome, check the available time, choose the simplest route, and confirm what will happen if the plan changes. In both cases, ${theme} moves from an abstract aspiration to a visible practice with a consequence that can be reviewed.`,
+    },
+    {
+      heading: "Practise through a small experiment",
+      body: `Choose one live situation from the last seven days. Write the trigger, your usual response, the result it creates, and the alternative response you want to test. Keep the experiment small enough to complete before the next working cycle. For example, replace a vague intention with one sentence you will use, one calendar block you will protect, one question you will ask, or one decision rule you will follow. Afterward, record what changed, what surprised you, and what you would adjust rather than judging the attempt as simply good or bad.`,
+    },
+    {
+      heading: "Use the simulation and transfer",
+      body: `The simulation presents a realistic choice because capability develops through decisions, not passive agreement. Select the response that creates learning, protects the relationship, and keeps the next step observable. Then adapt the same move to a personal context: a difficult conversation, a study plan, a spending choice, a health commitment, or a household responsibility. Transfer is complete when you can explain what you changed, why it fit the situation, and what evidence you will review.`,
+    },
+    // Five-section enhancement sequence appended after core content
+    {
+      heading: "Real-World Application",
+      body: `In practice, ${lessonTitle.toLowerCase()} shows up when you are ${dailyContext}. Consider a project lead who notices decisions staying unclear despite full meeting agendas. They write the intended decision at the top, ask each person to name one constraint, and close by recording the owner and review date. The same pattern applies at home planning a shared errand: agree the outcome, check available time, choose the simplest route, and confirm the contingency if conditions change. In both settings, ${theme} shifts from an abstract idea to a visible practice with a consequence that can be reviewed in the next cycle.`,
+      callout:
+        "If the idea cannot improve an ordinary Tuesday, it has not yet become a usable capability.",
+    },
+    {
+      heading: "Deep Dive",
+      body: `Deep-dive practice: connect ${lessonTitle.toLowerCase()} to ${dailyContext}. First describe the current pattern without judging it. Then identify the smallest decision you can make, the support or constraint that may affect it, and the moment you will review the result. Strong application is not about producing a perfect answer; it is about making your reasoning visible, testing it responsibly, and improving the next attempt with evidence.`,
+    },
+    {
+      heading: "Worked Example",
+      body: `Context: A learner is experiencing friction around ${theme} while balancing work, personal responsibilities, and limited attention.\n\nMove: They pause before reacting, make the pattern explicit, and use ${lessonTitle.toLowerCase()} to ${practice}. They choose one low-risk experiment and tell the relevant person what they are testing.\n\nResult: The situation becomes easier to discuss, the next action is visible, and the learner has evidence to use in the next review rather than relying on a vague intention.`,
+    },
+    {
+      heading: "Key Takeaway",
+      body: `A useful ${lessonTitle.toLowerCase()} practice turns ${theme} into one observable decision, behaviour, or review point that improves an ordinary situation.`,
+    },
+    {
+      heading: "Reflection Prompt",
+      body: `Where could you practise ${lessonTitle.toLowerCase()} this week—in your work, study, relationships, finances, health, or household routines—and what specific evidence would tell you that the practice is working?`,
+    },
+  ];
+
   return {
     durationMinutes: 30,
     objectives: [
@@ -315,36 +386,7 @@ const lessonContent = (
       `Apply the concept to a professional situation and an everyday decision such as ${dailyContext}.`,
       "Practise one observable behaviour, examine the result, and define a next experiment.",
     ],
-    sections: [
-      {
-        heading: "Build the mental model",
-        body: `${lessonTitle} is a practical way of seeing and responding, not a definition to memorise. In ${courseTitle}, it helps you interpret ${theme} with more precision: first identify the situation, then separate facts from assumptions, choose a response that fits the purpose, and review what happened. The concept becomes useful when it changes what you notice, what you say, or what you do next.`,
-        callout:
-          "Read slowly, pause at the examples, and connect each idea to one real moment from your week.",
-      },
-      {
-        heading: "Understand the mechanism",
-        body: `Most people move through ${theme} using familiar defaults. A trigger creates a first interpretation; that interpretation shapes emotion and attention; attention influences behaviour; and behaviour produces consequences that can reinforce the original pattern. ${lessonTitle} creates a deliberate pause in that chain. Ask: What is happening? What matters here? What response would serve the intended outcome? What evidence would show that the response helped?`,
-      },
-      {
-        heading: "Apply it in daily life",
-        body: `Imagine that you are ${dailyContext}. A reactive approach might follow the loudest demand, send the first emotional reply, or abandon the plan when conditions change. A more skilful approach is to ${practice}: name the outcome, identify the constraint, choose the smallest useful move, and set a time to review it. The same pattern transfers between work, study, family conversations, personal finances, health routines, and community responsibilities because each setting rewards clear observation and intentional action.`,
-        callout:
-          "Application test: if the idea cannot improve an ordinary Tuesday, it has not yet become a usable capability.",
-      },
-      {
-        heading: "Study the worked example",
-        body: `A project lead notices that meetings are full but decisions remain unclear. They write the desired decision at the top of the agenda, ask each person to name one relevant constraint, and close by recording the owner and review date. At home, the same learner uses the method to plan a shared errand: agree on the outcome, check the available time, choose the simplest route, and confirm what will happen if the plan changes. In both cases, ${theme} moves from an abstract aspiration to a visible practice with a consequence that can be reviewed.`,
-      },
-      {
-        heading: "Practise through a small experiment",
-        body: `Choose one live situation from the last seven days. Write the trigger, your usual response, the result it creates, and the alternative response you want to test. Keep the experiment small enough to complete before the next working cycle. For example, replace a vague intention with one sentence you will use, one calendar block you will protect, one question you will ask, or one decision rule you will follow. Afterward, record what changed, what surprised you, and what you would adjust rather than judging the attempt as simply good or bad.`,
-      },
-      {
-        heading: "Use the simulation and transfer",
-        body: `The simulation presents a realistic choice because capability develops through decisions, not passive agreement. Select the response that creates learning, protects the relationship, and keeps the next step observable. Then adapt the same move to a personal context: a difficult conversation, a study plan, a spending choice, a health commitment, or a household responsibility. Transfer is complete when you can explain what you changed, why it fit the situation, and what evidence you will review.`,
-      },
-    ],
+    sections,
     example: {
       context: `A learner is experiencing friction around ${theme} while balancing work, personal responsibilities, and limited attention.`,
       move: `They pause before reacting, make the pattern explicit, and use ${lessonTitle.toLowerCase()} to ${practice}. They choose one low-risk experiment and tell the relevant person what they are testing.`,
@@ -461,6 +503,7 @@ const lessonContent = (
       ],
       experientialReflectionPrompt: `What detail from this story—its atmosphere, pressure, or moment of possibility—connects with your own life, and what will you do differently because of it?`,
     },
+    visualAssets,
   };
 };
 
@@ -566,7 +609,9 @@ const buildModules = (course: {
       summary: `${lessonTitle} gives you a focused lens for applying ${theme} to real professional situations.`,
       outcome: `By the end of this lesson, you can explain, practise, and review one aspect of ${theme} with greater precision.`,
       ...lessonContent(
+        course.slug,
         course.title,
+        courseCategoryFor(course),
         theme,
         lessonTitle,
         lessonIndex,
@@ -769,7 +814,9 @@ const buildIcpcModules = (course: {
       summary: `${lessonTitle} turns ${theme} into a practical international-school teaching decision.`,
       outcome: `By the end of this 40-minute studio, you can apply ${lessonTitle.toLowerCase()} to a learner, lesson, curriculum, or assessment context.`,
       ...lessonContent(
+        course.slug,
         course.title,
+        courseCategoryFor(course),
         theme,
         lessonTitle,
         lessonIndex,
@@ -797,6 +844,29 @@ const buildIcpcModules = (course: {
         {
           heading: "Transfer and review",
           body: `Apply the practice to one real class, tutoring session, home-learning routine, or curriculum consultation. Record the learner response, the evidence gathered, and the next adjustment so the practice becomes a repeatable professional skill.`,
+        },
+        // Five-section enhancement sequence appended after core content
+        {
+          heading: "Real-World Application",
+          body: `In practice, ${lessonTitle.toLowerCase()} shows up when designing a learning experience for ${theme}. Consider a teacher preparing a mixed-readiness class for a demanding outcome. They choose one curriculum adaptation, explain why it fits the context, and decide what learner evidence to review before the next lesson. The same discipline applies to tutoring, home-learning routines, and curriculum consultation: make one decision visible, gather evidence, and adjust before the next teaching move.`,
+          callout:
+            "Work like a curriculum designer: frame, test, observe, adjust.",
+        },
+        {
+          heading: "Deep Dive",
+          body: `International curricula are not interchangeable labels. Compare the assumptions, progression logic, teaching choices, and assessment expectations that shape ${theme}; then name which parts can transfer and which must remain context-specific. Strong application protects learner agency while keeping the intended outcome clear—make the outcome explicit, offer meaningful choices, and use evidence to adjust the next step.`,
+        },
+        {
+          heading: "Worked Example",
+          body: `Context: A teacher is designing a lesson for ${theme} with a mixed-readiness class.\n\nMove: Draft a compact teaching artefact: a lesson intention, learner activity, formative check, and feedback move. Use the simulation to test the design, then revise one assumption based on the feedback.\n\nResult: The design becomes responsive to learner evidence, the intended outcome stays clear, and the teacher has a repeatable studio practice for future planning.`,
+        },
+        {
+          heading: "Key Takeaway",
+          body: `${lessonTitle} becomes valuable when it changes one observable teaching decision and creates evidence for the next adjustment.`,
+        },
+        {
+          heading: "Reflection Prompt",
+          body: `Which learner, curriculum, or assessment decision could you improve using ${lessonTitle.toLowerCase()}, and what evidence will you review?`,
         },
       ],
       simulation: {
@@ -1429,12 +1499,7 @@ const courseSeeds = [
       "Build a practical leadership operating model.",
     ],
     priceKes: COURSE_PRICE_KES,
-    stageAmountsKes: [
-      COURSE_STAGE_AMOUNT_KES,
-      COURSE_STAGE_AMOUNT_KES,
-      COURSE_STAGE_AMOUNT_KES,
-      COURSE_STAGE_AMOUNT_KES,
-    ],
+    stageAmountsKes: STANDARD_COURSE_STAGE_AMOUNTS_KES,
   },
   {
     slug: "strategic-growth-mindset",
@@ -1452,12 +1517,7 @@ const courseSeeds = [
       "Use evidence to turn progress into repeatable capability.",
     ],
     priceKes: COURSE_PRICE_KES,
-    stageAmountsKes: [
-      COURSE_STAGE_AMOUNT_KES,
-      COURSE_STAGE_AMOUNT_KES,
-      COURSE_STAGE_AMOUNT_KES,
-      COURSE_STAGE_AMOUNT_KES,
-    ],
+    stageAmountsKes: STANDARD_COURSE_STAGE_AMOUNTS_KES,
   },
   {
     slug: "professional-presence-influence",
@@ -1475,12 +1535,7 @@ const courseSeeds = [
       "Influence without compromising authenticity or trust.",
     ],
     priceKes: COURSE_PRICE_KES,
-    stageAmountsKes: [
-      COURSE_STAGE_AMOUNT_KES,
-      COURSE_STAGE_AMOUNT_KES,
-      COURSE_STAGE_AMOUNT_KES,
-      COURSE_STAGE_AMOUNT_KES,
-    ],
+    stageAmountsKes: STANDARD_COURSE_STAGE_AMOUNTS_KES,
   },
   {
     slug: "from-insight-to-action",
@@ -1498,12 +1553,7 @@ const courseSeeds = [
       "Build accountability that survives busy periods and setbacks.",
     ],
     priceKes: COURSE_PRICE_KES,
-    stageAmountsKes: [
-      COURSE_STAGE_AMOUNT_KES,
-      COURSE_STAGE_AMOUNT_KES,
-      COURSE_STAGE_AMOUNT_KES,
-      COURSE_STAGE_AMOUNT_KES,
-    ],
+    stageAmountsKes: STANDARD_COURSE_STAGE_AMOUNTS_KES,
   },
   {
     slug: "professional-certificate-international-curriculum-pedagogy",

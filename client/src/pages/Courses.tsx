@@ -38,6 +38,7 @@ type CourseCard = {
   modules: ModulePreview[];
   price: string;
   stagePlan: string;
+  stageAmountsKes: number[];
   format: string;
   body: string;
   category: string;
@@ -100,9 +101,8 @@ export default function Courses() {
         promise: module.promise,
       })),
       price: `KES ${course.priceKes.toLocaleString()}`,
-      stagePlan: course.stageAmountsKes
-        .map(amount => `KES ${amount.toLocaleString()}`)
-        .join(" / "),
+      stagePlan: `Stage 1 free · KES ${course.stageAmountsKes[1].toLocaleString()} × 3`,
+      stageAmountsKes: course.stageAmountsKes,
       format: course.duration,
       body: course.description,
       category: course.category,
@@ -121,7 +121,8 @@ export default function Courses() {
       outcomes: item.outcomes,
       modules: [] as never[],
       price: `KES ${item.priceKes.toLocaleString()}`,
-      stagePlan: `KES ${Math.round(item.priceKes / 4).toLocaleString()} × 4`,
+      stagePlan: `Stage 1 free · KES ${Math.floor(item.priceKes / 3).toLocaleString()} × 3`,
+      stageAmountsKes: [0, Math.floor(item.priceKes / 3), Math.floor(item.priceKes / 3), item.priceKes - 2 * Math.floor(item.priceKes / 3)],
       format: item.duration,
       body: item.description,
       category: (item as any).category ?? "Professional development",
@@ -683,17 +684,18 @@ export default function Courses() {
                         </summary>
                         <div className="mt-4 grid gap-3 sm:grid-cols-2">
                           {course.modules.map(module => (
-                            <div
+                            <Link
                               key={module.id}
-                              className="border-l border-[#c9a34e] pl-3"
+                              href={`/courses/${course.slug}?module=${module.id}`}
+                              className="border-l border-[#c9a34e] pl-3 block"
                             >
-                              <p className="text-xs font-bold">
+                              <p className="text-xs font-bold text-[#16243d] group-hover:text-[#c9a34e] transition-colors group">
                                 {module.title}
                               </p>
                               <p className="mt-1 text-[11px] leading-5 text-[#4a566a]">
                                 {module.promise}
                               </p>
-                            </div>
+                            </Link>
                           ))}
                         </div>
                       </details>
@@ -1260,9 +1262,12 @@ export default function Courses() {
                 </h3>
                 <p className="mt-3 text-sm leading-6 text-[#c1cad7]">
                   Your enrollment details are recorded. The secure course
-                  workspace will guide you through four staged payments of{" "}
-                  {selectedCourse.stagePlan}: before Module 1, Module 4, Module
-                  7, and certificate request.
+                  workspace will guide you through three staged payments of{" "}
+                  {selectedCourse.stageAmountsKes
+                    .slice(1)
+                    .map(amount => `KES ${amount.toLocaleString()}`)
+                    .join(" / ")}: before Module 2, Module 5, and Module 8.
+                  The first stage is free.
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <Link
@@ -1342,9 +1347,9 @@ export default function Courses() {
                   </p>
                   <p className="mt-2 text-[11px] leading-5 text-[#4a566a]">
                     Save your details, continue to the secure course workspace,
-                    and complete the four staged payments shown for your
-                    selected course. Your first payment unlocks the detailed
-                    learning experience.
+                    and complete the three staged payments shown for your
+                    selected course. The first stage is free and unlocks the
+                    detailed learning experience.
                   </p>
                 </div>
                 <p className="mt-5 text-[11px] leading-5 text-[#4a566a]">

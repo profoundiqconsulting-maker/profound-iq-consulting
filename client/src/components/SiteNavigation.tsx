@@ -92,7 +92,7 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
       { label: "Courses", href: "/courses" },
       { label: "Psychometrics", href: "/psychometrics" },
       { label: "Self Assessment", href: "/assessment" },
-      { label: "Career Path", href: "/careerpath" },
+{ label: "CareerPath", href: "/careerpath" },
       { label: "Resources", href: "/resources" },
     ];
     if (isAuthenticated && user?.role) {

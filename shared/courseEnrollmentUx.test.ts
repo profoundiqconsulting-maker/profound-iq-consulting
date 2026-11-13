@@ -67,7 +67,7 @@ describe("course enrollment access flow", () => {
       "initializeStageInlinePayment.useMutation"
     );
     expect(workspaceSource).toContain(
-      "Lesson access opens only after payment verification"
+      "The first stage is free and unlocks"
     );
     expect(workspaceSource).toContain(
       "checkout.mutate("
@@ -88,7 +88,7 @@ describe("course enrollment access flow", () => {
 
   it("keeps server lesson mutations behind the same staged-payment policy", () => {
     expect(routerSource).toContain(
-      "const requiredStage = moduleNumber >= 7 ? 3 : moduleNumber >= 4 ? 2 : 1"
+      "const requiredStage = moduleNumber >= 8 ? 4 : moduleNumber >= 5 ? 3 : moduleNumber >= 2 ? 2 : 0"
     );
     expect(routerSource).toContain("Verify payment stage ${requiredStage}");
     expect(routerSource).toContain("canBypassCoursePayment");

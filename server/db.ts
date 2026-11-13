@@ -5147,6 +5147,7 @@ export async function getOrCreateCourseEnrollment(input: {
         enrollmentId,
         stage,
         amountKes: stageAmounts[stage - 1],
+        paymentStatus: stageAmounts[stage - 1] === 0 ? "paid" : "pending",
       }))
     );
   return (

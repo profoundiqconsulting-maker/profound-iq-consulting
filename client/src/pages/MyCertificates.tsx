@@ -248,7 +248,7 @@ export default function MyCertificates() {
               No certificates yet
             </h2>
             <p className="mx-auto mt-2 max-w-md text-sm text-[#657084]">
-              Complete a course, pass all quizzes, and finish all four payment
+              Complete a course, pass all quizzes, and finish all three payment
               stages to earn your certificate of completion.
             </p>
             <Link

@@ -2,6 +2,9 @@ import { useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
 import { getInsightArticle } from "@shared/insightsArticles";
 import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
+import { ASSESSMENT_PRICE_KES } from "@shared/assessment";
+import { CAREER_PATH_PRICE_KES } from "@shared/careerPath";
+import { COURSE_PRICE_KES } from "@shared/courseCatalog";
 
 const SITE_NAME = "Profound IQ Consulting";
 export const SITE_ORIGIN = PUBLISHED_SITE_ORIGIN;
@@ -243,7 +246,7 @@ function getSeo(pathname: string): SeoConfig {
         },
         offers: {
           "@type": "Offer",
-          price: "4999",
+          price: String(COURSE_PRICE_KES),
           priceCurrency: "KES",
           url: `${SITE_ORIGIN}${cleanPath}`,
         },
@@ -263,7 +266,7 @@ function getSeo(pathname: string): SeoConfig {
         areaServed: "Worldwide",
         offers: {
           "@type": "Offer",
-          price: "399",
+          price: String(ASSESSMENT_PRICE_KES),
           priceCurrency: "KES",
           url: `${SITE_ORIGIN}/assessment`,
         },
@@ -282,7 +285,7 @@ function getSeo(pathname: string): SeoConfig {
         provider: { "@type": "Organization", name: SITE_NAME },
         offers: {
           "@type": "Offer",
-          price: "399",
+          price: String(CAREER_PATH_PRICE_KES),
           priceCurrency: "KES",
           url: `${SITE_ORIGIN}/careerpath`,
         },

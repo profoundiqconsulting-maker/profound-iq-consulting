@@ -19,17 +19,11 @@ describe("course lesson access", () => {
     expect(courseAccessReason(input)).toContain("Sign in or register");
   });
 
-  it("blocks authenticated learners until the first 25% stage is paid", () => {
+  it("allows authenticated learners to start module 1 for free", () => {
     expect(
       canAccessCourseLessons({
         isAuthenticated: true,
         paidStages: 0,
-      })
-    ).toBe(false);
-    expect(
-      canAccessCourseLessons({
-        isAuthenticated: true,
-        paidStages: 1,
       })
     ).toBe(true);
     expect(
@@ -37,16 +31,19 @@ describe("course lesson access", () => {
         isAuthenticated: true,
         paidStages: 0,
       })
-    ).toContain("first 25%");
+    ).toContain("Module 1 is free");
   });
 });
 
 describe("module payment boundaries", () => {
   it("maps module ranges to the correct installment", () => {
-    expect(requiredPaymentStageForModule(0)).toBe(1);
+    expect(requiredPaymentStageForModule(0)).toBe(0);
+    expect(requiredPaymentStageForModule(1)).toBe(2);
     expect(requiredPaymentStageForModule(3)).toBe(2);
+    expect(requiredPaymentStageForModule(4)).toBe(3);
     expect(requiredPaymentStageForModule(6)).toBe(3);
-    expect(requiredPaymentStageForModule(9)).toBe(3);
+    expect(requiredPaymentStageForModule(7)).toBe(4);
+    expect(requiredPaymentStageForModule(9)).toBe(4);
   });
 
   it("keeps staged modules locked until their matching installment is paid", () => {

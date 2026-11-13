@@ -27,7 +27,7 @@ import {
   courseCatalog,
   COURSE_PASS_MARK,
   COURSE_PRICE_KES,
-  COURSE_STAGE_AMOUNT_KES,
+  STANDARD_COURSE_STAGE_AMOUNTS_KES,
 } from "../shared/courseCatalog";
 import { buildCoursePaymentSuccessPath } from "../shared/coursePaymentRouting";
 import { PUBLISHED_SITE_ORIGIN } from "../shared/siteOrigin";
@@ -2065,7 +2065,7 @@ export const appRouter = router({
     catalog: publicProcedure.query(() => ({
       courses: courseCatalog,
       priceKes: COURSE_PRICE_KES,
-      stageAmountKes: COURSE_STAGE_AMOUNT_KES,
+      stageAmountKes: STANDARD_COURSE_STAGE_AMOUNTS_KES[0],
       passMark: COURSE_PASS_MARK,
     })),
     enroll: protectedProcedure
@@ -2101,7 +2101,7 @@ export const appRouter = router({
           courseSlug: course.slug,
           name: input.name,
           email: input.email,
-          amountKes: course.stageAmountsKes[0] ?? COURSE_STAGE_AMOUNT_KES,
+          amountKes: course.stageAmountsKes[0] ?? 0,
           stageAmountsKes: course.stageAmountsKes,
         });
         return { enrollmentId: enrollment?.id, courseSlug: course.slug };
@@ -2518,7 +2518,7 @@ export const appRouter = router({
         const moduleNumber = Number(
           input.lessonId.match(/module-(\\d+)/)?.[1] ?? 0
         );
-        const requiredStage = moduleNumber >= 7 ? 3 : moduleNumber >= 4 ? 2 : 1;
+        const requiredStage = moduleNumber >= 8 ? 4 : moduleNumber >= 5 ? 3 : moduleNumber >= 2 ? 2 : 0;
         const accessOverride = canBypassCoursePayment({
           hasAccessGrant: await hasCourseAccessGrant(
             ctx.user.openId,
@@ -2526,6 +2526,7 @@ export const appRouter = router({
           ),
         });
         if (
+          requiredStage > 0 &&
           record.stages.find(stage => stage.stage === requiredStage)
             ?.paymentStatus !== "paid" &&
           !accessOverride
@@ -2583,7 +2584,7 @@ export const appRouter = router({
         const moduleNumber = Number(
           input.lessonId.match(/module-(\\d+)/)?.[1] ?? 0
         );
-        const requiredStage = moduleNumber >= 7 ? 3 : moduleNumber >= 4 ? 2 : 1;
+        const requiredStage = moduleNumber >= 8 ? 4 : moduleNumber >= 5 ? 3 : moduleNumber >= 2 ? 2 : 0;
         const accessOverride = canBypassCoursePayment({
           hasAccessGrant: await hasCourseAccessGrant(
             ctx.user.openId,
@@ -2591,6 +2592,7 @@ export const appRouter = router({
           ),
         });
         if (
+          requiredStage > 0 &&
           record.stages.find(stage => stage.stage === requiredStage)
             ?.paymentStatus !== "paid" &&
           !accessOverride
@@ -2650,7 +2652,7 @@ export const appRouter = router({
         const moduleNumber = Number(
           input.moduleId.match(/module-(\\d+)/)?.[1] ?? 0
         );
-        const requiredStage = moduleNumber >= 7 ? 3 : moduleNumber >= 4 ? 2 : 1;
+        const requiredStage = moduleNumber >= 8 ? 4 : moduleNumber >= 5 ? 3 : moduleNumber >= 2 ? 2 : 0;
         const accessOverride = canBypassCoursePayment({
           hasAccessGrant: await hasCourseAccessGrant(
             ctx.user.openId,
@@ -2658,6 +2660,7 @@ export const appRouter = router({
           ),
         });
         if (
+          requiredStage > 0 &&
           record.stages.find(stage => stage.stage === requiredStage)
             ?.paymentStatus !== "paid" &&
           !accessOverride
@@ -4520,7 +4523,7 @@ export const appRouter = router({
             courseSlug: course.slug,
             name: targetProfile.name?.trim() || targetProfile.email,
             email: targetProfile.email,
-            amountKes: course.stageAmountsKes[0] ?? COURSE_STAGE_AMOUNT_KES,
+            amountKes: course.stageAmountsKes[0] ?? 0,
             stageAmountsKes: course.stageAmountsKes,
           });
         }
@@ -4572,7 +4575,7 @@ export const appRouter = router({
               courseSlug: grant.courseSlug,
               name: targetProfile.name?.trim() || targetProfile.email,
               email: targetProfile.email,
-              amountKes: course.stageAmountsKes[0] ?? COURSE_STAGE_AMOUNT_KES,
+              amountKes: course.stageAmountsKes[0] ?? 0,
               stageAmountsKes: course.stageAmountsKes,
             });
           }

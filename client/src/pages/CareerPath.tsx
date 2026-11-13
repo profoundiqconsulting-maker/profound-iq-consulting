@@ -30,6 +30,7 @@ import { LikertScale } from "@/components/LikertScale";
 import { toast } from "sonner";
 import {
   buildCareerPathReport,
+  CAREER_PATH_PRICE_KES,
   getTopCareerPathStrengths,
   type CareerPathReport,
   type CareerPathwayResult,
@@ -113,7 +114,7 @@ function IntroPage({
   onBack?: () => void;
 }) {
   const { data, isLoading } = trpc.careerPath.questions.useQuery();
-  const price = data?.priceKes ?? 399;
+  const price = data?.priceKes ?? CAREER_PATH_PRICE_KES;
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
@@ -761,7 +762,7 @@ function CheckoutPage({
                     CareerPath Talent Fit
                   </p>
                   <p className="mt-2 text-sm text-[#d7deea]">
-                    KES 399 · Secure Paystack checkout · Report delivered by
+                    KES {CAREER_PATH_PRICE_KES} · Secure Paystack checkout · Report delivered by
                     email
                   </p>
                 </div>
@@ -771,7 +772,7 @@ function CheckoutPage({
                   disabled={!product || verifyPayment.isPending}
                   className="shrink-0 bg-[#c9a34e] text-[#16243d] hover:bg-[#e1bd5b]"
                 >
-                  <CreditCard size={15} className="mr-2" /> Pay KES 399
+                  <CreditCard size={15} className="mr-2" /> Pay KES {product?.amountKes ?? CAREER_PATH_PRICE_KES}
                 </Button>
               </div>
             </div>
