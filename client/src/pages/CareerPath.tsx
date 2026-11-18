@@ -1,33 +1,49 @@
-/* Profound IQ Consulting — CareerPath 4-page sequential flow
-   1. Introduction: purpose, prerequisites, time commitment
-   2. Assessment: strict linear module player with independent Likert responses
-   3. Checkout: clean Paystack payment flow
-   4. Reports: post-purchase report generation with motivational prompts
-*/
+/* Profound IQ Consulting — CareerPath redesigned for executive conversion */
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
+  ArrowUpRight,
+  Award,
+  BarChart3,
+  BookOpen,
   CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  Clock3,
   CreditCard,
   Download,
+  GraduationCap,
   Loader2,
+  LockKeyhole,
   Mail,
   MessageCircle,
-  Share2,
-  ShieldCheck,
+  Save,
+  Shield,
   Sparkles,
-  Sun,
+  Star,
+  Target,
+  Users,
+  Vote,
+  Zap,
 } from "lucide-react";
 import { SocialIcon } from "@/components/SocialMediaIcons";
+import { SocialSharing, type SocialPlatform } from "@/components/SocialSharing";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { FormField } from "@/components/FormField";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { ProgressRing } from "@/components/ui/progress-ring";
+import { CheckoutForm } from "@/components/CheckoutForm";
 import { TransformationNav } from "@/components/TransformationNav";
 import { ReportSectionTabs } from "@/components/ReportSectionTabs";
 import { LikertScale } from "@/components/LikertScale";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import {
   buildCareerPathReport,
   CAREER_PATH_PRICE_KES,
@@ -35,215 +51,265 @@ import {
   type CareerPathReport,
   type CareerPathwayResult,
 } from "@shared/careerPath";
-import {
-  paystackStateAfter,
-  type PaystackCheckoutState,
-} from "@shared/paystackFeedback";
 
-import PaystackInlineModal, {
-  type PaystackInlineProduct,
-} from "@/components/PaystackInlineModal";
+type Page = "preview" | "assessment" | "checkout" | "reports";
 
-type Page = "introduction" | "assessment" | "checkout" | "reports";
+const pathwayColors = {
+  primary: { border: "border-[#a27e2e]", bg: "bg-[#16243d]", text: "text-[#f7f3e8]", accent: "text-[#8b6914]", scoreColor: "text-[#8b6914]" },
+  secondary: { border: "border-[#16243d]/15", bg: "bg-white/55", text: "text-[#16243d]", accent: "text-[#7d5e1e]", scoreColor: "text-[#7d5e1e]" },
+  alternative: { border: "border-[#16243d]/15", bg: "bg-white/55", text: "text-[#16243d]", accent: "text-[#7d5e1e]", scoreColor: "text-[#7d5e1e]" },
+};
 
-function CareerPathStepIndicator({ current }: { current: Page }) {
-  const steps: Array<{ id: Page; label: string; description: string }> = [
-    {
-      id: "introduction",
-      label: "Introduction",
-      description: "Overview & readiness",
-    },
-    { id: "assessment", label: "Assessment", description: "180 Likert items" },
-    { id: "checkout", label: "Checkout", description: "Paystack verification" },
-    {
-      id: "reports",
-      label: "Reports",
-      description: "Pathways, certificate & share",
-    },
-  ];
-  const currentIndex = steps.findIndex(step => step.id === current);
+function CareerPathProgressRing({ stage, modulePage, totalModules, answeredCount, totalQuestions }: {
+  stage: Page;
+  modulePage: number;
+  totalModules: number;
+  answeredCount: number;
+  totalQuestions: number;
+}) {
+  const getProgress = () => {
+    if (stage === "preview") return 0;
+    if (stage === "assessment") {
+      const moduleProgress = (modulePage / totalModules) * 0.7;
+      const questionProgress = (answeredCount / totalQuestions) * 0.7;
+      return Math.round(Math.max(moduleProgress * 100, questionProgress * 100));
+    }
+    if (stage === "checkout") return 85;
+    if (stage === "reports") return 100;
+    return 0;
+  };
+
+  const progress = getProgress();
+  const stageLabels = {
+    preview: "Getting started",
+    assessment: `Module ${modulePage + 1} of ${totalModules}`,
+    checkout: "Secure checkout",
+    reports: "Report ready",
+  };
+  const stageDetails = {
+    preview: "Explore your CareerPath preview",
+    assessment: `${answeredCount} of ${totalQuestions} questions answered`,
+    checkout: "Complete payment to unlock your report",
+    reports: "Assessment complete",
+  };
+
   return (
-    <nav
-      aria-label="CareerPath progress"
-      className="sticky top-0 z-40 border-b border-[#16243d]/10 bg-[#f7f3e8] px-5 py-3 sm:px-8"
-    >
-      <ol className="mx-auto flex max-w-6xl items-center gap-2">
-        {steps.map((step, index) => {
-          const isActive = current === step.id;
-          const isComplete = index < currentIndex;
-          return (
-            <li
-              key={step.id}
-              className="flex min-w-0 flex-1 items-center gap-2"
-            >
-              <span
-                className={`flex min-w-0 items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${isActive ? "text-[#16243d]" : isComplete ? "text-[#7d5e1e]" : "text-[#657084]"}`}
-              >
-                <span
-                  className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[10px] transition-colors duration-200 ${isActive ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243]" : isComplete ? "border-[#a27e2e] bg-[#a27e2e] text-white" : "border-[#16243d]/20"}`}
-                >
-                  {isComplete ? "✓" : index + 1}
-                </span>
-                <span className="truncate">
-                  {step.label}
-                  <span className="hidden text-[9px] font-semibold normal-case tracking-normal text-[#657084] sm:inline">
-                    {" "}
-                    — {step.description}
-                  </span>
-                </span>
+    <nav aria-label="CareerPath progress" className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--background)] py-4 px-4 sm:px-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center gap-4 mb-4">
+          <ProgressRing value={progress} size={56} strokeWidth={5} showLabel label={`${progress}%`} className="flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-[var(--foreground)]">{stageLabels[stage]}</p>
+            <p className="text-xs text-[var(--muted-foreground)]">{stageDetails[stage]}</p>
+          </div>
+        </div>
+        <ol className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
+          {[
+            { id: "preview", label: "Preview", icon: "📋" },
+            { id: "assessment", label: "Assessment", icon: "📝" },
+            { id: "checkout", label: "Checkout", icon: "💳" },
+            { id: "reports", label: "Report", icon: "📊" },
+          ].map((step, index) => (
+            <li key={step.id} className={cn(
+              "flex items-center gap-2 whitespace-nowrap transition-all duration-300",
+              stage === step.id ? "text-[var(--gold)]" :
+              (["preview", "assessment", "checkout", "reports"].indexOf(stage) > index) ? "text-[var(--success)]" : "text-[var(--muted-foreground)]"
+            )}>
+              <span className={cn(
+                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-[10px] font-black transition-all duration-300",
+                stage === step.id ? "border-[var(--gold)] bg-[var(--gold)] text-[var(--navy-deep)]" :
+                (["preview", "assessment", "checkout", "reports"].indexOf(stage) > index) ? "border-[var(--success)] bg-[var(--success)] text-white" :
+                "border-[var(--border)] text-[var(--muted-foreground)]"
+              )}>
+                {["preview", "assessment", "checkout", "reports"].indexOf(stage) > index ? (
+                  <CheckCircle2 size={12} />
+                ) : (
+                  index + 1
+                )}
               </span>
-              {index < steps.length - 1 && (
-                <span
-                  className={`h-px flex-1 transition-colors duration-500 ${isComplete ? "bg-[#a27e2e]" : "bg-[#16243d]/10"}`}
-                  aria-hidden="true"
-                />
-              )}
+              <span className={cn("hidden sm:inline-block text-xs font-semibold uppercase tracking-[.1em]", stage === step.id ? "text-[var(--foreground)]" : "")}>
+                {step.label}
+              </span>
             </li>
-          );
-        })}
-      </ol>
+          ))}
+        </ol>
+      </div>
     </nav>
   );
 }
 
-function IntroPage({
-  onStart,
-  onBack,
-}: {
-  onStart: (data: { name: string; email: string; consent: boolean }) => void;
-  onBack?: () => void;
+function ValuePreviewPage({ onStart, prefilledName, prefilledEmail }: {
+  onStart: (data: { name: string; email: string }) => void;
+  prefilledName?: string;
+  prefilledEmail?: string;
 }) {
-  const { data, isLoading } = trpc.careerPath.questions.useQuery();
-  const price = data?.priceKes ?? CAREER_PATH_PRICE_KES;
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [name, setName] = useState(prefilledName || "");
+  const [email, setEmail] = useState(prefilledEmail || "");
   const [consent, setConsent] = useState(false);
+  const { data: questionsData } = trpc.careerPath.questions.useQuery();
+  const totalQuestions = questionsData?.questions?.length || 180;
+  const totalModules = questionsData?.questions?.reduce((acc, q) => {
+    if (!acc.includes(q.module)) acc.push(q.module);
+    return acc;
+  }, [] as string[]).length || 3;
 
-  if (isLoading) {
-    return (
-      <div className="container py-16">
-        <div
-          className="flex items-center gap-3 text-sm"
-          role="status"
-          aria-live="polite"
-        >
-          <Loader2 className="animate-spin text-[#7d5e1e]" size={18} />{" "}
-          Preparing your CareerPath Assessment…
-        </div>
-      </div>
-    );
-  }
-
-  const canStart =
-    name.trim().length >= 2 &&
-    email.trim().length > 0 &&
-    email.includes("@") &&
-    consent;
+  const canStart = name.trim().length >= 2 && email.includes("@") && consent;
 
   return (
-    <main className="container py-10 sm:py-16">
-      <div className="mx-auto max-w-3xl">
-        <p className="eyebrow text-[#7d5e1e]">Step 1 of 4</p>
-        <h1 className="display mt-4 text-5xl leading-[.95] tracking-[-.04em] sm:text-7xl">
-          Career pathway &{" "}
-          <em className="font-normal text-[#7d5e1e]">talent fit</em>.
+    <main className="container py-12 sm:py-16 lg:py-20">
+      <div className="mx-auto max-w-4xl">
+        <p className="eyebrow text-[var(--gold)]">Step 1 of 3 — Discover Your Path</p>
+        <h1 className="text-display text-4xl font-semibold leading-[1.05] tracking-tight mt-3 sm:text-5xl lg:text-6xl text-[var(--navy-deep)]">
+          Discover your optimal <span className="text-[var(--gold)]">career pathway</span> in 20 minutes
         </h1>
-        <p className="mt-6 max-w-2xl text-base leading-7 text-[#4a566a]">
-          A developmental assessment for Competency Based Education learners.
-          Understand your interests, abilities, learning preferences, values,
-          talents, and aspirations before choosing your next direction.
+        <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[var(--muted-on-dark)]">
+          The CareerPath Assessment maps your interests, abilities, learning preferences, values, talents, and aspirations to three evidence-based pathways — so you can choose your next direction with confidence.
         </p>
-        <div className="mt-7 grid gap-3 sm:grid-cols-3">
-          <div className="border-l-2 border-[#c9a34e] px-4">
-            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-              180 items
-            </p>
-            <p className="mt-1 text-sm text-[#657084]">
-              Across nine evidence areas
-            </p>
+
+        {/* Trust Bar */}
+        <div className="mt-8 flex flex-wrap items-center gap-4 text-sm text-[var(--muted-on-dark)]">
+          <div className="flex -space-x-2">
+            {[1, 2, 3, 4, 5].map(i => (
+              <div key={i} className="h-8 w-8 rounded-full border-2 border-white bg-gradient-to-br from-[var(--navy-deep)] to-[var(--ivory)]" />
+            ))}
           </div>
-          <div className="border-l-2 border-[#c9a34e] px-4">
-            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-              35–45 minutes
-            </p>
-            <p className="mt-1 text-sm text-[#657084]">
-              Complete in a quiet setting
-            </p>
-          </div>
-          <div className="border-l-2 border-[#c9a34e] px-4">
-            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-              KES {price}
-            </p>
-            <p className="mt-1 text-sm text-[#657084]">
-              Secure Paystack checkout
-            </p>
+          <div>
+            <p className="font-semibold text-[var(--navy-deep)]">Used by 500+ organizations</p>
+            <p className="text-xs text-[var(--muted-on-dark)]">Across Kenya and beyond</p>
           </div>
         </div>
 
-        <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
-          <p className="eyebrow text-[#7d5e1e]">Participant details</p>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <FormField
-                label="Full name"
-                name="name"
+        {/* Sample Report Preview */}
+        <div className="mt-10 rounded-2xl border border-[var(--gold)]/30 bg-[var(--navy-deep)]/60 p-6 sm:p-8 backdrop-blur-md shadow-2xl shadow-[var(--gold)]/10">
+          <div className="flex items-center justify-between mb-6">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-[var(--gold)]/40 text-[10px] font-bold uppercase tracking-wider text-[var(--gold)]">
+              Sample Report
+            </span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-on-dark)]">Interactive preview</span>
+          </div>
+          <div className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-3">
+              {[
+                { icon: Target, title: "Primary Pathway", value: "Strategic Leadership", color: "text-[var(--gold)]" },
+                { icon: BarChart3, title: "Fit Score", value: "92 / 100", color: "text-[var(--gold)]" },
+                { icon: Award, title: "Certificate", value: "Included", color: "text-[var(--gold)]" },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3 rounded-xl border border-[var(--gold)]/20 bg-[var(--navy-deep)]/40 p-4 hover:border-[var(--gold)]/40 transition-colors">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--gold)]/15">
+                    <item.icon className="h-5 w-5" style={{ color: "var(--gold)" }} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-[var(--text-on-dark)]">{item.title}</p>
+                    <p className="text-xs" style={{ color: item.color }}>{item.value}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="pt-4 border-t border-[var(--gold)]/20">
+              <p className="text-sm font-medium text-[var(--text-on-dark)]">Your report includes:</p>
+              <ul className="mt-3 grid gap-2 sm:grid-cols-2 text-sm opacity-90">
+                {[
+                  "Three pathway scores with fit bands",
+                  "Sub-pathway breakdown (9 areas)",
+                  "Evidence & exploration plan",
+                  "Coaching-ready certificate (SVG)",
+                  "Shareable achievement badge",
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 shrink-0" style={{ color: "var(--gold)" }} />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* What You Get */}
+        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          {[
+            { icon: BookOpen, title: "180 Likert items", desc: "Across 9 evidence areas" },
+            { icon: Clock3, title: "35–45 minutes", desc: "Complete in a quiet setting" },
+            { icon: Shield, title: "KES {CAREER_PATH_PRICE_KES}", desc: "Secure Paystack checkout" },
+          ].map((item, i) => (
+            <div key={i} className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all hover:border-[var(--gold)]/30 hover:shadow-xl">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--gold)] text-[var(--navy-deep)] shadow-lg shadow-[var(--gold)]/25">
+                <item.icon size={22} />
+              </div>
+              <h3 className="mt-4 text-lg font-bold text-[var(--navy-deep)]">{item.title.replace("{CAREER_PATH_PRICE_KES}", String(CAREER_PATH_PRICE_KES))}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-[var(--muted-on-dark)]">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA Form */}
+        <div className="mt-10 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-8 shadow-sm">
+          <p className="eyebrow text-[var(--gold)]">Begin Your Assessment</p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="cp-name" className="text-sm font-semibold text-[var(--foreground)]">Full Name</Label>
+              <Input
+                id="cp-name"
                 type="text"
-                autoComplete="name"
+                placeholder="Your name"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
                 minLength={2}
-                placeholder="Your name"
-                labelClassName="text-xs font-bold"
-                className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]"
+                autoComplete="name"
+                className="h-12 text-base focus-gold-ring"
               />
-              <FormField
-                label="Email for your report"
-                name="email"
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="cp-email" className="text-sm font-semibold text-[var(--foreground)]">Email for Report</Label>
+              <Input
+                id="cp-email"
                 type="email"
-                autoComplete="email"
+                placeholder="you@example.com"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                placeholder="you@example.com"
-                labelClassName="text-xs font-bold"
-                className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]"
+                autoComplete="email"
+                className="h-12 text-base focus-gold-ring"
               />
             </div>
-          <label className="mt-5 flex items-start gap-3 text-xs leading-5 text-[#657084]">
+          </div>
+          <div className="mt-5 flex items-start gap-3">
             <input
               type="checkbox"
+              id="cp-consent"
               checked={consent}
               onChange={e => setConsent(e.target.checked)}
               required
-              className="mt-1 accent-[#a27e2e]"
+              className="mt-1 shrink-0 accent-[var(--gold)]"
             />
-            I consent to Profound IQ processing my responses to generate this
-            educational pathway report and sending the report to the email
-            above.
-          </label>
+            <Label htmlFor="cp-consent" className="text-sm text-[var(--muted-foreground)] leading-6 cursor-pointer">
+              I consent to Profound IQ processing my responses to generate this educational pathway report and sending the report to the email above.
+            </Label>
+          </div>
           <div className="mt-6 flex items-center justify-between gap-3">
-            {onBack && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onBack}
-                className="border-[#16243d]/25"
-              >
-                <ArrowLeft size={15} className="rotate-180" /> Back
-              </Button>
-            )}
             <Button
-              type="button"
-              onClick={() =>
-                onStart({ name: name.trim(), email: email.trim(), consent })
-              }
-              disabled={!canStart}
-              className="bg-[#16243d] text-[#f7f3e8]"
+              asChild
+              variant="outline"
+              size="lg"
+              onClick={() => window.location.href = "/"}
+              className="w-full sm:w-auto"
             >
-              Begin assessment <ArrowRight size={15} />
+              <a href="/"><ArrowLeft size={16} className="mr-2" /> Back to Home</a>
+            </Button>
+            <Button
+              variant="gold"
+              size="lg"
+              onClick={() => onStart({ name: name.trim(), email: email.trim() })}
+              disabled={!canStart}
+              className="w-full sm:w-auto"
+            >
+              <ArrowRight size={18} className="mr-2" />
+              Start Assessment
+              <span className="ml-2 text-xs opacity-80">KES {CAREER_PATH_PRICE_KES} • 35–45 min</span>
             </Button>
           </div>
-        </section>
+        </div>
       </div>
     </main>
   );
@@ -254,560 +320,244 @@ function AssessmentPage({
   onBack,
   defaultName,
   defaultEmail,
-  defaultConsent,
 }: {
-  onComplete: (data: {
-    name: string;
-    email: string;
-    answers: Array<{ questionId: string; value: number }>;
-  }) => void;
+  onComplete: (data: { name: string; email: string; answers: Array<{ questionId: string; value: number }> }) => void;
   onBack?: () => void;
   defaultName?: string;
   defaultEmail?: string;
-  defaultConsent?: boolean;
 }) {
-  const { data, isLoading } = trpc.careerPath.questions.useQuery();
-  const [name, setName] = useState(() => defaultName ?? "");
-  const [email, setEmail] = useState(() => defaultEmail ?? "");
-  const [consent, setConsent] = useState(() => defaultConsent ?? false);
+  const { data: questionsData, isLoading } = trpc.careerPath.questions.useQuery();
+  const [name, setName] = useState(defaultName || "");
+  const [email, setEmail] = useState(defaultEmail || "");
+  const [consent, setConsent] = useState(false);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [currentModule, setCurrentModule] = useState(0);
+  const [savedPulse, setSavedPulse] = useState(false);
 
   const grouped = useMemo(() => {
-    if (!data?.questions) return [];
-    return data.questions.reduce<
-      Array<{ name: string; questions: typeof data.questions }>
-    >((groups, question) => {
+    if (!questionsData?.questions) return [];
+    return questionsData.questions.reduce<Array<{ name: string; questions: typeof questionsData.questions }>>((groups, question) => {
       const group = groups.find(item => item.name === question.module);
       if (group) group.questions.push(question);
       else groups.push({ name: question.module, questions: [question] });
       return groups;
     }, []);
-  }, [data?.questions]);
+  }, [questionsData?.questions]);
 
-  const answeredCount = data?.questions.filter(q => answers[q.id]).length ?? 0;
-  const overallCompletion = data?.questions.length
-    ? Math.round((answeredCount / data.questions.length) * 100)
-    : 0;
+  const allQuestions = questionsData?.questions || [];
+  const answeredCount = allQuestions.filter(q => answers[q.id]).length;
+  const overallCompletion = allQuestions.length ? Math.round((answeredCount / allQuestions.length) * 100) : 0;
   const currentGroup = grouped[currentModule];
-  const currentGroupAnswered =
-    currentGroup?.questions.filter(q => answers[q.id]).length ?? 0;
-  const currentGroupComplete = currentGroup?.questions.length
-    ? currentGroupAnswered === currentGroup.questions.length
-    : false;
+  const currentGroupAnswered = currentGroup?.questions.filter(q => answers[q.id]).length ?? 0;
+  const currentGroupComplete = currentGroup?.questions.length ? currentGroupAnswered === currentGroup.questions.length : false;
   const isLastModule = currentModule === grouped.length - 1;
-  const allComplete = data?.questions.length
-    ? answeredCount === data.questions.length
-    : false;
 
+  // Auto-save to localStorage
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [currentModule]);
+    if (typeof window === "undefined") return;
+    const payload = { name, email, consent, answers, currentModule, savedAt: new Date().toISOString() };
+    localStorage.setItem("careerpath-assessment", JSON.stringify(payload));
+  }, [name, email, consent, answers, currentModule]);
 
-  const canProceed =
-    name.trim().length >= 2 &&
-    email.trim().length > 0 &&
-    email.includes("@") &&
-    consent;
-
-  const handleNext = () => {
-    if (!canProceed) {
-      toast.info("Complete your details", {
-        description: "Please enter your name, email, and consent to continue.",
-      });
-      return;
-    }
-    if (!currentGroupComplete && !isLastModule) {
-      toast.info("Complete this module", {
-        description: "Answer all visible questions before moving forward.",
-      });
-      return;
-    }
-    if (isLastModule) {
-      if (!allComplete) {
-        toast.info("Complete all questions", {
-          description: "Please answer every question before checkout.",
-        });
-        return;
+  // Restore from localStorage on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = localStorage.getItem("careerpath-assessment");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.name && !name) setName(parsed.name);
+        if (parsed.email && !email) setEmail(parsed.email);
+        if (parsed.consent && !consent) setConsent(parsed.consent);
+        if (parsed.answers && Object.keys(answers).length === 0) setAnswers(parsed.answers);
+        if (typeof parsed.currentModule === "number" && currentModule === 0) setCurrentModule(parsed.currentModule);
+      } catch {
+        localStorage.removeItem("careerpath-assessment");
       }
-      onComplete({
-        name: name.trim(),
-        email: email.trim(),
-        answers: data!.questions.map(q => ({
-          questionId: q.id,
-          value: answers[q.id],
-        })),
-      });
-      return;
     }
-    setCurrentModule(m => m + 1);
+  }, []);
+
+  const savePulseEffect = () => {
+    setSavedPulse(true);
+    setTimeout(() => setSavedPulse(false), 1200);
   };
 
   if (isLoading) {
     return (
       <main className="container py-16">
-        <div
-          className="flex items-center gap-3 text-sm"
-          role="status"
-          aria-live="polite"
-        >
-          <Loader2 className="animate-spin text-[#7d5e1e]" size={18} />{" "}
-          Preparing your CareerPath Assessment...
+        <div className="flex items-center gap-3 text-sm" role="status" aria-live="polite">
+          <Loader2 className="animate-spin text-[var(--gold)]" size={18} /> Preparing your CareerPath Assessment…
         </div>
       </main>
     );
   }
 
-  if (!canProceed) {
-    return (
-      <main className="container py-10 sm:py-16">
-        <div className="mx-auto max-w-3xl">
-          <p className="eyebrow text-[#7d5e1e]">Assessment workspace</p>
-          <h1 className="display mt-4 text-5xl leading-[.95] tracking-[-.04em] sm:text-7xl">
-            Guided pathway{" "}
-            <em className="font-normal text-[#7d5e1e]">assessment</em>.
-          </h1>
-          <p className="mt-6 max-w-2xl text-base leading-7 text-[#4a566a]">
-            Work through each module in order. There are no right or wrong
-            answers�choose the response that best reflects you today.
-          </p>
-        </div>
-
-        <section className="mx-auto mt-10 max-w-3xl border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
-          <p className="eyebrow text-[#7d5e1e]">
-            Step 2 of 4 — Participant details
-          </p>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <FormField
-                label="Full name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                required
-                minLength={2}
-                placeholder="Your name"
-                labelClassName="text-xs font-bold"
-                className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]"
-              />
-              <FormField
-                label="Email for your report"
-                name="email"
-                type="email"
-                autoComplete="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-                placeholder="you@example.com"
-                labelClassName="text-xs font-bold"
-                className="mt-2 block w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-normal outline-none focus:border-[#a27e2e]"
-              />
-            </div>
-          <label className="mt-5 flex items-start gap-3 text-xs leading-5 text-[#657084]">
-            <input
-              type="checkbox"
-              checked={consent}
-              onChange={e => setConsent(e.target.checked)}
-              required
-              className="mt-1 accent-[#a27e2e]"
-            />
-            I consent to Profound IQ processing my responses to generate this
-            educational pathway report and sending the report to the email
-            above.
-          </label>
-          <div className="mt-6 flex items-center justify-between gap-3">
-            {onBack && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onBack}
-                className="border-[#16243d]/25"
-              >
-                <ArrowLeft size={15} className="rotate-180" /> Back
-              </Button>
-            )}
-            <Button
-              type="button"
-              onClick={handleNext}
-              disabled={!canProceed}
-              className="bg-[#16243d] text-[#f7f3e8]"
-            >
-              Begin assessment <ArrowRight size={15} />
-            </Button>
-          </div>
-        </section>
-      </main>
-    );
-  }
-
-  return (
-    <AssessmentPlayer
-      data={data}
-      grouped={grouped}
-      currentModule={currentModule}
-      setCurrentModule={setCurrentModule}
-      answers={answers}
-      setAnswers={setAnswers}
-      currentGroup={currentGroup}
-      currentGroupAnswered={currentGroupAnswered}
-      currentGroupComplete={currentGroupComplete}
-      isLastModule={isLastModule}
-      allComplete={allComplete}
-      answeredCount={answeredCount}
-      overallCompletion={overallCompletion}
-      onNext={handleNext}
-    />
-  );
-}
-
-function LikertQuestion({
-  question,
-  value,
-  onChange,
-  index,
-}: {
-  question: { id: string; prompt: string };
-  value: number | undefined;
-  onChange: (value: number) => void;
-  index?: number;
-}) {
-  return (
-    <LikertScale
-      id={question.id}
-      question={question.prompt}
-      index={index}
-      value={value}
-      onChange={onChange}
-    />
-  );
-}
-
-function AssessmentPlayer({
-  data,
-  grouped,
-  currentModule,
-  setCurrentModule,
-  answers,
-  setAnswers,
-  currentGroup,
-  currentGroupAnswered,
-  currentGroupComplete,
-  isLastModule,
-  allComplete,
-  answeredCount,
-  overallCompletion,
-  onNext,
-}: {
-  data:
-    | { questions: Array<{ id: string; module: string; prompt: string }> }
-    | undefined;
-  grouped: Array<{
-    name: string;
-    questions: Array<{ id: string; module: string; prompt: string }>;
-  }>;
-  currentModule: number;
-  setCurrentModule: (value: number | ((prev: number) => number)) => void;
-  answers: Record<string, number>;
-  setAnswers: React.Dispatch<React.SetStateAction<Record<string, number>>>;
-  currentGroup:
-    | {
-        name: string;
-        questions: Array<{ id: string; module: string; prompt: string }>;
-      }
-    | undefined;
-  currentGroupAnswered: number;
-  currentGroupComplete: boolean;
-  isLastModule: boolean;
-  allComplete: boolean;
-  answeredCount: number;
-  overallCompletion: number;
-  onNext: () => void;
-}) {
-  return (
-    <main className="container py-10 sm:py-16">
-      <div className="mx-auto max-w-3xl">
-        <p className="eyebrow text-[#7d5e1e]">
-          Step 2 of 4 — Assessment in progress
-        </p>
-        <h1 className="display mt-4 text-5xl leading-[.95] tracking-[-.04em] sm:text-7xl">
-          Guided pathway{" "}
-          <em className="font-normal text-[#7d5e1e]">assessment</em>.
-        </h1>
-        <p className="mt-6 max-w-2xl text-base leading-7 text-[#4a566a]">
-          Work through each module in order. There are no right or wrong
-          answers—choose the response that best reflects you today.
-        </p>
-      </div>
-
-      <div className="mx-auto mt-8 max-w-3xl">
-        <div className="border-b border-[#16243d]/10 pb-4">
-          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-            Assessment modules
-          </p>
-          <p className="mt-1 text-sm text-[#657084]">
-            Work through each module in order. Answer all items in a module
-            before moving to the next.
-          </p>
-        </div>
-        <div className="sticky top-2 z-20 -mx-2 mb-5 border-y border-[#c9a34e]/40 bg-[#f7f3e8] p-3 shadow-sm">
-          <div className="flex items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
-            <span>
-              Module {currentModule + 1} of {grouped.length}
-            </span>
-            <span>{overallCompletion}% complete</span>
-            <span>
-              {answeredCount}/{data?.questions.length ?? 0}
-            </span>
-          </div>
-          <div
-            className="mt-2 h-2 bg-[#16243d]/10"
-            role="progressbar"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={overallCompletion}
-            aria-label={`${answeredCount} of {data?.questions.length ?? 0} CareerPath questions answered`}
-          >
-            <div
-              className="h-2 bg-[#c9a34e] transition-all"
-              style={{ width: `${overallCompletion}%` }}
-            />
-          </div>
-        </div>
-
-        {currentGroup && (
-          <section className="border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
-            <div className="flex items-end justify-between gap-4 border-b border-[#16243d]/15 pb-4">
-              <div>
-                <p className="eyebrow text-[#7d5e1e]">
-                  Module {currentModule + 1}
-                </p>
-                <h2 className="display mt-2 text-3xl">{currentGroup.name}</h2>
-              </div>
-              <span className="text-xs text-[#657084]">
-                {currentGroup.questions.length} items � {currentGroupAnswered}{" "}
-                answered
-              </span>
-            </div>
-            <p className="mt-4 text-sm leading-6 text-[#657084]">
-              Choose the response that best reflects you today.
-            </p>
-            <div className="mt-6 space-y-4">
-              {currentGroup.questions.map(question => (
-                <LikertQuestion
-                  key={question.id}
-                  question={question}
-                  value={answers[question.id]}
-                  onChange={value =>
-                    setAnswers(prev => ({ ...prev, [question.id]: value }))
-                  }
-                  index={Number(question.id.split("-").pop()) - 1}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-
-        <div className="mt-6 flex items-center justify-between gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setCurrentModule(m => Math.max(0, m - 1))}
-            disabled={currentModule === 0}
-            className="border-[#16243d]/25"
-          >
-            <ArrowRight size={15} className="rotate-180" /> Previous
-          </Button>
-          <span className="text-xs text-[#657084]">
-            {currentGroupComplete
-              ? "Module complete"
-              : `${currentGroupAnswered} of ${currentGroup?.questions.length ?? 0} answered`}
-          </span>
-          <Button
-            type="button"
-            onClick={onNext}
-            disabled={!currentGroupComplete}
-            className="bg-[#16243d] text-[#f7f3e8]"
-          >
-            {isLastModule ? "Complete & Checkout" : "Next module"}{" "}
-            <ArrowRight size={15} />
-          </Button>
-        </div>
-      </div>
-    </main>
-  );
-}
-
-function CheckoutPage({
-  reference,
-  product,
-  onVerified,
-  onBack,
-  customerEmail,
-}: {
-  reference: string;
-  product?: PaystackInlineProduct | null;
-  onVerified: (report: CareerPathReport) => void;
-  onBack?: () => void;
-  customerEmail?: string;
-}) {
-  const utils = trpc.useUtils();
-  const [paymentState, setPaymentState] =
-    useState<PaystackCheckoutState>("idle");
-  const [inlineModalOpen, setInlineModalOpen] = useState(false);
-  const [inlineProduct, setInlineProduct] =
-    useState<PaystackInlineProduct | null>(product ?? null);
-  const [verificationError, setVerificationError] = useState("");
-  const verifyPayment = trpc.careerPath.verifyPayment.useMutation({
-    onSuccess: result => {
-      setPaymentState(paystackStateAfter("success"));
-      onVerified(result.report);
-      toast.success("Payment verified", {
-        description: "Your CareerPath report is now unlocked.",
-      });
-    },
-    onError: error => {
-      setPaymentState(paystackStateAfter("failure"));
-      setVerificationError(error.message);
-      toast.error("Payment verification needs attention", {
-        description: error.message,
-      });
-    },
-  });
-
-  useEffect(() => {
-    if (product && !inlineModalOpen && paymentState === "idle") {
-      setInlineProduct(product);
-      setInlineModalOpen(true);
-    }
-  }, [product, inlineModalOpen, paymentState]);
-
-  const handleModalSuccess = (paidReference: string) => {
-    setInlineModalOpen(false);
-    setInlineProduct(null);
-    setPaymentState("verifying");
-    verifyPayment.mutate(
-      { reference: paidReference },
-      {
-        onSuccess: result => {
-          onVerified(result.report);
-          setPaymentState("paid");
-          void utils.dashboard.mine.refetch();
-          toast.success("Payment verified");
-        },
-        onError: error => {
-          setPaymentState("error");
-          setVerificationError(error.message);
-          toast.error(error.message);
-        },
-      }
-    );
+  const handleAnswer = (questionId: string, value: number) => {
+    setAnswers(prev => ({ ...prev, [questionId]: value }));
   };
 
+  const goNext = () => {
+    if (!currentGroupComplete) return;
+    if (isLastModule) {
+      // All modules complete - go to checkout
+      const payload: Array<{ questionId: string; value: number }> = allQuestions.map(q => ({
+        questionId: q.id,
+        value: answers[q.id],
+      }));
+      onComplete({ name: name.trim(), email: email.trim(), answers: payload });
+      return;
+    }
+    setCurrentModule(m => m + 1);
+  };
+
+  const goPrev = () => setCurrentModule(m => Math.max(0, m - 1));
+
   return (
-    <>
-      <main className="container py-10 sm:py-16">
-        <div className="mx-auto max-w-2xl">
-          {onBack && (
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onBack}
-              className="mb-4 -ml-2 text-[#657084] hover:text-[#16243d]"
-            >
-              <ArrowLeft size={16} className="mr-2" /> Back to assessment
-            </Button>
-          )}
-          <p className="eyebrow text-[#7d5e1e]">
-            Step 3 of 4 — Secure checkout
-          </p>
-          <h1 className="display mt-4 text-5xl leading-[.95] tracking-[-.04em] sm:text-7xl">
-            Complete your{" "}
-            <em className="font-normal text-[#7d5e1e]">CareerPath</em>.
-          </h1>
-          <p className="mt-6 max-w-2xl text-base leading-7 text-[#4a566a]">
-            Finalize your payment to unlock your tailored CareerPath report,
-            certificate, and coaching visual.
-          </p>
-
-          {paymentState === "verifying" && (
-            <div className="mt-8 flex items-center gap-3 border-l-2 border-[#c9a34e] bg-[#16243d] px-5 py-4 text-sm text-[#f7f3e8]">
-              <Loader2 className="animate-spin text-[#c9a34e]" size={18} />
-              <span>
-                <strong>Payment received.</strong> We are confirming the
-                Paystack transaction before unlocking your report.
-              </span>
-            </div>
-          )}
-          {paymentState === "paid" && (
-            <div className="mt-8 flex items-center gap-3 border-l-2 border-emerald-700 bg-emerald-50 px-5 py-4 text-sm text-emerald-900">
-              <CheckCircle2 size={18} />
-              <span>
-                <strong>Payment verified.</strong> Your CareerPath report is
-                unlocked.
-              </span>
-            </div>
-          )}
-          {paymentState === "error" && verificationError && (
-            <div className="mt-8 border-l-2 border-red-700 bg-red-50 px-5 py-4 text-sm text-red-900">
-              {verificationError}
-            </div>
-          )}
-
-          {paymentState !== "paid" && (
-            <div className="mt-8 border border-[#16243d]/15 bg-[#16243d] p-5 text-[#f7f3e8] sm:p-7">
-              <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="eyebrow text-[#c9a34e]">
-                    CareerPath Talent Fit
-                  </p>
-                  <p className="mt-2 text-sm text-[#d7deea]">
-                    KES {CAREER_PATH_PRICE_KES} · Secure Paystack checkout · Report delivered by
-                    email
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => setInlineModalOpen(true)}
-                  disabled={!product || verifyPayment.isPending}
-                  className="shrink-0 bg-[#c9a34e] text-[#16243d] hover:bg-[#e1bd5b]"
-                >
-                  <CreditCard size={15} className="mr-2" /> Pay KES {product?.amountKes ?? CAREER_PATH_PRICE_KES}
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+      <TransformationNav active="careerpath" />
+      <CareerPathProgressRing
+        stage="assessment"
+        modulePage={currentModule}
+        totalModules={grouped.length}
+        answeredCount={answeredCount}
+        totalQuestions={allQuestions.length}
+      />
+      <main className="container py-8 sm:py-12">
+        <div className="mx-auto max-w-3xl">
+          {currentGroup && (
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="eyebrow text-[var(--gold)]">Module {currentModule + 1} of {grouped.length}: {currentGroup.name}</p>
+                <p className="mt-1 text-sm text-[var(--muted-foreground)]">{currentGroupAnswered} of {currentGroup.questions.length} questions answered</p>
+              </div>
+              <div className="flex items-center gap-2">
+                {savedPulse && (
+                  <span className="text-xs font-medium text-[var(--success)] animate-pulse">✓ Auto-saved</span>
+                )}
+                <Button variant="ghost" size="icon" onClick={savePulseEffect} aria-label="Save progress now">
+                  <Save size={18} className="text-[var(--muted-foreground)] hover:text-[var(--gold)]" />
                 </Button>
               </div>
             </div>
           )}
 
-          {paymentState === "paid" && (
-            <div className="mt-8">
-              <Link
-                href={`/careerpath/reports?reference=${encodeURIComponent(reference)}`}
-                className="inline-flex items-center gap-3 bg-[#c9a34e] px-5 py-4 text-sm font-bold text-[#16243d] hover:bg-[#e1bd5b]"
-              >
-                Open your report <ArrowRight size={15} />
-              </Link>
-            </div>
-          )}
+          <div className="space-y-5">
+            {currentGroup?.questions.map((question, qIndex) => (
+              <div key={question.id} className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 sm:p-6 shadow-sm">
+                <p className="text-xs font-bold uppercase tracking-[.1em] text-[var(--gold)] mb-2">
+                  Question {allQuestions.findIndex(q => q.id === question.id) + 1} of {allQuestions.length}
+                </p>
+                <p className="text-lg font-medium text-[var(--foreground)] mb-4">{question.prompt}</p>
+                <LikertScale
+                  id={question.id}
+                  question={question.prompt}
+                  index={allQuestions.findIndex(q => q.id === question.id)}
+                  value={answers[question.id]}
+                  onChange={value => handleAnswer(question.id, value)}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Navigation */}
+          <div className="mt-8 flex items-center justify-between gap-4 border-t border-[var(--border)] pt-6">
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={goPrev}
+              disabled={currentModule === 0}
+              className="border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--gold)] hover:text-[var(--gold)]"
+            >
+              <ArrowLeft size={16} className="mr-2" />
+              Previous
+            </Button>
+            <div className="flex-1" />
+            <Button
+              variant={isLastModule ? "gold" : "default"}
+              size="lg"
+              onClick={goNext}
+              disabled={!currentGroupComplete}
+              className={cn(
+                "shrink-0",
+                isLastModule ? "" : "bg-[var(--navy-deep)] hover:bg-[var(--navy-deep)]/90"
+              )}
+            >
+              {isLastModule ? (
+                <>
+                  <ArrowRight size={16} className="mr-2" />
+                  Complete & Proceed to Checkout
+                </>
+              ) : (
+                <>
+                  Next Module
+                  <ArrowRight size={16} className="ml-2" />
+                </>
+              )}
+            </Button>
+          </div>
+
+          <p className="mt-4 text-center text-xs text-[var(--muted-foreground)]">
+            Progress auto-saves locally. Resume anytime from this page.
+          </p>
         </div>
       </main>
-      <PaystackInlineModal
-        open={inlineModalOpen}
-        product={inlineProduct}
-        customerEmail={customerEmail || ""}
-        onClose={() => {
-          setInlineModalOpen(false);
-          setInlineProduct(null);
-        }}
-        onSuccess={handleModalSuccess}
-        onError={message => {
-          setInlineModalOpen(false);
-          setInlineProduct(null);
-          setPaymentState("error");
-          setVerificationError(message);
-          toast.error("Payment failed", { description: message });
-        }}
-      />
-    </>
+    </div>
+  );
+}
+
+function CheckoutPage({
+  reference,
+  onVerified,
+  onBack,
+  customerEmail,
+}: {
+  reference: string;
+  onVerified: (report: CareerPathReport) => void;
+  onBack?: () => void;
+  customerEmail?: string;
+}) {
+  const verifyPayment = trpc.careerPath.verifyPayment.useMutation({
+    onSuccess: result => {
+      onVerified(result.report);
+    },
+    onError: error => {
+      toast.error(error instanceof Error ? error.message : "Verification failed");
+    },
+  });
+
+  const handleSuccess = (ref: string) => {
+    verifyPayment.mutate({ reference: ref });
+  };
+
+  return (
+    <main className="container py-12 sm:py-16">
+      <div className="mx-auto max-w-xl">
+        <div className="mb-6 flex items-center gap-3">
+          {onBack && (
+            <Button variant="ghost" size="icon" onClick={onBack} aria-label="Back to assessment">
+              <ArrowLeft size={20} />
+            </Button>
+          )}
+          <span className="eyebrow text-[var(--gold)]">Step 3 of 3 — Secure Checkout</span>
+        </div>
+
+        <CheckoutForm
+          product={{
+            name: "CareerPath Talent Fit Assessment",
+            priceKes: CAREER_PATH_PRICE_KES,
+            type: "careerpath",
+            slug: "careerpath",
+          }}
+          prefilled={{ email: customerEmail, name: "" }}
+          upsells={[
+            { id: "coaching", name: "1-on-1 Coaching Debrief", priceKes: 5000, description: "60-minute personalized debrief with a certified coach" },
+            { id: "team", name: "Team Comparison Report", priceKes: 3000, description: "Side-by-side comparison with team members (5+ people)" },
+          ]}
+          onSuccess={handleSuccess}
+          onClose={onBack ? () => onBack!() : undefined}
+        />
+      </div>
+    </main>
   );
 }
 
@@ -819,42 +569,35 @@ function ReportsPage({
   onBack?: () => void;
 }) {
   const { data: currentUser } = trpc.auth.me.useQuery();
-  const { data: careerHistory = [] } = trpc.careerPath.history.useQuery(
-    undefined,
-    { enabled: Boolean(currentUser), retry: false }
-  );
-  const { data: shareCounts = {} } = trpc.careerPath.shareCounts.useQuery(
-    undefined,
-    { enabled: Boolean(currentUser), retry: false }
-  );
+  const { data: careerHistory = [] } = trpc.careerPath.history.useQuery(undefined, { enabled: Boolean(currentUser), retry: false });
+  const { data: shareCounts = {} } = trpc.careerPath.shareCounts.useQuery(undefined, { enabled: Boolean(currentUser), retry: false });
   const [report, setReport] = useState<CareerPathReport | null>(null);
-  const [reportReference, setReportReference] = useState<string | null>(
-    reference ?? null
-  );
-  const [pngDownloading, setPngDownloading] = useState(false);
+  const [reportReference, setReportReference] = useState<string | null>(reference ?? null);
   const recordShare = trpc.careerPath.recordShare.useMutation();
   const downloadReportPdf = trpc.careerPath.downloadReport.useMutation();
 
-  const { data: reportData, isLoading: reportLoading } =
-    trpc.careerPath.getReport.useQuery(
-      { reference: reportReference ?? "" },
-      { enabled: Boolean(reportReference), retry: false }
-    );
-
-  useEffect(() => {
-    if (reportData?.report && !report) {
-      setReport(reportData.report as CareerPathReport);
+  const shareUrl = reportReference ? `${window.location.origin}/careerpath/reports?reference=${encodeURIComponent(reportReference)}` : window.location.origin;
+  const shareTitle = "My CareerPath Assessment Result";
+  const shareMessage = report ? `I completed my Profound IQ CareerPath Assessment. My primary pathway is ${report.primary.label}.` : "I completed my Profound IQ CareerPath Assessment.";
+  const handleShare = (platform: SocialPlatform) => {
+    const supportedPlatforms = ["linkedin", "whatsapp", "facebook", "x", "email"] as const;
+    if (supportedPlatforms.includes(platform as any)) {
+      recordShare.mutate({ platform: platform as "linkedin" | "whatsapp" | "facebook" | "x" | "email", asset: "report" });
     }
-  }, [reportData]);
-
-  const buildVisual = () => {
-    if (!report) return "";
-    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600"><rect width="900" height="600" fill="#101d35"/><rect x="26" y="26" width="848" height="548" fill="none" stroke="#c9a34e" stroke-width="3"/><text x="450" y="135" fill="#c9a34e" text-anchor="middle" font-family="Arial" font-size="18" letter-spacing="4">PROFOUND IQ CONSULTING</text><text x="450" y="245" fill="#f7f3e8" text-anchor="middle" font-family="Georgia" font-size="46">Completion certificate</text><text x="450" y="320" fill="#c1cad7" text-anchor="middle" font-family="Arial" font-size="18">CareerPath Assessment completed</text><text x="450" y="415" fill="#c9a34e" text-anchor="middle" font-family="Georgia" font-size="30">${report.primary.label}</text><text x="450" y="485" fill="#c1cad7" text-anchor="middle" font-family="Arial" font-size="14">Issued ${new Date().toLocaleDateString()}</text></svg>`)}`;
   };
 
+  const { data: reportData, isLoading: reportLoading } = trpc.careerPath.getReport.useQuery(
+    { reference: reportReference ?? "" },
+    { enabled: Boolean(reportReference), retry: false }
+  );
+
+  useEffect(() => {
+    if (reportData?.report && !report) setReport(reportData.report as CareerPathReport);
+  }, [reportData]);
+
   const downloadCertificate = () => {
-    const escapedName =
-      report?.primary.label.replace(/[<&>\"]/g, "") ?? "CareerPath";
+    if (!report) return;
+    const escapedName = report.primary.label.replace(/[<&>\"]/g, "") ?? "CareerPath";
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#101d35"/><rect x="36" y="36" width="1128" height="728" fill="none" stroke="#c9a34e" stroke-width="3"/><text x="600" y="180" fill="#c9a34e" text-anchor="middle" font-family="Arial" font-size="24" letter-spacing="6">PROFOUND IQ CONSULTING</text><text x="600" y="300" fill="#f7f3e8" text-anchor="middle" font-family="Georgia" font-size="62">Completion certificate</text><text x="600" y="390" fill="#c1cad7" text-anchor="middle" font-family="Arial" font-size="24">CareerPath Assessment completed</text><text x="600" y="500" fill="#c9a34e" text-anchor="middle" font-family="Georgia" font-size="42">Primary pathway: ${escapedName}</text><text x="600" y="620" fill="#c1cad7" text-anchor="middle" font-family="Arial" font-size="18">Issued ${new Date().toLocaleDateString()}</text></svg>`;
     const anchor = document.createElement("a");
     anchor.href = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
@@ -867,79 +610,28 @@ function ReportsPage({
 
   const downloadReport = () => {
     if (!reportReference) return;
-    downloadReportPdf.mutate(
-      { reference: reportReference },
-      {
-        onSuccess: data => {
-          const blob = new Blob([Buffer.from(data.data, "base64")], {
-            type: data.contentType,
-          });
-          const url = URL.createObjectURL(blob);
-          const anchor = document.createElement("a");
-          anchor.href = url;
-          anchor.download = data.filename;
-          document.body.appendChild(anchor);
-          anchor.click();
-          anchor.remove();
-          URL.revokeObjectURL(url);
-          toast.success("Comprehensive report downloaded");
-        },
-        onError: () =>
-          toast.error("Unable to download report. Please try again."),
-      }
-    );
-  };
-
-  const shareResult = (
-    channel: "whatsapp" | "email" | "linkedin" | "facebook" | "x"
-  ) => {
-    if (!report) return;
-    const message = `I completed my Profound IQ CareerPath Assessment. My primary pathway is ${report.primary.label}.`;
-    const shareUrl = `${window.location.origin}/careerpath/reports?reference=${encodeURIComponent(reportReference ?? "")}`;
-    if (channel === "whatsapp") {
-      recordShare.mutate({ platform: "whatsapp", asset: "report" });
-      window.open(
-        `https://wa.me/?text=${encodeURIComponent(message)}`,
-        "_blank",
-        "noopener,noreferrer"
-      );
-    } else if (channel === "linkedin") {
-      recordShare.mutate({ platform: "linkedin", asset: "report" });
-      window.open(
-        `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
-        "_blank",
-        "noopener,noreferrer"
-      );
-    } else if (channel === "facebook") {
-      recordShare.mutate({ platform: "facebook", asset: "report" });
-      window.open(
-        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
-        "_blank",
-        "noopener,noreferrer"
-      );
-    } else if (channel === "x") {
-      recordShare.mutate({ platform: "x", asset: "report" });
-      window.open(
-        `https://x.com/intent/post?text=${encodeURIComponent(message)}&url=${encodeURIComponent(shareUrl)}`,
-        "_blank",
-        "noopener,noreferrer"
-      );
-    } else {
-      recordShare.mutate({ platform: "email", asset: "report" });
-      window.location.href = `mailto:?subject=${encodeURIComponent("My Profound IQ CareerPath result")}&body=${encodeURIComponent(message)}`;
-    }
+    downloadReportPdf.mutate({ reference: reportReference }, {
+      onSuccess: data => {
+        const blob = new Blob([Buffer.from(data.data, "base64")], { type: data.contentType });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = data.filename;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(url);
+        toast.success("Comprehensive report downloaded");
+      },
+      onError: () => toast.error("Unable to download report. Please try again."),
+    });
   };
 
   if (reportLoading) {
     return (
       <main className="container py-16">
-        <div
-          className="flex items-center gap-3 text-sm"
-          role="status"
-          aria-live="polite"
-        >
-          <Loader2 className="animate-spin text-[#7d5e1e]" size={18} /> Loading
-          your CareerPath report...
+        <div className="flex items-center gap-3 text-sm" role="status" aria-live="polite">
+          <Loader2 className="animate-spin text-[var(--gold)]" size={18} /> Loading your CareerPath report...
         </div>
       </main>
     );
@@ -948,30 +640,13 @@ function ReportsPage({
   if (!report) {
     return (
       <main className="container py-16">
-        <div className="mx-auto max-w-2xl border border-[#16243d]/15 bg-white/60 p-8 text-center">
-          <p className="eyebrow text-[#7d5e1e]">
-            Step 4 of 4 — Reports workspace
-          </p>
-          <h1 className="display mt-3 text-4xl">
-            Your results are created after verification.
-          </h1>
-          <p className="mt-4 text-sm leading-6 text-[#657084]">
-            Complete the assessment and payment verification to unlock your
-            tailored CareerPath report.
-          </p>
+        <div className="mx-auto max-w-2xl border border-[var(--border)] bg-[var(--card)] p-8 text-center">
+          <p className="eyebrow text-[var(--gold)]">Step 4 of 4 — Reports workspace</p>
+          <h1 className="text-display mt-3 text-4xl">Your results are created after verification.</h1>
+          <p className="mt-4 text-sm leading-6 text-[var(--muted-foreground)]">Complete the assessment and payment verification to unlock your tailored CareerPath report.</p>
           <div className="mt-6 flex justify-center gap-3">
-            <Link
-              href="/careerpath/assessment"
-              className="bg-[#c9a34e] px-5 py-3 text-sm font-bold text-[#16243d]"
-            >
-              Open assessment
-            </Link>
-            <Link
-              href="/dashboard"
-              className="border border-[#16243d]/25 px-5 py-3 text-sm font-bold"
-            >
-              Open workspace
-            </Link>
+            <Link href="/careerpath" className="bg-[var(--gold)] px-5 py-3 text-sm font-bold text-[var(--navy-deep)]">Start Assessment</Link>
+            <Link href="/dashboard" className="border border-[var(--border)] px-5 py-3 text-sm font-bold">Open workspace</Link>
           </div>
         </div>
       </main>
@@ -981,476 +656,207 @@ function ReportsPage({
   return (
     <main className="container py-10 sm:py-16">
       <div className="max-w-3xl">
-        {onBack && (
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={onBack}
-            className="mb-4 -ml-2 text-[#657084] hover:text-[#16243d]"
-          >
-            <ArrowLeft size={16} className="mr-2" /> Back to checkout
-          </Button>
-        )}
-        <p className="eyebrow text-[#7d5e1e]">
-          Step 4 of 4 — Your CareerPath profile
-        </p>
-        <h1 className="display mt-4 text-5xl leading-none sm:text-7xl">
-          Discover. <em className="font-normal text-[#7d5e1e]">Explore.</em>{" "}
-          Choose.
+        <div className="mb-6 flex items-center gap-3">
+          {onBack && (
+            <Button variant="ghost" size="icon" onClick={onBack} aria-label="Back">
+              <ArrowLeft size={20} />
+            </Button>
+          )}
+          <span className="eyebrow text-[var(--gold)]">Step 4 of 4 — Your CareerPath Profile</span>
+        </div>
+        <h1 className="text-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl text-[var(--navy-deep)]">
+          Discover. <em className="font-normal text-[var(--gold)]">Explore.</em> Choose.
         </h1>
-        <p className="mt-5 text-base leading-7 text-[#4a566a]">
-          {report.overallReadout}
-        </p>
-      </div>
+        <p className="mt-5 text-base leading-7 text-[var(--muted-foreground)]">{report.overallReadout}</p>
 
-      <div className="mt-10 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-[#f7f3e8] sm:p-7">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="eyebrow text-[#8b6914]">Keep the momentum visible.</p>
-            <h2 className="display mt-2 text-3xl">
-              Retake periodically to track your progress.
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#c1cad7]">
-              Interests and strengths evolve. Revisit this assessment each term
-              to see how your pathway signal changes.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              onClick={downloadCertificate}
-              className="bg-[#c9a34e] text-[#16243d]"
-            >
-              <Download size={15} /> Certificate
-            </Button>
-            <Button
-              type="button"
-              onClick={downloadReport}
-              className="bg-[#c9a34e] text-[#16243d]"
-            >
-              <Download size={15} /> Report
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => shareResult("whatsapp")}
-              className="border-[#c1cad7]/30 bg-transparent text-[#f7f3e8]"
-            >
-              <MessageCircle size={15} /> WhatsApp
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => shareResult("linkedin")}
-              className="border-[#c1cad7]/30 bg-transparent text-[#f7f3e8]"
-            >
-              LinkedIn
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => shareResult("facebook")}
-              className="border-[#c1cad7]/30 bg-transparent text-[#f7f3e8]"
-            >
-              <SocialIcon platform="facebook" /> Facebook
+        {/* Primary Pathway Hero */}
+        <div className="mt-10 rounded-2xl border border-[var(--gold)]/30 bg-[var(--navy-deep)]/60 p-6 sm:p-8 backdrop-blur-md shadow-2xl shadow-[var(--gold)]/10">
+          <p className="text-xs font-bold uppercase tracking-[.1em] text-[var(--gold)]">Primary Pathway</p>
+          <h2 className="text-display mt-2 text-3xl font-semibold text-[var(--text-on-dark)]">{report.primary.label}</h2>
+          <p className="mt-2 text-5xl font-bold text-[var(--gold)]">{report.primary.score} <span className="text-base font-normal">/ 100</span></p>
+          <p className="mt-2 text-xs font-bold uppercase tracking-[.1em] text-[var(--gold)]">{report.primary.band}</p>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--muted-on-dark)]">{report.primary.evidence[0] || "Your primary pathway reflects your strongest interests and abilities."}</p>
+        </div>
+
+        {/* Actions */}
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Button variant="gold" size="lg" onClick={downloadCertificate}><Download size={15} className="mr-2" /> Certificate</Button>
+          <Button variant="gold" size="lg" onClick={downloadReport}><Download size={15} className="mr-2" /> Report</Button>
+          <SocialSharing
+            url={shareUrl}
+            title={shareTitle}
+            text={shareMessage}
+            platforms={["linkedin", "x", "facebook", "instagram", "tiktok", "whatsapp", "copy", "native"]}
+            onShare={handleShare}
+            className="bg-transparent border-transparent shadow-none"
+          />
+        </div>
+
+        {/* Cross-sell: Recommended Psychometric */}
+        <div className="mt-10 rounded-2xl border-l-4 border-[var(--success)] bg-[var(--success-muted)] p-6">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-[var(--success)] flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-[var(--foreground)]">Deep dive: Your profile suggests <strong>Leadership Psychometric</strong></p>
+              <p className="mt-1 text-sm text-[var(--muted-foreground)]">Explore cognitive reasoning, emotional intelligence, and leadership style in 15 minutes.</p>
+            </div>
+            <Button variant="gold" size="sm" onClick={() => window.location.href = "/psychometrics/leadership-psychometric"}>
+              <ArrowRight size={14} className="mr-1" />
+              Explore
             </Button>
           </div>
         </div>
-      </div>
 
-      <ReportSectionTabs
-        sections={[
-          ...(careerHistory.length > 0
-            ? [
-                {
-                  id: "history",
-                  label: "Your History",
-                  content: (
-                    <section
-                      className="mt-8 border border-[#16243d]/15 bg-white/55 p-5 sm:p-7"
-                      aria-label="Past CareerPath reports and certificates"
-                    >
-                      <p className="eyebrow text-[#7d5e1e]">Your history</p>
-                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                        {careerHistory
-                          .slice(0, 4)
-                          .map(
-                            (item: {
-                              id: number;
-                              receiptTitle: string | null;
-                              createdAt: Date;
-                              paymentStatus: string;
-                              report: unknown;
-                              paystackReference: string | null;
-                            }) => (
-                              <article
-                                key={item.id}
-                                className="border border-[#16243d]/12 bg-[#f7f3e8] p-4"
-                              >
-                                <div className="mb-3 overflow-hidden border border-[#c9a34e]/60 bg-[#16243d] p-3 text-[#f7f3e8]">
-                                  <p className="text-[9px] font-black uppercase tracking-[.16em] text-[#c9a34e]">
-                                    Profound IQ Consulting
-                                  </p>
-                                  <p className="display mt-2 text-xl">
-                                    Certificate
-                                  </p>
-                                  <p className="mt-2 text-[9px] uppercase tracking-[.1em] text-[#c1cad7]">
-                                    CareerPath achievement
-                                  </p>
-                                </div>
-                                <p className="text-sm font-bold">
-                                  {item.receiptTitle || "CareerPath Assessment"}
-                                </p>
-                                <p className="mt-1 text-xs text-[#657084]">
-                                  {new Date(
-                                    item.createdAt
-                                  ).toLocaleDateString()}{" "}
-                                  · {item.paymentStatus}
-                                </p>
-                                {Boolean(item.report) && (
-                                  <Link
-                                    href={`/careerpath/reports?reference=${encodeURIComponent(item.paystackReference ?? "")}`}
-                                    className="mt-3 inline-block text-xs font-black uppercase tracking-[.1em] text-[#7d5e1e]"
-                                  >
-                                    View report
-                                  </Link>
-                                )}
-                              </article>
-                            )
-                          )}
-                      </div>
-                    </section>
-                  ),
-                },
-              ]
-            : []),
-          {
-            id: "pathways",
-            label: "Pathways",
-            content: (
-              <section className="mt-10 grid gap-6 md:grid-cols-3">
-                {report.pathways.map(
-                  (pathway: CareerPathwayResult, index: number) => (
-                    <article
-                      key={pathway.key}
-                      className={`border p-5 transition-transform sm:p-7 hover:shadow-lg ${index === 0 ? "border-[#a27e2e] bg-[#16243d] text-[#f7f3e8] shadow-sm" : "border-[#16243d]/15 bg-white/55"}`}
-                    >
-                      <p className="text-[10px] font-black uppercase tracking-[.16em] opacity-70">
-                        {index === 0
-                          ? "Primary pathway"
-                          : index === 1
-                            ? "Secondary pathway"
-                            : "Alternative pathway"}
-                      </p>
-                      <h2 className="display mt-4 text-3xl">{pathway.label}</h2>
-                      <p
-                        className={`mt-4 text-5xl ${index === 0 ? "text-[#8b6914]" : "text-[#7d5e1e]"}`}
-                      >
-                        {pathway.score}
-                        <span className="text-base"> / 100</span>
-                      </p>
-                      <p className="mt-3 text-xs font-bold uppercase tracking-[.12em]">
-                        {pathway.band}
-                      </p>
-                    </article>
-                  )
-                )}
-              </section>
-            ),
-          },
-          {
-            id: "subpathways",
-            label: "Sub-Pathways",
-            content: (
-              <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
-                <p className="eyebrow text-[#7d5e1e]">Sub-pathway readout</p>
-                <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {report.subPathways.map(subPathway => (
-                    <article
-                      key={subPathway.key}
-                      className="border border-[#16243d]/12 bg-[#f7f3e8] p-5 transition-transform hover:shadow-sm"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <h3 className="text-sm font-bold">
-                          {subPathway.label}
-                        </h3>
-                        <span className="text-lg font-semibold text-[#7d5e1e]">
-                          {subPathway.score}
-                        </span>
-                      </div>
-                      <p className="mt-2 text-[10px] font-black uppercase tracking-[.1em] text-[#7d5e1e]">
-                        {subPathway.band}
-                      </p>
-                      <p className="mt-3 text-xs leading-5 text-[#657084]">
-                        {subPathway.rationale}
-                      </p>
-                    </article>
-                  ))}
-                </div>
-              </section>
-            ),
-          },
-          {
-            id: "certificate",
-            label: "Certificate & Share",
-            content: (
-              <section className="mt-10 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-[#f7f3e8] sm:p-7">
-                <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="eyebrow text-[#8b6914]">
-                      A completed development signal
-                    </p>
-                    <h2 className="display mt-2 text-3xl">
-                      Keep the momentum visible.
-                    </h2>
-                    <p className="mt-2 max-w-2xl text-sm leading-6 text-[#c1cad7]">
-                      Download a coaching-ready certificate or share a concise
-                      achievement note through WhatsApp or email.
-                    </p>
+        {/* Full Report Tabs */}
+        <ReportSectionTabs
+          sections={[
+            {
+              id: "pathways",
+              label: "All Pathways",
+              content: (
+                <section className="mt-8 grid gap-6 md:grid-cols-3">
+                  {report.pathways.map((pathway: CareerPathwayResult, index: number) => {
+                    const colors = index === 0 ? pathwayColors.primary : index === 1 ? pathwayColors.secondary : pathwayColors.alternative;
+                    return (
+                      <article key={pathway.key} className={cn(
+                        "border p-5 transition-transform sm:p-7 hover:shadow-lg",
+                        colors.border, colors.bg, colors.text, colors.accent, colors.scoreColor
+                      )}>
+                        <p className="text-[10px] font-black uppercase tracking-[.16em] opacity-70">
+                          {index === 0 ? "Primary pathway" : index === 1 ? "Secondary pathway" : "Alternative pathway"}
+                        </p>
+                        <h2 className="text-display mt-4 text-3xl">{pathway.label}</h2>
+                        <p className="mt-4 text-5xl font-bold">{pathway.score} <span className="text-base">/ 100</span></p>
+                        <p className="mt-3 text-xs font-bold uppercase tracking-[.12em]">{pathway.band}</p>
+                        <p className="mt-4 text-sm leading-6 opacity-80">{pathway.evidence[0] || "Your pathway reflects your interests and abilities."}</p>
+                      </article>
+                    );
+                  })}
+                </section>
+              ),
+            },
+            {
+              id: "subpathways",
+              label: "Sub-Pathways",
+              content: (
+                <section className="mt-8 border border-[var(--border)] bg-[var(--card)] p-5 sm:p-8">
+                  <p className="eyebrow text-[var(--gold)]">Sub-pathway readout</p>
+                  <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {report.subPathways.map(subPathway => (
+                      <article key={subPathway.key} className="border border-[var(--border)] bg-[var(--card)] p-5 transition-transform hover:shadow-sm">
+                        <div className="flex items-start justify-between gap-3">
+                          <h3 className="text-sm font-bold">{subPathway.label}</h3>
+                          <span className="text-lg font-semibold text-[var(--gold)]">{subPathway.score}</span>
+                        </div>
+                        <p className="mt-2 text-[10px] font-black uppercase tracking-[.1em] text-[var(--gold)]">{subPathway.band}</p>
+                        <p className="mt-3 text-xs leading-5 text-[var(--muted-foreground)]">{subPathway.rationale}</p>
+                      </article>
+                    ))}
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      onClick={downloadCertificate}
-                      className="bg-[#c9a34e] text-[#16243d]"
-                    >
-                      <Download size={15} /> Certificate
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={downloadReport}
-                      className="bg-[#c9a34e] text-[#16243d]"
-                    >
-                      <Download size={15} /> Report
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => shareResult("whatsapp")}
-                      className="border-[#c1cad7]/30 bg-transparent text-[#f7f3e8]"
-                    >
-                      <MessageCircle size={15} /> WhatsApp
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => shareResult("linkedin")}
-                      className="border-[#c1cad7]/30 bg-transparent text-[#f7f3e8]"
-                    >
-                      LinkedIn
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => shareResult("facebook")}
-                      className="border-[#c1cad7]/30 bg-transparent text-[#f7f3e8]"
-                    >
-                      <SocialIcon platform="facebook" /> Facebook
-                    </Button>
+                </section>
+              ),
+            },
+            {
+              id: "evidence",
+              label: "Evidence & Plan",
+              content: (
+                <section className="mt-8 grid gap-6 lg:grid-cols-[1.1fr_.9fr]">
+                  <article className="border border-[var(--border)] bg-[var(--card)] p-5 sm:p-8">
+                    <p className="eyebrow text-[var(--gold)]">Why this signal matters</p>
+                    <h2 className="text-display mt-3 text-3xl">Evidence to explore.</h2>
+                    {report.primary.evidence.map((item: string) => (
+                      <div key={item} className="mt-5 flex gap-3 text-sm leading-6">
+                        <CheckCircle2 size={17} className="mt-1 shrink-0 text-[var(--gold)]" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                    <h3 className="mt-8 text-[10px] font-black uppercase tracking-[.14em] text-[var(--gold)]">Recommended next steps</h3>
+                    {report.explorationPlan.map((item: string) => (
+                      <p key={item} className="mt-3 border-l border-[var(--gold)] pl-3 text-sm leading-6 text-[var(--muted-foreground)]">{item}</p>
+                    ))}
+                  </article>
+                  <article className="border-l-4 border-[var(--gold)] bg-[var(--gold-muted)] p-5 text-[var(--navy-deep)] sm:p-8">
+                    <Sparkles size={19} className="text-[var(--gold)]" />
+                    <h2 className="text-display mt-3 text-3xl text-[var(--navy-deep)]">Important context.</h2>
+                    {report.importantContext.map((item: string) => (
+                      <p key={item} className="mt-4 text-sm leading-6">{item}</p>
+                    ))}
+                    <p className="mt-7 border-t border-[var(--gold)]/20 pt-5 text-xs leading-5 text-[var(--muted-foreground)]">{report.disclaimer}</p>
+                  </article>
+                </section>
+              ),
+            },
+            {
+              id: "history",
+              label: "History",
+              content: (
+                <section className="mt-8 border border-[var(--border)] bg-[var(--card)] p-5 sm:p-7" aria-label="Past CareerPath reports and certificates">
+                  <p className="eyebrow text-[var(--gold)]">Your history</p>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    {careerHistory.slice(0, 4).map((item: any) => (
+                      <article key={item.id} className="border border-[var(--border)] bg-[var(--card)] p-4">
+                        <div className="mb-3 overflow-hidden border border-[var(--gold)]/60 bg-[var(--navy-deep)] p-3 text-[var(--text-on-dark)]">
+                          <p className="text-[9px] font-black uppercase tracking-[.16em] text-[var(--gold)]">Profound IQ Consulting</p>
+                          <p className="text-display mt-2 text-xl">Certificate</p>
+                          <p className="mt-2 text-[9px] uppercase tracking-[.1em] text-[var(--muted-on-dark)]">CareerPath achievement</p>
+                        </div>
+                        <p className="text-sm font-bold">{item.receiptTitle || "CareerPath Assessment"}</p>
+                        <p className="mt-1 text-xs text-[var(--muted-foreground)]">{new Date(item.createdAt).toLocaleDateString()} · {item.paymentStatus}</p>
+                        {Boolean(item.report) && item.paystackReference && (
+                          <Link href={`/careerpath/reports?reference=${encodeURIComponent(item.paystackReference)}`} className="mt-3 inline-block text-xs font-black uppercase tracking-[.1em] text-[var(--gold)]">View report</Link>
+                        )}
+                      </article>
+                    ))}
                   </div>
-                </div>
-              </section>
-            ),
-          },
-          {
-            id: "evidence",
-            label: "Evidence & Context",
-            content: (
-              <section className="mt-10 grid gap-6 lg:grid-cols-[1.1fr_.9fr]">
-                <article className="border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
-                  <p className="eyebrow text-[#7d5e1e]">
-                    Why this signal matters
-                  </p>
-                  <h2 className="display mt-3 text-3xl">
-                    Evidence to explore.
-                  </h2>
-                  {report.primary.evidence.map((item: string) => (
-                    <div
-                      key={item}
-                      className="mt-5 flex gap-3 text-sm leading-6"
-                    >
-                      <CheckCircle2
-                        size={17}
-                        className="mt-1 shrink-0 text-[#7d5e1e]"
-                      />
-                      <span>{item}</span>
-                    </div>
-                  ))}
-                  <h3 className="mt-8 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-                    Recommended next steps
-                  </h3>
-                  {report.explorationPlan.map((item: string) => (
-                    <p
-                      key={item}
-                      className="mt-3 border-l border-[#c9a34e] pl-3 text-sm leading-6 text-[#657084]"
-                    >
-                      {item}
-                    </p>
-                  ))}
-                </article>
-                <article className="border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-[#c1cad7] sm:p-8">
-                  <Sparkles size={19} className="text-[#8b6914]" />
-                  <h2 className="display mt-3 text-3xl text-[#f7f3e8]">
-                    Important context.
-                  </h2>
-                  {report.importantContext.map((item: string) => (
-                    <p key={item} className="mt-4 text-sm leading-6">
-                      {item}
-                    </p>
-                  ))}
-                  <p className="mt-7 border-t border-[#c1cad7]/20 pt-5 text-xs leading-5 text-[#c1cad7]">
-                    {report.disclaimer}
-                  </p>
-                </article>
-              </section>
-            ),
-          },
-        ]}
-      />
+                </section>
+              ),
+            },
+          ]}
+        />
+      </div>
     </main>
   );
 }
 
 export default function CareerPath() {
-  const utils = trpc.useUtils();
-  const [location, setLocation] = useLocation();
-  const [page, setPage] = useState<Page>("introduction");
-  const [completedAssessment, setCompletedAssessment] = useState<{
-    name: string;
-    email: string;
-    answers: Array<{ questionId: string; value: number }>;
-  } | null>(null);
-  const [participantName, setParticipantName] = useState("");
-  const [participantEmail, setParticipantEmail] = useState("");
-  const [participantConsent, setParticipantConsent] = useState(false);
-  const [assessmentAnswers, setAssessmentAnswers] = useState<
-    Record<string, number>
-  >({});
-  const [assessmentCurrentModule, setAssessmentCurrentModule] = useState(0);
-  const [checkoutReference, setCheckoutReference] = useState<string | null>(
-    null
-  );
-  const [checkoutProduct, setCheckoutProduct] =
-    useState<PaystackInlineProduct | null>(null);
-  const [unlockedReport, setUnlockedReport] = useState<CareerPathReport | null>(
-    null
-  );
+  const [page, setPage] = useState<Page>("preview");
+  const [completedAssessment, setCompletedAssessment] = useState<{ name: string; email: string; answers: Array<{ questionId: string; value: number }> } | null>(null);
+  const [checkoutReference, setCheckoutReference] = useState<string | null>(null);
+  const [unlockedReport, setUnlockedReport] = useState<CareerPathReport | null>(null);
   const { data: currentUser } = trpc.auth.me.useQuery();
+  const { useLocation } = require("wouter");
+  const [location, setLocation] = useLocation();
 
-  const qualityControlMode =
-    currentUser?.email?.trim().toLowerCase() ===
-    "profoundiqconsulting@gmail.com";
-
-  const urlParams = useMemo(
-    () => new URLSearchParams(window.location.search),
-    [location]
-  );
-  const urlReference = urlParams.get("reference");
-  const paymentSuccess = urlParams.get("payment") === "success";
-
-  const navigateTo = (next: Page, path: string) => {
-    setPage(next);
-    setLocation(path);
-  };
+  const qualityControlMode = currentUser?.email?.trim().toLowerCase() === "profoundiqconsulting@gmail.com";
 
   useEffect(() => {
     const pathname = window.location.pathname;
-    if (pathname === "/careerpath/assessment") {
-      setPage("assessment");
-    } else if (pathname === "/careerpath/checkout") {
-      setPage("checkout");
-    } else if (pathname === "/careerpath/reports") {
-      setPage("reports");
-    } else if (paymentSuccess && urlReference) {
-      setPage("reports");
-      setReportReference(urlReference);
-    }
+    if (pathname === "/careerpath/assessment") setPage("assessment");
+    else if (pathname === "/careerpath/checkout") setPage("checkout");
+    else if (pathname === "/careerpath/reports") setPage("reports");
   }, [location]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const saved = localStorage.getItem("careerpath-assessment");
-    if (!saved) return;
-    try {
-      const parsed = JSON.parse(saved) as {
-        name: string;
-        email: string;
-        consent: boolean;
-        answers: Record<string, number>;
-        currentModule: number;
-      };
-      setParticipantName(parsed.name ?? "");
-      setParticipantEmail(parsed.email ?? "");
-      setParticipantConsent(Boolean(parsed.consent));
-      setAssessmentAnswers(parsed.answers ?? {});
-      setAssessmentCurrentModule(
-        typeof parsed.currentModule === "number" ? parsed.currentModule : 0
-      );
-    } catch {
-      localStorage.removeItem("careerpath-assessment");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.answers && Object.keys(parsed.answers).length > 0) {
+          setPage("assessment");
+        }
+      } catch {
+        localStorage.removeItem("careerpath-assessment");
+      }
     }
   }, []);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const payload = {
-      name: participantName,
-      email: participantEmail,
-      consent: participantConsent,
-      answers: assessmentAnswers,
-      currentModule: assessmentCurrentModule,
-    };
-    localStorage.setItem("careerpath-assessment", JSON.stringify(payload));
-  }, [
-    participantName,
-    participantEmail,
-    participantConsent,
-    assessmentAnswers,
-    assessmentCurrentModule,
-  ]);
+  const initializeInlinePayment = trpc.careerPath.initializeInlinePayment.useMutation();
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (page === "reports" && unlockedReport) {
-      localStorage.removeItem("careerpath-assessment");
-      localStorage.removeItem("careerpath-checkout");
-    }
-  }, [page, unlockedReport]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (page === "checkout" && checkoutReference && !checkoutProduct) {
-      const saved = localStorage.getItem("careerpath-checkout");
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          if (parsed?.product) setCheckoutProduct(parsed.product);
-        } catch {
-          localStorage.removeItem("careerpath-checkout");
-        }
-      }
-    }
-  }, [page, checkoutReference, checkoutProduct]);
-
-  const initializeInlinePayment =
-    trpc.careerPath.initializeInlinePayment.useMutation();
-
-  const handleAssessmentComplete = async (data: {
-    name: string;
-    email: string;
-    answers: Array<{ questionId: string; value: number }>;
-  }) => {
+  const handleAssessmentComplete = async (data: { name: string; email: string; answers: Array<{ questionId: string; value: number }> }) => {
     setCompletedAssessment(data);
-    setParticipantName(data.name);
-    setParticipantEmail(data.email);
-    setParticipantConsent(true);
-    setAssessmentAnswers(
-      data.answers.reduce(
-        (acc, answer) => ({ ...acc, [answer.questionId]: answer.value }),
-        {} as Record<string, number>
-      )
-    );
-    setAssessmentCurrentModule(0);
     try {
       const result = await initializeInlinePayment.mutateAsync({
         name: data.name,
@@ -1458,99 +864,72 @@ export default function CareerPath() {
         answers: data.answers,
         consent: true,
       });
-      const product: PaystackInlineProduct = {
-        accessCode: result.accessCode,
-        reference: result.reference,
-        amountKes: result.amountKes,
-        productName: result.productName,
-        productType: "careerpath",
-      };
       setCheckoutReference(result.reference);
-      setCheckoutProduct(product);
-      localStorage.setItem(
-        "careerpath-checkout",
-        JSON.stringify({ product })
-      );
-      setLocation(
-        `/careerpath/checkout?reference=${encodeURIComponent(result.reference)}`
-      );
+      setLocation(`/careerpath/checkout?reference=${encodeURIComponent(result.reference)}`);
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Unable to initialize payment."
-      );
+      toast.error(error instanceof Error ? error.message : "Unable to initialize payment.");
     }
   };
 
   const handleCheckoutSuccess = (report: CareerPathReport) => {
     setUnlockedReport(report);
     setPage("reports");
+    localStorage.removeItem("careerpath-assessment");
   };
 
-  const [reportReference, setReportReference] = useState<string | null>(
-    urlReference
-  );
+  const navigateTo = (next: Page, path: string) => {
+    setPage(next);
+    setLocation(path);
+  };
 
-  if (page === "reports" && (unlockedReport || urlReference)) {
+  if (page === "reports" && (unlockedReport || checkoutReference)) {
     return (
-      <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
+      <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
         {qualityControlMode && (
-          <div
-            className="border-b border-[#c9a34e]/40 bg-[#fff4c9] px-5 py-2 text-center text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]"
-            role="status"
-          >
+          <div className="border-b border-[var(--gold)]/40 bg-[var(--gold-muted)] px-5 py-2 text-center text-[10px] font-black uppercase tracking-[.14em] text-[var(--gold)]" role="status">
             Quality Control Mode · Payment bypass active
           </div>
         )}
         <TransformationNav active="careerpath" />
-        <CareerPathStepIndicator current={page} />
-        <ReportsPage
-          reference={urlReference ?? checkoutReference ?? reportReference}
-          onBack={() => navigateTo("checkout", "/careerpath/checkout")}
-        />
+        <CareerPathProgressRing stage="reports" modulePage={0} totalModules={1} answeredCount={0} totalQuestions={0} />
+        <ReportsPage reference={checkoutReference} onBack={() => navigateTo("checkout", "/careerpath/checkout")} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       {qualityControlMode && (
-        <div
-          className="border-b border-[#c9a34e]/40 bg-[#fff4c9] px-5 py-2 text-center text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]"
-          role="status"
-        >
+        <div className="border-b border-[var(--gold)]/40 bg-[var(--gold-muted)] px-5 py-2 text-center text-[10px] font-black uppercase tracking-[.14em] text-[var(--gold)]" role="status">
           Quality Control Mode · Payment bypass active
         </div>
       )}
       <TransformationNav active="careerpath" />
-      <CareerPathStepIndicator current={page} />
       <div className="animate-in fade-in duration-300">
-        {page === "introduction" && (
-          <IntroPage
+        {page === "preview" && (
+          <ValuePreviewPage
             onStart={data => {
-              setParticipantName(data.name);
-              setParticipantEmail(data.email);
-              setParticipantConsent(data.consent);
+              // Store name/email for assessment page
+              localStorage.setItem("careerpath-participant", JSON.stringify(data));
               navigateTo("assessment", "/careerpath/assessment");
             }}
-            onBack={undefined}
+            prefilledName={completedAssessment?.name}
+            prefilledEmail={completedAssessment?.email}
           />
         )}
         {page === "assessment" && (
           <AssessmentPage
             onComplete={handleAssessmentComplete}
-            onBack={() => navigateTo("introduction", "/careerpath")}
-            defaultName={participantName}
-            defaultEmail={participantEmail}
-            defaultConsent={participantConsent}
+            onBack={() => navigateTo("preview", "/careerpath")}
+            defaultName={completedAssessment?.name}
+            defaultEmail={completedAssessment?.email}
           />
         )}
         {page === "checkout" && checkoutReference && (
           <CheckoutPage
             reference={checkoutReference}
-            product={checkoutProduct}
             onVerified={handleCheckoutSuccess}
             onBack={() => navigateTo("assessment", "/careerpath/assessment")}
-            customerEmail={participantEmail}
           />
         )}
       </div>

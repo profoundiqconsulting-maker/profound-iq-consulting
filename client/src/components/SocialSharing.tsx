@@ -1,4 +1,4 @@
-/* Profound IQ Consulting — accessible social sharing rail for reports and certificates. */
+/* Profound IQ Consulting — accessible social sharing rail for reports, certificates, and pages. */
 import { useState } from "react";
 import { Copy, MessageCircle, Share2, X } from "lucide-react";
 import { SocialIcon } from "@/components/SocialMediaIcons";
@@ -10,6 +10,7 @@ type SocialPlatform =
   | "x"
   | "facebook"
   | "instagram"
+  | "tiktok"
   | "whatsapp"
   | "email"
   | "copy"
@@ -44,6 +45,7 @@ const platformMeta: Record<
   x: { label: "X", shortLabel: "X", icon: <X size={14} /> },
   facebook: { label: "Facebook", shortLabel: "Facebook", icon: <SocialIcon platform="facebook" /> },
   instagram: { label: "Instagram", shortLabel: "Instagram", icon: <SocialIcon platform="instagram" /> },
+  tiktok: { label: "TikTok", shortLabel: "TikTok", icon: <SocialIcon platform="tiktok" /> },
   whatsapp: { label: "WhatsApp", shortLabel: "WhatsApp", icon: <MessageCircle size={14} /> },
   email: { label: "Email", shortLabel: "Email", icon: <Copy size={14} /> },
   copy: { label: "Copy link", shortLabel: "Copy", icon: <Copy size={14} /> },
@@ -56,7 +58,7 @@ export function SocialSharing({
   text,
   summary,
   image,
-  platforms = ["linkedin", "x", "facebook", "instagram", "whatsapp", "copy", "native"],
+  platforms = ["linkedin", "x", "facebook", "instagram", "tiktok", "whatsapp", "copy", "native"],
   label,
   className = "",
   onShare,
@@ -77,6 +79,8 @@ export function SocialSharing({
         return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`;
       case "instagram":
         return `https://www.instagram.com/?url=${encodedUrl}`;
+      case "tiktok":
+        return `https://www.tiktok.com/share/video?url=${encodedUrl}&text=${encodedText}`;
       case "whatsapp":
         return `https://wa.me/?text=${encodedText}%20${encodedUrl}`;
       case "email":

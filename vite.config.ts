@@ -50,6 +50,10 @@ export default defineConfig(({ mode }) => {
       chunkSizeWarningLimit: 3000,
       sourcemap: false,
       reportCompressedSize: false,
+      cssCodeSplit: true,
+      modulePreload: {
+        polyfill: false,
+      },
       rolldownOptions: {
         output: {
           manualChunks: (id) => {
@@ -68,7 +72,16 @@ export default defineConfig(({ mode }) => {
             if (id.includes("node_modules/input-otp")) return "vendor-ui-extras";
             if (id.includes("node_modules/react-resizable-panels")) return "vendor-ui-extras";
             if (id.includes("node_modules/vaul")) return "vendor-ui-extras";
+            if (id.includes("node_modules/lucide-react")) return "vendor-icons";
+            if (id.includes("node_modules/sonner")) return "vendor-toast";
+            if (id.includes("node_modules/zustand")) return "vendor-state";
+            if (id.includes("node_modules/recharts")) return "vendor-charts";
+            if (id.includes("node_modules/html2canvas")) return "vendor-canvas";
+            if (id.includes("node_modules/jspdf")) return "vendor-pdf";
           },
+          chunkFileNames: "assets/[name]-[hash].js",
+          entryFileNames: "assets/[name]-[hash].js",
+          assetFileNames: "assets/[name]-[hash].[ext]",
         },
       },
     },

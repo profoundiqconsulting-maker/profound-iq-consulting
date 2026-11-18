@@ -33,6 +33,7 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [location] = useLocation();
   const { isAuthenticated, user } = useAuth();
+  const userDisplay = isAuthenticated ? user?.email || user?.name || "Signed in" : null;
 
   useEffect(() => {
     const onScroll = () => {
@@ -133,12 +134,16 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
           </nav>
 
           <div className="hidden items-center gap-1 md:flex">
-            <Link href="/auth?mode=login" className={`hidden border px-1 py-1 text-[9px] font-black uppercase tracking-[.12em] md:inline-flex ${secondaryButton}`} style={{ fontSize: '9px', padding: '2px 4px' }}>
-              Sign in
-            </Link>
-            <Link href="/auth?mode=register" className={`hidden border px-1 py-1 text-[9px] font-black uppercase tracking-[.12em] md:inline-flex ${secondaryButton}`} style={{ fontSize: '9px', padding: '2px 4px' }}>
-              Sign up
-            </Link>
+            {!isAuthenticated && (
+              <>
+                <Link href="/auth?mode=login" className={`hidden border px-1 py-1 text-[9px] font-black uppercase tracking-[.12em] md:inline-flex ${secondaryButton}`} style={{ fontSize: '9px', padding: '2px 4px' }}>
+                  Sign in
+                </Link>
+                <Link href="/auth?mode=register" className={`hidden border px-1 py-1 text-[9px] font-black uppercase tracking-[.12em] md:inline-flex ${secondaryButton}`} style={{ fontSize: '9px', padding: '2px 4px' }}>
+                  Sign up
+                </Link>
+              </>
+            )}
             <Link href="/contact" className={`hidden items-center gap-0.5 px-1.5 py-1 text-[9px] font-black uppercase tracking-[.1em] transition-colors md:inline-flex ${pillButton}`} style={{ fontSize: '9px', padding: '2px 6px' }}>
               Start a conversation <ArrowUpRight size={10} />
             </Link>
@@ -170,13 +175,17 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
                 </Link>
               ))}
 
-               <div className="mt-3 flex flex-wrap items-center gap-1">
-                  <Link href="/auth?mode=login" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-0.5 border px-1.5 py-1 text-[9px] font-black uppercase tracking-[.1em] ${pillButton}`} style={{ fontSize: '9px', padding: '2px 6px' }}>
-                    Sign in
-                  </Link>
-                  <Link href="/auth?mode=register" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-0.5 border px-1.5 py-1 text-[9px] font-black uppercase tracking-[.1em] ${secondaryButton}`} style={{ fontSize: '9px', padding: '2px 6px' }}>
-                    Sign up
-                  </Link>
+<div className="mt-3 flex flex-wrap items-center gap-1">
+                  {!isAuthenticated && (
+                    <>
+                      <Link href="/auth?mode=login" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-0.5 border px-1.5 py-1 text-[9px] font-black uppercase tracking-[.1em] ${pillButton}`} style={{ fontSize: '9px', padding: '2px 6px' }}>
+                        Sign in
+                      </Link>
+                      <Link href="/auth?mode=register" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-0.5 border px-1.5 py-1 text-[9px] font-black uppercase tracking-[.1em] ${secondaryButton}`} style={{ fontSize: '9px', padding: '2px 6px' }}>
+                        Sign up
+                      </Link>
+                    </>
+                  )}
                   <Link href="/contact" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-0.5 border px-1.5 py-1 text-[9px] font-black uppercase tracking-[.1em] ${pillButton}`} style={{ fontSize: '9px', padding: '2px 6px' }}>
                     Start a conversation <ArrowUpRight size={10} />
                   </Link>
@@ -186,7 +195,7 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
         )}
       </header>
 
-        {menuOpen && (
+{menuOpen && (
           <div
             className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm md:hidden"
             aria-hidden="true"
@@ -203,6 +212,16 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
             <ArrowUp size={16} />
           </button>
         )}
-    </>
+        {isAuthenticated && userDisplay && (
+          <div
+            data-signed-in-banner
+            className="sticky top-16 z-40 border-b border-white/10 bg-[#101d35]/95 backdrop-blur-sm px-4 py-2 text-center text-xs font-medium text-[#c9a34e] md:px-6"
+            role="status"
+            aria-live="polite"
+          >
+            Signed in as {userDisplay}
+          </div>
+        )}
+      </>
   );
 }

@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowUpRight, Clock3, FileText } from "lucide-react";
 import { Link, useRoute } from "wouter";
 import { PublicPageShell } from "@/components/PublicPageShell";
 import { ScrollReveal, ScrollRevealGroup } from "@/components/ScrollReveal";
+import { SocialSharing, type SocialPlatform } from "@/components/SocialSharing";
 import { trpc } from "@/lib/trpc";
 
 export default function InsightArticle() {
@@ -144,6 +145,13 @@ export default function InsightArticle() {
               ))}
             </ScrollRevealGroup>
             <div className="mt-14 flex flex-wrap gap-4 border-t border-[#16243d]/10 pt-9">
+              <SocialSharing
+                url={window.location.href}
+                title={article.title}
+                text={article.excerpt}
+                platforms={["linkedin", "x", "facebook", "instagram", "tiktok", "whatsapp", "copy", "native"]}
+                className="bg-transparent border-transparent shadow-none"
+              />
               <Link
                 href="/contact"
                 className="inline-flex min-h-12 items-center justify-center gap-3 bg-[#16243d] px-6 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition-all hover:shadow-lg"

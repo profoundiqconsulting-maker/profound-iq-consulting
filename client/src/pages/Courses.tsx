@@ -1,29 +1,32 @@
-/* Profound IQ Consulting — The Courses page extends the editorial navy/gold system into a focused, live catalog experience. */
+/* Profound IQ Consulting — Course Catalog redesigned for executive conversion */
 import { useEffect, useMemo, useState } from "react";
 import {
-  ArrowDownUp,
-  ArrowUpRight,
-  Check,
+  ArrowRight,
+  BookOpen,
+  BrainCircuit,
+  CheckCircle2,
   ChevronRight,
-  Compass,
-  Copy,
-  Eye,
   Loader2,
-  Menu,
+  MessageCircle,
   Search,
-  SlidersHorizontal,
   Sparkles,
+  Target,
+  Users,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Link } from "wouter";
-import { BrandLogo } from "@/components/BrandLogo";
-import { TransformationNav } from "@/components/TransformationNav";
 import { trpc } from "@/lib/trpc";
-import { CourseCoverImage } from "@/components/CourseCoverImage";
-
 import { useAuth } from "@/_core/hooks/useAuth";
-import { courseEnrollmentCopy } from "@shared/courseEnrollmentLocalization";
+import { COURSE_PRICE_KES } from "@shared/courseCatalog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { CheckoutForm } from "@/components/CheckoutForm";
+import { TransformationNav } from "@/components/TransformationNav";
+import { CourseCoverImage } from "@/components/CourseCoverImage";
+import { cn } from "@/lib/utils";
 
 type ModulePreview = { id: string; title: string; promise: string };
 type CourseCard = {
@@ -37,8 +40,6 @@ type CourseCard = {
   outcomes: string[];
   modules: ModulePreview[];
   price: string;
-  stagePlan: string;
-  stageAmountsKes: number[];
   format: string;
   body: string;
   category: string;
@@ -46,21 +47,18 @@ type CourseCard = {
   coverImage: string;
   isDatabaseItem: boolean;
 };
-const courseCategory = (course: Pick<CourseCard, "category">) =>
-  course.category;
+const courseCategory = (course: Pick<CourseCard, "category">) => course.category;
 const coverFallback = "/cover-people-practice_342ff6e3.svg";
 const skillFallback = (slug: string): CourseCard["skillLevel"] =>
   /professional-certificate|mastering|lead|strategic|negotiation/.test(slug)
     ? "Advanced"
-    : /essentials|personal-growth|growth-mindset|communication|confidence/.test(
-          slug
-        )
-      ? "Foundation"
-      : "Practitioner";
+    : /essentials|personal-growth|growth-mindset|communication|confidence/.test(slug)
+    ? "Foundation"
+    : "Practitioner";
 
 export default function Courses() {
   const [selectedCourse, setSelectedCourse] = useState<CourseCard | null>(null);
-  const [submitted, setSubmitted] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("All categories");
   const [skillLevel, setSkillLevel] = useState("All levels");
@@ -68,24 +66,17 @@ export default function Courses() {
   const [comparisonSlugs, setComparisonSlugs] = useState<string[]>([]);
   const [comparisonOpen, setComparisonOpen] = useState(false);
   const [recommendOpen, setRecommendOpen] = useState(false);
-  const [previewCourse, setPreviewCourse] = useState<CourseCard | null>(null);
+  const [visibleCount, setVisibleCount] = useState(6);
   const [careerGoal, setCareerGoal] = useState("ai");
-  const [currentLevel, setCurrentLevel] =
-    useState<CourseCard["skillLevel"]>("Foundation");
-  const [activeTab, setActiveTab] = useState<string>("All categories");
-  const [visibleCount, setVisibleCount] = useState(4);
+  const [currentLevel, setCurrentLevel] = useState<CourseCard["skillLevel"]>("Foundation");
+  const [recommendedCourses, setRecommendedCourses] = useState<CourseCard[]>([]);
+  const [showRecommended, setShowRecommended] = useState(false);
 
   const { user, isAuthenticated } = useAuth();
-  const enrollmentCopy = courseEnrollmentCopy;
-  const catalogList = trpc.course.catalogList.useQuery(undefined, {
-    retry: false,
-    refetchOnWindowFocus: true,
-  });
-  const liveCatalog = trpc.catalog.listPublished.useQuery(undefined, {
-    retry: false,
-    refetchOnWindowFocus: true,
-  });
-  const codeCourses = useMemo<CourseCard[]>(() => {
+  const catalogList = trpc.course.catalogList.useQuery(undefined, { retry: false, refetchOnWindowFocus: true });
+  const liveCatalog = trpc.catalog.listPublished.useQuery(undefined, { retry: false, refetchOnWindowFocus: true });
+
+  const courses = useMemo<CourseCard[]>(() => {
     const baseCourses = (catalogList.data ?? []).map((course, index) => ({
       slug: course.slug,
       index: String(index + 1).padStart(2, "0"),
@@ -101,12 +92,10 @@ export default function Courses() {
         promise: module.promise,
       })),
       price: `KES ${course.priceKes.toLocaleString()}`,
-      stagePlan: `Stage 1 free · KES ${course.stageAmountsKes[1].toLocaleString()} × 3`,
-      stageAmountsKes: course.stageAmountsKes,
       format: course.duration,
       body: course.description,
       category: course.category,
-      skillLevel: course.skillLevel,
+      skillLevel: skillFallback(course.slug),
       coverImage: course.coverImage,
       isDatabaseItem: false,
     }));
@@ -119,1267 +108,474 @@ export default function Courses() {
       audience: item.audience,
       duration: item.duration,
       outcomes: item.outcomes,
-      modules: [] as never[],
+      modules: [] as ModulePreview[],
       price: `KES ${item.priceKes.toLocaleString()}`,
-      stagePlan: `Stage 1 free · KES ${Math.floor(item.priceKes / 3).toLocaleString()} × 3`,
-      stageAmountsKes: [0, Math.floor(item.priceKes / 3), Math.floor(item.priceKes / 3), item.priceKes - 2 * Math.floor(item.priceKes / 3)],
       format: item.duration,
       body: item.description,
-      category: (item as any).category ?? "Professional development",
-      skillLevel: (item as any).skillLevel ?? skillFallback(item.slug),
-      coverImage: item.coverImageUrl ?? coverFallback,
       isDatabaseItem: true,
+      skillLevel: (item as any).skillLevel ?? "Practitioner",
+      category: (item as any).category ?? "Professional development",
+      coverImage: item.coverImageUrl ?? "",
     }));
     const bySlug = new Map(overlays.map(item => [item.slug, item]));
     const merged = baseCourses.map(course => {
       const overlay = bySlug.get(course.slug);
       if (!overlay) return course;
       bySlug.delete(course.slug);
-      return {
-        ...course,
-        ...overlay,
-        modules: course.modules,
-        isDatabaseItem: true,
-      };
+      return { ...course, ...overlay, modules: course.modules, isDatabaseItem: true };
     });
-    return [
-      ...merged,
-      ...Array.from(bySlug.values()),
-    ] as CourseCard[];
+    return [...merged, ...Array.from(bySlug.values())] as CourseCard[];
   }, [catalogList.data, liveCatalog.data]);
-  const enrollment = trpc.enrollment.create.useMutation({
-    onSuccess: () => {
-      setSubmitted(true);
-      toast.success("Enrollment details saved", {
-        description: "Continue to secure checkout when you are ready.",
-      });
-    },
-    onError: error =>
-      toast.error("Could not save enrollment details", {
-        description: error.message,
-      }),
-  });
-  const courseEnrollment = trpc.course.enroll.useMutation({
-    onError: error =>
-      toast.error("Could not start course enrollment", {
-        description: error.message,
-      }),
-  });
-  const stageCheckout = trpc.course.initializeStagePayment.useMutation({
-    onError: error =>
-      toast.error("Checkout could not be prepared", {
-        description: "Your course access is unchanged. Please try again.",
-      }),
-  });
-  const saveRecommendationAnswers =
-    trpc.course.saveCourseRecommendationAnswers.useMutation({
-      onSuccess: () =>
-        toast.success("Your course preferences are saved", {
-          description: "We’ll use them to personalize your workspace.",
-        }),
-      onError: error =>
-        toast.error("Could not save preferences", {
-          description: error.message,
-        }),
-    });
-  const toggleSavedCourse = trpc.course.toggleSavedCourse.useMutation({
-    onSuccess: ({ saved }) =>
-      toast.success(
-        saved
-          ? "Course saved to your workspace"
-          : "Course removed from saved courses"
-      ),
-    onError: error =>
-      toast.error("Could not update saved course", {
-        description: error.message,
-      }),
-  });
-  const courses = codeCourses;
-  const categories = useMemo(
-    () => [
-      "All categories",
-      ...Array.from(
-        new Set(
-          courses
-            .map(courseCategory)
-            .map(value => value)
-        )
-      ),
-    ],
-    [courses]
-  );
-  const levels = useMemo(
-    () => [
-      "All levels",
-      ...Array.from(new Set(courses.map(course => course.skillLevel))),
-    ],
-    [courses]
-  );
-  const tabCategories = useMemo(
-    () => [
-      ...Array.from(
-        new Set(
-          courses
-            .map(courseCategory)
-            .map(value => value)
-        )
-      ),
-      "All categories",
-    ],
-    [courses]
-  );
+
+  const categories = useMemo(() => [
+    "All categories",
+    ...Array.from(new Set(courses.map(courseCategory).map(v => v))),
+  ], [courses]);
+  const levels = useMemo(() => [
+    "All levels",
+    ...Array.from(new Set(courses.map(course => course.skillLevel))),
+  ], [courses]);
   const filteredCourses = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
-    const selectedCategory =
-      activeTab === "All categories" ? category : activeTab;
-    const result = courses.filter(
-      course =>
-        (!query ||
-          `${course.title} ${course.strapline} ${course.description} ${course.outcomes.join(" ")} ${course.category} ${course.skillLevel}`
-            .toLowerCase()
-            .includes(query)) &&
-        (selectedCategory === "All categories" ||
-          courseCategory(course) ===
-            selectedCategory) &&
-        (skillLevel === "All levels" || course.skillLevel === skillLevel)
-    );
-    return [...result].sort((a, b) =>
-      sortBy === "title"
-        ? a.title.localeCompare(b.title)
-        : sortBy === "price"
-          ? Number(a.price.replace(/[^0-9]/g, "")) -
-            Number(b.price.replace(/[^0-9]/g, ""))
-          : sortBy === "level"
-            ? ["Foundation", "Practitioner", "Advanced"].indexOf(a.skillLevel) -
-              ["Foundation", "Practitioner", "Advanced"].indexOf(b.skillLevel)
-            : Number(a.index) - Number(b.index)
-    );
-  }, [activeTab, category, courses, searchTerm, skillLevel, sortBy]);
+    return courses.filter(course =>
+      (!query || `${course.title} ${course.strapline} ${course.description} ${course.outcomes.join(" ")} ${course.category} ${course.skillLevel}`.toLowerCase().includes(query)) &&
+      (category === "All categories" || courseCategory(course) === category) &&
+      (skillLevel === "All levels" || course.skillLevel === skillLevel)
+    ).sort((a, b) => {
+      if (sortBy === "title") return a.title.localeCompare(b.title);
+      if (sortBy === "price") return Number(a.price.replace(/[^0-9]/g, "")) - Number(b.price.replace(/[^0-9]/g, ""));
+      if (sortBy === "level") return ["Foundation", "Practitioner", "Advanced"].indexOf(a.skillLevel) - ["Foundation", "Practitioner", "Advanced"].indexOf(b.skillLevel);
+      return Number(a.index) - Number(b.index);
+    });
+  }, [courses, searchTerm, category, skillLevel, sortBy]);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const shared = (params.get("compare") ?? "")
-      .split(",")
-      .filter(slug => courses.some(course => course.slug === slug))
-      .slice(0, 3);
+    const shared = (params.get("compare") ?? "").split(",").filter(slug => courses.some(course => course.slug === slug)).slice(0, 3);
     if (shared.length) setComparisonSlugs(shared);
     if (params.get("recommend") === "1") setRecommendOpen(true);
     const slug = params.get("enroll");
     if (!slug || !courses.length || selectedCourse) return;
     const course = courses.find(item => item.slug === slug);
-    if (course) {
-      setSelectedCourse(course);
-      window.history.replaceState({}, "", "/courses");
-    }
+    if (course) { setSelectedCourse(course); window.history.replaceState({}, "", "/courses"); }
   }, [courses, selectedCourse]);
-  useEffect(() => {
-    if (activeTab === "All categories") return;
-    if (activeTab !== category) setCategory(activeTab);
-  }, [activeTab, category]);
-  useEffect(() => {
-    setVisibleCount(6);
-  }, [activeTab, category, searchTerm, skillLevel, sortBy]);
-  useEffect(() => {
-    if (!selectedCourse) return;
-    const close = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setSelectedCourse(null);
-    };
-    document.addEventListener("keydown", close);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", close);
-      document.body.style.overflow = "";
-    };
-  }, [selectedCourse]);
-  const submit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!selectedCourse) return;
-    const form = new FormData(event.currentTarget);
-    const name = String(form.get("name") || user?.name || "").trim();
-    const email = String(form.get("email") || user?.email || "").trim();
-    if (isAuthenticated && user) {
-      courseEnrollment.mutate(
-        { courseSlug: selectedCourse.slug, name, email, consent: true },
-        {
-          onSuccess: result => {
-            if (!result.enrollmentId) {
-              toast.error("Enrollment could not be created");
-              return;
-            }
-            stageCheckout.mutate(
-              { enrollmentId: result.enrollmentId, stage: 1 },
-              {
-                onSuccess: payment => {
-                  if ("authorizationUrl" in payment && payment.authorizationUrl)
-                    window.location.href = payment.authorizationUrl;
-                  else if ("paid" in payment && payment.paid)
-                    window.history.pushState({}, "", `/courses/${selectedCourse.slug}?workspace=1`);
-                  else
-                    toast.error("Paystack did not return a checkout link", {
-                      description: "Please try again shortly.",
-                    });
-                },
-              }
-            );
-          },
-        }
-      );
-      return;
-    }
-    window.location.href = `/auth?mode=login&returnTo=${encodeURIComponent(`/courses/${selectedCourse.slug}?workspace=1`)}`;
+
+  useEffect(() => { setVisibleCount(6); }, [category, searchTerm, skillLevel, sortBy]);
+
+  // Recommendation logic
+  const goalMap: Record<string, string[]> = {
+    ai: ["AI", "Data", "Analytics", "Machine Learning", "Automation"],
+    leadership: ["Lead", "Manage", "Strategy", "Executive", "Team"],
+    growth: ["Growth", "Mindset", "Scale", "Expand", "Innovate"],
+    communication: ["Communicate", "Present", "Write", "Speak", "Negotiate"],
+    finance: ["Finance", "Budget", "Invest", "Model", "Value"],
   };
-  const syncComparison = (slugs: string[]) => {
-    const next = slugs.slice(0, 3);
-    setComparisonSlugs(next);
-    const url = new URL(window.location.href);
-    if (next.length) url.searchParams.set("compare", next.join(","));
-    else url.searchParams.delete("compare");
-    window.history.replaceState(
-      {},
-      "",
-      `${url.pathname}${url.search}${url.hash}`
+  useEffect(() => {
+    if (!showRecommended) return;
+    const keywords = goalMap[careerGoal] || [];
+    const levelOrder = ["Foundation", "Practitioner", "Advanced"];
+    const userLevelIndex = levelOrder.indexOf(currentLevel);
+    const scored = courses.map(course => {
+      const text = `${course.title} ${course.strapline} ${course.description} ${course.outcomes.join(" ")}`.toLowerCase();
+      const categoryScore = keywords.some(k => text.includes(k.toLowerCase())) ? 3 : 0;
+      const courseLevelIndex = levelOrder.indexOf(course.skillLevel);
+      const levelDistance = Math.abs(courseLevelIndex - userLevelIndex);
+      const levelScore = levelDistance === 0 ? 3 : levelDistance === 1 ? 1 : 0;
+      return { course, score: categoryScore + levelScore };
+    }).sort((a, b) => b.score - a.score || Number(a.course.index) - Number(b.course.index)).slice(0, 3).map(({ course }) => course);
+    setRecommendedCourses(scored);
+  }, [careerGoal, currentLevel, showRecommended, courses]);
+
+  const openCheckout = (course: CourseCard) => {
+    setSelectedCourse(course);
+    setShowCheckout(true);
+  };
+
+  const handleCheckoutSuccess = (reference: string) => {
+    setShowCheckout(false);
+    setSelectedCourse(null);
+    toast.success("Enrollment complete!", { description: "Access your course from the dashboard." });
+  };
+
+  const handleCompareToggle = (slug: string) => {
+    setComparisonSlugs(prev => prev.includes(slug) ? prev.filter(s => s !== slug) : [...prev.slice(-2), slug]);
+    if (!comparisonOpen) setComparisonOpen(true);
+  };
+
+  if (catalogList.isLoading || liveCatalog.isLoading) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+        <TransformationNav active="courses" />
+        <main className="container py-16">
+          <div className="flex items-center gap-3 text-sm" role="status" aria-live="polite">
+            <Loader2 size={16} className="animate-spin text-[var(--gold)]" /> Loading the current catalog…
+          </div>
+        </main>
+      </div>
     );
-  };
-  const shareComparison = async () => {
-    if (!comparisonSlugs.length) {
-      toast.info("Select courses to create a comparison link");
-      return;
-    }
-    const shareUrl = new URL(window.location.href);
-    shareUrl.pathname = "/courses/compare";
-    shareUrl.searchParams.set("compare", comparisonSlugs.join(","));
-    try {
-      await navigator.clipboard.writeText(shareUrl.toString());
-      toast.success("Comparison link copied", {
-        description:
-          "Share this URL so others can open the same course comparison.",
-      });
-    } catch {
-      toast.error("Could not copy the comparison link", {
-        description: "Copy the URL from your browser address bar instead.",
-      });
-    }
-  };
-  const recommendedCourses = useMemo(() => {
-    const goalCategory: Record<string, string> = {
-      ai: "AI & Digital",
-      business: "Business & Analytics",
-      education: "Education & Research",
-      communication: "Communication & Career",
-      leadership: "Leadership & Workplace",
-      personal: "Personal Development",
-    };
-    const levelRank = { Foundation: 0, Practitioner: 1, Advanced: 2 };
-    return courses
-      .map(course => {
-        const categoryScore =
-          course.category === goalCategory[careerGoal] ? 5 : 0;
-        const levelDistance = Math.abs(
-          levelRank[course.skillLevel] - levelRank[currentLevel]
-        );
-        const levelScore =
-          levelDistance === 0 ? 3 : levelDistance === 1 ? 1 : 0;
-        return { course, score: categoryScore + levelScore };
-      })
-      .sort(
-        (a, b) =>
-          b.score - a.score || Number(a.course.index) - Number(b.course.index)
-      )
-      .slice(0, 3)
-      .map(({ course }) => course);
-  }, [careerGoal, courses, currentLevel]);
+  }
+
   return (
-    <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-body">
       <TransformationNav active="courses" />
-      <main>
-        <section className="relative overflow-hidden bg-[#101d35] px-5 pb-20 pt-16 text-[#f7f3e8] sm:px-10 lg:pb-28 lg:pt-24">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#101d35]/95 via-[#16243d]/90 to-[#101d35]/95" />
-          <div className="relative container">
-            <p className="eyebrow flex items-center gap-3 text-[#8b6914]">
-              <span className="h-px w-10 bg-[#c9a34e]" /> 01 / COURSE CATALOG
-            </p>
-            <div className="mt-7 grid gap-10 lg:grid-cols-[1fr_320px] lg:items-end">
-                <h1 className="display max-w-4xl heading-clamp-lg">
-                  Capability is built{" "}
-                  <em className="font-normal text-[#8b6914]">in practice.</em>
-                </h1>
-                <p className="max-w-sm text-fluid-base leading-8 text-[#c1cad7]">
-                 Professional learning for people who want insight to become a
-                 repeatable way of working.
-               </p>
-            </div>
+
+      {/* Sticky Filters Header */}
+      <header className="sticky top-16 z-40 border-b border-[var(--border)] bg-[var(--background)]/95 backdrop-blur-sm px-4 py-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Search */}
+          <div className="mb-4 relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" aria-hidden="true" />
+            <input
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              placeholder="Search courses, topics, or outcomes…"
+              className="w-full h-12 pl-10 pr-4 border border-[var(--border)] bg-[var(--card)] text-base focus-gold-ring rounded-xl"
+            />
           </div>
-        </section>
-        <section className="container section-py-sm">
-          <div className="mb-8 flex flex-col justify-between gap-5 border-b border-[#16243d]/15 pb-8 sm:flex-row sm:items-end">
-            <div>
-              <p className="eyebrow text-[#7d5e1e]">02 / SELECT YOUR PATH</p>
-              <h2 className="display mt-3 heading-clamp">
-                Choose the next capability.
-              </h2>
+
+          {/* Filter Row */}
+          <div className="flex flex-wrap items-center gap-3 overflow-x-auto pb-2">
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Category filters">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setCategory(cat)}
+                  className={cn(
+                    "px-4 py-2 text-sm font-semibold uppercase tracking-wider rounded-xl transition-all duration-200 whitespace-nowrap",
+                    category === cat
+                      ? "bg-[var(--gold)] text-[var(--navy-deep)] shadow-lg"
+                      : "bg-[var(--card)] text-[var(--muted-foreground)] border border-[var(--border)] hover:border-[var(--gold)] hover:text-[var(--gold)]"
+                  )}
+                >
+                  {cat}
+                </button>
+              ))}
             </div>
-            <p className="max-w-sm text-sm leading-6 text-[#4a566a]">
-                Every course includes an applied curriculum, interactive lessons,
-                repeatable practice, and a clear completion path.
-              </p>
-          </div>
-          {(catalogList.isLoading || liveCatalog.isLoading) && (
-            <div className="flex items-center gap-3 border border-[#16243d]/15 p-5 text-sm text-[#4a566a]">
-              <Loader2 size={16} className="animate-spin text-[#7d5e1e]" />{" "}
-              Loading the current catalog…
-            </div>
-          )}
-          {!catalogList.isLoading && !liveCatalog.isLoading && !courses.length && (
-            <div className="border-l-2 border-[#c9a34e] bg-white/40 p-6 text-sm text-[#4a566a]">
-              New courses are being prepared.{" "}
-              <Link
-                href="/#contact"
-                className="font-bold text-[#7d5e1e] underline"
-              >
-                Talk to the team
-              </Link>{" "}
-              about your goals.
-            </div>
-          )}
-          {!catalogList.isLoading && !liveCatalog.isLoading && courses.length > 0 && (
-            <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {tabCategories.filter(cat => cat !== "All categories").map(cat => {
-                const count = courses.filter(course => courseCategory(course) === cat).length;
-                return (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => {
-                      setActiveTab(cat);
-                      setCategory(cat);
-                    }}
-                    className={`rounded-xl border p-4 text-left transition-all ${
-                      activeTab === cat
-                        ? "border-[#c9a34e] bg-[#fffaf0] shadow-md"
-                        : "border-[#16243d]/15 bg-white/55 hover:border-[#c9a34e]/50 hover:shadow-sm"
-                    }`}
-                  >
-                    <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-                      {cat}
-                    </p>
-                    <p className="display mt-2 text-2xl">{count}</p>
-                    <p className="mt-1 text-xs text-[#4a566a]">
-                      {count === 1 ? "course" : "courses"}
-                    </p>
-                  </button>
-                );
-              })}
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab("All categories");
-                  setCategory("All categories");
-                }}
-                className={`rounded-xl border p-4 text-left transition-all ${
-                  activeTab === "All categories"
-                    ? "border-[#c9a34e] bg-[#fffaf0] shadow-md"
-                    : "border-[#16243d]/15 bg-white/55 hover:border-[#c9a34e]/50 hover:shadow-sm"
-                }`}
-              >
-                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-                  All categories
-                </p>
-                <p className="display mt-2 text-2xl">{courses.length}</p>
-                <p className="mt-1 text-xs text-[#4a566a]">
-                  {courses.length === 1 ? "course" : "courses"}
-                </p>
-              </button>
-            </div>
-          )}
-          <div className="mb-6 flex gap-2 overflow-x-auto border-b border-[#16243d]/15 pb-0">
-            {tabCategories.map(item => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => setActiveTab(item)}
-                className={`whitespace-nowrap border-b-2 px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] transition-all ${
-                  activeTab === item
-                    ? "border-[#c9a34e] text-[#16243d]"
-                    : "border-transparent text-[#4a566a] hover:text-[#16243d]"
-                }`}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-          <div className="mb-8 grid gap-3 rounded-xl border border-[#16243d]/15 bg-white/55 p-4 shadow-sm sm:grid-cols-[1fr_220px] sm:items-center">
-            <label className="relative block">
-              <Search
-                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7d5e1e]"
-                aria-hidden="true"
-              />
-              <span className="sr-only">Search courses</span>
-              <input
-                value={searchTerm}
-                onChange={event => setSearchTerm(event.target.value)}
-                placeholder={"Search courses, topics, or outcomes"}
-                className="w-full border border-[#16243d]/20 bg-[#f7f3e8] py-3 pl-10 pr-3 text-sm outline-none focus:border-[#c9a34e]"
-              />
-            </label>
-            <label className="text-xs font-black uppercase tracking-[.1em] text-[#4a566a]">
-              <span className="sr-only">Filter by category</span>
+            <Separator className="h-8 mx-2" />
+            <div className="flex items-center gap-2">
+              <Label htmlFor="skill-filter" className="sr-only">Skill level</Label>
               <select
-                value={category}
-                onChange={event => setCategory(event.target.value)}
-                className="w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-semibold normal-case tracking-normal text-[#16243d] outline-none focus:border-[#c9a34e]"
-              >
-                {categories.map(item => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="text-xs font-black uppercase tracking-[.1em] text-[#4a566a]">
-              <span className="sr-only">Filter by skill level</span>
-              <select
+                id="skill-filter"
                 value={skillLevel}
-                onChange={event => setSkillLevel(event.target.value)}
-                className="w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-semibold normal-case tracking-normal text-[#16243d] outline-none focus:border-[#c9a34e]"
+                onChange={e => setSkillLevel(e.target.value)}
+                className="h-10 px-4 border border-[var(--border)] bg-[var(--card)] text-sm focus-gold-ring rounded-xl min-w-[150px]"
               >
-                {levels.map(item => (
-                  <option key={item} value={item}>
-                    {item === "All levels"
-                      ? item
-                      : item}
-                  </option>
-                ))}
+                {levels.map(level => <option key={level} value={level}>{level}</option>)}
               </select>
-            </label>
-            <label className="text-xs font-black uppercase tracking-[.1em] text-[#4a566a]">
-              <span className="sr-only">Sort courses</span>
+            </div>
+            <div className="flex items-center gap-2 ml-auto">
+              <Label htmlFor="sort-filter" className="sr-only">Sort</Label>
               <select
+                id="sort-filter"
                 value={sortBy}
-                onChange={event => setSortBy(event.target.value)}
-                className="w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-semibold normal-case tracking-normal text-[#16243d] outline-none focus:border-[#c9a34e]"
+                onChange={e => setSortBy(e.target.value)}
+                className="h-10 px-4 border border-[var(--border)] bg-[var(--card)] text-sm focus-gold-ring rounded-xl min-w-[160px]"
               >
-                <option value="recommended">Recommended order</option>
+                <option value="recommended">Recommended</option>
                 <option value="title">Title A–Z</option>
                 <option value="level">Skill level</option>
                 <option value="price">Price: low to high</option>
               </select>
-            </label>
-            <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[#4a566a] sm:col-span-2">
-              <p>
-                {filteredCourses.length === courses.length
-                  ? `Showing all ${courses.length} courses`
-                  : `Showing ${filteredCourses.length} of ${courses.length} courses in ${activeTab === "All categories" ? "all categories" : activeTab}`}
-              </p>
-              <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setRecommendOpen(true)}
-                className="inline-flex items-center gap-2 rounded-lg border border-[#c9a34e]/70 bg-[#fffaf0] px-3 py-2 font-black uppercase tracking-[.1em] text-[#7d5e1e] shadow-sm transition-all hover:shadow-md"
-              >
-                <Sparkles size={14} /> Find my course
-              </button>
-              <button
-                type="button"
-                disabled={filteredCourses.length === 0}
-                onClick={() => setComparisonOpen(true)}
-                className="inline-flex items-center gap-2 rounded-lg border border-[#16243d]/25 px-3 py-2 font-black uppercase tracking-[.1em] text-[#7d5e1e] transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                  <ArrowDownUp size={14} /> Compare{" "}
-                  {comparisonSlugs.length
-                    ? `(${comparisonSlugs.length})`
-                    : "courses"}
-                </button>
-              </div>
             </div>
           </div>
-          {!liveCatalog.isLoading &&
-            courses.length > 0 &&
-            !filteredCourses.length && (
-              <div className="mb-8 border-l-2 border-[#c9a34e] bg-[#fffaf0] p-6 text-sm leading-6 text-[#4a566a]">
-                No courses match that search. Try a broader term or reset the
-                filters.
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchTerm("");
-                    setCategory(
-                      "All categories"
-                    );
-                  }}
-                  className="ml-2 font-bold text-[#7d5e1e] underline"
-                >
-                  Clear filters
-                </button>
-              </div>
-            )}
-          <div className="space-y-5">
-            {filteredCourses.slice(0, visibleCount).map(course => (
-              <article
-                key={course.slug}
-                className="group rounded-xl border border-[#16243d]/20 py-7 transition-all hover:border-[#c9a34e] hover:shadow-lg lg:py-9"
-              >
-                <div className="grid gap-7 lg:grid-cols-[64px_minmax(0,1fr)_190px] lg:items-start">
-                  <span className="eyebrow text-[#7d5e1e]">{course.index}</span>
-                  <div>
-                    <CourseCoverImage
-                      src={course.coverImage}
-                      slug={course.slug}
-                      alt=""
-                      loading="lazy"
-                      title={course.title}
-                      width={640}
-                      height={360}
-                      className="h-40 w-full rounded-lg object-cover shadow-sm transition-transform duration-300 group-hover:scale-[1.02]"
-                    />
-                    <div className="flex flex-wrap items-baseline gap-3">
-                      <Link
-                        href={`/courses/${course.slug}`}
-                        className="display text-2xl sm:text-3xl text-[#16243d] transition-colors hover:text-[#7d5e1e]"
-                      >
-                        {course.title}
-                      </Link>
-                      <span className="rounded-md bg-[#16243d]/5 px-2 py-1 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-                        {course.format}
-                      </span>
-                      <span className="rounded-md border border-[#16243d]/20 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#4a566a]">
-                        {course.category}
-                      </span>
-                      <span className="rounded-md border border-[#c9a34e]/60 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
-                        {course.skillLevel}
-                      </span>
-                      {course.isDatabaseItem && (
-                        <span className="rounded-md border border-[#c9a34e]/60 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
-                          New
-                        </span>
-                      )}
-                    </div>
-                    <p className="mt-4 max-w-3xl text-base leading-7 text-[#4a566a]">
-                      {course.body}
-                    </p>
-                    <div className="mt-6 grid gap-4 text-xs text-[#4a566a] sm:grid-cols-3">
-                      <div>
-                        <p className="font-black uppercase tracking-[.12em] text-[#7d5e1e]">
-                          For
-                        </p>
-                        <p className="mt-1 leading-5">{course.audience}</p>
-                      </div>
-                      <div>
-                        <p className="font-black uppercase tracking-[.12em] text-[#7d5e1e]">
-                          Outcomes
-                        </p>
-                        <p className="mt-1 leading-5">
-                          {course.outcomes.join(" · ")}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="font-black uppercase tracking-[.12em] text-[#7d5e1e]">
-                          Format
-                        </p>
-                        <p className="mt-1 leading-5">{course.duration}</p>
-                      </div>
-                    </div>
-                    {course.modules.length ? (
-                      <details className="mt-7 border-t border-[#16243d]/10 pt-5">
-                        <summary className="cursor-pointer text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
-                          View the 10-module curriculum
-                        </summary>
-                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                          {course.modules.map(module => (
-                            <Link
-                              key={module.id}
-                              href={`/courses/${course.slug}?module=${module.id}`}
-                              className="border-l border-[#c9a34e] pl-3 block"
-                            >
-                              <p className="text-xs font-bold text-[#16243d] group-hover:text-[#c9a34e] transition-colors group">
-                                {module.title}
-                              </p>
-                              <p className="mt-1 text-[11px] leading-5 text-[#4a566a]">
-                                {module.promise}
-                              </p>
-                            </Link>
-                          ))}
-                        </div>
-                      </details>
-                    ) : (
-                      <p className="mt-7 border-t border-[#16243d]/10 pt-5 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e]">
-                        Newly published · enquire to shape the next step.
-                      </p>
-                    )}
-                  </div>
-                  <div className="lg:text-right">
-                    <button
-                      type="button"
-                      aria-pressed={comparisonSlugs.includes(course.slug)}
-                      onClick={() =>
-                        syncComparison(
-                          comparisonSlugs.includes(course.slug)
-                            ? comparisonSlugs.filter(
-                                slug => slug !== course.slug
-                              )
-                            : comparisonSlugs.length < 3
-                              ? [...comparisonSlugs, course.slug]
-                              : (toast.info(
-                                  "Compare up to three courses at a time"
-                                ),
-                                comparisonSlugs)
-                        )
-                      }
-                      className="inline-flex items-center gap-2 rounded-lg border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] transition-all hover:border-[#c9a34e] hover:shadow-sm"
-                      title="Add to course comparison"
-                    >
-                      <SlidersHorizontal size={13} />{" "}
-                      {comparisonSlugs.includes(course.slug)
-                        ? "In comparison"
-                        : "Compare"}
-                    </button>
-                    <p className="mt-5 display text-2xl">{course.price}</p>
-                    <Link
-                      href={`/courses/${course.slug}?workspace=1`}
-                      className="mt-4 inline-flex items-center gap-2 border-b border-[#a27e2e] pb-1 text-[10px] font-black uppercase tracking-[.15em] text-[#7d5e1e] transition-colors hover:border-[#c9a34e]"
-                    >
-                      {"Enroll now"} <ArrowUpRight size={14} />
-                    </Link>
-                    <Link
-                      href={
-                        course.modules.length
-                          ? `/courses/${course.slug}?workspace=1`
-                          : "/#contact"
-                      }
-                      className="mt-4 flex items-center justify-end gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#4a566a] transition-colors hover:text-[#7d5e1e]"
-                    >
-                      {course.modules.length
-                        ? "Open syllabus"
-                        : "Discuss item"}{" "}
-                      <ChevronRight size={14} />
-                    </Link>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-          {visibleCount < filteredCourses.length && (
-            <div className="mt-8 flex justify-center">
-              <button
-                type="button"
-                onClick={() => setVisibleCount(prev => prev + 4)}
-                className="inline-flex items-center gap-2 rounded-lg border border-[#16243d]/25 px-5 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition-all hover:shadow-sm"
-              >
-                Load more <ArrowDownUp size={14} />
-              </button>
-            </div>
-          )}
+        </div>
+      </header>
+
+      <main className="container py-8 lg:py-12">
+        {/* Hero */}
+        <section className="mb-12 text-center sm:mb-16">
+          <p className="eyebrow text-[var(--gold)]">Course Catalog</p>
+          <h1 className="text-display text-4xl font-semibold leading-[1.05] tracking-tight mt-3 sm:text-5xl lg:text-6xl text-[var(--navy-deep)]">
+            Choose the capability you want to <span className="text-[var(--gold)]">build in practice</span>
+          </h1>
+          <p className="mt-4 max-w-2xl mx-auto text-lg leading-relaxed text-[var(--muted-foreground)]">
+            Each course includes an applied curriculum, interactive lessons, repeatable practice, and a clear completion path.
+          </p>
         </section>
-        <section className="section-py bg-[#16243d] px-5 text-[#f7f3e8] sm:px-10">
-          <div className="container flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
-            <div>
-              <p className="eyebrow text-[#8b6914]">
-                03 / NEED A DIFFERENT BRIEF?
-              </p>
-              <h2 className="display mt-3 max-w-2xl heading-clamp">
-                Start with the capability your context requires.
-              </h2>
-            </div>
-            <Link
-              href="/#contact"
-              className="inline-flex items-center gap-2 border border-[#c9a34e] px-5 py-4 text-[10px] font-black uppercase tracking-[.15em] text-[#f7f3e8] hover:bg-[#c9a34e] hover:text-[#16243d]"
+
+        {/* Results Count */}
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-[var(--muted-foreground)]">
+            {filteredCourses.length === courses.length
+              ? `Showing all ${courses.length} courses`
+              : `Showing ${filteredCourses.length} of ${courses.length} courses${category !== "All categories" ? ` in ${category}` : ""}`}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setRecommendOpen(true)}
+              className="gap-2"
             >
-              {"Talk to us"} <ArrowUpRight size={14} />
-            </Link>
-          </div>
-        </section>
-      </main>
-      {recommendOpen && (
-        <div
-          className="fixed inset-0 z-50 grid place-items-center bg-[#071225]/80 p-5 backdrop-blur-sm"
-          role="presentation"
-          onMouseDown={event => {
-            if (event.target === event.currentTarget) setRecommendOpen(false);
-          }}
-        >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="recommendation-title"
-            className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-[#c9a34e]/70 bg-[#f7f3e8] p-6 shadow-2xl sm:p-10"
-          >
-            <div className="flex items-start justify-between gap-6">
-              <div>
-                <p className="eyebrow text-[#7d5e1e]">COURSE FINDER</p>
-                <h2 id="recommendation-title" className="display mt-3 text-4xl">
-                  Find your next capability.
-                </h2>
-                <p className="mt-3 max-w-xl text-sm leading-6 text-[#4a566a]">
-                  Answer two quick questions and we’ll surface pathways that fit
-                  your direction and current confidence.
-                </p>
-              </div>
-              <button
-                type="button"
-                aria-label="Close course finder"
-                onClick={() => setRecommendOpen(false)}
-                className="grid h-9 w-9 place-items-center rounded-lg border border-[#16243d]/25 transition-colors hover:border-[#c9a34e]"
+              <Sparkles size={14} /> Find my course
+            </Button>
+            {comparisonSlugs.length > 0 && (
+              <Button
+                variant="gold"
+                size="sm"
+                onClick={() => setComparisonOpen(true)}
+                className="gap-2"
               >
-                <X size={17} />
-              </button>
+                <ChevronRight size={14} /> Compare ({comparisonSlugs.length})
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Course Grid */}
+        <section aria-label="Course catalog">
+          {filteredCourses.length === 0 ? (
+            <div className="text-center py-16 border-2 border-dashed border-[var(--border)] rounded-2xl">
+              <Search size={48} className="mx-auto text-[var(--muted-foreground)] mb-4" />
+              <h3 className="text-display text-2xl text-[var(--foreground)]">No courses match your filters</h3>
+              <p className="mt-2 text-[var(--muted-foreground)]">Try adjusting your search or filters</p>
+              <Button variant="outline" size="lg" onClick={() => { setSearchTerm(""); setCategory("All categories"); setSkillLevel("All levels"); }} className="mt-4">
+                Clear all filters
+              </Button>
             </div>
-            <div className="mt-8 grid gap-5 sm:grid-cols-2">
-              <label className="text-xs font-black uppercase tracking-[.1em] text-[#4a566a]">
-                Career direction
-                <select
-                  value={careerGoal}
-                  onChange={event => setCareerGoal(event.target.value)}
-                  className="mt-2 w-full border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-semibold normal-case tracking-normal text-[#16243d] outline-none focus:border-[#c9a34e]"
-                >
-                  <option value="ai">AI and digital transformation</option>
-                  <option value="business">Business and analytics</option>
-                  <option value="education">Education and research</option>
-                  <option value="communication">
-                    Communication and career growth
-                  </option>
-                  <option value="leadership">
-                    Leadership and workplace impact
-                  </option>
-                  <option value="personal">Personal development</option>
-                </select>
-              </label>
-              <label className="text-xs font-black uppercase tracking-[.1em] text-[#4a566a]">
-                Current skill level
-                <select
-                  value={currentLevel}
-                  onChange={event =>
-                    setCurrentLevel(
-                      event.target.value as CourseCard["skillLevel"]
-                    )
-                  }
-                  className="mt-2 w-full border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-semibold normal-case tracking-normal text-[#16243d] outline-none focus:border-[#c9a34e]"
-                >
-                  <option value="Foundation">
-                    Foundation — building confidence
-                  </option>
-                  <option value="Practitioner">
-                    Practitioner — applying regularly
-                  </option>
-                  <option value="Advanced">Advanced — leading change</option>
-                </select>
-              </label>
-            </div>
-            <div className="mt-8 border-t border-[#16243d]/15 pt-6">
-              <div className="flex items-end justify-between gap-4">
-                <div>
-                  <p className="eyebrow text-[#7d5e1e]">YOUR SHORTLIST</p>
-                  <h3 className="display mt-2 text-3xl">
-                    Start with these three.
-                  </h3>
-                </div>
-                <Compass className="text-[#8b6914]" size={28} />
-              </div>
-                <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border border-[#16243d]/10 bg-white/60 p-4 rounded-xl">
-                  <p className="text-xs leading-5 text-[#4a566a]">
-                    Save these answers to personalize future suggestions in your
-                    workspace.
-                  </p>
-                  <button
-                  type="button"
-                  disabled={saveRecommendationAnswers.isPending}
-                  onClick={() => {
-                    if (!isAuthenticated) {
-                      toast.info("Sign in to save your preferences", {
-                        description:
-                          "Your course shortlist is still available for this session.",
-                      });
-                      return;
-                    }
-                    saveRecommendationAnswers.mutate({
-                      careerGoal,
-                      skillLevel: currentLevel,
-                    });
-                  }}
-                      className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#c9a34e] bg-[#fffaf0] px-4 py-3 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e] shadow-sm transition-all hover:shadow-md disabled:opacity-50"
-                    >
-                      {saveRecommendationAnswers.isPending
-                        ? "Saving…"
-                        : "Save preferences"}
-                    </button>
-              </div>
-                <div className="mt-5 grid gap-3">
-                  {recommendedCourses.map((course, index) => (
-                    <article
-                      key={course.slug}
-                      className="flex flex-col gap-4 rounded-xl border border-[#16243d]/15 bg-white/70 p-4 shadow-sm transition-all hover:shadow-md sm:flex-row sm:items-center"
-                    >
-                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#16243d] text-xs font-black text-[#f7f3e8]">
-                      0{index + 1}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <Link
-                        href={`/courses/${course.slug}`}
-                        className="display text-2xl leading-tight text-[#16243d] transition-colors hover:text-[#7d5e1e]"
-                      >
-                        {course.title}
-                      </Link>
-                      <p className="mt-1 text-xs leading-5 text-[#4a566a]">
-                        {course.outcomes.slice(0, 2).join(" · ")}
-                      </p>
+          ) : (
+            <>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {filteredCourses.slice(0, visibleCount).map(course => (
+                  <article
+                    key={course.index}
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all hover:shadow-xl hover:border-[var(--gold)]/30"
+                  >
+                    <div className="relative aspect-video rounded-xl overflow-hidden mb-4">
+                      <CourseCoverImage
+                        src={course.coverImage || coverFallback}
+                        slug={course.slug}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPreviewCourse(course);
-                        setRecommendOpen(false);
-                      }}
-                      className="inline-flex shrink-0 items-center gap-2 rounded-lg border-b border-[#a27e2e] pb-1 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e] transition-colors hover:border-[#c9a34e]"
-                    >
-                      Preview <Eye size={13} />
-                    </button>
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                      <Badge variant="subtle" className="text-xs">{course.format}</Badge>
+                      <Badge variant="subtle" className="text-xs">{course.skillLevel}</Badge>
+                    </div>
+                    <h3 className="text-lg font-bold text-[var(--navy-deep)] mb-2">{course.title}</h3>
+                    <p className="text-sm leading-relaxed text-[var(--muted-foreground)] line-clamp-2 mb-4">{course.strapline || course.body}</p>
+                    <div className="mt-auto flex items-center justify-between gap-3 pt-4 border-t border-[var(--border)]">
+                      <span className="text-xl font-bold text-[var(--gold)]">{course.price}</span>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="gold"
+                          size="sm"
+                          onClick={() => openCheckout(course)}
+                          className="flex-1"
+                        >
+                          <ArrowRight size={14} className="mr-1" />
+                          Enroll
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleCompareToggle(course.slug)}
+                          className={cn(
+                            "flex-1",
+                            comparisonSlugs.includes(course.slug)
+                              ? "border-[var(--gold)] bg-[var(--gold)]/10 text-[var(--gold)]"
+                              : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--gold)] hover:text-[var(--gold)]"
+                          )}
+                          aria-pressed={comparisonSlugs.includes(course.slug)}
+                        >
+                          <ChevronRight size={14} className="mr-1" />
+                          Compare
+                        </Button>
+                      </div>
+                    </div>
                   </article>
                 ))}
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-      {previewCourse && (
-        <div
-          className="fixed inset-0 z-50 grid place-items-center bg-[#071225]/80 p-5 backdrop-blur-sm"
-          role="presentation"
-          onMouseDown={event => {
-            if (event.target === event.currentTarget) setPreviewCourse(null);
-          }}
-        >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="syllabus-preview-title"
-            className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-[#c9a34e]/70 bg-[#f7f3e8] shadow-2xl"
-          >
-            <CourseCoverImage
-              src={previewCourse.coverImage}
-              slug={previewCourse.slug}
-              alt=""
-              title={previewCourse.title}
-              className="h-40 w-full object-cover sm:h-56"
-            />
-            <div className="p-6 sm:p-10">
-              <div className="flex items-start justify-between gap-6">
-                <div>
-                  <p className="eyebrow text-[#7d5e1e]">SYLLABUS PREVIEW</p>
-                  <h2
-                    id="syllabus-preview-title"
-                    className="display mt-3 text-4xl leading-tight"
+
+              {visibleCount < filteredCourses.length && (
+                <div className="mt-8 text-center">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => setVisibleCount(v => v + 6)}
+                    className="border-2 border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--navy-deep)] w-full max-w-md"
                   >
-                    {previewCourse.title}
-                  </h2>
-                  <div className="mt-4 flex flex-wrap gap-2 text-[9px] font-black uppercase tracking-[.1em]">
-                    <span className="border border-[#16243d]/20 px-2 py-1 text-[#4a566a]">
-                      {previewCourse.category}
-                    </span>
-                    <span className="border border-[#c9a34e]/60 px-2 py-1 text-[#7d5e1e]">
-                      {previewCourse.skillLevel}
-                    </span>
-                    <span className="border border-[#16243d]/20 px-2 py-1 text-[#4a566a]">
-                      {previewCourse.duration}
-                    </span>
+                    Load more courses ({filteredCourses.length - visibleCount} remaining)
+                    <ChevronRight size={16} className="ml-2" />
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+        </section>
+
+        {/* Find My Course Modal */}
+        {showRecommended && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--navy-deep)]/80 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="recommend-title">
+            <div className="w-full max-w-2xl bg-[var(--card)] rounded-2xl border border-[var(--border)] shadow-2xl overflow-hidden">
+              <div className="p-6 border-b border-[var(--border)] flex items-center justify-between">
+                <h2 id="recommend-title" className="text-display text-2xl font-semibold text-[var(--foreground)]">Find my course</h2>
+                <Button variant="ghost" size="icon" onClick={() => setShowRecommended(false)} aria-label="Close">
+                  <X size={24} />
+                </Button>
+              </div>
+              <div className="p-6 space-y-4">
+                <div>
+                  <Label className="text-sm font-semibold text-[var(--foreground)] mb-2 block">What's your primary goal?</Label>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {[
+                      { id: "ai", label: "AI & Data", icon: BrainCircuit },
+                      { id: "leadership", label: "Leadership", icon: Users },
+                      { id: "growth", label: "Growth & Strategy", icon: Target },
+                      { id: "communication", label: "Communication", icon: MessageCircle },
+                      { id: "finance", label: "Finance & Value", icon: BookOpen },
+                    ].map(opt => (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setCareerGoal(opt.id)}
+                        className={cn(
+                          "relative p-4 rounded-xl border-2 transition-all text-left",
+                          careerGoal === opt.id
+                            ? "border-[var(--gold)] bg-[var(--gold)]/10"
+                            : "border-[var(--border)] hover:border-[var(--gold)]"
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <opt.icon size={20} className={cn(careerGoal === opt.id ? "text-[var(--gold)]" : "text-[var(--muted-foreground)]")} />
+                          <span className="font-semibold text-[var(--foreground)]">{opt.label}</span>
+                        </div>
+                        {careerGoal === opt.id && (
+                          <CheckCircle2 className="absolute top-2 right-2 text-[var(--gold)]" size={18} />
+                        )}
+                      </button>
+                    ))}
                   </div>
                 </div>
-                <button
-                  type="button"
-                  aria-label="Close syllabus preview"
-                  onClick={() => setPreviewCourse(null)}
-                  className="grid h-9 w-9 shrink-0 place-items-center border border-[#16243d]/25"
-                >
-                  <X size={17} />
-                </button>
-              </div>
-              <p className="mt-6 max-w-3xl text-base leading-7 text-[#4a566a]">
-                {previewCourse.description}
-              </p>
-              <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_280px]">
                 <div>
-                  <p className="eyebrow text-[#7d5e1e]">
-                    FIRST SIX MODULE HIGHLIGHTS
-                  </p>
-                  <div className="mt-4 grid gap-3">
-                    {previewCourse.modules.slice(0, 6).map(module => (
-                      <div
-                        key={module.id}
-                        className="border-l-2 border-[#c9a34e] pl-4"
+                  <Label className="text-sm font-semibold text-[var(--foreground)] mb-2 block">Current skill level</Label>
+                  <div className="flex gap-2">
+                    {["Foundation", "Practitioner", "Advanced"].map(level => (
+                      <button
+                        key={level}
+                        type="button"
+                        onClick={() => setCurrentLevel(level as CourseCard["skillLevel"])}
+                        className={cn(
+                          "flex-1 py-3 rounded-xl border-2 font-semibold transition-all",
+                          currentLevel === level
+                            ? "border-[var(--gold)] bg-[var(--gold)]/10 text-[var(--gold)]"
+                            : "border-[var(--border)] hover:border-[var(--gold)]"
+                        )}
                       >
-                        <p className="text-sm font-bold">{module.title}</p>
-                        <p className="mt-1 text-xs leading-5 text-[#4a566a]">
-                          {module.promise}
-                        </p>
+                        {level}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <Button variant="gold" size="lg" className="w-full" onClick={() => { setShowRecommended(false); }}>
+                  <Sparkles size={18} className="mr-2" />
+                  Show my matches
+                </Button>
+              </div>
+              {recommendedCourses.length > 0 && (
+                <div className="p-6 border-t border-[var(--border)]">
+                  <p className="text-sm font-semibold text-[var(--muted-foreground)] mb-4">Your top matches</p>
+                  <div className="space-y-3 max-h-60 overflow-y-auto">
+                    {recommendedCourses.map(course => (
+                      <div key={course.index} className="flex items-center gap-4 p-3 rounded-xl bg-[var(--muted)]/50">
+                        <CourseCoverImage
+                          src={course.coverImage || coverFallback}
+                          slug={course.slug}
+                          className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-[var(--foreground)] truncate">{course.title}</p>
+                          <p className="text-sm text-[var(--muted-foreground)]">{course.skillLevel} · {course.format}</p>
+                        </div>
+                        <Button variant="gold" size="sm" onClick={() => { setShowRecommended(false); openCheckout(course); }}>
+                          Enroll
+                        </Button>
                       </div>
                     ))}
                   </div>
                 </div>
-                <div className="border-t border-[#16243d]/15 pt-5 lg:border-l lg:border-t-0 lg:pl-6">
-                  <p className="eyebrow text-[#7d5e1e]">OUTCOMES</p>
-                  <div className="mt-4 space-y-3 text-sm leading-5">
-                    {previewCourse.outcomes.map(outcome => (
-                      <p
-                        key={outcome}
-                        className="border-l border-[#16243d]/20 pl-3"
-                      >
-                        {outcome}
-                      </p>
-                    ))}
-                  </div>
-                  <div className="mt-7 flex flex-col gap-3">
-                    <button
-                      type="button"
-                disabled={toggleSavedCourse.isPending}
-                onClick={() => {
-                  if (!isAuthenticated) {
-                    toast.info("Sign in to save courses", {
-                      description:
-                        "Create a workspace to revisit this pathway later.",
-                    });
-                    return;
-                  }
-                  toggleSavedCourse.mutate({
-                    courseSlug: previewCourse.slug,
-                    saved: true,
-                  });
-                }}
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#c9a34e] bg-[#fffaf0] px-4 py-3 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e] shadow-sm transition-all hover:shadow-md disabled:opacity-50"
-              >
-                      {toggleSavedCourse.isPending ? "Saving…" : "Save course"}
-                    </button>
-                    <Link
-                      href={`/courses/${previewCourse.slug}?workspace=1`}
-                      onClick={() => setPreviewCourse(null)}
-                      className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#16243d]/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e] transition-all hover:shadow-sm"
-                    >
-                      Open full syllabus <ChevronRight size={14} />
-                    </Link>
-                    <Link
-                      href={`/courses/${previewCourse.slug}?workspace=1`}
-                      className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.13em] text-[#16243d] shadow-sm transition-all hover:shadow-md"
-                    >
-                      {"Enroll now"} <ArrowUpRight size={14} />
-                    </Link>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
-        </div>
-      )}
-      {comparisonOpen && (
-        <div
-          className="fixed inset-0 z-50 grid place-items-center bg-[#071225]/80 p-5 backdrop-blur-sm"
-          role="presentation"
-          onMouseDown={event => {
-            if (event.target === event.currentTarget) setComparisonOpen(false);
-          }}
-        >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="course-comparison-title"
-            className="max-h-[90vh] w-full max-w-6xl overflow-y-auto rounded-2xl border border-[#c9a34e]/70 bg-[#f7f3e8] p-6 shadow-2xl sm:p-10"
-          >
-            <div className="flex items-start justify-between gap-6">
-              <div>
-                <p className="eyebrow text-[#7d5e1e]">COURSE COMPARISON</p>
-                <h2
-                  id="course-comparison-title"
-                  className="display mt-3 text-4xl"
-                >
-                  Choose with confidence.
-                </h2>
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-[#4a566a]">
-                  Compare up to three pathways by the outcomes they build, the
-                  time they require, and the staged investment.
-                </p>
+        )}
+
+        {/* Comparison Drawer */}
+        {comparisonOpen && comparisonSlugs.length > 0 && (
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-[var(--navy-deep)]/60 backdrop-blur-sm" role="dialog" aria-modal="true">
+            <div className="w-full max-w-4xl bg-[var(--card)] rounded-t-2xl border-t border-[var(--border)] shadow-2xl animate-in slide-in-from-bottom-4 duration-300 max-h-[80vh] flex flex-col">
+              <div className="p-4 border-b border-[var(--border)] flex items-center justify-between">
+                <h3 className="text-display text-xl font-semibold text-[var(--foreground)]">Compare courses ({comparisonSlugs.length})</h3>
+                <Button variant="ghost" size="icon" onClick={() => setComparisonOpen(false)} aria-label="Close">
+                  <X size={24} />
+                </Button>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => void shareComparison()}
-                  className="inline-flex items-center gap-2 rounded-lg border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.11em] text-[#7d5e1e] transition-all hover:shadow-sm"
-                >
-                  <Copy size={14} /> Copy link
-                </button>
-                <button
-                  type="button"
-                  aria-label="Close course comparison"
-                  onClick={() => setComparisonOpen(false)}
-                  className="grid h-9 w-9 items-center justify-center rounded-lg border border-[#16243d]/25 transition-colors hover:border-[#c9a34e]"
-                >
-                  <X size={17} />
-                </button>
-              </div>
-            </div>
-            {comparisonSlugs.length === 0 ? (
-              <div className="mt-8 border-l-2 border-[#c9a34e] bg-white/60 p-6 text-sm text-[#4a566a]">
-                Select up to three courses using the Compare button on each
-                course card, then return here to review them side by side.
-              </div>
-            ) : (
-              <div className="mt-8 grid gap-4 md:grid-cols-3">
-                {courses
-                  .filter(course => comparisonSlugs.includes(course.slug))
-                  .map(course => (
-                    <article
-                      key={course.slug}
-                      className="border border-[#16243d]/15 bg-white/65 p-5 rounded-xl"
-                    >
-                      <CourseCoverImage
-                        src={course.coverImage}
-                        slug={course.slug}
-                        alt=""
-                        title={course.title}
-                        className="h-28 w-full object-cover"
-                      />
-                      <div className="mt-5 flex items-start justify-between gap-3">
-                        <Link
-                          href={`/courses/${course.slug}`}
-                          className="display text-2xl leading-tight text-[#16243d] transition-colors hover:text-[#7d5e1e]"
-                        >
-                          {course.title}
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            syncComparison(
-                              comparisonSlugs.filter(
-                                slug => slug !== course.slug
-                              )
-                            )
-                          }
-                  aria-label={`Remove ${course.title} from comparison`}
-                  className="text-[#4a566a] transition-colors hover:text-[#7d5e1e]"
-                >
-                          <X size={15} />
-                        </button>
-                      </div>
-                      <div className="mt-4 flex flex-wrap gap-2 text-[9px] font-black uppercase tracking-[.1em]">
-                        <span className="border border-[#16243d]/20 px-2 py-1 text-[#4a566a]">
-                          {course.category}
-                        </span>
-                        <span className="border border-[#c9a34e]/60 px-2 py-1 text-[#7d5e1e]">
-                          {course.skillLevel}
-                        </span>
-                      </div>
-                      <dl className="mt-5 space-y-4 text-sm">
-                        <div>
-                          <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
-                            Duration
-                          </dt>
-                          <dd className="mt-1 leading-5">{course.duration}</dd>
-                        </div>
-                        <div>
-                          <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
-                            Investment
-                          </dt>
-                          <dd className="mt-1 leading-5">
-                            {course.price}
-                            <span className="block text-xs text-[#4a566a]">
-                              {course.stagePlan}
-                            </span>
-                          </dd>
-                        </div>
-                        <div>
-                          <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
-                            Outcomes
-                          </dt>
-                          <dd className="mt-2 space-y-2">
-                            {course.outcomes.map(outcome => (
-                              <p
-                                key={outcome}
-                                className="border-l border-[#c9a34e] pl-3 leading-5"
-                              >
+              <div className="flex-1 overflow-y-auto p-4">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {comparisonSlugs.map(slug => {
+                    const course = courses.find(c => c.slug === slug);
+                    if (!course) return null;
+                    return (
+                      <Card key={slug} className="flex flex-col">
+                        <CardHeader>
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="text-lg">{course.title}</CardTitle>
+                            <Button variant="ghost" size="icon" onClick={() => setComparisonSlugs(p => p.filter(s => s !== slug))} aria-label="Remove">
+                              <X size={18} />
+                            </Button>
+                          </div>
+                          <p className="text-sm text-[var(--muted-foreground)]">{course.strapline}</p>
+                        </CardHeader>
+                        <CardContent className="flex-1 flex flex-col space-y-3">
+                          <div className="flex items-center gap-2 text-sm">
+                            <Badge variant="subtle">{course.skillLevel}</Badge>
+                            <Badge variant="subtle">{course.format}</Badge>
+                          </div>
+                          <ul className="text-sm text-[var(--muted-foreground)] space-y-1">
+                            {course.outcomes.slice(0, 3).map((outcome, i) => (
+                              <li key={i} className="flex items-center gap-2">
+                                <CheckCircle2 size={14} className="text-[var(--success)]" />
                                 {outcome}
-                              </p>
+                              </li>
                             ))}
-                          </dd>
-                        </div>
-                      </dl>
-                      <Link
-                        href={
-                          course.modules.length
-                            ? `/courses/${course.slug}?workspace=1`
-                            : "/#contact"
-                        }
-                        onClick={() => setComparisonOpen(false)}
-                        className="mt-6 inline-flex items-center gap-2 border-b border-[#a27e2e] pb-1 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]"
-                      >
-                        Explore pathway <Eye size={14} />
-                      </Link>
-                    </article>
-                  ))}
+                          </ul>
+                          <div className="mt-auto pt-3 border-t border-[var(--border)] flex items-center justify-between">
+                            <span className="text-xl font-bold text-[var(--gold)]">{course.price}</span>
+                            <Button variant="gold" size="sm" className="flex-1" onClick={() => { setComparisonOpen(false); openCheckout(course); }}>
+                              Enroll
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
               </div>
-            )}
-          </div>
-        </div>
-      )}
-      {selectedCourse && (
-        <div
-          className="fixed inset-0 z-50 grid place-items-center bg-[#071225]/80 p-5 backdrop-blur-sm"
-          role="presentation"
-          onMouseDown={event => {
-            if (event.target === event.currentTarget) setSelectedCourse(null);
-          }}
-        >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="course-enrollment-title"
-            className="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-[#c9a34e]/70 bg-[#f7f3e8] p-7 shadow-2xl sm:p-10"
-          >
-            <div className="flex items-start justify-between gap-6">
-              <div>
-                <p className="eyebrow text-[#7d5e1e]">
-                  {enrollmentCopy.enrollmentNextStep}
-                </p>
-                <h2
-                  id="course-enrollment-title"
-                  className="display mt-3 text-4xl"
-                >
-                  {enrollmentCopy.reserveYourPlace}
-                </h2>
-              </div>
-                <button
-                  type="button"
-                  aria-label={enrollmentCopy.close + " enrollment form"}
-                  onClick={() => setSelectedCourse(null)}
-                  className="grid h-9 w-9 place-items-center rounded-lg border border-[#16243d]/25 transition-colors hover:border-[#c9a34e]"
-                >
-                  <X size={17} />
-                </button>
             </div>
-            {submitted ? (
-              <div
-                role="status"
-                className="mt-8 border-l-2 border-[#c9a34e] bg-[#16243d] p-6 text-[#f7f3e8]"
-              >
-                <Check size={18} className="text-[#8b6914]" />
-                <p className="mt-4 text-[10px] font-black uppercase tracking-[.14em] text-[#8b6914]">
-                  Step 01 complete · Details saved
-                </p>
-                <h3 className="display mt-3 text-2xl">
-                  Your place is ready for checkout.
-                </h3>
-                <p className="mt-3 text-sm leading-6 text-[#c1cad7]">
-                  Your enrollment details are recorded. The secure course
-                  workspace will guide you through three staged payments of{" "}
-                  {selectedCourse.stageAmountsKes
-                    .slice(1)
-                    .map(amount => `KES ${amount.toLocaleString()}`)
-                    .join(" / ")}: before Module 2, Module 5, and Module 8.
-                  The first stage is free.
-                </p>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <Link
-                    href={`/courses/${selectedCourse.slug}?workspace=1`}
-                    className="inline-flex items-center gap-2 bg-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]"
-                    onClick={() => setSelectedCourse(null)}
-                  >
-                    {enrollmentCopy.continueCheckout} <ArrowUpRight size={14} />
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedCourse(null)}
-                    className="border border-white/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#c1cad7]"
-                  >
-                    {enrollmentCopy.close}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={submit} className="mt-8">
-                <div className="mb-7 grid grid-cols-3 gap-2 text-[9px] font-black uppercase tracking-[.12em] text-[#4a566a]">
-                  <span className="border-t-2 border-[#c9a34e] pt-2 text-[#7d5e1e]">{`01 ${enrollmentCopy.details}`}</span>
-                  <span className="border-t-2 border-[#16243d]/20 pt-2">{`02 ${enrollmentCopy.payment}`}</span>
-                  <span className="border-t-2 border-[#16243d]/20 pt-2">{`03 ${enrollmentCopy.access}`}</span>
-                </div>
-                <label className="block text-xs font-black uppercase tracking-[.14em]">
-                  {enrollmentCopy.selectedCourse}
-                  <select
-                    required
-                    name="courseTitle"
-                    value={selectedCourse.title}
-                    onChange={event =>
-                      setSelectedCourse(
-                        courses.find(
-                          course => course.title === event.target.value
-                        ) ?? selectedCourse
-                      )
-                    }
-                     className="mt-3 w-full rounded-lg border-b border-[#16243d]/35 bg-transparent py-3 text-base font-semibold outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
-                   >
-                    <option value={selectedCourse.title}>
-                      {selectedCourse.title} — {selectedCourse.price}
-                    </option>
-                    {courses
-                      .filter(course => course.slug !== selectedCourse.slug)
-                      .map(course => (
-                        <option key={course.slug} value={course.title}>
-                          {course.title} — {course.price}
-                        </option>
-                      ))}
-                  </select>
-                </label>
-                <label className="mt-7 block text-xs font-black uppercase tracking-[.14em]">
-                  {enrollmentCopy.yourName}
-                   <input
-                     required
-                     name="name"
-                     autoComplete="name"
-                     defaultValue={user?.name ?? ""}
-                     className="mt-3 w-full rounded-lg border-b border-[#16243d]/35 bg-transparent py-3 text-base outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
-                   />
-                 </label>
-                 <label className="mt-7 block text-xs font-black uppercase tracking-[.14em]">
-                   {enrollmentCopy.emailAddress}
-                    <input
-                      required
-                      type="email"
-                      name="email"
-                      autoComplete="email"
-                      defaultValue={user?.email ?? ""}
-                      className="mt-3 w-full rounded-lg border-b border-[#16243d]/35 bg-transparent py-3 text-base outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
-                    />
-                 </label>
-                <div className="mt-6 border border-[#c9a34e]/40 bg-[#fffaf0] p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e]">
-                    What happens next
-                  </p>
-                  <p className="mt-2 text-[11px] leading-5 text-[#4a566a]">
-                    Save your details, continue to the secure course workspace,
-                    and complete the three staged payments shown for your
-                    selected course. The first stage is free and unlocks the
-                    detailed learning experience.
-                  </p>
-                </div>
-                <p className="mt-5 text-[11px] leading-5 text-[#4a566a]">
-                  By submitting, you consent to Profound IQ Consulting using
-                  your details to respond to this enrollment inquiry.
-                  Availability and next steps will be confirmed by our team.
-                </p>
-                <button
-                  type="submit"
-                  disabled={
-                    enrollment.isPending ||
-                    courseEnrollment.isPending ||
-                    stageCheckout.isPending
-                  }
-                  className="mt-7 inline-flex items-center gap-2 rounded-lg bg-[#c9a34e] px-5 py-4 text-[10px] font-black uppercase tracking-[.15em] text-[#16243d] shadow-sm transition-all hover:shadow-md disabled:cursor-wait disabled:opacity-60"
-                >
-                  {enrollment.isPending ||
-                  courseEnrollment.isPending ||
-                  stageCheckout.isPending
-                    ? enrollmentCopy.recording
-                    : isAuthenticated
-                      ? `${enrollmentCopy.continueCheckout} · ${enrollmentCopy.payment}`
-                      : enrollmentCopy.submitInterest}{" "}
-                  <ArrowUpRight size={14} />
-                </button>
-              </form>
-            )}
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Checkout Modal */}
+        {showCheckout && selectedCourse && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--navy-deep)]/80 backdrop-blur-sm" role="dialog" aria-modal="true">
+            <CheckoutForm
+              product={{
+                name: selectedCourse.title,
+                priceKes: selectedCourse.isDatabaseItem ? COURSE_PRICE_KES : 4999,
+                type: "course",
+                slug: selectedCourse.slug,
+              }}
+              prefilled={user ? { email: user.email || undefined, name: user.name || undefined } : undefined}
+              upsells={[
+                { id: "coaching", name: "1-on-1 Coaching Session", priceKes: 5000, description: "60-minute personalized debrief with a certified coach" },
+                { id: "team", name: "Team License (5+ seats)", priceKes: 15000, description: "Group access with admin dashboard" },
+              ]}
+              onSuccess={handleCheckoutSuccess}
+              onClose={() => { setShowCheckout(false); setSelectedCourse(null); }}
+            />
+          </div>
+        )}
+      </main>
     </div>
   );
 }
