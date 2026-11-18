@@ -3,6 +3,7 @@ import path from "node:path";
 import type { Express, NextFunction, Request, Response } from "express";
 import sharp from "sharp";
 import { courseCatalog } from "../shared/courseCatalog";
+import { psychometricTests } from "../shared/psychometrics";
 import {
   listPublishedCatalogItems,
   getInsightArticleBySlug,
@@ -140,15 +141,21 @@ export function buildSitemapXml(courses: Array<{ slug: string }>) {
     "/services",
     "/school-solutions",
     "/courses",
+    "/courses/compare",
     "/assessment",
     "/careerpath",
+    "/careerpath/assessment",
+    "/careerpath/checkout",
+    "/careerpath/reports",
     "/psychometrics",
+    ...psychometricTests.map(test => `/psychometrics/${test.slug}`),
     "/resources",
     "/surveys",
     "/blog",
     ...insightArticles.map(article => `/blog/${article.slug}`),
     "/contact",
     "/verify/certificate",
+    "/verify/assessment",
     "/verify/psychometric",
     "/privacy-policy",
     "/terms-of-service",
@@ -166,6 +173,13 @@ export function buildSitemapXml(courses: Array<{ slug: string }>) {
   );
 
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join("\n")}\n</urlset>\n`;
+}
+
+function renderNotFoundPage(clientScript: string | null) {
+  const script = clientScript
+    ? `<script type="module" src="${escapeHtml(clientScript)}"></script>`
+    : "";
+  return `<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Page Not Found | Profound IQ Consulting</title><meta name="description" content="The page you are looking for does not exist or has been moved."/><meta name="robots" content="noindex, nofollow"/><link rel="canonical" href="${SITE_ORIGIN}/404"/><link rel="icon" href="/favicon.ico"/><style>body{margin:0;background:#101d35;color:#f7f3e8;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:24px}.shell{max-width:400px}.eyebrow{color:#c9a34e;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}h1{font:500 clamp(3rem,8vw,6rem)/1.1 Georgia,serif;margin:16px 0}p{color:#c9d1df;font-size:18px;line-height:1.7}a{color:#c9a34e;text-decoration:none;font-weight:600}a:hover{text-decoration:underline}</style></head><body><main class="shell"><p class="eyebrow">404</p><h1>Page Not Found</h1><p>The page you are looking for does not exist or has been moved.</p><p style="margin-top:24px"><a href="/">← Back to home</a></p></main>${script}</body></html>`;
 }
 
 function findClientScript() {
@@ -423,8 +437,8 @@ export function registerSeoRoutes(app: Express) {
       if (!article) return next();
       res
         .type("html")
-        .set("Cache-Control", "no-cache")
-        .send(renderInsightArticlePage(article, findClientScript()));
+        .set("Cache-Control", "public, max-age=300, stale-while-revalidate=600")
+        .send(renderInsightArticlePage(article, null));
     }
   );
   app.get(
@@ -433,11 +447,11 @@ export function registerSeoRoutes(app: Express) {
       const courses = await getPublicCourses();
       res
         .type("html")
-        .set("Cache-Control", "no-cache")
+        .set("Cache-Control", "public, max-age=300, stale-while-revalidate=600")
         .send(
           renderCourseCatalogPage(
             courses,
-            findClientScript(),
+            null,
             DEFAULT_SOCIAL_IMAGE_URL
           )
         );
@@ -457,11 +471,11 @@ export function registerSeoRoutes(app: Express) {
         : "";
       res
         .type("html")
-        .set("Cache-Control", "no-cache")
+        .set("Cache-Control", "public, max-age=300, stale-while-revalidate=600")
         .send(
           renderCourseComparisonPage(
             selected,
-            findClientScript(),
+            null,
             comparisonSocialImageUrl(selected.map(course => course.slug), "1"),
             query
           )
@@ -478,14 +492,21 @@ export function registerSeoRoutes(app: Express) {
       if (req.query.workspace === "1") return next();
       const courses = await getPublicCourses();
       const course = courses.find(item => item.slug === req.params.slug);
-      if (!course) return next();
+      if (!course) {
+        res
+          .status(404)
+          .type("html")
+          .set("Cache-Control", "public, max-age=60, stale-while-revalidate=300")
+          .send(renderNotFoundPage(null));
+        return;
+      }
       res
         .type("html")
-        .set("Cache-Control", "no-cache")
+        .set("Cache-Control", "public, max-age=300, stale-while-revalidate=600")
         .send(
           renderCourseDetailPage(
             course,
-            findClientScript(),
+            null,
             courseSocialImageUrl(course.slug, "1")
           )
         );

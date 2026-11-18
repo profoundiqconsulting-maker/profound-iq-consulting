@@ -36,6 +36,67 @@ function serveAstroRoutes(app: Express) {
     return;
   }
 
+  // Serve Astro HTML through Express so CSP nonces can be injected.
+  app.use(async (req, res, next) => {
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      return next();
+    }
+
+    const acceptsHtml =
+      typeof req.headers.accept === "string" &&
+      req.headers.accept.includes("text/html");
+
+    if (!acceptsHtml) {
+      return next();
+    }
+
+    try {
+      const pathname = decodeURIComponent(req.path);
+      const relativePath = pathname.replace(/^\/+/, "");
+      const candidates = [
+        path.resolve(astroPath, relativePath, "index.html"),
+        path.resolve(astroPath, `${relativePath}.html`),
+      ];
+
+      const htmlPath = candidates.find(candidate =>
+        candidate.startsWith(`${astroPath}${path.sep}`) &&
+        fs.existsSync(candidate) &&
+        fs.statSync(candidate).isFile()
+      );
+
+      if (!htmlPath) {
+        return next();
+      }
+
+      const html = await fs.promises.readFile(htmlPath, "utf-8");
+      const nonce = res.locals.cspNonce;
+
+      const output = nonce
+        ? html.replace(
+            /<script\b(?![^>]*\bnonce\s*=)/gi,
+            `<script nonce="${nonce}"`
+          )
+        : html;
+
+      res.type("html");
+      res.setHeader(
+        "Cache-Control",
+        "no-cache, no-store, must-revalidate"
+      );
+      res.setHeader("Pragma", "no-cache");
+      res.setHeader("Expires", "0");
+
+      if (req.method === "HEAD") {
+        return res.status(200).end();
+      }
+
+      return res.send(output);
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  // Continue serving Astro assets normally.
   app.use(express.static(astroPath, { extensions: ["html"] }));
 }
 

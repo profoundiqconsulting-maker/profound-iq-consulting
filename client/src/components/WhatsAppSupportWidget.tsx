@@ -49,10 +49,10 @@ export function WhatsAppSupportWidget() {
   const [message, setMessage] = useState("");
   const [verification, setVerification] = useState(makeVerification);
   const [bounceAttention, setBounceAttention] = useState(false);
-  
+
   const submitInquiry = trpc.inquiry.create.useMutation({
     onSuccess: () => {
-      toast.success("Thanks — we’ll follow up by email.");
+      toast.success("Thanks — we'll follow up by email.");
       setEmail("");
       setMessage("");
       setFallbackOpen(false);
@@ -113,31 +113,41 @@ export function WhatsAppSupportWidget() {
     });
   };
 
-  if (minimized) {
+  // Reserve space for widget to prevent CLS (max 336px = 21rem)
+  const widgetReservedSpace = (
+    <div className="fixed bottom-4 right-4 z-0 w-[calc(100vw-2rem)] sm:bottom-6 sm:right-6 sm:w-[min(21rem,calc(100vw-2rem))] h-14 pointer-events-none" aria-hidden="true" />
+  );
+
+if (minimized) {
     return (
-      <button
-        type="button"
-        onClick={() => setMinimizedState(false)}
-        aria-label={"WhatsApp support"}
-        title={"WhatsApp support"}
-        className="fixed bottom-4 right-4 z-40 inline-flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#f7f3e8] bg-[#25D366] text-[#062411] shadow-[0_10px_24px_rgba(0,0,0,.25)] transition-all duration-200 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101d35] active:scale-95 sm:bottom-6 sm:right-6"
-      >
-        <MessageCircle size={22} />
-        <span
-          className={`absolute right-0 top-0 h-3 w-3 rounded-full border-2 border-[#f7f3e8] bg-[#0b8f43]`}
-        />
-        <Plus
-          className="absolute -bottom-1 -right-1 rounded-full bg-[#101d35] p-0.5 text-[#f7f3e8]"
-          size={15}
-        />
-      </button>
+      <>
+        {widgetReservedSpace}
+        <button
+          type="button"
+          onClick={() => setMinimizedState(false)}
+          aria-label={"WhatsApp support"}
+          title={"WhatsApp support"}
+          className="fixed bottom-4 right-4 z-40 inline-flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#f7f3e8] bg-[#25D366] text-[#062411] shadow-[0_10px_24px_rgba(0,0,0,.25)] transition-all duration-200 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101d35] active:scale-95 sm:bottom-6 sm:right-6"
+        >
+          <MessageCircle size={22} />
+          <span
+            className={`absolute right-0 top-0 h-3 w-3 rounded-full border-2 border-[#f7f3e8] bg-[#0b8f43]`}
+          />
+          <Plus
+            className="absolute -bottom-1 -right-1 rounded-full bg-[#101d35] p-0.5 text-[#f7f3e8]"
+            size={15}
+          />
+        </button>
+      </>
     );
   }
 
   return (
-    <div
-      className={`fixed bottom-4 right-4 z-40 w-[calc(100vw-2rem)] sm:bottom-6 sm:right-6 sm:w-[min(21rem,calc(100vw-2rem))] ${bounceAttention ? "motion-safe:animate-[bounce_1s_ease-in-out_2]" : ""}`}
-    >
+    <>
+      {widgetReservedSpace}
+      <div
+        className={`fixed bottom-4 right-4 z-40 w-[calc(100vw-2rem)] sm:bottom-6 sm:right-6 sm:w-[min(21rem,calc(100vw-2rem))] ${bounceAttention ? "motion-safe:animate-[bounce_1s_ease-in-out_2]" : ""}`}
+      >
       {fallbackOpen && (
         <div
           className="mb-3 rounded-2xl border border-[#d7b45a]/40 bg-[#101d35] p-4 text-[#f7f3e8] shadow-[0_18px_40px_rgba(0,0,0,.3)]"
@@ -258,6 +268,7 @@ export function WhatsAppSupportWidget() {
           <Minus size={13} />
         </button>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

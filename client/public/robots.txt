@@ -8,5 +8,5 @@ Disallow: /auth
 Disallow: /reset-password
 Disallow: /shared-report
 Disallow: /courses/payment-success
-Disallow: /careerpath/results
+Disallow: /careerpath/reports
 Sitemap: https://profoundiqconsulting.com/sitemap.xml

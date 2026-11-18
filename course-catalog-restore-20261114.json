@@ -1,0 +1,869 @@
+[
+  {
+    "slug": "lead-with-clarity",
+    "itemType": "course",
+    "title": "Lead with Clarity",
+    "strapline": "Decide with conviction. Align people around meaningful work.",
+    "description": "A rigorous leadership pathway for professionals who need to translate ambiguity into direction, trust, and coordinated action.",
+    "audience": "Emerging leaders, managers, founders, and professionals preparing for broader responsibility.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes",
+    "outcomes": [
+      "Frame priorities when demands compete.",
+      "Communicate decisions with context and conviction.",
+      "Build a practical leadership operating model."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "strategic-growth-mindset",
+    "itemType": "course",
+    "title": "Strategic Growth Mindset",
+    "strapline": "Turn change into a disciplined advantage.",
+    "description": "A globally relevant development course connecting learning agility, reflective practice, experimentation, and focused execution.",
+    "audience": "Professionals navigating change, transitions, new markets, or evolving responsibilities.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes",
+    "outcomes": [
+      "Replace fixed assumptions with useful experiments.",
+      "Create a sustainable rhythm for learning and execution.",
+      "Use evidence to turn progress into repeatable capability."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "professional-presence-influence",
+    "itemType": "course",
+    "title": "Professional Presence & Influence",
+    "strapline": "Make your contribution clear, credible, and useful.",
+    "description": "A practical course for professionals who want to communicate value, build trust, and influence outcomes with integrity.",
+    "audience": "Consultants, specialists, team leads, client-facing professionals, and career transitioners.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes",
+    "outcomes": [
+      "Clarify the value you bring to a conversation.",
+      "Strengthen executive communication and professional visibility.",
+      "Influence without compromising authenticity or trust."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "from-insight-to-action",
+    "itemType": "course",
+    "title": "From Insight to Action",
+    "strapline": "Make learning visible in the way you work.",
+    "description": "An applied intensive that helps you convert reflection into accountable action, useful measures, and sustained professional progress.",
+    "audience": "Modern achievers, coaches, project owners, and professionals with a development goal to execute.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes",
+    "outcomes": [
+      "Translate personal insight into a practical action system.",
+      "Sequence work around priorities and evidence.",
+      "Build accountability that survives busy periods and setbacks."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "professional-certificate-international-curriculum-pedagogy",
+    "itemType": "course",
+    "title": "Professional Certificate in International Curriculum Pedagogy",
+    "strapline": "Design learning that travels across systems, cultures, and classrooms.",
+    "description": "A document-grounded professional certificate connecting modern pedagogy with British, IB, American, Cambridge/IGCSE, Christian, homeschooling, Pearson Edexcel, early-years, counselling, research, technology, and assessment practice.",
+    "audience": "Teachers, curriculum leaders, school founders, tutors, education consultants, counsellors, and professionals working across international learning contexts.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Identify the structure and intent of major international curricula.",
+      "Select learner-centred teaching and assessment methods for different curriculum contexts.",
+      "Use counselling, professionalism, research, and educational technology to improve curriculum delivery."
+    ],
+    "priceKes": 14999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "personal-growth-self-discovery",
+    "itemType": "course",
+    "title": "Personal Growth & Self-Discovery",
+    "strapline": "Understand your inner operating system and choose your next chapter with intention.",
+    "description": "A guided development journey for turning self-awareness into practical direction, healthier patterns, and purposeful action.",
+    "audience": "Learners, emerging professionals, coaches, and anyone ready to make personal development more deliberate.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Clarify personal values, strengths, and direction.",
+      "Recognise patterns that shape choices and relationships.",
+      "Build a practical personal growth rhythm."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "building-a-growth-mindset",
+    "itemType": "course",
+    "title": "Building a Growth Mindset",
+    "strapline": "Turn challenge, feedback, and change into a disciplined learning advantage.",
+    "description": "A practical course for replacing limiting assumptions with curiosity, experimentation, resilience, and evidence-led progress.",
+    "audience": "Students, professionals, managers, and teams navigating change or new responsibilities.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Use feedback and challenge as inputs for improvement.",
+      "Design small experiments that build capability.",
+      "Create language and routines that support growth."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "continuous-self-improvement",
+    "itemType": "course",
+    "title": "The Practice of Continuous Self-Improvement",
+    "strapline": "Build the habits, reviews, and feedback loops that keep progress moving.",
+    "description": "A structured improvement system for converting intentions into deliberate practice and sustainable personal capability.",
+    "audience": "Professionals, learners, founders, and development-minded leaders.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Create a realistic improvement baseline.",
+      "Use deliberate practice and feedback loops.",
+      "Review progress and adjust without losing momentum."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "mastering-self-discipline",
+    "itemType": "course",
+    "title": "Mastering Self-Discipline",
+    "strapline": "Make important actions easier to start, repeat, and finish.",
+    "description": "An applied course on commitment, attention, environment design, recovery, and accountable execution.",
+    "audience": "Professionals, students, entrepreneurs, and anyone managing competing priorities.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Design routines that reduce friction.",
+      "Recover constructively after lapses.",
+      "Sustain execution under pressure."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "mastering-time-management",
+    "itemType": "course",
+    "title": "Mastering Time Management",
+    "strapline": "Protect attention, sequence priorities, and create capacity for meaningful work.",
+    "description": "A modern time-management system linking planning, focus, boundaries, collaboration, and sustainable productivity.",
+    "audience": "Busy professionals, managers, students, and independent practitioners.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Translate priorities into realistic plans.",
+      "Protect focus and manage interruptions.",
+      "Review capacity and improve the way time is used."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "personal-finance-management-essentials",
+    "itemType": "course",
+    "title": "Personal Finance Management Essentials",
+    "strapline": "Build clear, responsible habits for managing money and future choices.",
+    "description": "A foundational financial capability course covering cash flow, budgets, saving, debt, risk, goals, and responsible decision-making.",
+    "audience": "Young professionals, families, students, entrepreneurs, and learners building financial confidence.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Read and manage personal cash flow.",
+      "Build practical saving and debt strategies.",
+      "Connect financial decisions to values and goals."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "self-confidence-and-self-esteem",
+    "itemType": "course",
+    "title": "Building Self-Confidence & Self-Esteem",
+    "strapline": "Trust your contribution, use your voice, and act with grounded confidence.",
+    "description": "A practical confidence-building programme based on evidence, courageous practice, boundaries, visibility, and recovery.",
+    "audience": "Learners, professionals, leaders, and career transitioners.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Separate confidence from perfection.",
+      "Practise assertive, visible contribution.",
+      "Build evidence-based self-trust."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "emotional-intelligence-mastery",
+    "itemType": "course",
+    "title": "Mastering Emotional Intelligence",
+    "strapline": "Read emotion well, regulate with intention, and strengthen human connection.",
+    "description": "An applied emotional-intelligence course for improving self-awareness, empathy, communication, and relationship management.",
+    "audience": "Leaders, educators, client-facing professionals, teams, and aspiring managers.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Recognise emotional signals and triggers.",
+      "Regulate responses under pressure.",
+      "Use empathy and dialogue to improve relationships."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "personal-brand-strategy",
+    "itemType": "course",
+    "title": "Building a Distinctive Personal Brand",
+    "strapline": "Make your value clear, credible, and memorable across the moments that matter.",
+    "description": "A strategic personal-brand course covering positioning, narrative, visibility, digital presence, reputation, and authentic influence.",
+    "audience": "Professionals, consultants, founders, creatives, and career transitioners.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Clarify positioning and value.",
+      "Build a coherent professional narrative.",
+      "Increase visibility without compromising integrity."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "personal-excellence-mastery",
+    "itemType": "course",
+    "title": "Mastering Personal Excellence",
+    "strapline": "Raise the quality of your choices, execution, and contribution.",
+    "description": "A rigorous personal-excellence pathway focused on standards, ownership, judgement, feedback, service, and sustained impact.",
+    "audience": "High-potential professionals, leaders, specialists, and ambitious learners.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Set meaningful standards for quality.",
+      "Strengthen ownership and follow-through.",
+      "Turn excellence into a repeatable operating practice."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "effective-communication-essentials",
+    "itemType": "course",
+    "title": "Essentials of Effective Communication",
+    "strapline": "Say what matters with clarity, listening, and practical influence.",
+    "description": "A professional communication course covering message design, listening, written communication, feedback, difficult messages, and cultural context.",
+    "audience": "All professionals, students, team leads, and client-facing practitioners.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Structure clear verbal and written messages.",
+      "Listen for meaning and response.",
+      "Handle important conversations with integrity."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "lasting-interpersonal-relationships",
+    "itemType": "course",
+    "title": "Building Lasting Interpersonal Relationships",
+    "strapline": "Create trust, respect, and connection that can withstand pressure.",
+    "description": "A practical relationship-skills programme focused on presence, reciprocity, boundaries, repair, and durable connection.",
+    "audience": "Professionals, leaders, educators, families, and community builders.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Build trust through reliable behaviour.",
+      "Set healthy boundaries without damaging connection.",
+      "Repair tension and sustain relationships over time."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "building-thriving-business-empires",
+    "itemType": "course",
+    "title": "Building Thriving Business Enterprises",
+    "strapline": "Move from opportunity to value, operating discipline, and responsible growth.",
+    "description": "An entrepreneurial business-building course connecting customer insight, value propositions, operating systems, people, finance, and scale.",
+    "audience": "Founders, aspiring entrepreneurs, business leaders, and enterprise teams.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Test opportunities against real customer needs.",
+      "Design a coherent business model.",
+      "Build foundations for responsible growth."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "negotiation-mastery",
+    "itemType": "course",
+    "title": "Mastering the Art of Negotiation",
+    "strapline": "Create value, protect relationships, and reach durable agreements.",
+    "description": "An applied negotiation programme covering preparation, interests, leverage, listening, offers, concessions, ethics, and implementation.",
+    "audience": "Leaders, sales professionals, consultants, procurement teams, and entrepreneurs.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Prepare negotiations with clarity and alternatives.",
+      "Separate positions from interests.",
+      "Reach agreements that can work in practice."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "critical-thinking-problem-solving",
+    "itemType": "course",
+    "title": "Critical Thinking & Problem Solving",
+    "strapline": "Frame complex problems, test assumptions, and choose better solutions.",
+    "description": "A disciplined thinking course connecting evidence, root-cause analysis, creativity, decision criteria, bias awareness, and implementation learning.",
+    "audience": "Professionals, analysts, leaders, students, and project teams.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Define the real problem before solving it.",
+      "Evaluate evidence and assumptions.",
+      "Test solutions and learn from outcomes."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "creativity-and-innovation",
+    "itemType": "course",
+    "title": "Creativity & Innovation in Practice",
+    "strapline": "Generate useful possibilities and turn them into tested value.",
+    "description": "A practical innovation course covering observation, ideation, prototyping, experimentation, collaboration, adoption, and responsible scale.",
+    "audience": "Innovators, educators, founders, product teams, and professionals seeking fresh approaches.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Generate and select useful ideas.",
+      "Prototype and test with evidence.",
+      "Build conditions where innovation can be adopted."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "teamwork-and-collaboration",
+    "itemType": "course",
+    "title": "Teamwork & Collaboration",
+    "strapline": "Build shared purpose, psychological safety, and dependable collective performance.",
+    "description": "A modern teamwork course on roles, routines, trust, disagreement, distributed ownership, team learning, and performance habits.",
+    "audience": "Teams, project leads, managers, students, and cross-functional professionals.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Create clarity around purpose and contribution.",
+      "Use disagreement productively.",
+      "Build routines that improve collective delivery."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "leadership-and-self-leadership",
+    "itemType": "course",
+    "title": "Leadership & Self-Leadership",
+    "strapline": "Lead yourself well, then create the conditions for others to do their best work.",
+    "description": "A foundational leadership programme connecting identity, self-leadership, decision courage, communication, development, change, and presence.",
+    "audience": "Emerging leaders, managers, founders, educators, and professionals preparing for greater responsibility.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Lead from clear values and direction.",
+      "Make accountable decisions under pressure.",
+      "Develop people through useful leadership practices."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "adaptability-and-resilience",
+    "itemType": "course",
+    "title": "Adaptability & Resilience",
+    "strapline": "Respond intelligently to change without losing purpose or wellbeing.",
+    "description": "An applied resilience course focused on flexible thinking, pressure responses, disruption, support networks, renewal, and sustainable adaptation.",
+    "audience": "Professionals, leaders, students, teams, and people navigating transition.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Read change and choose a constructive response.",
+      "Build personal and social resilience resources.",
+      "Recover, learn, and adapt after disruption."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "time-management-personal-productivity",
+    "itemType": "course",
+    "title": "Time Management & Personal Productivity",
+    "strapline": "Turn priorities into focused, sustainable output.",
+    "description": "A practical productivity system for planning, attention, workflow, digital organisation, collaboration capacity, and review.",
+    "audience": "Professionals, students, managers, freelancers, and project owners.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Plan from outcomes rather than activity.",
+      "Manage attention, energy, and workflow.",
+      "Improve output without sacrificing sustainability."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "decision-making-skills",
+    "itemType": "course",
+    "title": "Decision-Making Skills",
+    "strapline": "Make clearer choices when information is incomplete and trade-offs are real.",
+    "description": "A decision-quality course covering framing, evidence, uncertainty, criteria, bias, inclusion, communication, and learning from outcomes.",
+    "audience": "Leaders, analysts, professionals, founders, and project teams.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Frame decisions and options precisely.",
+      "Make trade-offs visible.",
+      "Improve decision quality through review and learning."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "conflict-resolution-negotiation",
+    "itemType": "course",
+    "title": "Conflict Resolution & Negotiation",
+    "strapline": "Turn tension into dialogue, fair agreements, and restored trust.",
+    "description": "A practical conflict-resolution pathway covering diagnosis, de-escalation, interests, dialogue, resolution options, repair, and prevention.",
+    "audience": "Managers, team leads, educators, HR professionals, and community practitioners.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Diagnose the sources of conflict.",
+      "Lead constructive resolution conversations.",
+      "Build agreements and systems that reduce repeated tension."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "interpersonal-and-relationship-skills",
+    "itemType": "course",
+    "title": "Interpersonal & Relationship Skills",
+    "strapline": "Strengthen the everyday behaviours that make working relationships effective.",
+    "description": "A practical course on rapport, listening, empathy, boundaries, feedback, influence, accountability, and relationship maintenance.",
+    "audience": "Professionals, students, managers, client-facing teams, and community builders.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Use presence and listening to build rapport.",
+      "Communicate care and clarity together.",
+      "Maintain trust through repair and accountability."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "digital-literacy-and-etiquette",
+    "itemType": "course",
+    "title": "Digital Literacy & Digital Etiquette",
+    "strapline": "Work safely, clearly, and respectfully in digital environments.",
+    "description": "A modern digital-capability course covering information quality, online safety, platforms, virtual work, privacy, digital identity, and responsible technology.",
+    "audience": "Students, professionals, educators, teams, and anyone working across digital channels.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Evaluate digital information responsibly.",
+      "Communicate effectively online and in virtual meetings.",
+      "Protect privacy, reputation, and consent."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "presentation-and-public-speaking",
+    "itemType": "course",
+    "title": "Presentation & Public Speaking",
+    "strapline": "Turn ideas into clear, compelling experiences for an audience.",
+    "description": "A presentation-skills course covering audience insight, story architecture, visuals, voice, questions, facilitation, rehearsal, and virtual delivery.",
+    "audience": "Professionals, students, educators, leaders, and speakers.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Structure presentations around audience needs.",
+      "Use voice, visuals, and presence with intention.",
+      "Respond confidently to questions and feedback."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "professionalism-and-workplace-ethics",
+    "itemType": "course",
+    "title": "Professionalism & Workplace Ethics",
+    "strapline": "Build credibility through responsible conduct, judgement, and respect.",
+    "description": "A workplace-readiness course connecting values, reliability, confidentiality, inclusion, boundaries, accountability, and ethical action.",
+    "audience": "Students, early-career professionals, managers, teams, and workplace leaders.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Translate values into observable conduct.",
+      "Navigate ethical choices responsibly.",
+      "Build trust through reliable professional practice."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "career-development-employability",
+    "itemType": "course",
+    "title": "Career Development & Employability",
+    "strapline": "Build the evidence, narrative, and relationships that keep opportunity moving.",
+    "description": "A practical career course covering direction, skills evidence, opportunity research, CVs, portfolios, interviews, networking, transitions, and lifelong employability.",
+    "audience": "Students, graduates, professionals, career changers, and returning professionals.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Clarify career direction and transferable strengths.",
+      "Present credible evidence of capability.",
+      "Build a sustainable career development rhythm."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "entrepreneurial-mindset",
+    "itemType": "course",
+    "title": "The Entrepreneurial Mindset",
+    "strapline": "See opportunity, test assumptions, and create value with resourcefulness.",
+    "description": "A practical entrepreneurial-thinking course on opportunity recognition, customer empathy, experimentation, risk, resilience, collaboration, and value creation.",
+    "audience": "Students, professionals, founders, intrapreneurs, and enterprise-minded teams.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Recognise opportunities worth testing.",
+      "Learn through disciplined experiments.",
+      "Create value while managing risk responsibly."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "artificial-intelligence-for-educators",
+    "itemType": "course",
+    "title": "Artificial Intelligence for Educators",
+    "strapline": "Use AI to design richer learning while protecting human judgement and learner dignity.",
+    "description": "A practical, competency-based course for educators who want to apply generative AI to planning, differentiation, feedback, assessment, accessibility, and responsible classroom innovation.",
+    "audience": "Teachers, lecturers, tutors, curriculum leaders, school founders, and education consultants.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Design AI-assisted learning experiences aligned to clear outcomes.",
+      "Evaluate AI outputs for accuracy, inclusion, and learner value.",
+      "Create a responsible implementation plan for a real teaching context."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "artificial-intelligence-generative-ai",
+    "itemType": "course",
+    "title": "Artificial Intelligence & Generative AI",
+    "strapline": "Understand the systems shaping modern work and use them with informed confidence.",
+    "description": "A grounded introduction to AI and generative AI, connecting core concepts with practical text, image, multimodal, workflow, evaluation, privacy, and adoption decisions.",
+    "audience": "Professionals, educators, managers, founders, students, and teams building AI fluency.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Explain major AI and generative AI concepts in plain language.",
+      "Select appropriate tools for real work tasks.",
+      "Apply evaluation, security, and responsible-use checks before adoption."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "generative-ai-prompt-engineering",
+    "itemType": "course",
+    "title": "Generative AI & Prompt Engineering",
+    "strapline": "Turn intent into reliable, reusable instructions for better AI collaboration.",
+    "description": "An applied prompt-engineering studio covering task framing, context, examples, constraints, structured outputs, verification, multi-step workflows, and prompt evaluation.",
+    "audience": "Knowledge workers, educators, analysts, marketers, developers, consultants, and AI-curious professionals.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Frame prompts around purpose, context, constraints, and quality criteria.",
+      "Build reusable prompt patterns for recurring work.",
+      "Test and improve outputs using evidence rather than intuition alone."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "ai-business-organization-transformation",
+    "itemType": "course",
+    "title": "AI for Business & Organizational Transformation",
+    "strapline": "Move from AI enthusiasm to measurable, people-centred transformation.",
+    "description": "A strategic and practical course for identifying high-value AI opportunities, redesigning processes, preparing people, governing risk, and measuring transformation outcomes.",
+    "audience": "Business leaders, transformation managers, operations teams, consultants, and founders.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Assess organisational readiness and prioritise valuable use cases.",
+      "Design an AI-enabled operating change with clear ownership.",
+      "Define adoption, risk, and value measures for an implementation roadmap."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "ai-powered-productivity-automation",
+    "itemType": "course",
+    "title": "AI-Powered Productivity & Automation",
+    "strapline": "Reduce avoidable effort and create more capacity for high-value work.",
+    "description": "A hands-on productivity course connecting AI-assisted writing, research, synthesis, workflow mapping, no-code automation, quality control, and privacy safeguards.",
+    "audience": "Professionals, administrators, project teams, entrepreneurs, and managers improving everyday workflows.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Map work to find safe, high-value automation opportunities.",
+      "Design repeatable AI-assisted workflows with human checkpoints.",
+      "Measure time saved, quality maintained, and risks controlled."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "responsible-ai-ethics-governance",
+    "itemType": "course",
+    "title": "Responsible AI, Ethics & Governance",
+    "strapline": "Build AI practices that are trustworthy, accountable, and fit for purpose.",
+    "description": "A practical governance course on fairness, privacy, transparency, human oversight, safety, procurement, policy controls, and incident response.",
+    "audience": "Leaders, compliance teams, educators, technology professionals, procurement teams, and policy practitioners.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Identify ethical and operational risks across an AI lifecycle.",
+      "Create proportionate governance controls and accountability roles.",
+      "Respond responsibly to incidents, uncertainty, and stakeholder concerns."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "social-media-management",
+    "itemType": "course",
+    "title": "Social Media Management",
+    "strapline": "Build purposeful communities through strategy, consistency, and responsive care.",
+    "description": "A practical social-media management course covering audience insight, platform fit, editorial planning, community care, campaigns, listening, crisis response, and reporting.",
+    "audience": "Marketing teams, entrepreneurs, communications officers, community managers, and creators.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Build a channel strategy linked to audience and organisational goals.",
+      "Plan and manage useful, consistent content and conversations.",
+      "Use social evidence to improve campaigns and protect reputation."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "digital-marketing",
+    "itemType": "course",
+    "title": "Digital Marketing",
+    "strapline": "Connect the right message to the right audience across the digital journey.",
+    "description": "An applied digital-marketing course on customer insight, positioning, content, email journeys, paid media, conversion experience, attribution, and experimentation.",
+    "audience": "Marketing professionals, founders, sales teams, consultants, and growing organisations.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Map digital activity to customer needs and business objectives.",
+      "Design coherent content and lifecycle journeys.",
+      "Use measurement and experiments to improve conversion responsibly."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "research-methods",
+    "itemType": "course",
+    "title": "Research Methods",
+    "strapline": "Ask better questions, gather credible evidence, and communicate what it means.",
+    "description": "A competency-based research course covering question design, literature, qualitative and quantitative methods, sampling, instruments, ethics, analysis, and dissemination.",
+    "audience": "Students, educators, consultants, policy teams, NGO professionals, and workplace researchers.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Convert a real problem into a feasible research design.",
+      "Select appropriate evidence and collection methods.",
+      "Interpret and communicate findings with integrity and practical relevance."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "business-analytics",
+    "itemType": "course",
+    "title": "Business Analytics",
+    "strapline": "Turn business questions into evidence that improves decisions.",
+    "description": "A practical analytics course covering metrics, data quality, descriptive and diagnostic analysis, forecasting, insight communication, and decision support.",
+    "audience": "Managers, analysts, entrepreneurs, operations teams, and professionals developing data fluency.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Translate business priorities into useful analytical questions.",
+      "Prepare and interpret evidence for operational decisions.",
+      "Present insights with clear actions, limitations, and review measures."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "business-intelligence",
+    "itemType": "course",
+    "title": "Business Intelligence",
+    "strapline": "Design trusted information systems for better organisational decisions.",
+    "description": "A professional BI course covering decision architecture, data sources, modelling, dashboards, KPIs, self-service governance, storytelling, and operating rhythms.",
+    "audience": "Business analysts, data teams, managers, executives, consultants, and reporting owners.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Connect organisational decisions to reliable information requirements.",
+      "Design useful dashboards, KPIs, and reporting workflows.",
+      "Establish governance that balances access, trust, and action."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "competency-based-education-assessments",
+    "itemType": "course",
+    "title": "Competency-Based Education & Assessment",
+    "strapline": "Design learning and assessment around what learners can demonstrate.",
+    "description": "A practical course for translating standards into observable competencies, authentic tasks, evidence-rich rubrics, formative support, moderation, and inclusive progression.",
+    "audience": "Teachers, trainers, curriculum leaders, assessors, school administrators, and education consultants.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Write assessable competency statements and learning outcomes.",
+      "Design authentic tasks, rubrics, and evidence pathways.",
+      "Use assessment data to support progression and improve programme quality."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "communication-presentation-skills",
+    "itemType": "course",
+    "title": "Communication & Presentation Skills",
+    "strapline": "Make important ideas clear, memorable, and useful to an audience.",
+    "description": "An applied communication course covering audience analysis, message architecture, storytelling, visual explanation, voice, facilitation, questions, and feedback.",
+    "audience": "Professionals, educators, students, team leaders, consultants, and public-facing practitioners.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Structure messages around audience needs and decisions.",
+      "Deliver presentations with confident voice, visuals, and presence.",
+      "Adapt communication in response to questions, context, and feedback."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "report-writing-presentation-skills",
+    "itemType": "course",
+    "title": "Report Writing & Presentation Skills",
+    "strapline": "Move from evidence to a report that decision-makers can trust and use.",
+    "description": "A professional reporting course on evidence discipline, argument, synthesis, clear language, data visualisation, recommendations, quality assurance, and executive presentation.",
+    "audience": "Analysts, researchers, consultants, administrators, managers, students, and reporting professionals.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Build a clear argument from credible evidence.",
+      "Present findings through readable reports and purposeful visuals.",
+      "Turn analysis into recommendations with ownership and next steps."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "career-guidance-coaching",
+    "itemType": "course",
+    "title": "Career Guidance & Coaching",
+    "strapline": "Help people connect strengths, possibility, and action with care.",
+    "description": "A practical career-development course covering identity, interests, fit, goals, evidence, coaching conversations, transitions, resilience, and ethical practice.",
+    "audience": "Career advisers, coaches, educators, HR professionals, mentors, and people supporting learner transitions.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Use structured conversations to clarify career direction.",
+      "Connect strengths and interests to realistic opportunities.",
+      "Create ethical, actionable career plans that the learner owns."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "customer-experience-management",
+    "itemType": "course",
+    "title": "Customer Experience Management",
+    "strapline": "Design dependable experiences that earn trust before, during, and after service.",
+    "description": "An applied CX course covering customer insight, journey mapping, service standards, frontline interactions, omnichannel consistency, recovery, measurement, and culture.",
+    "audience": "Customer-service leaders, operations teams, marketers, founders, sales professionals, and experience designers.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Map customer journeys and identify moments that shape trust.",
+      "Design practical standards and recovery responses.",
+      "Use experience evidence to improve service systems and team behaviour."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "search-engine-optimization",
+    "itemType": "course",
+    "title": "Search Engine Optimization",
+    "strapline": "Make useful content easier for the right people to discover.",
+    "description": "A practical SEO course covering search intent, topic research, technical discoverability, content, information architecture, authority, local and international search, and measurement.",
+    "audience": "Marketers, content teams, entrepreneurs, communications professionals, and web owners.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Connect search intent to useful content and page experience.",
+      "Identify technical and structural barriers to discoverability.",
+      "Build an ethical optimisation plan using evidence and ongoing review."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  },
+  {
+    "slug": "data-analytics",
+    "itemType": "course",
+    "title": "Data Analytics",
+    "strapline": "Work confidently from raw data to responsible insight and action.",
+    "description": "A hands-on data-analytics course covering data questions, preparation, exploration, statistical thinking, visualisation, spreadsheets, SQL, dashboards, and ethical practice.",
+    "audience": "Analysts, professionals, students, researchers, managers, and teams building practical data capability.",
+    "duration": "10 modules · 70 lessons · 10 applied quizzes · 400 guided minutes",
+    "outcomes": [
+      "Prepare and explore data with disciplined reasoning.",
+      "Choose appropriate analyses and visualisations for the question.",
+      "Communicate limitations, insights, and decisions responsibly."
+    ],
+    "priceKes": 4999,
+    "published": true,
+    "coverImageUrl": null
+  }
+]
