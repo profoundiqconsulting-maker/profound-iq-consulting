@@ -4,6 +4,7 @@ import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 import {
   ArrowLeft,
   ArrowRight,
+  Award,
   Check,
   CheckCircle2,
   ChevronDown,
@@ -15,9 +16,11 @@ import {
   Mail,
   Menu,
   MessageCircle,
+  RotateCcw,
   Save,
   Settings2,
   Share2,
+  Shield,
   ShieldCheck,
   Sparkles,
   X,
@@ -102,6 +105,8 @@ function AssessmentFlowPagination({
   totalQuestions,
   assessmentComplete,
   onModuleChange,
+  questionsInCurrentModule,
+  answeredInCurrentModule,
 }: {
   stage: AssessmentStage;
   modulePage: number;
@@ -110,11 +115,38 @@ function AssessmentFlowPagination({
   totalQuestions: number;
   assessmentComplete: boolean;
   onModuleChange: (index: number) => void;
+  questionsInCurrentModule: number;
+  answeredInCurrentModule: number;
 }) {
   const progress = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
+  const moduleProgress = questionsInCurrentModule > 0
+    ? Math.round((answeredInCurrentModule / questionsInCurrentModule) * 100)
+    : 0;
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+    switch (e.key) {
+      case "ArrowLeft":
+        e.preventDefault();
+        onModuleChange(Math.max(0, modulePage - 1));
+        break;
+      case "ArrowRight":
+        e.preventDefault();
+        onModuleChange(Math.min(totalModules - 1, modulePage + 1));
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
-    <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div
+      onKeyDown={handleKeyDown}
+      className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+      role="navigation"
+      aria-label="Assessment module navigation"
+    >
       <div className="flex items-center gap-4">
         <ProgressRing
           value={progress}
@@ -129,26 +161,43 @@ function AssessmentFlowPagination({
           <p className="text-display text-xl font-semibold text-[var(--foreground)]">
             Module {modulePage + 1} of {totalModules}
           </p>
-          <p className="text-sm text-[var(--muted-foreground)]">
-            {answeredCount} / {totalQuestions} questions answered
-          </p>
+          <div className="mt-2 flex items-center gap-3 text-sm">
+            <span className="text-[var(--muted-foreground)]">
+              {answeredCount} / {totalQuestions} questions answered
+            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[var(--muted-foreground)]">Module:</span>
+              <div className="h-2 w-24 bg-[var(--border)] rounded-full overflow-hidden" role="progressbar" aria-valuenow={moduleProgress} aria-valuemin={0} aria-valuemax={100}>
+                <div className="h-full bg-[var(--gold)] rounded-full transition-all duration-300" style={{ width: `${moduleProgress}%` }} />
+              </div>
+              <span className="text-xs font-bold text-[var(--gold)]">{moduleProgress}%</span>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Module quick navigation">
         {Array.from({ length: totalModules }, (_, i) => (
           <button
             key={i}
             type="button"
             onClick={() => onModuleChange(i)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onModuleChange(i);
+              }
+            }}
             className={cn(
-              "px-3 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-xl transition-all",
+              "px-3 py-1.5 text-xs font-black uppercase tracking-wider rounded-xl transition-all",
               i === modulePage
                 ? "bg-[var(--gold)] text-[var(--navy-deep)] shadow"
                 : assessmentComplete || (i < modulePage && answeredCount > 0)
                 ? "bg-[var(--success)]/10 text-[var(--success)] border border-[var(--success)]"
-                : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--gold)]/10 hover:text-[var(--gold)]"
+                : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--gold)]/10 hover:text-[var(--gold)] border border-[var(--border)]"
             )}
             disabled={assessmentComplete && i !== modulePage}
+            aria-current={i === modulePage ? "step" : undefined}
+            aria-label={`Go to module ${i + 1}`}
           >
             {i + 1}
           </button>
@@ -161,6 +210,7 @@ function AssessmentFlowPagination({
 export default function Assessment() {
   const [stage, setStage] = useState<AssessmentStage>("intro");
   const [page, setPage] = useState(0);
+  const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, AssessmentAnswer>>({});
   const [reflectionDrafts, setReflectionDrafts] = useState<Record<string, ReflectionDraft>>({});
   const [name, setName] = useState("");
@@ -205,6 +255,11 @@ export default function Assessment() {
 
   const totalPages = assessmentModules.length;
   const currentModule = assessmentModules[page];
+  const questionsInCurrentModule = currentModule?.questions.length ?? 0;
+  const answeredInCurrentModule = currentModule?.questions.filter(q => Boolean(answers[q.id])).length ?? 0;
+  const moduleProgress = questionsInCurrentModule > 0
+    ? Math.round((answeredInCurrentModule / questionsInCurrentModule) * 100)
+    : 0;
   const answeredCount = Object.keys(answers).length;
   const completedModuleCount = assessmentModules.filter(m =>
     m.questions.every(q => Boolean(answers[q.id]))
@@ -261,6 +316,7 @@ export default function Assessment() {
     if (!name || !email || !consent) return;
     setStage("questions");
     setPage(0);
+    setQuestionIndex(0);
     window.localStorage.removeItem("piq-assessment-skip-resume-prompt");
   };
 
@@ -268,6 +324,7 @@ export default function Assessment() {
     if (!localDraft) return;
     setAnswers(localDraft.responses);
     setPage(localDraft.currentModule);
+    setQuestionIndex(0);
     setStage("questions");
     window.localStorage.removeItem("piq-assessment-skip-resume-prompt");
   };
@@ -291,9 +348,62 @@ export default function Assessment() {
     toast.success("Progress saved");
   };
 
+  // Global keyboard shortcuts for assessment navigation
+  useEffect(() => {
+    if (stage !== "questions") return;
+
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Ignore if typing in input/textarea
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement) {
+        return;
+      }
+
+      switch (e.key) {
+        case "ArrowLeft":
+          if (e.altKey || e.metaKey) {
+            e.preventDefault();
+            setPage(p => Math.max(0, p - 1));
+            setQuestionIndex(0);
+          }
+          break;
+        case "ArrowRight":
+          if (e.altKey || e.metaKey) {
+            e.preventDefault();
+            setPage(p => Math.min(totalPages - 1, p + 1));
+            setQuestionIndex(0);
+          }
+          break;
+        case "s":
+          if (e.metaKey || e.ctrlKey) {
+            e.preventDefault();
+            saveNow();
+          }
+          break;
+        case "o":
+          if (e.metaKey || e.ctrlKey) {
+            e.preventDefault();
+            setOverviewOpen(true);
+          }
+          break;
+        case "p":
+          if (e.metaKey || e.ctrlKey) {
+            e.preventDefault();
+            setPreferencesOpen(true);
+          }
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+  }, [stage, page, totalPages, saveNow]);
+
   const navigateToModule = (index: number) => {
     if (index >= 0 && index < totalPages) {
       setPage(index);
+      setQuestionIndex(0);
       setOverviewOpen(false);
     }
   };
@@ -302,15 +412,29 @@ export default function Assessment() {
     const question = assessmentQuestions.find(q => q.id === questionId);
     if (!question) return;
     setAnswers(prev => ({ ...prev, [questionId]: { questionId, value, dimension: question.dimension } }));
-    // Check if module just completed
-    const moduleQuestions = assessmentModules[page].questions.map(q => q.id);
-    const allAnswered = moduleQuestions.every(id => answers[id] || id === questionId);
-    if (allAnswered && page < totalPages - 1) {
-      setModuleCelebration(true);
-      setTimeout(() => {
-        setModuleCelebration(false);
-        setPage(page + 1);
-      }, 1500);
+
+    // Auto-advance to next question in current module
+    const moduleQuestions = assessmentModules[page].questions;
+    const currentQuestionIdx = moduleQuestions.findIndex(q => q.id === questionId);
+
+    if (currentQuestionIdx >= 0 && currentQuestionIdx < moduleQuestions.length - 1) {
+      // Move to next question in same module
+      setQuestionIndex(currentQuestionIdx + 1);
+    } else if (currentQuestionIdx === moduleQuestions.length - 1) {
+      // Last question in module - check if all answered
+      const moduleQuestionIds = moduleQuestions.map(q => q.id);
+      const allAnswered = moduleQuestionIds.every(id => answers[id] || id === questionId);
+
+      if (allAnswered) {
+        setModuleCelebration(true);
+        setTimeout(() => {
+          setModuleCelebration(false);
+          if (page < totalPages - 1) {
+            setPage(page + 1);
+            setQuestionIndex(0);
+          }
+        }, 1500);
+      }
     }
   };
 
@@ -419,58 +543,13 @@ export default function Assessment() {
         <main className="container py-12 sm:py-16 lg:py-24">
           <div className="mx-auto max-w-4xl">
             {error && (
-              <div className="mb-6 border-l-2 border-[var(--destructive)] bg-[var(--destructive)]/10 px-4 py-3 text-sm text-[var(--destructive)]" role="alert">
+              <div className="mb-6 bg-[var(--destructive)]/10 p-4 text-sm text-[var(--destructive)] rounded-xl border border-[var(--destructive)]/30" role="alert">
                 {error}
               </div>
             )}
 
-            {/* Settings & Import */}
-            <div className="mb-6 flex flex-wrap justify-end gap-2">
-              <input
-                ref={importInputRef}
-                type="file"
-                accept="application/json,.json"
-                onChange={importProgress}
-                className="hidden"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setPreferencesOpen(true)}
-                aria-label="Open assessment settings"
-                className="border-[var(--border)]"
-              >
-                <Settings2 size={15} />
-                <span className="hidden sm:inline">Settings</span>
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => importInputRef.current?.click()}
-                className="border-[var(--border)]"
-              >
-                Import Progress
-              </Button>
-            </div>
-
-            {/* Drag & Drop Import */}
-            <div
-              onDragOver={event => { event.preventDefault(); setIsDraggingImport(true); }}
-              onDragLeave={() => setIsDraggingImport(false)}
-              onDrop={event => { event.preventDefault(); setIsDraggingImport(false); const file = event.dataTransfer.files[0]; if (file) void importProgressFile(file); }}
-              className={cn(
-                "mb-6 border-2 border-dashed p-4 text-center text-xs transition",
-                isDraggingImport
-                  ? "border-[var(--gold)] bg-[var(--gold)]/10"
-                  : "border-[var(--border)] bg-[var(--muted)]/30"
-              )}
-            >
-              <strong className="text-[var(--foreground)]">Drop a JSON progress file here</strong>
-              <span className="ml-1 text-[var(--muted-foreground)]">or use Import Progress above.</span>
-            </div>
-
             {pendingImport && (
-              <section className="mb-6 border-l-2 border-[var(--gold)] bg-[var(--gold)]/10 p-5 text-[var(--foreground)]" role="dialog" aria-label="Review imported progress">
+              <section className="mb-6 bg-[var(--gold)]/10 p-5 text-[var(--foreground)] rounded-xl border border-[var(--gold)]/30" role="dialog" aria-label="Review imported progress">
                 <p className="eyebrow text-[var(--gold)]">Review imported progress</p>
                 <p className="mt-2 text-sm leading-6">
                   This file contains <strong>{pendingImport.responseCount} responses</strong> and was last saved on
@@ -484,47 +563,128 @@ export default function Assessment() {
               </section>
             )}
 
+            {/* Trust Bar */}
+            <div className="mb-10 flex flex-wrap items-center gap-4 p-4 bg-[var(--gold)]/5 rounded-xl border border-[var(--gold)]/20">
+              <div className="flex items-center gap-2 text-xs font-medium text-[var(--gold)]">
+                <Shield size={14} />
+                <span>Secure Paystack checkout</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-medium text-[var(--gold)]">
+                <LockKeyhole size={14} />
+                <span>Data encrypted & private</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-medium text-[var(--gold)]">
+                <Award size={14} />
+                <span>Certificate on completion</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-medium text-[var(--gold)]">
+                <RotateCcw size={14} />
+                <span>Satisfaction guarantee — contact us</span>
+              </div>
+            </div>
+
             {/* Main Content */}
-            <div className="grid gap-12 lg:grid-cols-[1fr_350px]">
+            <div className="grid gap-8 lg:grid-cols-[1fr_350px]">
               <div>
-                <p className="eyebrow text-[var(--gold)]">A reflective development tool</p>
+                <p className="eyebrow text-[var(--gold)]">Evidence-based self-reflection</p>
                 <h1 className="text-display text-4xl font-semibold leading-[1.05] tracking-tight mt-3 sm:text-5xl lg:text-6xl text-[var(--navy-deep)]">
                   See the patterns behind your <em className="font-normal text-[var(--gold)]">potential.</em>
                 </h1>
                 <p className="mt-7 max-w-2xl text-lg leading-relaxed text-[var(--muted-foreground)]">
                   This 100-question Self Assessment helps you reflect on the capabilities that shape how you learn, lead, communicate, and move from insight to action.
                 </p>
-                <div className="mt-10 grid gap-4 border-t border-[var(--border)] pt-6 sm:grid-cols-3">
-                  <div>
-                    <p className="text-display text-3xl text-[var(--foreground)]">100</p>
-                    <p className="mt-1 text-xs font-bold uppercase tracking-[.12em] text-[var(--muted-foreground)]">Reflective prompts</p>
+
+                {/* Key Benefits */}
+                <div className="mt-8 space-y-3">
+                  {[
+                    { icon: CheckCircle2, text: "Clarity on 10 capability dimensions" },
+                    { icon: CheckCircle2, text: "Personalized 15+ page development report" },
+                    { icon: CheckCircle2, text: "Instant certificate on completion" },
+                    { icon: CheckCircle2, text: "6-month access to your results & resources" },
+                    { icon: CheckCircle2, text: "Auto-save & resume anytime" },
+                    { icon: CheckCircle2, text: "Secure, private, no subscriptions" },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 rounded-xl bg-[var(--navy-deep)]/5 p-3 border border-[var(--gold)]/10">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--gold)]/15">
+                        <item.icon className="h-4 w-4 text-[var(--gold)]" />
+                      </div>
+                      <span className="text-sm font-medium text-[var(--foreground)]">{item.text}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Social Proof */}
+                <div className="mt-8 p-4 rounded-xl bg-[var(--navy-deep)]/5 border border-[var(--gold)]/10">
+                  <p className="text-xs font-bold uppercase tracking-wider text-[var(--gold)] mb-3">Trusted by professionals across Kenya & beyond</p>
+                  <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--muted-foreground)]">
+                    <div className="flex -space-x-2">
+                      {[1, 2, 3, 4, 5].map(i => (
+                        <div key={i} className="h-8 w-8 rounded-full border-2 border-[var(--navy-deep)] bg-gradient-to-br from-[var(--navy-deep)] to-[var(--ivory)]" />
+                      ))}
+                    </div>
+                    <span>500+ organizations & 10,000+ assessments completed</span>
                   </div>
-                  <div>
-                    <p className="text-display text-3xl text-[var(--foreground)]">KES {ASSESSMENT_PRICE_KES.toLocaleString()}</p>
-                    <p className="mt-1 text-xs font-bold uppercase tracking-[.12em] text-[var(--muted-foreground)]">One-time report fee</p>
+                </div>
+
+                {/* Stats */}
+                <div className="mt-10 grid grid-cols-2 gap-6 border-t border-[var(--border)] pt-6 sm:grid-cols-4">
+                  <div className="text-center">
+                    <p className="text-display text-3xl font-bold text-[var(--gold)]">100</p>
+                    <p className="mt-1 text-xs text-[var(--muted-foreground)]">Reflective prompts</p>
                   </div>
-                  <div>
-                    <p className="text-display text-3xl text-[var(--foreground)]">10</p>
-                    <p className="mt-1 text-xs font-bold uppercase tracking-[.12em] text-[var(--muted-foreground)]">Capability dimensions</p>
+                  <div className="text-center">
+                    <p className="text-display text-3xl font-bold text-[var(--gold)]">10</p>
+                    <p className="mt-1 text-xs text-[var(--muted-foreground)]">Capability dimensions</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-display text-3xl font-bold text-[var(--gold)]">25 min</p>
+                    <p className="mt-1 text-xs text-[var(--muted-foreground)]">Average completion</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-display text-3xl font-bold text-[var(--gold)]">KES {ASSESSMENT_PRICE_KES.toLocaleString()}</p>
+                    <p className="mt-1 text-xs text-[var(--muted-foreground)]">One-time fee</p>
                   </div>
                 </div>
               </div>
 
-              <aside className="border-t border-[var(--gold)] bg-[var(--navy-deep)] p-7 text-[var(--background)] lg:border-t-0 lg:border-l-0 rounded-xl lg:rounded-l-none">
-                <Sparkles className="text-[var(--gold)]" size={20} />
-                <p className="eyebrow mt-7 text-[var(--gold)]">Before you begin</p>
-                <p className="mt-4 text-sm leading-6 text-[var(--muted-foreground)]">
-                  Answer honestly and quickly. There are no right answers; the value is in noticing your current patterns.
-                </p>
-                <div className="mt-8 flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
-                  <LockKeyhole size={15} className="text-[var(--gold)]" /> Secure Paystack checkout
+              <aside className="bg-[var(--navy-deep)] p-7 text-[var(--background)] rounded-xl relative overflow-hidden">
+                <Sparkles className="text-[var(--gold)] relative z-10" size={20} />
+                <p className="eyebrow mt-7 text-[var(--gold)] relative z-10">What you'll discover</p>
+                <ul className="mt-4 space-y-3 text-sm leading-6 text-[var(--muted-foreground)] relative z-10">
+                  {[
+                    "Your natural strengths across 10 capability dimensions",
+                    "Growth areas with specific development suggestions",
+                    "Learning style & communication preferences",
+                    "Leadership potential & decision-making patterns",
+                    "Stress response & resilience indicators",
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-center gap-3">
+                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--gold)]/15">
+                        <Check className="h-3 w-3 text-[var(--gold)]" />
+                      </div>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-8 flex items-center gap-2 text-xs text-[var(--muted-foreground)] relative z-10">
+                  <LockKeyhole size={14} className="text-[var(--gold)]" />
+                  <span>Secure Paystack checkout</span>
+                </div>
+
+                <div className="mt-6 rounded-xl bg-[var(--gold)]/10 p-4 border border-[var(--gold)]/20 relative z-10">
+                  <p className="text-xs font-bold uppercase tracking-wider text-[var(--gold)] mb-2">Satisfaction guarantee</p>
+                  <p className="text-sm leading-5">
+                    If the assessment doesn't meet your expectations, reach out —
+                    we'll review your case and discuss options.
+                  </p>
                 </div>
               </aside>
             </div>
 
             {/* Resume Previous Session */}
             {localDraft && !skipResumePrompt && (
-              <section className="mt-10 border-l-2 border-[var(--gold)] p-5 bg-[var(--muted)]/30">
+              <section className="mt-10 p-5 bg-[var(--muted)]/30 rounded-xl border border-[var(--gold)]/30">
                 <p className="eyebrow text-[var(--gold)]">Previous session found</p>
                 <p className="mt-2 text-sm leading-6">
                   Saved {new Date(localDraft.savedAt).toLocaleString()} with {localDraftAnsweredCount} responses in
@@ -536,15 +696,9 @@ export default function Assessment() {
                     <span>Saved progress</span>
                     <span>{localDraftCompletion}%</span>
                   </div>
-                  <ProgressRing
-                    value={localDraftCompletion}
-                    size={8}
-                    strokeWidth={2}
-                    className="w-full h-2 bg-[var(--border)] rounded-full"
-                    showLabel={false}
-                  >
+                  <div className="h-2 bg-[var(--border)] rounded-full" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={localDraftCompletion} aria-label={`${localDraftCompletedModules} of ${totalPages} modules completed`}>
                     <div className="h-full bg-[var(--gold)] rounded-full" style={{ width: `${localDraftCompletion}%` }} />
-                  </ProgressRing>
+                  </div>
                   <p className="mt-2 text-[10px] text-[var(--muted-foreground)]">
                     {localDraftCompletedModules} of {totalPages} modules completed
                   </p>
@@ -591,7 +745,7 @@ export default function Assessment() {
             )}
 
             {/* Overall Progress Bar */}
-            <div className="mt-10 border border-[var(--gold)]/45 bg-[var(--muted)]/30 p-5" aria-label="Self Assessment progress">
+            <div className="mt-10 bg-[var(--muted)]/30 p-5 rounded-xl" aria-label="Self Assessment progress">
               <div className="flex items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[.12em] text-[var(--muted-foreground)]">
                 <span>Evaluation progress</span>
                 <span>{progress}%</span>
@@ -656,6 +810,8 @@ export default function Assessment() {
             totalQuestions={assessmentQuestions.length}
             assessmentComplete={assessmentComplete}
             onModuleChange={navigateToModule}
+            questionsInCurrentModule={questionsInCurrentModule}
+            answeredInCurrentModule={answeredInCurrentModule}
           />
 
           <div className="mx-auto max-w-3xl">
@@ -735,30 +891,71 @@ export default function Assessment() {
             </Sheet>
 
             {/* Questions */}
-            <div className="space-y-8">
-              {currentModule?.questions.map((question, questionIndex) => (
-                <div key={question.id} className="border border-[var(--border)] bg-[var(--card)] rounded-2xl p-6">
-                  <div className="mb-4 flex items-start justify-between gap-3">
-                    <span className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--gold)]">Question {(page * QUESTIONS_PER_CONTENT_PAGE) + questionIndex + 1} of {assessmentQuestions.length}</span>
-                    <span className={cn("text-[10px] font-black uppercase tracking-[.12em]", answers[question.id] ? "text-[var(--success)]" : "text-[var(--muted-foreground)]")}>
-                      {answers[question.id] ? "Answered" : "Unanswered"}
-                    </span>
-                  </div>
-                  <LikertScale
-                    id={question.id}
-                    question={question.prompt}
-                    index={(page * QUESTIONS_PER_CONTENT_PAGE) + questionIndex}
-                    value={answers[question.id]?.value}
-                    onChange={value => handleAnswerChange(question.id, value)}
-                    lowLabel="Not like me"
-                    highLabel="Very like me"
-                  />
-                </div>
-              ))}
+            <div className="space-y-6">
+              {currentModule && (
+                <>
+                  {currentModule.questions[questionIndex] && (() => {
+                    const question = currentModule.questions[questionIndex];
+                    const globalIndex = (page * QUESTIONS_PER_CONTENT_PAGE) + questionIndex;
+                    const isAnswered = Boolean(answers[question.id]);
+                    const isLastInModule = questionIndex === (currentModule?.questions.length ?? 0) - 1;
+
+                    return (
+                      <article
+                        key={question.id}
+                        className={cn(
+                          "relative overflow-hidden rounded-2xl p-6 transition-all duration-300",
+                          "border bg-[var(--card)]",
+                          isAnswered
+                            ? "border-[var(--success)]/30 bg-[var(--success)]/5"
+                            : "border-[var(--border)] hover:border-[var(--gold)]/30"
+                        )}
+                        aria-label={`Question ${globalIndex + 1} of ${assessmentQuestions.length}`}
+                      >
+                        <div className="mb-4 flex items-center justify-between gap-3">
+                          <span className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--gold)]">
+                            Q{globalIndex + 1} of {assessmentQuestions.length}
+                          </span>
+                          <span className={cn(
+                            "text-[10px] font-black uppercase tracking-[.12em] px-2 py-0.5 rounded-full",
+                            isAnswered
+                              ? "bg-[var(--success)]/15 text-[var(--success)]"
+                              : "bg-[var(--muted)] text-[var(--muted-foreground)]"
+                          )}>
+                            {isAnswered ? "Answered" : "Pending"}
+                          </span>
+                        </div>
+
+                        {/* Module progress mini-bar */}
+                        <div className="mb-4 h-1.5 bg-[var(--border)] rounded-full overflow-hidden" role="progressbar" aria-valuenow={answeredInCurrentModule} aria-valuemin={0} aria-valuemax={questionsInCurrentModule} aria-label={`Module progress: ${answeredInCurrentModule} of ${questionsInCurrentModule} answered`}>
+                          <div className="h-full bg-[var(--gold)] rounded-full transition-all duration-300" style={{ width: `${moduleProgress}%` }} />
+                        </div>
+
+                        <LikertScale
+                          id={question.id}
+                          question={question.prompt}
+                          index={globalIndex}
+                          value={answers[question.id]?.value}
+                          onChange={value => handleAnswerChange(question.id, value)}
+                          lowLabel="Not like me"
+                          highLabel="Very like me"
+                        />
+
+                        {isAnswered && isLastInModule && (
+                          <div className="mt-5 flex items-center gap-2 text-xs text-[var(--success)]" role="status">
+                            <CheckCircle2 size={13} />
+                            <span>Module complete. Ready for next module.</span>
+                          </div>
+                        )}
+                      </article>
+                    );
+                  })()}
+                </>
+              )}
             </div>
 
             {/* Navigation */}
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-between">
+            <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <Button
                 type="button"
                 variant="outline"
@@ -768,20 +965,26 @@ export default function Assessment() {
                 className="gap-2"
               >
                 <ArrowLeft size={16} /> Previous module
+                <kbd className="hidden sm:inline-flex ml-2 px-1.5 py-0.5 text-[9px] font-mono bg-[var(--muted)] rounded">Alt+←</kbd>
               </Button>
-              <div className="flex gap-3">
-                {page < totalPages - 1 ? (
-                  <Button
-                    type="button"
-                    variant="gold"
-                    size="lg"
-                    onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
-                    className="gap-2"
-                  >
-                    Next module <ArrowRight size={16} />
-                  </Button>
-                ) : (
-                  <Button
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+                <p className="text-[10px] font-mono text-[var(--muted-foreground)] hidden sm:block">
+                  Shortcuts: <kbd className="px-1 py-0.5 bg-[var(--muted)] rounded">Alt+←</kbd> Prev · <kbd className="px-1 py-0.5 bg-[var(--muted)] rounded">Alt+→</kbd> Next · <kbd className="px-1 py-0.5 bg-[var(--muted)] rounded">⌘+S</kbd> Save · <kbd className="px-1 py-0.5 bg-[var(--muted)] rounded">⌘+O</kbd> Overview
+                </p>
+                <div className="flex gap-3">
+                  {page < totalPages - 1 ? (
+                    <Button
+                      type="button"
+                      variant="gold"
+                      size="lg"
+                      onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                      className="gap-2"
+                    >
+                      Next module <ArrowRight size={16} />
+                      <kbd className="hidden sm:inline-flex ml-2 px-1.5 py-0.5 text-[9px] font-mono bg-[var(--muted)] rounded">Alt+→</kbd>
+                    </Button>
+                  ) : (
+                    <Button
                     type="button"
                     variant="gold"
                     size="lg"
@@ -793,8 +996,9 @@ export default function Assessment() {
                   </Button>
                 )}
               </div>
-            </div>
-          </div>
+        </div>
+        </div>
+        </div>
         </main>
       )}
 

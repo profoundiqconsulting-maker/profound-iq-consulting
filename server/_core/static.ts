@@ -1,6 +1,7 @@
 ﻿import express, { type Express } from "express";
 import fs from "fs";
 import path from "path";
+import { injectCriticalAssets } from "./index";
 
 function noCacheHtmlMiddleware(
   req: express.Request,
@@ -71,12 +72,14 @@ function serveAstroRoutes(app: Express) {
       const html = await fs.promises.readFile(htmlPath, "utf-8");
       const nonce = res.locals.cspNonce;
 
-      const output = nonce
+      let output = nonce
         ? html.replace(
             /<script\b(?![^>]*\bnonce\s*=)/gi,
             `<script nonce="${nonce}"`
           )
         : html;
+
+      output = injectCriticalAssets(output);
 
       res.type("html");
       res.setHeader(
@@ -154,8 +157,8 @@ export function serveStatic(app: Express, distPath?: string) {
     })
   );
 
-  // SPA fallback.
-  app.use((_req, res) => {
+// SPA fallback.
+  app.use(async (_req, res) => {
     res.setHeader(
       "Cache-Control",
       "no-cache, no-store, must-revalidate"
@@ -163,6 +166,19 @@ export function serveStatic(app: Express, distPath?: string) {
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
 
-    res.sendFile(path.resolve(resolvedDistPath, "index.html"));
+    const indexPath = path.resolve(resolvedDistPath, "index.html");
+    const html = await fs.promises.readFile(indexPath, "utf-8");
+    const nonce = res.locals.cspNonce;
+
+    let output = nonce
+      ? html.replace(
+          /<script\b(?![^>]*\bnonce\s*=)/gi,
+          `<script nonce="${nonce}"`
+        )
+      : html;
+
+    output = injectCriticalAssets(output);
+
+    return res.send(output);
   });
 }

@@ -219,32 +219,32 @@ export default function Courses() {
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-body">
       <TransformationNav active="courses" />
 
-      {/* Sticky Filters Header */}
-      <header className="sticky top-16 z-40 border-b border-[var(--border)] bg-[var(--background)]/95 backdrop-blur-sm px-4 py-4 sm:px-6">
+{/* Sticky Filters Header */}
+      <header className="sticky top-16 z-40 border-b border-[var(--border)] bg-[var(--background)]/95 backdrop-blur-sm px-4 py-2.5 sm:px-6">
         <div className="max-w-7xl mx-auto">
           {/* Search */}
-          <div className="mb-4 relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" aria-hidden="true" />
+          <div className="mb-3 relative">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--muted-foreground)]" aria-hidden="true" />
             <input
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               placeholder="Search courses, topics, or outcomes…"
-              className="w-full h-12 pl-10 pr-4 border border-[var(--border)] bg-[var(--card)] text-base focus-gold-ring rounded-xl"
+              className="w-full h-10 pl-9 pr-4 border border-[var(--border)] bg-[var(--card)] text-sm focus-gold-ring rounded-xl"
             />
           </div>
 
           {/* Filter Row */}
-          <div className="flex flex-wrap items-center gap-3 overflow-x-auto pb-2">
-            <div className="flex flex-wrap gap-2" role="group" aria-label="Category filters">
+          <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1">
+            <div className="flex flex-wrap gap-1.5" role="group" aria-label="Category filters">
               {categories.map(cat => (
                 <button
                   key={cat}
                   type="button"
                   onClick={() => setCategory(cat)}
                   className={cn(
-                    "px-4 py-2 text-sm font-semibold uppercase tracking-wider rounded-xl transition-all duration-200 whitespace-nowrap",
+                    "px-3 py-1.5 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all duration-200 whitespace-nowrap",
                     category === cat
-                      ? "bg-[var(--gold)] text-[var(--navy-deep)] shadow-lg"
+                      ? "bg-[var(--gold)] text-[var(--navy-deep)] shadow"
                       : "bg-[var(--card)] text-[var(--muted-foreground)] border border-[var(--border)] hover:border-[var(--gold)] hover:text-[var(--gold)]"
                   )}
                 >
@@ -252,25 +252,25 @@ export default function Courses() {
                 </button>
               ))}
             </div>
-            <Separator className="h-8 mx-2" />
-            <div className="flex items-center gap-2">
+            <Separator className="h-7 mx-1.5" />
+            <div className="flex items-center gap-1.5">
               <Label htmlFor="skill-filter" className="sr-only">Skill level</Label>
               <select
                 id="skill-filter"
                 value={skillLevel}
                 onChange={e => setSkillLevel(e.target.value)}
-                className="h-10 px-4 border border-[var(--border)] bg-[var(--card)] text-sm focus-gold-ring rounded-xl min-w-[150px]"
+                className="h-9 px-3 border border-[var(--border)] bg-[var(--card)] text-xs focus-gold-ring rounded-lg min-w-[130px]"
               >
                 {levels.map(level => <option key={level} value={level}>{level}</option>)}
               </select>
             </div>
-            <div className="flex items-center gap-2 ml-auto">
+            <div className="flex items-center gap-1.5 ml-auto">
               <Label htmlFor="sort-filter" className="sr-only">Sort</Label>
               <select
                 id="sort-filter"
                 value={sortBy}
                 onChange={e => setSortBy(e.target.value)}
-                className="h-10 px-4 border border-[var(--border)] bg-[var(--card)] text-sm focus-gold-ring rounded-xl min-w-[160px]"
+                className="h-9 px-3 border border-[var(--border)] bg-[var(--card)] text-xs focus-gold-ring rounded-lg min-w-[140px]"
               >
                 <option value="recommended">Recommended</option>
                 <option value="title">Title A–Z</option>
@@ -562,7 +562,7 @@ export default function Courses() {
               product={{
                 name: selectedCourse.title,
                 priceKes: selectedCourse.isDatabaseItem ? COURSE_PRICE_KES : 4999,
-                type: "course",
+                type: "course_stage",
                 slug: selectedCourse.slug,
               }}
               prefilled={user ? { email: user.email || undefined, name: user.name || undefined } : undefined}

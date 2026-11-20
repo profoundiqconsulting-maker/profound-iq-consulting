@@ -94,7 +94,7 @@ function CareerPathProgressRing({ stage, modulePage, totalModules, answeredCount
   };
 
   return (
-    <nav aria-label="CareerPath progress" className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--background)] py-4 px-4 sm:px-6">
+    <nav aria-label="CareerPath progress" className="sticky top-16 z-40 border-b border-[var(--border)] bg-[var(--background)]/95 backdrop-blur-md py-4 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-4 mb-4">
           <ProgressRing value={progress} size={56} strokeWidth={5} showLabel label={`${progress}%`} className="flex-shrink-0" />

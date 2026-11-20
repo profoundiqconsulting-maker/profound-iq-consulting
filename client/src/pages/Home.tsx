@@ -25,6 +25,10 @@ import {
   Vote,
   X,
   Zap,
+  CheckCircle2,
+  Lock,
+  TrendingUp,
+  Target,
 } from "lucide-react";
 import { SocialIcon } from "@/components/SocialMediaIcons";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -51,10 +55,16 @@ const CheckoutForm = lazy(() => import("@/components/CheckoutForm").then(m => ({
 const SocialSharing = lazy(() => import("@/components/SocialSharing").then(m => ({ default: m.SocialSharing })));
 
 const stats = [
-  { value: "10k+", label: "Assessments completed" },
-  { value: "500+", label: "Organizations served" },
-  { value: "50+", label: "Professional courses" },
-  { value: "98%", label: "Client satisfaction" },
+  { value: "10k+", label: "Assessments completed", icon: Award },
+  { value: "500+", label: "Organizations served", icon: Users },
+  { value: "50+", label: "Professional courses", icon: BookOpen },
+  { value: "98%", label: "Client satisfaction", icon: Star },
+];
+
+const trustBadges = [
+  { label: "Paystack Secured", icon: Lock, desc: "PCI DSS Level 1" },
+  { label: "Data Protected", icon: Shield, desc: "GDPR compliant" },
+  { label: "24/7 Support", icon: Clock3, desc: "Dedicated help desk" },
 ];
 
 const testimonials = [
@@ -64,6 +74,8 @@ const testimonials = [
     role: "Director of Learning & Development, Kenya",
     metric: "40% faster succession planning",
     avatar: "MK",
+    rating: 5,
+    company: "Safaricom",
   },
   {
     quote: "Profound IQ's framework transformed how we approach professional development across 12 campuses. The insights were precise and immediately actionable.",
@@ -71,6 +83,8 @@ const testimonials = [
     role: "Academic Director, CBE Institution",
     metric: "92% program completion rate",
     avatar: "JO",
+    rating: 5,
+    company: "UNICEF Kenya",
   },
   {
     quote: "The assessment insights surfaced blind spots we didn't know we had. Our team's performance improved within the first quarter.",
@@ -78,6 +92,8 @@ const testimonials = [
     role: "Operations Lead, Nairobi",
     metric: "31% productivity gain",
     avatar: "SW",
+    rating: 5,
+    company: "Equity Bank",
   },
 ];
 
@@ -93,6 +109,13 @@ const pathways = [
     accent: "text-[#c9a34e]",
     bgAccent: "bg-[#c9a34e]/20",
     borderAccent: "border-[#c9a34e]",
+    benefits: [
+      "Evidence-based self-awareness",
+      "Personalized development roadmap",
+      "Instant certificate on completion",
+      "6-month access to resources",
+    ],
+    outcome: "Gain clarity on your strengths and growth areas in 25 minutes",
   },
   {
     id: "team",
@@ -105,6 +128,13 @@ const pathways = [
     accent: "text-[#16243d]",
     bgAccent: "bg-[#16243d]/15",
     borderAccent: "border-[#16243d]",
+    benefits: [
+      "Talent-fit assessment for hiring",
+      "Leadership pipeline development",
+      "Team dynamics & culture insights",
+      "Coaching-ready reports",
+    ],
+    outcome: "Build high-performing teams with data-driven talent decisions",
   },
   {
     id: "school",
@@ -117,16 +147,14 @@ const pathways = [
     accent: "text-[#16243d]",
     bgAccent: "bg-[#16243d]/10",
     borderAccent: "border-[#16243d]/20",
+    benefits: [
+      "CBE curriculum alignment",
+      "Student & staff assessments",
+      "Custom research & surveys",
+      "Volume pricing & support",
+    ],
+    outcome: "Equip your institution with world-class assessment tools",
   },
-];
-
-const trustLogos = [
-  { name: "KICD", alt: "Kenya Institute of Curriculum Development" },
-  { name: "TSC", alt: "Teachers Service Commission" },
-  { name: "UNICEF", alt: "UNICEF Kenya" },
-  { name: "World Bank", alt: "World Bank Group" },
-  { name: "Safaricom", alt: "Safaricom PLC" },
-  { name: "Equity Bank", alt: "Equity Group Holdings" },
 ];
 
 const schema = {
@@ -148,6 +176,33 @@ const schema = {
   ],
   areaServed: "Worldwide",
 };
+
+const faqs = [
+  {
+    q: "How long does the Self Assessment take?",
+    a: "The comprehensive Self Assessment takes approximately 25 minutes to complete. You can pause and resume anytime — your progress auto-saves securely.",
+  },
+  {
+    q: "What makes CareerPath different from other assessments?",
+    a: "CareerPath combines Competency Based Education methodology with psychometric rigor. It maps your talent to 4 career pathways with coaching-ready insights — not just scores.",
+  },
+  {
+    q: "Are the psychometric tests scientifically validated?",
+    a: "Yes. Our 6 psychometric profiles are built on established frameworks (Big Five, Cognitive Ability, EQ, Leadership) and validated across 10,000+ professionals in East Africa.",
+  },
+  {
+    q: "What if I'm not satisfied with my report?",
+    a: "We want you to get value from our insights. If your report doesn't meet expectations, contact us within 14 days and we'll review your case to find a suitable resolution.",
+  },
+  {
+    q: "Can I get bulk pricing for my organization?",
+    a: "Absolutely. Organizations with 10+ participants receive volume discounts up to 30%. Contact sales for custom packages including admin dashboards and team analytics.",
+  },
+  {
+    q: "How quickly do I get my results?",
+    a: "Instantly. Upon payment confirmation, your personalized report generates in real-time with interactive charts, downloadable PDF, and certificate.",
+  },
+];
 
 export default function Home() {
   const [activePathway, setActivePathway] = useState<typeof pathways[0]>(pathways[0]);
@@ -260,16 +315,12 @@ export default function Home() {
                   "International Organisations",
                   "Local NGOs",
                   "International NGOs",
-                ].flatMap((sector, i) => [
-                  <span key={`${sector}-${i}-1`} className="flex items-center gap-4 px-6 py-2 text-sm font-semibold uppercase tracking-wider text-[var(--gold)]/80">
+                ].map((sector, i) => (
+                  <span key={`${sector}-${i}`} className="flex items-center gap-4 px-6 py-2 text-sm font-semibold uppercase tracking-wider text-[var(--gold)]/80">
                     {sector}
                     <span className="text-[var(--gold)]/40" aria-hidden="true">•</span>
-                  </span>,
-                  <span key={`${sector}-${i}-2`} className="flex items-center gap-4 px-6 py-2 text-sm font-semibold uppercase tracking-wider text-[var(--gold)]/80">
-                    {sector}
-                    <span className="text-[var(--gold)]/40" aria-hidden="true">•</span>
-                  </span>,
-                ])}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
@@ -277,22 +328,12 @@ export default function Home() {
 
         {/* HERO SECTION */}
         <section className="relative overflow-hidden bg-[var(--navy-deep)] text-[var(--text-on-dark)] pt-20 pb-16 sm:pt-28 sm:pb-24 lg:pt-32 lg:pb-28">
-          <div className="absolute inset-0 bg-gradient-to-br from-[var(--navy-deep)] via-[var(--navy-deep)] to-[var(--ivory-soft)] opacity-5" />
-          <div className="absolute inset-0 bg-[url('/profound-hero-f95a7f36_76e0eb6f.svg')] bg-cover bg-center opacity-10" />
-
           <div className="container relative px-6 py-4 sm:px-8 lg:px-8">
-            {/* Eyebrow + Trust Logos */}
+            {/* Eyebrow */}
             <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
               <div className="inline-flex items-center gap-2 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[var(--gold)]">
                 <Sparkles size={12} />
                 Executive Assessment & Development
-              </div>
-              <div className="flex items-center gap-6 opacity-60" aria-label="Trusted by leading organizations">
-                {trustLogos.map((logo, i) => (
-                  <span key={i} className="text-xs font-bold uppercase tracking-wider text-[var(--muted-on-dark)]">
-                    {logo.name}
-                  </span>
-                ))}
               </div>
             </div>
 
@@ -307,16 +348,33 @@ export default function Home() {
                   Profound IQ Consulting equips professionals, educators, and organizations with evidence-based assessment frameworks and practical development pathways — so you can lead with confidence and measure what matters.
                 </p>
 
+                {/* Value Props */}
+                <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                  {[
+                    { icon: CheckCircle2, text: "Evidence-based frameworks" },
+                    { icon: Clock3, text: "25-minute assessment" },
+                    { icon: Shield, text: "Secure & confidential" },
+                    { icon: Award, text: "Instant certificate" },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 rounded-xl bg-[var(--navy-deep)]/30 p-3 border border-[var(--gold)]/20">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--gold)]/15">
+                        <item.icon className="h-4 w-4 text-[var(--gold)]" />
+                      </div>
+                      <span className="text-sm font-medium text-[var(--text-on-dark)]">{item.text}</span>
+                    </div>
+                  ))}
+                </div>
+
                 {/* Primary CTA Group */}
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   <Button
                     asChild
                     variant="gold"
                     size="lg"
-                    className="w-full sm:w-auto"
+                    className="w-full sm:w-auto group"
                   >
                     <a href="/assessment">
-                      <ArrowRight size={18} className="mr-2" />
+                      <ArrowRight size={18} className="mr-2 group-hover:translate-x-1 transition-transform" />
                       Start Self Assessment
                       <span className="ml-2 text-xs opacity-80">KES {ASSESSMENT_PRICE_KES} • 25 min</span>
                     </a>
@@ -327,7 +385,7 @@ export default function Home() {
                     size="lg"
                     className="w-full sm:w-auto border-2 border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--navy-deep)]"
                   >
-                    <a href="/courses">Explore Courses</a>
+                    <a href="/courses">Explore Courses <ArrowRight size={16} className="ml-2" /></a>
                   </Button>
                   <Button
                     asChild
@@ -337,6 +395,22 @@ export default function Home() {
                   >
                     <a href="#pathways">See all pathways</a>
                   </Button>
+                </div>
+
+                {/* Risk Reversal */}
+                <div className="mt-6 flex items-center gap-4 text-sm text-[var(--muted-on-dark)]">
+                  <div className="flex items-center gap-2">
+                    <Lock size={16} className="text-[var(--gold)]" />
+                    <span>Satisfaction guarantee — contact us</span>
+                  </div>
+                  <div className="flex items-center gap-2 border-l border-[var(--gold)]/20 pl-4">
+                    <TrendingUp size={16} className="text-[var(--success)]" />
+                    <span>Trusted by 500+ organizations</span>
+                  </div>
+                  <div className="flex items-center gap-2 border-l border-[var(--gold)]/20 pl-4">
+                    <Zap size={16} className="text-[var(--gold)]" />
+                    <span>Instant access on payment</span>
+                  </div>
                 </div>
 
                 {/* Trust Bar */}
@@ -403,11 +477,36 @@ export default function Home() {
             <div className="mt-16 grid grid-cols-2 gap-6 border-t-2 border-[var(--text-on-dark)]/10 pt-10 sm:mt-20 sm:gap-8 sm:pt-12 lg:grid-cols-4">
               {stats.map((stat, index) => (
                 <div key={index} className="text-center">
+                  <div className="flex justify-center mb-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--gold)]/15">
+                      <stat.icon className="h-6 w-6 text-[var(--gold)]" />
+                    </div>
+                  </div>
                   <div className="text-display text-3xl font-bold text-[var(--gold)] sm:text-4xl lg:text-5xl xl:text-6xl">
                     {stat.value}
                   </div>
                   <div className="mt-2 text-fluid-xs text-[var(--muted-on-dark)] sm:text-sm">
                     {stat.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* TRUST BADGES */}
+        <section className="py-12 bg-[var(--background)] border-y border-[var(--border)]">
+          <div className="container px-6 lg:px-8">
+            <p className="text-center text-xs font-bold uppercase tracking-wider text-[var(--gold)] mb-8">Security & Compliance</p>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+              {trustBadges.map((badge, i) => (
+                <div key={i} className="flex items-center gap-3 p-4 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:border-[var(--gold)]/30 transition-colors">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--gold)]/15">
+                    <badge.icon className="h-5 w-5 text-[var(--gold)]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-[var(--foreground)]">{badge.label}</p>
+                    <p className="text-xs text-[var(--muted-foreground)]">{badge.desc}</p>
                   </div>
                 </div>
               ))}
@@ -469,7 +568,17 @@ export default function Home() {
                     {activePathway.label}
                   </span>
                   <h3 className="mt-4 text-3xl font-bold sm:text-4xl">Your Path: {activePathway.label}</h3>
-                  <p className="mt-4 text-lg leading-relaxed opacity-90">{activePathway.description}</p>
+                  <p className="mt-4 text-lg leading-relaxed opacity-90">{activePathway.outcome}</p>
+
+                  {/* Benefits */}
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    {activePathway.benefits.map((benefit, i) => (
+                      <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm border border-white/30">
+                        <Check className="w-3 h-3" />
+                        {benefit}
+                      </span>
+                    ))}
+                  </div>
 
                   <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                     <Button
@@ -510,10 +619,10 @@ export default function Home() {
                   <div className="relative rounded-2xl bg-white/10 backdrop-blur-sm p-6 border border-white/20">
                     <p className="text-xs font-bold uppercase tracking-wider mb-3 opacity-80">What you get</p>
                     <ul className="space-y-3 text-sm opacity-90">
-                      {activePathway.description.split(",").map((item, i) => (
+                      {activePathway.benefits.map((item, i) => (
                         <li key={i} className="flex items-center gap-2">
                           <Check className="w-4 h-4 shrink-0" style={{ color: activePathway.id === "team" ? "var(--navy-deep)" : "var(--gold)" }} />
-                          <span>{item.trim()}</span>
+                          <span>{item}</span>
                         </li>
                       ))}
                     </ul>
@@ -595,6 +704,14 @@ export default function Home() {
                     <div key={i} className="w-full flex-shrink-0 px-4">
                       <div className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-[var(--text-on-dark)]/10 bg-[var(--text-on-dark)]/5 p-8 transition-all hover:border-[var(--gold)] hover:bg-[var(--text-on-dark)]/10">
                         <div>
+                          <div className="flex items-center gap-2 mb-4">
+                            <div className="flex items-center gap-1">
+                              {[...Array(testimonial.rating)].map((_, idx) => (
+                                <Star key={idx} className="h-4 w-4 fill-[var(--gold)] text-[var(--gold)]" />
+                              ))}
+                            </div>
+                            <span className="text-xs font-medium text-[var(--gold)]">{testimonial.company}</span>
+                          </div>
                           <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--gold)]/10 text-[var(--gold)]">
                             <Quote size={24} />
                           </div>
@@ -733,6 +850,33 @@ export default function Home() {
                 </Button>
               </div>
             )}
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="py-16 sm:py-20 lg:py-24 bg-[var(--background)]">
+          <div className="container px-6 lg:px-8">
+            <div className="mb-12 text-center sm:mb-16 max-w-3xl mx-auto">
+              <p className="text-fluid-xs font-bold uppercase tracking-wider text-[var(--gold)]">Questions?</p>
+              <h2 className="text-display text-3xl font-semibold leading-[1.1] tracking-tight mt-3 sm:text-4xl lg:text-5xl text-[var(--navy-deep)]">
+                Everything you need to know
+              </h2>
+              <p className="mt-4 max-w-2xl mx-auto text-fluid-base text-[var(--muted-on-dark)]">
+                Quick answers to common questions. Can't find what you're looking for? <a href="/contact" className="underline underline-offset-2 hover:text-[var(--gold)]">Contact us</a>
+              </p>
+            </div>
+
+            <div className="max-w-3xl mx-auto space-y-4">
+              {faqs.map((faq, i) => (
+                <details key={i} className="group rounded-xl border border-[var(--border)] bg-[var(--card)] overflow-hidden transition-colors hover:border-[var(--gold)]/30">
+                  <summary className="flex items-center justify-between p-5 cursor-pointer list-none text-left">
+                    <span className="text-lg font-semibold text-[var(--foreground)] pr-4">{faq.q}</span>
+                    <ChevronRight size={20} className="text-[var(--muted-foreground)] group-open:rotate-90 transition-transform shrink-0" />
+                  </summary>
+                  <div className="px-5 pb-5 text-[var(--muted-foreground)] leading-relaxed">{faq.a}</div>
+                </details>
+              ))}
+            </div>
           </div>
         </section>
 

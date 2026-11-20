@@ -15,7 +15,7 @@ export const siteNavItems: NavItem[] = [
   { label: "Courses", href: "/courses" },
   { label: "Psychometrics", href: "/psychometrics" },
   { label: "Self Assessment", href: "/assessment" },
-  { label: "Career Path", href: "/careerpath" },
+  { label: "CareerPath", href: "/careerpath" },
   { label: "Resources", href: "/resources" },
   { label: "Contact", href: "/contact" },
   { label: "Dashboard", href: "/dashboard" },
@@ -71,17 +71,17 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
         : "/dashboard";
 
   const headerTone = dark
-    ? "border-white/15 bg-[#101d35] text-[#f7f3e8] shadow-[0_10px_30px_rgba(7,17,35,.16)]"
-    : "border-[#16243d]/10 bg-[#f7f3e8] text-[#16243d] shadow-[0_10px_30px_rgba(8,15,26,.08)]";
+    ? "border-white/15 bg-[var(--background)]/95 backdrop-blur-md text-[var(--text-on-dark)] shadow-[0_4px_20px_rgba(7,17,35,.12)]"
+    : "border-[var(--border)] bg-[var(--background)]/95 backdrop-blur-md text-[var(--foreground)] shadow-[0_4px_20px_rgba(8,15,26,.06)]";
 
-  const navText = dark ? "text-[#c9d1df] hover:text-[#c9a34e]" : "text-muted-foreground hover:text-[#7d5e1e]";
-  const activeText = dark ? "text-[#c9a34e]" : "text-[#5d4613]";
+  const navText = dark ? "text-[var(--muted-on-dark)] hover:text-[var(--gold)]" : "text-[var(--muted-foreground)] hover:text-[var(--gold)]";
+  const activeText = dark ? "text-[var(--gold)]" : "text-[var(--gold)]";
   const pillButton = dark
-    ? "border border-[#c9a34e] text-[#f7f3e8] hover:bg-[#c9a34e] hover:text-[#101d35]"
-    : "border border-[#16243d]/20 text-[#16243d] hover:bg-[#16243d] hover:text-[#f7f3e8]";
+    ? "border border-[var(--gold)] text-[var(--text-on-dark)] hover:bg-[var(--gold)] hover:text-[var(--navy-deep)]"
+    : "border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--navy-deep)]";
   const secondaryButton = dark
-    ? "border border-white/20 text-[#c9d1df] hover:border-[#c9a34e] hover:text-[#c9a34e]"
-    : "border border-[#16243d]/20 text-[#16243d] hover:border-[#a27e2e] hover:text-[#7d5e1e]";
+    ? "border border-white/20 text-[var(--muted-on-dark)] hover:border-[var(--gold)] hover:text-[var(--gold)]"
+    : "border border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--gold)] hover:text-[var(--gold)]";
   const compactNavClass = `text-[9px] font-black uppercase tracking-[.08em] transition-colors`;
 
   const mainNavItems = useMemo<NavItem[]>(() => {
@@ -93,7 +93,7 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
       { label: "Courses", href: "/courses" },
       { label: "Psychometrics", href: "/psychometrics" },
       { label: "Self Assessment", href: "/assessment" },
-{ label: "CareerPath", href: "/careerpath" },
+      { label: "CareerPath", href: "/careerpath" },
       { label: "Resources", href: "/resources" },
     ];
     if (isAuthenticated && user?.role) {
@@ -113,11 +113,11 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
       <header
         data-sticky-navigation
         data-compact={isCompact}
-        className={`sticky top-0 z-50 border-b transition-all duration-200 ${headerTone} ${isCompact ? "shadow-[0_14px_34px_rgba(7,17,35,.24)]" : ""} overflow-x-hidden`}
+        className={`sticky top-0 z-50 border-b transition-all duration-200 ${headerTone} ${isCompact ? "shadow-[0_8px_30px_rgba(7,17,35,.18)]" : ""} overflow-x-hidden`}
       >
         <div className={`container flex items-center justify-between gap-3 transition-[min-height,padding] duration-200 sm:gap-4 ${isCompact ? "min-h-14 py-1.5" : "min-h-16 py-2 sm:py-3"}`}>
           <Link href="/" className="flex shrink-0 items-center gap-3" aria-label="Profound IQ Consulting home">
-            <BrandLogo context="public page" compact={isCompact} className="border border-[#c9a34e]/70" />
+            <BrandLogo context="public page" compact={isCompact} className="border border-[var(--gold)]/70" />
           </Link>
 
           <nav id="site-navigation" className="scrollbar-hide hidden items-center gap-5 text-[10px] font-black uppercase tracking-[.14em] md:flex" aria-label="Primary navigation">
@@ -151,7 +151,7 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
 
           <button
             type="button"
-            className={`inline-flex h-9 w-9 items-center justify-center border md:hidden ${dark ? "border-white/20" : "border-[#16243d]/20"}`}
+            className={`inline-flex h-9 w-9 items-center justify-center border md:hidden ${dark ? "border-white/20" : "border-[var(--border)]"}`}
             aria-label={menuOpen ? "Close navigation" : "Open navigation"}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((open) => !open)}
@@ -161,7 +161,7 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
         </div>
 
         {menuOpen && (
-          <nav id="site-navigation-mobile" className={`border-t px-4 py-5 shadow-[0_16px_30px_rgba(7,17,35,.18)] md:hidden ${dark ? "border-white/10 bg-[#101d35]" : "border-[#16243d]/10 bg-[#f7f3e8]"}`} aria-label="Mobile navigation">
+          <nav id="site-navigation-mobile" className={`border-t px-4 py-5 shadow-[0_16px_30px_rgba(7,17,35,.18)] md:hidden ${dark ? "border-white/10 bg-[var(--background)]/95 backdrop-blur-md" : "border-[var(--border)] bg-[var(--background)]/95 backdrop-blur-md"}`} aria-label="Mobile navigation">
             <div className="container flex flex-col gap-1">
               {mainNavItems.map((item) => (
                 <Link
@@ -169,59 +169,59 @@ export function SiteNavigation({ variant = "public", dark = true, compact = fals
                   href={item.href}
                   aria-current={item.active ? "page" : undefined}
                   onClick={() => setMenuOpen(false)}
-                  className={`border-b px-1 py-3 text-[10px] font-black uppercase tracking-[.12em] transition-colors ${item.active ? activeText : dark ? "border-white/10 text-[#d6dce6] hover:text-[#c9a34e]" : "border-[#16243d]/10 text-[#16243d] hover:text-[#7d5e1e]"}`}
+                  className={`border-b px-1 py-3 text-[10px] font-black uppercase tracking-[.12em] transition-colors ${item.active ? activeText : dark ? "border-white/10 text-[var(--muted-on-dark)] hover:text-[var(--gold)]" : "border-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--gold)]"}`}
                 >
                   {item.label}
                 </Link>
               ))}
 
-<div className="mt-3 flex flex-wrap items-center gap-1">
-                  {!isAuthenticated && (
-                    <>
-                      <Link href="/auth?mode=login" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-0.5 border px-1.5 py-1 text-[9px] font-black uppercase tracking-[.1em] ${pillButton}`} style={{ fontSize: '9px', padding: '2px 6px' }}>
-                        Sign in
-                      </Link>
-                      <Link href="/auth?mode=register" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-0.5 border px-1.5 py-1 text-[9px] font-black uppercase tracking-[.1em] ${secondaryButton}`} style={{ fontSize: '9px', padding: '2px 6px' }}>
-                        Sign up
-                      </Link>
-                    </>
-                  )}
-                  <Link href="/contact" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-0.5 border px-1.5 py-1 text-[9px] font-black uppercase tracking-[.1em] ${pillButton}`} style={{ fontSize: '9px', padding: '2px 6px' }}>
-                    Start a conversation <ArrowUpRight size={10} />
-                  </Link>
-                </div>
+              <div className="mt-3 flex flex-wrap items-center gap-1">
+                {!isAuthenticated && (
+                  <>
+                    <Link href="/auth?mode=login" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-0.5 border px-1.5 py-1 text-[9px] font-black uppercase tracking-[.1em] ${pillButton}`} style={{ fontSize: '9px', padding: '2px 6px' }}>
+                      Sign in
+                    </Link>
+                    <Link href="/auth?mode=register" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-0.5 border px-1.5 py-1 text-[9px] font-black uppercase tracking-[.1em] ${secondaryButton}`} style={{ fontSize: '9px', padding: '2px 6px' }}>
+                      Sign up
+                    </Link>
+                  </>
+                )}
+                <Link href="/contact" onClick={() => setMenuOpen(false)} className={`inline-flex items-center gap-0.5 border px-1.5 py-1 text-[9px] font-black uppercase tracking-[.1em] ${pillButton}`} style={{ fontSize: '9px', padding: '2px 6px' }}>
+                  Start a conversation <ArrowUpRight size={10} />
+                </Link>
+              </div>
             </div>
           </nav>
         )}
       </header>
 
-{menuOpen && (
-          <div
-            className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm md:hidden"
-            aria-hidden="true"
-            onClick={() => setMenuOpen(false)}
-          />
-        )}
-        {showBackToTop && (
-          <button
-            type="button"
-            aria-label="Back to top"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="fixed bottom-6 right-6 z-50 grid h-10 w-10 place-items-center rounded-full border border-[#16243d]/25 bg-white/90 text-[#16243d] shadow-md transition-colors hover:border-[#c9a34e] hover:text-[#7d5e1e]"
-          >
-            <ArrowUp size={16} />
-          </button>
-        )}
-        {isAuthenticated && userDisplay && (
-          <div
-            data-signed-in-banner
-            className="sticky top-16 z-40 border-b border-white/10 bg-[#101d35]/95 backdrop-blur-sm px-4 py-2 text-center text-xs font-medium text-[#c9a34e] md:px-6"
-            role="status"
-            aria-live="polite"
-          >
-            Signed in as {userDisplay}
-          </div>
-        )}
-      </>
+      {menuOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm md:hidden"
+          aria-hidden="true"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
+      {showBackToTop && (
+        <button
+          type="button"
+          aria-label="Back to top"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-6 right-6 z-40 grid h-10 w-10 place-items-center rounded-full border border-[var(--border)] bg-[var(--card)]/90 backdrop-blur-sm text-[var(--foreground)] shadow-md transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]"
+        >
+          <ArrowUp size={16} />
+        </button>
+      )}
+      {isAuthenticated && userDisplay && (
+        <div
+          data-signed-in-banner
+          className="sticky top-16 z-40 border-b border-[var(--border)] bg-[var(--background)]/95 backdrop-blur-md px-4 py-2 text-center text-xs font-medium text-[var(--gold)] md:px-6"
+          role="status"
+          aria-live="polite"
+        >
+          Signed in as {userDisplay}
+        </div>
+      )}
+    </>
   );
 }

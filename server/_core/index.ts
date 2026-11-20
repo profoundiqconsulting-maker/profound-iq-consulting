@@ -17,12 +17,19 @@ import { registerWeeklyCourseLessonReviewAnalytics } from "../scheduledCourseLes
 import { verifySmtpConnection, getSmtpConfig } from "../email";
 import { serveStatic } from "./static";
 import { registerSeoRoutes } from "../seoRoutes";
-import { ensureAdminUser } from "../db";
+import { ensureAdminUser, getDb } from "../db";
+import { paystackRequest } from "./paystack";
+import {
+  assessmentAttempts,
+  psychometricAttempts,
+  careerPathAttempts,
+  courseEnrollments,
+} from "../../drizzle/schema";
 
-let criticalCssCache: string | null = null;
-let preloadLinksCache: string | null = null;
+export let criticalCssCache: string | null = null;
+export let preloadLinksCache: string | null = null;
 
-function loadCriticalAssets() {
+export function loadCriticalAssets() {
   if (criticalCssCache && preloadLinksCache) return;
   try {
     const publicDir = path.resolve(import.meta.dirname, "public");
@@ -56,11 +63,16 @@ function loadCriticalAssets() {
   }
 }
 
-function injectCriticalAssets(html: string): string {
+export function injectCriticalAssets(html: string): string {
   loadCriticalAssets();
   if (criticalCssCache) {
     const styleTag = `<style>${criticalCssCache}</style>`;
     html = html.replace("</head>", `${styleTag}\n</head>`);
+    // Convert render-blocking stylesheet to non-blocking (loads async after critical CSS)
+    html = html.replace(
+      /<link rel="stylesheet"([^>]*href="\/assets\/index-[^"]*\.css"[^>]*)>/,
+      '<link rel="preload" as="style"$1 onload="this.onload=null;this.rel=\'stylesheet\'"><noscript><link rel="stylesheet"$1></noscript>'
+    );
   }
   if (preloadLinksCache) {
     html = html.replace("</head>", `${preloadLinksCache}\n</head>`);
@@ -89,9 +101,9 @@ async function startServer() {
     // trusted-types) in dev; production keeps the strict, nonce-backed,
     // XSS-effective policy injected into the served SPA shell.
     let scriptSrc = isDev
-      ? `'self' 'unsafe-inline' 'unsafe-eval'`
-      : `'self' 'nonce-${nonce}'`;
-    let connectSrc = "'self'";
+      ? `'self' 'unsafe-inline' 'unsafe-eval' https://js.paystack.co`
+      : `'self' 'nonce-${nonce}' https://js.paystack.co`;
+    let connectSrc = "'self' https://api.paystack.co https://js.paystack.co";
     if (analyticsOrigin) {
       try {
         const origin = new URL(analyticsOrigin).origin;
@@ -115,6 +127,7 @@ async function startServer() {
       "base-uri 'self'",
       "form-action 'self'",
       "frame-ancestors 'self'",
+      "frame-src 'self' https://api.paystack.co https://js.paystack.co",
     ].join("; ");
     res.setHeader("Content-Security-Policy", csp);
     // Strong HSTS: force HTTPS for a year across subdomains. Browsers ignore
@@ -208,6 +221,143 @@ async function startServer() {
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
+  // Unified checkout initialization endpoint for CheckoutForm component
+  app.post("/api/checkout/initialize", express.json(), async (req, res) => {
+    try {
+      const { productType, productSlug, productName, amountKes, customerName, customerEmail, upsellIds = [], returnUrl } = req.body;
+
+      if (!productType || !productName || !amountKes || !customerEmail) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      const db = await getDb();
+      if (!db) {
+        return res.status(503).json({ message: "Database temporarily unavailable" });
+      }
+
+      let result: { accessCode: string; reference: string; amountKes: number; authorizationUrl?: string } | null = null;
+
+      switch (productType) {
+        case "assessment": {
+          const reference = `piq-assessment-${Date.now()}-${Math.random().toString(36).replace(/[^a-zA-Z0-9]/g, "").slice(0, 10)}`;
+          const payment = await paystackRequest("/transaction/initialize", {
+            method: "POST",
+            body: JSON.stringify({
+              amount: amountKes * 100,
+              currency: "KES",
+              email: customerEmail,
+              reference,
+              callback_url: `${process.env.PUBLISHED_SITE_ORIGIN || "https://profoundiqconsulting.com"}/assessment?payment=success&reference=${encodeURIComponent(reference)}`,
+              metadata: JSON.stringify({ product_type: "assessment", product_name: productName }),
+            }),
+          });
+          const accessCode = payment.data as { access_code?: string; authorization_url?: string };
+          // Store attempt in DB
+          await db.insert(assessmentAttempts).values({
+            paystackReference: reference,
+            name: customerName,
+            email: customerEmail,
+            answers: {},
+            paymentStatus: "pending",
+            consentedAt: new Date(),
+          });
+          result = { accessCode: accessCode.access_code as string, reference, amountKes, authorizationUrl: accessCode.authorization_url as string };
+          break;
+        }
+        case "psychometric": {
+          if (!productSlug) return res.status(400).json({ message: "productSlug required for psychometric" });
+          const reference = `piq-psychometric-${Date.now()}-${Math.random().toString(36).replace(/[^a-zA-Z0-9]/g, "").slice(0, 10)}`;
+          const payment = await paystackRequest("/transaction/initialize", {
+            method: "POST",
+            body: JSON.stringify({
+              amount: amountKes * 100,
+              currency: "KES",
+              email: customerEmail,
+              reference,
+              callback_url: `${process.env.PUBLISHED_SITE_ORIGIN || "https://profoundiqconsulting.com"}/psychometrics/${productSlug}?payment=success&reference=${encodeURIComponent(reference)}`,
+              metadata: JSON.stringify({ product_type: "psychometric", product_name: productName, test_slug: productSlug }),
+            }),
+          });
+          const accessCode = payment.data as { access_code?: string; authorization_url?: string };
+          await db.insert(psychometricAttempts).values({
+            paystackReference: reference,
+            testSlug: productSlug,
+            name: customerName,
+            email: customerEmail,
+            answers: {},
+            paymentStatus: "pending",
+            consentedAt: new Date(),
+          });
+          result = { accessCode: accessCode.access_code as string, reference, amountKes, authorizationUrl: accessCode.authorization_url as string };
+          break;
+        }
+        case "careerpath": {
+          const reference = `piq-careerpath-${Date.now()}-${Math.random().toString(36).replace(/[^a-zA-Z0-9]/g, "").slice(0, 10)}`;
+          const payment = await paystackRequest("/transaction/initialize", {
+            method: "POST",
+            body: JSON.stringify({
+              amount: amountKes * 100,
+              currency: "KES",
+              email: customerEmail,
+              reference,
+              callback_url: `${process.env.PUBLISHED_SITE_ORIGIN || "https://profoundiqconsulting.com"}/careerpath?payment=success&reference=${encodeURIComponent(reference)}`,
+              metadata: JSON.stringify({ product_type: "careerpath", product_name: productName }),
+            }),
+          });
+          const accessCode = payment.data as { access_code?: string; authorization_url?: string };
+          await db.insert(careerPathAttempts).values({
+            paystackReference: reference,
+            name: customerName,
+            email: customerEmail,
+            answers: {},
+            paymentStatus: "pending",
+            consentedAt: new Date(),
+          });
+          result = { accessCode: accessCode.access_code as string, reference, amountKes, authorizationUrl: accessCode.authorization_url as string };
+          break;
+        }
+        case "course_stage": {
+          if (!productSlug) return res.status(400).json({ message: "productSlug required for course" });
+          // For courses, we need to find the enrollment
+          // This is a simplified version - in production you'd look up the user's enrollment
+          const reference = `piq-course-${Date.now()}-${Math.random().toString(36).replace(/[^a-zA-Z0-9]/g, "").slice(0, 10)}`;
+          const payment = await paystackRequest("/transaction/initialize", {
+            method: "POST",
+            body: JSON.stringify({
+              amount: amountKes * 100,
+              currency: "KES",
+              email: customerEmail,
+              reference,
+              callback_url: `${process.env.PUBLISHED_SITE_ORIGIN || "https://profoundiqconsulting.com"}/courses/${productSlug}?payment=success&reference=${encodeURIComponent(reference)}`,
+              metadata: JSON.stringify({ product_type: "course_stage", product_name: productName, course_slug: productSlug, upsell_ids: upsellIds }),
+            }),
+          });
+          const accessCode = payment.data as { access_code?: string; authorization_url?: string };
+          result = { accessCode: accessCode.access_code as string, reference, amountKes, authorizationUrl: accessCode.authorization_url as string };
+          break;
+        }
+        default:
+          return res.status(400).json({ message: `Unknown product type: ${productType}` });
+      }
+
+      if (!result) {
+        return res.status(500).json({ message: "Failed to initialize payment" });
+      }
+
+      return res.json({
+        accessCode: result.accessCode,
+        reference: result.reference,
+        amountKes: result.amountKes,
+        productName: result.authorizationUrl ? productName : productName,
+        productType,
+        testSlug: productSlug,
+      });
+    } catch (error) {
+      console.error("[Checkout Initialize] Error:", error);
+      return res.status(500).json({ message: error instanceof Error ? error.message : "Payment initialization failed" });
+    }
+  });
+
   // tRPC API
   app.use(
     "/api/trpc",
@@ -230,31 +380,6 @@ registerSeoRoutes(app);
     const staticPath = path.resolve(import.meta.dirname, "public");
     serveStatic(app, staticPath);
   }
-
-  // Explicit SPA fallback for dynamic routes (e.g., /courses/:slug, /psychometrics/:slug)
-  // This ensures client-side routing works for deep links in production.
-  app.use((req, res, next) => {
-    // Skip API routes and static assets
-    if (req.path.startsWith("/api/") ||
-        req.path.match(/\.(js|css|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|webp|ico|json|txt|xml)$/i)) {
-      return next();
-    }
-    // Only serve HTML for GET/HEAD requests that accept HTML
-    const acceptsHtml =
-      typeof req.headers.accept === "string" &&
-      req.headers.accept.includes("text/html");
-    if (req.method !== "GET" && req.method !== "HEAD") {
-      return next();
-    }
-    if (!acceptsHtml) {
-      return next();
-    }
-    const indexPath = path.resolve(import.meta.dirname, "public", "index.html");
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-    res.setHeader("Pragma", "no-cache");
-    res.setHeader("Expires", "0");
-    res.sendFile(indexPath);
-  });
 
   const port = Number(process.env.PORT || "3000");
 

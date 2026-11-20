@@ -1,6 +1,7 @@
 /* Profound IQ Consulting — reusable Paystack inline checkout modal. */
 import { useEffect, useRef, useState } from "react";
-import { Loader2, ShieldCheck, AlertTriangle, ExternalLink } from "lucide-react";
+import { Loader2, ShieldCheck, AlertTriangle, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export type PaystackInlineProduct = {
   accessCode: string;
@@ -143,76 +144,73 @@ export default function PaystackInlineModal({
   }).format(product?.amountKes ?? 0);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-deep/85 backdrop-blur-md">
-      <div className="w-full max-w-md rounded-2xl border border-[#c9a34e]/40 bg-white p-8 text-center shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div className="w-full max-w-md bg-[var(--card)] rounded-2xl border border-[var(--border)] shadow-2xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200">
         {loading && !scriptError && (
-          <>
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#c9a34e]/15">
-              <Loader2
-                className="animate-spin text-[#7d5e1e]"
-                size={28}
-              />
+          <div className="p-8 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--gold)]/15">
+              <Loader2 className="animate-spin text-[var(--gold)]" size={28} />
             </div>
-            <p className="mt-5 text-base font-bold text-[#16243d]">
+            <p className="mt-5 text-base font-bold text-[var(--foreground)]">
               Loading secure payment…
             </p>
-            <p className="mt-2 text-sm text-[#4a566a]">
+            <p className="mt-2 text-sm text-[var(--muted-foreground)]">
               Please do not close this window.
             </p>
-          </>
+          </div>
         )}
         {scriptError && (
-          <>
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-50">
-              <AlertTriangle className="text-red-700" size={28} />
+          <div className="p-8 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--destructive)]/15">
+              <AlertTriangle className="text-[var(--destructive)]" size={28} />
             </div>
-            <p className="mt-5 text-base font-bold text-red-900">
+            <p className="mt-5 text-base font-bold text-[var(--destructive)]">
               Payment gateway could not load.
             </p>
-            <p className="mt-2 text-sm text-[#4a566a]">
+            <p className="mt-2 text-sm text-[var(--muted-foreground)]">
               Check your internet connection and try again.
             </p>
             <button
               type="button"
               onClick={onClose}
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-5 py-3 text-xs font-black uppercase tracking-[.12em] text-[#f7f3e8] transition hover:bg-[#16243d]/90"
+              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[var(--foreground)] px-5 py-3 text-xs font-bold uppercase tracking-[.12em] text-[var(--background)] transition hover:opacity-90"
             >
               Close
             </button>
-          </>
+          </div>
         )}
         {!loading && !scriptError && (
-          <>
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#c9a34e]/15">
-              <ShieldCheck className="text-[#7d5e1e]" size={24} />
+          <div className="p-8 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--gold)]/15">
+              <ShieldCheck className="text-[var(--gold)]" size={24} />
             </div>
-            <p className="mt-4 text-[10px] font-black uppercase tracking-[.16em] text-[#7d5e1e]">
+            <p className="mt-4 text-[10px] font-bold uppercase tracking-[.16em] text-[var(--gold)]">
               Secure checkout
             </p>
-            <p className="mt-3 text-xl font-bold text-[#16243d]">
+            <p className="mt-3 text-xl font-bold text-[var(--foreground)]">
               {product?.productName}
             </p>
-            <p className="mt-2 text-2xl font-black text-[#16243d]">
+            <p className="mt-2 text-2xl font-black text-[var(--gold)]">
               {formattedAmount}
             </p>
-            <p className="mt-1 text-xs text-[#4a566a]">
+            <p className="mt-1 text-xs text-[var(--muted-foreground)]">
               Ref: {product?.reference}
             </p>
-            <div className="mt-5 rounded-lg border border-[#16243d]/10 bg-[#f7f3e8] p-4 text-left">
-              <p className="text-xs leading-5 text-[#4a566a]">
+            <div className="mt-5 rounded-lg border border-[var(--border)] bg-[var(--muted)] p-4 text-left">
+              <p className="text-xs leading-5 text-[var(--muted-foreground)]">
                 A secure payment form will appear shortly. If it does not open
-                automatically, check your popup blocker or use the button below.
+                automatically, check your popup blocker.
               </p>
             </div>
             <button
               type="button"
-              onClick={() => onSuccessRef.current(product?.reference ?? "")}
-              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-5 py-3 text-xs font-black uppercase tracking-[.12em] text-[#f7f3e8] transition hover:bg-[#16243d]/90"
+              onClick={onClose}
+              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[var(--muted)] px-5 py-3 text-xs font-bold uppercase tracking-[.12em] text-[var(--foreground)] transition hover:bg-[var(--muted)]/80"
             >
-              <ExternalLink size={14} />
-              I have completed payment
+              <X size={14} />
+              Close
             </button>
-          </>
+          </div>
         )}
       </div>
     </div>

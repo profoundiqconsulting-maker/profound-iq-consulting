@@ -14,14 +14,15 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
-          "border border-input bg-transparent shadow-xs hover:bg-accent dark:bg-transparent dark:border-input dark:hover:bg-input/50 hover:border-primary/50",
+          "border-2 border-[var(--border)] bg-transparent shadow-xs hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] hover:border-[var(--accent)] dark:border-[var(--border)] dark:hover:bg-[var(--accent)] dark:hover:text-[var(--accent-foreground)]",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent dark:hover:bg-accent/50",
+        ghost: "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] dark:hover:bg-[var(--accent)]/50",
         link: "text-primary underline-offset-4 hover:underline",
-        gold: "bg-[var(--gold)] text-[var(--primary-foreground)] hover:bg-[var(--gold-hover)] hover:shadow-lg hover:shadow-[var(--gold)]/20 font-extrabold uppercase tracking-[.12em]",
+        gold: "bg-[var(--gold)] text-[var(--primary-foreground)] hover:bg-[var(--gold-hover)] hover:shadow-lg hover:shadow-[var(--gold)]/25 font-extrabold uppercase tracking-[.12em]",
         goldOutline: "border-2 border-[var(--gold)] text-[var(--gold)] bg-transparent hover:bg-[var(--gold)] hover:text-[var(--primary-foreground)] font-extrabold uppercase tracking-[.12em]",
         subtle: "bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:bg-[var(--secondary)]/80",
+        success: "bg-[var(--success)] text-white hover:bg-[var(--success-hover)] hover:shadow-lg hover:shadow-[var(--success)]/25 font-extrabold uppercase tracking-[.12em]",
       },
       size: {
         default: "h-11 px-6 py-2.5 has-[>svg]:px-5",
