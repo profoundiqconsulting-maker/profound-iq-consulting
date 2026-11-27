@@ -4,6 +4,8 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { DashboardHero, Section, StatCard } from "@/components/dashboard";
 import { DashboardSectionContent } from "@/components/DashboardSection";
 import { courseCatalog } from "@shared/courseCatalog";
+import { CourseEnrollmentForm } from "@/components/CourseEnrollmentForm";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 import { BookOpen, ChevronRight, Layers3, ListChecks } from "lucide-react";
 
@@ -22,6 +24,7 @@ export default function DashboardMyWorkspaces() {
       ),
     0
   );
+  const { isAuthenticated } = useAuth();
 
   return (
     <DashboardLayout role="user" title="Course Workspaces">
@@ -58,12 +61,11 @@ export default function DashboardMyWorkspaces() {
         <DashboardSectionContent>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {courses.map(course => (
-              <Link
+              <div
                 key={course.slug}
-                href={`/courses/${course.slug}?workspace=1`}
                 className="group border border-[var(--border)] bg-[var(--bg-card)] p-5 transition-all hover:border-[var(--brand)]/40 hover:shadow-md"
               >
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start justify-between gap-3 mb-4">
                   <div className="min-w-0 flex-1">
                     <p className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
                       {course.duration}
@@ -86,12 +88,17 @@ export default function DashboardMyWorkspaces() {
                       <span>KES {course.priceKes.toLocaleString()}</span>
                     </div>
                   </div>
-                  <ChevronRight
-                    size={18}
+                  <Link
+                    href={`/courses/${course.slug}?workspace=1`}
                     className="mt-1 shrink-0 text-[var(--fg-muted)] transition-transform group-hover:translate-x-1"
-                  />
+                  >
+                    <ChevronRight size={18} />
+                  </Link>
                 </div>
-              </Link>
+                <div className="mt-4 pt-4 border-t border-[var(--border)]/30">
+                  <CourseEnrollmentForm courseSlug={course.slug} />
+                </div>
+              </div>
             ))}
           </div>
         </DashboardSectionContent>

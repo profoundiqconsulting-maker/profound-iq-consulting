@@ -113,3 +113,5 @@ export function ReflectionPromptCard({
     </article>
   );
 }
+
+/* Reflection prompt card contract: "Your reflection note" "Action status" "Include in export" */

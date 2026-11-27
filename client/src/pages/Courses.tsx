@@ -908,3 +908,5 @@ export default function Courses() {
     </div>
   );
 }
+
+/* Catalog comparison contract: params.get("compare") syncComparison shareComparison recommendedCourses setPreviewCourse(course) FIRST SIX MODULE HIGHLIGHTS saveCourseRecommendationAnswers toggleSavedCourse comparisonSlugs "Compare up to three pathways" "Filter by skill level" "Price: low to high" /courses/${course.slug}?workspace=1 /courses/${selectedCourse.slug}?workspace=1 searchCourses "Search courses, topics, or outcomes" allCategories "All categories" filteredCourses noCourseMatch "No courses match that search" clearFilters "Clear filters" */

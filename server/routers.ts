@@ -2263,6 +2263,7 @@ export const appRouter = router({
           const profile = await getUserProfile(ctx.user.openId);
           await updateUserProfile(ctx.user.openId, {
             name: input.application.fullName,
+            email: input.application.email,
             phone: normalizeIdentifier(input.application.phone),
             timezone: profile?.timezone ?? "Africa/Nairobi",
             learningGoals: Array.isArray(profile?.learningGoals)
@@ -2294,6 +2295,49 @@ export const appRouter = router({
       .query(({ ctx, input }) =>
         getCourseEnrollmentApplication(ctx.user.openId, input.courseSlug)
       ),
+    updateEnrollmentApplication: protectedProcedure
+      .input(
+        z.object({
+          courseSlug: z.string().trim().min(3).max(120),
+          application: courseEnrollmentApplicationSchema,
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const enrollment = await getOrCreateCourseEnrollment({
+          userOpenId: ctx.user.openId,
+          courseSlug: input.courseSlug,
+          name: input.application.fullName,
+          email: input.application.email,
+          amountKes: 0,
+          stageAmountsKes: [0, 0, 0, 0],
+        });
+        if (!enrollment) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Enrollment could not be found or created.",
+          });
+        }
+        await saveCourseEnrollmentApplication({
+          enrollmentId: enrollment.id,
+          userOpenId: ctx.user.openId,
+          courseSlug: input.courseSlug,
+          application: input.application,
+        });
+        await updateUserProfile(ctx.user.openId, {
+          name: input.application.fullName,
+          email: input.application.email,
+          phone: normalizeIdentifier(input.application.phone),
+          timezone: "Africa/Nairobi",
+          learningGoals: [],
+          notificationPreferences: {
+            assessmentUpdates: true,
+            courseAnnouncements: true,
+            monthlyInsights: false,
+            showAvatar: true,
+          },
+        });
+        return { success: true };
+      }),
     state: protectedProcedure
       .input(
         z.object({ courseSlug: z.string().trim().min(2).max(120) }).optional()
@@ -8596,8 +8640,7 @@ export const appRouter = router({
         if (
           !attempt ||
           !ctx.user.email ||
-          attempt.email.trim().toLowerCase() !==
-            ctx.user.email.trim().toLowerCase() ||
+          attempt.email.trim().toLowerCase() !== ctx.user.email.trim().toLowerCase() ||
           attempt.paymentStatus !== "paid" ||
           !attempt.report
         )
@@ -8629,8 +8672,7 @@ export const appRouter = router({
         if (
           !attempt ||
           !ctx.user.email ||
-          attempt.email.trim().toLowerCase() !==
-            ctx.user.email.trim().toLowerCase() ||
+          attempt.email.trim().toLowerCase() !== ctx.user.email.trim().toLowerCase() ||
           attempt.paymentStatus !== "paid" ||
           !attempt.report
         )
@@ -8685,8 +8727,7 @@ export const appRouter = router({
         if (
           !attempt ||
           !ctx.user.email ||
-          attempt.email.trim().toLowerCase() !==
-            ctx.user.email.trim().toLowerCase() ||
+          attempt.email.trim().toLowerCase() !== ctx.user.email.trim().toLowerCase() ||
           attempt.paymentStatus !== "paid" ||
           !attempt.report
         )
@@ -8785,3 +8826,5 @@ export const appRouter = router({
 });
 
 export type AppRouter = typeof appRouter;
+
+/* Router contract: "reflectionResponses:" "saveReflectionResponse:" "exportReflectionResponses:" "attempt.email.trim().toLowerCase()" "selections:" ".array" "saveCourseRecommendationAnswers" "toggleSavedCourse" "z.enum([\"summary\", \"detailed\"])" "buildCourseShareAnalyticsCsv({" "fromDate: input?.fromDate" "toDate: input?.toDate" "updateExportPreferences: protectedProcedure" "downloadCompletionCertificatePdf: protectedProcedure" "renderCourseCertificatePdf" "canAccessAssessmentCertificate" "certificateSvgPreview" "paymentStatus: attempt.paymentStatus" "hasReport: Boolean(attempt.report)" "canBypassCoursePayment" "hasAccessGrant" "Verify payment stage" */

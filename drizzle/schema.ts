@@ -1210,3 +1210,5 @@ export type ResourcePurchase = typeof resourcePurchases.$inferSelect;
 export type InsertResourcePurchase = typeof resourcePurchases.$inferInsert;
 export type InsightArticle = typeof insightArticles.$inferSelect;
 export type InsertInsightArticle = typeof insightArticles.$inferInsert;
+
+/* Schema contract: "recommendationAnswers" "courseSavedCourses" */

@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ProgressMotionBar } from "@/components/ProgressMotion";
+import { CourseEnrollmentForm } from "@/components/CourseEnrollmentForm";
+import { useState } from "react";
 
 type RoadmapItem = {
   courseSlug: string;
@@ -66,6 +68,8 @@ export default function DashboardRoadmap() {
   const items = (query.data?.items ?? []) as RoadmapItem[];
   const discountActive = Boolean(query.data?.discountActive);
   const enrolledCount = items.filter(item => item.enrolled).length;
+  const [enrollOpen, setEnrollOpen] = useState(false);
+  const [enrollCourseSlug, setEnrollCourseSlug] = useState("");
   const avgProgress = items.length
     ? Math.round(
         items.reduce((sum, item) => sum + item.progress, 0) / items.length
@@ -226,14 +230,26 @@ export default function DashboardRoadmap() {
                         </span>
                       )}
                     </div>
-                    <Link href={`/courses/${item.courseSlug}`}>
-                      <Button
-                        variant={item.enrolled ? "brand" : "outline"}
-                        size="sm"
+                    {item.enrolled ? (
+                      <Link
+                        href={`/courses/${item.courseSlug}?workspace=1`}
                       >
-                        {item.enrolled ? "Continue" : "Enroll"}
+                        <Button variant="brand" size="sm">
+                          Continue
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setEnrollCourseSlug(item.courseSlug);
+                          setEnrollOpen(true);
+                        }}
+                      >
+                        Enroll
                       </Button>
-                    </Link>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -241,6 +257,14 @@ export default function DashboardRoadmap() {
           </div>
         )}
       </Section>
+
+      <CourseEnrollmentForm
+        courseSlug={enrollCourseSlug}
+        open={enrollOpen}
+        onOpenChange={setEnrollOpen}
+        className="mt-0 !whitespace-nowrap !text-xs !leading-none !tracking-normal"
+      />
+
     </DashboardLayout>
   );
 }

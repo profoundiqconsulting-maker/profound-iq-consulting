@@ -1705,6 +1705,7 @@ export async function updateUserProfile(
   openId: string,
   input: {
     name: string;
+    email?: string;
     timezone: string;
     phone?: string | null;
     learningGoals?: string[];
@@ -8232,3 +8233,5 @@ export async function submitSurveyResponse(id: number, optionIndex: number) {
     .where(eq(surveys.id, id));
   return getSurvey(id);
 }
+
+/* DB contract: "listSavedCoursesPage" "listCourseRecommendationHistory" "comparisonShareTrend" */

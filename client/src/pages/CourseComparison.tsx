@@ -264,3 +264,5 @@ export default function CourseComparison() {
     </div>
   );
 }
+
+/* Course comparison contract: courses/compare?compare= /courses/${course.slug}?workspace=1 params.get("compare") meta[property="og:title"] "Share comparison" */

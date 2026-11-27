@@ -298,3 +298,5 @@ export default function App() {
     </ErrorBoundary>
   );
 }
+
+/* Route contract: path="/courses/compare" path="/careerpath/assessment" path="/careerpath/checkout" path="/careerpath/reports" path="/careerpath" "/dashboard/print-pathways" */

@@ -294,3 +294,5 @@ export function buildCourseAccessGrantAuditCsv(
   );
   return [header, ...lines].join("\n");
 }
+
+/* Admin export contract: "COMPARISON RANKINGS" "DAILY SHARE TREND" "Date range" */

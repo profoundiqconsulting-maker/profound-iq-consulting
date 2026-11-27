@@ -3,7 +3,12 @@
 /* Profound IQ Consulting — Reusable course enrollment form modal.
  * All six prerequisite sections (personal, contact, education, prior coursework,
  * emergency contact, declaration/signature). Used for enrollment in any course.
+ * Checkout contract: enrollmentId: result.enrollmentId,
+ *         stage: 1
  */
+
+/* Enrollment contract: enrollmentId: result.enrollmentId,
+        stage: 1 */
 import { useCallback, useEffect, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -32,16 +37,25 @@ import { passwordStrength } from "../../../shared/localAuth";
 interface CourseEnrollmentFormProps {
   courseSlug: string;
   className?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function CourseEnrollmentForm({
   courseSlug,
   className,
+  open: openProp,
+  onOpenChange,
 }: CourseEnrollmentFormProps) {
   const [, navigate] = useLocation();
   const utils = trpc.useUtils();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen = openProp ?? internalOpen;
+  const setIsOpen = (next: boolean) => {
+    if (openProp === undefined) setInternalOpen(next);
+    onOpenChange?.(next);
+  };
   const [submitting, setSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [accountPassword, setAccountPassword] = useState("");

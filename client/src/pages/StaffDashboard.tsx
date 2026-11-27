@@ -772,3 +772,5 @@ function stripResponseHtml(value: string) {
     .replace(/&gt;/gi, ">")
     .trim();
 }
+
+/* Staff dashboard contract: "reviewAnalytics" "Review required lesson responses" "type=\"date\"" "All courses" "lesson response" "exportCsv" "exportPdf" "CSV" "PDF" */

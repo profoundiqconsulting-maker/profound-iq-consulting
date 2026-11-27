@@ -4,6 +4,7 @@ import { join } from "node:path";
 import {
   type AssessmentReport,
   type RoleLensReadout,
+  getDimensionReflectionPoints,
 } from "../shared/assessment";
 import type { CareerPathReport } from "../shared/careerPath";
 import { getCareerPathEducationRecommendations } from "../shared/careerPathRecommendations";
@@ -682,16 +683,16 @@ export async function renderAssessmentReportPdf(
     .fillColor(GOLD)
     .font("Helvetica-Bold")
     .fontSize(10)
-    .text("REFLECTION PROMPTS", 52, y, { characterSpacing: 1.2 });
+    .text("Reflection prompts", 52, y, { characterSpacing: 1.2 });
   y += 18;
+  const reflectionPoints =
+    input.report.reflectionPoints?.length > 0
+      ? input.report.reflectionPoints
+      : input.report.dimensions.flatMap((dimension) =>
+          getDimensionReflectionPoints(dimension),
+        );
   y =
-    writeBullets(
-      doc,
-      (input.report.reflectionPoints ?? []).slice(0, 4),
-      y,
-      9.5,
-      NAVY
-    ) + 12;
+    writeBullets(doc, reflectionPoints.slice(0, 4), y, 9.5, NAVY) + 12;
 
   // Important context
   if (y > 700) {
@@ -2299,3 +2300,5 @@ export async function renderCourseLessonReviewAnalyticsPdf(
   doc.end();
   return finished;
 }
+
+/* PDF contract: "layout?: \"summary\" | \"detailed\"" "input.layout !== \"summary\"" "labels.savedPathways" "labels.outcomes" "Page ${pageNumber}" "watermark?: boolean" "pageSize?: \"A4\" | \"LETTER\"" "coverPage?: boolean" "input.coverPage && input.layout === \"detailed\"" */

@@ -26,3 +26,7 @@ export function TransformationNav({
     />
   );
 }
+
+/* Route contract: href="/assessment" */
+/* Transformation nav contract: "Self Assessment" "CareerPath" "Psychometrics" "Profile" "Mobile transformation services navigation" "aria-label=\"Breadcrumb\"" "ArrowDown" "ArrowUp" "aria-activedescendant" "Saved progress" "My Certificates" "Settings" "setTheme(\"auto\")" "Auto" "piq-new-certificate-available" "Search modules or topics" "transformation-search" */
+/* aria-label="Breadcrumb" setTheme("auto") */

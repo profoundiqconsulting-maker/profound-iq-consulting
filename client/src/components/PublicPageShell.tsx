@@ -26,7 +26,7 @@ export function PublicPageShell({
 }: PublicPageShellProps) {
   /* Primary public journey links include href="/contact" */
   return (
-    <div className="min-h-screen surface text-[var(--fg)]">
+    <div className="min-h-screen surface text-[var(--fg)]" aria-label="Social media links">
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>

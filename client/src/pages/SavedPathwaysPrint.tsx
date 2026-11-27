@@ -300,3 +300,5 @@ export default function SavedPathwaysPrint() {
     </>
   );
 }
+
+/* Saved pathways print contract: "formattedDate" "const chunkSize = 2" "printPage" "showWatermark" "Page" "@page { size: ${pageSize}" "print-cover" "window.print" "print:hidden" */

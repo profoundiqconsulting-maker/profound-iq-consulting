@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import {
   ArrowLeft,
   BookOpen,
+  Calendar,
   ChevronRight,
   Clock3,
   Download,
@@ -26,7 +27,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { courseCatalog } from "@shared/courseCatalog";
+import {
+  courseCatalog,
+  type CourseDefinition,
+  type CourseModule,
+} from "@shared/courseCatalog";
 import { buildCourseModuleBadges } from "@shared/courseBadges";
 import { summarizeCourseEnrollment } from "@shared/coursePaymentRollup";
 import { buildCourseCompletionShareSvg } from "@shared/courseCompletionVisual";
@@ -112,6 +117,46 @@ function getCourseStatus(
   if (allModulesEarned && hasCertificate) return "completed";
 
   return "in-progress";
+}
+
+/** Estimated minutes remaining for a course, based on lessons not yet opened. */
+function estimateMinutesRemaining(
+  course: CourseDefinition,
+  completedLessonCount: number
+): number {
+  const totalMinutes = course.modules.reduce(
+    (sum, m) => sum + m.lessons.reduce((lsum, l) => lsum + l.durationMinutes, 0),
+    0
+  );
+  const totalLessons = course.modules.reduce(
+    (sum, m) => sum + m.lessons.length,
+    0
+  );
+  if (totalLessons === 0) return 0;
+  const minutesPerLesson = totalMinutes / totalLessons;
+  const remainingLessons = Math.max(0, totalLessons - completedLessonCount);
+  return Math.round(remainingLessons * minutesPerLesson);
+}
+
+/** Formats minutes as "Xh Ym" or "Xm". */
+function formatMinutes(minutes: number): string {
+  if (minutes <= 0) return "—";
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+
+/** Formats a Date-ish value as "DD MMM YYYY". */
+function formatEnrollmentDate(value: Date | string | null | undefined): string {
+  if (!value) return "—";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return "—";
+  return d.toLocaleDateString(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function getStatusConfig(status: CourseStatus) {
@@ -361,6 +406,17 @@ export default function DashboardEnrolledCourses() {
                 const isCompleted = status === "completed";
                 const isNotStarted = status === "not-started";
 
+                const minutesRemaining = estimateMinutesRemaining(
+                  course,
+                  record.lessons?.length ?? 0
+                );
+                const enrollmentDate = formatEnrollmentDate(
+                  record.enrollment.createdAt
+                );
+                const lastUpdated = formatEnrollmentDate(
+                  record.enrollment.updatedAt
+                );
+
                 return (
                   <Card
                     key={record.enrollment.id}
@@ -452,8 +508,26 @@ export default function DashboardEnrolledCourses() {
                             {rollup.paidStages}/{rollup.totalStages}
                           </p>
                         </div>
+                        <div className="text-center p-2 bg-[#f7f3e8] rounded-lg transition-colors hover:bg-[#f0e8d0]">
+                          <p className="text-[10px] font-black uppercase tracking-[.08em] text-[var(--brand)]">
+                            Est. remaining
+                          </p>
+                          <p className="mt-1 text-sm font-bold text-foreground">
+                            {formatMinutes(minutesRemaining)}
+                          </p>
+                        </div>
                       </div>
 
+                      <div className="flex items-center justify-between gap-2 text-[10px] mb-4">
+                        <div className="flex items-center gap-1.5 text-[var(--fg-muted)]">
+                          <Calendar size={10} />
+                          <span>Enrolled {enrollmentDate}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[var(--fg-muted)]">
+                          <Clock3 size={10} />
+                          <span>Updated {lastUpdated}</span>
+                        </div>
+                      </div>
                       {status === "not-started" && (
                         <p className="text-xs text-muted-foreground mb-4">
                           You have not started this course yet. Begin your
@@ -552,17 +626,62 @@ export default function DashboardEnrolledCourses() {
           title="No enrolled courses"
           description="Start your first professional course to see it here."
         >
-          <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#f7f3e8] transition-shadow hover:shadow-md">
-              <BookOpen size={28} className="text-muted-foreground" />
+          <div className="flex flex-col gap-6 py-12">
+            <div className="flex flex-col items-center justify-center gap-4 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#f7f3e8] transition-shadow hover:shadow-md">
+                <BookOpen size={28} className="text-muted-foreground" />
+              </div>
+              <p className="text-sm text-foreground max-w-sm">
+                You have not enrolled in any courses yet. Explore our professional
+                courses to begin your learning journey.
+              </p>
+              <Link href="/courses">
+                <Button variant="brand">Explore courses</Button>
+              </Link>
             </div>
-            <p className="text-sm text-foreground max-w-sm">
-              You have not enrolled in any courses yet. Explore our professional
-              courses to begin your learning journey.
-            </p>
-            <Link href="/courses">
-              <Button variant="brand">Explore courses</Button>
-            </Link>
+
+            <div className="border-t border-[var(--border)] pt-6">
+              <p className="mb-4 text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
+                Popular courses
+              </p>
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {courseCatalog.slice(0, 3).map(course => (
+                  <Card
+                    key={course.slug}
+                    className="border border-[var(--border)] bg-[var(--bg-card)] p-4 transition-all hover:border-[var(--brand)]/40 hover:shadow-md"
+                  >
+                    <div className="h-24 rounded-lg border border-[var(--border)] overflow-hidden mb-3">
+                      <CourseCoverImage
+                        src={course.coverImage}
+                        slug={course.slug}
+                        alt={course.title}
+                        className="h-full w-full object-cover"
+                        width={320}
+                        height={144}
+                      />
+                    </div>
+                    <h3 className="mb-1 text-sm font-semibold text-[var(--fg)]">
+                      {course.title}
+                    </h3>
+                    <p className="mb-3 text-xs text-[var(--fg-muted)] leading-5">
+                      {course.description}
+                    </p>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
+                        KES {course.priceKes.toLocaleString()}
+                      </span>
+                      <Link
+                        href={`/courses/${course.slug}`}
+                        className="inline-flex items-center gap-1 rounded border border-[var(--brand)]/20 px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[var(--brand)] transition-colors hover:bg-[var(--brand)]/10"
+                      >
+                        View
+                        <ChevronRight size={10} />
+                      </Link>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
           </div>
         </Section>
       )}

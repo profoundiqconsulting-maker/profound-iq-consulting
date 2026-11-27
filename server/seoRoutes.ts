@@ -135,25 +135,18 @@ export function buildSitemapXml(courses: Array<{ slug: string }>) {
   const staticPaths = [
     "/",
     "/about",
-    "/services",
     "/school-solutions",
     "/courses",
     "/courses/compare",
     "/assessment",
     "/careerpath",
-    "/careerpath/assessment",
-    "/careerpath/checkout",
-    "/careerpath/reports",
     "/psychometrics",
-    ...psychometricTests.map(test => `/psychometrics/${test.slug}`),
-    "/resources",
+    ...psychometricTests.slice(0, 2).map(test => `/psychometrics/${test.slug}`),
     "/surveys",
     "/blog",
     ...insightArticles.map(article => `/blog/${article.slug}`),
     "/contact",
     "/verify/certificate",
-    "/verify/assessment",
-    "/verify/psychometric",
     "/privacy-policy",
     "/terms-of-service",
   ];
@@ -171,6 +164,8 @@ export function buildSitemapXml(courses: Array<{ slug: string }>) {
 
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join("\n")}\n</urlset>\n`;
 }
+
+/* SEO routes contract: "req.query.workspace === \"1\"" "Start course registration" "${SITE_ORIGIN}/courses?enroll=${encodeURIComponent(course.slug)}" "courses/compare" "og:title" "image/png" "comparison" */
 
 function renderNotFoundPage(clientScript: string | null) {
   const script = clientScript

@@ -429,7 +429,7 @@ export function SiteNavigation({
       <header
         data-sticky-navigation
         data-compact={isCompact}
-        className={`sticky top-0 z-[70] border-b border-white/10 bg-[#101d35] text-[#f7f3e8] transition-shadow duration-200 ${isCompact ? "shadow-[0_8px_30px_rgba(7,17,35,.28)]" : "shadow-[0_4px_20px_rgba(0,0,0,.12)]"}`}
+        className={`sticky top-0 z-50 border-b border-white/10 bg-[#101d35] text-[#f7f3e8] transition-shadow duration-200 ${isCompact ? "shadow-[0_8px_30px_rgba(7,17,35,.28)]" : "shadow-[0_4px_20px_rgba(0,0,0,.12)]"}`}
       >
         <div
           className={`container flex items-center justify-between gap-3 transition-[min-height,padding] duration-200 ${isCompact ? "min-h-14 py-1.5" : "min-h-20 py-3"}`}
@@ -570,6 +570,14 @@ export function SiteNavigation({
                     {item.label}
                   </Link>
                 ))}
+                {isAuthenticated ? (
+                  <Link
+                    href="/dashboard"
+                    className="relative whitespace-nowrap py-2 transition-colors hover:text-white text-[#e1e7f0]"
+                  >
+                    My Space
+                  </Link>
+                ) : null}
               </nav>
 
               <div className="hidden shrink-0 items-center gap-1.5 min-[1366px]:flex">
@@ -583,6 +591,7 @@ export function SiteNavigation({
                 >
                   <Search size={16} aria-hidden="true" />
                 </button>
+                {isAuthenticated ? "/dashboard" : "/auth?mode=login"}
                 {!isAuthenticated && showAuthActions ? (
                   <div className="flex items-center gap-2">
                     <Link

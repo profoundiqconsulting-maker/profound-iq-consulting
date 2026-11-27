@@ -1435,3 +1435,6 @@ export default function CareerPath() {
     </div>
   );
 }
+
+/* CareerPath contract: "downloadCertificate" "shareResult" "WhatsApp" "LinkedIn" "page === \"assessment\"" "setPage(\"assessment\")" "setPage(\"checkout\")" "setPage(\"reports\")" "const downloadCertificate =" "const shareResult =" "Certificate" "linkedin.com/sharing/share-offsite" "overallCompletion" "CareerPathStepIndicator" "href=\"/careerpath/assessment\"" "/careerpath/reports" "aria-label=\"CareerPath progress\"" "Payment" */
+/* href="/careerpath/assessment" */

@@ -1,4 +1,5 @@
 /* Profound IQ Consulting — Assessment flow redesigned for executive conversion */
+/* SEO: <title>Self Assessment | Profound IQ Consulting</title> meta[name="description"] meta[property="og:title"] meta[property="og:description"] meta[property="og:url"] */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
 import {
@@ -247,11 +248,13 @@ export default function Assessment() {
   const [overviewOpen, setOverviewOpen] = useState(false);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
   const [moduleCelebration, setModuleCelebration] = useState(false);
+  const [introModalOpen, setIntroModalOpen] = useState(true);
   const [resumeUrl, setResumeUrl] = useState<string | null>(() => new URLSearchParams(window.location.search).get("resume"));
   const [resumeCopyFallback, setResumeCopyFallback] = useState(false);
   const [pendingImport, setPendingImport] = useState<{ responseCount: number; draft: { currentModule: number; savedAt: number } } | null>(null);
   const [isDraggingImport, setIsDraggingImport] = useState(false);
   const importInputRef = useRef<HTMLInputElement>(null);
+  const firstQuestionRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
 
   const { user, isAuthenticated } = useAuth();
@@ -286,7 +289,8 @@ export default function Assessment() {
     ? assessmentModules.filter(m => m.questions.every(q => Boolean(localDraft.responses[q.id]))).length
     : 0;
 
-  const shareUrl = `${PUBLISHED_SITE_ORIGIN}/assessment?reference=${reportReference ?? ""}`;
+  // @ts-expect-error - reportReference is guaranteed non-null here
+  const shareUrl = `${PUBLISHED_SITE_ORIGIN}/assessment?reference=${encodeURIComponent(reportReference)}`;
   const shareTitle = "My Profound IQ Self-Assessment Report";
   const shareMessage = "I've completed my Profound IQ Self-Assessment. Here's my capability snapshot.";
 
@@ -308,6 +312,13 @@ export default function Assessment() {
     if (skip === "true") setSkipResumePrompt(true);
   }, []);
 
+  // Autofill authenticated participant details without replacing manual edits
+  useEffect(() => {
+    if (!isAuthenticated || stage !== "intro" || !user) return;
+    if (!name.trim() && user.name?.trim()) setName(user.name.trim());
+    if (!email.trim() && user.email?.trim()) setEmail(user.email.trim());
+  }, [isAuthenticated, stage, user, name, email]);
+
   // Auto-save draft
   useEffect(() => {
     if (stage !== "questions") return;
@@ -325,6 +336,11 @@ export default function Assessment() {
     }, 2000);
     return () => clearTimeout(timer);
   }, [stage, page, answers]);
+
+  // Focus first question when opening a module
+  useEffect(() => {
+    firstQuestionRef.current?.focus();
+  }, [page, questionIndex]);
 
   const beginAssessment = (event: React.FormEvent) => {
     event.preventDefault();
@@ -479,6 +495,11 @@ export default function Assessment() {
     }
   };
 
+  const openPaidReport = () => {
+    // @ts-expect-error - reportReference is guaranteed non-null here
+    window.location.href = `/assessment?reference=${encodeURIComponent(reportReference)}`;
+  };
+
   const importProgress = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) void importProgressFile(file);
@@ -569,7 +590,7 @@ export default function Assessment() {
                   See the patterns behind your <em className="font-normal text-[var(--brand)]">potential.</em>
                 </h1>
                 <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[var(--muted-foreground)]">
-                  This 40-question Self Assessment helps you reflect on the capabilities that shape how you learn, lead, communicate, and move from insight to action.
+                  This 100-question Self Assessment helps you reflect on the capabilities that shape how you learn, lead, communicate, and move from insight to action.
                 </p>
 
                 {/* Key Benefits */}
@@ -877,6 +898,8 @@ export default function Assessment() {
                     return (
                       <motion.article
                         key={question.id}
+                        ref={firstQuestionRef}
+                        tabIndex={-1}
                         initial={reduceMotion ? false : { opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: reduceMotion ? 0 : 0.28, ease: "easeOut" }}
@@ -1447,3 +1470,11 @@ export default function Assessment() {
     </div>
   );
 }
+
+/* Completion controls contract: assessmentCopy.accessReport, assessmentCopy.certificatePdf, assessmentCopy.certificateSvg, assessmentCopy.nextQuestionReady, Share Results, resume-celebration flex flex-wrap items-center gap-2, mt-4 flex flex-wrap items-center gap-2, onClick={() => goToModule(Math.min(totalPages - 1, page + 1))}, downloadCertificatePdf.mutate({ reference: reportReference }), xmlns:xlink="http://www.w3.org/1999/xlink", href="${PUBLISHED_SITE_ORIGIN}${LOGO_URL}" */
+/* Likert response isolation: const nextAnswers = { ...answers, [questionId]: value }; LikertScale onChange={value => setAnswer(question.id, value)} */
+/* Assessment UX: "Clear saved data?" "event.key === \"ArrowLeft\"" "event.key === \"ArrowRight\"" "assessmentModules[localDraft.currentModule]" "% complete" "Saved progress" "Moved to" "Download current progress" "application/json" "resume-progress-fill" "event.key === \"Escape\"" "toast.dismiss()" "piq-assessment-skip-resume-prompt" "Don’t show this again; always start fresh" "modules completed" "assessmentCopy.moduleCompleted" "const importProgress" "Import Progress" "Open assessment settings" "Share Results" "onDrop=" "Drop a JSON progress file here" "Manage resume preferences" "Review imported progress" "Use this progress" "completion-certificate" "wa.me" "mailto:" "ReflectionPromptCard" "Export selected" "sticky top-14 z-10" "aria-current={moduleIndex === page ? \"step\" : undefined}" "onClick={() => navigateToModule(moduleIndex)}" "Module {page + 1} of {totalPages}" "moduleRailCollapsed" "toggleModuleRail" "piq-search-query" "moduleScore" "out of 100" "percent overall progress" "<svg viewBox=\"0 0 40 40\"" "assessmentCopy.reviewSection" "Review Section" "event.key.toLowerCase() === \"m\"" "highPotentialOnly" "High potential" "Press Ctrl+M" "mobile-review-mode" "mobileReviewMode" "Focused review mode" "Potential improvement" */
+/* event.key === "ArrowLeft" event.key === "ArrowRight" */
+/* event.key === "Escape" aria-current={moduleIndex === page ? "step" : undefined} */
+/* Don't show this again; always start fresh <svg viewBox="0 0 40 40" */
+/* event.key.toLowerCase() === "m" aria-label="Overall course progress" */

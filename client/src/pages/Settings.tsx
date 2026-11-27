@@ -157,6 +157,40 @@ export default function Settings() {
   const cropCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [preferences, setPreferences] = useState(defaults);
   const [learningGoals, setLearningGoals] = useState<string[]>([]);
+  const [enrollmentApplication, setEnrollmentApplication] = useState({
+    fullName: "",
+    preferredName: "",
+    dob: "",
+    nationality: "",
+    idNumber: "",
+    email: "",
+    phone: "",
+    altPhone: "",
+    city: "",
+    address: "",
+    country: "",
+    postal: "",
+    qualification: "",
+    fieldOfStudy: "",
+    institution: "",
+    gradYear: "",
+    credentials: [{ title: "", issuer: "", date: "", id: "" }],
+    ecName: "",
+    ecRelation: "",
+    ecPhone: "",
+    ecEmail: "",
+    declaration: false,
+    signature: "",
+    signDate: new Date().toISOString().slice(0, 10),
+  });
+  const [enrollmentEditing, setEnrollmentEditing] = useState(false);
+  const updateEnrollmentApplication =
+    trpc.course.updateEnrollmentApplication.useMutation();
+  const getEnrollmentApplication =
+    trpc.course.enrollmentApplication.useQuery(
+      { courseSlug: "leadership" },
+      { enabled: false }
+    );
   const [qaFixtureEnabled, setQaFixtureEnabled] = useState(
     () =>
       import.meta.env.DEV &&

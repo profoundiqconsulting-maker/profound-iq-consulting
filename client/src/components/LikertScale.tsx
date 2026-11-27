@@ -133,7 +133,7 @@ export function LikertScale({
                         name={id}
                         value={option.value}
                         checked={isSelected}
-                        onChange={() => handleClick(optionIndex, option.value)}
+                        onChange={() => onChange(option.value)}
                         className="sr-only"
                         aria-label={`${option.label}${option.description ? `, ${option.description}` : ""}`}
                       />

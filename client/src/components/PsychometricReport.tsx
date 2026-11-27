@@ -233,7 +233,99 @@ export function ProfessionalPsychometricReport({
         </div>
       </section>
 
+      {/* Normative comparison */}
+      {report.comparisonData?.length && (
+        <Card className="border-[var(--border)] shadow-sm">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-2">
+              <UsersRound className="h-4 w-4 text-[var(--gold)]" />
+              <CardTitle className="text-base">Profile comparison</CardTitle>
+            </div>
+            <p className="text-xs leading-5 text-[var(--fg-muted)]">
+              How your responses compare with the reference cohort. Out of 100.
+            </p>
+          </CardHeader>
+          <CardContent className="pt-1">
+            <div className="space-y-2">
+              {report.comparisonData.map(c => {
+                const diff = c.value - (c.normative ?? 50);
+                return (
+                  <div key={c.label} className="group flex items-center gap-3">
+                    <span className="w-20 shrink-0 text-xs text-[var(--fg-muted)]">
+                      {c.label}
+                    </span>
+                    <div className="flex-1 h-2 rounded-full bg-muted/30 overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-500 group-hover:filter brightness-110"
+                        style={{
+                          width: `${Math.max(0, Math.min(100, c.value))}%`,
+                          backgroundColor: "#c6a15b",
+                        }}
+                      />
+                    </div>
+                    <span className="w-8 shrink-0 text-xs font-bold text-[var(--fg)]">
+                      {c.value}
+                    </span>
+                    {c.normative && (
+                      <span className="w-10 shrink-0 text-[10px] text-[var(--fg-muted)]">
+                        {diff >= 0 ? "+" : ""}{diff}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid gap-5 lg:grid-cols-2">
+        {/* Domain profile strength grid */}
+        <Card className="border-[var(--border)] shadow-sm">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-[var(--gold)]" />
+              <CardTitle className="text-base">Domain profile at a glance</CardTitle>
+            </div>
+            <p className="text-xs leading-5 text-[var(--fg-muted)]">
+              Color-coded signal strength across all measured domains.
+            </p>
+          </CardHeader>
+          <CardContent className="pt-1">
+            <div className="grid grid-cols-4 gap-3 p-2">
+              {domains.map(d => {
+                const score = Math.max(0, Math.min(100, d.score));
+                const level = score >= 70 ? "strong" : score >= 50 ? "moderate" : "developing";
+                const dotColor =
+                  level === "strong" ? "#059669" : level === "moderate" ? "#d97706" : "#ef4444";
+                return (
+                  <div
+                    key={d.key}
+                    className="flex flex-col items-center gap-1.5"
+                  >
+                    <div
+                      className={`h-10 w-10 rounded-full flex items-center justify-center border-2 shadow-sm transition-all hover:scale-105`}
+                      style={{
+                        borderColor: dotColor,
+                        backgroundColor: `${dotColor}15`,
+                      }}
+                    >
+                      <span className="text-[10px] font-bold">
+                        {score >= 70 ? "✓" : score >= 50 ? "▲" : "●"}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-medium text-[var(--fg)] leading-tight">
+                      {d.label.length > 10 ? `${d.label.slice(0, 9)}…` : d.label}
+                    </span>
+                    <span className={`text-[9px] font-bold ${level === "strong" ? "text-emerald-600" : level === "moderate" ? "text-[var(--gold)]" : "text-amber-600"}`}>
+                      {score}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
         <Card className="border-[var(--border)] shadow-sm">
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">

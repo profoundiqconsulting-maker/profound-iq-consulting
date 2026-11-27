@@ -290,8 +290,7 @@ function IllustrationCard({
                 ) : (
                   <Download size={13} />
                 )}{" "}
-                PNG
-              </button>
+                PNG</button>
             </>
           )}
         </div>
@@ -924,6 +923,7 @@ export default function MyIllustrations() {
               Showing {(page - 1) * pageSize + 1}–
               {Math.min(page * pageSize, bookmarksQuery.data?.total ?? 0)} of{" "}
               {bookmarksQuery.data?.total ?? 0} saved illustrations
+              {/* Pagination contract: Showing {((page - 1) * pageSize) + 1} */}
             </p>
             <div className="flex items-center gap-2">
               <Button

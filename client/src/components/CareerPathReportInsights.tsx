@@ -6,12 +6,12 @@ import {
   CartesianGrid,
   Line,
   LineChart,
+  ResponsiveContainer,
+  Radar,
+  RadarChart,
   PolarAngleAxis,
   PolarGrid,
   PolarRadiusAxis,
-  Radar,
-  RadarChart,
-  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
@@ -24,6 +24,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import {
   getCareerPathEducationRecommendations,
   getCareerPathTrendData,
@@ -36,6 +37,10 @@ const pathwayColors = {
   socialSciences: "#b7791f",
   artsSports: "#5365a8",
 } as const;
+
+function pathwayColor(key: string): string {
+  return (pathwayColors as Record<string, string>)[key] ?? "#64748b";
+}
 
 export function CareerPathScoreTrends({
   history,
@@ -70,6 +75,20 @@ export function CareerPathScoreTrends({
             >
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={trendData} margin={{ top: 8, right: 12 }}>
+                  <defs>
+                    <linearGradient id="grad-stem" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#0f766e" stopOpacity={0.8} />
+                      <stop offset="100%" stopColor="#0f766e" stopOpacity={0.1} />
+                    </linearGradient>
+                    <linearGradient id="grad-social" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#b7791f" stopOpacity={0.8} />
+                      <stop offset="100%" stopColor="#b7791f" stopOpacity={0.1} />
+                    </linearGradient>
+                    <linearGradient id="grad-arts" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#5365a8" stopOpacity={0.8} />
+                      <stop offset="100%" stopColor="#5365a8" stopOpacity={0.1} />
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
                   <XAxis
                     dataKey="label"
@@ -107,6 +126,8 @@ export function CareerPathScoreTrends({
                     strokeWidth={3}
                     dot={{ r: 4 }}
                     activeDot={{ r: 6 }}
+                    fill="url(#grad-stem)"
+                    fillOpacity={0.3}
                   />
                   <Line
                     type="monotone"
@@ -116,6 +137,8 @@ export function CareerPathScoreTrends({
                     strokeWidth={3}
                     dot={{ r: 4 }}
                     activeDot={{ r: 6 }}
+                    fill="url(#grad-social)"
+                    fillOpacity={0.3}
                   />
                   <Line
                     type="monotone"
@@ -125,6 +148,8 @@ export function CareerPathScoreTrends({
                     strokeWidth={3}
                     dot={{ r: 4 }}
                     activeDot={{ r: 6 }}
+                    fill="url(#grad-arts)"
+                    fillOpacity={0.3}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -195,6 +220,11 @@ export function CareerPathReportInsights({
     [report]
   );
 
+  const topPathway = pathwayData.reduce(
+    (best, cur) => (cur.score > best.score ? cur : best),
+    pathwayData[0] ?? { key: "stem", label: "Pathway", score: 0 }
+  );
+
   return (
     <section className="mt-8 space-y-6" aria-label="CareerPath visual insights">
       <div className="relative isolate overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-6 text-white shadow-xl sm:p-8">
@@ -210,6 +240,61 @@ export function CareerPathReportInsights({
             combinations and career directions below as starting points for a
             conversation with your school or career counsellor.
           </p>
+        </div>
+        <div className="flex items-end justify-end sm:justify-self-center lg:justify-self-end">
+          <div
+            role="img"
+            aria-label="Overall pathway fit score donut"
+            className="relative h-32 w-32 shrink-0 sm:h-36 sm:w-36"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 120 120"
+              className="h-full w-full -rotate-90"
+            >
+              <circle
+                cx="60"
+                cy="60"
+                r="49"
+                fill="none"
+                stroke="rgba(255,255,255,.12)"
+                strokeWidth="9"
+              />
+              <circle
+                cx="60"
+                cy="60"
+                r="49"
+                fill="none"
+                stroke={pathwayColor(topPathway.key)}
+                strokeWidth="9"
+                strokeLinecap="round"
+                strokeDasharray={`${2 * Math.PI * 49}`}
+                strokeDashoffset={`${2 * Math.PI * 49 * (1 - topPathway.score / 100)}`}
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-4xl font-semibold tracking-tight">
+                {topPathway.score}
+              </span>
+              <span className="text-[10px] font-semibold uppercase tracking-[.12em] text-slate-300">
+                /100
+              </span>
+            </div>
+          </div>
+          <div className="ml-4 max-w-40">
+            <p className="text-[10px] font-bold uppercase tracking-[.14em] text-slate-300">
+              Leading pathway
+            </p>
+            <p className="mt-1 text-lg font-semibold leading-tight text-white">
+              {topPathway.label}
+            </p>
+            <span
+              className="mt-3 inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.08em]"
+              style={{ borderColor: "#e8c66a99", color: "#f8e6b1" }}
+            >
+              CareerPath report
+            </span>
+          </div>
         </div>
         <svg
           aria-hidden="true"
@@ -238,6 +323,7 @@ export function CareerPathReportInsights({
         </svg>
       </div>
 
+      {/* Pathway bar chart + top pathway detail */}
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="border border-border bg-card">
           <CardHeader>
@@ -318,7 +404,9 @@ export function CareerPathReportInsights({
 
         <Card className="border border-border bg-card">
           <CardHeader>
-            <CardTitle className="text-base">Your profile shape</CardTitle>
+            <CardTitle className="text-base">
+              Your pathway profile shape
+            </CardTitle>
             <p className="text-sm leading-5 text-muted-foreground">
               A visual comparison of seven areas for reflection.
             </p>
@@ -359,6 +447,46 @@ export function CareerPathReportInsights({
           </CardContent>
         </Card>
       </div>
+
+      {/* Sub-pathway mini-bars */}
+      {subPathwayData.length > 0 && (
+        <Card className="border border-border bg-card">
+          <CardHeader>
+            <CardTitle className="text-base">
+              Sub-pathway detail
+            </CardTitle>
+            <p className="text-sm leading-5 text-muted-foreground">
+              Granular breakdown of each sub-pathway score with progress bands.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {subPathwayData.map((sp, i) => {
+                const color = pathwayColors[stemKey(sp.label)];
+                return (
+                  <div key={i} className="group flex items-center gap-3">
+                    <span className="w-20 shrink-0 text-sm font-medium text-muted-foreground">
+                      {sp.label}
+                    </span>
+                    <div className="flex-1 h-2 rounded-full bg-muted/30 overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-300 group-hover:filter brightness-110"
+                        style={{
+                          width: `${sp.score}%`,
+                          backgroundColor: color,
+                        }}
+                      />
+                    </div>
+                    <span className="w-8 shrink-0 text-sm font-bold text-foreground">
+                      {sp.score}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <CareerPathScoreTrends history={history} />
 
@@ -468,4 +596,11 @@ export function CareerPathReportInsights({
       </section>
     </section>
   );
+}
+
+function stemKey(label: string): keyof typeof pathwayColors {
+  const lower = label.toLowerCase();
+  if (lower.includes("stem") || lower.includes("science")) return "stem";
+  if (lower.includes("social") || lower.includes("humanity")) return "socialSciences";
+  return "artsSports";
 }

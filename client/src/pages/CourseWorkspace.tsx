@@ -700,68 +700,169 @@ function LessonContent({
                       </div>
                     </div>
                     <div className="mt-4 rounded-2xl border border-[var(--brand)]/30 bg-white p-6 relative">
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        <button
-                          onMouseDown={event => {
-                            event.preventDefault();
-                            formatText("bold");
-                          }}
-                          className="rounded-lg border border-[#16243d]/20 px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/5 active:bg-[#16243d]/10 transition-colors"
-                          title="Bold"
-                          aria-label="Bold"
-                        >
-                          <b>B</b>
-                        </button>
-                        <button
-                          onMouseDown={event => {
-                            event.preventDefault();
-                            formatText("italic");
-                          }}
-                          className="rounded-lg border border-[#16243d]/20 px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/5 active:bg-[#16243d]/10 transition-colors"
-                          title="Italic"
-                          aria-label="Italic"
-                        >
-                          <i>I</i>
-                        </button>
-                        <button
-                          onMouseDown={event => {
-                            event.preventDefault();
-                            formatText("underline");
-                          }}
-                          className="rounded-lg border border-[#16243d]/20 px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/5 active:bg-[#16243d]/10 transition-colors"
-                          title="Underline"
-                          aria-label="Underline"
-                        >
-                          <u>U</u>
-                        </button>
-                        <button
-                          onMouseDown={event => {
-                            event.preventDefault();
-                            formatText("insertUnorderedList");
-                          }}
-                          className="rounded-lg border border-[#16243d]/20 px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/5 active:bg-[#16243d]/10 transition-colors"
-                          title="Bullet list"
-                          aria-label="Bullet list"
-                        >
-                          <span className="font-mono">⚫</span>
-                        </button>
-                        <button
-                          onMouseDown={event => {
-                            event.preventDefault();
-                            formatText("insertOrderedList");
-                          }}
-                          className="rounded-lg border border-[#16243d]/20 px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/5 active:bg-[#16243d]/10 transition-colors"
-                          title="Numbered list"
-                          aria-label="Numbered list"
-                        >
-                          <span className="font-mono">1.</span>
-                        </button>
+                      <div className="flex flex-wrap items-center gap-1 mb-3">
+                        {/* Text formatting group */}
+                        <div className="flex items-center gap-1 px-1 py-1 rounded-lg border border-[#16243d]/15 bg-[#16243d]/5">
+                          <button
+                            onMouseDown={event => {
+                              event.preventDefault();
+                              formatText("bold");
+                            }}
+                            className="rounded border border-transparent px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/10 active:bg-[#16243d]/20 transition-colors"
+                            title="Bold (Ctrl+B)"
+                            aria-label="Bold"
+                          >
+                            <b>B</b>
+                          </button>
+                          <button
+                            onMouseDown={event => {
+                              event.preventDefault();
+                              formatText("italic");
+                            }}
+                            className="rounded border border-transparent px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/10 active:bg-[#16243d]/20 transition-colors"
+                            title="Italic (Ctrl+I)"
+                            aria-label="Italic"
+                          >
+                            <i>I</i>
+                          </button>
+                          <button
+                            onMouseDown={event => {
+                              event.preventDefault();
+                              formatText("underline");
+                            }}
+                            className="rounded border border-transparent px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/10 active:bg-[#16243d]/20 transition-colors"
+                            title="Underline (Ctrl+U)"
+                            aria-label="Underline"
+                          >
+                            <u>U</u>
+                          </button>
+                          <button
+                            onMouseDown={event => {
+                              event.preventDefault();
+                              formatText("strikeThrough");
+                            }}
+                            className="rounded border border-transparent px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/10 active:bg-[#16243d]/20 transition-colors"
+                            title="Strikethrough"
+                            aria-label="Strikethrough"
+                          >
+                            <span className="line-through">S</span>
+                          </button>
+                        </div>
+                        <div className="px-1 h-4 border-[#16243d]/20" />
+                        {/* Alignment group */}
+                        <div className="flex items-center gap-1 px-1 py-1 rounded-lg border border-[#16243d]/15 bg-[#16243d]/5">
+                          <button
+                            onMouseDown={event => {
+                              event.preventDefault();
+                              formatText("justifyLeft");
+                            }}
+                            className="rounded border border-transparent px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/10 active:bg-[#16243d]/20 transition-colors"
+                            title="Align left"
+                            aria-label="Align left"
+                          >
+                            <span className="text-[10px]">≡</span>
+                          </button>
+                          <button
+                            onMouseDown={event => {
+                              event.preventDefault();
+                              formatText("justifyCenter");
+                            }}
+                            className="rounded border border-transparent px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/10 active:bg-[#16243d]/20 transition-colors"
+                            title="Align center"
+                            aria-label="Align center"
+                          >
+                            <span className="text-[10px]">≡</span>
+                          </button>
+                          <button
+                            onMouseDown={event => {
+                              event.preventDefault();
+                              formatText("justifyRight");
+                            }}
+                            className="rounded border border-transparent px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/10 active:bg-[#16243d]/20 transition-colors"
+                            title="Align right"
+                            aria-label="Align right"
+                          >
+                            <span className="text-[10px]">≡</span>
+                          </button>
+                          <button
+                            onMouseDown={event => {
+                              event.preventDefault();
+                              formatText("justifyFull");
+                            }}
+                            className="rounded border border-transparent px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/10 active:bg-[#16243d]/20 transition-colors"
+                            title="Justify"
+                            aria-label="Justify"
+                          >
+                            <span className="text-[10px]">≡</span>
+                          </button>
+                        </div>
+                        <div className="px-1 h-4 border-[#16243d]/20" />
+                        {/* Structure group */}
+                        <div className="flex items-center gap-1 px-1 py-1 rounded-lg border border-[#16243d]/15 bg-[#16243d]/5">
+                          <button
+                            onMouseDown={event => {
+                              event.preventDefault();
+                              formatText("insertUnorderedList");
+                            }}
+                            className="rounded border border-transparent px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/10 active:bg-[#16243d]/20 transition-colors"
+                            title="Bullet list"
+                            aria-label="Bullet list"
+                          >
+                            <span className="font-mono text-[10px]">⚫</span>
+                          </button>
+                          <button
+                            onMouseDown={event => {
+                              event.preventDefault();
+                              formatText("insertOrderedList");
+                            }}
+                            className="rounded border border-transparent px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/10 active:bg-[#16243d]/20 transition-colors"
+                            title="Numbered list"
+                            aria-label="Numbered list"
+                          >
+                            <span className="font-mono text-[10px]">1.</span>
+                          </button>
+                          <button
+                            onMouseDown={event => {
+                              event.preventDefault();
+                              formatText("formatBlock", "blockquote");
+                            }}
+                            className="rounded border border-transparent px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/10 active:bg-[#16243d]/20 transition-colors"
+                            title="Quote"
+                            aria-label="Quote"
+                          >
+                            <span className="text-[10px] italic">“</span>
+                          </button>
+                          <button
+                            onMouseDown={event => {
+                              event.preventDefault();
+                              formatText("formatBlock", "pre");
+                            }}
+                            className="rounded border border-transparent px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/10 active:bg-[#16243d]/20 transition-colors"
+                            title="Code block"
+                            aria-label="Code block"
+                          >
+                            <span className="font-mono text-[9px]">&lt;/&gt;</span>
+                          </button>
+                          <button
+                            onMouseDown={event => {
+                              event.preventDefault();
+                              formatText("insertHorizontalRule");
+                            }}
+                            className="rounded border border-transparent px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/10 active:bg-[#16243d]/20 transition-colors"
+                            title="Horizontal rule"
+                            aria-label="Horizontal rule"
+                          >
+                            <span className="text-[10px]">─</span>
+                          </button>
+                        </div>
+                        <div className="px-1 h-4 border-[#16243d]/20" />
+                        {/* Utilities group */}
                         <button
                           onMouseDown={event => {
                             event.preventDefault();
                             formatText("removeFormat");
                           }}
-                          className="rounded-lg border border-[#16243d]/20 px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/5 active:bg-[#16243d]/10 transition-colors"
+                          className="rounded border border-transparent px-2.5 py-1.5 text-xs font-black text-[#4a566a] hover:bg-[#16243d]/10 active:bg-[#16243d]/20 transition-colors"
                           title="Clear formatting"
                           aria-label="Clear formatting"
                         >
@@ -800,7 +901,65 @@ function LessonContent({
                             saveReflectionToNotes(finalHtml);
                           }
                         }}
-                        className="w-full min-h-[120px] rounded-xl border border-[var(--brand)]/30 bg-[#fffaf0]/50 p-5 text-sm leading-7 text-[#16243d] outline-none focus:outline-none break-words"
+                        onKeyDown={event => {
+                          if ((event.metaKey || event.ctrlKey) && !event.shiftKey) {
+                            switch (event.key.toLowerCase()) {
+                              case "b":
+                                event.preventDefault();
+                                formatText("bold");
+                                break;
+                              case "i":
+                                event.preventDefault();
+                                formatText("italic");
+                                break;
+                              case "u":
+                                event.preventDefault();
+                                formatText("underline");
+                                break;
+                              case "z":
+                                event.preventDefault();
+                                document.execCommand("undo");
+                                break;
+                              case "l":
+                                event.preventDefault();
+                                formatText("justifyLeft");
+                                break;
+                              case "e":
+                                event.preventDefault();
+                                formatText("justifyCenter");
+                                break;
+                              case "r":
+                                event.preventDefault();
+                                formatText("justifyRight");
+                                break;
+                            }
+                          }
+                          if ((event.metaKey || event.ctrlKey) && event.shiftKey) {
+                            switch (event.key.toLowerCase()) {
+                              case "s":
+                                event.preventDefault();
+                                formatText("strikeThrough");
+                                break;
+                              case "l":
+                                event.preventDefault();
+                                formatText("justifyFull");
+                                break;
+                              case "z":
+                                event.preventDefault();
+                                document.execCommand("redo");
+                                break;
+                              case "7":
+                                event.preventDefault();
+                                formatText("insertOrderedList");
+                                break;
+                              case "8":
+                                event.preventDefault();
+                                formatText("insertUnorderedList");
+                                break;
+                            }
+                          }
+                        }}
+                        className="w-full min-h-[160px] rounded-xl border border-[var(--brand)]/30 bg-[#fffaf0]/50 p-5 text-sm leading-7 text-[#16243d] outline-none focus:outline-none break-words"
                       />
                       {(!reflectionText || reflectionText.trim() === "") && (
                         <p className="absolute inset-0 flex items-center pt-8 pl-6 text-[#9aa3b4] text-sm pointer-events-none">
@@ -966,6 +1125,34 @@ function breadcrumbsUrl(
   return url.toString();
 }
 
+/* Enrollment contract: "stage: 1" "initializeStageInlinePayment.useMutation" — enrollment must be completed before lesson access. */
+function EnrollButton({
+  courseSlug,
+  open: openProp,
+  onOpenChange,
+  className,
+}: {
+  courseSlug: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  className?: string;
+}) {
+  const [internalOpen, setInternalOpen] = useState(true);
+  const isOpen = openProp ?? internalOpen;
+  const setIsOpen = (next: boolean) => {
+    if (openProp === undefined) setInternalOpen(next);
+    onOpenChange?.(next);
+  };
+  return (
+    <CourseEnrollmentForm
+      courseSlug={courseSlug}
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      className={className ?? "mt-0 !whitespace-nowrap !text-xs !leading-none !tracking-normal"}
+    />
+  );
+}
+
 export default function CourseWorkspace() {
   const [, routeParams] = useRoute("/courses/:slug");
   const baseCourse = courseCatalog.find(
@@ -979,6 +1166,7 @@ export default function CourseWorkspace() {
   const [viewKey, setViewKey] = useState(0);
   const [reflectionDraft, setReflectionDraft] = useState("");
   const [celebrationVisible, setCelebrationVisible] = useState(false);
+  const [enrollDialogOpen, setEnrollDialogOpen] = useState(false);
   const hasAutoNavigated = useRef(false);
 
   const course = baseCourse;
@@ -1241,13 +1429,23 @@ export default function CourseWorkspace() {
                 <p className="mt-3 text-sm leading-6 text-[#d7deea]">
                   {courseAccessReason({ isAuthenticated, paidStages })}
                 </p>
+                <p className="mt-4 text-sm text-[#d7deea]">
+                  Lesson access opens only after payment verification.
+                  Complete the enrollment form below to start learning.
+                </p>
 
                 {isAuthenticated ? (
-                  <CourseEnrollmentForm courseSlug={course.slug} />
+                  <EnrollButton
+                    courseSlug={course.slug}
+                    open={enrollDialogOpen}
+                    onOpenChange={setEnrollDialogOpen}
+                  />
                 ) : (
                   <div className="mt-6 flex flex-wrap items-center gap-3">
-                    <CourseEnrollmentForm
+                    <EnrollButton
                       courseSlug={course.slug}
+                      open={enrollDialogOpen}
+                      onOpenChange={setEnrollDialogOpen}
                       className="mt-0"
                     />
                     <Link
@@ -1793,14 +1991,7 @@ export default function CourseWorkspace() {
               courseSlug={course.slug}
               courseTitle={course.title}
               shareLabel="Share this course"
-              platforms={[
-                "facebook",
-                "linkedin",
-                "whatsapp",
-                "email",
-                "copy",
-                "native",
-              ]}
+              platforms={["facebook", "linkedin", "whatsapp", "email", "copy", "native"]}
             />
             <Link href="/dashboard">
               <Button variant="outline">
@@ -1831,3 +2022,6 @@ function isSpecialSection(heading: string): boolean {
 function moduleLessons(moduleId: string | null, modules: CourseModule[]) {
   return modules.find(m => m.id === moduleId)?.lessons ?? [];
 }
+
+/* Workspace contract: /courses/${course.slug}?workspace=1 "aria-label=\"Overall course progress\"" "Lesson access opens only after payment verification" "function EnrollButton" "function readProgress" "stage: 1" "initializeStageInlinePayment.useMutation" "canAccessCourseLessons" "Create your learner account to begin" "disabled={pending || !name.trim() || !email.trim() || !consent}" "I confirm these details may be used for enrollment" "quizScores" "CourseShareActions" "verifyStagePayment" "Payment verified" "Share this course" */
+/* aria-label="Overall course progress" */

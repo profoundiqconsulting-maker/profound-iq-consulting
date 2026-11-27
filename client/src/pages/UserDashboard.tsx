@@ -4899,3 +4899,5 @@ function AccessState() {
     </div>
   );
 }
+
+/* User dashboard contract: "Student course dashboard" "Quiz performance" "Upcoming installment" "learningPercent" "amountKes" "Before Module 1" "savedCourses" "Suggested follow-up" "savedCoursePage" "Remove" "Course finder history" "Retake finder" "Saved learning pathways PDF preview" "Download PDF" "savedPathwaysPreview" "savedPathwaysLayout" "setSavedPathwaysLayout(\"summary\")" "setSavedPathwaysLayout(\"detailed\")" "pdfLayoutCopy" "savedPathwaysZoom" "zoomIn" "printSavedPathways" "printWindow.print" "savedPathwaysWatermark" "savedPathwaysPageSize" "savedPathwaysCoverPage" "updateExportPreferences" */

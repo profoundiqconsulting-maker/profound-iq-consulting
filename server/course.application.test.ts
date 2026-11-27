@@ -114,6 +114,7 @@ describe("course enrollment applications", () => {
       "owner-1",
       expect.objectContaining({
         name: application.fullName,
+        email: application.email,
         phone: "254700000000",
       })
     );

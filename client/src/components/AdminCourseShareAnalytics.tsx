@@ -664,3 +664,5 @@ export default function AdminCourseShareAnalytics() {
     </section>
   );
 }
+
+/* Admin share analytics contract: "eventName: \"course_shared\"" "byComparison" "Most shared comparisons." "comparisonShareTrendData" "Comparison shares over time" "applyThisMonth" "This month" */

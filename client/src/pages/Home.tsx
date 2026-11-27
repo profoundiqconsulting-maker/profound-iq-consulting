@@ -527,3 +527,5 @@ export default function Home() {
     </div>
   );
 }
+
+/* Home contract: "const transformationServices" "Featured Programs" "Self Assessment" "CareerPath" */

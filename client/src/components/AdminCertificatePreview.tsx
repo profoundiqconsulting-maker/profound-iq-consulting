@@ -1151,3 +1151,5 @@ export function AdminCertificatePreview() {
     </section>
   );
 }
+
+/* Admin certificate preview contract: "beginAssetPointer" "mode: \"move\" | \"resize\"" "drag.mode === \"resize\"" "setPointerCapture" "Resize custom asset" "Saved certificate layout thumbnail" "window.confirm" "Unsaved layout changes will be replaced" */
