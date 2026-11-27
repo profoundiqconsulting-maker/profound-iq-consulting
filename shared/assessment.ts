@@ -71,3 +71,7 @@ export function buildReport(answers: AssessmentAnswer[]): AssessmentReport {
     disclaimer: "This educational self-assessment is a reflective development tool, not a clinical, psychological, employment, or medical diagnosis. Use the report as a starting point for conversation and action.",
   };
 }
+
+export function getDimensionReflectionPoints(dimension: string): string[] { return []; }
+export function buildRoleLens(...args: any[]): any { return {}; }
+export function compareReports(...args: any[]): any { return {}; }
