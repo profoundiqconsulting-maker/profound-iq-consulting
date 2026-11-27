@@ -51,41 +51,41 @@ All reveal animations respect `prefers-reduced-motion`. Transitions use 0.22s–
 
 ### P0 — Blockers (3)
 
-| ID | Severity | Issue | File | Impact |
-|---|---|---|---|---|
-| P0-1 | High | Homepage brand divergence | `client/src/pages/Home.tsx` | Users see a lighter, less authoritative palette on the highest-traffic page, weakening Executive Observatory identity. |
-| P0-2 | High | Gold/muted text contrast failures | Multiple pages | `text-[#c9a34e]` on ivory and `text-[#657084]` on dark surfaces fall below WCAG AA in some combinations. |
-| P0-3 | High | Cookie consent lacks dialog semantics | `client/src/components/CookieConsent.tsx` | Screen-reader users cannot identify the consent panel as a modal dialog; focus is not trapped. |
+| ID   | Severity | Issue                                 | File                                      | Impact                                                                                                                 |
+| ---- | -------- | ------------------------------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| P0-1 | High     | Homepage brand divergence             | `client/src/pages/Home.tsx`               | Users see a lighter, less authoritative palette on the highest-traffic page, weakening Executive Observatory identity. |
+| P0-2 | High     | Gold/muted text contrast failures     | Multiple pages                            | `text-[#c9a34e]` on ivory and `text-[#657084]` on dark surfaces fall below WCAG AA in some combinations.               |
+| P0-3 | High     | Cookie consent lacks dialog semantics | `client/src/components/CookieConsent.tsx` | Screen-reader users cannot identify the consent panel as a modal dialog; focus is not trapped.                         |
 
 ### P1 — High Impact (12)
 
-| ID | Severity | Issue | File | Impact |
-|---|---|---|---|---|
-| P1-1 | Medium | Three competing navigation systems | `ExecutiveHeader.tsx`, `SiteNavigation.tsx`, `TransformationNav.tsx` | Labels, active states, and mobile behavior are inconsistent. `SiteNavigation.tsx` is unused dead code. |
-| P1-2 | Medium | Homepage conversion flow friction | `client/src/pages/Home.tsx` | Inquiry form, enrollment modal, and "Load more" pagination lack clear success/error states and accessibility attributes. |
-| P1-3 | Medium | Missing `aria-pressed` on survey voting | `client/src/pages/Surveys.tsx` | Screen-reader users cannot determine vote state. |
-| P1-4 | Medium | Missing `aria-live` regions for dynamic updates | `client/src/pages/Surveys.tsx`, `client/src/pages/Contact.tsx` | Dynamic vote counts and form submissions are not announced. |
-| P1-5 | Medium | Inconsistent focus-ring treatment | `client/src/index.css`, form components | Some inputs rely on browser default focus; spec requires `focus:ring-2 focus:ring-[#c9a34e]/30`. |
-| P1-6 | Medium | Admin dashboard missing loading skeleton | `client/src/pages/AdminDashboard.tsx` | Parallel queries produce empty states; users see no progress indicator. |
-| P1-7 | Medium | Staff dashboard responsive table risk | `client/src/pages/StaffDashboard.tsx` | Wide tables may overflow on mobile without horizontal scroll or card collapse. |
-| P1-8 | Medium | Communication inbox missing error states | `client/src/pages/CommunicationInbox.tsx` | Failed message loads or sends have no visible error recovery. |
-| P1-9 | Medium | Testimonial carousel lacks pause control | `client/src/pages/Home.tsx` | Auto-advancing content without pause violates WCAG 2.2.2 (paused, stopped, hidden). |
-| P1-10 | Medium | Enrollment modal focus management | `client/src/pages/Home.tsx` | Focus is not returned to trigger after modal close. |
-| P1-11 | Medium | Resources page potential empty-content dead end | `client/src/pages/Resources.tsx` | Conditional content library may render no links; no fallback CTA. |
-| P1-12 | Medium | Blog page preview-only limitation | `client/src/pages/Blog.tsx` | Users cannot read full articles; preview cards create a dead-end discovery flow. |
+| ID    | Severity | Issue                                           | File                                                                 | Impact                                                                                                                   |
+| ----- | -------- | ----------------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| P1-1  | Medium   | Three competing navigation systems              | `ExecutiveHeader.tsx`, `SiteNavigation.tsx`, `TransformationNav.tsx` | Labels, active states, and mobile behavior are inconsistent. `SiteNavigation.tsx` is unused dead code.                   |
+| P1-2  | Medium   | Homepage conversion flow friction               | `client/src/pages/Home.tsx`                                          | Inquiry form, enrollment modal, and "Load more" pagination lack clear success/error states and accessibility attributes. |
+| P1-3  | Medium   | Missing `aria-pressed` on survey voting         | `client/src/pages/Surveys.tsx`                                       | Screen-reader users cannot determine vote state.                                                                         |
+| P1-4  | Medium   | Missing `aria-live` regions for dynamic updates | `client/src/pages/Surveys.tsx`, `client/src/pages/Contact.tsx`       | Dynamic vote counts and form submissions are not announced.                                                              |
+| P1-5  | Medium   | Inconsistent focus-ring treatment               | `client/src/index.css`, form components                              | Some inputs rely on browser default focus; spec requires `focus:ring-2 focus:ring-[#c9a34e]/30`.                         |
+| P1-6  | Medium   | Admin dashboard missing loading skeleton        | `client/src/pages/AdminDashboard.tsx`                                | Parallel queries produce empty states; users see no progress indicator.                                                  |
+| P1-7  | Medium   | Staff dashboard responsive table risk           | `client/src/pages/StaffDashboard.tsx`                                | Wide tables may overflow on mobile without horizontal scroll or card collapse.                                           |
+| P1-8  | Medium   | Communication inbox missing error states        | `client/src/pages/CommunicationInbox.tsx`                            | Failed message loads or sends have no visible error recovery.                                                            |
+| P1-9  | Medium   | Testimonial carousel lacks pause control        | `client/src/pages/Home.tsx`                                          | Auto-advancing content without pause violates WCAG 2.2.2 (paused, stopped, hidden).                                      |
+| P1-10 | Medium   | Enrollment modal focus management               | `client/src/pages/Home.tsx`                                          | Focus is not returned to trigger after modal close.                                                                      |
+| P1-11 | Medium   | Resources page potential empty-content dead end | `client/src/pages/Resources.tsx`                                     | Conditional content library may render no links; no fallback CTA.                                                        |
+| P1-12 | Medium   | Blog page preview-only limitation               | `client/src/pages/Blog.tsx`                                          | Users cannot read full articles; preview cards create a dead-end discovery flow.                                         |
 
 ### P2 — Polish (8)
 
-| ID | Severity | Issue | File | Impact |
-|---|---|---|---|---|
-| P2-1 | Low | Unused `SiteNavigation.tsx` | `client/src/components/SiteNavigation.tsx` | Dead code increases bundle size and maintenance burden. |
-| P2-2 | Low | Logo asset uses white canvas | `client/src/components/BrandLogo.tsx` | Logo may appear as a white rectangle on non-white backgrounds. |
-| P2-3 | Low | 404 page uses non-brand slate/blue | `client/src/pages/NotFound.tsx` | Heading hierarchy and background color deviate from brand. |
-| P2-4 | Low | Placeholder contrast borderline | Multiple | `placeholder:text-[#665321]` on ivory is 4.2:1; should use `text-muted-foreground`. |
-| P2-5 | Low | Recharts tooltip contrast | Dashboard charts | Default tooltip colors may not meet contrast in dark mode. |
-| P2-6 | Low | Cookie consent covers lower viewport | `client/src/components/CookieConsent.tsx` | Fixed panel overlaps page content on mobile; expected but should be noted. |
-| P2-7 | Low | WhatsApp widget reduced-motion concern | `client/src/components/WhatsAppSupportWidget.tsx` | Animation should be wrapped in `prefers-reduced-motion` check. |
-| P2-8 | Low | Sitemap coverage gaps | `client/public/sitemap.xml` | Public route coverage should be audited against `client/src/App.tsx`. |
+| ID   | Severity | Issue                                  | File                                              | Impact                                                                              |
+| ---- | -------- | -------------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| P2-1 | Low      | Unused `SiteNavigation.tsx`            | `client/src/components/SiteNavigation.tsx`        | Dead code increases bundle size and maintenance burden.                             |
+| P2-2 | Low      | Logo asset uses white canvas           | `client/src/components/BrandLogo.tsx`             | Logo may appear as a white rectangle on non-white backgrounds.                      |
+| P2-3 | Low      | 404 page uses non-brand slate/blue     | `client/src/pages/NotFound.tsx`                   | Heading hierarchy and background color deviate from brand.                          |
+| P2-4 | Low      | Placeholder contrast borderline        | Multiple                                          | `placeholder:text-[#665321]` on ivory is 4.2:1; should use `text-muted-foreground`. |
+| P2-5 | Low      | Recharts tooltip contrast              | Dashboard charts                                  | Default tooltip colors may not meet contrast in dark mode.                          |
+| P2-6 | Low      | Cookie consent covers lower viewport   | `client/src/components/CookieConsent.tsx`         | Fixed panel overlaps page content on mobile; expected but should be noted.          |
+| P2-7 | Low      | WhatsApp widget reduced-motion concern | `client/src/components/WhatsAppSupportWidget.tsx` | Animation should be wrapped in `prefers-reduced-motion` check.                      |
+| P2-8 | Low      | Sitemap coverage gaps                  | `client/public/sitemap.xml`                       | Public route coverage should be audited against `client/src/App.tsx`.               |
 
 ---
 
@@ -94,6 +94,7 @@ All reveal animations respect `prefers-reduced-motion`. Transitions use 0.22s–
 ### P0 Implementation Steps
 
 #### P0-1: Homepage brand divergence
+
 **File:** `client/src/pages/Home.tsx`
 
 1. Audit hero section background, card backgrounds, and accent colors against `docs/course-design-system.md`.
@@ -106,6 +107,7 @@ All reveal animations respect `prefers-reduced-motion`. Transitions use 0.22s–
 ---
 
 #### P0-2: Gold/muted text contrast failures
+
 **Files:** `client/src/index.css`, `client/src/pages/Home.tsx`, `client/src/pages/Courses.tsx`, `client/src/pages/Contact.tsx`, `client/src/pages/Surveys.tsx`
 
 1. Run contrast checker against all `text-[#c9a34e]` on ivory and `text-[#657084]` on dark surfaces.
@@ -118,6 +120,7 @@ All reveal animations respect `prefers-reduced-motion`. Transitions use 0.22s–
 ---
 
 #### P0-3: Cookie consent dialog semantics
+
 **File:** `client/src/components/CookieConsent.tsx`
 
 1. Replace `<aside>` with `<dialog>` or add `role="dialog"`, `aria-modal="true"`.
@@ -133,6 +136,7 @@ All reveal animations respect `prefers-reduced-motion`. Transitions use 0.22s–
 ### P1 Implementation Steps
 
 #### P1-1: Consolidate navigation systems
+
 **Files:** `client/src/components/ExecutiveHeader.tsx`, `client/src/components/SiteNavigation.tsx`, `client/src/components/TransformationNav.tsx`
 
 1. Delete or archive `SiteNavigation.tsx` (confirmed unused).
@@ -145,6 +149,7 @@ All reveal animations respect `prefers-reduced-motion`. Transitions use 0.22s–
 ---
 
 #### P1-2: Homepage conversion flow
+
 **File:** `client/src/pages/Home.tsx`
 
 1. Add `aria-live="polite"` to inquiry form success/error containers.
@@ -158,6 +163,7 @@ All reveal animations respect `prefers-reduced-motion`. Transitions use 0.22s–
 ---
 
 #### P1-3 through P1-4: Survey accessibility
+
 **File:** `client/src/pages/Surveys.tsx`
 
 1. Add `aria-pressed` to vote buttons reflecting current vote state.
@@ -170,6 +176,7 @@ All reveal animations respect `prefers-reduced-motion`. Transitions use 0.22s–
 ---
 
 #### P1-5: Focus-ring consistency
+
 **File:** `client/src/index.css`
 
 1. Audit all interactive elements for `:focus-visible` styles.
@@ -181,6 +188,7 @@ All reveal animations respect `prefers-reduced-motion`. Transitions use 0.22s–
 ---
 
 #### P1-6: Admin dashboard loading skeleton
+
 **File:** `client/src/pages/AdminDashboard.tsx`
 
 1. Add skeleton loaders for each query-dependent section (overview cards, tables, charts).
@@ -192,6 +200,7 @@ All reveal animations respect `prefers-reduced-motion`. Transitions use 0.22s–
 ---
 
 #### P1-7: Staff dashboard responsive tables
+
 **File:** `client/src/pages/StaffDashboard.tsx`
 
 1. Wrap wide tables in `overflow-x-auto` containers.
@@ -203,6 +212,7 @@ All reveal animations respect `prefers-reduced-motion`. Transitions use 0.22s–
 ---
 
 #### P1-8: Communication inbox error states
+
 **File:** `client/src/pages/CommunicationInbox.tsx`
 
 1. Add error UI for failed conversation loads and message sends.
@@ -225,6 +235,7 @@ All reveal animations respect `prefers-reduced-motion`. Transitions use 0.22s–
 ### P2 Implementation Steps
 
 #### P2-1: Remove dead navigation code
+
 **File:** `client/src/components/SiteNavigation.tsx`
 
 1. Confirm no imports exist across the codebase.
@@ -233,6 +244,7 @@ All reveal animations respect `prefers-reduced-motion`. Transitions use 0.22s–
 ---
 
 #### P2-2: Logo asset fix
+
 **File:** `client/src/components/BrandLogo.tsx`
 
 1. Replace white-canvas SVG with transparent background or navy-fill variant.
@@ -241,6 +253,7 @@ All reveal animations respect `prefers-reduced-motion`. Transitions use 0.22s–
 ---
 
 #### P2-3: 404 page brand alignment
+
 **File:** `client/src/pages/NotFound.tsx`
 
 1. Replace slate/blue backgrounds with `bg-[#f7f3e8]` or `bg-[#16243d]`.
@@ -279,6 +292,7 @@ These failures predate the audit and are unrelated to the UX/UI findings. They s
 ### Runtime Artifacts
 
 Existing `.playwright-mcp/` logs show:
+
 - `createRoot() on a container that has already been passed to createRoot() before` — indicates duplicate mount in test or HMR edge case.
 - `removeChild` DOM errors — likely related to the above or portal cleanup.
 - Failed logo resource — consistent with P2-2 finding.
@@ -288,6 +302,7 @@ Existing `.playwright-mcp/` logs show:
 ## 7. Conclusion
 
 The Executive Observatory brand system is well-architected and largely consistent across the site. Since the audit, the following items have been implemented:
+
 - Email delivery migrated from SMTP/nodemailer to Resend API.
 - Recharts tooltips across admin and user dashboards updated to use CSS variables for dark-mode compatibility.
 - `BrandLogo.tsx` container background changed from `bg-white` to `bg-transparent`.

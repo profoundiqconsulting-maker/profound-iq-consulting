@@ -1,6 +1,6 @@
-import { ArrowLeft, FileText } from "lucide-react";
+import { FileText } from "lucide-react";
 import { Link } from "wouter";
-
+import { SiteNavigation } from "@/components/SiteNavigation";
 
 const sections = [
   [
@@ -46,22 +46,9 @@ const sections = [
 ];
 
 export default function TermsOfService() {
-  
   return (
     <main className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-      <header className="border-b border-[#16243d]/10 bg-[#101d35] text-[#f7f3e8]">
-        <div className="container flex items-center justify-between gap-4 py-5">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#8b6914] transition-opacity hover:opacity-80"
-          >
-            <ArrowLeft size={15} /> {"Back to site"}
-          </Link>
-          <span className="hidden text-[10px] uppercase tracking-[.16em] text-[#aab5c6] sm:block">
-            Profound IQ Consulting
-          </span>
-        </div>
-      </header>
+      <SiteNavigation variant="public" />
       <section className="container max-w-4xl py-16 sm:py-24">
         <div className="max-w-3xl">
           <div className="flex items-center gap-3 text-[#7d5e1e]">

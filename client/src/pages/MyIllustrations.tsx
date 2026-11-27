@@ -72,7 +72,7 @@ const modeStyles: Record<
   { border: string; tint: string; accent: string }
 > = {
   explanatory: {
-    border: "border-[#c9a34e]/50",
+    border: "border-[var(--brand)]/50",
     tint: "bg-[#fffaf0]",
     accent: "text-accent dark:text-accent-on-dark",
   },
@@ -154,7 +154,7 @@ function IllustrationCard({
           <button
             type="button"
             onClick={() => onZoom(card)}
-            className="group block w-full cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a34e]"
+            className="group block w-full cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
             aria-label={`Zoom ${card.lessonTitle}`}
           >
             <img
@@ -171,7 +171,11 @@ function IllustrationCard({
           </button>
         ) : (
           <div className="grid aspect-[16/9] place-items-center bg-[#16243d] p-6 text-center text-[#f7f3e8]">
-            <BookOpen size={25} className="text-accent-on-dark" aria-hidden="true" />
+            <BookOpen
+              size={25}
+              className="text-accent-on-dark"
+              aria-hidden="true"
+            />
             <p className="mt-3 max-w-xs text-sm leading-6">
               {card.modeLabel} learning prompt
             </p>
@@ -188,27 +192,29 @@ function IllustrationCard({
               aria-label={`Select ${card.lessonTitle}`}
               className="mt-1 accent-[#a27e2e]"
             />
-              <span>
-                <p
-                  className={`text-[10px] font-black uppercase tracking-[.14em] ${style.accent}`}
-                >
-                  {card.modeLabel}
-                </p>
-                <h2 className="display mt-2 text-2xl leading-tight text-foreground">
-                  {card.lessonTitle}
-                </h2>
-              </span>
+            <span>
+              <p
+                className={`text-[10px] font-black uppercase tracking-[.14em] ${style.accent}`}
+              >
+                {card.modeLabel}
+              </p>
+              <h2 className="display mt-2 text-2xl leading-tight text-foreground">
+                {card.lessonTitle}
+              </h2>
+            </span>
           </label>
           <button
             type="button"
             onClick={() => onDelete(card)}
             aria-label={`Remove ${card.lessonTitle}`}
-            className="shrink-0 text-[#7d5e1e] transition hover:text-[#6b3a4d]"
+            className="shrink-0 text-[var(--brand)] transition hover:text-[#6b3a4d]"
           >
             <Bookmark size={18} fill="currentColor" />
           </button>
         </div>
-        <p className="mt-2 text-xs font-semibold text-foreground/75">{card.courseTitle}</p>
+        <p className="mt-2 text-xs font-semibold text-foreground/75">
+          {card.courseTitle}
+        </p>
         <p className="mt-2 text-sm leading-6 text-foreground">{card.content}</p>
         <div className="mt-4 flex items-center gap-2 text-xs text-foreground/70">
           <Folder size={13} className="text-accent" />
@@ -222,7 +228,7 @@ function IllustrationCard({
           </button>
         </div>
         {editingFolderId === card.id && (
-              <div className="mt-3 border border-accent/40 bg-background/70 p-3">
+          <div className="mt-3 border border-accent/40 bg-background/70 p-3">
             <label
               className="block text-[10px] font-black uppercase tracking-[.12em] text-foreground/75"
               htmlFor={`folder-${card.id}`}
@@ -252,9 +258,9 @@ function IllustrationCard({
                 {updateLabel}
               </button>
             </div>
-              <p className="mt-2 text-[11px] text-foreground/75">
-                Type a new name to create a folder, or reuse an existing one.
-              </p>
+            <p className="mt-2 text-[11px] text-foreground/75">
+              Type a new name to create a folder, or reuse an existing one.
+            </p>
           </div>
         )}
         <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-foreground/10 pt-4">
@@ -284,39 +290,40 @@ function IllustrationCard({
                 ) : (
                   <Download size={13} />
                 )}{" "}
-                PNG</button>
+                PNG
+              </button>
             </>
           )}
         </div>
         <div className="mt-4 flex items-center justify-between border-t border-foreground/10 pt-3">
-            <span
-              className="cursor-grab text-[10px] font-black uppercase tracking-[.1em] text-foreground/70"
-              title="Drag to reorder within this folder"
+          <span
+            className="cursor-grab text-[10px] font-black uppercase tracking-[.1em] text-foreground/70"
+            title="Drag to reorder within this folder"
+          >
+            Drag to reorder
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => onMove(card.id, -1)}
+              aria-label={`Move ${card.lessonTitle} earlier`}
+              className="border border-foreground/15 p-1 text-foreground/70 hover:text-foreground transition-colors"
             >
-              Drag to reorder
-            </span>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => onMove(card.id, -1)}
-                aria-label={`Move ${card.lessonTitle} earlier`}
-                className="border border-foreground/15 p-1 text-foreground/70 hover:text-foreground transition-colors"
-              >
-                <ChevronUp size={15} />
-              </button>
-              <button
-                type="button"
-                onClick={() => onMove(card.id, 1)}
-                aria-label={`Move ${card.lessonTitle} later`}
-                className="border border-foreground/15 p-1 text-foreground/70 hover:text-foreground transition-colors"
-              >
-                <ChevronDown size={15} />
-              </button>
-            </div>
+              <ChevronUp size={15} />
+            </button>
+            <button
+              type="button"
+              onClick={() => onMove(card.id, 1)}
+              aria-label={`Move ${card.lessonTitle} later`}
+              className="border border-foreground/15 p-1 text-foreground/70 hover:text-foreground transition-colors"
+            >
+              <ChevronDown size={15} />
+            </button>
           </div>
-          <p className="mt-3 text-[10px] text-foreground/70">
-            Saved {new Date(card.updatedAt).toLocaleDateString()}
-          </p>
+        </div>
+        <p className="mt-3 text-[10px] text-foreground/70">
+          Saved {new Date(card.updatedAt).toLocaleDateString()}
+        </p>
       </div>
     </Card>
   );
@@ -444,7 +451,7 @@ export default function MyIllustrations() {
   const cards = useMemo<GalleryCard[]>(
     () =>
       (bookmarksQuery.data?.rows ?? []).map(bookmark => {
-              const baseCourse = courseCatalog.find(
+        const baseCourse = courseCatalog.find(
           course => course.slug === bookmark.courseSlug
         );
         const lesson = findLesson(baseCourse, bookmark.lessonId);
@@ -460,8 +467,7 @@ export default function MyIllustrations() {
           lessonId: bookmark.lessonId,
           lessonTitle: lesson?.title ?? bookmark.title,
           mode,
-          modeLabel:
-            lessonIllustrationCopy[mode] || modeLabels[mode],
+          modeLabel: lessonIllustrationCopy[mode] || modeLabels[mode],
           title: bookmark.title,
           content: lesson?.illustration[mode] ?? bookmark.content,
           folder: bookmark.folder || "Unsorted",
@@ -570,7 +576,7 @@ export default function MyIllustrations() {
     return (
       <DashboardLayout role="user" title="My Illustrations">
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="animate-spin text-[#7d5e1e]" />
+          <Loader2 className="animate-spin text-[var(--brand)]" />
         </div>
       </DashboardLayout>
     );
@@ -579,7 +585,9 @@ export default function MyIllustrations() {
       <DashboardLayout role="user" title="My Illustrations">
         <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
           <BookOpen size={48} className="text-[#16243d]/60" />
-          <p className="text-sm text-[#16243d]">Sign in to view your saved illustrations.</p>
+          <p className="text-sm text-[#16243d]">
+            Sign in to view your saved illustrations.
+          </p>
         </div>
       </DashboardLayout>
     );
@@ -587,6 +595,7 @@ export default function MyIllustrations() {
   return (
     <DashboardLayout role="user" title="My Illustrations">
       <DashboardHero
+        showWelcome={false}
         eyebrow="Growth"
         title="My Illustrations"
         description={"Your saved visual study cards from every course."}
@@ -616,10 +625,17 @@ export default function MyIllustrations() {
                 />
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                {(["all", "explanatory", "applicational", "experiential"] as const).map(mode => (
+                {(
+                  [
+                    "all",
+                    "explanatory",
+                    "applicational",
+                    "experiential",
+                  ] as const
+                ).map(mode => (
                   <Button
                     key={mode}
-                    variant={modeFilter === mode ? "default" : "outline"}
+                    variant={modeFilter === mode ? "primary" : "outline"}
                     size="sm"
                     onClick={() => setModeFilter(mode)}
                     className={
@@ -628,7 +644,9 @@ export default function MyIllustrations() {
                         : "border-foreground/25 text-foreground hover:bg-foreground/10"
                     }
                   >
-                    {mode === "all" ? "All modes" : lessonIllustrationCopy[mode]}
+                    {mode === "all"
+                      ? "All modes"
+                      : lessonIllustrationCopy[mode]}
                   </Button>
                 ))}
                 <Select value={folderFilter} onValueChange={setFolderFilter}>
@@ -656,9 +674,10 @@ export default function MyIllustrations() {
                   className="pl-9 h-9"
                 />
               </div>
-               <p className="text-xs text-foreground/70">
-                 {folders.length} matching folder{folders.length === 1 ? "" : "s"}
-               </p>
+              <p className="text-xs text-foreground/70">
+                {folders.length} matching folder
+                {folders.length === 1 ? "" : "s"}
+              </p>
             </div>
           </div>
         </div>
@@ -777,14 +796,14 @@ export default function MyIllustrations() {
               </Button>
             </div>
             <div className="flex min-w-0 flex-1 gap-2 sm:ml-auto sm:max-w-xl">
-               <Input
-                  value={bulkFolder}
-                  onChange={event => setBulkFolder(event.target.value)}
-                  list="bulk-folders"
-                  placeholder="Folder for selected illustrations"
-                  maxLength={80}
-                  className="bg-background"
-                />
+              <Input
+                value={bulkFolder}
+                onChange={event => setBulkFolder(event.target.value)}
+                list="bulk-folders"
+                placeholder="Folder for selected illustrations"
+                maxLength={80}
+                className="bg-background"
+              />
               <datalist id="bulk-folders">
                 {bookmarksQuery.data?.folders?.map(folder => (
                   <option key={folder} value={folder} />
@@ -821,7 +840,9 @@ export default function MyIllustrations() {
         <Section title="Loading illustrations" isEmpty>
           <div className="flex flex-col items-center justify-center gap-3 py-12">
             <Loader2 className="animate-spin text-accent" size={24} />
-            <p className="text-sm text-foreground/70">Loading your illustrations...</p>
+            <p className="text-sm text-foreground/70">
+              Loading your illustrations...
+            </p>
           </div>
         </Section>
       ) : cards.length === 0 ? (
@@ -831,25 +852,25 @@ export default function MyIllustrations() {
           description="Open a course lesson, choose an illustration that helps you learn, and select Save to build this collection."
         >
           <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent/10 transition-shadow hover:shadow-md">
-                <Bookmark size={28} className="text-foreground/70" />
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent/10 transition-shadow hover:shadow-md">
+              <Bookmark size={28} className="text-foreground/70" />
             </div>
             <p className="text-sm text-[#16243d] max-w-sm">
-              You have not saved any illustrations yet. Explore courses to start building your visual study library.
+              You have not saved any illustrations yet. Explore courses to start
+              building your visual study library.
             </p>
-              <Link href="/courses">
-                <Button className="bg-foreground text-background hover:bg-foreground/90 transition-colors">
-                  {"Courses"} <ArrowUpRight size={14} />
-                </Button>
-              </Link>
+            <Link href="/courses">
+              <Button variant="brand">
+                {"Courses"} <ArrowUpRight size={14} />
+              </Button>
+            </Link>
           </div>
         </Section>
       ) : (
         <>
           <p className="mb-4 text-xs text-muted-foreground">
-            Reordering is available when one custom folder is selected. Drag
-            a card or use the arrow controls; changes are saved across
-            devices.
+            Reordering is available when one custom folder is selected. Drag a
+            card or use the arrow controls; changes are saved across devices.
           </p>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {cards.map(card => (
@@ -900,9 +921,9 @@ export default function MyIllustrations() {
           </div>
           <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[#16243d]/15 pt-5">
             <p className="text-xs text-foreground/70">
-              Showing {((page - 1) * pageSize) + 1}–
-              {Math.min(page * pageSize, bookmarksQuery.data?.total ?? 0)}{" "}
-              of {bookmarksQuery.data?.total ?? 0} saved illustrations
+              Showing {(page - 1) * pageSize + 1}–
+              {Math.min(page * pageSize, bookmarksQuery.data?.total ?? 0)} of{" "}
+              {bookmarksQuery.data?.total ?? 0} saved illustrations
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -1014,7 +1035,7 @@ export default function MyIllustrations() {
                   <Button
                     onClick={() => void downloadPng(zoomed)}
                     disabled={pngBusyId === zoomed.id}
-                    className="bg-[#c9a34e] text-[#16243d] hover:bg-[#b18d3d]"
+                    className="bg-[var(--brand)] text-[#16243d] hover:bg-[#b18d3d]"
                   >
                     {pngBusyId === zoomed.id ? (
                       <Loader2 size={14} className="animate-spin" />

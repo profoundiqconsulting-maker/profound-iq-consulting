@@ -3,91 +3,61 @@ import type { TrpcContext } from "./_core/context";
 
 const mocks = vi.hoisted(() => ({
   recordAnalyticsEvent: vi.fn().mockResolvedValue(undefined),
-  upsertEmailTemplate: vi
-    .fn()
-    .mockResolvedValue([
-      {
-        templateKey: "assessment_report",
-        label: "Saved",
-        subject: "Saved subject",
-        body: "Hello {{name}}",
-        id: 1,
-        updatedByOpenId: "admin-test",
-        updatedAt: new Date(),
-      },
-    ]),
-  getEmailTemplates: vi
-    .fn()
-    .mockResolvedValue([
-      {
-        templateKey: "assessment_report",
-        label: "Saved",
-        subject: "Saved subject",
-        body: "Hello {{name}}",
-        id: 1,
-        updatedByOpenId: "admin-test",
-        updatedAt: new Date(),
-      },
-    ]),
+  upsertEmailTemplate: vi.fn().mockResolvedValue([
+    {
+      templateKey: "assessment_report",
+      label: "Saved",
+      subject: "Saved subject",
+      body: "Hello {{name}}",
+      id: 1,
+      updatedByOpenId: "admin-test",
+      updatedAt: new Date(),
+    },
+  ]),
+  getEmailTemplates: vi.fn().mockResolvedValue([
+    {
+      templateKey: "assessment_report",
+      label: "Saved",
+      subject: "Saved subject",
+      body: "Hello {{name}}",
+      id: 1,
+      updatedByOpenId: "admin-test",
+      updatedAt: new Date(),
+    },
+  ]),
   sendTemplateTestEmail: vi.fn().mockResolvedValue(undefined),
   addEmailPreviewDelivery: vi.fn().mockResolvedValue(undefined),
-  getScheduledExport: vi
-    .fn()
-    .mockResolvedValue({
+  getScheduledExport: vi.fn().mockResolvedValue({
+    exportKey: "weekly_course_enrollments",
+    scheduleTaskUid: "task-1",
+    lastRunAt: new Date("2026-08-24T09:00:00.000Z"),
+    lastFileKey: "scheduled-exports/latest.csv",
+    lastFileUrl: "/exports/scheduled-exports/latest.csv",
+  }),
+  getScheduledExportRuns: vi.fn().mockResolvedValue([
+    {
+      id: 1,
       exportKey: "weekly_course_enrollments",
-      scheduleTaskUid: "task-1",
-      lastRunAt: new Date("2026-08-24T09:00:00.000Z"),
-      lastFileKey: "scheduled-exports/latest.csv",
-      lastFileUrl: "/exports/scheduled-exports/latest.csv",
-    }),
-  getScheduledExportRuns: vi
-    .fn()
-    .mockResolvedValue([
-      {
-        id: 1,
-        exportKey: "weekly_course_enrollments",
-        fileKey: "scheduled-exports/latest.csv",
-        fileUrl: "/exports/scheduled-exports/latest.csv",
-        rowCount: 4,
-        createdAt: new Date("2026-08-24T09:00:00.000Z"),
-      },
-    ]),
-  getEmailPreviewDeliveries: vi
-    .fn()
-    .mockResolvedValue([
-      {
-        id: 1,
-        templateKey: "assessment_report",
-        recipientEmail: "admin@example.com",
-        subject: "Preview",
-        body: "Hello **{{name}}**",
-        status: "sent",
-        errorMessage: null,
-        createdAt: new Date("2026-08-24T09:00:00.000Z"),
-      },
-    ]),
-  getEmailPreviewDeliveriesPage: vi
-    .fn()
-    .mockResolvedValue({
-      rows: [
-        {
-          id: 1,
-          templateKey: "assessment_report",
-          recipientEmail: "admin@example.com",
-          subject: "Preview",
-          status: "sent",
-          errorMessage: null,
-          createdAt: new Date("2026-08-24T09:00:00.000Z"),
-        },
-      ],
-      total: 1,
-      totalPages: 1,
-      page: 1,
-      pageSize: 12,
-    }),
-  getEmailPreviewDeliveriesForExport: vi
-    .fn()
-    .mockResolvedValue([
+      fileKey: "scheduled-exports/latest.csv",
+      fileUrl: "/exports/scheduled-exports/latest.csv",
+      rowCount: 4,
+      createdAt: new Date("2026-08-24T09:00:00.000Z"),
+    },
+  ]),
+  getEmailPreviewDeliveries: vi.fn().mockResolvedValue([
+    {
+      id: 1,
+      templateKey: "assessment_report",
+      recipientEmail: "admin@example.com",
+      subject: "Preview",
+      body: "Hello **{{name}}**",
+      status: "sent",
+      errorMessage: null,
+      createdAt: new Date("2026-08-24T09:00:00.000Z"),
+    },
+  ]),
+  getEmailPreviewDeliveriesPage: vi.fn().mockResolvedValue({
+    rows: [
       {
         id: 1,
         templateKey: "assessment_report",
@@ -97,54 +67,47 @@ const mocks = vi.hoisted(() => ({
         errorMessage: null,
         createdAt: new Date("2026-08-24T09:00:00.000Z"),
       },
-    ]),
-  getAdminUsersForReview: vi
-    .fn()
-    .mockResolvedValue({
-      rows: [
-        {
-          id: 2,
-          openId: "user-2",
-          name: "Amina",
-          email: "amina@example.com",
-          role: "user",
-          emailVerifiedAt: new Date("2026-08-20T09:00:00.000Z"),
-          createdAt: new Date(),
-          lastSignedIn: new Date(),
-        },
-      ],
-      total: 1,
-      totalPages: 1,
-      page: 1,
-      pageSize: 8,
-    }),
+    ],
+    total: 1,
+    totalPages: 1,
+    page: 1,
+    pageSize: 12,
+  }),
+  getEmailPreviewDeliveriesForExport: vi.fn().mockResolvedValue([
+    {
+      id: 1,
+      templateKey: "assessment_report",
+      recipientEmail: "admin@example.com",
+      subject: "Preview",
+      status: "sent",
+      errorMessage: null,
+      createdAt: new Date("2026-08-24T09:00:00.000Z"),
+    },
+  ]),
+  getAdminUsersForReview: vi.fn().mockResolvedValue({
+    rows: [
+      {
+        id: 2,
+        openId: "user-2",
+        name: "Amina",
+        email: "amina@example.com",
+        role: "user",
+        emailVerifiedAt: new Date("2026-08-20T09:00:00.000Z"),
+        createdAt: new Date(),
+        lastSignedIn: new Date(),
+      },
+    ],
+    total: 1,
+    totalPages: 1,
+    page: 1,
+    pageSize: 8,
+  }),
   revokeUserEmailVerification: vi
     .fn()
     .mockResolvedValue({ openId: "user-2", emailVerifiedAt: null }),
   getVerificationRevocationAudits: vi.fn(),
-  getVerificationRevocationAuditsPage: vi
-    .fn()
-    .mockResolvedValue({
-      rows: [
-        {
-          id: 4,
-          targetOpenId: "user-2",
-          targetEmail: "amina@example.com",
-          actorOpenId: "admin-test",
-          actorName: "Admin Test",
-          actorEmail: "admin@example.com",
-          reason: "Mailbox ownership could not be confirmed",
-          createdAt: new Date(),
-        },
-      ],
-      total: 1,
-      totalPages: 1,
-      page: 1,
-      pageSize: 8,
-    }),
-  getVerificationRevocationAuditsForExport: vi
-    .fn()
-    .mockResolvedValue([
+  getVerificationRevocationAuditsPage: vi.fn().mockResolvedValue({
+    rows: [
       {
         id: 4,
         targetOpenId: "user-2",
@@ -155,38 +118,49 @@ const mocks = vi.hoisted(() => ({
         reason: "Mailbox ownership could not be confirmed",
         createdAt: new Date(),
       },
-    ]),
-  createDeliveryLogExportJob: vi
-    .fn()
-    .mockResolvedValue({
-      id: 7,
-      requestedByOpenId: "admin-test",
-      status: "queued",
-      filters: {},
-      fileKey: null,
-      fileUrl: null,
-      rowCount: null,
-      errorMessage: null,
+    ],
+    total: 1,
+    totalPages: 1,
+    page: 1,
+    pageSize: 8,
+  }),
+  getVerificationRevocationAuditsForExport: vi.fn().mockResolvedValue([
+    {
+      id: 4,
+      targetOpenId: "user-2",
+      targetEmail: "amina@example.com",
+      actorOpenId: "admin-test",
+      actorName: "Admin Test",
+      actorEmail: "admin@example.com",
+      reason: "Mailbox ownership could not be confirmed",
       createdAt: new Date(),
-      startedAt: null,
-      completedAt: null,
-    }),
+    },
+  ]),
+  createDeliveryLogExportJob: vi.fn().mockResolvedValue({
+    id: 7,
+    requestedByOpenId: "admin-test",
+    status: "queued",
+    filters: {},
+    fileKey: null,
+    fileUrl: null,
+    rowCount: null,
+    errorMessage: null,
+    createdAt: new Date(),
+    startedAt: null,
+    completedAt: null,
+  }),
   getDeliveryLogExportJobs: vi.fn().mockResolvedValue([]),
   getDeliveryLogExportJob: vi.fn().mockResolvedValue(undefined),
-  getAdminAnalyticsSettings: vi
-    .fn()
-    .mockResolvedValue({
-      adminOpenId: "admin-test",
-      paidBenchmark: 42,
-      downloadBenchmark: 68,
-    }),
-  upsertAdminAnalyticsSettings: vi
-    .fn()
-    .mockResolvedValue({
-      adminOpenId: "admin-test",
-      paidBenchmark: 42,
-      downloadBenchmark: 68,
-    }),
+  getAdminAnalyticsSettings: vi.fn().mockResolvedValue({
+    adminOpenId: "admin-test",
+    paidBenchmark: 42,
+    downloadBenchmark: 68,
+  }),
+  upsertAdminAnalyticsSettings: vi.fn().mockResolvedValue({
+    adminOpenId: "admin-test",
+    paidBenchmark: 42,
+    downloadBenchmark: 68,
+  }),
 }));
 vi.mock("./db", async importOriginal => ({
   ...(await importOriginal<typeof import("./db")>()),
@@ -219,13 +193,11 @@ function adminContext(): TrpcContext {
 
 describe("admin feature behavior", () => {
   it("records a supported analytics event", async () => {
-    await appRouter
-      .createCaller(adminContext())
-      .analytics.track({
-        eventName: "payment_completed",
-        attemptId: 12,
-        metadata: { source: "browser" },
-      });
+    await appRouter.createCaller(adminContext()).analytics.track({
+      eventName: "payment_completed",
+      attemptId: 12,
+      metadata: { source: "browser" },
+    });
     expect(mocks.recordAnalyticsEvent).toHaveBeenCalledWith({
       eventName: "payment_completed",
       attemptId: 12,
@@ -235,13 +207,11 @@ describe("admin feature behavior", () => {
   });
 
   it("sends a safe test preview to the authenticated admin email", async () => {
-    await appRouter
-      .createCaller(adminContext())
-      .admin.sendTemplateTestEmail({
-        templateKey: "assessment_report",
-        subject: "Preview",
-        body: "Hello **{{name}}** at {{email}} on {{date}}.",
-      });
+    await appRouter.createCaller(adminContext()).admin.sendTemplateTestEmail({
+      templateKey: "assessment_report",
+      subject: "Preview",
+      body: "Hello **{{name}}** at {{email}} on {{date}}.",
+    });
     expect(mocks.sendTemplateTestEmail).toHaveBeenCalledWith({
       to: "admin@example.com",
       subject: "Preview",

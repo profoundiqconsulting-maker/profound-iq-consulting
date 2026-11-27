@@ -84,13 +84,16 @@ function toResendFrom(
   fallbackName?: string
 ): string {
   if (typeof from === "string") return from;
-  if (from?.address) return from.name ? `${from.name} <${from.address}>` : from.address;
+  if (from?.address)
+    return from.name ? `${from.name} <${from.address}>` : from.address;
   return fallbackName ?? "Profound IQ Consulting";
 }
 
-function buildResendAttachments(
-  attachments?: MailAttachment[]
-): Array<{ filename?: string | false; content?: string | Buffer; contentType?: string }> {
+function buildResendAttachments(attachments?: MailAttachment[]): Array<{
+  filename?: string | false;
+  content?: string | Buffer;
+  contentType?: string;
+}> {
   if (!attachments?.length) return [];
   return attachments.map(attachment => {
     if (attachment.content == null) return attachment;
@@ -108,7 +111,9 @@ async function sendMail(options: MailOptions): Promise<unknown> {
   const config = getSmtpConfig();
   const resend = getResendClient();
   const from = toResendFrom(options.from, config.fromName);
-  const to = Array.isArray(options.to) ? options.to : [options.to ?? config.from];
+  const to = Array.isArray(options.to)
+    ? options.to
+    : [options.to ?? config.from];
 
   if (!options.text && !options.html) {
     throw new Error("Resend requires at least one of text or html.");
@@ -135,7 +140,9 @@ export async function verifySmtpConnection(): Promise<void> {
     text: "This is a verification message confirming Resend delivery is configured.",
   });
   if (!response.data?.id) {
-    throw new Error("Resend did not return a message ID for the verification send.");
+    throw new Error(
+      "Resend did not return a message ID for the verification send."
+    );
   }
 }
 
@@ -424,7 +431,9 @@ export async function emailPsychometricReportIfNeeded(input: {
     await markPsychometricReportEmailFailed(input.attemptId);
     console.error(
       `[PsychometricEmail] Delivery failed for ${input.report.title} · attempt ${input.attemptId} · recipient ${input.email}.`,
-      error instanceof Error ? error.message : "Provider returned an unknown error."
+      error instanceof Error
+        ? error.message
+        : "Provider returned an unknown error."
     );
     throw error;
   }

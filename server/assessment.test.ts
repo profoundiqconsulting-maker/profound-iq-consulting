@@ -118,11 +118,15 @@ describe("course discovery and student dashboard", () => {
 
 describe("timed course lessons", () => {
   it("exposes a 30-minute countdown, required responses, quiz locking, and sequential next-lesson gate", () => {
-    expect(courseWorkspaceSource).toMatch(/Lesson access opens only after payment verification/);
+    expect(courseWorkspaceSource).toMatch(
+      /Lesson access opens only after payment verification/
+    );
     expect(courseWorkspaceSource).toMatch(/function EnrollButton/);
     expect(courseWorkspaceSource).toMatch(/canAccessCourseLessons/);
     expect(courseWorkspaceSource).toMatch(/function readProgress/);
-    expect(courseWorkspaceSource).toMatch(/Create your learner account to begin/);
+    expect(courseWorkspaceSource).toMatch(
+      /Create your learner account to begin/
+    );
     expect(courseWorkspaceSource).toMatch(
       /disabled=\{pending \|\| !name\.trim\(\) \|\| !email\.trim\(\) \|\| !consent\}/
     );
@@ -465,7 +469,9 @@ describe("course quiz variation and completion delivery", () => {
       "utf8"
     );
     expect(workspaceSource).toMatch(/function EnrollButton/);
-    expect(workspaceSource).toMatch(/initializeStageInlinePayment\.useMutation/);
+    expect(workspaceSource).toMatch(
+      /initializeStageInlinePayment\.useMutation/
+    );
     expect(workspaceSource).toMatch(
       /Lesson access opens only after payment verification/
     );

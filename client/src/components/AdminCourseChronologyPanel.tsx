@@ -1,5 +1,14 @@
 import { useMemo, useState } from "react";
-import { ArrowDown, ArrowUp, Award, CreditCard, Package, Printer, RefreshCw, UserCheck } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  Award,
+  CreditCard,
+  Package,
+  Printer,
+  RefreshCw,
+  UserCheck,
+} from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { courseCatalog } from "@shared/courseCatalog";
 
@@ -34,15 +43,28 @@ export default function AdminCourseChronologyPanel() {
     { retry: false, refetchInterval: 15000 }
   );
   const certificates = trpc.admin.recentCourseCertificates.useQuery(
-    { courseSlug: "all", status: "all", search: "", fromDate: range.from || undefined, toDate: range.to || undefined, limit: 200 },
+    {
+      courseSlug: "all",
+      status: "all",
+      search: "",
+      fromDate: range.from || undefined,
+      toDate: range.to || undefined,
+      limit: 200,
+    },
     { retry: false, refetchInterval: 15000 }
   );
 
   const analytics = useMemo(() => {
     const paymentRows = payments.data?.rows ?? [];
-    const paidPayments = paymentRows.filter(row => row.stage.paymentStatus === "paid").length;
-    const pendingPayments = paymentRows.filter(row => row.stage.paymentStatus !== "paid").length;
-    const exceptionPayments = paymentRows.filter(row => Boolean(row.stage.lastError)).length;
+    const paidPayments = paymentRows.filter(
+      row => row.stage.paymentStatus === "paid"
+    ).length;
+    const pendingPayments = paymentRows.filter(
+      row => row.stage.paymentStatus !== "paid"
+    ).length;
+    const exceptionPayments = paymentRows.filter(row =>
+      Boolean(row.stage.lastError)
+    ).length;
 
     return {
       deliveries: delivery.data?.length ?? 0,
@@ -71,20 +93,34 @@ export default function AdminCourseChronologyPanel() {
     }
 
     for (const row of payments.data?.rows ?? []) {
-      const date = row.stage.updatedAt ? new Date(row.stage.updatedAt) : row.stage.initializedAt ? new Date(row.stage.initializedAt) : new Date();
-      const course = courseCatalog.find(c => c.slug === row.enrollment.courseSlug);
+      const date = row.stage.updatedAt
+        ? new Date(row.stage.updatedAt)
+        : row.stage.initializedAt
+          ? new Date(row.stage.initializedAt)
+          : new Date();
+      const course = courseCatalog.find(
+        c => c.slug === row.enrollment.courseSlug
+      );
       items.push({
         kind: "payment",
         date,
         label: course?.title || row.enrollment.courseSlug || "Payment",
         detail: `${row.stage.stage ? `Stage ${row.stage.stage}` : "Course"} · ${row.stage.paystackReference ?? "—"}`,
         status: row.stage.lastError ? "exception" : row.stage.paymentStatus,
-        user: row.enrollment.email || row.enrollment.name || row.enrollment.userOpenId || "—",
+        user:
+          row.enrollment.email ||
+          row.enrollment.name ||
+          row.enrollment.userOpenId ||
+          "—",
       });
     }
 
     for (const row of grants.data ?? []) {
-      const date = row.grant.grantedAt ? new Date(row.grant.grantedAt) : row.grant.updatedAt ? new Date(row.grant.updatedAt) : new Date();
+      const date = row.grant.grantedAt
+        ? new Date(row.grant.grantedAt)
+        : row.grant.updatedAt
+          ? new Date(row.grant.updatedAt)
+          : new Date();
       const course = courseCatalog.find(c => c.slug === row.grant.courseSlug);
       items.push({
         kind: "enrollment",
@@ -129,7 +165,11 @@ export default function AdminCourseChronologyPanel() {
     return sorted;
   }, [delivery.data, payments.data, grants.data, certificates.data, sort]);
 
-  const busy = delivery.isLoading || payments.isLoading || grants.isLoading || certificates.isLoading;
+  const busy =
+    delivery.isLoading ||
+    payments.isLoading ||
+    grants.isLoading ||
+    certificates.isLoading;
 
   const toggleSort = (key: SortKey) => {
     setSort(prev => ({
@@ -149,10 +189,13 @@ export default function AdminCourseChronologyPanel() {
     <section className="mt-8 border border-[#16243d]/15 bg-white/55 p-5 sm:p-6">
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow text-[#b8860b]">Course observatory</p>
-          <h2 className="display mt-2 text-2xl">Courses — activity timeline.</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#475569]">
-            Chronological view of delivery, payments, enrollments, and certificates.
+          <p className="eyebrow text-[var(--brand)]">Course observatory</p>
+          <h2 className="display mt-2 text-2xl">
+            Courses — activity timeline.
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--fg-muted)]">
+            Chronological view of delivery, payments, enrollments, and
+            certificates.
           </p>
         </div>
         <div className="flex gap-2">
@@ -164,9 +207,10 @@ export default function AdminCourseChronologyPanel() {
               grants.refetch();
               certificates.refetch();
             }}
-            className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] hover:border-[#c9a34e]"
+            className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] hover:border-[var(--brand)]"
           >
-            <RefreshCw size={13} className={busy ? "animate-spin" : ""} /> Refresh
+            <RefreshCw size={13} className={busy ? "animate-spin" : ""} />{" "}
+            Refresh
           </button>
           <button
             type="button"
@@ -180,60 +224,82 @@ export default function AdminCourseChronologyPanel() {
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border border-[#16243d]/15 bg-white/55 p-4">
-          <div className="flex items-center gap-2 text-[#7d5e1e]">
+          <div className="flex items-center gap-2 text-[var(--brand)]">
             <Package size={16} />
-            <p className="text-[10px] font-black uppercase tracking-[.12em]">Deliveries</p>
+            <p className="text-[10px] font-black uppercase tracking-[.12em]">
+              Deliveries
+            </p>
           </div>
           <p className="display mt-2 text-2xl">{analytics.deliveries}</p>
         </div>
         <div className="rounded-xl border border-[#16243d]/15 bg-white/55 p-4">
-          <div className="flex items-center gap-2 text-[#7d5e1e]">
+          <div className="flex items-center gap-2 text-[var(--brand)]">
             <CreditCard size={16} />
-            <p className="text-[10px] font-black uppercase tracking-[.12em]">Payments</p>
+            <p className="text-[10px] font-black uppercase tracking-[.12em]">
+              Payments
+            </p>
           </div>
           <p className="display mt-2 text-2xl">{analytics.payments}</p>
-          <p className="mt-1 text-xs text-[#475569]">
-            <span className="font-bold text-emerald-700">{analytics.paidPayments} paid</span> ·{" "}
-            <span className="font-bold text-[#8b4f63]">{analytics.pendingPayments} pending</span> ·{" "}
-            <span className="font-bold text-red-700">{analytics.exceptionPayments} exceptions</span>
+          <p className="mt-1 text-xs text-[var(--fg-muted)]">
+            <span className="font-bold text-emerald-700">
+              {analytics.paidPayments} paid
+            </span>{" "}
+            ·{" "}
+            <span className="font-bold text-[var(--fg-muted)]">
+              {analytics.pendingPayments} pending
+            </span>{" "}
+            ·{" "}
+            <span className="font-bold text-red-700">
+              {analytics.exceptionPayments} exceptions
+            </span>
           </p>
         </div>
         <div className="rounded-xl border border-[#16243d]/15 bg-white/55 p-4">
-          <div className="flex items-center gap-2 text-[#7d5e1e]">
+          <div className="flex items-center gap-2 text-[var(--brand)]">
             <UserCheck size={16} />
-            <p className="text-[10px] font-black uppercase tracking-[.12em]">Enrollments</p>
+            <p className="text-[10px] font-black uppercase tracking-[.12em]">
+              Enrollments
+            </p>
           </div>
           <p className="display mt-2 text-2xl">{analytics.enrollments}</p>
         </div>
         <div className="rounded-xl border border-[#16243d]/15 bg-white/55 p-4">
-          <div className="flex items-center gap-2 text-[#7d5e1e]">
+          <div className="flex items-center gap-2 text-[var(--brand)]">
             <Award size={16} />
-            <p className="text-[10px] font-black uppercase tracking-[.12em]">Certificates</p>
+            <p className="text-[10px] font-black uppercase tracking-[.12em]">
+              Certificates
+            </p>
           </div>
           <p className="display mt-2 text-2xl">{analytics.certificates}</p>
         </div>
       </div>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
+        <label className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg-muted)]">
           From
           <input
+            id="course-chronology-from"
             type="date"
             value={range.from}
-            onChange={event => setRange(prev => ({ ...prev, from: event.target.value }))}
+            onChange={event =>
+              setRange(prev => ({ ...prev, from: event.target.value }))
+            }
             className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs"
           />
         </label>
-        <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
+        <label className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg-muted)]">
           To
           <input
+            id="course-chronology-to"
             type="date"
             value={range.to}
-            onChange={event => setRange(prev => ({ ...prev, to: event.target.value }))}
+            onChange={event =>
+              setRange(prev => ({ ...prev, to: event.target.value }))
+            }
             className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs"
           />
         </label>
-        <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
+        <label className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg-muted)]">
           Sort
           <select
             value={sort.key}
@@ -247,11 +313,13 @@ export default function AdminCourseChronologyPanel() {
             <option value="type">Type</option>
           </select>
         </label>
-        <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
+        <label className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg-muted)]">
           Direction
           <select
             value={sort.dir}
-            onChange={event => setSort(prev => ({ ...prev, dir: event.target.value as SortDir }))}
+            onChange={event =>
+              setSort(prev => ({ ...prev, dir: event.target.value as SortDir }))
+            }
             className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs"
           >
             <option value="desc">Descending</option>
@@ -261,38 +329,60 @@ export default function AdminCourseChronologyPanel() {
       </div>
 
       {busy && !timeline.length ? (
-        <div className="mt-6 text-sm text-[#475569]">Loading course activity…</div>
+        <div className="mt-6 text-sm text-[var(--fg-muted)]">
+          Loading course activity…
+        </div>
       ) : !timeline.length ? (
-        <div className="mt-6 border border-dashed border-[#16243d]/20 p-6 text-sm text-[#475569]">
+        <div className="mt-6 border border-dashed border-[#16243d]/20 p-6 text-sm text-[var(--fg-muted)]">
           No course activity found for the selected period.
         </div>
       ) : (
         <div className="mt-6 overflow-x-auto">
           <table className="w-full min-w-[860px] text-left text-sm">
             <thead>
-              <tr className="border-b border-[#16243d]/15 text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
+              <tr className="border-b border-[#16243d]/15 text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg-muted)]">
                 <th className="px-3 py-3">
-                  <button type="button" onClick={() => toggleSort("date")} className="inline-flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("date")}
+                    className="inline-flex items-center gap-1"
+                  >
                     When {sortIcon("date")}
                   </button>
                 </th>
                 <th className="px-3 py-3">
-                  <button type="button" onClick={() => toggleSort("type")} className="inline-flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("type")}
+                    className="inline-flex items-center gap-1"
+                  >
                     Type {sortIcon("type")}
                   </button>
                 </th>
                 <th className="px-3 py-3">
-                  <button type="button" onClick={() => toggleSort("user")} className="inline-flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("user")}
+                    className="inline-flex items-center gap-1"
+                  >
                     User {sortIcon("user")}
                   </button>
                 </th>
                 <th className="px-3 py-3">
-                  <button type="button" onClick={() => toggleSort("course")} className="inline-flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("course")}
+                    className="inline-flex items-center gap-1"
+                  >
                     Course {sortIcon("course")}
                   </button>
                 </th>
                 <th className="px-3 py-3">
-                  <button type="button" onClick={() => toggleSort("status")} className="inline-flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("status")}
+                    className="inline-flex items-center gap-1"
+                  >
                     Status {sortIcon("status")}
                   </button>
                 </th>
@@ -300,8 +390,11 @@ export default function AdminCourseChronologyPanel() {
             </thead>
             <tbody>
               {timeline.map((row, idx) => (
-                <tr key={`${row.kind}-${idx}`} className="border-b border-[#16243d]/10">
-                  <td className="whitespace-nowrap px-3 py-3 text-[#475569]">
+                <tr
+                  key={`${row.kind}-${idx}`}
+                  className="border-b border-[#16243d]/10"
+                >
+                  <td className="whitespace-nowrap px-3 py-3 text-[var(--fg-muted)]">
                     {row.date.toLocaleString()}
                   </td>
                   <td className="px-3 py-3 capitalize">{row.kind}</td>

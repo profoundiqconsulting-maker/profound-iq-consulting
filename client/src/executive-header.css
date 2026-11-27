@@ -56,6 +56,5 @@
 
 /* Subtle elevation when scrolled */
 [data-executive-header][data-compact="true"] {
-  backdrop-filter: saturate(140%) blur(16px);
-  -webkit-backdrop-filter: saturate(140%) blur(16px);
+  background-color: var(--bg-elevated);
 }

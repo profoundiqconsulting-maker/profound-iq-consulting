@@ -87,15 +87,15 @@ export function AdminCourseQAChecklist({
   return (
     <section
       aria-labelledby="admin-qa-checklist-title"
-      className="mt-8 border border-[#c9a34e]/60 bg-[#fff5cf] p-5 text-[#16243d] sm:p-6"
+      className="mt-8 border border-[var(--brand)]/60 bg-[#fff5cf] p-5 text-[var(--fg)] sm:p-6"
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#16243d] text-[#c9a34e]">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#16243d] text-[var(--brand-light)]">
             <ShieldCheck size={19} />
           </span>
           <div>
-            <p className="eyebrow text-[#b8860b]">
+            <p className="eyebrow text-[var(--brand)]">
               Admin quality-control checklist
             </p>
             <h2 id="admin-qa-checklist-title" className="display mt-2 text-2xl">
@@ -111,7 +111,7 @@ export function AdminCourseQAChecklist({
         <button
           type="button"
           onClick={reset}
-          className="inline-flex items-center gap-2 border border-[#b8860b]/40 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b] hover:bg-white/60"
+          className="inline-flex items-center gap-2 border border-[var(--brand)]/40 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[var(--brand)] hover:bg-white/60"
         >
           <RotateCcw size={13} /> Reset checklist
         </button>
@@ -123,7 +123,7 @@ export function AdminCourseQAChecklist({
             style={{ width: `${(completed / checklistItems.length) * 100}%` }}
           />
         </div>
-        <span className="text-xs font-bold text-[#b8860b]">
+        <span className="text-xs font-bold text-[var(--brand)]">
           {completed}/{checklistItems.length}
         </span>
       </div>
@@ -131,7 +131,7 @@ export function AdminCourseQAChecklist({
         {checklistItems.map(item => (
           <label
             key={item.id}
-            className={`flex cursor-pointer gap-3 border p-3 transition-colors ${checked[item.id] ? "border-[#a27e2e]/60 bg-white/60" : "border-[#b8860b]/20 bg-white/30 hover:border-[#a27e2e]"}`}
+            className={`flex cursor-pointer gap-3 border p-3 transition-colors ${checked[item.id] ? "border-[#a27e2e]/60 bg-white/60" : "border-[var(--brand)]/20 bg-white/30 hover:border-[#a27e2e]"}`}
           >
             <input
               type="checkbox"
@@ -156,4 +156,3 @@ export function AdminCourseQAChecklist({
     </section>
   );
 }
-

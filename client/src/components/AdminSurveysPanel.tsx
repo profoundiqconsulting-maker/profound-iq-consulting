@@ -18,7 +18,8 @@ import {
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
-type QuestionType = "single_choice" | "multiple_choice" | "text" | "rating" | "yes_no";
+type QuestionType =
+  "single_choice" | "multiple_choice" | "text" | "rating" | "yes_no";
 
 type Question = {
   id: string;
@@ -34,9 +35,21 @@ type Question = {
 type SurveyType = "poll" | "survey" | "review";
 type SurveyStatus = "draft" | "published" | "closed";
 
-const QUESTION_TYPES: { value: QuestionType; label: string; description: string }[] = [
-  { value: "single_choice", label: "Single choice", description: "One answer from a list" },
-  { value: "multiple_choice", label: "Multiple choice", description: "One or more answers" },
+const QUESTION_TYPES: {
+  value: QuestionType;
+  label: string;
+  description: string;
+}[] = [
+  {
+    value: "single_choice",
+    label: "Single choice",
+    description: "One answer from a list",
+  },
+  {
+    value: "multiple_choice",
+    label: "Multiple choice",
+    description: "One or more answers",
+  },
   { value: "text", label: "Text answer", description: "Open-ended response" },
   { value: "rating", label: "Rating scale", description: "Numeric rating" },
   { value: "yes_no", label: "Yes / No", description: "Binary choice" },
@@ -135,7 +148,7 @@ export default function AdminSurveysPanel() {
   };
 
   const updateQuestion = (id: string, updates: Partial<Question>) => {
-    setQuestions(questions.map(q => q.id === id ? { ...q, ...updates } : q));
+    setQuestions(questions.map(q => (q.id === id ? { ...q, ...updates } : q)));
   };
 
   const removeQuestion = (id: string) => {
@@ -155,11 +168,18 @@ export default function AdminSurveysPanel() {
 
   const addOption = (questionId: string) => {
     updateQuestion(questionId, {
-      options: [...(questions.find(q => q.id === questionId)?.options || []), ""],
+      options: [
+        ...(questions.find(q => q.id === questionId)?.options || []),
+        "",
+      ],
     });
   };
 
-  const updateOption = (questionId: string, optionIndex: number, value: string) => {
+  const updateOption = (
+    questionId: string,
+    optionIndex: number,
+    value: string
+  ) => {
     const question = questions.find(q => q.id === questionId);
     if (!question?.options) return;
     const updated = [...question.options];
@@ -170,7 +190,9 @@ export default function AdminSurveysPanel() {
   const removeOption = (questionId: string, optionIndex: number) => {
     const question = questions.find(q => q.id === questionId);
     if (!question?.options || question.options.length <= 2) return;
-    updateQuestion(questionId, { options: question.options.filter((_, i) => i !== optionIndex) });
+    updateQuestion(questionId, {
+      options: question.options.filter((_, i) => i !== optionIndex),
+    });
   };
 
   const handleCreate = () => {
@@ -188,7 +210,10 @@ export default function AdminSurveysPanel() {
       return;
     }
     for (const q of validQuestions) {
-      if ((q.type === "single_choice" || q.type === "multiple_choice") && (!q.options || q.options.filter(o => o.trim()).length < 2)) {
+      if (
+        (q.type === "single_choice" || q.type === "multiple_choice") &&
+        (!q.options || q.options.filter(o => o.trim()).length < 2)
+      ) {
         toast.error(`Question "${q.title}" needs at least 2 options`);
         return;
       }
@@ -229,7 +254,10 @@ export default function AdminSurveysPanel() {
       return;
     }
     for (const q of validQuestions) {
-      if ((q.type === "single_choice" || q.type === "multiple_choice") && (!q.options || q.options.filter(o => o.trim()).length < 2)) {
+      if (
+        (q.type === "single_choice" || q.type === "multiple_choice") &&
+        (!q.options || q.options.filter(o => o.trim()).length < 2)
+      ) {
         toast.error(`Question "${q.title}" needs at least 2 options`);
         return;
       }
@@ -266,7 +294,7 @@ export default function AdminSurveysPanel() {
   };
 
   const statusIcon = {
-    draft: <Clock3 size={14} className="text-[#b8860b]" />,
+    draft: <Clock3 size={14} className="text-[var(--brand)]" />,
     published: <CheckCircle2 size={14} className="text-emerald-700" />,
     closed: <XCircle size={14} className="text-red-600" />,
   };
@@ -277,14 +305,15 @@ export default function AdminSurveysPanel() {
     <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow flex items-center gap-2 text-[#b8860b]">
+          <p className="eyebrow flex items-center gap-2 text-[var(--brand)]">
             <BarChart3 size={13} /> Engagement & feedback
           </p>
           <h2 className="display mt-3 text-3xl">
             {editingId ? "Edit survey" : "Surveys, polls, and reviews"}
           </h2>
-          <p className="mt-2 max-w-2xl text-sm text-[#475569]">
-            Create structured surveys with multiple question types, or use simple polls for quick feedback.
+          <p className="mt-2 max-w-2xl text-sm text-[var(--fg-muted)]">
+            Create structured surveys with multiple question types, or use
+            simple polls for quick feedback.
           </p>
         </div>
         {editingId && (
@@ -300,43 +329,51 @@ export default function AdminSurveysPanel() {
 
       <div className="mt-8 grid gap-4 border border-[#16243d]/10 bg-[#f7f3e8] p-4">
         <div className="grid gap-4 lg:grid-cols-2">
-          <label className="lg:col-span-2 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+          <label className="lg:col-span-2 text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
             Title
             <input
+              id="survey-title"
+              name="title"
               value={title}
               onChange={event => setTitle(event.target.value)}
               placeholder="What do you want to ask?"
-              className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
+              className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[var(--fg)]"
             />
           </label>
-          <label className="lg:col-span-2 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+          <label className="lg:col-span-2 text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
             Description
             <textarea
+              id="survey-description"
+              name="description"
               value={description}
               onChange={event => setDescription(event.target.value)}
               placeholder="Provide context for this survey"
               rows={3}
-              className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
+              className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[var(--fg)]"
             />
           </label>
-          <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+          <label className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
             Type
             <select
+              id="survey-type"
+              name="type"
               value={type}
               onChange={event => setType(event.target.value as SurveyType)}
-              className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
+              className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[var(--fg)]"
             >
               <option value="poll">Poll</option>
               <option value="survey">Survey</option>
               <option value="review">Product review</option>
             </select>
           </label>
-          <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+          <label className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
             Status
             <select
+              id="survey-status"
+              name="status"
               value={status}
               onChange={event => setStatus(event.target.value as SurveyStatus)}
-              className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[#16243d]"
+              className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[var(--fg)]"
             >
               <option value="draft">Draft</option>
               <option value="published">Published</option>
@@ -347,7 +384,7 @@ export default function AdminSurveysPanel() {
 
         <div className="mt-4 border-t border-[#16243d]/10 pt-4">
           <div className="flex items-center justify-between">
-            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
               Questions ({questions.length})
             </p>
             <div className="flex gap-2">
@@ -374,7 +411,9 @@ export default function AdminSurveysPanel() {
                       className="block w-full px-3 py-2 text-left text-xs hover:bg-[#f7f3e8]"
                     >
                       <p className="font-bold">{qt.label}</p>
-                      <p className="text-[10px] text-[#475569]">{qt.description}</p>
+                      <p className="text-[10px] text-[var(--fg-muted)]">
+                        {qt.description}
+                      </p>
                     </button>
                   ))}
                 </div>
@@ -385,14 +424,29 @@ export default function AdminSurveysPanel() {
           {previewMode ? (
             <div className="mt-4 space-y-4">
               {questions.length === 0 ? (
-                <p className="py-6 text-sm text-[#475569]">No questions added yet.</p>
+                <p className="py-6 text-sm text-[var(--fg-muted)]">
+                  No questions added yet.
+                </p>
               ) : (
                 questions.map((q, index) => (
-                  <div key={q.id} className="border border-[#16243d]/10 bg-white p-4">
-                    <p className="text-xs font-bold text-[#475569]">Q{index + 1}. {q.type.replace("_", " ")}</p>
-                    <p className="mt-1 font-semibold">{q.title || "Untitled question"}</p>
-                    {q.description && <p className="mt-1 text-sm text-[#475569]">{q.description}</p>}
-                    <p className="mt-2 text-xs text-[#475569]">{q.required ? "Required" : "Optional"}</p>
+                  <div
+                    key={q.id}
+                    className="border border-[#16243d]/10 bg-white p-4"
+                  >
+                    <p className="text-xs font-bold text-[var(--fg-muted)]">
+                      Q{index + 1}. {q.type.replace("_", " ")}
+                    </p>
+                    <p className="mt-1 font-semibold">
+                      {q.title || "Untitled question"}
+                    </p>
+                    {q.description && (
+                      <p className="mt-1 text-sm text-[var(--fg-muted)]">
+                        {q.description}
+                      </p>
+                    )}
+                    <p className="mt-2 text-xs text-[var(--fg-muted)]">
+                      {q.required ? "Required" : "Optional"}
+                    </p>
                   </div>
                 ))
               )}
@@ -400,7 +454,9 @@ export default function AdminSurveysPanel() {
           ) : (
             <div className="mt-4 space-y-3">
               {questions.length === 0 && (
-                <p className="py-6 text-sm text-[#475569]">No questions yet. Add a question to get started.</p>
+                <p className="py-6 text-sm text-[var(--fg-muted)]">
+                  No questions yet. Add a question to get started.
+                </p>
               )}
               {questions.map((q, index) => (
                 <div key={q.id} className="border border-[#16243d]/10 bg-white">
@@ -421,8 +477,10 @@ export default function AdminSurveysPanel() {
                     >
                       <ChevronDown size={14} />
                     </button>
-                    <span className="text-xs font-bold text-[#475569]">Q{index + 1}</span>
-                    <span className="text-xs font-black uppercase tracking-[.1em] text-[#b8860b]">
+                    <span className="text-xs font-bold text-[var(--fg-muted)]">
+                      Q{index + 1}
+                    </span>
+                    <span className="text-xs font-black uppercase tracking-[.1em] text-[var(--brand)]">
                       {q.type.replace("_", " ")}
                     </span>
                     <span className="flex-1 truncate text-sm font-semibold">
@@ -430,8 +488,12 @@ export default function AdminSurveysPanel() {
                     </span>
                     <button
                       type="button"
-                      onClick={() => setExpandedQuestion(expandedQuestion === q.id ? null : q.id)}
-                      className="text-[#475569]"
+                      onClick={() =>
+                        setExpandedQuestion(
+                          expandedQuestion === q.id ? null : q.id
+                        )
+                      }
+                      className="text-[var(--fg-muted)]"
                     >
                       <Settings size={14} />
                     </button>
@@ -445,55 +507,90 @@ export default function AdminSurveysPanel() {
                   </div>
                   {expandedQuestion === q.id && (
                     <div className="space-y-3 p-4">
-                      <label className="block text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+                      <label className="block text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
                         Question type
                         <select
+                          id={`question-${q.id}-type`}
+                          name="type"
                           value={q.type}
-                          onChange={event => updateQuestion(q.id, { type: event.target.value as QuestionType })}
+                          onChange={event =>
+                            updateQuestion(q.id, {
+                              type: event.target.value as QuestionType,
+                            })
+                          }
                           className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm"
                         >
                           {QUESTION_TYPES.map(qt => (
-                            <option key={qt.value} value={qt.value}>{qt.label} - {qt.description}</option>
+                            <option key={qt.value} value={qt.value}>
+                              {qt.label} - {qt.description}
+                            </option>
                           ))}
                         </select>
                       </label>
-                      <label className="block text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+                      <label className="block text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
                         Question title
                         <input
+                          id={`question-${q.id}-title`}
+                          name="title"
                           value={q.title}
-                          onChange={event => updateQuestion(q.id, { title: event.target.value })}
+                          onChange={event =>
+                            updateQuestion(q.id, { title: event.target.value })
+                          }
                           placeholder="Enter your question"
                           className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm"
                         />
                       </label>
-                      <label className="block text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+                      <label className="block text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
                         Description (optional)
                         <input
+                          id={`question-${q.id}-description`}
+                          name="description"
                           value={q.description || ""}
-                          onChange={event => updateQuestion(q.id, { description: event.target.value })}
+                          onChange={event =>
+                            updateQuestion(q.id, {
+                              description: event.target.value,
+                            })
+                          }
                           placeholder="Additional context"
                           className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm"
                         />
                       </label>
                       <label className="flex items-center gap-2 text-xs">
                         <input
+                          id={`question-${q.id}-required`}
+                          name="required"
                           type="checkbox"
                           checked={q.required}
-                          onChange={event => updateQuestion(q.id, { required: event.target.checked })}
+                          onChange={event =>
+                            updateQuestion(q.id, {
+                              required: event.target.checked,
+                            })
+                          }
                           className="accent-[#a27e2e]"
                         />
                         Required question
                       </label>
 
-                      {(q.type === "single_choice" || q.type === "multiple_choice") && (
+                      {(q.type === "single_choice" ||
+                        q.type === "multiple_choice") && (
                         <div>
-                          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">Options</p>
+                          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
+                            Options
+                          </p>
                           <div className="mt-2 space-y-2">
                             {(q.options || []).map((option, optIndex) => (
                               <div key={optIndex} className="flex gap-2">
                                 <input
+                                  id={`question-${q.id}-option-${optIndex}`}
+                                  name={`option-${optIndex}`}
                                   value={option}
-                                  onChange={event => updateOption(q.id, optIndex, event.target.value)}
+                                  onChange={event =>
+                                    updateOption(
+                                      q.id,
+                                      optIndex,
+                                      event.target.value
+                                    )
+                                  }
                                   placeholder={`Option ${optIndex + 1}`}
                                   className="flex-1 border border-[#16243d]/20 bg-white px-3 py-2 text-sm"
                                 />
@@ -511,7 +608,7 @@ export default function AdminSurveysPanel() {
                             <button
                               type="button"
                               onClick={() => addOption(q.id)}
-                              className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]"
+                              className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--brand)]"
                             >
                               + Add option
                             </button>
@@ -521,25 +618,37 @@ export default function AdminSurveysPanel() {
 
                       {q.type === "rating" && (
                         <div className="grid gap-4 sm:grid-cols-2">
-                          <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+                          <label className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
                             Minimum rating
                             <input
+                              id={`question-${q.id}-min-rating`}
+                              name="minRating"
                               type="number"
                               min={1}
                               max={10}
                               value={q.minRating ?? 1}
-                              onChange={event => updateQuestion(q.id, { minRating: Number(event.target.value) })}
+                              onChange={event =>
+                                updateQuestion(q.id, {
+                                  minRating: Number(event.target.value),
+                                })
+                              }
                               className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm"
                             />
                           </label>
-                          <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+                          <label className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
                             Maximum rating
                             <input
+                              id={`question-${q.id}-max-rating`}
+                              name="maxRating"
                               type="number"
                               min={1}
                               max={10}
                               value={q.maxRating ?? 5}
-                              onChange={event => updateQuestion(q.id, { maxRating: Number(event.target.value) })}
+                              onChange={event =>
+                                updateQuestion(q.id, {
+                                  maxRating: Number(event.target.value),
+                                })
+                              }
                               className="mt-1 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm"
                             />
                           </label>
@@ -574,9 +683,9 @@ export default function AdminSurveysPanel() {
 
       <div className="mt-8 divide-y divide-[#16243d]/10 border-y border-[#16243d]/10">
         {surveys.isLoading ? (
-          <p className="py-6 text-sm text-[#475569]">Loading surveys…</p>
+          <p className="py-6 text-sm text-[var(--fg-muted)]">Loading surveys…</p>
         ) : (surveys.data ?? []).length === 0 ? (
-          <p className="py-6 text-sm text-[#475569]">No surveys yet.</p>
+          <p className="py-6 text-sm text-[var(--fg-muted)]">No surveys yet.</p>
         ) : (
           (surveys.data ?? []).map(survey => (
             <div
@@ -586,28 +695,31 @@ export default function AdminSurveysPanel() {
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <p className="font-bold">{survey.title}</p>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-[#16243d]/15 px-2 py-0.5 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[#16243d]/15 px-2 py-0.5 text-[10px] font-black uppercase tracking-[.1em] text-[var(--brand)]">
                     {survey.type}
                   </span>
                 </div>
-                <p className="mt-1 text-xs text-[#475569]">
+                <p className="mt-1 text-xs text-[var(--fg-muted)]">
                   {survey.description}
                 </p>
-                <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-[#475569]">
+                <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-[var(--fg-muted)]">
                   <span className="inline-flex items-center gap-1">
                     {statusIcon[survey.status as keyof typeof statusIcon]}
                     {survey.status}
                   </span>
                   <span>
-                    {survey.totalResponses} response{survey.totalResponses === 1 ? "" : "s"}
+                    {survey.totalResponses} response
+                    {survey.totalResponses === 1 ? "" : "s"}
                   </span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => startEdit(survey as Parameters<typeof startEdit>[0])}
-                  className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]"
+                  onClick={() =>
+                    startEdit(survey as Parameters<typeof startEdit>[0])
+                  }
+                  className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[var(--brand)]"
                 >
                   Edit
                 </button>
@@ -640,5 +752,3 @@ export default function AdminSurveysPanel() {
     </section>
   );
 }
-
-

@@ -11,7 +11,10 @@ declare module "cookie" {
     encode?: (str: string) => string;
   }
 
-  export function stringifyCookie(cookie: Cookies, options?: StringifyOptions): string;
+  export function stringifyCookie(
+    cookie: Cookies,
+    options?: StringifyOptions
+  ): string;
 
   export interface SetCookie {
     name: string;
@@ -27,9 +30,16 @@ declare module "cookie" {
     sameSite?: boolean | "lax" | "strict" | "none";
   }
 
-  export type SerializeOptions = StringifyOptions & Omit<SetCookie, "name" | "value">;
+  export type SerializeOptions = StringifyOptions &
+    Omit<SetCookie, "name" | "value">;
 
-  export function stringifySetCookie(cookie: SetCookie, options?: StringifyOptions): string;
+  export function stringifySetCookie(
+    cookie: SetCookie,
+    options?: StringifyOptions
+  ): string;
 
-  export function parseSetCookie(str: string, options?: ParseOptions): SetCookie;
+  export function parseSetCookie(
+    str: string,
+    options?: ParseOptions
+  ): SetCookie;
 }

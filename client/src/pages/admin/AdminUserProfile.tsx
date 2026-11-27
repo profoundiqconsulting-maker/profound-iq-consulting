@@ -38,8 +38,12 @@ type UserProfileDetails = {
   };
 };
 
-export default function AdminUserProfile(props: RouteComponentProps<{ openId: string }>) {
-  const params = props.params ?? (window as unknown as { params?: { openId?: string } }).params;
+export default function AdminUserProfile(
+  props: RouteComponentProps<{ openId: string }>
+) {
+  const params =
+    props.params ??
+    (window as unknown as { params?: { openId?: string } }).params;
   const openId = params?.openId;
 
   const userQuery = trpc.admin.listAllUsers.useQuery(undefined, {
@@ -53,7 +57,8 @@ export default function AdminUserProfile(props: RouteComponentProps<{ openId: st
     { enabled: Boolean(openId), retry: false }
   );
 
-  const user = userQuery.data?.find((u: UserRow) => u.openId === openId) ?? null;
+  const user =
+    userQuery.data?.find((u: UserRow) => u.openId === openId) ?? null;
   const profile = profileQuery.data as UserProfileDetails | null | undefined;
 
   const updateProfile = trpc.admin.adminUpdateUserProfile.useMutation({
@@ -106,10 +111,14 @@ export default function AdminUserProfile(props: RouteComponentProps<{ openId: st
       notificationEmail: profile?.notificationPreferences?.email ?? true,
       notificationPush: profile?.notificationPreferences?.push ?? false,
       notificationSms: profile?.notificationPreferences?.sms ?? false,
-      notificationAssessmentUpdates: profile?.notificationPreferences?.assessmentUpdates ?? true,
-      notificationCourseAnnouncements: profile?.notificationPreferences?.courseAnnouncements ?? true,
-      notificationMonthlyInsights: profile?.notificationPreferences?.monthlyInsights ?? false,
-      notificationShowAvatar: profile?.notificationPreferences?.showAvatar ?? true,
+      notificationAssessmentUpdates:
+        profile?.notificationPreferences?.assessmentUpdates ?? true,
+      notificationCourseAnnouncements:
+        profile?.notificationPreferences?.courseAnnouncements ?? true,
+      notificationMonthlyInsights:
+        profile?.notificationPreferences?.monthlyInsights ?? false,
+      notificationShowAvatar:
+        profile?.notificationPreferences?.showAvatar ?? true,
       leaderboardOptIn: profile?.leaderboardOptIn ?? false,
       leaderboardDisplayName: profile?.leaderboardDisplayName ?? "",
     });
@@ -156,7 +165,7 @@ export default function AdminUserProfile(props: RouteComponentProps<{ openId: st
       <div className="admin-observatory w-full">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <p className="exec-eyebrow">User Management</p>
+            <p className="eyebrow">User Management</p>
             <h1 className="display mt-2 text-3xl">User Profile</h1>
             <p className="mt-1 text-sm text-[#64748b]">
               View and edit user details and preferences.
@@ -165,7 +174,7 @@ export default function AdminUserProfile(props: RouteComponentProps<{ openId: st
           <Link href="/admin/users">
             <button
               type="button"
-              className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] hover:border-[#c9a34e]"
+              className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] hover:border-[var(--brand)]"
             >
               <ArrowLeft size={13} /> Back to users
             </button>
@@ -178,7 +187,9 @@ export default function AdminUserProfile(props: RouteComponentProps<{ openId: st
               Full name
               <input
                 value={form.name}
-                onChange={event => setForm(prev => ({ ...prev, name: event.target.value }))}
+                onChange={event =>
+                  setForm(prev => ({ ...prev, name: event.target.value }))
+                }
                 className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm"
               />
             </label>
@@ -194,7 +205,9 @@ export default function AdminUserProfile(props: RouteComponentProps<{ openId: st
               Timezone
               <input
                 value={form.timezone}
-                onChange={event => setForm(prev => ({ ...prev, timezone: event.target.value }))}
+                onChange={event =>
+                  setForm(prev => ({ ...prev, timezone: event.target.value }))
+                }
                 className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm"
               />
             </label>
@@ -220,7 +233,10 @@ export default function AdminUserProfile(props: RouteComponentProps<{ openId: st
               <textarea
                 value={form.learningGoals}
                 onChange={event =>
-                  setForm(prev => ({ ...prev, learningGoals: event.target.value }))
+                  setForm(prev => ({
+                    ...prev,
+                    learningGoals: event.target.value,
+                  }))
                 }
                 rows={3}
                 className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm"
@@ -231,7 +247,10 @@ export default function AdminUserProfile(props: RouteComponentProps<{ openId: st
               <input
                 value={form.leaderboardDisplayName}
                 onChange={event =>
-                  setForm(prev => ({ ...prev, leaderboardDisplayName: event.target.value }))
+                  setForm(prev => ({
+                    ...prev,
+                    leaderboardDisplayName: event.target.value,
+                  }))
                 }
                 className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm"
               />
@@ -241,7 +260,10 @@ export default function AdminUserProfile(props: RouteComponentProps<{ openId: st
                 type="checkbox"
                 checked={form.leaderboardOptIn}
                 onChange={event =>
-                  setForm(prev => ({ ...prev, leaderboardOptIn: event.target.checked }))
+                  setForm(prev => ({
+                    ...prev,
+                    leaderboardOptIn: event.target.checked,
+                  }))
                 }
               />
               Leaderboard opt-in
@@ -251,7 +273,10 @@ export default function AdminUserProfile(props: RouteComponentProps<{ openId: st
                 type="checkbox"
                 checked={form.notificationEmail}
                 onChange={event =>
-                  setForm(prev => ({ ...prev, notificationEmail: event.target.checked }))
+                  setForm(prev => ({
+                    ...prev,
+                    notificationEmail: event.target.checked,
+                  }))
                 }
               />
               Email notifications
@@ -261,7 +286,10 @@ export default function AdminUserProfile(props: RouteComponentProps<{ openId: st
                 type="checkbox"
                 checked={form.notificationPush}
                 onChange={event =>
-                  setForm(prev => ({ ...prev, notificationPush: event.target.checked }))
+                  setForm(prev => ({
+                    ...prev,
+                    notificationPush: event.target.checked,
+                  }))
                 }
               />
               Push notifications
@@ -271,7 +299,10 @@ export default function AdminUserProfile(props: RouteComponentProps<{ openId: st
                 type="checkbox"
                 checked={form.notificationSms}
                 onChange={event =>
-                  setForm(prev => ({ ...prev, notificationSms: event.target.checked }))
+                  setForm(prev => ({
+                    ...prev,
+                    notificationSms: event.target.checked,
+                  }))
                 }
               />
               SMS notifications
@@ -281,7 +312,10 @@ export default function AdminUserProfile(props: RouteComponentProps<{ openId: st
                 type="checkbox"
                 checked={form.notificationAssessmentUpdates}
                 onChange={event =>
-                  setForm(prev => ({ ...prev, notificationAssessmentUpdates: event.target.checked }))
+                  setForm(prev => ({
+                    ...prev,
+                    notificationAssessmentUpdates: event.target.checked,
+                  }))
                 }
               />
               Assessment updates
@@ -291,7 +325,10 @@ export default function AdminUserProfile(props: RouteComponentProps<{ openId: st
                 type="checkbox"
                 checked={form.notificationCourseAnnouncements}
                 onChange={event =>
-                  setForm(prev => ({ ...prev, notificationCourseAnnouncements: event.target.checked }))
+                  setForm(prev => ({
+                    ...prev,
+                    notificationCourseAnnouncements: event.target.checked,
+                  }))
                 }
               />
               Course announcements
@@ -301,7 +338,10 @@ export default function AdminUserProfile(props: RouteComponentProps<{ openId: st
                 type="checkbox"
                 checked={form.notificationMonthlyInsights}
                 onChange={event =>
-                  setForm(prev => ({ ...prev, notificationMonthlyInsights: event.target.checked }))
+                  setForm(prev => ({
+                    ...prev,
+                    notificationMonthlyInsights: event.target.checked,
+                  }))
                 }
               />
               Monthly insights
@@ -311,7 +351,10 @@ export default function AdminUserProfile(props: RouteComponentProps<{ openId: st
                 type="checkbox"
                 checked={form.notificationShowAvatar}
                 onChange={event =>
-                  setForm(prev => ({ ...prev, notificationShowAvatar: event.target.checked }))
+                  setForm(prev => ({
+                    ...prev,
+                    notificationShowAvatar: event.target.checked,
+                  }))
                 }
               />
               Show avatar
@@ -322,7 +365,9 @@ export default function AdminUserProfile(props: RouteComponentProps<{ openId: st
             <button
               type="button"
               onClick={save}
-              disabled={saving || updateProfile.isPending || updateRole.isPending}
+              disabled={
+                saving || updateProfile.isPending || updateRole.isPending
+              }
               className="inline-flex items-center gap-2 bg-[#16243d] px-4 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] hover:bg-[#16243d]/90 disabled:opacity-60"
             >
               <Save size={13} /> Save changes

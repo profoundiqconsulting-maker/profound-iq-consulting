@@ -1,1069 +1,529 @@
-/* Profound IQ Consulting — Executive Landing Page Redesign */
-import { lazy, useEffect, useMemo, useRef, useState, Suspense } from "react";
+import { useMemo } from "react";
 import {
-  ArrowDownRight,
-  ArrowUpRight,
   ArrowRight,
-  Award,
+  ArrowUpRight,
   BarChart3,
-  BookOpen,
   BrainCircuit,
-  Briefcase,
+  BriefcaseBusiness,
   Check,
   ChevronRight,
-  Clock3,
-  FileText,
   GraduationCap,
-  Mail,
-  MessageCircle,
-  Quote,
+  Layers3,
   School,
-  Shield,
+  ShieldCheck,
   Sparkles,
-  Star,
   Users,
-  Vote,
-  X,
-  Zap,
-  CheckCircle2,
-  Lock,
-  TrendingUp,
-  Target,
 } from "lucide-react";
-import { SocialIcon } from "@/components/SocialMediaIcons";
 import { BrandLogo } from "@/components/BrandLogo";
 import { SiteNavigation } from "@/components/SiteNavigation";
-import { ScrollReveal, ScrollRevealGroup } from "@/components/ScrollReveal";
-import { trpc } from "@/lib/trpc";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { ASSESSMENT_PRICE_KES } from "@shared/assessment";
-import { CAREER_PATH_PRICE_KES } from "@shared/careerPath";
-import { COURSE_PRICE_KES } from "@shared/courseCatalog";
-import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
-import { toast } from "sonner";
+import { SocialIcon } from "@/components/SocialMediaIcons";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
+import { trpc } from "@/lib/trpc";
+import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
+import { COURSE_PRICE_KES } from "@shared/courseCatalog";
+import { CAREER_PATH_PRICE_KES } from "@shared/careerPath";
 
-const ProgressRing = lazy(() => import("@/components/ui/progress-ring").then(m => ({ default: m.ProgressRing })));
-const CheckoutForm = lazy(() => import("@/components/CheckoutForm").then(m => ({ default: m.CheckoutForm })));
-const SocialSharing = lazy(() => import("@/components/SocialSharing").then(m => ({ default: m.SocialSharing })));
-
-const stats = [
-  { value: "10k+", label: "Assessments completed", icon: Award },
-  { value: "500+", label: "Organizations served", icon: Users },
-  { value: "50+", label: "Professional courses", icon: BookOpen },
-  { value: "98%", label: "Client satisfaction", icon: Star },
-];
-
-const trustBadges = [
-  { label: "Paystack Secured", icon: Lock, desc: "PCI DSS Level 1" },
-  { label: "Data Protected", icon: Shield, desc: "GDPR compliant" },
-  { label: "24/7 Support", icon: Clock3, desc: "Dedicated help desk" },
-];
-
-const testimonials = [
+const audiencePaths = [
   {
-    quote: "The psychometric profile gave our leadership team a shared vocabulary for development conversations we had been avoiding for years.",
-    author: "Margaret Kim",
-    role: "Director of Learning & Development, Kenya",
-    metric: "40% faster succession planning",
-    avatar: "MK",
-    rating: 5,
-    company: "Safaricom",
+    eyebrow: "For individuals",
+    title: "Understand where you are",
+    copy: "Turn reflection into a clear picture of your strengths, patterns, and next best move.",
+    icon: BrainCircuit,
+    href: "/assessment",
+    cta: "Start self assessment",
   },
   {
-    quote: "Profound IQ's framework transformed how we approach professional development across 12 campuses. The insights were precise and immediately actionable.",
-    author: "James Ochieng",
-    role: "Academic Director, CBE Institution",
-    metric: "92% program completion rate",
-    avatar: "JO",
-    rating: 5,
-    company: "UNICEF Kenya",
-  },
-  {
-    quote: "The assessment insights surfaced blind spots we didn't know we had. Our team's performance improved within the first quarter.",
-    author: "Sarah Wanjiku",
-    role: "Operations Lead, Nairobi",
-    metric: "31% productivity gain",
-    avatar: "SW",
-    rating: 5,
-    company: "Equity Bank",
-  },
-];
-
-const pathways = [
-  {
-    id: "individual",
-    label: "For Me",
-    icon: Briefcase,
-    description: "Self Assessment, Psychometric profiles, Professional courses",
-    primaryCTA: { label: "Start Self Assessment", href: "/assessment", price: ASSESSMENT_PRICE_KES },
-    secondaryCTA: { label: "Explore Courses", href: "/courses" },
-    gradient: "from-[#101d35] to-[#16243d]",
-    accent: "text-[#c9a34e]",
-    bgAccent: "bg-[#c9a34e]/20",
-    borderAccent: "border-[#c9a34e]",
-    benefits: [
-      "Evidence-based self-awareness",
-      "Personalized development roadmap",
-      "Instant certificate on completion",
-      "6-month access to resources",
-    ],
-    outcome: "Gain clarity on your strengths and growth areas in 25 minutes",
-  },
-  {
-    id: "team",
-    label: "For My Team",
+    eyebrow: "For teams",
+    title: "Move talent with intention",
+    copy: "Use evidence to align people, roles, leadership readiness, and development priorities.",
     icon: Users,
-    description: "CareerPath, Leadership courses, Organizational consulting",
-    primaryCTA: { label: "Start CareerPath", href: "/careerpath", price: CAREER_PATH_PRICE_KES },
-    secondaryCTA: { label: "View Solutions", href: "/school-solutions" },
-    gradient: "from-[#c9a34e] to-[#d4b45a]",
-    accent: "text-[#16243d]",
-    bgAccent: "bg-[#16243d]/15",
-    borderAccent: "border-[#16243d]",
-    benefits: [
-      "Talent-fit assessment for hiring",
-      "Leadership pipeline development",
-      "Team dynamics & culture insights",
-      "Coaching-ready reports",
-    ],
-    outcome: "Build high-performing teams with data-driven talent decisions",
+    href: "/careerpath",
+    cta: "Explore CareerPath",
   },
   {
-    id: "school",
-    label: "For Schools",
+    eyebrow: "For schools",
+    title: "Build capability at scale",
+    copy: "Bring assessments, research, and practical learning together in a school-wide pathway.",
     icon: School,
-    description: "Institutional programs, Research surveys, Bulk assessments",
-    primaryCTA: { label: "Contact Sales", href: "/contact" },
-    secondaryCTA: { label: "Learn More", href: "/school-solutions" },
-    gradient: "from-[#f7f3e8] to-white",
-    accent: "text-[#16243d]",
-    bgAccent: "bg-[#16243d]/10",
-    borderAccent: "border-[#16243d]/20",
-    benefits: [
-      "CBE curriculum alignment",
-      "Student & staff assessments",
-      "Custom research & surveys",
-      "Volume pricing & support",
-    ],
-    outcome: "Equip your institution with world-class assessment tools",
+    href: "/school-solutions",
+    cta: "View school solutions",
   },
-];
+] as const;
+
+const products = [
+  {
+    title: "Self Assessment",
+    copy: "A private, practical reflection framework for identifying strengths and development areas.",
+    icon: BrainCircuit,
+    href: "/assessment",
+    meta: "Free",
+  },
+  {
+    title: "CareerPath",
+    copy: "Career and competency guidance designed for learners, teams, and coaching conversations.",
+    icon: BriefcaseBusiness,
+    href: "/careerpath",
+    meta: `KES ${CAREER_PATH_PRICE_KES.toLocaleString()}`,
+  },
+  {
+    title: "Psychometrics",
+    copy: "Evidence-led profiles for cognitive, emotional, career, and leadership insight.",
+    icon: BarChart3,
+    href: "/psychometrics",
+    meta: "From KES 699",
+  },
+] as const;
 
 const schema = {
   "@context": "https://schema.org",
-  "@type": "LocalBusiness",
+  "@type": "ProfessionalService",
   name: "Profound IQ Consulting",
-  description: "Transformational learning, educational consulting, psychometric testing, research surveys, and professional courses.",
   url: PUBLISHED_SITE_ORIGIN,
-  address: { "@type": "PostalAddress", addressLocality: "Online" },
   email: "admin@profoundiqconsulting.com",
   telephone: "+254727374055",
-  openingHours: "Mo-Sa 09:00-17:00",
-  priceRange: "KES 399–20,000",
-  sameAs: [
-    "https://www.facebook.com/profoundIQ",
-    "https://x.com/ProfoundIQC",
-    "https://linkedin.com/company/profoundiqconsulting",
-    "https://www.instagram.com/profoundiqconsulting/",
-  ],
-  areaServed: "Worldwide",
+  description:
+    "Assessment, consulting, and professional development for individuals, teams, and schools.",
 };
 
-const faqs = [
-  {
-    q: "How long does the Self Assessment take?",
-    a: "The comprehensive Self Assessment takes approximately 25 minutes to complete. You can pause and resume anytime — your progress auto-saves securely.",
-  },
-  {
-    q: "What makes CareerPath different from other assessments?",
-    a: "CareerPath combines Competency Based Education methodology with psychometric rigor. It maps your talent to 4 career pathways with coaching-ready insights — not just scores.",
-  },
-  {
-    q: "Are the psychometric tests scientifically validated?",
-    a: "Yes. Our 6 psychometric profiles are built on established frameworks (Big Five, Cognitive Ability, EQ, Leadership) and validated across 10,000+ professionals in East Africa.",
-  },
-  {
-    q: "What if I'm not satisfied with my report?",
-    a: "We want you to get value from our insights. If your report doesn't meet expectations, contact us within 14 days and we'll review your case to find a suitable resolution.",
-  },
-  {
-    q: "Can I get bulk pricing for my organization?",
-    a: "Absolutely. Organizations with 10+ participants receive volume discounts up to 30%. Contact sales for custom packages including admin dashboards and team analytics.",
-  },
-  {
-    q: "How quickly do I get my results?",
-    a: "Instantly. Upon payment confirmation, your personalized report generates in real-time with interactive charts, downloadable PDF, and certificate.",
-  },
-];
-
 export default function Home() {
-  const [activePathway, setActivePathway] = useState<typeof pathways[0]>(pathways[0]);
-  const [testimonialIndex, setTestimonialIndex] = useState(0);
-  const [catalogLevel, setCatalogLevel] = useState<string>("All levels");
-  const [catalogCategory, setCatalogCategory] = useState<string>("All categories");
-  const [catalogPage, setCatalogPage] = useState(1);
-  const [visibleResourceCount, setVisibleResourceCount] = useState(3);
-  const [visibleSurveyCount, setVisibleSurveyCount] = useState(3);
-  const [showCheckout, setShowCheckout] = useState<{
-    product: { name: string; priceKes: number; type: "assessment" | "course" | "psychometric"; slug?: string };
-    prefilled?: { email?: string; name?: string };
-  } | null>(null);
-  const HOME_PREVIEW_COUNT = 3;
-
-  const { user, isAuthenticated } = useAuth();
-  const catalogList = trpc.course.catalogList.useQuery(undefined, { retry: false, refetchOnWindowFocus: true });
-  const liveCatalog = trpc.catalog.listPublished.useQuery(undefined, { retry: false, refetchOnWindowFocus: true });
-  const publishedResources = trpc.resources.listPublished.useQuery(undefined, { retry: false, refetchOnWindowFocus: true });
-  const activeSurveys = trpc.resources.activeSurveys.useQuery(undefined, { retry: false, refetchOnWindowFocus: true });
+  const catalogQuery = trpc.course.catalogList.useQuery(undefined, {
+    retry: false,
+  });
+  const resourcesQuery = trpc.resources.listPublished.useQuery(undefined, {
+    retry: false,
+  });
 
   const courses = useMemo(() => {
-    const baseCourses = (catalogList.data ?? []).map(course => ({
-      ...course,
-      price: `KES ${course.priceKes.toLocaleString()}`,
-      format: course.duration,
-      body: course.description,
-      isDatabaseItem: false,
-    }));
-    const overlays = (liveCatalog.data ?? []).map(item => ({
-      slug: item.slug,
-      index: `D${String(item.id).padStart(2, "0")}`,
-      title: item.title,
-      strapline: item.strapline,
-      description: item.description,
-      audience: item.audience,
-      duration: item.duration,
-      outcomes: item.outcomes,
-      modules: [] as never[],
-      price: `KES ${item.priceKes.toLocaleString()}`,
-      format: item.duration,
-      body: item.description,
-      isDatabaseItem: true,
-      skillLevel: (item as any).skillLevel ?? "Practitioner",
-      category: (item as any).category ?? "Professional development",
-    }));
-    const bySlug = new Map(overlays.map(item => [item.slug, item]));
-    const merged = baseCourses.map(course => {
-      const overlay = bySlug.get(course.slug);
-      if (!overlay) return course;
-      bySlug.delete(course.slug);
-      return { ...course, ...overlay, modules: course.modules, isDatabaseItem: true };
-    });
-    return [...merged, ...Array.from(bySlug.values())] as (typeof baseCourses)[number][];
-  }, [catalogList.data, liveCatalog.data]);
+    return (catalogQuery.data ?? []).slice(0, 3);
+  }, [catalogQuery.data]);
 
-  const uniqueLevels = Array.from(new Set(courses.map(course => course.skillLevel).filter(Boolean)));
-  const uniqueCategories = Array.from(new Set(courses.map(course => course.category).filter(Boolean))).sort();
-  const filteredCatalog = courses.filter(course => {
-    if (catalogLevel !== "All levels" && course.skillLevel !== catalogLevel) return false;
-    if (catalogCategory !== "All categories" && course.category !== catalogCategory) return false;
-    return true;
-  });
-  const CATALOG_PAGE_SIZE = 6;
-  const catalogPageCount = Math.max(1, Math.ceil(filteredCatalog.length / CATALOG_PAGE_SIZE));
-  const pagedCatalog = filteredCatalog.slice(0, catalogPage * CATALOG_PAGE_SIZE);
-
-  const displayResources = useMemo(() => {
-    const data = (publishedResources.data ?? []).sort((a: { sortOrder: number }, b: { sortOrder: number }) => a.sortOrder - b.sortOrder);
-    return data.slice(0, visibleResourceCount);
-  }, [publishedResources.data, visibleResourceCount]);
-
-  const displaySurveys = useMemo(() => {
-    const data = (activeSurveys.data ?? []).filter((survey: { status: string }) => survey.status === "published");
-    return data.slice(0, visibleSurveyCount);
-  }, [activeSurveys.data, visibleSurveyCount]);
-
-  // Auto-advance testimonials
-  useEffect(() => {
-    const interval = setInterval(() => setTestimonialIndex(i => (i + 1) % testimonials.length), 6000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const openCheckout = (product: { name: string; priceKes: number; type: "assessment" | "course" | "psychometric"; slug?: string }) => {
-    setShowCheckout({ product, prefilled: user ? { email: user.email || undefined, name: user.name || undefined } : undefined });
-  };
-
-  const handleCheckoutSuccess = (reference: string) => {
-    setShowCheckout(null);
-    toast.success("Payment successful!", { description: "Your report is ready." });
-  };
-
-  const formatPrice = (price: number) => `KES ${price.toLocaleString()}`;
+  const resources = useMemo(() => {
+    return (resourcesQuery.data ?? [])
+      .slice()
+      .sort((a: { sortOrder: number }, b: { sortOrder: number }) =>
+        a.sortOrder - b.sortOrder
+      )
+      .slice(0, 3);
+  }, [resourcesQuery.data]);
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-body">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
-      <SiteNavigation variant="home" dark={true} />
+    <div className="min-h-screen bg-[#f6f4ee] font-body text-[#16243d] antialiased">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
+      <SiteNavigation variant="public" />
 
-      <main id="top">
-        {/* CLIENT SECTORS SCROLLING BANNER */}
-        <section className="relative overflow-hidden bg-[var(--navy-deep)] text-[var(--text-on-dark)] py-4" aria-label="Organizations we work with">
-          <div className="container px-6 lg:px-8">
-            <div className="overflow-hidden">
-              <div className="flex animate-marquee whitespace-nowrap will-change-transform">
-                {[
-                  "Banks",
-                  "Insurance Companies",
-                  "Public & Private Schools",
-                  "International Organisations",
-                  "Local NGOs",
-                  "International NGOs",
-                ].map((sector, i) => (
-                  <span key={`${sector}-${i}`} className="flex items-center gap-4 px-6 py-2 text-sm font-semibold uppercase tracking-wider text-[var(--gold)]/80">
-                    {sector}
-                    <span className="text-[var(--gold)]/40" aria-hidden="true">•</span>
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* HERO SECTION */}
-        <section className="relative overflow-hidden bg-[var(--navy-deep)] text-[var(--text-on-dark)] pt-20 pb-16 sm:pt-28 sm:pb-24 lg:pt-32 lg:pb-28">
-          <div className="container relative px-6 py-4 sm:px-8 lg:px-8">
-            {/* Eyebrow */}
-            <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[var(--gold)]">
-                <Sparkles size={12} />
-                Executive Assessment & Development
-              </div>
-            </div>
-
-            <div className="grid gap-12 lg:grid-cols-[1fr_1fr]">
-              {/* Left: Copy */}
-              <div className="max-w-2xl">
-                <h1 className="text-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-                  Turn potential into <span className="text-[var(--gold)]">measurable impact</span>
-                </h1>
-
-                <p className="mt-5 text-lg leading-relaxed text-[var(--muted-on-dark)]">
-                  Profound IQ Consulting equips professionals, educators, and organizations with evidence-based assessment frameworks and practical development pathways — so you can lead with confidence and measure what matters.
-                </p>
-
-                {/* Value Props */}
-                <div className="mt-8 grid gap-3 sm:grid-cols-2">
-                  {[
-                    { icon: CheckCircle2, text: "Evidence-based frameworks" },
-                    { icon: Clock3, text: "25-minute assessment" },
-                    { icon: Shield, text: "Secure & confidential" },
-                    { icon: Award, text: "Instant certificate" },
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-3 rounded-xl bg-[var(--navy-deep)]/30 p-3 border border-[var(--gold)]/20">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--gold)]/15">
-                        <item.icon className="h-4 w-4 text-[var(--gold)]" />
-                      </div>
-                      <span className="text-sm font-medium text-[var(--text-on-dark)]">{item.text}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Primary CTA Group */}
-                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                  <Button
-                    asChild
-                    variant="gold"
-                    size="lg"
-                    className="w-full sm:w-auto group"
-                  >
-                    <a href="/assessment">
-                      <ArrowRight size={18} className="mr-2 group-hover:translate-x-1 transition-transform" />
-                      Start Self Assessment
-                      <span className="ml-2 text-xs opacity-80">KES {ASSESSMENT_PRICE_KES} • 25 min</span>
-                    </a>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="lg"
-                    className="w-full sm:w-auto border-2 border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--navy-deep)]"
-                  >
-                    <a href="/courses">Explore Courses <ArrowRight size={16} className="ml-2" /></a>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="ghost"
-                    size="lg"
-                    className="w-full sm:w-auto text-[var(--muted-on-dark)] hover:text-[var(--text-on-dark)]"
-                  >
-                    <a href="#pathways">See all pathways</a>
-                  </Button>
-                </div>
-
-                {/* Risk Reversal */}
-                <div className="mt-6 flex items-center gap-4 text-sm text-[var(--muted-on-dark)]">
-                  <div className="flex items-center gap-2">
-                    <Lock size={16} className="text-[var(--gold)]" />
-                    <span>Satisfaction guarantee — contact us</span>
-                  </div>
-                  <div className="flex items-center gap-2 border-l border-[var(--gold)]/20 pl-4">
-                    <TrendingUp size={16} className="text-[var(--success)]" />
-                    <span>Trusted by 500+ organizations</span>
-                  </div>
-                  <div className="flex items-center gap-2 border-l border-[var(--gold)]/20 pl-4">
-                    <Zap size={16} className="text-[var(--gold)]" />
-                    <span>Instant access on payment</span>
-                  </div>
-                </div>
-
-                {/* Trust Bar */}
-                <div className="mt-10 flex items-center gap-6 text-sm text-[var(--muted-on-dark)]">
-                  <div className="flex -space-x-2">
-                    {[1, 2, 3, 4, 5].map(i => (
-                      <div key={i} className="h-8 w-8 rounded-full border-2 border-[var(--navy-deep)] bg-gradient-to-br from-[var(--navy-deep)] to-[var(--ivory)]" />
-                    ))}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-[var(--text-on-dark)]">Trusted by 500+ organizations</p>
-                    <p className="text-xs text-[var(--muted-on-dark)]">Across Kenya and beyond</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right: Dashboard Preview */}
-              <div className="hidden lg:block relative">
-                <div className="relative rounded-3xl border border-[var(--gold)]/30 bg-[var(--navy-deep)]/60 p-6 backdrop-blur-md shadow-2xl shadow-[var(--gold)]/10">
-                  <div className="flex flex-col gap-4 mb-8">
-                    <div className="flex items-center justify-between">
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-[var(--gold)]/40 text-[10px] font-bold uppercase tracking-wider text-[var(--gold)]">
-                        Since 2019
-                      </span>
-                      <div className="text-right">
-                        <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-on-dark)]/70">profound iq consulting</p>
-                        <p className="text-sm font-bold text-[var(--text-on-dark)]">Executive Assessment & Development</p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      {[
-                        { icon: Award, title: "Professional Courses", value: "50+ programs" },
-                        { icon: BarChart3, title: "Psychometric Testing", value: "Evidence-based" },
-                        { icon: Users, title: "1-on-1 Coaching", value: "Personalized" },
-                      ].map(({ icon: Icon, title, value }) => (
-                        <div key={title} className="flex items-center gap-3 rounded-xl border border-[var(--gold)]/20 bg-[var(--navy-deep)]/40 p-4 hover:border-[var(--gold)]/40 transition-colors">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--gold)]/15">
-                            <Icon className="h-5 w-5 text-[var(--gold)]" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-semibold text-[var(--text-on-dark)]">{title}</p>
-                            <p className="text-xs text-[var(--gold)]">{value}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="pt-6 border-t border-[var(--gold)]/20">
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-sm font-semibold text-[var(--text-on-dark)]">Client satisfaction</p>
-                        <p className="text-xs font-bold text-[var(--gold)]">98%</p>
-                      </div>
-                      <div className="h-2 w-full rounded-full bg-[var(--gold)]/20 overflow-hidden">
-                        <div className="h-full bg-[var(--gold)] w-[98%]" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Stats Bar */}
-            <div className="mt-16 grid grid-cols-2 gap-6 border-t-2 border-[var(--text-on-dark)]/10 pt-10 sm:mt-20 sm:gap-8 sm:pt-12 lg:grid-cols-4">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="flex justify-center mb-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--gold)]/15">
-                      <stat.icon className="h-6 w-6 text-[var(--gold)]" />
-                    </div>
-                  </div>
-                  <div className="text-display text-3xl font-bold text-[var(--gold)] sm:text-4xl lg:text-5xl xl:text-6xl">
-                    {stat.value}
-                  </div>
-                  <div className="mt-2 text-fluid-xs text-[var(--muted-on-dark)] sm:text-sm">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* TRUST BADGES */}
-        <section className="py-12 bg-[var(--background)] border-y border-[var(--border)]">
-          <div className="container px-6 lg:px-8">
-            <p className="text-center text-xs font-bold uppercase tracking-wider text-[var(--gold)] mb-8">Security & Compliance</p>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-              {trustBadges.map((badge, i) => (
-                <div key={i} className="flex items-center gap-3 p-4 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:border-[var(--gold)]/30 transition-colors">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--gold)]/15">
-                    <badge.icon className="h-5 w-5 text-[var(--gold)]" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-[var(--foreground)]">{badge.label}</p>
-                    <p className="text-xs text-[var(--muted-foreground)]">{badge.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* PATHWAY SELECTOR */}
-        <section id="pathways" className="py-16 sm:py-20 lg:py-24 bg-[var(--ivory)]">
-          <div className="container px-6 lg:px-8">
-            <div className="mb-12 text-center sm:mb-16">
-              <p className="text-fluid-xs font-bold uppercase tracking-wider text-[var(--gold)]">Choose Your Path</p>
-              <h2 className="text-display text-3xl font-semibold leading-[1.1] tracking-tight mt-3 sm:text-4xl lg:text-5xl text-[var(--navy-deep)]">
-                Where are you starting from?
-              </h2>
-              <p className="mt-4 max-w-2xl mx-auto text-fluid-base text-[var(--muted-on-dark)]">
-                Three clear paths to help you find the right tools, courses, and support for your goals.
+      <main id="main-content" className="scroll-mt-24">
+        <section className="relative overflow-hidden bg-[#10213b] text-white">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-25"
+            aria-hidden="true"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 82% 18%, rgba(211,174,92,.32), transparent 22%), radial-gradient(circle at 12% 88%, rgba(255,255,255,.09), transparent 18%)",
+            }}
+          />
+          <div className="relative mx-auto grid max-w-[1280px] items-center gap-12 px-5 py-16 sm:px-8 sm:py-20 lg:grid-cols-[1.08fr_.92fr] lg:px-12 lg:py-24">
+            <div className="max-w-2xl">
+              <p className="mb-5 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-[#d5b45f]">
+                <Sparkles size={14} />
+                Clarity for better decisions
               </p>
-            </div>
-
-            {/* Pathway Tabs */}
-            <div className="mb-10 flex flex-wrap items-center justify-center gap-2">
-              {pathways.map((pathway, i) => (
-                <button
-                  key={pathway.id}
-                  type="button"
-                  onClick={() => setActivePathway(pathway)}
-                  className={cn(
-                    "relative px-6 py-3 text-sm font-semibold uppercase tracking-wider transition-all duration-200 rounded-xl",
-                    activePathway.id === pathway.id
-                      ? "bg-[var(--navy-deep)] text-[var(--text-on-dark)] shadow-lg"
-                      : "bg-white text-[var(--muted-on-dark)] hover:bg-[var(--ivory-soft)] border border-[var(--navy-deep)]/10"
-                  )}
-                >
-                  <span className="flex items-center gap-2">
-                    <pathway.icon size={16} />
-                    {pathway.label}
-                  </span>
-                </button>
-              ))}
-            </div>
-
-            {/* Active Pathway Card */}
-            <div className={cn(
-              "relative overflow-hidden rounded-3xl p-8 sm:p-12 transition-all duration-300",
-              activePathway.gradient,
-              activePathway.accent
-            )}>
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-[var(--gold)]/5 to-transparent" />
-              <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-                <div className="flex-1 max-w-2xl">
-                  <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl" style={{ backgroundColor: activePathway.id === "team" ? "var(--navy-deep)" : "var(--gold)" }}>
-                    <activePathway.icon size={28} className={activePathway.id === "team" ? "text-[var(--gold)]" : "text-[var(--navy-deep)]"} />
-                  </div>
-                  <span className={cn(
-                    "inline-block rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[.12em]",
-                    activePathway.id === "team" ? "bg-[var(--navy-deep)]/20 text-[var(--gold)]" : "bg-[var(--navy-deep)]/20 text-[var(--gold)]"
-                  )}>
-                    {activePathway.label}
-                  </span>
-                  <h3 className="mt-4 text-3xl font-bold sm:text-4xl">Your Path: {activePathway.label}</h3>
-                  <p className="mt-4 text-lg leading-relaxed opacity-90">{activePathway.outcome}</p>
-
-                  {/* Benefits */}
-                  <div className="mt-6 flex flex-wrap gap-2">
-                    {activePathway.benefits.map((benefit, i) => (
-                      <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm border border-white/30">
-                        <Check className="w-3 h-3" />
-                        {benefit}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                    <Button
-                      asChild
-                      variant={activePathway.id === "team" ? "outline" : "gold"}
-                      size="lg"
-                      className="w-full sm:w-auto"
-                    >
-                      <a href={activePathway.primaryCTA.href}>
-                        {activePathway.primaryCTA.label}
-                        {activePathway.primaryCTA.price && (
-                          <span className="ml-2 text-xs opacity-80">KES {activePathway.primaryCTA.price}</span>
-                        )}
-                        <ArrowRight size={18} className="ml-2" />
-                      </a>
-                    </Button>
-                    {activePathway.secondaryCTA && (
-                      <Button
-                        asChild
-                        variant="outline"
-                        size="lg"
-                        className={cn(
-                          "w-full sm:w-auto",
-                          activePathway.id === "team"
-                            ? "border-[var(--navy-deep)] text-[var(--navy-deep)] hover:bg-[var(--navy-deep)]"
-                            : "border-white text-white hover:bg-white/10"
-                        )}
-                      >
-                        <a href={activePathway.secondaryCTA.href}>
-                          {activePathway.secondaryCTA.label} <ArrowRight size={18} className="ml-2" />
-                        </a>
-                      </Button>
-                    )}
-                  </div>
-                </div>
-
-                <div className="hidden lg:block w-72 flex-shrink-0">
-                  <div className="relative rounded-2xl bg-white/10 backdrop-blur-sm p-6 border border-white/20">
-                    <p className="text-xs font-bold uppercase tracking-wider mb-3 opacity-80">What you get</p>
-                    <ul className="space-y-3 text-sm opacity-90">
-                      {activePathway.benefits.map((item, i) => (
-                        <li key={i} className="flex items-center gap-2">
-                          <Check className="w-4 h-4 shrink-0" style={{ color: activePathway.id === "team" ? "var(--navy-deep)" : "var(--gold)" }} />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SERVICES */}
-        <section id="services" className="py-16 sm:py-20 lg:py-24 bg-[var(--background)]">
-          <div className="container px-6 lg:px-8">
-            <div className="mb-12 text-center sm:mb-16">
-              <p className="text-fluid-xs font-bold uppercase tracking-wider text-[var(--gold)]">Our Services</p>
-              <h2 className="text-display text-3xl font-semibold leading-[1.1] tracking-tight mt-3 sm:text-4xl lg:text-5xl text-[var(--navy-deep)]">
-                Comprehensive development solutions
-              </h2>
-              <p className="mt-4 max-w-2xl mx-auto text-fluid-base text-[var(--muted-on-dark)]">
-                From individual assessments to organizational consulting, we provide the tools and expertise to drive meaningful growth.
+              <h1 className="font-display text-[clamp(3rem,7vw,5.75rem)] leading-[0.96] tracking-[-0.045em]">
+                Know more.
+                <br />
+                <span className="text-[#d5b45f]">Become ready.</span>
+              </h1>
+              <p className="mt-7 max-w-xl text-[clamp(1.05rem,1.5vw,1.28rem)] leading-8 text-white/72">
+                Evidence-based assessment, practical learning, and focused
+                consulting for people and organizations making important choices.
               </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {[
-                { title: "Self Assessment", desc: "100-question reflective framework with module navigation, secure progress saving, and practical development insights.", icon: BrainCircuit, tag: "Individual", href: "/assessment", price: ASSESSMENT_PRICE_KES },
-                { title: "CareerPath", desc: "Competency Based Education pathway and talent-fit assessment with coaching-ready results and certificate.", icon: GraduationCap, tag: "CBE Learners", href: "/careerpath", price: CAREER_PATH_PRICE_KES },
-                { title: "Psychometric Testing", desc: "Six complementary profiles for career exploration, cognitive reasoning, emotional intelligence, and leadership.", icon: BarChart3, tag: "Insight", href: "/psychometrics", price: 699 },
-                { title: "Professional Courses", desc: "Practical capability building across leadership, strategic growth, and professional habits.", icon: Award, tag: "Development", href: "/courses", price: COURSE_PRICE_KES },
-              ].map((service, i) => (
-                <article
-                  key={service.title}
-                  className="group relative overflow-hidden rounded-2xl bg-[var(--card)] p-6 shadow-sm border border-[var(--border)] transition-all hover:shadow-xl hover:border-[var(--gold)]/30"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-[var(--gold)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="relative">
-                    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--gold)] text-[var(--navy-deep)] shadow-lg shadow-[var(--gold)]/25">
-                      <service.icon size={22} />
-                    </div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-[var(--gold)]">{service.tag}</p>
-                    <h3 className="mt-2 text-lg font-bold text-[var(--navy-deep)]">{service.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-[var(--muted-on-dark)]">{service.desc}</p>
-                    <div className="mt-6 flex items-center justify-between">
-                      <span className="text-xl font-bold text-[var(--gold)]">KES {service.price.toLocaleString()}</span>
-                      <a
-                        href={service.href}
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--gold)] hover:gap-3 transition-all"
-                      >
-                        Explore <ArrowRight size={16} />
-                      </a>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* TESTIMONIALS */}
-        <section className="py-16 sm:py-20 lg:py-24 bg-[var(--navy-deep)]">
-          <div className="container px-6 lg:px-8">
-            <div className="mb-12 text-center sm:mb-16">
-              <p className="text-fluid-xs font-bold uppercase tracking-wider text-[var(--gold)]">Client Success Stories</p>
-              <h2 className="text-display text-3xl font-semibold leading-[1.1] tracking-tight mt-3 sm:text-4xl lg:text-5xl text-[var(--text-on-dark)]">
-                Results leaders trust
-              </h2>
-              <p className="mt-4 max-w-2xl mx-auto text-fluid-base text-[var(--muted-on-dark)]">
-                Real outcomes from organizations and professionals who chose evidence-based development.
-              </p>
-            </div>
-
-            <div className="relative max-w-4xl mx-auto">
-              <div className="overflow-hidden">
-                <div
-                  className="flex transition-transform duration-500 ease-out"
-                  style={{ transform: `translateX(-${testimonialIndex * 100}%)` }}
-                >
-                  {testimonials.map((testimonial, i) => (
-                    <div key={i} className="w-full flex-shrink-0 px-4">
-                      <div className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-[var(--text-on-dark)]/10 bg-[var(--text-on-dark)]/5 p-8 transition-all hover:border-[var(--gold)] hover:bg-[var(--text-on-dark)]/10">
-                        <div>
-                          <div className="flex items-center gap-2 mb-4">
-                            <div className="flex items-center gap-1">
-                              {[...Array(testimonial.rating)].map((_, idx) => (
-                                <Star key={idx} className="h-4 w-4 fill-[var(--gold)] text-[var(--gold)]" />
-                              ))}
-                            </div>
-                            <span className="text-xs font-medium text-[var(--gold)]">{testimonial.company}</span>
-                          </div>
-                          <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--gold)]/10 text-[var(--gold)]">
-                            <Quote size={24} />
-                          </div>
-                          <blockquote className="text-lg leading-relaxed text-[var(--muted-on-dark)]">
-                            "{testimonial.quote}"
-                          </blockquote>
-                        </div>
-                        <div className="mt-8 border-t border-[var(--text-on-dark)]/10 pt-6">
-                          <div className="flex items-center justify-between gap-4">
-                            <div>
-                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--gold)]/15 text-[var(--gold)] font-bold">
-                                {testimonial.avatar}
-                              </div>
-                              <p className="mt-3 font-bold text-[var(--text-on-dark)]">{testimonial.author}</p>
-                              <p className="mt-1 text-xs text-[var(--muted-on-dark)]">{testimonial.role}</p>
-                            </div>
-                            <span className="shrink-0 rounded-full bg-[var(--gold)]/15 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--gold)]">
-                              {testimonial.metric}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Navigation Dots */}
-              <div className="mt-8 flex justify-center gap-2">
-                {testimonials.map((_, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setTestimonialIndex(i)}
-                    className={cn(
-                      "w-2.5 h-2.5 rounded-full transition-all",
-                      i === testimonialIndex
-                        ? "bg-[var(--gold)] w-8"
-                        : "bg-[var(--text-on-dark)]/20 hover:bg-[var(--text-on-dark)]/40"
-                    )}
-                    aria-label={`Go to testimonial ${i + 1}`}
-                    aria-current={i === testimonialIndex ? "true" : "false"}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* COURSE PREVIEW */}
-        <section id="courses" className="py-16 sm:py-20 lg:py-24 bg-[var(--ivory)]">
-          <div className="container px-6 lg:px-8">
-            <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-              <div className="max-w-2xl">
-                <p className="text-fluid-xs font-bold uppercase tracking-wider text-[var(--gold)]">Course Catalog</p>
-                <h2 className="text-display text-3xl font-semibold leading-[1.1] tracking-tight mt-3 sm:text-4xl lg:text-5xl text-[var(--navy-deep)]">
-                  Choose the capability you want to build
-                </h2>
-                <p className="mt-3 max-w-2xl text-fluid-base text-[var(--muted-on-dark)]">
-                  Each course is designed to meet professional standards while giving you a practical path from reflection to measurable progress.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <Button
-                  variant={catalogLevel === "All levels" ? "gold" : "outline"}
-                  size="sm"
-                  onClick={() => { setCatalogLevel("All levels"); setCatalogPage(1); }}
-                  className="border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--navy-deep)]"
+                  asChild
+                  size="xl"
+                  className="h-14 bg-[#d5b45f] px-6 text-[#10213b] hover:bg-[#e3c778]"
                 >
-                  All levels
+                  <a href="/assessment">
+                    Begin self assessment
+                    <ArrowRight size={18} />
+                  </a>
                 </Button>
-                {uniqueLevels.map(level => (
-                  <Button
-                    key={level}
-                    variant={catalogLevel === level ? "gold" : "outline"}
-                    size="sm"
-                    onClick={() => { setCatalogLevel(level); setCatalogPage(1); }}
-                    className="border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--navy-deep)]"
-                  >
-                    {level}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {pagedCatalog.map(course => (
-                <article
-                  key={course.index}
-                  className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-[var(--navy-deep)]/10 bg-white p-6 shadow-sm transition-all hover:shadow-xl hover:border-[var(--gold)]"
-                >
-                  <div>
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-xs font-bold text-[var(--gold)]">{course.index}</span>
-                      <Badge variant="subtle" className="text-xs">{course.format}</Badge>
-                    </div>
-                    <h3 className="mt-3 text-lg font-bold text-[var(--navy-deep)]">{course.title}</h3>
-                    <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[var(--muted-on-dark)]">{course.body}</p>
-                  </div>
-                  <div className="mt-5 flex items-center justify-between gap-3 border-t border-[var(--navy-deep)]/10 pt-4">
-                    <span className="text-xl font-bold text-[var(--gold)]">{course.price}</span>
-                    <div className="flex gap-2">
-                      <Button
-                        asChild
-                        variant="gold"
-                        size="sm"
-                        onClick={() => openCheckout({ name: course.title, priceKes: course.isDatabaseItem ? COURSE_PRICE_KES : 4999, type: "course", slug: course.slug })}
-                      >
-                        <a href="#">Enroll <ArrowRight size={12} /></a>
-                      </Button>
-                      <Button
-                        asChild
-                        variant="outline"
-                        size="sm"
-                        className="border-[var(--navy-deep)]/20 text-[var(--navy-deep)] hover:border-[var(--gold)] hover:text-[var(--gold)]"
-                      >
-                        <a href={course.modules.length ? `/courses/${course.slug}` : "#contact"}>
-                          {course.modules.length ? "Syllabus" : "Discuss"} <ChevronRight size={12} />
-                        </a>
-                      </Button>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-
-            {catalogPage < catalogPageCount && (
-              <div className="mt-10 flex justify-center">
                 <Button
+                  asChild
                   variant="outline"
-                  size="lg"
-                  onClick={() => setCatalogPage(p => p + 1)}
-                  className="border-2 border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--navy-deep)]"
+                  size="xl"
+                  className="h-14 border-white/20 bg-transparent px-6 text-white hover:border-[#d5b45f] hover:bg-white/5 hover:text-[#d5b45f]"
                 >
-                  Load more courses <ChevronRight size={16} />
+                  <a href="/courses">
+                    Explore courses
+                    <ArrowUpRight size={17} />
+                  </a>
                 </Button>
               </div>
-            )}
+            </div>
+
+            <div className="relative mx-auto w-full max-w-[520px]">
+              <div className="absolute -left-5 top-12 h-32 w-32 rounded-full border border-[#d5b45f]/30" />
+              <div className="absolute -right-4 bottom-16 h-20 w-20 rounded-full bg-[#d5b45f]/10 blur-xl" />
+              <div className="relative rounded-[28px] border border-white/12 bg-white/[0.065] p-5 backdrop-blur-sm sm:p-7">
+                <div className="flex items-center justify-between border-b border-white/10 pb-5">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#d5b45f]">
+                      Your development lens
+                    </p>
+                    <p className="mt-2 font-display text-2xl">From insight to action</p>
+                  </div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[#d5b45f]/50 bg-[#d5b45f]/10">
+                    <GraduationCap className="text-[#d5b45f]" size={22} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3 pt-5">
+                  {[
+                    ["01", "Discover", "Your strengths"],
+                    ["02", "Decide", "Your direction"],
+                    ["03", "Develop", "Your capability"],
+                    ["04", "Demonstrate", "Your progress"],
+                  ].map(([number, title, copy], index) => (
+                    <div
+                      key={number}
+                      className={`rounded-2xl border p-4 ${
+                        index === 0
+                          ? "border-[#d5b45f]/50 bg-[#d5b45f]/10"
+                          : "border-white/10 bg-white/[0.035]"
+                      }`}
+                    >
+                      <span className="text-[10px] font-bold text-[#d5b45f]">
+                        {number}
+                      </span>
+                      <p className="mt-3 font-semibold">{title}</p>
+                      <p className="mt-1 text-xs text-white/55">{copy}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* FAQ */}
-        <section className="py-16 sm:py-20 lg:py-24 bg-[var(--background)]">
-          <div className="container px-6 lg:px-8">
-            <div className="mb-12 text-center sm:mb-16 max-w-3xl mx-auto">
-              <p className="text-fluid-xs font-bold uppercase tracking-wider text-[var(--gold)]">Questions?</p>
-              <h2 className="text-display text-3xl font-semibold leading-[1.1] tracking-tight mt-3 sm:text-4xl lg:text-5xl text-[var(--navy-deep)]">
-                Everything you need to know
-              </h2>
-              <p className="mt-4 max-w-2xl mx-auto text-fluid-base text-[var(--muted-on-dark)]">
-                Quick answers to common questions. Can't find what you're looking for? <a href="/contact" className="underline underline-offset-2 hover:text-[var(--gold)]">Contact us</a>
+        <section className="border-b border-[#16243d]/10 bg-white">
+          <div className="mx-auto grid max-w-[1280px] grid-cols-2 divide-x divide-[#16243d]/10 px-5 sm:px-8 lg:grid-cols-4 lg:px-12">
+            {[
+              ["10k+", "Assessments completed"],
+              ["500+", "Organizations reached"],
+              ["50+", "Professional courses"],
+              ["94%", "Learner completion"],
+            ].map(([value, label]) => (
+              <div key={label} className="px-3 py-7 text-center sm:px-6">
+                <p className="font-display text-3xl text-[#16243d] sm:text-4xl">{value}</p>
+                <p className="mt-1 text-xs font-semibold text-[var(--fg-muted)]">{label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
+          <div className="mx-auto max-w-[1280px]">
+            <div className="max-w-2xl">
+              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--brand)]">
+                Choose your starting point
               </p>
+              <h2 className="mt-4 font-display text-[clamp(2.25rem,4vw,4rem)] leading-[1.05] tracking-[-0.035em]">
+                A clear pathway for every kind of growth.
+              </h2>
             </div>
 
-            <div className="max-w-3xl mx-auto space-y-4">
-              {faqs.map((faq, i) => (
-                <details key={i} className="group rounded-xl border border-[var(--border)] bg-[var(--card)] overflow-hidden transition-colors hover:border-[var(--gold)]/30">
-                  <summary className="flex items-center justify-between p-5 cursor-pointer list-none text-left">
-                    <span className="text-lg font-semibold text-[var(--foreground)] pr-4">{faq.q}</span>
-                    <ChevronRight size={20} className="text-[var(--muted-foreground)] group-open:rotate-90 transition-transform shrink-0" />
-                  </summary>
-                  <div className="px-5 pb-5 text-[var(--muted-foreground)] leading-relaxed">{faq.a}</div>
-                </details>
-              ))}
+            <div className="mt-12 grid gap-4 lg:grid-cols-3">
+              {audiencePaths.map((path, index) => {
+                const Icon = path.icon;
+                return (
+                  <a
+                    key={path.title}
+                    href={path.href}
+                    className="group relative overflow-hidden border border-[#16243d]/10 bg-white p-7 transition duration-300 hover:-translate-y-1 hover:border-[#b39142]/50 hover:shadow-[0_18px_50px_rgba(22,36,61,.08)] sm:p-8"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f2eddf] text-[var(--brand)]">
+                        <Icon size={21} />
+                      </div>
+                      <span className="font-mono text-xs text-[var(--fg-subtle)]">0{index + 1}</span>
+                    </div>
+                    <p className="mt-10 text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--brand)]">
+                      {path.eyebrow}
+                    </p>
+                    <h3 className="mt-3 max-w-xs font-display text-3xl leading-tight">
+                      {path.title}
+                    </h3>
+                    <p className="mt-4 max-w-sm leading-7 text-[var(--fg-muted)]">{path.copy}</p>
+                    <span className="mt-8 flex items-center gap-2 text-sm font-bold text-[#16243d]">
+                      {path.cta}
+                      <ArrowRight
+                        size={16}
+                        className="transition-transform group-hover:translate-x-1"
+                      />
+                    </span>
+                  </a>
+                );
+              })}
             </div>
           </div>
         </section>
 
-        {/* RESOURCES & SURVEYS */}
-        <section className="py-16 sm:py-20 lg:py-24 bg-[var(--background)]">
-          <div className="container px-6 lg:px-8">
-            <div className="grid gap-10 lg:grid-cols-2">
-              {/* Resources */}
-              <Card className="border-[var(--navy-deep)]/10">
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--navy-deep)] text-white">
-                      <FileText size={24} />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-[var(--gold)]">Resources</p>
-                      <CardTitle className="text-2xl text-[var(--navy-deep)]">Curated materials</CardTitle>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <p className="text-sm leading-relaxed text-[var(--muted-on-dark)] mb-6">
-                    Practical guides, templates, and tools to support better decisions and clearer next steps.
-                  </p>
-                  {displayResources.length > 0 ? (
-                    <div className="space-y-3">
-                      {displayResources.map((resource: any) => (
-                        <div key={resource.id} className="rounded-lg border border-[var(--navy-deep)]/10 bg-[var(--ivory)] p-4">
-                          <div className="flex items-center justify-between gap-3">
-                            <div>
-                              <span className="text-[10px] font-bold uppercase tracking-[.12em] text-[var(--gold)]">{resource.category}</span>
-                              <p className="mt-1 text-sm font-semibold text-[var(--navy-deep)]">{resource.title}</p>
-                            </div>
-                            <span className="shrink-0 text-sm font-bold text-[var(--navy-deep)]">
-                              {(resource.price ?? 0) === 0 ? "Free" : `${resource.currency ?? "KES"} ${(resource.price ?? 0).toLocaleString()}`}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-center text-sm text-[var(--muted-on-dark)] py-8">No published resources yet.</p>
-                  )}
-                  <Button asChild className="w-full mt-4" variant="outline" size="lg">
-                    <a href="/resources">View all resources <ArrowRight size={14} /></a>
-                  </Button>
-                </CardContent>
-              </Card>
+        <section className="border-y border-[#16243d]/10 bg-[#eeece5] px-5 py-20 sm:px-8 lg:px-12 lg:py-24">
+          <div className="mx-auto max-w-[1280px]">
+            <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
+              <div className="max-w-xl">
+                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--brand)]">
+                  Tools that create movement
+                </p>
+                <h2 className="mt-4 font-display text-[clamp(2.25rem,4vw,4rem)] leading-[1.05] tracking-[-0.035em]">
+                  Start with the insight you need now.
+                </h2>
+              </div>
+              <Button asChild variant="outline" className="border-[#16243d]/20">
+                <a href="/services">
+                  Compare solutions
+                  <ChevronRight size={16} />
+                </a>
+              </Button>
+            </div>
 
-              {/* Surveys */}
-              <Card className="border-[var(--navy-deep)]/10">
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--gold)] text-[var(--navy-deep)]">
-                      <Vote size={24} />
+            <div className="mt-10 grid gap-px overflow-hidden border border-[#16243d]/10 bg-[#16243d]/10 md:grid-cols-3">
+              {products.map(product => {
+                const Icon = product.icon;
+                return (
+                  <a
+                    key={product.title}
+                    href={product.href}
+                    className="group bg-[#f9f8f4] p-7 transition-colors hover:bg-white sm:p-8"
+                  >
+                    <div className="flex items-center justify-between">
+                      <Icon size={23} className="text-[var(--brand)]" />
+                      <span className="text-xs font-bold text-[var(--fg-muted)]">
+                        {product.meta}
+                      </span>
                     </div>
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-[var(--gold)]">Surveys</p>
-                      <CardTitle className="text-2xl text-[var(--navy-deep)]">Have your say</CardTitle>
-                    </div>
+                    <h3 className="mt-12 font-display text-2xl">{product.title}</h3>
+                    <p className="mt-3 min-h-20 leading-7 text-[var(--fg-muted)]">
+                      {product.copy}
+                    </p>
+                    <span className="mt-6 flex items-center gap-2 text-sm font-bold">
+                      Explore
+                      <ArrowUpRight
+                        size={15}
+                        className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                      />
+                    </span>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section className="px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
+          <div className="mx-auto max-w-[1280px]">
+            <div className="grid gap-10 lg:grid-cols-[.75fr_1.25fr] lg:items-start">
+              <div className="lg:sticky lg:top-28">
+                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--brand)]">
+                  Professional learning
+                </p>
+                <h2 className="mt-4 font-display text-[clamp(2.25rem,4vw,4rem)] leading-[1.05] tracking-[-0.035em]">
+                  Build what the work demands.
+                </h2>
+                <p className="mt-5 max-w-md leading-7 text-[var(--fg-muted)]">
+                  Applied courses for leadership, communication, strategy,
+                  wellbeing, and the capabilities that improve performance.
+                </p>
+                <Button asChild className="mt-8 bg-[#16243d] text-white hover:bg-[#263956]">
+                  <a href="/courses">
+                    Browse all courses
+                    <ArrowRight size={16} />
+                  </a>
+                </Button>
+              </div>
+
+              <div className="divide-y divide-[#16243d]/10 border-y border-[#16243d]/10">
+                {courses.length > 0 ? (
+                  courses.map((course: any, index: number) => (
+                    <a
+                      key={course.slug}
+                      href={`/courses/${course.slug}`}
+                      className="group grid gap-4 py-7 sm:grid-cols-[56px_1fr_auto] sm:items-center"
+                    >
+                      <span className="font-mono text-xs text-[var(--brand)]">
+                        0{index + 1}
+                      </span>
+                      <div>
+                        <h3 className="font-display text-2xl">{course.title}</h3>
+                        <p className="mt-2 line-clamp-1 text-sm text-[var(--fg-muted)]">
+                          {course.strapline || course.description}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-between gap-6 sm:justify-end">
+                        <span className="text-sm font-bold">
+                          KES{" "}
+                          {(
+                            course.priceKes ?? COURSE_PRICE_KES
+                          ).toLocaleString()}
+                        </span>
+                        <span className="flex h-10 w-10 items-center justify-center rounded-full border border-[#16243d]/15 transition group-hover:border-[var(--brand)] group-hover:bg-[var(--brand)] group-hover:text-white">
+                          <ArrowUpRight size={16} />
+                        </span>
+                      </div>
+                    </a>
+                  ))
+                ) : (
+                  <div className="py-12 text-center text-sm text-[var(--fg-muted)]">
+                    Loading the course catalogue…
                   </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <p className="text-sm leading-relaxed text-[var(--muted-on-dark)] mb-6">
-                    Take part in our active polls, surveys, and product reviews. Your feedback helps shape what comes next.
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-t border-[#16243d]/10 bg-white px-5 py-20 sm:px-8 lg:px-12 lg:py-24">
+          <div className="mx-auto grid max-w-[1280px] gap-12 lg:grid-cols-2">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--brand)]">
+                Resource library
+              </p>
+              <h2 className="mt-4 font-display text-4xl tracking-[-0.03em]">
+                Useful thinking, ready to use.
+              </h2>
+              <div className="mt-8 divide-y divide-[#16243d]/10 border-y border-[#16243d]/10">
+                {resources.length > 0 ? (
+                  resources.map((resource: any) => (
+                    <a
+                      key={resource.id}
+                      href="/resources"
+                      className="group flex items-center justify-between gap-4 py-5"
+                    >
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--brand)]">
+                          {resource.category}
+                        </p>
+                        <p className="mt-1 font-semibold">{resource.title}</p>
+                      </div>
+                      <ChevronRight
+                        size={17}
+                        className="shrink-0 transition-transform group-hover:translate-x-1"
+                      />
+                    </a>
+                  ))
+                ) : (
+                  <p className="py-8 text-sm text-[var(--fg-muted)]">
+                    New resources are being prepared.
                   </p>
-                  {displaySurveys.length > 0 ? (
-                    <div className="space-y-3">
-                      {displaySurveys.map((survey: any) => (
-                        <div key={survey.id} className="rounded-lg border border-[var(--navy-deep)]/10 bg-[var(--ivory)] p-4">
-                          <div className="flex items-center justify-between gap-3">
-                            <div>
-                              <Badge variant="subtle" className="text-[10px] mb-1">{survey.type}</Badge>
-                              <p className="text-sm font-semibold text-[var(--navy-deep)]">{survey.title}</p>
-                            </div>
-                            <span className="shrink-0 text-xs text-[var(--muted-on-dark)]">{survey.totalResponses} response{survey.totalResponses === 1 ? "" : "s"}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <Vote size={32} className="mx-auto text-[var(--gold)]" aria-hidden="true" />
-                      <p className="mt-2 text-sm text-[var(--muted-on-dark)]">No active surveys right now.</p>
-                    </div>
-                  )}
-                  <Button asChild className="w-full mt-4" variant="outline" size="lg">
-                    <a href="/surveys">View all surveys <ArrowRight size={14} /></a>
-                  </Button>
-                </CardContent>
-              </Card>
+                )}
+              </div>
+              <a
+                href="/resources"
+                className="mt-6 inline-flex items-center gap-2 text-sm font-bold"
+              >
+                Visit resource library
+                <ArrowRight size={15} />
+              </a>
+            </div>
+
+            <div className="border border-[#16243d]/10 bg-[#10213b] p-8 text-white sm:p-10">
+              <ShieldCheck size={28} className="text-[#d5b45f]" />
+              <p className="mt-10 text-[11px] font-bold uppercase tracking-[0.22em] text-[#d5b45f]">
+                A conversation can help
+              </p>
+              <h2 className="mt-4 max-w-md font-display text-4xl leading-tight">
+                Not sure which path fits?
+              </h2>
+              <p className="mt-5 max-w-md leading-7 text-white/65">
+                Tell us what you are trying to understand, improve, or change.
+                We will help you find the right place to begin.
+              </p>
+              <Button
+                asChild
+                size="lg"
+                className="mt-8 bg-[#d5b45f] text-[#10213b] hover:bg-[#e3c778]"
+              >
+                <a href="/contact">
+                  Start a conversation
+                  <ArrowRight size={16} />
+                </a>
+              </Button>
             </div>
           </div>
         </section>
       </main>
 
-      {/* FOOTER */}
-      <footer className="bg-[var(--navy-deep)] text-[var(--text-on-dark)] border-t border-[var(--text-on-dark)]/10">
-        <div className="container px-6 lg:px-8 py-12 lg:py-16">
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            <div className="lg:col-span-2">
-              <BrandLogo context="footer" className="w-36 h-36 sm:w-40 sm:h-40" />
-              <p className="mt-4 max-w-xs text-sm leading-relaxed text-[var(--muted-on-dark)]">
-                Transforming potential into measurable impact through evidence-based assessment, consulting, and professional development.
+      <footer className="border-t border-[#16243d]/10 bg-[#f6f4ee]">
+        <div className="mx-auto max-w-[1280px] px-5 py-10 sm:px-8 lg:px-12 lg:py-14">
+          <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
+            <div>
+              <BrandLogo context="footer" className="h-32 w-32" />
+              <p className="mt-4 max-w-sm text-sm leading-7 text-[var(--fg-muted)]">
+                Evidence-based assessment, consulting, and professional development
+                for individuals, teams, and schools.
               </p>
-              <div className="mt-6 flex gap-4">
-                <a href="https://www.facebook.com/profoundIQ" target="_blank" rel="noopener noreferrer" className="text-[var(--muted-on-dark)] hover:text-[var(--gold)]" aria-label="Facebook">
-                  <span className="w-5 h-5"><SocialIcon platform="facebook" /></span>
-                </a>
-                <a href="https://x.com/ProfoundIQC" target="_blank" rel="noopener noreferrer" className="text-[var(--muted-on-dark)] hover:text-[var(--gold)]" aria-label="X">
-                  <span className="w-5 h-5"><SocialIcon platform="x" /></span>
-                </a>
-                <a href="https://linkedin.com/company/profoundiqconsulting" target="_blank" rel="noopener noreferrer" className="text-[var(--muted-on-dark)] hover:text-[var(--gold)]" aria-label="LinkedIn">
-                  <span className="w-5 h-5"><SocialIcon platform="linkedin" /></span>
-                </a>
-                <a href="https://www.instagram.com/profoundiqconsulting/" target="_blank" rel="noopener noreferrer" className="text-[var(--muted-on-dark)] hover:text-[var(--gold)]" aria-label="Instagram">
-                  <span className="w-5 h-5"><SocialIcon platform="instagram" /></span>
-                </a>
+            </div>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--brand)]">
+                Explore
+              </p>
+              <div className="mt-5 grid gap-3 text-sm">
+                <a href="/assessment">Self Assessment</a>
+                <a href="/careerpath">CareerPath</a>
+                <a href="/psychometrics">Psychometrics</a>
+                <a href="/courses">Professional Courses</a>
               </div>
             </div>
-
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--gold)]">Products</h4>
-              <ul className="mt-4 space-y-2 text-sm text-[var(--muted-on-dark)]">
-                <li><a href="/assessment" className="hover:text-[var(--gold)]">Self Assessment</a></li>
-                <li><a href="/careerpath" className="hover:text-[var(--gold)]">CareerPath</a></li>
-                <li><a href="/psychometrics" className="hover:text-[var(--gold)]">Psychometric Testing</a></li>
-                <li><a href="/courses" className="hover:text-[var(--gold)]">Professional Courses</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--gold)]">Resources</h4>
-              <ul className="mt-4 space-y-2 text-sm text-[var(--muted-on-dark)]">
-                <li><a href="/resources" className="hover:text-[var(--gold)]">Resource Library</a></li>
-                <li><a href="/surveys" className="hover:text-[var(--gold)]">Surveys & Polls</a></li>
-                <li><a href="/blog" className="hover:text-[var(--gold)]">Insights Blog</a></li>
-                <li><a href="/school-solutions" className="hover:text-[var(--gold)]">School Solutions</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--gold)]">Company</h4>
-              <ul className="mt-4 space-y-2 text-sm text-[var(--muted-on-dark)]">
-                <li><a href="/about" className="hover:text-[var(--gold)]">About Us</a></li>
-                <li><a href="/contact" className="hover:text-[var(--gold)]">Contact</a></li>
-                <li><a href="/privacy-policy" className="hover:text-[var(--gold)]">Privacy Policy</a></li>
-                <li><a href="/terms-of-service" className="hover:text-[var(--gold)]">Terms of Service</a></li>
-              </ul>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--brand)]">
+                Company
+              </p>
+              <div className="mt-5 grid gap-3 text-sm">
+                <a href="/about">About</a>
+                <a href="/school-solutions">School solutions</a>
+                <a href="/resources">Resources</a>
+                <a href="/contact">Contact</a>
+              </div>
             </div>
           </div>
 
-          <div className="mt-12 pt-8 border-t border-[var(--text-on-dark)]/10 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-[var(--muted-on-dark)]">
-              © {new Date().getFullYear()} Profound IQ Consulting. All rights reserved.
-            </p>
-            <div className="flex items-center gap-4 text-sm text-[var(--muted-on-dark)]">
-              <span>+254 727 374 055</span>
-              <span>admin@profoundiqconsulting.com</span>
+          <div className="mt-12 flex flex-col gap-5 border-t border-[#16243d]/10 pt-6 text-xs text-[var(--fg-muted)] sm:flex-row sm:items-center sm:justify-between">
+            <p>© {new Date().getFullYear()} Profound IQ Consulting</p>
+            <div className="flex items-center gap-4">
+              <a
+                href="https://www.linkedin.com/company/profoundiqconsulting"
+                aria-label="LinkedIn"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <SocialIcon platform="linkedin" />
+              </a>
+              <a
+                href="https://x.com/ProfoundIQC"
+                aria-label="X"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <SocialIcon platform="x" />
+              </a>
+              <a
+                href="https://www.instagram.com/profoundiqconsulting/"
+                aria-label="Instagram"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <SocialIcon platform="instagram" />
+              </a>
             </div>
           </div>
         </div>
       </footer>
 
-      {/* CHECKOUT MODAL */}
-      {showCheckout && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--navy-deep)]/80 p-5 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="checkout-title"
-          onMouseDown={e => { if (e.target === e.currentTarget) setShowCheckout(null); }}
-        >
-          <Suspense fallback={<div className="w-full max-w-md animate-pulse space-y-4 bg-[var(--card)] rounded-2xl p-6" aria-busy="true"><div className="h-8 w-3/4 rounded bg-[var(--muted)]" /><div className="h-4 w-full rounded bg-[var(--muted)]" /><div className="h-4 w-2/3 rounded bg-[var(--muted)]" /><div className="h-4 w-1/2 rounded bg-[var(--muted)]" /></div>}>
-            <CheckoutForm
-              product={showCheckout.product}
-              prefilled={showCheckout.prefilled}
-              upsells={[
-                { id: "coaching", name: "1-on-1 Coaching Session", priceKes: 5000, description: "60-minute personalized debrief with a certified coach" },
-                { id: "team", name: "Team Report Add-on", priceKes: 3000, description: "Aggregate insights for groups of 5+" },
-              ]}
-              onSuccess={handleCheckoutSuccess}
-              onClose={() => setShowCheckout(null)}
-            />
-          </Suspense>
-        </div>
-      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
+  findUserByLocalIdentifier,
   getUserProfile,
   updateUserProfile,
   getLoginEventsForUser,
@@ -9,6 +10,7 @@ const {
   revokeUserSession,
   revokeOtherUserSessions,
 } = vi.hoisted(() => ({
+  findUserByLocalIdentifier: vi.fn(),
   getUserProfile: vi.fn(),
   updateUserProfile: vi.fn(),
   getLoginEventsForUser: vi.fn().mockResolvedValue([]),
@@ -19,6 +21,7 @@ const {
 }));
 
 vi.mock("./db", () => ({
+  findUserByLocalIdentifier,
   getUserProfile,
   updateUserProfile,
   getLoginEventsForUser,
@@ -59,6 +62,10 @@ function context(user: { openId: string } | null, cookie = "") {
 }
 
 describe("profile settings", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("rejects unauthenticated reads and updates", async () => {
     const caller = appRouter.createCaller(context(null));
     await expect(caller.profile.get()).rejects.toMatchObject({
@@ -204,6 +211,7 @@ describe("profile settings", () => {
     await caller.profile.get();
     await caller.profile.update({
       name: "Updated User",
+      phone: "+254 700 000 000",
       timezone: "Africa/Nairobi",
       notificationPreferences: {
         assessmentUpdates: false,
@@ -212,8 +220,10 @@ describe("profile settings", () => {
       },
     });
     expect(getUserProfile).toHaveBeenCalledWith("owner-1");
+    expect(findUserByLocalIdentifier).toHaveBeenCalledWith("254700000000");
     expect(updateUserProfile).toHaveBeenCalledWith("owner-1", {
       name: "Updated User",
+      phone: "254700000000",
       timezone: "Africa/Nairobi",
       learningGoals: [],
       notificationPreferences: {
@@ -223,5 +233,24 @@ describe("profile settings", () => {
         showAvatar: true,
       },
     });
+  });
+
+  it("rejects a phone number already owned by another account", async () => {
+    findUserByLocalIdentifier.mockResolvedValue({ openId: "owner-2" });
+    const caller = appRouter.createCaller(context({ openId: "owner-1" }));
+
+    await expect(
+      caller.profile.update({
+        name: "Updated User",
+        phone: "+254 700 000 000",
+        timezone: "Africa/Nairobi",
+        notificationPreferences: {
+          assessmentUpdates: true,
+          courseAnnouncements: true,
+          monthlyInsights: false,
+        },
+      })
+    ).rejects.toMatchObject({ code: "CONFLICT" });
+    expect(updateUserProfile).not.toHaveBeenCalled();
   });
 });

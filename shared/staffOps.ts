@@ -15,8 +15,8 @@ export const priorityWeight: Record<string, number> = {
 export function isInquiryOverdue(row: StaffWorkloadRow, now = Date.now()) {
   return Boolean(
     row.dueDate &&
-      row.status !== "closed" &&
-      new Date(row.dueDate).getTime() < now
+    row.status !== "closed" &&
+    new Date(row.dueDate).getTime() < now
   );
 }
 

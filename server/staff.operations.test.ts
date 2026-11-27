@@ -7,24 +7,20 @@ const mocks = vi.hoisted(() => ({
   updateUserRole: vi
     .fn()
     .mockResolvedValue({ openId: "staff-1", role: "admin" }),
-  updateContactInquiryWorkload: vi
-    .fn()
-    .mockResolvedValue({
-      id: 12,
-      dueDate: new Date("2026-09-01T23:59:59.999Z"),
-      priority: "high",
-    }),
-  getStaffPerformanceSummary: vi
-    .fn()
-    .mockResolvedValue([
-      {
-        openId: "staff-1",
-        assignedCount: 4,
-        completedCount: 2,
-        openCount: 2,
-        averageResolutionDays: 1.5,
-      },
-    ]),
+  updateContactInquiryWorkload: vi.fn().mockResolvedValue({
+    id: 12,
+    dueDate: new Date("2026-09-01T23:59:59.999Z"),
+    priority: "high",
+  }),
+  getStaffPerformanceSummary: vi.fn().mockResolvedValue([
+    {
+      openId: "staff-1",
+      assignedCount: 4,
+      completedCount: 2,
+      openCount: 2,
+      averageResolutionDays: 1.5,
+    },
+  ]),
 }));
 
 vi.mock("./db", async importOriginal => ({
@@ -59,13 +55,11 @@ describe("admin staff operations", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("creates a time-limited invitation link", async () => {
-    const result = await appRouter
-      .createCaller(context())
-      .admin.inviteStaff({
-        name: "Amina Team",
-        email: "Amina@Example.com",
-        role: "staff",
-      });
+    const result = await appRouter.createCaller(context()).admin.inviteStaff({
+      name: "Amina Team",
+      email: "Amina@Example.com",
+      role: "staff",
+    });
     expect(result.invitationId).toBe(44);
     expect(result.inviteUrl).toMatch(/^https:\/\/example\.com\/auth\?invite=/);
     expect(mocks.createStaffInvitation).toHaveBeenCalledWith(

@@ -1,9 +1,7 @@
 export const COURSE_PRICE_KES = 4999;
 export const COURSE_STAGE_AMOUNT_KES = 1250;
 export const STANDARD_COURSE_PRICE_KES = 4999;
-export const STANDARD_COURSE_STAGE_AMOUNTS_KES = [
-  0, 1666, 1666, 1667,
-] as const;
+export const STANDARD_COURSE_STAGE_AMOUNTS_KES = [0, 1666, 1666, 1667] as const;
 export const COURSE_PASS_MARK = 50;
 
 export type LessonSection = { heading: string; body: string; callout?: string };

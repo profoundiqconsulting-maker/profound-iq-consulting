@@ -63,12 +63,12 @@ export function CoachingVisualPreview({
         <Eye size={13} /> Preview visual
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto border-[#16243d]/20 bg-[#f7f3e8] text-[#16243d]">
+        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto border-[#16243d]/20 bg-[#f7f3e8] text-[var(--fg)]">
           <DialogHeader>
             <DialogTitle className="display text-2xl">
               Review your coaching visual
             </DialogTitle>
-            <DialogDescription className="text-[#657084]">
+            <DialogDescription className="text-[var(--fg-muted)]">
               Check the sub-pathway signals before downloading a copy for a
               learner coaching conversation.
             </DialogDescription>

@@ -53,7 +53,7 @@ export default function About() {
       title={
         <>
           Transforming potential into{" "}
-          <em className="font-normal text-[#8b6914]">purposeful impact.</em>
+          <em className="font-normal text-[var(--brand)]">purposeful impact.</em>
         </>
       }
       intro="Profound IQ Consulting is a transformational learning and education consulting partner for people, leaders, schools, and organizations navigating a rapidly changing global landscape."
@@ -64,12 +64,12 @@ export default function About() {
         <ScrollReveal>
           <div className="container grid gap-12 lg:grid-cols-[.7fr_1.3fr] lg:gap-16">
             <div>
-              <p className="eyebrow text-[#7d5e1e]">Why we exist</p>
+              <p className="eyebrow text-[var(--brand)]">Why we exist</p>
               <h2 className="display mt-5 heading-clamp">
                 Discovery should lead somewhere.
               </h2>
             </div>
-            <div className="space-y-7 text-fluid-base leading-8 text-[#4a566a]">
+            <div className="space-y-7 text-fluid-base leading-8 text-[var(--fg-muted)]">
               <p>
                 We bridge the gap between raw potential and purposeful impact.
                 Our work brings strategic insight into the fabric of
@@ -82,8 +82,8 @@ export default function About() {
                 solutions, we create the conditions for deep self-actualization
                 and measurable progress.
               </p>
-              <div className="border-l-2 border-[#c9a34e] bg-white/70 p-6 text-sm leading-7 text-[#16243d] backdrop-blur-sm">
-                <Lightbulb className="mb-3 text-[#7d5e1e]" size={20} />
+              <div className="border-l-2 border-[var(--brand)] bg-[var(--bg-elevated)] p-6 text-sm leading-7 text-[var(--fg)]">
+                <Lightbulb className="mb-3 text-[var(--brand)]" size={20} />
                 <strong className="block">Our belief</strong>
                 <span className="mt-2 block">
                   Clarity is not a personality trait. It is a capability that
@@ -94,14 +94,14 @@ export default function About() {
           </div>
         </ScrollReveal>
       </section>
-      <section className="section-py bg-[#172844] text-[#f7f3e8]">
+      <section className="dark section-py bg-[#172844] text-[var(--fg)]">
         <div className="container">
           <div className="max-w-3xl">
-            <p className="eyebrow text-[#8b6914]">Who we serve</p>
+            <p className="eyebrow text-[var(--brand)]">Who we serve</p>
             <h2 className="display mt-5 heading-clamp">
               One partner. Different pathways forward.
             </h2>
-            <p className="mt-6 text-fluid-base leading-8 text-[#c1cad7]">
+            <p className="mt-6 text-fluid-base leading-8 text-[var(--fg-muted)]">
               The right experience depends on where you are starting, what you
               are responsible for, and the change you want to make.
             </p>
@@ -109,19 +109,19 @@ export default function About() {
           <div className="mt-12 grid gap-4 md:grid-cols-3 sm:mt-16">
             {audiences.map(({ title, body, icon: Icon }, index) => (
               <ScrollReveal key={title} delay={index * 70}>
-                <article className="public-card-link group border border-[#c9a34e]/30 bg-[#1b3152]/60 p-8 transition-all duration-200 hover:border-[#c9a34e] hover:bg-[#254263]">
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded bg-[#c9a34e]/15">
-                    <Icon size={22} className="text-[#8b6914]" />
+                <article className="public-card-link group border border-[var(--brand)]/30 bg-[#1b3152]/60 p-8 transition-all duration-200 hover:border-[var(--brand)] hover:bg-[#254263]">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded bg-[var(--brand)]/15">
+                    <Icon size={22} className="text-[var(--brand)]" />
                   </div>
                   <h3 className="mt-8 text-lg font-semibold leading-tight">
                     {title}
                   </h3>
-                  <p className="mt-5 text-sm leading-7 text-[#c1cad7]">
+                  <p className="mt-5 text-sm leading-7 text-[var(--fg-muted)]">
                     {body}
                   </p>
                   <Link
                     href="/contact"
-                    className="mt-7 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#8b6914] transition-colors group-hover:text-[#f7f3e8]"
+                    className="mt-7 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[var(--brand)] transition-colors group-hover:text-[var(--fg)]"
                   >
                     Find your pathway <ArrowUpRight size={14} />
                   </Link>
@@ -134,36 +134,36 @@ export default function About() {
       <section className="section-py bg-[#fffaf0]">
         <div className="container grid gap-12 lg:grid-cols-[.65fr_1.35fr] lg:gap-16">
           <div>
-            <p className="eyebrow text-[#7d5e1e]">Our method</p>
+            <p className="eyebrow text-[var(--brand)]">Our method</p>
             <h2 className="display mt-5 heading-clamp">
               Insight that becomes a way of working.
             </h2>
           </div>
           <div className="space-y-px border-y border-[#16243d]/10">
-              {method.map((step, index) => (
-                <ScrollReveal key={step.index} delay={index * 70}>
-                  <article className="group grid gap-6 border-b border-[#16243d]/10 py-8 transition-colors hover:border-[#c9a34e]/40 sm:grid-cols-[60px_1fr] sm:items-start last:border-b-0">
-                    <span className="text-xs font-black tracking-[.18em] text-[#7d5e1e]">
-                      {step.index}
-                    </span>
-                    <div>
-                      <h3 className="text-xl font-semibold leading-tight">
-                        {step.title}
-                      </h3>
-                      <p className="mt-3 max-w-2xl text-base leading-7 text-[#657084]">
-                        {step.body}
-                      </p>
-                    </div>
-                  </article>
-                </ScrollReveal>
-              ))}
-            </div>
+            {method.map((step, index) => (
+              <ScrollReveal key={step.index} delay={index * 70}>
+                <article className="group grid gap-6 border-b border-[#16243d]/10 py-8 transition-colors hover:border-[var(--brand)]/40 sm:grid-cols-[60px_1fr] sm:items-start last:border-b-0">
+                  <span className="text-xs font-black tracking-[.18em] text-[var(--brand)]">
+                    {step.index}
+                  </span>
+                  <div>
+                    <h3 className="text-xl font-semibold leading-tight">
+                      {step.title}
+                    </h3>
+                    <p className="mt-3 max-w-2xl text-base leading-7 text-[var(--fg-muted)]">
+                      {step.body}
+                    </p>
+                  </div>
+                </article>
+              </ScrollReveal>
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
       <section className="section-py-sm bg-[#f7f3e8]">
         <div className="container flex flex-col items-start justify-between gap-6 border-t border-[#16243d]/10 pt-10 sm:flex-row sm:items-center sm:gap-8">
           <div>
-            <p className="eyebrow text-[#7d5e1e]">
+            <p className="eyebrow text-[var(--brand)]">
               Ready for a clearer next step?
             </p>
             <h2 className="display mt-4 heading-clamp">

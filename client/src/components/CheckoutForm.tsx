@@ -1,7 +1,21 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { CreditCard, Loader2, CheckCircle2, Shield, Zap, FileText, ArrowLeft, X, ArrowUpRight, HelpCircle, Lock, Globe, MessageCircle } from "lucide-react";
+import {
+  CreditCard,
+  Loader2,
+  CheckCircle2,
+  Shield,
+  Zap,
+  FileText,
+  ArrowLeft,
+  X,
+  ArrowUpRight,
+  HelpCircle,
+  Lock,
+  Globe,
+  MessageCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,21 +23,31 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import PaystackInlineModal, { type PaystackInlineProduct } from "@/components/PaystackInlineModal";
+import PaystackInlineModal, {
+  type PaystackInlineProduct,
+} from "@/components/PaystackInlineModal";
+import { useCheckoutInitialization } from "@/hooks/useCheckoutInitialization";
 import { toast } from "sonner";
 
 interface CheckoutFormProps {
   product: {
     name: string;
     priceKes: number;
-    type: "assessment" | "course" | "course_stage" | "psychometric" | "careerpath";
+    type:
+      "assessment" | "course" | "course_stage" | "psychometric" | "careerpath";
     slug?: string;
     stage?: number;
     totalStages?: number;
     accessCode?: string;
+    answers?: Array<{ questionId: string; value: number }>;
   };
   prefilled?: { email?: string; name?: string };
-  upsells?: Array<{ id: string; name: string; priceKes: number; description?: string }>;
+  upsells?: Array<{
+    id: string;
+    name: string;
+    priceKes: number;
+    description?: string;
+  }>;
   onSuccess: (reference: string, product: PaystackInlineProduct) => void;
   onClose?: () => void;
   returnUrl?: string;
@@ -40,9 +64,12 @@ export function CheckoutForm({
   const [name, setName] = useState(prefilled?.name || "");
   const [email, setEmail] = useState(prefilled?.email || "");
   const [consent, setConsent] = useState(false);
-  const [selectedUpsells, setSelectedUpsells] = useState<Set<string>>(new Set());
+  const [selectedUpsells, setSelectedUpsells] = useState<Set<string>>(
+    new Set()
+  );
   const [isProcessing, setIsProcessing] = useState(false);
-  const [inlineProduct, setInlineProduct] = useState<PaystackInlineProduct | null>(null);
+  const [inlineProduct, setInlineProduct] =
+    useState<PaystackInlineProduct | null>(null);
   const [inlineModalOpen, setInlineModalOpen] = useState(false);
   const [step, setStep] = useState<"form" | "processing" | "success">("form");
   const formRef = useRef<HTMLFormElement>(null);
@@ -51,12 +78,14 @@ export function CheckoutForm({
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [nameError, setNameError] = useState<string | null>(null);
+  const checkoutInitialization = useCheckoutInitialization();
 
   // Focus trap and body scroll lock
   useEffect(() => {
     previousFocusRef.current = document.activeElement as HTMLElement;
     document.body.style.overflow = "hidden";
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
     if (scrollbarWidth > 0) {
       document.body.style.paddingRight = `${scrollbarWidth}px`;
     }
@@ -102,10 +131,12 @@ export function CheckoutForm({
     nameInputRef.current?.focus();
   }, []);
 
-  const totalPrice = product.priceKes + Array.from(selectedUpsells).reduce((sum, id) => {
-    const upsell = upsells.find(u => u.id === id);
-    return sum + (upsell?.priceKes || 0);
-  }, 0);
+  const totalPrice =
+    product.priceKes +
+    Array.from(selectedUpsells).reduce((sum, id) => {
+      const upsell = upsells.find(u => u.id === id);
+      return sum + (upsell?.priceKes || 0);
+    }, 0);
 
   const validateForm = () => {
     let valid = true;
@@ -142,38 +173,33 @@ export function CheckoutForm({
     setStep("processing");
 
     try {
-      const response = await fetch("/api/checkout/initialize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          productType: product.type === "course" ? "course_stage" : product.type,
-          productSlug: product.slug,
-          productName: product.name,
-          amountKes: totalPrice,
-          customerName: name.trim(),
-          customerEmail: email.trim(),
-          upsellIds: Array.from(selectedUpsells),
-          returnUrl: returnUrl || window.location.href,
-        }),
+      const data = await checkoutInitialization.mutateAsync({
+        productType:
+          product.type === "course" ? "course_stage" : product.type,
+        productSlug: product.slug,
+        productName: product.name,
+        amountKes: totalPrice,
+        customerName: name.trim(),
+        customerEmail: email.trim(),
+        upsellIds: Array.from(selectedUpsells),
+        answers: product.answers,
+        returnUrl: returnUrl || window.location.href,
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to initialize payment");
-      }
 
       setInlineProduct({
         accessCode: data.accessCode,
         reference: data.reference,
         amountKes: data.amountKes,
+        authorizationUrl: data.authorizationUrl,
         productName: data.productName,
-        productType: data.productType as "assessment" | "course_stage" | "psychometric" | "careerpath",
+        productType: data.productType,
         testSlug: data.testSlug,
       });
       setInlineModalOpen(true);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Payment initialization failed");
+      toast.error(
+        error instanceof Error ? error.message : "Payment initialization failed"
+      );
       setIsProcessing(false);
       setStep("form");
     }
@@ -221,7 +247,7 @@ export function CheckoutForm({
     <>
       <div
         ref={overlayRef}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--brand)]/10"
         onClick={onClose}
         role="dialog"
         aria-modal="true"
@@ -233,7 +259,7 @@ export function CheckoutForm({
           onClick={e => e.stopPropagation()}
         >
           {/* Header with progress indicator */}
-          <div className="flex items-center justify-between p-6 border-b border-[var(--border)] bg-[var(--muted)]/50 sticky top-0 z-10 backdrop-blur-sm">
+          <div className="flex items-center justify-between p-6 border-b border-[var(--border)] bg-[var(--brand)]/10 sticky top-0 z-10">
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
@@ -245,37 +271,47 @@ export function CheckoutForm({
                 <X size={20} />
               </Button>
               <div className="hidden sm:flex items-center gap-2">
-                <span className="eyebrow text-[var(--gold)]">SECURE CHECKOUT</span>
-                <span className="text-xs text-[var(--muted-foreground)]">Step 1 of 2</span>
+                <span className="eyebrow text-[var(--brand)]">
+                  SECURE CHECKOUT
+                </span>
+                <span className="text-xs text-[var(--muted-foreground)]">
+                  Step 1 of 2
+                </span>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Shield size={16} className="text-[var(--gold)]" />
-              <span className="text-xs font-medium text-[var(--gold)]">Paystack Secured</span>
+              <Shield size={16} className="text-[var(--brand)]" />
+              <span className="text-xs font-medium text-[var(--brand)]">
+                Paystack Secured
+              </span>
             </div>
           </div>
 
           {/* Progress Steps */}
           <div className="hidden sm:flex px-6 py-4 border-b border-[var(--border)]">
             <div className="flex items-center justify-between w-full">
-              <div className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors",
-                step === "form" || step === "processing"
-                  ? "bg-[var(--gold)] text-[var(--navy-deep)]"
-                  : "bg-[var(--muted)] text-[var(--muted-foreground)]"
-              )}>
-                <span className="w-6 h-6 flex items-center justify-center rounded-full bg-[var(--gold)]/20 text-[var(--gold)]">
+              <div
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors",
+                  step === "form" || step === "processing"
+                    ? "bg-[var(--brand)] text-[var(--navy-deep)]"
+                    : "bg-[var(--muted)] text-[var(--muted-foreground)]"
+                )}
+              >
+                <span className="w-6 h-6 flex items-center justify-center rounded-full bg-[var(--brand)]/20 text-[var(--brand)]">
                   {step === "success" ? <CheckCircle2 size={12} /> : "1"}
                 </span>
                 <span>Details</span>
               </div>
-              <div className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors",
-                step === "success"
-                  ? "bg-[var(--gold)] text-[var(--navy-deep)]"
-                  : "bg-[var(--muted)] text-[var(--muted-foreground)]"
-              )}>
-                <span className="w-6 h-6 flex items-center justify-center rounded-full bg-[var(--gold)]/20 text-[var(--gold)]">
+              <div
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors",
+                  step === "success"
+                    ? "bg-[var(--brand)] text-[var(--navy-deep)]"
+                    : "bg-[var(--muted)] text-[var(--muted-foreground)]"
+                )}
+              >
+                <span className="w-6 h-6 flex items-center justify-center rounded-full bg-[var(--brand)]/20 text-[var(--brand)]">
                   {step === "success" ? <CheckCircle2 size={12} /> : "2"}
                 </span>
                 <span>Payment</span>
@@ -290,16 +326,20 @@ export function CheckoutForm({
                   <CardTitle className="text-display text-3xl text-[var(--foreground)]">
                     {product.name}
                   </CardTitle>
-                  {product.type === "course_stage" && product.stage && product.totalStages && (
-                    <div className="mt-2 flex items-center gap-2 text-sm">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--gold)]/10 text-[var(--gold)] font-medium">
-                        Stage {product.stage} of {product.totalStages}
-                      </span>
-                      {product.slug && (
-                        <span className="text-[var(--muted-foreground)]">for {product.slug}</span>
-                      )}
-                    </div>
-                  )}
+                  {product.type === "course_stage" &&
+                    product.stage &&
+                    product.totalStages && (
+                      <div className="mt-2 flex items-center gap-2 text-sm">
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--brand)]/10 text-[var(--brand)] font-medium">
+                          Stage {product.stage} of {product.totalStages}
+                        </span>
+                        {product.slug && (
+                          <span className="text-[var(--muted-foreground)]">
+                            for {product.slug}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   <p className="mt-2 text-[var(--muted-foreground)]">
                     Complete your purchase to get instant access.
                   </p>
@@ -309,8 +349,12 @@ export function CheckoutForm({
                   {/* Order Summary - Responsive sticky */}
                   <div className="rounded-xl bg-[var(--muted)] p-5 space-y-3 border border-[var(--border)] sticky top-20 sm:hidden">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-[var(--muted-foreground)]">{product.name}</span>
-                      <span className="font-semibold text-[var(--foreground)]">{formatPrice(product.priceKes)}</span>
+                      <span className="text-[var(--muted-foreground)]">
+                        {product.name}
+                      </span>
+                      <span className="font-semibold text-[var(--foreground)]">
+                        {formatPrice(product.priceKes)}
+                      </span>
                     </div>
 
                     {upsells.length > 0 && (
@@ -330,7 +374,9 @@ export function CheckoutForm({
                                   checked={selectedUpsells.has(upsell.id)}
                                   onCheckedChange={(checked: boolean) => {
                                     if (checked) {
-                                      setSelectedUpsells(prev => new Set(prev).add(upsell.id));
+                                      setSelectedUpsells(prev =>
+                                        new Set(prev).add(upsell.id)
+                                      );
                                     } else {
                                       setSelectedUpsells(prev => {
                                         const next = new Set(prev);
@@ -339,16 +385,20 @@ export function CheckoutForm({
                                       });
                                     }
                                   }}
-                                  className="data-[state=checked]:border-[var(--gold)] data-[state=checked]:bg-[var(--gold)]"
+                                  className="data-[state=checked]:border-[var(--brand)] data-[state=checked]:bg-[var(--brand)]"
                                 />
                                 <div>
-                                  <p className="text-sm font-medium text-[var(--foreground)]">{upsell.name}</p>
+                                  <p className="text-sm font-medium text-[var(--foreground)]">
+                                    {upsell.name}
+                                  </p>
                                   {upsell.description && (
-                                    <p className="text-xs text-[var(--muted-foreground)]">{upsell.description}</p>
+                                    <p className="text-xs text-[var(--muted-foreground)]">
+                                      {upsell.description}
+                                    </p>
                                   )}
                                 </div>
                               </div>
-                              <span className="text-sm font-semibold text-[var(--gold)]">
+                              <span className="text-sm font-semibold text-[var(--brand)]">
                                 +{formatPrice(upsell.priceKes)}
                               </span>
                             </label>
@@ -360,21 +410,23 @@ export function CheckoutForm({
                     <Separator />
                     <div className="flex items-center justify-between text-lg font-bold">
                       <span className="text-[var(--foreground)]">Total</span>
-                      <span className="text-[var(--gold)]">{formatPrice(totalPrice)}</span>
+                      <span className="text-[var(--brand)]">
+                        {formatPrice(totalPrice)}
+                      </span>
                     </div>
                   </div>
 
                   {/* Trust Bar */}
                   <div className="flex flex-wrap items-center gap-4 p-4 rounded-xl bg-[var(--gold-muted)] border border-[var(--gold-muted)]">
-                    <div className="flex items-center gap-2 text-sm text-[var(--gold)]">
+                    <div className="flex items-center gap-2 text-sm text-[var(--brand)]">
                       <Shield size={16} className="shrink-0" />
                       <span className="font-medium">Secure Paystack</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-[var(--gold)]">
+                    <div className="flex items-center gap-2 text-sm text-[var(--brand)]">
                       <Zap size={16} className="shrink-0" />
                       <span className="font-medium">Instant access</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-[var(--gold)]">
+                    <div className="flex items-center gap-2 text-sm text-[var(--brand)]">
                       <FileText size={16} className="shrink-0" />
                       <span className="font-medium">Certificate included</span>
                     </div>
@@ -382,28 +434,56 @@ export function CheckoutForm({
 
                   {/* Help Links */}
                   <div className="flex flex-wrap gap-2 p-3 rounded-lg bg-[var(--muted)]/50 border border-[var(--border)]">
-                    <a href="/help" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-[var(--gold)] transition-colors">
+                    <a
+                      href="/help"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-[var(--brand)] transition-colors"
+                    >
                       <HelpCircle size={12} />
                       Help Center
                     </a>
-                    <a href="/contact" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-[var(--gold)] transition-colors">
+                    <a
+                      href="/contact"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-[var(--brand)] transition-colors"
+                    >
                       <MessageCircle size={12} />
                       Contact Support
                     </a>
-                    <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-[var(--gold)] transition-colors">
+                    <a
+                      href="/privacy-policy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-[var(--brand)] transition-colors"
+                    >
                       <Lock size={12} />
                       Privacy Policy
                     </a>
-                    <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-[var(--gold)] transition-colors">
+                    <a
+                      href="/terms-of-service"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-[var(--brand)] transition-colors"
+                    >
                       <FileText size={12} />
                       Terms of Service
                     </a>
                   </div>
 
                   {/* Form */}
-                  <form ref={formRef} onSubmit={handleSubmit} className="space-y-5" noValidate>
+                  <form
+                    ref={formRef}
+                    onSubmit={handleSubmit}
+                    className="space-y-5"
+                    noValidate
+                  >
                     <div className="space-y-2">
-                      <Label htmlFor="checkout-name" className="text-sm font-semibold text-[var(--foreground)]">
+                      <Label
+                        htmlFor="checkout-name"
+                        className="text-sm font-semibold text-[var(--foreground)]"
+                      >
                         Full Name
                       </Label>
                       <Input
@@ -412,23 +492,37 @@ export function CheckoutForm({
                         type="text"
                         placeholder="Your full name"
                         value={name}
-                        onChange={e => { setName(e.target.value); setNameError(null); }}
+                        onChange={e => {
+                          setName(e.target.value);
+                          setNameError(null);
+                        }}
                         required
                         autoComplete="name"
-                        className={cn("h-12 text-base focus-gold-ring", nameError && "border-[var(--destructive)] focus:border-[var(--destructive)]")}
+                        className={cn(
+                          "h-12 text-base focus-gold-ring",
+                          nameError &&
+                            "border-[var(--destructive)] focus:border-[var(--destructive)]"
+                        )}
                         disabled={isProcessing}
                         aria-invalid={nameError ? "true" : "false"}
                         aria-describedby={nameError ? "name-error" : undefined}
                       />
                       {nameError && (
-                        <p id="name-error" className="text-xs text-[var(--destructive)]" role="alert">
+                        <p
+                          id="name-error"
+                          className="text-xs text-[var(--destructive)]"
+                          role="alert"
+                        >
                           {nameError}
                         </p>
                       )}
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="checkout-email" className="text-sm font-semibold text-[var(--foreground)]">
+                      <Label
+                        htmlFor="checkout-email"
+                        className="text-sm font-semibold text-[var(--foreground)]"
+                      >
                         Email Address
                       </Label>
                       <Input
@@ -436,16 +530,29 @@ export function CheckoutForm({
                         type="email"
                         placeholder="your@email.com"
                         value={email}
-                        onChange={e => { setEmail(e.target.value); setEmailError(null); }}
+                        onChange={e => {
+                          setEmail(e.target.value);
+                          setEmailError(null);
+                        }}
                         required
                         autoComplete="email"
-                        className={cn("h-12 text-base focus-gold-ring", emailError && "border-[var(--destructive)] focus:border-[var(--destructive)]")}
+                        className={cn(
+                          "h-12 text-base focus-gold-ring",
+                          emailError &&
+                            "border-[var(--destructive)] focus:border-[var(--destructive)]"
+                        )}
                         disabled={isProcessing}
                         aria-invalid={emailError ? "true" : "false"}
-                        aria-describedby={emailError ? "email-error" : undefined}
+                        aria-describedby={
+                          emailError ? "email-error" : undefined
+                        }
                       />
                       {emailError && (
-                        <p id="email-error" className="text-xs text-[var(--destructive)]" role="alert">
+                        <p
+                          id="email-error"
+                          className="text-xs text-[var(--destructive)]"
+                          role="alert"
+                        >
                           {emailError}
                         </p>
                       )}
@@ -455,29 +562,42 @@ export function CheckoutForm({
                       <Checkbox
                         id="checkout-consent"
                         checked={consent}
-                        onCheckedChange={(checked) => setConsent(checked === true)}
+                        onCheckedChange={checked =>
+                          setConsent(checked === true)
+                        }
                         required
-                        className="mt-1 shrink-0 data-[state=checked]:border-[var(--gold)] data-[state=checked]:bg-[var(--gold)]"
+                        className="mt-1 shrink-0 data-[state=checked]:border-[var(--brand)] data-[state=checked]:bg-[var(--brand)]"
                       />
                       <Label
                         htmlFor="checkout-consent"
                         className="text-sm text-[var(--muted-foreground)] leading-6 cursor-pointer"
                       >
                         I agree to the{" "}
-                        <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-[var(--gold)]">
+                        <a
+                          href="/terms-of-service"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline underline-offset-2 hover:text-[var(--brand)]"
+                        >
                           Terms of Service
                         </a>{" "}
                         and{" "}
-                        <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-[var(--gold)]">
+                        <a
+                          href="/privacy-policy"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline underline-offset-2 hover:text-[var(--brand)]"
+                        >
                           Privacy Policy
                         </a>
-                        . I understand I will receive immediate access upon payment.
+                        . I understand I will receive immediate access upon
+                        payment.
                       </Label>
                     </div>
 
                     <Button
                       type="submit"
-                      variant="gold"
+                      variant="brand"
                       size="xl"
                       className="w-full"
                       disabled={isProcessing || !consent}
@@ -496,7 +616,8 @@ export function CheckoutForm({
                     </Button>
 
                     <p className="text-center text-xs text-[var(--muted-foreground)]">
-                      By continuing, you authorize a one-time charge of {formatPrice(totalPrice)} via Paystack.
+                      By continuing, you authorize a one-time charge of{" "}
+                      {formatPrice(totalPrice)} via Paystack.
                     </p>
                   </form>
                 </CardContent>
@@ -505,8 +626,11 @@ export function CheckoutForm({
 
             {step === "processing" && (
               <div className="text-center py-12">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--gold)]/15">
-                  <Loader2 className="animate-spin text-[var(--gold)]" size={28} />
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--brand)]/15">
+                  <Loader2
+                    className="animate-spin text-[var(--brand)]"
+                    size={28}
+                  />
                 </div>
                 <p className="mt-5 text-base font-bold text-[var(--foreground)]">
                   Initializing secure payment…
@@ -533,18 +657,15 @@ export function CheckoutForm({
                 </p>
                 <div className="mt-6 flex gap-3 justify-center">
                   <Button
-                    variant="gold"
+                    variant="brand"
                     size="lg"
-                    onClick={() => { onClose?.(); window.location.reload(); }}
+                    onClick={() => {
+                      onClose?.();
+                    }}
                   >
-                    Continue to Dashboard
-                    <ArrowUpRight size={14} className="ml-2" />
+                    Continue <ArrowUpRight size={14} className="ml-2" />
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    onClick={onClose}
-                  >
+                  <Button variant="outline" size="lg" onClick={onClose}>
                     Close
                   </Button>
                 </div>

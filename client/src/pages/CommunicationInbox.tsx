@@ -39,7 +39,10 @@ export default function CommunicationInbox() {
   const [, navigate] = useLocation();
 
   return (
-    <DashboardLayout role={user?.role as "admin" | "staff" | "user" | undefined} title="Communications">
+    <DashboardLayout
+      role={user?.role as "admin" | "staff" | "user" | undefined}
+      title="Communications"
+    >
       <div className="mx-auto max-w-5xl">
         <div className="mb-6 flex items-center justify-between">
           <div>
@@ -69,14 +72,12 @@ export default function CommunicationInbox() {
           </div>
         </div>
 
-        {composeOpen && (
-          <ComposeForm onClose={() => setComposeOpen(false)} />
-        )}
+        {composeOpen && <ComposeForm onClose={() => setComposeOpen(false)} />}
 
         <div className="mb-4 flex gap-2">
           <Button
             type="button"
-            variant={tab === "conversations" ? "default" : "outline"}
+            variant={tab === "conversations" ? "primary" : "outline"}
             size="sm"
             onClick={() => setTab("conversations")}
             className="text-[10px] font-black uppercase tracking-[.12em]"
@@ -85,7 +86,7 @@ export default function CommunicationInbox() {
           </Button>
           <Button
             type="button"
-            variant={tab === "tickets" ? "default" : "outline"}
+            variant={tab === "tickets" ? "primary" : "outline"}
             size="sm"
             onClick={() => setTab("tickets")}
             className="text-[10px] font-black uppercase tracking-[.12em]"
@@ -106,28 +107,31 @@ function ComposeForm({ onClose }: { onClose: () => void }) {
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedUsers, setSelectedUsers] = useState<Array<{ openId: string; name: string; email: string }>>([]);
+  const [selectedUsers, setSelectedUsers] = useState<
+    Array<{ openId: string; name: string; email: string }>
+  >([]);
 
   const usersQuery = trpc.auth.search.useQuery(
     { query: searchQuery },
     { enabled: searchQuery.trim().length >= 2, retry: false }
   );
 
-  const createConversation = trpc.communication.conversations.create.useMutation({
-    onSuccess: () => {
-      setSubject("");
-      setBody("");
-      setSending(false);
-      setSelectedUsers([]);
-      setSearchQuery("");
-      toast.success("Conversation started");
-      onClose();
-    },
-    onError: (error) => {
-      setSending(false);
-      toast.error(error.message);
-    },
-  });
+  const createConversation =
+    trpc.communication.conversations.create.useMutation({
+      onSuccess: () => {
+        setSubject("");
+        setBody("");
+        setSending(false);
+        setSelectedUsers([]);
+        setSearchQuery("");
+        toast.success("Conversation started");
+        onClose();
+      },
+      onError: error => {
+        setSending(false);
+        toast.error(error.message);
+      },
+    });
 
   const send = () => {
     if (!subject.trim() || !body.trim()) {
@@ -155,7 +159,8 @@ function ComposeForm({ onClose }: { onClose: () => void }) {
       <CardHeader>
         <CardTitle className="text-lg">New Conversation</CardTitle>
         <CardDescription>
-          Start a new conversation with the Profound IQ team or select a recipient.
+          Start a new conversation with the Profound IQ team or select a
+          recipient.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -165,7 +170,7 @@ function ComposeForm({ onClose }: { onClose: () => void }) {
           </label>
           <Input
             value={subject}
-            onChange={(event) => setSubject(event.target.value)}
+            onChange={event => setSubject(event.target.value)}
             placeholder="What is this about?"
           />
         </div>
@@ -176,12 +181,19 @@ function ComposeForm({ onClose }: { onClose: () => void }) {
           <div className="relative">
             <Input
               value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
+              onChange={event => setSearchQuery(event.target.value)}
               placeholder="Search for a user by name or email..."
             />
             {usersQuery.data && usersQuery.data.length > 0 && (
               <div className="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-lg">
-                {(usersQuery.data as Array<{ openId: string; name: string; email: string; role: string }>).map(u => (
+                {(
+                  usersQuery.data as Array<{
+                    openId: string;
+                    name: string;
+                    email: string;
+                    role: string;
+                  }>
+                ).map(u => (
                   <button
                     key={u.openId}
                     type="button"
@@ -189,11 +201,17 @@ function ComposeForm({ onClose }: { onClose: () => void }) {
                     className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-slate-50 ${selectedUsers.some(p => p.openId === u.openId) ? "bg-[#16243d]/5" : ""}`}
                   >
                     <div className="min-w-0">
-                      <p className="font-medium text-slate-900 truncate">{u.name || u.email}</p>
-                      <p className="text-xs text-slate-500 truncate">{u.email}</p>
+                      <p className="font-medium text-slate-900 truncate">
+                        {u.name || u.email}
+                      </p>
+                      <p className="text-xs text-slate-500 truncate">
+                        {u.email}
+                      </p>
                     </div>
                     {selectedUsers.some(p => p.openId === u.openId) && (
-                      <span className="ml-2 text-[10px] font-black uppercase tracking-wider text-[#8b6914]">Selected</span>
+                      <span className="ml-2 text-[10px] font-black uppercase tracking-wider text-[var(--brand)]">
+                        Selected
+                      </span>
                     )}
                   </button>
                 ))}
@@ -203,7 +221,10 @@ function ComposeForm({ onClose }: { onClose: () => void }) {
           {selectedUsers.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {selectedUsers.map(u => (
-                <span key={u.openId} className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700">
+                <span
+                  key={u.openId}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700"
+                >
                   {u.name || u.email}
                   <button
                     type="button"
@@ -224,7 +245,7 @@ function ComposeForm({ onClose }: { onClose: () => void }) {
           </label>
           <Textarea
             value={body}
-            onChange={(event) => setBody(event.target.value)}
+            onChange={event => setBody(event.target.value)}
             placeholder="Write your message…"
             rows={4}
           />
@@ -256,11 +277,14 @@ function ComposeForm({ onClose }: { onClose: () => void }) {
 function ConversationList() {
   const { user } = useAuth();
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const conversations = trpc.communication.conversations.list.useQuery(undefined, {
-    retry: false,
-    refetchOnWindowFocus: true,
-    refetchInterval: 15000,
-  });
+  const conversations = trpc.communication.conversations.list.useQuery(
+    undefined,
+    {
+      retry: false,
+      refetchOnWindowFocus: true,
+      refetchInterval: 15000,
+    }
+  );
 
   if (conversations.isLoading) {
     return (
@@ -284,7 +308,10 @@ function ConversationList() {
 
   if (selectedId) {
     return (
-      <ConversationDetail conversationId={selectedId} onBack={() => setSelectedId(null)} />
+      <ConversationDetail
+        conversationId={selectedId}
+        onBack={() => setSelectedId(null)}
+      />
     );
   }
 
@@ -303,7 +330,8 @@ function ConversationList() {
       <CardContent>
         {rows.length === 0 ? (
           <p className="py-8 text-center text-sm text-slate-600">
-            When you start a conversation or receive a message, it will appear here.
+            When you start a conversation or receive a message, it will appear
+            here.
           </p>
         ) : (
           <div className="space-y-2">
@@ -312,7 +340,7 @@ function ConversationList() {
                 key={conversation.id}
                 type="button"
                 onClick={() => setSelectedId(conversation.id)}
-                className="flex w-full items-center justify-between rounded-lg border border-slate-200 p-4 text-left hover:border-[#c9a34e] transition-colors"
+                className="flex w-full items-center justify-between rounded-lg border border-slate-200 p-4 text-left hover:border-[var(--brand)] transition-colors"
               >
                 <div className="min-w-0">
                   <p className="font-semibold text-slate-900 truncate">
@@ -324,7 +352,7 @@ function ConversationList() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant="secondary" className="capitalize">
-                    {                  conversation.status}
+                    {conversation.status}
                   </Badge>
                 </div>
               </button>
@@ -356,7 +384,7 @@ function ConversationDetail({
       setBody("");
       conversation.refetch();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
   const raiseTicket = trpc.communication.tickets.create.useMutation({
     onSuccess: () => {
@@ -372,7 +400,9 @@ function ConversationDetail({
 
   const handleForward = () => {
     setForwarding(true);
-    const forwardBody = prompt("Forward this conversation. Add a note (optional):");
+    const forwardBody = prompt(
+      "Forward this conversation. Add a note (optional):"
+    );
     if (forwardBody === null) {
       setForwarding(false);
       return;
@@ -380,7 +410,9 @@ function ConversationDetail({
     send.mutate(
       {
         conversationId,
-        body: forwardBody ? `[Forwarded] ${forwardBody}\n\n---\nOriginal: ${messages.map(m => `${m.senderName}: ${m.body}`).join("\n")}` : `[Forwarded]\n\n${messages.map(m => `${m.senderName}: ${m.body}`).join("\n")}`,
+        body: forwardBody
+          ? `[Forwarded] ${forwardBody}\n\n---\nOriginal: ${messages.map(m => `${m.senderName}: ${m.body}`).join("\n")}`
+          : `[Forwarded]\n\n${messages.map(m => `${m.senderName}: ${m.body}`).join("\n")}`,
       },
       {
         onSettled: () => setForwarding(false),
@@ -396,14 +428,12 @@ function ConversationDetail({
       return;
     }
     const description = prompt("Ticket description:") || title;
-    raiseTicket.mutate(
-      {
-        title,
-        description,
-        relatedConversationId: conversationId,
-        priority: "medium",
-      }
-    );
+    raiseTicket.mutate({
+      title,
+      description,
+      relatedConversationId: conversationId,
+      priority: "medium",
+    });
   };
 
   return (
@@ -455,7 +485,9 @@ function ConversationDetail({
         {conversation.isLoading ? (
           <p className="py-8 text-center text-sm text-slate-600">Loading…</p>
         ) : conversation.isError ? (
-          <p className="py-8 text-center text-sm text-red-800">Unable to load this conversation. Please try again.</p>
+          <p className="py-8 text-center text-sm text-red-800">
+            Unable to load this conversation. Please try again.
+          </p>
         ) : (
           <>
             <div className="mb-4 max-h-96 space-y-3 overflow-y-auto">
@@ -469,9 +501,14 @@ function ConversationDetail({
                   } max-w-[80%]`}
                 >
                   <div className="flex items-center gap-2">
-                    <p className="text-xs font-semibold">{message.senderName}</p>
+                    <p className="text-xs font-semibold">
+                      {message.senderName}
+                    </p>
                     {message.senderRole && (
-                      <Badge variant="outline" className="text-[10px] capitalize">
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] capitalize"
+                      >
                         {message.senderRole}
                       </Badge>
                     )}
@@ -525,7 +562,7 @@ function TicketDesk() {
   );
   const updateTicket = trpc.communication.tickets.update.useMutation({
     onSuccess: () => tickets.refetch(),
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const handleStatusChange = (ticketId: number, newStatus: string) => {
@@ -538,20 +575,24 @@ function TicketDesk() {
         <CardTitle className="text-lg">Action Tickets</CardTitle>
         <CardDescription>
           {user?.role === "admin"
-              ? "Create, assign, and manage tickets for staff."
-              : user?.role === "staff"
-                ? "Tickets assigned to you and team tickets."
-                : "Tickets assigned to you."}
+            ? "Create, assign, and manage tickets for staff."
+            : user?.role === "staff"
+              ? "Tickets assigned to you and team tickets."
+              : "Tickets assigned to you."}
         </CardDescription>
       </CardHeader>
       <CardContent>
         {tickets.isLoading ? (
-          <p className="py-8 text-center text-sm text-slate-600">Loading tickets…</p>
+          <p className="py-8 text-center text-sm text-slate-600">
+            Loading tickets…
+          </p>
         ) : tickets.isError ? (
-          <p className="py-8 text-center text-sm text-red-800">Unable to load tickets. Please refresh and try again.</p>
+          <p className="py-8 text-center text-sm text-red-800">
+            Unable to load tickets. Please refresh and try again.
+          </p>
         ) : (tickets.data ?? []).length === 0 ? (
           <div className="py-8 text-center">
-            <CheckCircle2 className="mx-auto mb-3 text-[#8b6914]" size={32} />
+            <CheckCircle2 className="mx-auto mb-3 text-[var(--brand)]" size={32} />
             <p className="text-sm text-slate-600">No tickets found.</p>
           </div>
         ) : (
@@ -563,7 +604,9 @@ function TicketDesk() {
               >
                 <div className="flex-1">
                   <p className="font-semibold text-slate-900">{ticket.title}</p>
-                  <p className="text-xs text-slate-600 line-clamp-1">{ticket.description}</p>
+                  <p className="text-xs text-slate-600 line-clamp-1">
+                    {ticket.description}
+                  </p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <Badge variant="outline" className="capitalize">
                       {ticket.status}
@@ -581,8 +624,10 @@ function TicketDesk() {
                 {(user?.role === "admin" || user?.role === "staff") && (
                   <select
                     value={ticket.status}
-                    onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
-                    className="ml-3 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 focus:border-[#c9a34e] focus:outline-none"
+                    onChange={e =>
+                      handleStatusChange(ticket.id, e.target.value)
+                    }
+                    className="ml-3 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 focus:border-[var(--brand)] focus:outline-none"
                     aria-label={`Update status for ${ticket.title}`}
                   >
                     <option value="open">Open</option>

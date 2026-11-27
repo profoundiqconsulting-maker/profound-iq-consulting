@@ -89,15 +89,20 @@ describe("local credential auth procedures", () => {
     findUserByLocalIdentifier.mockResolvedValue(undefined);
     createLocalUser.mockResolvedValue(localUser);
     const { ctx, cookies } = context();
-    const result = await appRouter
-      .createCaller(ctx)
-      .auth.register({
-        name: "Amina",
-        email: "Amina@Example.com",
-        password: "securePassword123",
-      });
+    const result = await appRouter.createCaller(ctx).auth.register({
+      name: "Amina",
+      email: "Amina@Example.com",
+      password: "securePassword123",
+    });
     expect(result.user.email).toBe("amina@example.com");
     expect(cookies).toHaveLength(1);
+    expect(mockCreateSessionToken).toHaveBeenCalledWith(
+      "local_user-12",
+      expect.objectContaining({ expiresInMs: null })
+    );
+    expect(createUserSession).toHaveBeenCalledWith(
+      expect.objectContaining({ expiresAt: null })
+    );
   });
 
   it("registers with a username and password without an email or social OAuth provider", async () => {
@@ -109,13 +114,11 @@ describe("local credential auth procedures", () => {
       username: "amina",
     });
     const { ctx, cookies } = context();
-    const result = await appRouter
-      .createCaller(ctx)
-      .auth.register({
-        name: "Amina",
-        username: "Amina",
-        password: "securePassword123",
-      });
+    const result = await appRouter.createCaller(ctx).auth.register({
+      name: "Amina",
+      username: "Amina",
+      password: "securePassword123",
+    });
     expect(result.user.username).toBe("amina");
     expect(result.user.email).toBeNull();
     expect(cookies).toHaveLength(1);
@@ -127,13 +130,11 @@ describe("local credential auth procedures", () => {
   it("rejects a phone-only registration while keeping phone optional for profiles", async () => {
     const { ctx } = context();
     await expect(
-      appRouter
-        .createCaller(ctx)
-        .auth.register({
-          name: "Amina",
-          phone: "+254727374055",
-          password: "securePassword123",
-        })
+      appRouter.createCaller(ctx).auth.register({
+        name: "Amina",
+        phone: "+254727374055",
+        password: "securePassword123",
+      })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
     expect(createLocalUser).not.toHaveBeenCalled();
   });
@@ -145,11 +146,33 @@ describe("local credential auth procedures", () => {
     });
     const { ctx } = context();
     await expect(
-      appRouter
-        .createCaller(ctx)
-        .auth.login({ identifier: "amina", password: "not-the-hash", mathA: 1, mathB: 2, mathAnswer: 3 })
+      appRouter.createCaller(ctx).auth.login({
+        identifier: "amina",
+        password: "not-the-hash",
+        mathA: 1,
+        mathB: 2,
+        mathAnswer: 3,
+      })
     ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
     expect(findUserByLocalIdentifier).toHaveBeenCalledWith("amina");
+  });
+
+  it("normalizes a phone number before using it as a login identifier", async () => {
+    findUserByLocalIdentifier.mockResolvedValue({
+      ...localUser,
+      passwordHash: "scrypt$2a$5a",
+    });
+    const { ctx } = context();
+    await expect(
+      appRouter.createCaller(ctx).auth.login({
+        identifier: "+254 727 374 055",
+        password: "not-the-hash",
+        mathA: 1,
+        mathB: 2,
+        mathAnswer: 3,
+      })
+    ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+    expect(findUserByLocalIdentifier).toHaveBeenCalledWith("254727374055");
   });
 
   it("rejects an incorrect math verification on login", async () => {
@@ -159,9 +182,13 @@ describe("local credential auth procedures", () => {
     });
     const { ctx } = context();
     await expect(
-      appRouter
-        .createCaller(ctx)
-        .auth.login({ identifier: "amina", password: "securePassword123", mathA: 5, mathB: 3, mathAnswer: 9 })
+      appRouter.createCaller(ctx).auth.login({
+        identifier: "amina",
+        password: "securePassword123",
+        mathA: 5,
+        mathB: 3,
+        mathAnswer: 9,
+      })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 
@@ -171,9 +198,13 @@ describe("local credential auth procedures", () => {
       passwordHash: hashPassword("securePassword123"),
     });
     const { ctx, cookies } = context();
-    const result = await appRouter
-      .createCaller(ctx)
-      .auth.login({ identifier: "Amina", password: "securePassword123", mathA: 2, mathB: 3, mathAnswer: 5 });
+    const result = await appRouter.createCaller(ctx).auth.login({
+      identifier: "Amina",
+      password: "securePassword123",
+      mathA: 2,
+      mathB: 3,
+      mathAnswer: 5,
+    });
     expect(result.user.username).toBe("amina");
     expect(cookies).toHaveLength(1);
     expect(recordLoginEvent).toHaveBeenCalledWith(
@@ -183,6 +214,13 @@ describe("local credential auth procedures", () => {
         openId: "local_user-12",
       })
     );
+    expect(mockCreateSessionToken).toHaveBeenCalledWith(
+      "local_user-12",
+      expect.objectContaining({ expiresInMs: null })
+    );
+    expect(createUserSession).toHaveBeenCalledWith(
+      expect.objectContaining({ expiresAt: null })
+    );
   });
 
   it("creates a trusted session only when the login option is explicitly selected", async () => {
@@ -191,33 +229,58 @@ describe("local credential auth procedures", () => {
       passwordHash: hashPassword("securePassword123"),
     });
     const { ctx, cookies } = context();
-    await appRouter
-      .createCaller(ctx)
-      .auth.login({
-        identifier: "amina",
-        password: "securePassword123",
-        trustDevice: true,
-        mathA: 2,
-        mathB: 3,
-        mathAnswer: 5,
-      });
+    await appRouter.createCaller(ctx).auth.login({
+      identifier: "amina",
+      password: "securePassword123",
+      trustDevice: true,
+      mathA: 2,
+      mathB: 3,
+      mathAnswer: 5,
+    });
     expect(cookies).toHaveLength(1);
     expect(createUserSession).toHaveBeenCalledWith(
       expect.objectContaining({
         trustedDevice: true,
-        trustExpiresAt: expect.any(Date),
+        trustExpiresAt: null,
         deviceType: "unknown",
         estimatedLocation: null,
       })
     );
     const session = createUserSession.mock.calls.at(-1)?.[0] as {
-      expiresAt: Date;
-      trustExpiresAt: Date;
+      expiresAt: Date | null;
+      trustExpiresAt: Date | null;
     };
+    expect(session.expiresAt).toBeNull();
+    expect(session.trustExpiresAt).toBeNull();
+  });
+
+  it("keeps staff sessions on the existing finite expiry policy", async () => {
+    findUserByLocalIdentifier.mockResolvedValue({
+      ...localUser,
+      role: "staff",
+      passwordHash: hashPassword("securePassword123"),
+    });
+    const { ctx } = context();
+
+    await appRouter.createCaller(ctx).auth.login({
+      identifier: "amina",
+      password: "securePassword123",
+      mathA: 2,
+      mathB: 3,
+      mathAnswer: 5,
+    });
+
+    const session = createUserSession.mock.calls.at(-1)?.[0] as {
+      expiresAt: Date | null;
+    };
+    if (!session.expiresAt) throw new Error("Expected a finite staff expiry.");
     expect(session.expiresAt.getTime() - Date.now()).toBeGreaterThan(
-      364 * 24 * 60 * 60 * 1000
+      23 * 60 * 60 * 1000
     );
-    expect(session.trustExpiresAt.getTime()).toBe(session.expiresAt.getTime());
+    expect(mockCreateSessionToken).toHaveBeenCalledWith(
+      "local_user-12",
+      expect.not.objectContaining({ expiresInMs: null })
+    );
   });
 
   it("returns the same reset response for unknown emails and does not send mail", async () => {
@@ -239,12 +302,10 @@ describe("local credential auth procedures", () => {
       loginMethod: "google",
       role: "admin",
     });
-    await appRouter
-      .createCaller(context().ctx)
-      .auth.requestPasswordReset({
-        email: "amina@example.com",
-        origin: "https://example.com",
-      });
+    await appRouter.createCaller(context().ctx).auth.requestPasswordReset({
+      email: "amina@example.com",
+      origin: "https://example.com",
+    });
     expect(setPasswordResetToken).toHaveBeenCalledWith(
       localUser.openId,
       expect.any(String),
@@ -261,12 +322,10 @@ describe("local credential auth procedures", () => {
   it("rejects an expired or already-consumed reset token", async () => {
     consumePasswordResetToken.mockResolvedValue(undefined);
     await expect(
-      appRouter
-        .createCaller(context().ctx)
-        .auth.resetPassword({
-          token: "a".repeat(64),
-          password: "newSecurePassword123",
-        })
+      appRouter.createCaller(context().ctx).auth.resetPassword({
+        token: "a".repeat(64),
+        password: "newSecurePassword123",
+      })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 });

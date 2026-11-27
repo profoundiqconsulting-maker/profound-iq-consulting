@@ -28,8 +28,8 @@ type FormFieldProps = {
   labelClassName?: string;
   name: string;
 } & Omit<React.ComponentProps<"input">, "name"> & {
-  autoComplete?: React.ComponentProps<"input">["autoComplete"];
-};
+    autoComplete?: React.ComponentProps<"input">["autoComplete"];
+  };
 
 export function FormField({
   label,
@@ -43,8 +43,7 @@ export function FormField({
 }: FormFieldProps) {
   const generatedId = useId();
   const fieldId = id ?? `field-${generatedId}`;
-  const resolvedAutoComplete =
-    autoComplete ?? inferAutoComplete(type, name);
+  const resolvedAutoComplete = autoComplete ?? inferAutoComplete(type, name);
 
   return (
     <label className={cn(labelClassName)}>

@@ -9,6 +9,7 @@ interface DashboardHeroProps {
   title: string;
   description?: string;
   actions?: React.ReactNode;
+  showWelcome?: boolean;
   badge?: {
     label: string;
     variant?: "default" | "secondary" | "outline" | "destructive";
@@ -26,6 +27,7 @@ export function DashboardHero({
   title,
   description,
   actions,
+  showWelcome = true,
   badge,
   stats,
 }: DashboardHeroProps) {
@@ -38,7 +40,7 @@ export function DashboardHero({
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div className="min-w-0">
           <div className="flex items-center gap-3 mb-2">
-            <p className="text-[10px] font-black uppercase tracking-[.14em] text-slate-600">
+            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--fg-muted)]">
               {eyebrow}
             </p>
             {badge && (
@@ -50,25 +52,27 @@ export function DashboardHero({
               </Badge>
             )}
           </div>
-          <h1 className="display text-3xl sm:text-4xl lg:text-5xl text-foreground">
+          <h1 className="display text-3xl sm:text-4xl lg:text-5xl text-[var(--fg)]">
             {title}
           </h1>
           {description && (
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--fg-muted)]">
               {description}
             </p>
           )}
-          {user && (
-            <p className="mt-2 text-xs text-muted-foreground">
+          {showWelcome && user && (
+            <p className="mt-2 text-xs text-[var(--fg-muted)]">
               Welcome back,{" "}
-              <span className="font-semibold text-foreground">
+              <span className="font-semibold text-[var(--fg)]">
                 {displayName}
               </span>
             </p>
           )}
         </div>
         {actions && (
-          <div className="flex shrink-0 gap-2 flex-wrap">{actions}</div>
+          <div className="flex min-w-0 max-w-full flex-wrap gap-2 sm:justify-end">
+            {actions}
+          </div>
         )}
       </div>
       {stats && stats.length > 0 && (
@@ -76,12 +80,12 @@ export function DashboardHero({
           {stats.map((stat, index) => (
             <Card
               key={index}
-              className="border border-border bg-card backdrop-blur-sm p-4 transition-all duration-200 hover:shadow-md"
+              className="border border-border bg-[var(--bg-card)] p-4 transition-all duration-200 hover:shadow-md"
             >
-              <p className="text-[10px] font-black uppercase tracking-[.12em] text-muted-foreground">
+              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg-muted)]">
                 {stat.label}
               </p>
-              <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">
+              <p className="mt-2 text-2xl font-bold tracking-tight text-[var(--fg)]">
                 {stat.value}
               </p>
               {stat.trend && (

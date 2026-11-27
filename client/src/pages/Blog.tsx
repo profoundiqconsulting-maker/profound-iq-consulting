@@ -150,7 +150,7 @@ export default function Blog() {
       title={
         <>
           The thinking behind{" "}
-          <em className="font-normal text-[#c9a34e]">the work.</em>
+          <em className="font-normal text-[var(--brand-light)]">the work.</em>
         </>
       }
       intro="A developing editorial space for useful ideas about education, leadership, professional growth, curriculum, and the changing world of work."
@@ -164,7 +164,7 @@ export default function Blog() {
         <ScrollReveal>
           <div className="container grid gap-16 lg:grid-cols-[.65fr_1.35fr] lg:gap-20">
             <div>
-              <p className="eyebrow text-[#7d5e1e]">An honest library</p>
+              <p className="eyebrow text-[var(--brand)]">An honest library</p>
               <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
                 Good insight should be useful before it is impressive.
               </h2>
@@ -176,10 +176,10 @@ export default function Blog() {
                 asking. Each piece will aim to clarify a challenge and make the
                 next conversation more productive.
               </p>
-              <div className="flex items-start gap-5 border-l-2 border-[#c9a34e] bg-white/70 p-6 text-sm leading-7 text-[#16243d] backdrop-blur-sm">
+              <div className="flex items-start gap-5 border-l-2 border-[var(--brand)] bg-[var(--bg-elevated)] p-6 text-sm leading-7 text-[var(--fg)]">
                 <MessageSquareText
                   size={20}
-                  className="mt-1 shrink-0 text-[#7d5e1e]"
+                  className="mt-1 shrink-0 text-[var(--brand)]"
                 />
                 <span>
                   These are{" "}
@@ -187,7 +187,7 @@ export default function Blog() {
                   Explore how the library could work or{" "}
                   <Link
                     href="/contact"
-                    className="font-semibold text-[#7d5e1e] underline decoration-[#c9a34e] underline-offset-4"
+                    className="font-semibold text-[var(--brand)] underline decoration-[var(--brand)] underline-offset-4"
                   >
                     suggest a topic
                   </Link>{" "}
@@ -204,24 +204,26 @@ export default function Blog() {
           <ScrollReveal>
             <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
               <div>
-                <p className="eyebrow text-[#7d5e1e]">
+                <p className="eyebrow text-[var(--brand)]">
                   Preview the editorial grid
                 </p>
                 <h2 className="display mt-5 max-w-3xl text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
                   Useful ideas, presented with room to think.
                 </h2>
               </div>
-              <span className="inline-flex shrink-0 border border-[#c9a34e]/60 px-3 py-2 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
+              <span className="inline-flex shrink-0 border border-[var(--brand)]/60 px-3 py-2 text-[10px] font-black uppercase tracking-[.14em] text-[var(--brand)]">
                 Preview only
               </span>
             </div>
           </ScrollReveal>
           <div className="mt-12 grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
-            <label className="grid gap-2 text-sm font-semibold text-[#16243d]">
+            <label className="grid gap-2 text-sm font-semibold text-[var(--fg)]">
               <span className="sr-only">Search Insights previews</span>
               <span className="flex items-center gap-2 border border-[#16243d]/15 bg-white/75 px-4">
-                <Search size={17} className="text-[#7d5e1e]" />
+                <Search size={17} className="text-[var(--brand)]" />
                 <input
+                  id="blog-search"
+                  name="search"
                   value={query}
                   onChange={event => {
                     setQuery(event.target.value);
@@ -232,15 +234,17 @@ export default function Blog() {
                 />
               </span>
             </label>
-            <label className="grid gap-2 text-sm font-semibold text-[#16243d]">
+            <label className="grid gap-2 text-sm font-semibold text-[var(--fg)]">
               <span className="sr-only">Filter Insights by category</span>
               <select
+                id="blog-category"
+                name="category"
                 value={category}
                 onChange={event => {
                   setCategory(event.target.value);
                   setArticleLimit(3);
                 }}
-                className="min-h-12 border border-[#16243d]/15 bg-white/75 px-4 text-base font-normal outline-none focus:border-[#c9a34e]"
+                className="min-h-12 border border-[#16243d]/15 bg-white/75 px-4 text-base font-normal outline-none focus:border-[var(--brand)]"
               >
                 {categories.map(item => (
                   <option key={item} value={item}>
@@ -263,7 +267,7 @@ export default function Blog() {
                   setCategory("All topics");
                   setArticleLimit(3);
                 }}
-                className="font-bold text-[#7d5e1e] underline underline-offset-4"
+                className="font-bold text-[var(--brand)] underline underline-offset-4"
               >
                 Clear filters
               </button>
@@ -271,14 +275,14 @@ export default function Blog() {
           </div>
           {insightsSearch.isLoading ? (
             <div
-              className="mt-8 border-l-2 border-[#c9a34e] bg-white/70 p-6 text-[#16243d]"
+              className="mt-8 border-l-2 border-[var(--brand)] bg-white/70 p-6 text-[var(--fg)]"
               role="status"
             >
               <p className="font-semibold">Searching the Insights library…</p>
             </div>
           ) : filteredArticles.length === 0 ? (
             <div
-              className="mt-8 border-l-2 border-[#c9a34e] bg-white/70 p-6 text-[#16243d]"
+              className="mt-8 border-l-2 border-[var(--brand)] bg-white/70 p-6 text-[var(--fg)]"
               role="status"
             >
               <p className="font-semibold">
@@ -292,17 +296,19 @@ export default function Blog() {
             <ScrollRevealGroup className="mt-8 grid gap-4 lg:grid-cols-3">
               {visibleArticles.map(article => (
                 <Link key={article.slug} href={`/blog/${article.slug}`}>
-                  <article className="flex min-h-[360px] flex-col border border-[#16243d]/15 bg-white/70 p-7 transition-all hover:border-[#c9a34e] hover:shadow-lg sm:p-8">
+                  <article className="flex min-h-[360px] flex-col border border-[#16243d]/15 bg-white/70 p-7 transition-all hover:border-[var(--brand)] hover:shadow-lg sm:p-8">
                     <div className="flex items-start justify-between">
-                      <p className="eyebrow text-[#7d5e1e]">{article.category}</p>
+                      <p className="eyebrow text-[var(--brand)]">
+                        {article.category}
+                      </p>
                       <span className="text-[10px] font-black tracking-[.16em] text-muted-foreground">
                         {article.index}
                       </span>
                     </div>
-                    <p className="mt-8 text-xs font-semibold italic text-[#7d5e1e]">
+                    <p className="mt-8 text-xs font-semibold italic text-[var(--brand)]">
                       {article.accent}
                     </p>
-                    <h3 className="mt-4 text-2xl font-semibold leading-tight text-[#16243d]">
+                    <h3 className="mt-4 text-2xl font-semibold leading-tight text-[var(--fg)]">
                       {article.title}
                     </h3>
                     <p className="mt-4 flex-1 text-base leading-7 text-muted-foreground">
@@ -312,7 +318,7 @@ export default function Blog() {
                       <span className="inline-flex items-center gap-2">
                         <Clock3 size={14} /> {article.readTime}
                       </span>
-                      <span className="text-[#7d5e1e]">Preview only</span>
+                      <span className="text-[var(--brand)]">Preview only</span>
                     </div>
                   </article>
                 </Link>
@@ -324,40 +330,40 @@ export default function Blog() {
               <button
                 type="button"
                 onClick={() => setArticleLimit(limit => limit + 3)}
-                className="inline-flex min-h-12 items-center justify-center gap-3 border border-[#16243d]/25 px-5 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-all hover:border-[#c9a34e] hover:bg-white"
+                className="inline-flex min-h-12 items-center justify-center gap-3 border border-[#16243d]/25 px-5 text-[10px] font-black uppercase tracking-[.14em] text-[var(--fg)] transition-all hover:border-[var(--brand)] hover:bg-white"
               >
                 Load more Insights <ArrowUpRight size={15} />
               </button>
             </div>
-            )}
-            <div className="mt-8 rounded-xl border border-[#c9a34e]/40 bg-[#c9a34e]/5 p-6 text-center">
-              <p className="text-sm font-semibold text-[#16243d]">
-                These are preview cards, not published articles.
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Full articles are being developed.{" "}
-                <Link
-                  href="/contact"
-                  className="font-semibold text-[#7d5e1e] underline decoration-[#c9a34e] underline-offset-4"
-                >
-                  Suggest a topic
-                </Link>{" "}
-                or explore our{" "}
-                <Link
-                  href="/courses"
-                  className="font-semibold text-[#7d5e1e] underline decoration-[#c9a34e] underline-offset-4"
-                >
-                  professional courses
-                </Link>{" "}
-                in the meantime.
-              </p>
-            </div>
+          )}
+          <div className="mt-8 rounded-xl border border-[var(--brand)]/40 bg-[var(--brand)]/5 p-6 text-center">
+            <p className="text-sm font-semibold text-[var(--fg)]">
+              These are preview cards, not published articles.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Full articles are being developed.{" "}
+              <Link
+                href="/contact"
+                className="font-semibold text-[var(--brand)] underline decoration-[var(--brand)] underline-offset-4"
+              >
+                Suggest a topic
+              </Link>{" "}
+              or explore our{" "}
+              <Link
+                href="/courses"
+                className="font-semibold text-[var(--brand)] underline decoration-[var(--brand)] underline-offset-4"
+              >
+                professional courses
+              </Link>{" "}
+              in the meantime.
+            </p>
+          </div>
 
           <ScrollReveal>
             <div className="mt-20 border-t border-[#16243d]/10 pt-16">
               <div className="grid gap-12 lg:grid-cols-[.6fr_1.4fr] lg:gap-20 lg:items-start">
                 <div>
-                  <p className="eyebrow text-[#7d5e1e]">
+                  <p className="eyebrow text-[var(--brand)]">
                     Stay close to the work
                   </p>
                   <h3 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
@@ -379,7 +385,7 @@ export default function Blog() {
                   onSubmit={submitNewsletter}
                   className="border border-[#16243d]/10 bg-white/75 p-8 sm:p-9"
                 >
-                  <label className="grid gap-2 text-sm font-semibold text-[#16243d]">
+                  <label className="grid gap-2 text-sm font-semibold text-[var(--fg)]">
                     Email address
                     <input
                       name="newsletterEmail"
@@ -397,11 +403,11 @@ export default function Blog() {
                       }
                       aria-describedby="newsletter-email-hint"
                       placeholder="you@example.com"
-                      className="min-h-12 border border-[#16243d]/20 bg-[#fffaf0] px-4 text-base font-normal outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/25"
+                      className="min-h-12 border border-[#16243d]/20 bg-[#fffaf0] px-4 text-base font-normal outline-none transition-colors focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/25"
                     />
                     <span
                       id="newsletter-email-hint"
-                      className={`text-xs font-normal ${newsletterEmailTouched && !newsletterEmailIsValid ? "text-[#8b4f63]" : "text-muted-foreground"}`}
+                      className={`text-xs font-normal ${newsletterEmailTouched && !newsletterEmailIsValid ? "text-[var(--fg-muted)]" : "text-muted-foreground"}`}
                     >
                       {newsletterEmailTouched && !newsletterEmailIsValid
                         ? "Enter a valid email address."
@@ -419,7 +425,7 @@ export default function Blog() {
                     the{" "}
                     <a
                       href="/privacy-policy"
-                      className="font-semibold text-[#16243d] underline decoration-[#c9a34e] underline-offset-4"
+                      className="font-semibold text-[var(--fg)] underline decoration-[var(--brand)] underline-offset-4"
                     >
                       Privacy Policy
                     </a>
@@ -427,7 +433,7 @@ export default function Blog() {
                   </label>
                   {newsletterError && (
                     <p
-                      className="mt-4 border-l-2 border-[#8b4f63] bg-[#fbf0f3] p-3 text-sm text-[#8b4f63]"
+                      className="mt-4 border-l-2 border-[#8b4f63] bg-[#fbf0f3] p-3 text-sm text-[var(--fg-muted)]"
                       role="alert"
                     >
                       {newsletterError}
@@ -447,7 +453,7 @@ export default function Blog() {
                     <button
                       type="submit"
                       disabled={newsletter.isPending}
-                      className="mt-6 inline-flex min-h-12 items-center justify-center gap-3 bg-[#16243d] px-5 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition-all hover:bg-[#c9a34e] hover:text-[#101d35] disabled:cursor-wait disabled:opacity-70"
+                      className="mt-6 inline-flex min-h-12 items-center justify-center gap-3 bg-[#16243d] px-5 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition-all hover:bg-[var(--brand)] hover:text-[var(--brand-fg)] disabled:cursor-wait disabled:opacity-70"
                     >
                       {newsletter.isPending
                         ? "Saving subscription…"
@@ -462,17 +468,17 @@ export default function Blog() {
         </div>
       </section>
 
-      <section className="bg-[#172844] py-24 text-[#f7f3e8] lg:py-32">
+      <section className="dark bg-[#172844] py-24 text-[var(--fg)] lg:py-32">
         <div className="container">
           <ScrollReveal>
             <div className="grid gap-16 lg:grid-cols-[.65fr_1.35fr] lg:gap-20">
               <div>
-                <p className="eyebrow text-[#c9a34e]">Contributor profiles</p>
+                <p className="eyebrow text-[var(--brand-light)]">Contributor profiles</p>
                 <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
                   A human voice behind every useful idea.
                 </h2>
               </div>
-              <p className="max-w-lg text-base leading-8 text-[#c1cad7]">
+              <p className="max-w-lg text-base leading-8 text-[var(--fg-muted)]">
                 These profile cards are placeholders for the approved people who
                 will contribute to the editorial space. No contributor identity,
                 credential, or publication history is being presented as real
@@ -484,26 +490,26 @@ export default function Blog() {
             {contributors.map(contributor => (
               <article
                 key={contributor.title}
-                className="public-card-link border border-[#c9a34e]/30 bg-[#1b3152]/60 p-8 sm:p-9"
+                className="public-card-link border border-[var(--brand)]/30 bg-[#1b3152]/60 p-8 sm:p-9"
               >
                 <div className="flex items-start gap-5">
                   <div
-                    className="inline-flex h-16 w-16 shrink-0 items-center justify-center border border-[#c9a34e]/50 bg-[#101d35] text-sm font-black tracking-[.1em] text-[#c9a34e]"
+                    className="inline-flex h-16 w-16 shrink-0 items-center justify-center border border-[var(--brand)]/50 bg-[#101d35] text-sm font-black tracking-[.1em] text-[var(--brand-light)]"
                     aria-label="Contributor profile placeholder"
                   >
                     <UserRound size={20} />
                   </div>
                   <div>
-                    <p className="eyebrow text-[#c9a34e]">{contributor.role}</p>
+                    <p className="eyebrow text-[var(--brand-light)]">{contributor.role}</p>
                     <h3 className="mt-2 text-lg font-semibold">
                       {contributor.title}
                     </h3>
                   </div>
                 </div>
-                <p className="mt-6 text-sm leading-7 text-[#c1cad7]">
+                <p className="mt-6 text-sm leading-7 text-[var(--fg-muted)]">
                   {contributor.bio}
                 </p>
-                <span className="mt-7 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#c9a34e]">
+                <span className="mt-7 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[var(--brand-light)]">
                   Profile details to be added <ArrowUpRight size={14} />
                 </span>
               </article>
@@ -517,7 +523,7 @@ export default function Blog() {
           <ScrollReveal>
             <div className="grid gap-16 lg:grid-cols-[.65fr_1.35fr] lg:gap-20">
               <div>
-                <p className="eyebrow text-[#7d5e1e]">Editorial themes</p>
+                <p className="eyebrow text-[var(--brand)]">Editorial themes</p>
                 <h2 className="display mt-5 text-5xl leading-[.98] tracking-[-.045em] sm:text-6xl">
                   Start with a question worth carrying forward.
                 </h2>
@@ -533,24 +539,26 @@ export default function Blog() {
             {themes.map(({ label, title, body, icon: Icon }, index) => (
               <article
                 key={title}
-                className="public-card-link group border border-[#16243d]/10 bg-white/60 p-8 transition-all hover:border-[#c9a34e] hover:bg-white hover:shadow-lg sm:p-9"
+                className="public-card-link group border border-[#16243d]/10 bg-white/60 p-8 transition-all hover:border-[var(--brand)] hover:bg-white hover:shadow-lg sm:p-9"
               >
                 <div className="flex items-start justify-between gap-4">
-                  <Icon size={26} className="text-[#7d5e1e]" />
+                  <Icon size={26} className="text-[var(--brand)]" />
                   <span className="text-[10px] font-black tracking-[.16em] text-muted-foreground">
                     0{index + 1}
                   </span>
                 </div>
-                <p className="mt-8 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
+                <p className="mt-8 text-[10px] font-black uppercase tracking-[.14em] text-[var(--brand)]">
                   {label} · Coming soon
                 </p>
                 <h3 className="mt-4 text-xl font-semibold leading-tight">
                   {title}
                 </h3>
-                <p className="mt-5 text-sm leading-7 text-muted-foreground">{body}</p>
+                <p className="mt-5 text-sm leading-7 text-muted-foreground">
+                  {body}
+                </p>
                 <Link
                   href="/contact"
-                  className="mt-8 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-colors group-hover:text-[#7d5e1e]"
+                  className="mt-8 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[var(--fg)] transition-colors group-hover:text-[var(--brand)]"
                 >
                   Request an update <ArrowUpRight size={14} />
                 </Link>
@@ -559,18 +567,18 @@ export default function Blog() {
           </ScrollRevealGroup>
         </div>
       </section>
-      <section className="bg-[#172844] py-20 text-[#f7f3e8] lg:py-24">
+      <section className="dark bg-[#172844] py-20 text-[var(--fg)] lg:py-24">
         <ScrollReveal>
           <div className="container flex flex-col items-start justify-between gap-8 sm:flex-row sm:items-center">
             <div>
-              <p className="eyebrow text-[#c9a34e]">Learn in the meantime</p>
+              <p className="eyebrow text-[var(--brand-light)]">Learn in the meantime</p>
               <h2 className="display mt-4 text-4xl leading-tight sm:text-5xl">
                 Choose an experience, not just a headline.
               </h2>
             </div>
             <Link
               href="/courses"
-              className="inline-flex shrink-0 items-center justify-center gap-3 border border-[#c9a34e] px-6 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition-all hover:bg-[#c9a34e] hover:text-[#101d35]"
+              className="inline-flex shrink-0 items-center justify-center gap-3 border border-[var(--brand)] px-6 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[var(--fg)] transition-all hover:bg-[var(--brand)] hover:text-[var(--brand-fg)]"
             >
               Explore courses <ArrowUpRight size={15} />
             </Link>

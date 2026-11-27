@@ -80,23 +80,21 @@ export default function DashboardLayout({
 
   if (!user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <div className="flex w-full max-w-md flex-col items-center gap-8 p-8">
+      <div className="flex min-h-screen items-center justify-center bg-[var(--bg)] px-4 py-10">
+        <div className="flex w-full max-w-md flex-col items-center gap-6 rounded-2xl border border-[var(--border)] bg-[var(--bg-elevated)] p-8 text-center shadow-sm">
           <div className="flex flex-col items-center gap-6">
-            <h1 className="text-center text-2xl font-semibold tracking-tight text-slate-900">
+            <h1 className="text-2xl font-semibold tracking-tight text-[var(--fg)]">
               Sign in to continue
             </h1>
-            <p className="text-center text-sm text-slate-600 max-w-sm">
+            <p className="max-w-sm text-sm leading-6 text-[var(--fg-muted)]">
               Access to this dashboard requires authentication. Continue to
               launch the login flow.
             </p>
           </div>
-          <Button
-            asChild
-            size="lg"
-            className="w-full bg-slate-900 text-white shadow-lg hover:bg-slate-800 hover:shadow-xl transition-all"
-          >
-            <Link href="/auth?mode=login&returnTo=%2Fdashboard">Sign in</Link>
+          <Button asChild size="lg" variant="brand">
+            <Link href="/auth?mode=login&returnTo=%2Fdashboard%2Foverview">
+              Sign in
+            </Link>
           </Button>
         </div>
       </div>
@@ -177,6 +175,7 @@ function DashboardLayoutContent({
 
   const breadcrumbItems = useMemo(() => {
     if (!activeMenuItem || !title) return [];
+    if (activeMenuItem.fallbackLabel === title) return [];
     return [
       { label: activeMenuItem.fallbackLabel, href: activeMenuItem.path },
       { label: title },
@@ -227,37 +226,37 @@ function DashboardLayoutContent({
       <div className="relative h-screen" ref={sidebarRef}>
         <Sidebar
           collapsible="icon"
-          className="border-r-0 bg-slate-900 text-white h-screen"
+          className="border-r-0 bg-[var(--bg)] text-[var(--fg)] h-screen"
           disableTransition={isResizing}
         >
-          <SidebarHeader className="h-14 border-b border-slate-700 bg-slate-900">
+          <SidebarHeader className="h-16 border-b border-[var(--border)] bg-[var(--bg-elevated)]">
             <div className="flex h-full items-center gap-3 px-3 transition-all w-full">
               <button
                 onClick={toggleSidebar}
-                className="h-9 w-9 flex items-center justify-center rounded-lg hover:bg-slate-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 shrink-0"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[var(--fg-muted)] transition-colors hover:bg-[var(--bg-sunken)] hover:text-[var(--fg)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-elevated)]"
                 aria-label="Toggle navigation"
               >
-                <PanelLeft className="h-4 w-4 text-slate-300" />
+                <PanelLeft className="h-4 w-4" />
               </button>
               {!isCollapsed && (
                 <Link
                   href="/"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-slate-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 shrink-0"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[var(--fg-muted)] transition-colors hover:bg-[var(--bg-sunken)] hover:text-[var(--fg)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                   aria-label="Go to home page"
                 >
-                  <Home className="h-4 w-4 text-slate-300" />
+                  <Home className="h-4 w-4" />
                 </Link>
               )}
               {!isCollapsed && (
                 <div className="flex flex-col gap-0.5 min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="truncate text-sm font-semibold text-white">
+                    <span className="truncate text-sm font-semibold text-[var(--fg)]">
                       {title || "Navigation"}
                     </span>
                     {role && (
                       <span
                         aria-label={`Role: ${role}`}
-                        className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[.1em] ring-1 ring-amber-400/30 bg-amber-400/10 text-amber-300 shrink-0"
+                        className="inline-flex shrink-0 items-center rounded-full bg-[var(--brand-muted)] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[.1em] text-[var(--fg)] ring-1 ring-[var(--brand)]/20"
                       >
                         {role === "admin"
                           ? "Admin"
@@ -272,26 +271,17 @@ function DashboardLayoutContent({
             </div>
           </SidebarHeader>
 
-          <SidebarContent className="gap-0 bg-slate-900 flex min-h-0 flex-1 overflow-y-auto">
+          <SidebarContent className="flex min-h-0 flex-1 gap-0 overflow-y-auto bg-[var(--bg-elevated)]">
             <SidebarMenu className="gap-0 px-1 py-1">
               {navGroups.map(group => {
                 const groupItems = menuItems.filter(
                   item => item.group === group.id
                 );
                 if (!groupItems.length) return null;
-                const isOperationsSticky =
-                  group.id === "operations" && userRole === "admin";
                 return (
-                  <div
-                    key={group.id}
-                    className={`mb-1 last:mb-0 ${
-                      isOperationsSticky
-                        ? "sticky bottom-0 bg-slate-900 z-10"
-                        : ""
-                    }`}
-                  >
+                  <div key={group.id} className="mb-1 last:mb-0">
                     {!isCollapsed && (
-                      <p className="px-2 pb-0.5 pt-1 text-[10px] font-bold uppercase tracking-[.18em] text-slate-400">
+                      <p className="px-2 pb-1 pt-3 text-[10px] font-bold uppercase tracking-[.14em] text-[var(--fg-subtle)]">
                         {group.fallbackLabel}
                       </p>
                     )}
@@ -305,15 +295,17 @@ function DashboardLayoutContent({
                             isActive={isActive}
                             onClick={() => setLocation(item.path)}
                             tooltip={item.fallbackLabel}
-                            className={`h-8 font-medium transition-all rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 ${
+                            className={`h-9 rounded-lg font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-elevated)] ${
                               isActive
-                                ? "bg-amber-400 text-slate-900 font-semibold shadow-lg shadow-amber-500/20"
-                                : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                                ? "bg-[var(--brand-muted)] font-semibold text-[var(--fg)]"
+                                : "text-[var(--fg-muted)] hover:bg-[var(--bg-sunken)] hover:text-[var(--fg)]"
                             }`}
                           >
                             <item.icon
                               className={`h-4 w-4 shrink-0 ${
-                                isActive ? "text-slate-900" : "text-slate-300"
+                                isActive
+                                  ? "text-[var(--brand)]"
+                                  : "text-[var(--fg-subtle)]"
                               }`}
                             />
                             <span
@@ -330,19 +322,19 @@ function DashboardLayoutContent({
               })}
             </SidebarMenu>
           </SidebarContent>
-          <SidebarFooter className="border-t border-slate-700 bg-slate-900 p-2.5">
+          <SidebarFooter className="border-t border-[var(--border)] bg-[var(--bg-elevated)] p-3">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex h-11 w-full items-center gap-3 rounded-lg px-2 hover:bg-slate-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-400/10 text-xs font-bold text-amber-300">
+                <button className="flex h-11 w-full items-center gap-3 rounded-lg px-2 text-left transition-colors hover:bg-[var(--bg-sunken)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--brand-muted)] text-xs font-bold text-[var(--fg)]">
                     {user?.name?.charAt(0).toUpperCase()}
                   </div>
                   {!isCollapsed && (
                     <div className="flex-1 min-w-0 text-left">
-                      <p className="truncate text-sm font-medium text-white">
+                      <p className="truncate text-sm font-medium text-[var(--fg)]">
                         {user?.name || "-"}
                       </p>
-                      <p className="truncate text-xs text-slate-300">
+                      <p className="truncate text-xs text-[var(--fg-muted)]">
                         {user?.email || "-"}
                       </p>
                     </div>
@@ -351,18 +343,18 @@ function DashboardLayoutContent({
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-48 bg-slate-900 border-slate-700 text-white"
+                className="w-48 border-[var(--border-strong)] bg-[var(--bg-elevated)] text-[var(--fg)]"
               >
                 <DropdownMenuItem
                   asChild
-                  className="cursor-pointer text-slate-300 focus:text-white focus:bg-slate-800"
+                  className="cursor-pointer text-[var(--fg-muted)] focus:bg-[var(--bg-sunken)] focus:text-[var(--fg)]"
                 >
-                  <Link href="/settings">Settings</Link>
+                  <Link href="/dashboard/settings">Settings</Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-slate-700" />
+                <DropdownMenuSeparator className="bg-[var(--border)]" />
                 <DropdownMenuItem
                   onClick={logout}
-                  className="cursor-pointer text-red-300 focus:text-red-300 focus:bg-slate-800"
+                  className="cursor-pointer text-[var(--danger)] focus:bg-[var(--danger-muted)] focus:text-[var(--danger)]"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Sign out</span>
@@ -388,49 +380,22 @@ function DashboardLayoutContent({
         />
       </div>
 
-      <SidebarInset className="bg-slate-50">
-        {isMobile && (
-          <div className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-slate-200 bg-white px-4">
-            <div className="flex items-center gap-3">
-              <SidebarTrigger className="h-9 w-9 rounded-lg bg-slate-100 hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50">
-                <Menu className="h-4 w-4 text-slate-600" />
+      <SidebarInset className="bg-[var(--bg)]">
+        <ExecutiveHeader
+          breadcrumbs={breadcrumbItems}
+          searchOpen={searchOpen}
+          setSearchOpen={setSearchOpen}
+          role={role}
+          user={user}
+          leadingAction={
+            isMobile ? (
+              <SidebarTrigger className="h-9 w-9 shrink-0 rounded-lg border border-white/20 bg-white/5 text-[#c1cad7] hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a34e]">
+                <Menu className="h-4 w-4" aria-hidden="true" />
               </SidebarTrigger>
-              <Link
-                href="/"
-                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.16em] text-slate-600 hover:text-slate-900"
-              >
-                <Home size={14} aria-hidden="true" /> Home
-              </Link>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-slate-900">
-                {activeMenuItem?.fallbackLabel ?? "Menu"}
-              </span>
-              {role && (
-                <span
-                  aria-label={`Role: ${role}`}
-                  className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[.1em] ring-1 ring-amber-400/30 bg-amber-400/10 text-amber-700"
-                >
-                  {role === "admin"
-                    ? "Admin"
-                    : role === "staff"
-                      ? "Staff"
-                      : "Learner"}
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-        {!isMobile && (
-          <ExecutiveHeader
-            breadcrumbs={breadcrumbItems}
-            searchOpen={searchOpen}
-            setSearchOpen={setSearchOpen}
-            role={role}
-            user={user}
-          />
-        )}
-        <div className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8 text-slate-900">
+            ) : undefined
+          }
+        />
+        <div className="min-w-0 flex-1 p-4 text-[var(--fg)] sm:p-6 lg:p-8">
           {children}
         </div>
       </SidebarInset>

@@ -1,9 +1,7 @@
 import PDFDocument from "pdfkit";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import {
-  getGeneratedCopy,
-} from "../shared/generatedCopy";
+import { getGeneratedCopy } from "../shared/generatedCopy";
 
 const NAVY = "#16243d";
 const GOLD = "#a27e2e";

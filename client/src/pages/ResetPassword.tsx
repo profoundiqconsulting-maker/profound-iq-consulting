@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ArrowRight, CheckCircle2, LockKeyhole, RefreshCw } from "lucide-react";
-import { Link, useLocation } from "wouter";
-import { BrandLogo } from "@/components/BrandLogo";
+import { useLocation } from "wouter";
+import { SiteNavigation } from "@/components/SiteNavigation";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { passwordStrength } from "../../../shared/localAuth";
@@ -11,7 +11,6 @@ import { authCopy } from "../../../shared/authLocalization";
 export default function ResetPassword() {
   const [, navigate] = useLocation();
 
-  
   const [password, setPassword] = useState("");
   const token = new URLSearchParams(window.location.search).get("token") ?? "";
   const reset = trpc.auth.resetPassword.useMutation({
@@ -40,19 +39,7 @@ export default function ResetPassword() {
         : "bg-emerald-600";
   return (
     <main className="min-h-screen bg-[#101d35] text-[#f7f3e8]">
-      <header className="border-b border-white/10">
-        <div className="container flex items-center justify-between py-6">
-          <Link href="/" aria-label="Profound IQ Consulting home">
-            <BrandLogo context="home" className="border border-[#c9a34e]/70" />
-          </Link>
-          <Link
-            href="/auth"
-            className="text-[10px] font-black uppercase tracking-[.16em] text-[#c9d1df] hover:text-[#8b6914]"
-          >
-            {authCopy.signIn}
-          </Link>
-        </div>
-      </header>
+      <SiteNavigation variant="public" showAuthActions={false} />
       <section className="container grid min-h-[calc(100vh-90px)] place-items-center py-16">
         <div className="w-full max-w-xl border border-[#c9a34e]/60 bg-[#f7f3e8] p-7 text-[#16243d] shadow-2xl sm:p-10">
           <div className="flex items-center gap-3 border-b border-[#16243d]/15 pb-6">

@@ -7,8 +7,15 @@ export type PaystackInlineProduct = {
   accessCode: string;
   reference: string;
   amountKes: number;
+  authorizationUrl?: string;
   productName: string;
-  productType: "assessment" | "psychometric" | "careerpath" | "course_stage" | "resource";
+  productType:
+    | "assessment"
+    | "psychometric"
+    | "careerpath"
+    | "course"
+    | "course_stage"
+    | "resource";
   testSlug?: string;
   enrollmentId?: number;
   courseSlug?: string;
@@ -36,12 +43,66 @@ declare global {
         currency?: string;
         access_code?: string;
         metadata?: Record<string, unknown>;
-        onSuccess?: (reference: { reference: string }) => void;
-        onCancel?: () => void;
+        callback?: (reference: { reference: string }) => void;
+        onClose?: () => void;
         onError?: (error: { message: string }) => void;
       }) => { openIframe: () => void };
     };
   }
+}
+
+const PAYSTACK_SCRIPT_URL = "https://js.paystack.co/v1/inline.js";
+
+function ensurePaystackScript(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (window.PaystackPop) {
+      resolve();
+      return;
+    }
+
+    const existing = document.querySelector(
+      `script[src="${PAYSTACK_SCRIPT_URL}"]`
+    );
+    if (existing) {
+      // Script exists, poll for PaystackPop
+      const poll = setInterval(() => {
+        if (window.PaystackPop) {
+          clearInterval(poll);
+          resolve();
+        }
+      }, 50);
+      const timeout = setTimeout(() => {
+        clearInterval(poll);
+        if (!window.PaystackPop) {
+          reject(new Error("Paystack script loaded but not initialized"));
+        }
+      }, 10000);
+      return;
+    }
+
+    // Production: load real Paystack script
+    const script = document.createElement("script");
+    script.src = PAYSTACK_SCRIPT_URL;
+    script.async = true;
+    script.onload = () => {
+      const poll = setInterval(() => {
+        if (window.PaystackPop) {
+          clearInterval(poll);
+          resolve();
+        }
+      }, 50);
+      const timeout = setTimeout(() => {
+        clearInterval(poll);
+        if (!window.PaystackPop) {
+          reject(new Error("Paystack script loaded but not initialized"));
+        }
+      }, 10000);
+    };
+    script.onerror = () => {
+      reject(new Error("Failed to load Paystack script"));
+    };
+    document.body.appendChild(script);
+  });
 }
 
 export default function PaystackInlineModal({
@@ -53,9 +114,7 @@ export default function PaystackInlineModal({
   onError,
 }: PaystackInlineModalProps) {
   const [loading, setLoading] = useState(false);
-  const [scriptReady, setScriptReady] = useState(false);
   const [scriptError, setScriptError] = useState(false);
-  const scriptRef = useRef<HTMLScriptElement | null>(null);
   const onSuccessRef = useRef(onSuccess);
   const onCloseRef = useRef(onClose);
   const onErrorRef = useRef(onError);
@@ -67,73 +126,93 @@ export default function PaystackInlineModal({
   }, [onSuccess, onClose, onError]);
 
   useEffect(() => {
-    if (!open) return;
-    setLoading(true);
-    setScriptError(false);
-    if (!window.PaystackPop) {
-      const script = document.createElement("script");
-      script.src = "https://js.paystack.co/v1/inline.js";
-      script.async = true;
-      script.onload = () => setScriptReady(true);
-      script.onerror = () => {
-        setScriptError(true);
-        setLoading(false);
-      };
-      document.body.appendChild(script);
-      scriptRef.current = script;
-      return () => {
-        if (scriptRef.current && scriptRef.current.parentNode) {
-          scriptRef.current.parentNode.removeChild(scriptRef.current);
+    if (!open || !product) return;
+    if (product.authorizationUrl) {
+      try {
+        const authorizationUrl = new URL(product.authorizationUrl);
+        if (
+          authorizationUrl.protocol !== "https:" ||
+          authorizationUrl.hostname !== "checkout.paystack.com"
+        ) {
+          throw new Error("Paystack returned an invalid checkout URL.");
         }
-      };
-    } else {
-      setScriptReady(true);
-    }
-  }, [open]);
-
-  useEffect(() => {
-    if (!open || !product || !scriptReady || !window.PaystackPop) return;
-    setLoading(false);
-    const publicKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "";
-    if (!publicKey) {
-      onErrorRef.current(
-        "Paystack public key is not configured. Contact support."
-      );
+        window.location.assign(authorizationUrl.toString());
+      } catch {
+        onErrorRef.current("Paystack returned an invalid checkout URL.");
+      }
       return;
     }
-    const handler = window.PaystackPop.setup({
-      key: publicKey,
-      email: customerEmail,
-      amount: product.amountKes * 100,
-      ref: product.reference,
-      currency: "KES",
-      access_code: product.accessCode,
-      metadata: {
-        product_type: product.productType,
-        product_name: product.productName,
-        test_slug: product.testSlug,
-        enrollment_id: product.enrollmentId,
-        course_slug: product.courseSlug,
-        stage: product.stage,
-        resource_id: product.resourceId,
-      },
-      onSuccess: reference => {
-        onSuccessRef.current(reference.reference);
-      },
-      onCancel: () => {
-        onCloseRef.current();
-      },
-      onError: error => {
+
+    let cancelled = false;
+    setLoading(true);
+    setScriptError(false);
+
+    ensurePaystackScript()
+      .then(() => {
+        if (cancelled) return;
+        const publicKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "";
+        if (!publicKey) {
+          setLoading(false);
+          onErrorRef.current(
+            "Paystack public key is not configured. Contact support."
+          );
+          return;
+        }
+        const handler = window.PaystackPop!.setup({
+          key: publicKey,
+          email: customerEmail,
+          amount: product.amountKes * 100,
+          ref: product.reference,
+          currency: "KES",
+          access_code: product.accessCode,
+          metadata: {
+            product_type: product.productType,
+            product_name: product.productName,
+            test_slug: product.testSlug,
+            enrollment_id: product.enrollmentId,
+            course_slug: product.courseSlug,
+            stage: product.stage,
+            resource_id: product.resourceId,
+          },
+          callback: reference => {
+            onSuccessRef.current(reference.reference);
+          },
+          onClose: () => {
+            onCloseRef.current();
+          },
+          onError: error => {
+            if (product.authorizationUrl)
+              window.location.href = product.authorizationUrl;
+            else
+              onErrorRef.current(
+                error.message || "Payment failed. Please try again."
+              );
+          },
+        });
+        try {
+          handler.openIframe();
+          setLoading(false);
+        } catch {
+          if (product.authorizationUrl)
+            window.location.href = product.authorizationUrl;
+          else onErrorRef.current("Payment gateway could not open.");
+        }
+      })
+      .catch(err => {
+        if (cancelled) return;
+        setScriptError(true);
+        setLoading(false);
         onErrorRef.current(
-          error.message || "Payment failed. Please try again."
+          err instanceof Error
+            ? err.message
+            : "Payment gateway could not load."
         );
-      },
-    });
-    handler.openIframe();
+      });
+
     return () => {
-      // Paystack inline does not expose a destroy method; cleanup is limited.
+      cancelled = true;
     };
-  }, [open, product, scriptReady, customerEmail]);
+  }, [open, product, customerEmail]);
 
   if (!open) return null;
 
@@ -144,7 +223,7 @@ export default function PaystackInlineModal({
   }).format(product?.amountKes ?? 0);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--brand)]/10">
       <div className="w-full max-w-md bg-[var(--card)] rounded-2xl border border-[var(--border)] shadow-2xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200">
         {loading && !scriptError && (
           <div className="p-8 text-center">
@@ -173,43 +252,23 @@ export default function PaystackInlineModal({
             <button
               type="button"
               onClick={onClose}
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[var(--foreground)] px-5 py-3 text-xs font-bold uppercase tracking-[.12em] text-[var(--background)] transition hover:opacity-90"
+              className="mt-5 inline-flex items-center gap-2 border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] hover:border-[var(--gold)] hover:text-[var(--gold)]"
             >
-              Close
+              <X size={16} /> Close
             </button>
           </div>
         )}
         {!loading && !scriptError && (
           <div className="p-8 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--gold)]/15">
-              <ShieldCheck className="text-[var(--gold)]" size={24} />
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--gold)]/15">
+              <ShieldCheck className="text-[var(--gold)]" size={28} />
             </div>
-            <p className="mt-4 text-[10px] font-bold uppercase tracking-[.16em] text-[var(--gold)]">
-              Secure checkout
-            </p>
-            <p className="mt-3 text-xl font-bold text-[var(--foreground)]">
-              {product?.productName}
-            </p>
-            <p className="mt-2 text-2xl font-black text-[var(--gold)]">
+            <p className="mt-5 text-base font-bold text-[var(--foreground)]">
               {formattedAmount}
             </p>
-            <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-              Ref: {product?.reference}
+            <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+              Redirecting to secure payment…
             </p>
-            <div className="mt-5 rounded-lg border border-[var(--border)] bg-[var(--muted)] p-4 text-left">
-              <p className="text-xs leading-5 text-[var(--muted-foreground)]">
-                A secure payment form will appear shortly. If it does not open
-                automatically, check your popup blocker.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[var(--muted)] px-5 py-3 text-xs font-bold uppercase tracking-[.12em] text-[var(--foreground)] transition hover:bg-[var(--muted)]/80"
-            >
-              <X size={14} />
-              Close
-            </button>
           </div>
         )}
       </div>

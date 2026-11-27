@@ -11,12 +11,24 @@ import {
 
 describe("dashboard navigation registry", () => {
   it("keeps admin, staff, and learner visibility distinct", () => {
-    expect(visibleDashboardNavItems("user").some(item => item.group === "platform")).toBe(false);
-    expect(visibleDashboardNavItems("user").some(item => item.group === "workspace")).toBe(false);
-    expect(visibleDashboardNavItems("staff").some(item => item.group === "platform")).toBe(false);
-    expect(visibleDashboardNavItems("staff").some(item => item.group === "workspace")).toBe(true);
-    expect(visibleDashboardNavItems("admin").some(item => item.group === "platform")).toBe(true);
-    expect(visibleDashboardNavItems("admin").some(item => item.group === "mySpace")).toBe(false);
+    expect(
+      visibleDashboardNavItems("user").some(item => item.group === "platform")
+    ).toBe(false);
+    expect(
+      visibleDashboardNavItems("user").some(item => item.group === "workspace")
+    ).toBe(false);
+    expect(
+      visibleDashboardNavItems("staff").some(item => item.group === "platform")
+    ).toBe(false);
+    expect(
+      visibleDashboardNavItems("staff").some(item => item.group === "workspace")
+    ).toBe(true);
+    expect(
+      visibleDashboardNavItems("admin").some(item => item.group === "platform")
+    ).toBe(true);
+    expect(
+      visibleDashboardNavItems("admin").some(item => item.group === "mySpace")
+    ).toBe(false);
   });
 
   it("provides one registry entry per dashboard route within each role", () => {
@@ -34,10 +46,38 @@ describe("dashboard navigation registry", () => {
     );
   });
 
+  it("exposes the admin workspace routes in its primary navigation", () => {
+    expect(adminNavItems.map(item => item.path)).toEqual(
+      expect.arrayContaining([
+        "/admin/overview",
+        "/admin/users",
+        "/admin/cohorts",
+        "/admin/organization",
+        "/admin/courses",
+        "/admin/psychometrics",
+        "/admin/assessment",
+        "/admin/careerpath",
+        "/admin/certificates",
+        "/admin/resources",
+        "/admin/surveys",
+        "/admin/intelligence",
+        "/admin/reports",
+        "/admin/security",
+        "/admin/operations",
+        "/admin/revenue",
+        "/admin/inbox",
+        "/admin/communications",
+        "/admin/staff",
+        "/admin/system",
+      ])
+    );
+  });
+
   it("surfaces role-specific nav groups", () => {
     expect(visibleDashboardNavGroups("admin").map(group => group.id)).toEqual([
       "platform",
       "learning",
+      "insights",
       "operations",
       "system",
     ]);
@@ -47,10 +87,36 @@ describe("dashboard navigation registry", () => {
       "account",
     ]);
     expect(visibleDashboardNavGroups("user").map(group => group.id)).toEqual([
-      "mySpace",
-      "growth",
+      "myLearning",
+      "progress",
+      "explore",
       "account",
     ]);
+  });
+
+  it("groups learner routes by learning, progress, exploration, and account", () => {
+    expect(learnerNavItems.map(item => item.path)).toEqual(
+      expect.arrayContaining([
+        "/dashboard/overview",
+        "/dashboard/enrolled-courses",
+        "/dashboard/my-workspaces",
+        "/dashboard/roadmap",
+        "/dashboard/assessment",
+        "/dashboard/psychometrics",
+        "/dashboard/careerpath",
+        "/dashboard/certificates",
+        "/courses",
+        "/assessment",
+        "/psychometrics",
+        "/careerpath",
+        "/dashboard/communication",
+        "/dashboard/settings",
+        "/my-illustrations",
+      ])
+    );
+    expect(new Set(learnerNavItems.map(item => item.path)).size).toBe(
+      learnerNavItems.length
+    );
   });
 });
 

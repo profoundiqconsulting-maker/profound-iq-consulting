@@ -59,10 +59,11 @@ function serveAstroRoutes(app: Express) {
         path.resolve(astroPath, `${relativePath}.html`),
       ];
 
-      const htmlPath = candidates.find(candidate =>
-        candidate.startsWith(`${astroPath}${path.sep}`) &&
-        fs.existsSync(candidate) &&
-        fs.statSync(candidate).isFile()
+      const htmlPath = candidates.find(
+        candidate =>
+          candidate.startsWith(`${astroPath}${path.sep}`) &&
+          fs.existsSync(candidate) &&
+          fs.statSync(candidate).isFile()
       );
 
       if (!htmlPath) {
@@ -82,10 +83,7 @@ function serveAstroRoutes(app: Express) {
       output = injectCriticalAssets(output);
 
       res.type("html");
-      res.setHeader(
-        "Cache-Control",
-        "no-cache, no-store, must-revalidate"
-      );
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
       res.setHeader("Pragma", "no-cache");
       res.setHeader("Expires", "0");
 
@@ -104,7 +102,8 @@ function serveAstroRoutes(app: Express) {
 }
 
 export function serveStatic(app: Express, distPath?: string) {
-  const resolvedDistPath = distPath ?? path.resolve(import.meta.dirname, "public");
+  const resolvedDistPath =
+    distPath ?? path.resolve(import.meta.dirname, "public");
 
   if (!fs.existsSync(resolvedDistPath)) {
     console.error(
@@ -120,9 +119,12 @@ export function serveStatic(app: Express, distPath?: string) {
   // content types before the SPA fallback can claim them.
   app.get("/.well-known/ai-catalog.json", (_req, res) => {
     res.type("application/ai-catalog+json");
-    res.sendFile(path.resolve(resolvedDistPath, ".well-known", "ai-catalog.json"), {
-      dotfiles: "allow",
-    });
+    res.sendFile(
+      path.resolve(resolvedDistPath, ".well-known", "ai-catalog.json"),
+      {
+        dotfiles: "allow",
+      }
+    );
   });
   app.get("/llms.txt", (_req, res) => {
     res.type("text/markdown");
@@ -137,10 +139,7 @@ export function serveStatic(app: Express, distPath?: string) {
     express.static(resolvedDistPath, {
       setHeaders: (res, filePath) => {
         if (filePath.endsWith(".html")) {
-          res.setHeader(
-            "Cache-Control",
-            "no-cache, no-store, must-revalidate"
-          );
+          res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
           res.setHeader("Pragma", "no-cache");
           res.setHeader("Expires", "0");
         } else if (
@@ -148,21 +147,15 @@ export function serveStatic(app: Express, distPath?: string) {
             /\.(js|css|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|webp|ico)$/i
           )
         ) {
-          res.setHeader(
-            "Cache-Control",
-            "public, max-age=31536000, immutable"
-          );
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
         }
       },
     })
   );
 
-// SPA fallback.
+  // SPA fallback.
   app.use(async (_req, res) => {
-    res.setHeader(
-      "Cache-Control",
-      "no-cache, no-store, must-revalidate"
-    );
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
 

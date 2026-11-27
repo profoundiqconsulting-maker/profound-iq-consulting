@@ -44,9 +44,8 @@ export default function AdminCommunicationPanel() {
           role="tab"
           aria-selected={tab === "campaigns"}
           onClick={() => setTab("campaigns")}
-          variant={tab === "campaigns" ? "default" : "outline"}
+          variant={tab === "campaigns" ? "brand" : "brandOutline"}
           size="sm"
-          className="text-[10px] font-black uppercase tracking-[.12em]"
         >
           <Mail size={14} className="mr-2" /> Campaigns
         </Button>
@@ -55,9 +54,8 @@ export default function AdminCommunicationPanel() {
           role="tab"
           aria-selected={tab === "tickets"}
           onClick={() => setTab("tickets")}
-          variant={tab === "tickets" ? "default" : "outline"}
+          variant={tab === "tickets" ? "brand" : "brandOutline"}
           size="sm"
-          className="text-[10px] font-black uppercase tracking-[.12em]"
         >
           <Ticket size={14} className="mr-2" /> Tickets
         </Button>
@@ -71,7 +69,14 @@ export default function AdminCommunicationPanel() {
 function CampaignComposer() {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [recipientType, setRecipientType] = useState<"all" | "psychometrics" | "careerpath" | "courses" | "enrollment" | "assessment">("all");
+  const [recipientType, setRecipientType] = useState<
+    | "all"
+    | "psychometrics"
+    | "careerpath"
+    | "courses"
+    | "enrollment"
+    | "assessment"
+  >("all");
   const [timePeriod, setTimePeriod] = useState("");
   const [sending, setSending] = useState(false);
 
@@ -88,7 +93,7 @@ function CampaignComposer() {
       toast.success("Campaign created.");
       campaigns.refetch();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const handleSend = () => {
@@ -123,7 +128,7 @@ function CampaignComposer() {
             </label>
             <Input
               value={title}
-              onChange={(event) => setTitle(event.target.value)}
+              onChange={event => setTitle(event.target.value)}
               placeholder="Campaign title"
             />
           </div>
@@ -133,7 +138,7 @@ function CampaignComposer() {
             </label>
             <Textarea
               value={body}
-              onChange={(event) => setBody(event.target.value)}
+              onChange={event => setBody(event.target.value)}
               placeholder="Write your message…"
               rows={5}
             />
@@ -142,7 +147,12 @@ function CampaignComposer() {
             <label className="text-xs font-bold uppercase tracking-[.1em]">
               Recipients
             </label>
-            <Select value={recipientType} onValueChange={(value) => setRecipientType(value as typeof recipientType)}>
+            <Select
+              value={recipientType}
+              onValueChange={value =>
+                setRecipientType(value as typeof recipientType)
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select recipient group" />
               </SelectTrigger>
@@ -154,15 +164,9 @@ function CampaignComposer() {
                 <SelectItem value="careerpath">
                   CareerPath participants
                 </SelectItem>
-                <SelectItem value="courses">
-                  Course enrollees
-                </SelectItem>
-                <SelectItem value="enrollment">
-                  Recent enrollees
-                </SelectItem>
-                <SelectItem value="assessment">
-                  Recent assessments
-                </SelectItem>
+                <SelectItem value="courses">Course enrollees</SelectItem>
+                <SelectItem value="enrollment">Recent enrollees</SelectItem>
+                <SelectItem value="assessment">Recent assessments</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -172,7 +176,7 @@ function CampaignComposer() {
             </label>
             <Input
               value={timePeriod}
-              onChange={(event) => setTimePeriod(event.target.value)}
+              onChange={event => setTimePeriod(event.target.value)}
               placeholder="e.g. last 30 days"
             />
           </div>
@@ -180,7 +184,7 @@ function CampaignComposer() {
             type="button"
             onClick={handleSend}
             disabled={sending}
-            className="w-full bg-[#16243d] text-white"
+            className=""
           >
             <Send size={14} className="mr-2" />
             {sending ? "Sending…" : "Send Campaign"}
@@ -190,9 +194,7 @@ function CampaignComposer() {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Recent Campaigns</CardTitle>
-          <CardDescription>
-            {campaigns.data?.length ?? 0} total
-          </CardDescription>
+          <CardDescription>{campaigns.data?.length ?? 0} total</CardDescription>
         </CardHeader>
         <CardContent>
           {campaigns.isLoading ? (
@@ -208,7 +210,9 @@ function CampaignComposer() {
                   key={campaign.id}
                   className="rounded-lg border border-slate-200 p-3"
                 >
-                  <p className="font-semibold text-slate-900">{campaign.title}</p>
+                  <p className="font-semibold text-slate-900">
+                    {campaign.title}
+                  </p>
                   <p className="text-xs text-slate-600 line-clamp-1">
                     {campaign.body}
                   </p>
@@ -239,7 +243,9 @@ function TicketManager() {
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
   const [assignedToOpenId, setAssignedToOpenId] = useState<string>("");
   const [creating, setCreating] = useState(false);
-  const [followUpValues, setFollowUpValues] = useState<Record<number, string>>({});
+  const [followUpValues, setFollowUpValues] = useState<Record<number, string>>(
+    {}
+  );
   const [savingFollowUpId, setSavingFollowUpId] = useState<number | null>(null);
 
   const users = trpc.admin.listAllUsers.useQuery(undefined, {
@@ -260,14 +266,14 @@ function TicketManager() {
       toast.success("Ticket created.");
       tickets.refetch();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
   const updateTicket = trpc.communication.tickets.update.useMutation({
     onSuccess: () => {
       tickets.refetch();
       setSavingFollowUpId(null);
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message);
       setSavingFollowUpId(null);
     },
@@ -279,7 +285,10 @@ function TicketManager() {
 
   const handleFollowUpSave = (ticketId: number, followUp: string) => {
     setSavingFollowUpId(ticketId);
-    updateTicket.mutate({ id: ticketId, followUp: followUp.trim() || undefined });
+    updateTicket.mutate({
+      id: ticketId,
+      followUp: followUp.trim() || undefined,
+    });
     setFollowUpValues(prev => {
       const next = { ...prev };
       delete next[ticketId];
@@ -303,7 +312,7 @@ function TicketManager() {
             </label>
             <Input
               value={title}
-              onChange={(event) => setTitle(event.target.value)}
+              onChange={event => setTitle(event.target.value)}
               placeholder="Ticket title"
             />
           </div>
@@ -313,7 +322,7 @@ function TicketManager() {
             </label>
             <Textarea
               value={description}
-              onChange={(event) => setDescription(event.target.value)}
+              onChange={event => setDescription(event.target.value)}
               placeholder="Describe the action needed…"
               rows={4}
             />
@@ -322,7 +331,10 @@ function TicketManager() {
             <label className="text-xs font-bold uppercase tracking-[.1em]">
               Priority
             </label>
-            <Select value={priority} onValueChange={(value) => setPriority(value as typeof priority)}>
+            <Select
+              value={priority}
+              onValueChange={value => setPriority(value as typeof priority)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Priority" />
               </SelectTrigger>
@@ -337,7 +349,10 @@ function TicketManager() {
             <label className="text-xs font-bold uppercase tracking-[.1em]">
               Assign to (optional)
             </label>
-            <Select value={assignedToOpenId} onValueChange={setAssignedToOpenId}>
+            <Select
+              value={assignedToOpenId}
+              onValueChange={setAssignedToOpenId}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select staff member" />
               </SelectTrigger>
@@ -370,7 +385,7 @@ function TicketManager() {
               );
             }}
             disabled={creating}
-            className="w-full bg-[#16243d] text-white"
+            className=""
           >
             <UserPlus size={14} className="mr-2" />
             {creating ? "Creating…" : "Create Ticket"}
@@ -381,13 +396,11 @@ function TicketManager() {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-lg">Tickets</CardTitle>
-            <CardDescription>
-              {tickets.data?.length ?? 0} total
-            </CardDescription>
+            <CardDescription>{tickets.data?.length ?? 0} total</CardDescription>
           </div>
           <Select
             value={status ?? "all"}
-            onValueChange={(value) =>
+            onValueChange={value =>
               setStatus(value === "all" ? undefined : value)
             }
           >
@@ -407,16 +420,17 @@ function TicketManager() {
             <p className="py-8 text-center text-sm text-slate-600">Loading…</p>
           ) : (tickets.data ?? []).length === 0 ? (
             <div className="py-8 text-center">
-              <CheckCircle2 className="mx-auto mb-3 text-[#8b6914]" size={32} />
+              <CheckCircle2 className="mx-auto mb-3 text-[var(--brand)]" size={32} />
               <p className="text-sm text-slate-600">No tickets found.</p>
             </div>
           ) : (
             <div className="space-y-2">
               {(tickets.data ?? []).map(ticket => {
-                const isEditingFollowUp = followUpValues[ticket.id] !== undefined;
+                const isEditingFollowUp =
+                  followUpValues[ticket.id] !== undefined;
                 const followUpText = isEditingFollowUp
                   ? followUpValues[ticket.id]
-                  : ticket.followUp ?? "";
+                  : (ticket.followUp ?? "");
 
                 return (
                   <div
@@ -425,8 +439,12 @@ function TicketManager() {
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
-                        <p className="font-semibold text-slate-900">{ticket.title}</p>
-                        <p className="text-xs text-slate-600 line-clamp-1">{ticket.description}</p>
+                        <p className="font-semibold text-slate-900">
+                          {ticket.title}
+                        </p>
+                        <p className="text-xs text-slate-600 line-clamp-1">
+                          {ticket.description}
+                        </p>
                         <div className="mt-2 flex flex-wrap gap-2">
                           <Badge variant="outline" className="capitalize">
                             {ticket.status}
@@ -443,8 +461,13 @@ function TicketManager() {
                       </div>
                       <select
                         value={ticket.status}
-                        onChange={(e) => updateTicket.mutate({ id: ticket.id, status: e.target.value })}
-                        className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 focus:border-[#c9a34e] focus:outline-none"
+                        onChange={e =>
+                          updateTicket.mutate({
+                            id: ticket.id,
+                            status: e.target.value,
+                          })
+                        }
+                        className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 focus:border-[var(--brand)] focus:outline-none"
                         aria-label={`Update status for ${ticket.title}`}
                       >
                         <option value="open">Open</option>
@@ -459,7 +482,7 @@ function TicketManager() {
                       </label>
                       <Textarea
                         value={followUpText}
-                        onChange={(e) =>
+                        onChange={e =>
                           setFollowUpValues(prev => ({
                             ...prev,
                             [ticket.id]: e.target.value,
@@ -474,10 +497,14 @@ function TicketManager() {
                           type="button"
                           size="sm"
                           disabled={savingFollowUpId === ticket.id}
-                          onClick={() => handleFollowUpSave(ticket.id, followUpText)}
+                          onClick={() =>
+                            handleFollowUpSave(ticket.id, followUpText)
+                          }
                           className="text-[10px] font-black uppercase tracking-[.08em]"
                         >
-                          {savingFollowUpId === ticket.id ? "Saving…" : "Save follow-up"}
+                          {savingFollowUpId === ticket.id
+                            ? "Saving…"
+                            : "Save follow-up"}
                         </Button>
                       </div>
                     </div>
@@ -491,5 +518,3 @@ function TicketManager() {
     </div>
   );
 }
-
-

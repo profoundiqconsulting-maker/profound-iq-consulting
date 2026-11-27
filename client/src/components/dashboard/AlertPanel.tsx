@@ -1,4 +1,10 @@
-import { AlertCircle, AlertTriangle, CheckCircle2, Info, X } from "lucide-react";
+import {
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle2,
+  Info,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type AlertVariant = "info" | "success" | "warning" | "error";

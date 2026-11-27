@@ -27,9 +27,8 @@ vi.mock("./storage", () => ({ storagePut: mocks.storagePut }));
 vi.mock("./email", () => ({
   sendScheduledExportNotification: mocks.sendScheduledExportNotification,
 }));
-const { weeklyEnrollmentExportHandler, WEEKLY_EXPORT_KEY } = await import(
-  "./scheduledEnrollmentExport"
-);
+const { weeklyEnrollmentExportHandler, WEEKLY_EXPORT_KEY } =
+  await import("./scheduledEnrollmentExport");
 
 describe("scheduled enrollment export handler", () => {
   beforeEach(() => {

@@ -3,7 +3,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle, Home } from "lucide-react";
 import { useLocation } from "wouter";
 
-
 const copy = {
   en: [
     "Page Not Found",
@@ -77,8 +76,8 @@ export default function NotFound() {
         <CardContent className="pt-8 pb-8 text-center">
           <div className="flex justify-center mb-6">
             <div className="relative">
-              <div className="absolute inset-0 bg-[#c9a34e]/20 rounded-full animate-pulse" />
-              <AlertCircle className="relative h-16 w-16 text-[#8b6914]" />
+              <div className="absolute inset-0 bg-[var(--brand)]/20 rounded-full animate-pulse" />
+              <AlertCircle className="relative h-16 w-16 text-[var(--brand)]" />
             </div>
           </div>
           <h1 className="text-4xl font-bold text-[#16243d] mb-2">404</h1>

@@ -262,9 +262,8 @@ export const searchRouter = router({
       try {
         const db = await getDb();
         if (db && query) {
-          const { courseCertificates, users } = await import(
-            "../drizzle/schema"
-          );
+          const { courseCertificates, users } =
+            await import("../drizzle/schema");
           const rows = await db
             .select({
               certificateNumber: courseCertificates.certificateNumber,

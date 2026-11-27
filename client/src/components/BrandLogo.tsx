@@ -8,9 +8,9 @@ function LogoFallback({ context }: { context?: string }) {
   return (
     <span
       aria-hidden="true"
-      className="display text-xl font-semibold tracking-[-.08em] text-[#16243d]"
+      className="display text-xl font-semibold tracking-[-.08em] text-[var(--fg)]"
     >
-      PIQ<span className="text-[#7d5e1e]">.</span>
+      PIQ<span className="text-[var(--brand)]">.</span>
     </span>
   );
 }

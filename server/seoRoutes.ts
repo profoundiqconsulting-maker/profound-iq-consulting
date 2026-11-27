@@ -4,10 +4,7 @@ import type { Express, NextFunction, Request, Response } from "express";
 import sharp from "sharp";
 import { courseCatalog } from "../shared/courseCatalog";
 import { psychometricTests } from "../shared/psychometrics";
-import {
-  listPublishedCatalogItems,
-  getInsightArticleBySlug,
-} from "./db";
+import { listPublishedCatalogItems, getInsightArticleBySlug } from "./db";
 import { insightArticles } from "../shared/insightsArticles";
 import {
   COURSE_CATALOG_DESCRIPTION,
@@ -441,22 +438,13 @@ export function registerSeoRoutes(app: Express) {
         .send(renderInsightArticlePage(article, null));
     }
   );
-  app.get(
-    COURSE_CATALOG_LISTING_PATH,
-    async (_req: Request, res: Response) => {
-      const courses = await getPublicCourses();
-      res
-        .type("html")
-        .set("Cache-Control", "public, max-age=300, stale-while-revalidate=600")
-        .send(
-          renderCourseCatalogPage(
-            courses,
-            null,
-            DEFAULT_SOCIAL_IMAGE_URL
-          )
-        );
-    }
-  );
+  app.get(COURSE_CATALOG_LISTING_PATH, async (_req: Request, res: Response) => {
+    const courses = await getPublicCourses();
+    res
+      .type("html")
+      .set("Cache-Control", "public, max-age=300, stale-while-revalidate=600")
+      .send(renderCourseCatalogPage(courses, null, DEFAULT_SOCIAL_IMAGE_URL));
+  });
   app.get(
     "/courses/compare",
     async (req: Request, res: Response, next: NextFunction) => {
@@ -476,7 +464,10 @@ export function registerSeoRoutes(app: Express) {
           renderCourseComparisonPage(
             selected,
             null,
-            comparisonSocialImageUrl(selected.map(course => course.slug), "1"),
+            comparisonSocialImageUrl(
+              selected.map(course => course.slug),
+              "1"
+            ),
             query
           )
         );
@@ -496,7 +487,10 @@ export function registerSeoRoutes(app: Express) {
         res
           .status(404)
           .type("html")
-          .set("Cache-Control", "public, max-age=60, stale-while-revalidate=300")
+          .set(
+            "Cache-Control",
+            "public, max-age=60, stale-while-revalidate=300"
+          )
           .send(renderNotFoundPage(null));
         return;
       }

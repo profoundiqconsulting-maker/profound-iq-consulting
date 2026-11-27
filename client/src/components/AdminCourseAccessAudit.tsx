@@ -193,7 +193,7 @@ export function AdminCourseAccessAudit() {
     setDeviceType((item.deviceType ?? "") as typeof deviceType);
   };
   const exportChartPng = () => {
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500"><rect width="100%" height="100%" fill="#fffaf0"/><text x="40" y="48" font-family="Arial" font-size="24" font-weight="700" fill="#16243d">Profound IQ Conversion Trend</text><text x="40" y="78" font-family="Arial" font-size="14" fill="#475569">${fromDate || "All time"} — ${toDate || "Today"}</text>${(
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500"><rect width="100%" height="100%" fill="#fffaf0"/><text x="40" y="48" font-family="var(--font-display)" font-size="24" font-weight="700" fill="#16243d">Profound IQ Conversion Trend</text><text x="40" y="78" font-family="var(--font-body)" font-size="14" fill="#475569">${fromDate || "All time"} — ${toDate || "Today"}</text>${(
       query.data?.trend || []
     )
       .slice(-30)
@@ -203,7 +203,7 @@ export function AdminCourseAccessAudit() {
           ...values.map(entry => Math.max(entry.denied, entry.paid))
         );
         const x = 40 + index * 37;
-        return `<rect x="${x}" y="${430 - (point.denied / max) * 300}" width="12" height="${(point.denied / max) * 300}" fill="#16243d"/><rect x="${x + 14}" y="${430 - (point.paid / max) * 300}" width="12" height="${(point.paid / max) * 300}" fill="#c9a34e"/>`;
+        return `<rect x="${x}" y="${430 - (point.denied / max) * 300}" width="12" height="${(point.denied / max) * 300}" fill="#16243d"/><rect x="${x + 14}" y="${430 - (point.paid / max) * 300}" width="12" height="${(point.paid / max) * 300}" fill="var(--brand)"/>`;
       })
       .join("")}</svg>`;
     const image = new Image();
@@ -247,11 +247,11 @@ export function AdminCourseAccessAudit() {
     >
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="eyebrow text-[#b8860b]">Learning access observatory</p>
+          <p className="eyebrow text-[var(--brand)]">Learning access observatory</p>
           <h2 className="display mt-2 text-3xl">
             Denied lesson access and drop-offs
           </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#475569]">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--fg-muted)]">
             Review where learners reached a payment gate, which installment they
             needed, and where checkout follow-up may improve completion.
           </p>
@@ -259,6 +259,8 @@ export function AdminCourseAccessAudit() {
         <div className="flex flex-wrap gap-2">
           <div className="flex flex-wrap gap-2">
             <input
+              id="course-access-preset-name"
+              name="preset-name"
               value={presetName}
               onChange={event => setPresetName(event.target.value)}
               placeholder="Preset name"
@@ -325,7 +327,7 @@ export function AdminCourseAccessAudit() {
               {emailPdf.isPending ? "Sending…" : "Email PDF"}
             </button>
           </div>
-          <span className="border border-[#c9a34e]/60 bg-[#fffaf0] px-3 py-2 text-xs font-bold">
+          <span className="border border-[var(--brand)]/60 bg-[#fffaf0] px-3 py-2 text-xs font-bold">
             {query.data?.totalDenied ?? 0} denied attempts
           </span>
           <button
@@ -442,7 +444,7 @@ export function AdminCourseAccessAudit() {
       </div>
       {query.data?.comparison?.previousConversionRate !== null &&
         query.data?.comparison?.previousConversionRate !== undefined && (
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-l-2 border-[#c9a34e] bg-[#fffaf0] px-4 py-3 text-sm">
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-l-2 border-[var(--brand)] bg-[#fffaf0] px-4 py-3 text-sm">
             <span>
               <strong>Period comparison:</strong>{" "}
               {query.data.conversion.conversionRate}% now vs{" "}
@@ -475,10 +477,10 @@ export function AdminCourseAccessAudit() {
       {query.data?.trend && query.data.trend.length > 0 && (
         <div className="mt-5 border border-[#16243d]/10 bg-[#fffaf0] p-4">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)]">
               Conversion trend over time
             </p>
-            <span className="text-[10px] text-[#475569]">
+            <span className="text-[10px] text-[var(--fg-muted)]">
               Daily denied vs paid
             </span>
           </div>
@@ -501,14 +503,14 @@ export function AdminCourseAccessAudit() {
                     style={{ height: `${(point.denied / max) * 100}%` }}
                   />
                   <div
-                    className="w-1/2 bg-[#c9a34e]"
+                    className="w-1/2 bg-[var(--brand)]"
                     style={{ height: `${(point.paid / max) * 100}%` }}
                   />
                 </div>
               );
             })}
           </div>
-          <div className="mt-2 flex justify-between text-[10px] text-[#475569]">
+          <div className="mt-2 flex justify-between text-[10px] text-[var(--fg-muted)]">
             <span>{query.data.trend[0]?.date}</span>
             <span>{query.data.trend.at(-1)?.date}</span>
           </div>
@@ -516,8 +518,8 @@ export function AdminCourseAccessAudit() {
       )}
       {query.data?.conversion && (
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
-          <div className="border-t-2 border-[#c9a34e] bg-[#fffaf0] p-4">
-            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+          <div className="border-t-2 border-[var(--brand)] bg-[#fffaf0] p-4">
+            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
               Denied learners
             </p>
             <p className="mt-2 text-2xl font-bold">
@@ -525,7 +527,7 @@ export function AdminCourseAccessAudit() {
             </p>
           </div>
           <div className="border-t-2 border-emerald-700 bg-[#fffaf0] p-4">
-            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
               Converted to payment
             </p>
             <p className="mt-2 text-2xl font-bold text-emerald-800">
@@ -533,7 +535,7 @@ export function AdminCourseAccessAudit() {
             </p>
           </div>
           <div className="border-t-2 border-[#16243d] bg-[#fffaf0] p-4">
-            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
               Denied → paid conversion
             </p>
             <p className="mt-2 text-2xl font-bold">
@@ -545,17 +547,17 @@ export function AdminCourseAccessAudit() {
       {usersQuery.data?.rows && usersQuery.data.rows.length > 0 && (
         <div className="mt-6 border border-[#16243d]/10 bg-[#fffaf0] p-4">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)]">
               Cohort assignment
             </p>
-            <span className="text-[10px] text-[#475569]">
+            <span className="text-[10px] text-[var(--fg-muted)]">
               Assign named cohorts for segmentation
             </span>
           </div>
           <div className="mt-3 overflow-x-auto">
             <table className="w-full min-w-[560px] text-left text-xs">
               <thead>
-                <tr className="border-b border-[#16243d]/15 text-[10px] uppercase tracking-[.1em] text-[#475569]">
+                <tr className="border-b border-[#16243d]/15 text-[10px] uppercase tracking-[.1em] text-[var(--fg-muted)]">
                   <th className="px-2 py-2">Respondent</th>
                   <th className="px-2 py-2">Current cohort</th>
                   <th className="px-2 py-2">Update</th>
@@ -598,19 +600,19 @@ export function AdminCourseAccessAudit() {
         </div>
       )}
       {usersQuery.data?.rows && usersQuery.data.rows.length > 0 && (
-        <div className="mt-6 border border-[#c9a34e]/45 bg-[#fffaf0] p-4">
+        <div className="mt-6 border border-[var(--brand)]/45 bg-[#fffaf0] p-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)]">
                 Quality-control access grants
               </p>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#475569]">
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--fg-muted)]">
                 Grant or revoke payment-free content access for a specific
                 learner and course. Changes are server-authorized and recorded
                 in the audit history.
               </p>
             </div>
-            <span className="border border-[#c9a34e]/60 px-2 py-1 text-[10px] font-black uppercase tracking-[.1em]">
+            <span className="border border-[var(--brand)]/60 px-2 py-1 text-[10px] font-black uppercase tracking-[.1em]">
               Admin only
             </span>
             <button
@@ -646,7 +648,7 @@ export function AdminCourseAccessAudit() {
                 </option>
               ))}
             </select>
-            <span className="text-xs text-[#475569]">
+            <span className="text-xs text-[var(--fg-muted)]">
               {selectedGrantUsers.length} selected
             </span>
             <button
@@ -691,7 +693,7 @@ export function AdminCourseAccessAudit() {
                       <p className="truncate text-sm font-bold">
                         {user.name || user.email || user.openId}
                       </p>
-                      <p className="mt-1 truncate text-xs text-[#475569]">
+                      <p className="mt-1 truncate text-xs text-[var(--fg-muted)]">
                         {user.email || user.openId}
                       </p>
                     </div>
@@ -766,13 +768,13 @@ export function AdminCourseAccessAudit() {
             })}
           </div>
           {filteredGrantUsers.length === 0 && (
-            <p className="border-l-2 border-[#c9a34e] bg-[#fffaf0] p-3 text-xs text-[#475569]">
+            <p className="border-l-2 border-[var(--brand)] bg-[#fffaf0] p-3 text-xs text-[var(--fg-muted)]">
               No learners match this search.
             </p>
           )}
           {grantAudits.length > 0 && (
             <div className="mt-5 border-t border-[#16243d]/10 pt-4">
-              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
+              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg-muted)]">
                 Recent grant audit
               </p>
               <div className="mt-3 space-y-2">
@@ -793,7 +795,7 @@ export function AdminCourseAccessAudit() {
                       </strong>{" "}
                       · {audit.courseSlug}
                     </span>
-                    <span className="text-[#475569]">
+                    <span className="text-[var(--fg-muted)]">
                       {new Date(audit.createdAt).toLocaleString()}
                     </span>
                   </div>
@@ -806,7 +808,7 @@ export function AdminCourseAccessAudit() {
       {query.data?.conversionByCourse &&
         query.data.conversionByCourse.length > 0 && (
           <div className="mt-5 border border-[#16243d]/10 bg-[#fffaf0] p-4">
-            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)]">
               Conversion by course
             </p>
             <div className="mt-3 space-y-3">
@@ -831,16 +833,16 @@ export function AdminCourseAccessAudit() {
           </div>
         )}
       {query.isLoading ? (
-        <p className="mt-6 text-sm text-[#475569]">Loading access events…</p>
+        <p className="mt-6 text-sm text-[var(--fg-muted)]">Loading access events…</p>
       ) : top.length === 0 ? (
-        <p className="mt-6 border-l-2 border-[#c9a34e] bg-[#fffaf0] p-4 text-sm text-[#475569]">
+        <p className="mt-6 border-l-2 border-[var(--brand)] bg-[#fffaf0] p-4 text-sm text-[var(--fg-muted)]">
           No denied lesson-access events match this period.
         </p>
       ) : (
         <div className="mt-6 overflow-x-auto">
           <table className="w-full min-w-[620px] text-left text-sm">
             <thead>
-              <tr className="border-b border-[#16243d]/15 text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
+              <tr className="border-b border-[#16243d]/15 text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg-muted)]">
                 <th className="px-3 py-3">Course</th>
                 <th className="px-3 py-3">Module</th>
                 <th className="px-3 py-3">Required stage</th>
@@ -857,7 +859,7 @@ export function AdminCourseAccessAudit() {
                   <td className="px-3 py-3 font-semibold">{item.courseSlug}</td>
                   <td className="px-3 py-3">{item.moduleIndex + 1}</td>
                   <td className="px-3 py-3">Stage {item.requiredStage}</td>
-                  <td className="px-3 py-3 font-bold text-[#b8860b]">
+                  <td className="px-3 py-3 font-bold text-[var(--brand)]">
                     {item.deniedCount}
                   </td>
                   <td className="px-3 py-3">{item.uniqueUsers}</td>
@@ -870,5 +872,3 @@ export function AdminCourseAccessAudit() {
     </section>
   );
 }
-
-

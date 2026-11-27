@@ -47,7 +47,9 @@ describe("route SEO metadata", () => {
     const robots = readFileSync("client/public/robots.txt", "utf8");
     const sitemap = readFileSync("client/public/sitemap.xml", "utf8");
     expect(existsSync("client/public/robots.txt")).toBe(true);
-    expect(robots).toContain("Sitemap: https://profoundiqconsulting.com/sitemap.xml");
+    expect(robots).toContain(
+      "Sitemap: https://profoundiqconsulting.com/sitemap.xml"
+    );
     expect(robots).toContain("Disallow: /admin");
     expect(sitemap).toContain("https://profoundiqconsulting.com/courses");
   });

@@ -7,28 +7,24 @@ import {
   EyeOff,
   LockKeyhole,
   Loader2,
-  MessageCircle,
   RefreshCw,
-  X,
 } from "lucide-react";
-import { SocialIcon } from "@/components/SocialMediaIcons";
 import { Link, useLocation } from "wouter";
-import { BrandLogo } from "@/components/BrandLogo";
+import { SiteNavigation } from "@/components/SiteNavigation";
 import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import {
-  passwordStrength,
-} from "../../../shared/localAuth";
+import { passwordStrength } from "../../../shared/localAuth";
 import { authCopy } from "../../../shared/authLocalization";
+import { courseEnrollmentAccountDetailsSchema } from "@shared/courseEnrollmentApplication";
 
 type Mode = "login" | "register" | "forgot" | "reset";
 
 export default function Auth() {
   const { user, loading } = useAuth();
   const utils = trpc.useUtils();
-  
+
   const [, navigate] = useLocation();
 
   useEffect(() => {
@@ -46,7 +42,9 @@ export default function Auth() {
 
   const [mode, setMode] = useState<Mode>(() => {
     const requested = new URLSearchParams(window.location.search).get("mode");
-    return requested === "register" || requested === "forgot" || requested === "reset"
+    return requested === "register" ||
+      requested === "forgot" ||
+      requested === "reset"
       ? requested
       : "login";
   });
@@ -79,6 +77,7 @@ export default function Auth() {
   const [securityAnswer1, setSecurityAnswer1] = useState("");
   const [securityQuestion2, setSecurityQuestion2] = useState("");
   const [securityAnswer2, setSecurityAnswer2] = useState("");
+  const [showRecoveryQuestions, setShowRecoveryQuestions] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [securityQuestions, setSecurityQuestions] = useState<{
     question1: string | null;
@@ -124,18 +123,20 @@ export default function Auth() {
     { email: resetEmail.trim() },
     { enabled: false, retry: false }
   );
-  const verifySecurityQuestions = trpc.auth.verifySecurityQuestions.useMutation({
-    onSuccess: async () => {
-      toast.success("Password reset successfully. Please sign in.");
-      setMode("login");
-      setPassword("");
-      setSecurityQuestions(null);
-      setResetEmail("");
-      setSecurityAnswer1("");
-      setSecurityAnswer2("");
-    },
-    onError: error => toast.error(error.message),
-  });
+  const verifySecurityQuestions = trpc.auth.verifySecurityQuestions.useMutation(
+    {
+      onSuccess: async () => {
+        toast.success("Password reset successfully. Please sign in.");
+        setMode("login");
+        setPassword("");
+        setSecurityQuestions(null);
+        setResetEmail("");
+        setSecurityAnswer1("");
+        setSecurityAnswer2("");
+      },
+      onError: error => toast.error(error.message),
+    }
+  );
 
   useEffect(() => {
     if (getSecurityQuestionsQuery.data && mode === "forgot") {
@@ -171,10 +172,14 @@ export default function Auth() {
     setFormError(null);
     if (mode === "login") {
       if (!identifier.trim() || !password)
-        return setFormError("Enter your email and password to continue.");
+        return setFormError(
+          "Enter your email, phone, or username and password to continue."
+        );
       const answer = parseInt(mathUserAnswer, 10);
       if (isNaN(answer) || answer !== mathA + mathB)
-        return setFormError("Please solve the verification question correctly.");
+        return setFormError(
+          "Please solve the verification question correctly."
+        );
       return login.mutate({
         identifier: identifier.trim(),
         password,
@@ -201,9 +206,15 @@ export default function Auth() {
         newPassword: password,
       });
     }
-    if (!name.trim()) return setFormError("Enter your full name.");
-    if (!email.trim() && !username.trim())
-      return setFormError("Provide an email address or username.");
+    const accountDetails = courseEnrollmentAccountDetailsSchema.safeParse({
+      fullName: name,
+      email,
+      phone,
+    });
+    if (!accountDetails.success)
+      return setFormError(
+        accountDetails.error.issues[0]?.message ?? "Check your account details."
+      );
     if (passwordStrength(password) < 3)
       return setFormError(
         "Choose a stronger password with at least 10 characters, including letters and numbers."
@@ -229,10 +240,10 @@ export default function Auth() {
     if (selectedA2.length < 1)
       return setFormError("Security answer 2 is required.");
     return register.mutate({
-      name: name.trim(),
-      email: email || undefined,
-      phone: phone || undefined,
-      username: username || undefined,
+      name: accountDetails.data.fullName,
+      email: accountDetails.data.email.toLowerCase(),
+      phone: accountDetails.data.phone,
+      username: username.trim() || undefined,
       password,
       inviteToken: inviteToken || undefined,
       securityQuestion1: selectedQ1 || undefined,
@@ -260,471 +271,603 @@ export default function Auth() {
     strength < 2
       ? "bg-red-500"
       : strength < 4
-        ? "bg-[#c9a34e]"
+        ? "bg-[var(--brand)]"
         : "bg-emerald-600";
+  const isCourseReturn = returnTo.startsWith("/courses/");
+  const modeDescription =
+    mode === "login"
+      ? "Use your email, phone, or username and password to continue."
+      : mode === "register"
+        ? "Create your learner profile once, then use it for course enrollment."
+        : mode === "forgot"
+          ? "We’ll help you get back into your account."
+          : "Answer your saved security questions to choose a new password.";
 
   return (
-    <main className="min-h-screen bg-[#101d35] text-[#f7f3e8]">
-      <header className="border-b border-white/10">
-        <div className="container flex items-center justify-between py-6">
-          <Link href="/" aria-label="Profound IQ Consulting home">
-            <BrandLogo context="home" className="border border-[#c9a34e]/70" />
-          </Link>
-          <Link
-            href="/"
-            className="text-[10px] font-black uppercase tracking-[.16em] text-[#c9d1df] hover:text-[#c9a34e]"
-          >
-            {authCopy.backToSite}
-          </Link>
-        </div>
-      </header>
-      <section className="container grid min-h-[calc(100vh-90px)] items-center gap-10 py-14 lg:grid-cols-[.8fr_1.2fr] lg:gap-16">
-        <div>
-          <p className="eyebrow text-[#c9a34e]">{authCopy.privateAccess}</p>
-          <h1 className="display mt-5 heading-clamp-lg">
+    <main className="relative min-h-screen overflow-hidden bg-[#101d35]">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <div className="absolute -left-40 top-24 h-96 w-96 rounded-full bg-[var(--brand)]/10 blur-3xl" />
+        <div className="absolute -right-40 bottom-0 h-[32rem] w-[32rem] rounded-full bg-sky-400/10 blur-3xl" />
+      </div>
+      <div className="relative z-10">
+        <SiteNavigation variant="public" showAuthActions={false} />
+      </div>
+      <section className="container relative z-10 mx-auto grid min-h-[calc(100vh-76px)] max-w-6xl items-center gap-8 px-4 py-6 sm:py-10 lg:grid-cols-[minmax(0,.9fr)_minmax(460px,1.1fr)] lg:gap-16 lg:py-12">
+        <div className="dark order-2 pb-4 text-[#f7f3e8] lg:order-1 lg:pb-0">
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold text-[var(--brand-light)]">
+            <LockKeyhole size={14} aria-hidden="true" />
+            {authCopy.privateAccess}
+          </p>
+          <h1 className="display mt-5 text-4xl leading-tight sm:text-5xl lg:text-6xl">
             {authCopy.workspace}
           </h1>
-          <p className="mt-6 max-w-md text-fluid-base leading-8 text-[#c1cad7]">
-            Use your email or username and password to continue your assessment
-            journey.
+          <p className="mt-5 max-w-lg text-sm leading-7 text-slate-300 sm:text-base sm:leading-8">
+            One secure account for your learning journey, course applications,
+            and progress.
           </p>
-        </div>
-        <div className="border border-[#c9a34e]/60 bg-[#f7f3e8] p-7 text-[#16243d] shadow-2xl sm:p-10">
-          <div className="flex items-center gap-3 border-b border-[#16243d]/15 pb-6">
-            <LockKeyhole className="text-[#7d5e1e]" size={20} />
-            <div>
-              <p className="eyebrow text-[#7d5e1e]">{authCopy.secureAccess}</p>
-              <h2 className="display mt-2 text-3xl">
-                {mode === "login"
-                  ? authCopy.welcome
-                  : mode === "register"
-                    ? authCopy.create
-                    : authCopy.reset}
-              </h2>
+          <div className="mt-7 grid max-w-lg gap-3 sm:grid-cols-2">
+            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-200">
+              <CheckCircle2
+                size={18}
+                className="shrink-0 text-[var(--brand-light)]"
+                aria-hidden="true"
+              />
+              Keep your course details together
+            </div>
+            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-200">
+              <LockKeyhole
+                size={18}
+                className="shrink-0 text-[var(--brand-light)]"
+                aria-hidden="true"
+              />
+              Private access to your workspace
             </div>
           </div>
-          {loading ? (
-            <p className="mt-8 text-sm text-muted-foreground">{authCopy.checking}</p>
-          ) : user ? (
-            <div className="mt-8">
-              <p className="text-sm leading-7 text-muted-foreground">
-                You are signed in as <strong>{user.email ?? user.name}</strong>.
-              </p>
-              <Link
-                href="/dashboard"
-                className="mt-6 inline-flex items-center gap-2 bg-[#16243d] px-5 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8]"
+        </div>
+        <div className="order-1 min-w-0 lg:order-2">
+          <div className="overflow-hidden rounded-3xl border border-white/50 bg-[#fffdf7] text-[#16243d] shadow-[0_28px_90px_rgba(0,0,0,.3)]">
+            {!loading && !user && (mode === "login" || mode === "register") && (
+              <div
+                role="group"
+                aria-label="Account options"
+                className="mx-4 mt-4 grid grid-cols-2 rounded-xl bg-[#16243d]/[.06] p-1 sm:mx-8 sm:mt-8"
               >
-                {authCopy.welcome} <ArrowRight size={14} />
-              </Link>
-            </div>
-          ) : (
-            <>
-              <form onSubmit={submit} className="mt-8 grid gap-4">
-                {mode === "register" && inviteToken && (
-                  <div className="border-l-2 border-[#c9a34e] bg-[#16243d]/5 p-3 text-sm text-muted-foreground">
-                    You are joining Profound IQ Consulting as an invited team
-                    member. Register with the invited email address to activate
-                    your staff access.
-                  </div>
-                )}
-                {mode === "register" && (
-                  <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
-                    Full name
-                    <input
-                      required
-                      value={name}
-                      onChange={event => setName(event.target.value)}
-                      className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
-                    />
-                  </label>
-                )}
-                {mode === "login" && (
-                  <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
-                    Email or username
-                    <input
-                      required
-                      value={identifier}
-                      onChange={event => setIdentifier(event.target.value)}
-                      autoComplete="username"
-                      className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
-                    />
-                  </label>
-                )}
-                {mode !== "login" && (
-                  <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
-                    Email address
-                    {mode === "register" && (
-                      <span className="font-normal normal-case tracking-normal text-muted-foreground">
-                        Optional when you use a username; email is recommended
-                        for password recovery.
-                      </span>
-                    )}
-                    <input
-                      required={mode === "forgot" || mode === "reset"}
-                      type="email"
-                      value={mode === "forgot" || mode === "reset" ? resetEmail : email}
-                      onChange={event => {
-                        if (mode === "forgot" || mode === "reset") {
-                          setResetEmail(event.target.value);
-                        } else {
-                          setEmail(event.target.value);
-                        }
-                      }}
-                      autoComplete="email"
-                      className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
-                    />
-                  </label>
-                )}
-                {mode === "register" && (
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
-                      Phone number{" "}
-                      <span className="font-normal normal-case tracking-normal text-muted-foreground">
-                        Optional profile detail
-                      </span>
-                      <input
-                        value={phone}
-                        onChange={event => setPhone(event.target.value)}
-                        autoComplete="tel"
-                         placeholder="+254..."
-                        className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
-                      />
-                    </label>
-                    <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
-                      Username
-                      <input
-                        value={username}
-                        onChange={event => setUsername(event.target.value)}
-                        autoComplete="username"
-                        placeholder="your.handle"
-                        className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
-                      />
-                    </label>
-                  </div>
-                )}
-                {mode !== "forgot" && (
-                  <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
-                    Password
-                    <span className="font-normal normal-case tracking-normal text-muted-foreground">
-                      At least 10 characters, including letters and numbers.
-                    </span>
-                    <div className="relative">
-                      <input
-                        required
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={event => setPassword(event.target.value)}
-                        autoComplete={
-                          mode === "login" ? "current-password" : "new-password"
-                        }
-                        className="w-full border border-[#16243d]/20 bg-white px-3 py-3 pr-11 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
-                      />
-                      <button
-                        type="button"
-                        aria-label={
-                          showPassword ? "Hide password" : "Show password"
-                        }
-                        onClick={() => setShowPassword(value => !value)}
-                        className="absolute right-3 top-1/2 -translate-y-0.5 text-muted-foreground hover:text-[#7d5e1e]"
-                      >
-                        {showPassword ? (
-                          <EyeOff size={16} />
-                        ) : (
-                          <Eye size={16} />
-                        )}
-                      </button>
-                    </div>
-                    {mode === "register" && (
-                      <div aria-live="polite" className="mt-1">
-                        <div
-                          className="flex gap-1"
-                          aria-label={`Password strength: ${strength} of 5`}
-                          role="meter"
-                          aria-valuemin={0}
-                          aria-valuemax={5}
-                          aria-valuenow={strength}
-                        >
-                          {[1, 2, 3, 4, 5].map(bar => (
-                            <span
-                              key={bar}
-                              className={`h-1.5 flex-1 ${bar <= strength ? strengthColor : "bg-[#16243d]/10"}`}
-                            />
-                          ))}
-                        </div>
-                        <p className="mt-1 text-[11px] font-normal normal-case tracking-normal text-muted-foreground">
-                          {password
-                            ? strengthLabel
-                            : "Use length, upper and lowercase letters, numbers, and symbols."}
-                        </p>
-                      </div>
-                    )}
-                  </label>
-                )}
-                {mode === "login" && (
-                  <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
-                    Verification
-                    <span className="font-normal normal-case tracking-normal text-muted-foreground">
-                      Solve {mathA} + {mathB} = ?
-                    </span>
-                    <input
-                      required
-                      type="number"
-                      inputMode="numeric"
-                      value={mathUserAnswer}
-                      onChange={event => setMathUserAnswer(event.target.value)}
-                      className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
-                    />
-                  </label>
-                )}
-                {mode === "register" && (
-                  <>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
-                        Security question 1
-                        <select
-                          value={securityQuestion1}
-                          onChange={event => setSecurityQuestion1(event.target.value)}
-                          className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
-                        >
-                          <option value="">Select a question</option>
-                          {SECURITY_QUESTIONS.map(question => (
-                            <option key={question} value={question}>
-                              {question}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
-                        Answer
-                        <input
-                          value={securityAnswer1}
-                          onChange={event => setSecurityAnswer1(event.target.value)}
-                          placeholder="Your answer"
-                          autoComplete="off"
-                          className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
-                        />
-                      </label>
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
-                        Security question 2
-                        <select
-                          value={securityQuestion2}
-                          onChange={event => setSecurityQuestion2(event.target.value)}
-                          className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
-                        >
-                          <option value="">Select a question</option>
-                          {SECURITY_QUESTIONS.map(question => (
-                            <option key={question} value={question}>
-                              {question}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
-                        Answer
-                        <input
-                          value={securityAnswer2}
-                          onChange={event => setSecurityAnswer2(event.target.value)}
-                          placeholder="Your answer"
-                          autoComplete="off"
-                          className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
-                        />
-                      </label>
-                    </div>
-                  </>
-                )}
-                {mode === "reset" && securityQuestions && (
-                  <>
-                    <div className="border-l-2 border-[#c9a34e] bg-[#16243d]/5 p-3 text-sm text-muted-foreground">
-                      <p className="font-semibold">Question 1: {securityQuestions.question1}</p>
-                      <input
-                        required
-                        value={securityAnswer1}
-                        onChange={event => setSecurityAnswer1(event.target.value)}
-                        placeholder="Your answer"
-                        autoComplete="off"
-                        className="mt-2 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm outline-none focus:border-[#c9a34e]"
-                      />
-                    </div>
-                    <div className="border-l-2 border-[#c9a34e] bg-[#16243d]/5 p-3 text-sm text-muted-foreground">
-                      <p className="font-semibold">Question 2: {securityQuestions.question2}</p>
-                      <input
-                        required
-                        value={securityAnswer2}
-                        onChange={event => setSecurityAnswer2(event.target.value)}
-                        placeholder="Your answer"
-                        autoComplete="off"
-                        className="mt-2 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm outline-none focus:border-[#c9a34e]"
-                      />
-                    </div>
-                    <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
-                      New password
-                      <span className="font-normal normal-case tracking-normal text-muted-foreground">
-                        At least 10 characters, including letters and numbers.
-                      </span>
-                      <div className="relative">
-                        <input
-                          required
-                          type={showPassword ? "text" : "password"}
-                          value={password}
-                          onChange={event => setPassword(event.target.value)}
-                          autoComplete="new-password"
-                          className="w-full border border-[#16243d]/20 bg-white px-3 py-3 pr-11 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#c9a34e]"
-                        />
-                        <button
-                          type="button"
-                          aria-label={showPassword ? "Hide password" : "Show password"}
-                          onClick={() => setShowPassword(value => !value)}
-                          className="absolute right-3 top-1/2 -translate-y-0.5 text-muted-foreground hover:text-[#7d5e1e]"
-                        >
-                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                        </button>
-                      </div>
-                    </label>
-                  </>
-                )}
-                <button
-                  type="submit"
-                  disabled={pending}
-                  className="inline-flex items-center justify-center gap-2 bg-[#16243d] px-5 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] disabled:opacity-60"
-                >
-                  {pending && <RefreshCw size={14} className="animate-spin" />}
-                  {mode === "login"
-                    ? "Sign in"
-                    : mode === "register"
-                      ? "Create account"
-                      : mode === "reset"
-                        ? "Reset password"
-                        : "Send reset link"}
-                  <ArrowRight size={14} />
-                </button>
-                {formError && (
-                  <p
-                    role="alert"
-                    className="mt-3 border-l-2 border-red-600 bg-red-50 px-3 py-2 text-xs leading-5 text-red-800"
-                  >
-                    {formError}
-                  </p>
-                )}
-              </form>
-              <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs">
                 <button
                   type="button"
+                  aria-pressed={mode === "login"}
                   onClick={() => {
-                    if (mode === "reset") {
-                      setMode("forgot");
-                      setSecurityQuestions(null);
-                      setSecurityAnswer1("");
-                      setSecurityAnswer2("");
-                    } else {
-                      setMode(mode === "login" ? "register" : "login");
-                    }
+                    setMode("login");
+                    setFormError(null);
                   }}
-                  className="font-bold text-[#7d5e1e] underline-offset-4 hover:underline"
+                  className={`rounded-lg px-3 py-3 text-sm font-semibold transition ${
+                    mode === "login"
+                      ? "bg-white text-[#16243d] shadow-sm"
+                      : "text-slate-500 hover:text-[#16243d]"
+                  }`}
                 >
-                  {mode === "login"
-                    ? "Create an account"
-                    : mode === "reset"
-                      ? "Back to email reset"
-                      : "Back to sign in"}
+                  Sign in
                 </button>
-                {mode === "login" && (
-                  <button
-                    type="button"
-                    onClick={() => setMode("forgot")}
-                    className="text-muted-foreground underline-offset-4 hover:underline"
-                  >
-                    Forgot password?
-                  </button>
-                )}
-                {mode === "forgot" && (
-                  <button
-                    type="button"
-                    onClick={() => setMode("register")}
-                    className="text-muted-foreground underline-offset-4 hover:underline"
-                  >
-                    Need an account?
-                  </button>
-                )}
+                <button
+                  type="button"
+                  aria-pressed={mode === "register"}
+                  onClick={() => {
+                    setMode("register");
+                    setFormError(null);
+                  }}
+                  className={`rounded-lg px-3 py-3 text-sm font-semibold transition ${
+                    mode === "register"
+                      ? "bg-white text-[#16243d] shadow-sm"
+                      : "text-slate-500 hover:text-[#16243d]"
+                  }`}
+                >
+                  Create account
+                </button>
               </div>
-            </>
-          )}
-          <div className="mt-8 border-t border-[#16243d]/15 pt-6 text-xs leading-6 text-muted-foreground">
-            <p className="flex items-start gap-2">
-              <CheckCircle2
-                size={15}
-                className="mt-0.5 shrink-0 text-[#7d5e1e]"
-              />
-              Your password is stored as a one-way cryptographic hash.
-            </p>
-            <p className="mt-3">
-              Password reset links are single-use and expire after 30 minutes.
-              You can also reset your password by answering your security questions.
-            </p>
+            )}
+            <div className="p-5 sm:p-8 lg:p-9">
+              <div className="flex items-start gap-4 border-b border-[#16243d]/10 pb-5">
+                <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[var(--brand)]/15 text-[var(--brand)]">
+                  <LockKeyhole size={20} aria-hidden="true" />
+                </span>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[.13em] text-[var(--brand)]">
+                    {authCopy.secureAccess}
+                  </p>
+                  <h2 className="display mt-1 text-2xl sm:text-3xl">
+                    {mode === "login"
+                      ? authCopy.welcome
+                      : mode === "register"
+                        ? authCopy.create
+                        : authCopy.reset}
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    {modeDescription}
+                  </p>
+                </div>
+              </div>
+              {loading ? (
+                <p className="mt-8 text-sm text-muted-foreground">
+                  {authCopy.checking}
+                </p>
+              ) : user ? (
+                <div className="mt-8">
+                  <p className="text-sm leading-7 text-muted-foreground">
+                    You are signed in as{" "}
+                    <strong>{user.email ?? user.name}</strong>.
+                  </p>
+                  <Link
+                    href="/dashboard"
+                    className="mt-6 inline-flex items-center gap-2 bg-[#16243d] px-5 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8]"
+                  >
+                    {authCopy.welcome} <ArrowRight size={14} />
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  {mode === "register" && isCourseReturn && (
+                    <div className="mt-5 flex gap-3 rounded-2xl border border-[var(--brand)]/20 bg-[var(--brand)]/[.08] p-4 text-sm leading-6 text-slate-700">
+                      <CheckCircle2
+                        size={18}
+                        className="mt-1 shrink-0 text-[var(--brand)]"
+                        aria-hidden="true"
+                      />
+                      After creating your account, you’ll return to your course
+                      to finish enrollment.
+                    </div>
+                  )}
+                  <form
+                    onSubmit={submit}
+                    className="mt-6 grid gap-4 [&_input]:w-full [&_input]:rounded-xl [&_input]:border-[#16243d]/15 [&_input]:bg-white [&_input]:px-4 [&_input]:py-3 [&_input]:text-sm [&_input]:text-[#16243d] [&_input]:outline-none [&_input]:transition [&_input:focus]:border-[var(--brand)] [&_input:focus]:ring-4 [&_input:focus]:ring-[var(--brand)]/10 [&_label]:grid [&_label]:gap-2 [&_label]:text-xs [&_label]:font-semibold [&_label]:normal-case [&_label]:tracking-normal [&_label]:text-slate-700 [&_select]:w-full [&_select]:rounded-xl [&_select]:border-[#16243d]/15 [&_select]:bg-white [&_select]:px-4 [&_select]:py-3 [&_select]:text-sm [&_select]:text-[#16243d] [&_select]:outline-none [&_select:focus]:border-[var(--brand)] [&_select:focus]:ring-4 [&_select:focus]:ring-[var(--brand)]/10"
+                  >
+                    {mode === "register" && inviteToken && (
+                      <div className="border-l-2 border-[var(--brand)] bg-[#16243d]/5 p-3 text-sm text-muted-foreground">
+                        You are joining Profound IQ Consulting as an invited
+                        team member. Register with the invited email address to
+                        activate your staff access.
+                      </div>
+                    )}
+                    {mode === "register" && (
+                      <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                        Full name
+                        <input
+                          id="register-name"
+                          name="name"
+                          required
+                          value={name}
+                          onChange={event => setName(event.target.value)}
+                          className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[var(--brand)]"
+                        />
+                      </label>
+                    )}
+                    {mode === "login" && (
+                      <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                        Email, phone, or username
+                        <input
+                          id="login-identifier"
+                          name="identifier"
+                          required
+                          value={identifier}
+                          onChange={event => setIdentifier(event.target.value)}
+                          autoComplete="username"
+                          placeholder="Email, phone, or username"
+                          className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[var(--brand)]"
+                        />
+                      </label>
+                    )}
+                    {mode !== "login" && (
+                      <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                        Email address
+                        {mode === "register" && (
+                          <span className="font-normal normal-case tracking-normal text-muted-foreground">
+                            Use the same email address for your account and
+                            course enrollment.
+                          </span>
+                        )}
+                        <input
+                          id="register-email"
+                          name="email"
+                          required
+                          type="email"
+                          value={
+                            mode === "forgot" || mode === "reset"
+                              ? resetEmail
+                              : email
+                          }
+                          onChange={event => {
+                            if (mode === "forgot" || mode === "reset") {
+                              setResetEmail(event.target.value);
+                            } else {
+                              setEmail(event.target.value);
+                            }
+                          }}
+                          autoComplete="email"
+                          className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[var(--brand)]"
+                        />
+                      </label>
+                    )}
+                    {mode === "register" && (
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                          Phone number
+                          <input
+                            id="register-phone"
+                            name="phone"
+                            value={phone}
+                            onChange={event => setPhone(event.target.value)}
+                            autoComplete="tel"
+                            placeholder="+254..."
+                            required
+                            className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[var(--brand)]"
+                          />
+                        </label>
+                        <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                          Username
+                          <input
+                            id="register-username"
+                            name="username"
+                            value={username}
+                            onChange={event => setUsername(event.target.value)}
+                            autoComplete="username"
+                            placeholder="your.handle"
+                            className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[var(--brand)]"
+                          />
+                        </label>
+                      </div>
+                    )}
+                    {mode !== "forgot" && (
+                      <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                        Password
+                        <span className="font-normal normal-case tracking-normal text-muted-foreground">
+                          At least 10 characters, including letters and numbers.
+                        </span>
+                        <div className="relative">
+                          <input
+                            id="password"
+                            name="password"
+                            required
+                            type={showPassword ? "text" : "password"}
+                            value={password}
+                            onChange={event => setPassword(event.target.value)}
+                            autoComplete={
+                              mode === "login"
+                                ? "current-password"
+                                : "new-password"
+                            }
+                            className="w-full !pr-12 border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[var(--brand)]"
+                          />
+                          <button
+                            type="button"
+                            aria-label={
+                              showPassword ? "Hide password" : "Show password"
+                            }
+                            onClick={() => setShowPassword(value => !value)}
+                            className="absolute right-3 top-1/2 -translate-y-0.5 text-muted-foreground hover:text-[var(--brand)]"
+                          >
+                            {showPassword ? (
+                              <EyeOff size={16} />
+                            ) : (
+                              <Eye size={16} />
+                            )}
+                          </button>
+                        </div>
+                        {mode === "register" && (
+                          <div aria-live="polite" className="mt-1">
+                            <div
+                              className="flex gap-1"
+                              aria-label={`Password strength: ${strength} of 5`}
+                              role="meter"
+                              aria-valuemin={0}
+                              aria-valuemax={5}
+                              aria-valuenow={strength}
+                            >
+                              {[1, 2, 3, 4, 5].map(bar => (
+                                <span
+                                  key={bar}
+                                  className={`h-1.5 flex-1 ${bar <= strength ? strengthColor : "bg-[#16243d]/10"}`}
+                                />
+                              ))}
+                            </div>
+                            <p className="mt-1 text-[11px] font-normal normal-case tracking-normal text-muted-foreground">
+                              {password
+                                ? strengthLabel
+                                : "Use length, upper and lowercase letters, numbers, and symbols."}
+                            </p>
+                          </div>
+                        )}
+                      </label>
+                    )}
+                    {mode === "login" && (
+                      <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                        Verification
+                        <span className="font-normal normal-case tracking-normal text-muted-foreground">
+                          Solve {mathA} + {mathB} = ?
+                        </span>
+                        <input
+                          id="login-verification"
+                          name="verification"
+                          required
+                          type="number"
+                          inputMode="numeric"
+                          value={mathUserAnswer}
+                          onChange={event =>
+                            setMathUserAnswer(event.target.value)
+                          }
+                          className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[var(--brand)]"
+                        />
+                      </label>
+                    )}
+                    {mode === "register" && (
+                      <>
+                        <div className="flex items-center justify-between gap-4 rounded-2xl border border-[#16243d]/10 bg-slate-50 p-4">
+                          <div>
+                            <p className="text-sm font-semibold text-[#16243d]">
+                              Password recovery questions
+                            </p>
+                            <p className="mt-1 text-xs leading-5 text-slate-500">
+                              Optional backup if you can’t access your email.
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            aria-expanded={showRecoveryQuestions}
+                            aria-controls="recovery-questions-fields"
+                            onClick={() => {
+                              if (showRecoveryQuestions) {
+                                setSecurityQuestion1("");
+                                setSecurityAnswer1("");
+                                setSecurityQuestion2("");
+                                setSecurityAnswer2("");
+                              }
+                              setShowRecoveryQuestions(value => !value);
+                            }}
+                            className="shrink-0 rounded-lg border border-[#16243d]/15 bg-white px-3 py-2 text-xs font-semibold text-[#16243d] transition hover:bg-slate-100"
+                          >
+                            {showRecoveryQuestions ? "Remove" : "Add"}
+                          </button>
+                        </div>
+                        {showRecoveryQuestions && (
+                          <div
+                            id="recovery-questions-fields"
+                            className="space-y-4"
+                          >
+                            <div className="grid gap-4 sm:grid-cols-2">
+                              <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                                Security question 1
+                                <select
+                                  id="security-question-1"
+                                  name="securityQuestion1"
+                                  value={securityQuestion1}
+                                  onChange={event =>
+                                    setSecurityQuestion1(event.target.value)
+                                  }
+                                  className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[var(--brand)]"
+                                >
+                                  <option value="">Select a question</option>
+                                  {SECURITY_QUESTIONS.map(question => (
+                                    <option key={question} value={question}>
+                                      {question}
+                                    </option>
+                                  ))}
+                                </select>
+                              </label>
+                              <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                                Answer
+                                <input
+                                  id="security-answer-1"
+                                  name="securityAnswer1"
+                                  value={securityAnswer1}
+                                  onChange={event =>
+                                    setSecurityAnswer1(event.target.value)
+                                  }
+                                  placeholder="Your answer"
+                                  autoComplete="off"
+                                  className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[var(--brand)]"
+                                />
+                              </label>
+                            </div>
+                            <div className="grid gap-4 sm:grid-cols-2">
+                              <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                                Security question 2
+                                <select
+                                  id="security-question-2"
+                                  name="securityQuestion2"
+                                  value={securityQuestion2}
+                                  onChange={event =>
+                                    setSecurityQuestion2(event.target.value)
+                                  }
+                                  className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[var(--brand)]"
+                                >
+                                  <option value="">Select a question</option>
+                                  {SECURITY_QUESTIONS.map(question => (
+                                    <option key={question} value={question}>
+                                      {question}
+                                    </option>
+                                  ))}
+                                </select>
+                              </label>
+                              <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                                Answer
+                                <input
+                                  id="security-answer-2"
+                                  name="securityAnswer2"
+                                  value={securityAnswer2}
+                                  onChange={event =>
+                                    setSecurityAnswer2(event.target.value)
+                                  }
+                                  placeholder="Your answer"
+                                  autoComplete="off"
+                                  className="border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[var(--brand)]"
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+                    {mode === "reset" && securityQuestions && (
+                      <>
+                        <div className="border-l-2 border-[var(--brand)] bg-[#16243d]/5 p-3 text-sm text-muted-foreground">
+                          <p className="font-semibold">
+                            Question 1: {securityQuestions.question1}
+                          </p>
+                          <input
+                            id="reset-security-answer-1"
+                            name="securityAnswer1"
+                            required
+                            value={securityAnswer1}
+                            onChange={event =>
+                              setSecurityAnswer1(event.target.value)
+                            }
+                            placeholder="Your answer"
+                            autoComplete="off"
+                            className="mt-2 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--brand)]"
+                          />
+                        </div>
+                        <div className="border-l-2 border-[var(--brand)] bg-[#16243d]/5 p-3 text-sm text-muted-foreground">
+                          <p className="font-semibold">
+                            Question 2: {securityQuestions.question2}
+                          </p>
+                          <input
+                            id="reset-security-answer-2"
+                            name="securityAnswer2"
+                            required
+                            value={securityAnswer2}
+                            onChange={event =>
+                              setSecurityAnswer2(event.target.value)
+                            }
+                            placeholder="Your answer"
+                            autoComplete="off"
+                            className="mt-2 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--brand)]"
+                          />
+                        </div>
+                        <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                          New password
+                          <span className="font-normal normal-case tracking-normal text-muted-foreground">
+                            At least 10 characters, including letters and
+                            numbers.
+                          </span>
+                          <div className="relative">
+                            <input
+                              id="reset-password"
+                              name="password"
+                              required
+                              type={showPassword ? "text" : "password"}
+                              value={password}
+                              onChange={event =>
+                                setPassword(event.target.value)
+                              }
+                              autoComplete="new-password"
+                              className="w-full !pr-12 border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[var(--brand)]"
+                            />
+                            <button
+                              type="button"
+                              aria-label={
+                                showPassword ? "Hide password" : "Show password"
+                              }
+                              onClick={() => setShowPassword(value => !value)}
+                              className="absolute right-3 top-1/2 -translate-y-0.5 text-muted-foreground hover:text-[var(--brand)]"
+                            >
+                              {showPassword ? (
+                                <EyeOff size={16} />
+                              ) : (
+                                <Eye size={16} />
+                              )}
+                            </button>
+                          </div>
+                        </label>
+                      </>
+                    )}
+                    <button
+                      type="submit"
+                      disabled={pending}
+                      className="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#16243d] px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#243c60] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand)] disabled:cursor-wait disabled:opacity-60"
+                    >
+                      {pending && (
+                        <RefreshCw size={16} className="animate-spin" />
+                      )}
+                      {mode === "login"
+                        ? "Sign in"
+                        : mode === "register"
+                          ? "Create account"
+                          : mode === "reset"
+                            ? "Reset password"
+                            : "Send reset link"}
+                      {!pending && <ArrowRight size={16} />}
+                    </button>
+                    {formError && (
+                      <p
+                        role="alert"
+                        className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-800"
+                      >
+                        {formError}
+                      </p>
+                    )}
+                  </form>
+                  <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm">
+                    {mode === "login" && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMode("forgot");
+                          setFormError(null);
+                        }}
+                        className="font-medium text-slate-600 underline-offset-4 transition hover:text-[#16243d] hover:underline"
+                      >
+                        Forgot password?
+                      </button>
+                    )}
+                    {mode === "forgot" && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setMode("login")}
+                          className="font-medium text-slate-600 underline-offset-4 transition hover:text-[#16243d] hover:underline"
+                        >
+                          Back to sign in
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setMode("register")}
+                          className="font-semibold text-[var(--brand)] underline-offset-4 hover:underline"
+                        >
+                          Need an account?
+                        </button>
+                      </>
+                    )}
+                    {mode === "reset" && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMode("forgot");
+                          setSecurityQuestions(null);
+                          setSecurityAnswer1("");
+                          setSecurityAnswer2("");
+                        }}
+                        className="font-medium text-slate-600 underline-offset-4 transition hover:text-[#16243d] hover:underline"
+                      >
+                        Back to email reset
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
+              <div className="mt-6 border-t border-[#16243d]/10 pt-5 text-xs leading-5 text-slate-500">
+                <p className="flex items-start gap-2">
+                  <CheckCircle2
+                    size={15}
+                    className="mt-0.5 shrink-0 text-[var(--brand)]"
+                  />
+                  Your password is stored as a one-way cryptographic hash.
+                </p>
+                <p className="mt-2">
+                  Password reset links are single-use and expire after 30
+                  minutes.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
-      <footer className="border-t border-white/10 bg-[#101d35] py-12 text-[#f7f3e8]">
-        <div className="container">
-          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-            <div className="text-center md:text-left">
-              <p className="text-sm font-semibold">Profound IQ Consulting</p>
-              <p className="mt-1 text-xs text-[#c1cad7]">Transformational learning for a changing world.</p>
-            </div>
-            <div className="flex items-center gap-2" aria-label="Social media links">
-              <a
-                href="https://www.facebook.com/profoundIQ"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Profound IQ Consulting on Facebook"
-                className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:border-[#1877F2] hover:bg-[#1877F2] hover:text-white"
-              >
-                <SocialIcon platform="facebook" />
-              </a>
-              <a
-                href="https://x.com/ProfoundIQC"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Profound IQ Consulting on X"
-                className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:border-white hover:bg-white hover:text-[#101d35]"
-              >
-                <X size={16} />
-              </a>
-              <a
-                href="https://linkedin.com/company/profoundiqconsulting"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Profound IQ Consulting on LinkedIn"
-                className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:border-[#0A66C2] hover:bg-[#0A66C2] hover:text-white"
-              >
-                <SocialIcon platform="linkedin" />
-              </a>
-              <a
-                href="https://www.instagram.com/profoundiqconsulting/"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Profound IQ Consulting on Instagram"
-                className="inline-flex h-9 w-9 items-center justify-center border border-white/15 text-[#c1cad7] transition-all hover:border-[#E4405F] hover:bg-[#E4405F] hover:text-white"
-              >
-                <SocialIcon platform="instagram" />
-              </a>
-              <a
-                href="https://wa.me/254727374055"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Chat with Profound IQ Consulting on WhatsApp"
-                className="inline-flex h-9 w-9 items-center justify-center border border-[#25D366]/60 text-[#d9fbe5] transition-all hover:border-[#25D366] hover:bg-[#25D366]/10"
-              >
-                <MessageCircle size={16} />
-              </a>
-            </div>
-          </div>
-          <div className="mt-6 border-t border-white/10 pt-5 text-center text-[10px] font-bold uppercase tracking-[.14em] text-[#8f9db3]">
-            © 2026 Profound IQ Consulting · Online / Kenya / Global reach
-          </div>
-        </div>
-      </footer>
     </main>
   );
 }

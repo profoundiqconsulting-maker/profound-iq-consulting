@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Route, Switch, useLocation } from "wouter";
 import { AdminRouteGuard } from "@/components/AdminRouteGuard";
 
@@ -21,27 +21,35 @@ const AdminResources = lazy(() => import("./AdminResources"));
 const AdminReports = lazy(() => import("./AdminReports"));
 const AdminUsers = lazy(() => import("../AdminUsers"));
 const AdminUserProfile = lazy(() => import("./AdminUserProfile"));
-const AdminInquiries = lazy(() => import("../AdminInquiries"));
 const AdminCertificates = lazy(() => import("../AdminCertificates"));
 const CohortManagement = lazy(() => import("../CohortManagement"));
 
 function AdminRouteLoading() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center bg-[#f7f3e8]">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#16243d] border-t-[#c9a34e]" />
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#16243d] border-t-[var(--brand)]" />
     </div>
   );
+}
+
+function AdminRedirect({ to }: { to: string }) {
+  const [, navigate] = useLocation();
+
+  useEffect(() => {
+    navigate(to, { replace: true });
+  }, [navigate, to]);
+
+  return <AdminRouteLoading />;
 }
 
 function AdminApp() {
   return (
     <Suspense fallback={<AdminRouteLoading />}>
       <Switch>
-        <Route path="/admin" component={() => {
-          const [, navigate] = useLocation();
-          navigate("/admin/overview", { replace: true });
-          return null;
-        }} />
+        <Route
+          path="/admin"
+          component={() => <AdminRedirect to="/admin/overview" />}
+        />
         <Route path="/admin/overview" component={AdminOverview} />
         <Route path="/admin/operations" component={AdminOperations} />
         <Route path="/admin/revenue" component={AdminRevenue} />
@@ -61,18 +69,20 @@ function AdminApp() {
         <Route path="/admin/reports" component={AdminReports} />
         <Route path="/admin/users" component={AdminUsers} />
         <Route path="/admin/users/:openId" component={AdminUserProfile} />
-        <Route path="/admin/inquiries" component={AdminInquiries} />
+        <Route
+          path="/admin/inquiries"
+          component={() => <AdminRedirect to="/admin/inbox" />}
+        />
         <Route path="/admin/certificates" component={AdminCertificates} />
-        <Route path="/admin/cohorts" component={() => (
-          <AdminRouteGuard>
-            <CohortManagement />
-          </AdminRouteGuard>
-        )} />
-        <Route component={() => {
-          const [, navigate] = useLocation();
-          navigate("/admin/overview", { replace: true });
-          return null;
-        }} />
+        <Route
+          path="/admin/cohorts"
+          component={() => (
+            <AdminRouteGuard>
+              <CohortManagement />
+            </AdminRouteGuard>
+          )}
+        />
+        <Route component={() => <AdminRedirect to="/admin/overview" />} />
       </Switch>
     </Suspense>
   );

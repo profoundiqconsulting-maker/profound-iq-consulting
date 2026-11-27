@@ -3,6 +3,7 @@ import path from "path";
 import fs from "node:fs";
 import crypto from "node:crypto";
 import express from "express";
+import type { Request } from "express";
 import { createServer } from "http";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerStorageProxy } from "./storageProxy";
@@ -25,9 +26,40 @@ import {
   careerPathAttempts,
   courseEnrollments,
 } from "../../drizzle/schema";
+import {
+  resolvePaymentProvider,
+  buildCallbackUrl,
+  buildPaymentMetadata,
+  calculateCheckoutAmountKes,
+  convertAmount,
+} from "../../shared/paymentInit";
+import {
+  checkoutInitializeInputSchema,
+  checkoutInitializeResultSchema,
+} from "../../shared/checkoutApi";
+import { PAYMENT_CONFIGS } from "../../shared/paymentProviders";
+import { PUBLISHED_SITE_ORIGIN } from "../../shared/siteOrigin";
 
 export let criticalCssCache: string | null = null;
 export let preloadLinksCache: string | null = null;
+
+function getCheckoutBaseUrl(req: Request): string {
+  const requestOrigin = req.get("origin");
+  if (process.env.NODE_ENV === "development" && requestOrigin) {
+    try {
+      const origin = new URL(requestOrigin);
+      if (
+        origin.protocol === "http:" &&
+        ["localhost", "127.0.0.1", "[::1]"].includes(origin.hostname)
+      ) {
+        return origin.origin;
+      }
+    } catch {
+      // Ignore invalid Origin headers and use the configured public origin.
+    }
+  }
+  return process.env.PUBLISHED_SITE_ORIGIN || PUBLISHED_SITE_ORIGIN;
+}
 
 export function loadCriticalAssets() {
   if (criticalCssCache && preloadLinksCache) return;
@@ -36,24 +68,34 @@ export function loadCriticalAssets() {
     const assetsDir = path.join(publicDir, "assets");
     if (fs.existsSync(assetsDir)) {
       const files = fs.readdirSync(assetsDir);
-      const cssFiles = files.filter(f => f.endsWith(".css") && f.startsWith("index-"));
-      const jsFiles = files.filter(f => f.endsWith(".js") && f.startsWith("index-"));
-      
+      const cssFiles = files.filter(
+        f => f.endsWith(".css") && f.startsWith("index-")
+      );
+      const jsFiles = files.filter(
+        f => f.endsWith(".js") && f.startsWith("index-")
+      );
+
       // Load critical CSS (inline the main CSS)
       if (cssFiles.length > 0) {
         const cssPath = path.join(assetsDir, cssFiles[0]);
         criticalCssCache = fs.readFileSync(cssPath, "utf-8");
       }
-      
+
       // Generate preload links for critical JS chunks
       const preloadLinks: string[] = [];
       if (jsFiles.length > 0) {
-        preloadLinks.push(`<link rel="modulepreload" href="/assets/${jsFiles[0]}" crossorigin>`);
+        preloadLinks.push(
+          `<link rel="modulepreload" href="/assets/${jsFiles[0]}" crossorigin>`
+        );
       }
       // Preload vendor chunks that are likely needed early
-      const vendorFiles = files.filter(f => f.endsWith(".js") && f.startsWith("vendor-"));
+      const vendorFiles = files.filter(
+        f => f.endsWith(".js") && f.startsWith("vendor-")
+      );
       for (const vf of vendorFiles.slice(0, 3)) {
-        preloadLinks.push(`<link rel="modulepreload" href="/assets/${vf}" crossorigin>`);
+        preloadLinks.push(
+          `<link rel="modulepreload" href="/assets/${vf}" crossorigin>`
+        );
       }
       preloadLinksCache = preloadLinks.join("\n");
     }
@@ -117,7 +159,7 @@ async function startServer() {
       "default-src 'self'",
       `script-src ${scriptSrc}`,
       ...(isDev ? [] : ["require-trusted-types-for 'script'"]),
-      "style-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline' https://paystack.com",
       "img-src 'self' data:",
       "font-src 'self' data:",
       `connect-src ${connectSrc}`,
@@ -127,7 +169,7 @@ async function startServer() {
       "base-uri 'self'",
       "form-action 'self'",
       "frame-ancestors 'self'",
-      "frame-src 'self' https://api.paystack.co https://js.paystack.co",
+      "frame-src 'self' https://api.paystack.co https://js.paystack.co https://checkout.paystack.com",
     ].join("; ");
     res.setHeader("Content-Security-Policy", csp);
     // Strong HSTS: force HTTPS for a year across subdomains. Browsers ignore
@@ -139,10 +181,7 @@ async function startServer() {
     );
     // Isolate the top-level window from cross-origin openers while still
     // allowing popups this page opens (payments/auth) to keep references.
-    res.setHeader(
-      "Cross-Origin-Opener-Policy",
-      "same-origin-allow-popups"
-    );
+    res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
     // Clickjacking protection. CSP `frame-ancestors 'self'` (above) is the
     // modern control; X-Frame-Options backs it up for browsers/proxies that
     // don't honor CSP framing directives. SAMEORIGIN matches frame-ancestors.
@@ -160,10 +199,7 @@ async function startServer() {
     const originalSend = res.send.bind(res);
     res.send = ((body?: unknown) => {
       const contentType = String(res.getHeader("Content-Type") || "");
-      if (
-        typeof body === "string" &&
-        /^text\/html\b/i.test(contentType)
-      ) {
+      if (typeof body === "string" && /^text\/html\b/i.test(contentType)) {
         return originalSend(injectNonce(body));
       }
       return originalSend(body as any);
@@ -175,10 +211,11 @@ async function startServer() {
         const resolved = path.isAbsolute(filePath)
           ? filePath
           : path.resolve(
-              ((options as { root?: string })?.root) || process.cwd(),
+              (options as { root?: string })?.root || process.cwd(),
               filePath
             );
-        fs.promises.readFile(resolved, "utf-8")
+        fs.promises
+          .readFile(resolved, "utf-8")
           .then(html => {
             res.type("html");
             res.setHeader(
@@ -224,137 +261,238 @@ async function startServer() {
   // Unified checkout initialization endpoint for CheckoutForm component
   app.post("/api/checkout/initialize", express.json(), async (req, res) => {
     try {
-      const { productType, productSlug, productName, amountKes, customerName, customerEmail, upsellIds = [], returnUrl } = req.body;
+      const inputResult = checkoutInitializeInputSchema.safeParse(req.body);
+      if (!inputResult.success) {
+        return res.status(400).json({
+          message: "Invalid checkout request.",
+          issues: inputResult.error.issues,
+        });
+      }
 
-      if (!productType || !productName || !amountKes || !customerEmail) {
-        return res.status(400).json({ message: "Missing required fields" });
+      const {
+        productType,
+        productSlug,
+        productName,
+        amountKes,
+        customerName,
+        customerEmail,
+        customerCountry,
+        upsellIds = [],
+        answers,
+        returnUrl,
+        enrollmentId,
+        stage,
+      } = inputResult.data;
+
+      if (productType === "course" || productType === "course_stage") {
+        return res.status(400).json({
+          message:
+            "Course payments must be started from the enrollment workspace.",
+        });
+      }
+
+      const expectedAmountKes = calculateCheckoutAmountKes(
+        productType,
+        upsellIds
+      );
+      if (expectedAmountKes === null || amountKes !== expectedAmountKes) {
+        return res.status(400).json({
+          message: "Checkout amount does not match the selected product.",
+        });
       }
 
       const db = await getDb();
       if (!db) {
-        return res.status(503).json({ message: "Database temporarily unavailable" });
+        return res
+          .status(503)
+          .json({ message: "Database temporarily unavailable" });
       }
 
-      let result: { accessCode: string; reference: string; amountKes: number; authorizationUrl?: string } | null = null;
+      // Resolve payment provider based on country
+      const provider = resolvePaymentProvider({
+        productType,
+        productSlug,
+        productName,
+        amountKes,
+        customerName,
+        customerEmail,
+        customerCountry,
+        upsellIds,
+        enrollmentId,
+        stage,
+      });
 
+      const { amountLocal, currency } = convertAmount(amountKes, provider);
+
+      const baseUrl = getCheckoutBaseUrl(req);
+
+      const reference = `piq-${productType}-${Date.now()}-${Math.random()
+        .toString(36)
+        .replace(/[^a-zA-Z0-9]/g, "")
+        .slice(0, 10)}`;
+
+      // Build callback URL
+      const callbackUrl = buildCallbackUrl(
+        baseUrl,
+        productType,
+        reference,
+        productSlug
+      );
+
+      // Build metadata
+      const metadata = buildPaymentMetadata({
+        productType,
+        productSlug,
+        productName,
+        amountKes,
+        customerName,
+        customerEmail,
+        customerCountry,
+        upsellIds,
+        enrollmentId,
+        stage,
+      });
+
+      let payment: any;
+      let accessCode: { access_code?: string; authorization_url?: string };
+      let dbRecord: any = null;
+
+      // Initialize payment based on provider
+      if (provider === "paystack") {
+        payment = await paystackRequest("/transaction/initialize", {
+          method: "POST",
+          body: JSON.stringify({
+            amount: amountLocal,
+            currency,
+            email: customerEmail,
+            reference,
+            callback_url: callbackUrl,
+            metadata,
+          }),
+        });
+        accessCode = payment.data as {
+          access_code?: string;
+          authorization_url?: string;
+        };
+      } else if (provider === "stripe") {
+        // TODO: Implement Stripe initialization
+        // For now, fall back to Paystack
+        payment = await paystackRequest("/transaction/initialize", {
+          method: "POST",
+          body: JSON.stringify({
+            amount: amountKes * 100,
+            currency: "KES",
+            email: customerEmail,
+            reference,
+            callback_url: callbackUrl,
+            metadata: JSON.stringify(metadata),
+          }),
+        });
+        accessCode = payment.data as {
+          access_code?: string;
+          authorization_url?: string;
+        };
+      } else if (provider === "flutterwave") {
+        // TODO: Implement Flutterwave initialization
+        // For now, fall back to Paystack
+        payment = await paystackRequest("/transaction/initialize", {
+          method: "POST",
+          body: JSON.stringify({
+            amount: amountKes * 100,
+            currency: "KES",
+            email: customerEmail,
+            reference,
+            callback_url: callbackUrl,
+            metadata: JSON.stringify(metadata),
+          }),
+        });
+        accessCode = payment.data as {
+          access_code?: string;
+          authorization_url?: string;
+        };
+      } else {
+        // Manual/invoice fallback
+        return res.json(
+          checkoutInitializeResultSchema.parse({
+            accessCode: "manual",
+            reference,
+            amountKes,
+            amountLocal,
+            currency: "KES",
+            provider: "manual",
+            productName,
+            productType,
+          })
+        );
+      }
+
+      // Store attempt in DB based on product type
       switch (productType) {
-        case "assessment": {
-          const reference = `piq-assessment-${Date.now()}-${Math.random().toString(36).replace(/[^a-zA-Z0-9]/g, "").slice(0, 10)}`;
-          const payment = await paystackRequest("/transaction/initialize", {
-            method: "POST",
-            body: JSON.stringify({
-              amount: amountKes * 100,
-              currency: "KES",
-              email: customerEmail,
-              reference,
-              callback_url: `${process.env.PUBLISHED_SITE_ORIGIN || "https://profoundiqconsulting.com"}/assessment?payment=success&reference=${encodeURIComponent(reference)}`,
-              metadata: JSON.stringify({ product_type: "assessment", product_name: productName }),
-            }),
-          });
-          const accessCode = payment.data as { access_code?: string; authorization_url?: string };
-          // Store attempt in DB
+        case "assessment":
           await db.insert(assessmentAttempts).values({
             paystackReference: reference,
             name: customerName,
             email: customerEmail,
-            answers: {},
+            answers: answers ?? [],
             paymentStatus: "pending",
             consentedAt: new Date(),
           });
-          result = { accessCode: accessCode.access_code as string, reference, amountKes, authorizationUrl: accessCode.authorization_url as string };
           break;
-        }
-        case "psychometric": {
-          if (!productSlug) return res.status(400).json({ message: "productSlug required for psychometric" });
-          const reference = `piq-psychometric-${Date.now()}-${Math.random().toString(36).replace(/[^a-zA-Z0-9]/g, "").slice(0, 10)}`;
-          const payment = await paystackRequest("/transaction/initialize", {
-            method: "POST",
-            body: JSON.stringify({
-              amount: amountKes * 100,
-              currency: "KES",
-              email: customerEmail,
-              reference,
-              callback_url: `${process.env.PUBLISHED_SITE_ORIGIN || "https://profoundiqconsulting.com"}/psychometrics/${productSlug}?payment=success&reference=${encodeURIComponent(reference)}`,
-              metadata: JSON.stringify({ product_type: "psychometric", product_name: productName, test_slug: productSlug }),
-            }),
-          });
-          const accessCode = payment.data as { access_code?: string; authorization_url?: string };
+        case "psychometric":
+          if (!productSlug)
+            return res
+              .status(400)
+              .json({ message: "productSlug required for psychometric" });
           await db.insert(psychometricAttempts).values({
             paystackReference: reference,
             testSlug: productSlug,
             name: customerName,
             email: customerEmail,
-            answers: {},
+            answers: answers ?? [],
             paymentStatus: "pending",
             consentedAt: new Date(),
           });
-          result = { accessCode: accessCode.access_code as string, reference, amountKes, authorizationUrl: accessCode.authorization_url as string };
           break;
-        }
-        case "careerpath": {
-          const reference = `piq-careerpath-${Date.now()}-${Math.random().toString(36).replace(/[^a-zA-Z0-9]/g, "").slice(0, 10)}`;
-          const payment = await paystackRequest("/transaction/initialize", {
-            method: "POST",
-            body: JSON.stringify({
-              amount: amountKes * 100,
-              currency: "KES",
-              email: customerEmail,
-              reference,
-              callback_url: `${process.env.PUBLISHED_SITE_ORIGIN || "https://profoundiqconsulting.com"}/careerpath?payment=success&reference=${encodeURIComponent(reference)}`,
-              metadata: JSON.stringify({ product_type: "careerpath", product_name: productName }),
-            }),
-          });
-          const accessCode = payment.data as { access_code?: string; authorization_url?: string };
+        case "careerpath":
           await db.insert(careerPathAttempts).values({
             paystackReference: reference,
             name: customerName,
             email: customerEmail,
-            answers: {},
+            answers: answers ?? [],
             paymentStatus: "pending",
             consentedAt: new Date(),
           });
-          result = { accessCode: accessCode.access_code as string, reference, amountKes, authorizationUrl: accessCode.authorization_url as string };
           break;
-        }
-        case "course_stage": {
-          if (!productSlug) return res.status(400).json({ message: "productSlug required for course" });
-          // For courses, we need to find the enrollment
-          // This is a simplified version - in production you'd look up the user's enrollment
-          const reference = `piq-course-${Date.now()}-${Math.random().toString(36).replace(/[^a-zA-Z0-9]/g, "").slice(0, 10)}`;
-          const payment = await paystackRequest("/transaction/initialize", {
-            method: "POST",
-            body: JSON.stringify({
-              amount: amountKes * 100,
-              currency: "KES",
-              email: customerEmail,
-              reference,
-              callback_url: `${process.env.PUBLISHED_SITE_ORIGIN || "https://profoundiqconsulting.com"}/courses/${productSlug}?payment=success&reference=${encodeURIComponent(reference)}`,
-              metadata: JSON.stringify({ product_type: "course_stage", product_name: productName, course_slug: productSlug, upsell_ids: upsellIds }),
-            }),
-          });
-          const accessCode = payment.data as { access_code?: string; authorization_url?: string };
-          result = { accessCode: accessCode.access_code as string, reference, amountKes, authorizationUrl: accessCode.authorization_url as string };
-          break;
-        }
-        default:
-          return res.status(400).json({ message: `Unknown product type: ${productType}` });
       }
 
-      if (!result) {
-        return res.status(500).json({ message: "Failed to initialize payment" });
+      if (!accessCode.access_code) {
+        throw new Error("Payment provider did not return an access code.");
       }
 
-      return res.json({
-        accessCode: result.accessCode,
-        reference: result.reference,
-        amountKes: result.amountKes,
-        productName: result.authorizationUrl ? productName : productName,
+      const result = checkoutInitializeResultSchema.parse({
+        accessCode: accessCode.access_code,
+        reference,
+        amountKes,
+        amountLocal,
+        currency,
+        provider,
+        authorizationUrl: accessCode.authorization_url,
+        productName,
         productType,
         testSlug: productSlug,
+        enrollmentId,
+        stage,
       });
+
+      return res.json(result);
     } catch (error) {
       console.error("[Checkout Initialize] Error:", error);
-      return res.status(500).json({ message: error instanceof Error ? error.message : "Payment initialization failed" });
+      return res.status(500).json({
+        message:
+          error instanceof Error
+            ? error.message
+            : "Payment initialization failed",
+      });
     }
   });
 
@@ -371,7 +509,7 @@ async function startServer() {
   app.use("/api/trpc", (_req, res) => {
     res.status(404).json({ error: { message: "API procedure not found" } });
   });
-registerSeoRoutes(app);
+  registerSeoRoutes(app);
   // Development uses Vite; production serves the pre-built static files.
   if (process.env.NODE_ENV === "development") {
     const { setupVite } = await import("./vite");

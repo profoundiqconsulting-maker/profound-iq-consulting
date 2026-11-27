@@ -1,5 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Download, Send, Plus, RefreshCw, Save, Play, Pause } from "lucide-react";
+import {
+  Download,
+  Send,
+  Plus,
+  RefreshCw,
+  Save,
+  Play,
+  Pause,
+} from "lucide-react";
 import { ReactNode } from "react";
 
 interface ActionPanelProps {
@@ -16,7 +24,7 @@ interface ActionPanelProps {
     onClick: () => void;
     disabled?: boolean;
     loading?: boolean;
-    variant?: "default" | "outline" | "secondary" | "ghost";
+    variant?: "primary" | "outline" | "secondary" | "ghost";
   }>;
   className?: string;
 }

@@ -333,7 +333,9 @@ describe("quiz learning feedback and analytics", () => {
     expect(workspace).toContain('aria-label="Overall course progress"');
     expect(courseMap).toContain('aria-label="Course modules and lessons"');
     expect(courseMap).toContain("course-map-navigation");
-    expect(workspace).toContain("Lesson access opens only after payment verification");
+    expect(workspace).toContain(
+      "Lesson access opens only after payment verification"
+    );
     expect(workspace).toContain("function EnrollButton");
     expect(courseMap).toContain("onSelectLesson");
     expect(workspace).toContain("function readProgress");
@@ -417,11 +419,8 @@ describe("comparison SSR and personalized revisit upgrades", () => {
     expect(dashboard).toContain("Retake finder");
   });
 
-it("covers English share copy and comparison analytics presentation", () => {
-    const share = readFileSync(
-      "client/src/pages/Courses.tsx",
-      "utf8"
-    );
+  it("covers English share copy and comparison analytics presentation", () => {
+    const share = readFileSync("client/src/pages/Courses.tsx", "utf8");
     const analytics = readFileSync(
       "client/src/components/AdminCourseShareAnalytics.tsx",
       "utf8"

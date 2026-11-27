@@ -27,14 +27,14 @@ export function DashboardPagination({
   return (
     <nav
       aria-label={`${itemLabel} pagination`}
-      className="mt-5 flex flex-col gap-3 border-t border-border/70 pt-4 sm:flex-row sm:items-center sm:justify-between"
+      className="mt-5 flex flex-col gap-3 border-t border-[var(--border)]/70 pt-4 sm:flex sm:items-center sm:justify-between"
     >
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs text-[var(--fg-muted)]">
         Showing{" "}
-        <span className="font-medium text-foreground">
+        <span className="font-medium text-[var(--fg)]">
           {start}–{end}
         </span>{" "}
-        of <span className="font-medium text-foreground">{totalItems}</span>{" "}
+        of <span className="font-medium text-[var(--fg)]">{totalItems}</span>{" "}
         {itemLabel}
       </p>
       <div
@@ -57,7 +57,7 @@ export function DashboardPagination({
           pageNumber === null ? (
             <span
               key={`ellipsis-${index}`}
-              className="px-1 text-xs text-muted-foreground"
+              className="px-1 text-xs text-[var(--fg-muted)]"
               aria-hidden="true"
             >
               …
@@ -66,7 +66,7 @@ export function DashboardPagination({
             <Button
               key={pageNumber}
               type="button"
-              variant={pageNumber === page ? "default" : "outline"}
+              variant={pageNumber === page ? "primary" : "outline"}
               size="sm"
               className="h-8 min-w-8 px-2"
               onClick={() => onPageChange(pageNumber)}
@@ -104,4 +104,3 @@ function getVisiblePages(
     return [1, null, pageCount - 3, pageCount - 2, pageCount - 1, pageCount];
   return [1, null, page - 1, page, page + 1, null, pageCount];
 }
-

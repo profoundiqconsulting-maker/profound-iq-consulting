@@ -96,16 +96,14 @@ export async function weeklyEnrollmentExportHandler(
         notificationError
       );
     }
-    return res
-      .status(500)
-      .json({
-        error: errorMessage,
-        context: {
-          url: req.originalUrl,
-          taskUid: (error as { taskUid?: string })?.taskUid ?? null,
-        },
-        timestamp: timestamp.toISOString(),
-      });
+    return res.status(500).json({
+      error: errorMessage,
+      context: {
+        url: req.originalUrl,
+        taskUid: (error as { taskUid?: string })?.taskUid ?? null,
+      },
+      timestamp: timestamp.toISOString(),
+    });
   }
 }
 

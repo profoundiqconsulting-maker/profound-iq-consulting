@@ -65,7 +65,7 @@ export default function AdminInsightsPanel() {
       toast.success("Insight article created.");
       articles.refetch();
     },
-    onError: (error) => {
+    onError: error => {
       setCreating(false);
       toast.error(error.message || "Unable to create article.");
     },
@@ -91,7 +91,13 @@ export default function AdminInsightsPanel() {
   };
 
   const handleCreate = () => {
-    if (!form.slug.trim() || !form.title.trim() || !form.excerpt.trim() || !form.accent.trim() || !form.sectionsJson.trim()) {
+    if (
+      !form.slug.trim() ||
+      !form.title.trim() ||
+      !form.excerpt.trim() ||
+      !form.accent.trim() ||
+      !form.sectionsJson.trim()
+    ) {
       toast.error("Please complete all required fields.");
       return;
     }
@@ -108,37 +114,34 @@ export default function AdminInsightsPanel() {
       status: form.status,
       socialImageUrl: socialImagePreview || null,
       contentType: socialImageFile?.type as
-        | "image/png"
-        | "image/jpeg"
-        | "image/webp"
-        | undefined,
+        "image/png" | "image/jpeg" | "image/webp" | undefined,
     });
   };
   return (
     <section
       id="insights-publishing"
-      className="mt-10 scroll-mt-8 border border-[#c9a34e]/45 bg-[#fffaf0] p-5 sm:p-6"
+      className="mt-10 scroll-mt-8 border border-[var(--brand)]/45 bg-[#fffaf0] p-5 sm:p-6"
     >
       <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow text-[#b8860b]">Editorial / Insights</p>
+          <p className="eyebrow text-[var(--brand)]">Editorial / Insights</p>
           <h2 className="display mt-2 text-2xl">Publish with intention.</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#475569]">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--fg-muted)]">
             Move approved article drafts into the public library, keep
             work-in-progress pieces private, and attach a branded social preview
             image when one is ready.
           </p>
         </div>
-        <span className="text-xs font-bold text-[#b8860b]">Admin only</span>
+        <span className="text-xs font-bold text-[var(--brand)]">Admin only</span>
       </div>
 
       <div className="mt-6 rounded-xl border border-[#16243d]/15 bg-white/80 p-5">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[.12em] text-[#16243d]">
+            <p className="text-sm font-bold uppercase tracking-[.12em] text-[var(--fg)]">
               New post
             </p>
-            <p className="text-xs text-[#475569]">
+            <p className="text-xs text-[var(--fg-muted)]">
               Create a new insight article. Required fields are marked with *.
             </p>
           </div>
@@ -150,7 +153,7 @@ export default function AdminInsightsPanel() {
             </label>
             <Input
               value={form.slug}
-              onChange={(e) => setForm({ ...form, slug: e.target.value })}
+              onChange={e => setForm({ ...form, slug: e.target.value })}
               placeholder="e.g. leading-without-losing-the-centre"
             />
           </div>
@@ -160,15 +163,19 @@ export default function AdminInsightsPanel() {
             </label>
             <Select
               value={form.category}
-              onValueChange={(value) => setForm({ ...form, category: value })}
+              onValueChange={value => setForm({ ...form, category: value })}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Education leadership">Education leadership</SelectItem>
+                <SelectItem value="Education leadership">
+                  Education leadership
+                </SelectItem>
                 <SelectItem value="Learning design">Learning design</SelectItem>
-                <SelectItem value="Professional growth">Professional growth</SelectItem>
+                <SelectItem value="Professional growth">
+                  Professional growth
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -178,7 +185,7 @@ export default function AdminInsightsPanel() {
             </label>
             <Input
               value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              onChange={e => setForm({ ...form, title: e.target.value })}
               placeholder="Article title"
             />
           </div>
@@ -188,7 +195,7 @@ export default function AdminInsightsPanel() {
             </label>
             <Textarea
               value={form.excerpt}
-              onChange={(e) => setForm({ ...form, excerpt: e.target.value })}
+              onChange={e => setForm({ ...form, excerpt: e.target.value })}
               placeholder="Short summary for the card and SEO..."
               rows={3}
             />
@@ -199,7 +206,7 @@ export default function AdminInsightsPanel() {
             </label>
             <Input
               value={form.readTime}
-              onChange={(e) => setForm({ ...form, readTime: e.target.value })}
+              onChange={e => setForm({ ...form, readTime: e.target.value })}
               placeholder="e.g. 6 min read"
             />
           </div>
@@ -209,7 +216,7 @@ export default function AdminInsightsPanel() {
             </label>
             <Input
               value={form.accent}
-              onChange={(e) => setForm({ ...form, accent: e.target.value })}
+              onChange={e => setForm({ ...form, accent: e.target.value })}
               placeholder="Short italicised hook"
             />
           </div>
@@ -219,13 +226,14 @@ export default function AdminInsightsPanel() {
             </label>
             <Textarea
               value={form.sectionsJson}
-              onChange={(e) => setForm({ ...form, sectionsJson: e.target.value })}
+              onChange={e => setForm({ ...form, sectionsJson: e.target.value })}
               placeholder='[{"heading":"First section","paragraphs":["First paragraph.","Second paragraph."]}]'
               rows={6}
               className="font-mono text-xs"
             />
-            <p className="text-[11px] text-[#475569]">
-              Provide a JSON array of sections. Each section needs a heading and an array of paragraphs.
+            <p className="text-[11px] text-[var(--fg-muted)]">
+              Provide a JSON array of sections. Each section needs a heading and
+              an array of paragraphs.
             </p>
           </div>
           <div className="grid gap-2">
@@ -234,7 +242,7 @@ export default function AdminInsightsPanel() {
             </label>
             <Select
               value={form.status}
-              onValueChange={(value) =>
+              onValueChange={value =>
                 setForm({ ...form, status: value as "draft" | "published" })
               }
             >
@@ -251,14 +259,15 @@ export default function AdminInsightsPanel() {
             <label className="text-xs font-bold uppercase tracking-[.1em]">
               Social image
             </label>
-            <label className="flex items-center gap-2 text-xs text-[#475569]">
-              <ImagePlus size={15} className="text-[#b8860b]" />
+            <label className="flex items-center gap-2 text-xs text-[var(--fg-muted)]">
+              <ImagePlus size={15} className="text-[var(--brand)]" />
               <span className="sr-only">Social preview image</span>
               <input
+                id="insights-social-image"
                 type="file"
                 accept="image/png,image/jpeg,image/webp"
                 className="text-sm"
-                onChange={(event) => {
+                onChange={event => {
                   const selected = event.target.files?.[0];
                   if (!selected) return;
                   setSocialImageFile(selected);
@@ -270,8 +279,9 @@ export default function AdminInsightsPanel() {
                 }}
               />
               {socialImageFile && (
-                <span className="text-[11px] font-normal text-[#475569]">
-                  {socialImageFile.name} · {(socialImageFile.size / 1024).toFixed(1)} KB
+                <span className="text-[11px] font-normal text-[var(--fg-muted)]">
+                  {socialImageFile.name} ·{" "}
+                  {(socialImageFile.size / 1024).toFixed(1)} KB
                 </span>
               )}
             </label>
@@ -290,7 +300,7 @@ export default function AdminInsightsPanel() {
         </div>
       </div>
       {articles.isLoading ? (
-        <p className="mt-6 flex items-center gap-2 text-sm text-[#475569]">
+        <p className="mt-6 flex items-center gap-2 text-sm text-[var(--fg-muted)]">
           <RefreshCw size={15} className="animate-spin" /> Loading editorial
           records…
         </p>
@@ -311,10 +321,10 @@ export default function AdminInsightsPanel() {
               >
                 <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
                   <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+                    <div className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)]">
                       <span>{article.category}</span>
                       <span
-                        className={`inline-flex items-center gap-1 border px-2 py-1 ${published ? "border-emerald-800/30 text-emerald-800" : "border-[#b8860b]/30 text-[#b8860b]"}`}
+                        className={`inline-flex items-center gap-1 border px-2 py-1 ${published ? "border-emerald-800/30 text-emerald-800" : "border-[var(--brand)]/30 text-[var(--brand)]"}`}
                       >
                         {published ? (
                           <CheckCircle2 size={12} />
@@ -324,10 +334,10 @@ export default function AdminInsightsPanel() {
                         {published ? "Published" : "Draft"}
                       </span>
                     </div>
-                    <h3 className="mt-3 text-xl font-semibold text-[#16243d]">
+                    <h3 className="mt-3 text-xl font-semibold text-[var(--fg)]">
                       {article.title}
                     </h3>
-                    <p className="mt-2 max-w-3xl text-sm leading-6 text-[#475569]">
+                    <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--fg-muted)]">
                       {article.excerpt}
                     </p>
                   </div>
@@ -347,15 +357,15 @@ export default function AdminInsightsPanel() {
                         })
                       }
                       disabled={setStatus.isPending}
-                      className="inline-flex min-h-10 items-center gap-2 bg-[#16243d] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] transition hover:shadow-sm hover:bg-[#c9a34e] hover:text-[#101d35] disabled:opacity-50"
+                      className="inline-flex min-h-10 items-center gap-2 bg-[#16243d] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] transition hover:shadow-sm hover:bg-[var(--brand)] hover:text-[var(--brand-fg)] disabled:opacity-50"
                     >
                       {published ? <Undo2 size={13} /> : <Send size={13} />}
                       {published ? "Move to draft" : "Publish article"}
                     </button>
                   </div>
                 </div>
-                <label className="mt-4 flex items-center gap-2 text-xs text-[#475569]">
-                  <ImagePlus size={15} className="text-[#b8860b]" />
+                <label className="mt-4 flex items-center gap-2 text-xs text-[var(--fg-muted)]">
+                  <ImagePlus size={15} className="text-[var(--brand)]" />
                   <span className="sr-only">
                     Social preview image for {article.title}
                   </span>
@@ -381,7 +391,7 @@ export default function AdminInsightsPanel() {
                     }}
                   />
                   {file && (
-                    <span className="text-[11px] font-normal text-[#475569]">
+                    <span className="text-[11px] font-normal text-[var(--fg-muted)]">
                       {file.name} · {(file.size / 1024).toFixed(1)} KB
                     </span>
                   )}
@@ -394,5 +404,3 @@ export default function AdminInsightsPanel() {
     </section>
   );
 }
-
-

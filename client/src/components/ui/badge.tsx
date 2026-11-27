@@ -18,7 +18,8 @@ const badgeVariants = cva(
         outline:
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         gold: "border-[var(--gold)] bg-[var(--gold)]/10 text-[var(--gold)] [a&]:hover:bg-[var(--gold)]/20",
-        success: "border-[var(--success)] bg-[var(--success)]/10 text-[var(--success)] [a&]:hover:bg-[var(--success)]/20",
+        success:
+          "border-[var(--success)] bg-[var(--success)]/10 text-[var(--success)] [a&]:hover:bg-[var(--success)]/20",
         subtle: "bg-[var(--muted)] text-[var(--muted-foreground)]",
       },
       size: {

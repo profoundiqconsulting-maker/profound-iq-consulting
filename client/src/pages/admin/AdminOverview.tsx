@@ -5,9 +5,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  BarChart3,
+  AlertCircle,
   Users,
   UserCheck,
+  BookOpen,
   CreditCard,
   Download,
   Mail,
@@ -44,115 +45,187 @@ export default function AdminOverview() {
 
   const stats = useMemo<Stat[]>(() => {
     const summary = analytics.data?.summary;
-    const totalUsers = users.data?.length ?? 0;
-    const pendingInquiries = (inquiries.data?.rows ?? []).filter(
-      r => r.status === "new"
-    ).length ?? 0;
 
     return [
       {
         label: "Assessments started",
-        value: summary?.assessment_started ?? overview.data?.summary?.total ?? 0,
+        value:
+          analytics.isError && overview.isError
+            ? "Unavailable"
+            : (summary?.assessment_started ??
+              overview.data?.summary?.total ??
+              0),
         sub: "All time",
         icon: <Activity className="h-4 w-4" />,
         href: "/admin/psychometrics",
       },
       {
         label: "Payments completed",
-        value: summary?.payment_completed ?? overview.data?.summary?.paid ?? 0,
+        value:
+          analytics.isError && overview.isError
+            ? "Unavailable"
+            : (summary?.payment_completed ?? overview.data?.summary?.paid ?? 0),
         sub: "Verified conversions",
         icon: <CreditCard className="h-4 w-4" />,
         href: "/admin/revenue",
       },
       {
         label: "Reports downloaded",
-        value: summary?.report_downloaded ?? 0,
+        value: analytics.isError
+          ? "Unavailable"
+          : (summary?.report_downloaded ?? 0),
         sub: "Branded PDFs",
         icon: <Download className="h-4 w-4" />,
         href: "/admin/reports",
       },
       {
         label: "Total users",
-        value: totalUsers,
+        value: users.isError ? "Unavailable" : (users.data?.length ?? 0),
         sub: "Platform accounts",
         icon: <Users className="h-4 w-4" />,
         href: "/admin/users",
       },
       {
-        label: "Verified users",
-        value: 0,
-        sub: "Completed verification",
-        icon: <UserCheck className="h-4 w-4" />,
-        href: "/admin/users",
+        label: "Enrollment submissions",
+        value: analytics.isError
+          ? "Unavailable"
+          : (summary?.course_enrollment_submitted ?? 0),
+        sub: "Course interest records",
+        icon: <BookOpen className="h-4 w-4" />,
+        href: "/admin/operations",
       },
       {
-        label: "Pending inquiries",
-        value: pendingInquiries,
-        sub: "Awaiting response",
+        label: "Contact inquiries",
+        value: inquiries.isError ? "Unavailable" : (inquiries.data?.total ?? 0),
+        sub: "All statuses",
         icon: <Mail className="h-4 w-4" />,
         href: "/admin/inbox",
       },
     ];
-  }, [analytics.data, overview.data, users.data, inquiries.data]);
+  }, [
+    analytics.data,
+    analytics.isError,
+    overview.data,
+    overview.isError,
+    users.data,
+    users.isError,
+    inquiries.data,
+    inquiries.isError,
+  ]);
 
-  const isLoading = overview.isLoading || analytics.isLoading || users.isLoading;
+  const isSummaryLoading =
+    overview.isLoading || analytics.isLoading || users.isLoading;
+  const failedSources = [
+    overview.isError && "assessment totals",
+    analytics.isError && "platform analytics",
+    users.isError && "user accounts",
+    inquiries.isError && "contact inquiries",
+  ].filter((source): source is string => Boolean(source));
 
   return (
     <DashboardLayout role="admin" title="Overview">
       <div className="admin-observatory w-full space-y-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="exec-eyebrow">Dashboard</p>
-            <h1 className="display mt-2 text-3xl">Key activity</h1>
-            <p className="mt-1 text-sm text-[#64748b]">
-              High-level summary of platform activity, conversions, and items needing attention.
+            <p className="eyebrow">Overview</p>
+            <h1 className="display mt-2 text-3xl">Platform overview</h1>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-[#64748b]">
+              Monitor learning activity, verified payments, report usage, and
+              incoming inquiries from one place.
             </p>
           </div>
-          <Button asChild className="bg-[#16243d] text-[#f7f3e8]">
-            <Link href="/admin/reports">
-              <BarChart3 className="mr-2 h-4 w-4" /> Open reports
-            </Link>
-          </Button>
         </div>
 
-        {isLoading ? (
+        {failedSources.length > 0 && (
+          <Card
+            role="alert"
+            className="flex flex-col gap-3 border border-red-200 bg-red-50 p-5 text-red-950 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div className="flex items-start gap-3">
+              <AlertCircle
+                className="mt-0.5 h-5 w-5 shrink-0 text-red-700"
+                aria-hidden="true"
+              />
+              <div>
+                <p className="text-sm font-semibold">
+                  Some overview data could not be loaded.
+                </p>
+                <p className="mt-1 text-sm">
+                  Check {failedSources.join(", ")} and try again.
+                </p>
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                void Promise.all([
+                  overview.refetch(),
+                  analytics.refetch(),
+                  users.refetch(),
+                  inquiries.refetch(),
+                ]);
+              }}
+              className="shrink-0 border-red-300 bg-white text-red-900 hover:bg-red-100"
+            >
+              Retry
+            </Button>
+          </Card>
+        )}
+
+        {isSummaryLoading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, index) => (
-              <Card key={index} className="h-32 animate-pulse bg-[#f7f3e8] p-5" />
+              <Card
+                key={index}
+                className="h-32 animate-pulse bg-[#f7f3e8] p-5"
+              />
             ))}
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {stats.map(stat => (
-              <Card
-                key={stat.label}
-                className="exec-card p-5 transition-all hover:shadow-md"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#16243d]/5 text-[#16243d]">
-                      {stat.icon}
+            {stats.map(stat => {
+              const card = (
+                <Card className="exec-card h-full p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#16243d]/5 text-[#16243d]">
+                        {stat.icon}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="exec-label-muted">{stat.label}</p>
+                        <p className="mt-1 text-2xl font-bold tabular-nums text-[#0f172a]">
+                          {typeof stat.value === "number"
+                            ? stat.value.toLocaleString()
+                            : stat.value}
+                        </p>
+                        {stat.sub && (
+                          <p className="text-xs text-[#64748b]">{stat.sub}</p>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <p className="exec-label-muted">{stat.label}</p>
-                      <p className="mt-1 text-2xl font-bold text-[#0f172a]">
-                        {typeof stat.value === "number"
-                          ? stat.value.toLocaleString()
-                          : stat.value}
-                      </p>
-                      {stat.sub && (
-                        <p className="text-xs text-[#64748b]">{stat.sub}</p>
-                      )}
-                    </div>
+                    {stat.href && (
+                      <ArrowUpRight
+                        aria-hidden="true"
+                        className="h-4 w-4 shrink-0 text-[#64748b] transition-colors group-hover:text-[#16243d]"
+                      />
+                    )}
                   </div>
-                  {stat.href && (
-                    <Link href={stat.href} aria-label={`${stat.label} details`}>
-                      <ArrowUpRight className="h-4 w-4 text-[#64748b] hover:text-[#16243d]" />
-                    </Link>
-                  )}
-                </div>
-              </Card>
-            ))}
+                </Card>
+              );
+              return stat.href ? (
+                <Link
+                  key={stat.label}
+                  href={stat.href}
+                  aria-label={`${stat.label} details`}
+                  className="group block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2"
+                >
+                  {card}
+                </Link>
+              ) : (
+                <div key={stat.label}>{card}</div>
+              );
+            })}
           </div>
         )}
 
@@ -160,13 +233,17 @@ export default function AdminOverview() {
           <Card className="exec-card p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="exec-label-gold">Recent inquiries</p>
+                <p className="exec-label-gold">Latest contact inquiries</p>
                 <p className="mt-1 text-xs text-[#64748b]">
-                  Latest contact form submissions requiring attention.
+                  Recently submitted requests and their current status.
                 </p>
               </div>
               <Link href="/admin/inbox">
-                <Button variant="outline" size="sm" className="text-[10px] font-black uppercase tracking-[.08em]">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-[10px] font-black uppercase tracking-[.08em]"
+                >
                   View all
                 </Button>
               </Link>
@@ -175,9 +252,16 @@ export default function AdminOverview() {
               {inquiries.isLoading ? (
                 <div className="space-y-2">
                   {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="h-12 animate-pulse rounded-lg bg-[#f7f3e8]" />
+                    <div
+                      key={i}
+                      className="h-12 animate-pulse rounded-lg bg-[#f7f3e8]"
+                    />
                   ))}
                 </div>
+              ) : inquiries.isError ? (
+                <p role="alert" className="text-sm text-red-700">
+                  Contact inquiries could not be loaded.
+                </p>
               ) : (inquiries.data?.rows?.length ?? 0) === 0 ? (
                 <p className="text-sm text-[#64748b]">No inquiries yet.</p>
               ) : (
@@ -195,14 +279,16 @@ export default function AdminOverview() {
                       </p>
                     </div>
                     <Badge
-                      variant={
+                      variant="outline"
+                      className={`text-[10px] font-bold uppercase tracking-[.08em] ${
                         inquiry.status === "new"
-                          ? "default"
+                          ? "border-amber-300 bg-amber-50 text-amber-900"
                           : inquiry.status === "contacted"
-                            ? "secondary"
-                            : "outline"
-                      }
-                      className="text-[10px] font-black uppercase tracking-[.08em]"
+                            ? "border-blue-200 bg-blue-50 text-blue-900"
+                            : inquiry.status === "closed"
+                              ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+                              : "border-slate-200 bg-slate-50 text-slate-700"
+                      }`}
                     >
                       {inquiry.status}
                     </Badge>
@@ -222,22 +308,29 @@ export default function AdminOverview() {
               </div>
             </div>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
-              <Button asChild variant="outline" className="justify-start gap-2 text-[10px] font-black uppercase tracking-[.08em]">
-                <Link href="/admin/reports">
-                  <BarChart3 className="h-4 w-4" /> View reports
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="justify-start gap-2 text-[10px] font-black uppercase tracking-[.08em]">
+              <Button
+                asChild
+                variant="outline"
+                className="justify-start gap-2 text-[10px] font-black uppercase tracking-[.08em]"
+              >
                 <Link href="/admin/inbox">
                   <Mail className="h-4 w-4" /> Check inquiries
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="justify-start gap-2 text-[10px] font-black uppercase tracking-[.08em]">
+              <Button
+                asChild
+                variant="outline"
+                className="justify-start gap-2 text-[10px] font-black uppercase tracking-[.08em]"
+              >
                 <Link href="/admin/users">
                   <Users className="h-4 w-4" /> Manage users
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="justify-start gap-2 text-[10px] font-black uppercase tracking-[.08em]">
+              <Button
+                asChild
+                variant="outline"
+                className="justify-start gap-2 text-[10px] font-black uppercase tracking-[.08em]"
+              >
                 <Link href="/admin/cohorts">
                   <UserCheck className="h-4 w-4" /> Assign cohorts
                 </Link>

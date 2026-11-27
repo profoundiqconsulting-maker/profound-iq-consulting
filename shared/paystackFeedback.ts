@@ -1,10 +1,5 @@
 export type PaystackCheckoutState =
-  | "idle"
-  | "initializing"
-  | "redirecting"
-  | "verifying"
-  | "paid"
-  | "error";
+  "idle" | "initializing" | "redirecting" | "verifying" | "paid" | "error";
 
 export const paystackCheckoutCopy: Record<
   PaystackCheckoutState,

@@ -23,8 +23,10 @@ import {
 type HealthStatus = "healthy" | "degraded" | "down";
 
 function statusIcon(status: HealthStatus) {
-  if (status === "healthy") return <CheckCircle2 className="h-4 w-4 text-emerald-600" />;
-  if (status === "degraded") return <AlertTriangle className="h-4 w-4 text-amber-600" />;
+  if (status === "healthy")
+    return <CheckCircle2 className="h-4 w-4 text-emerald-600" />;
+  if (status === "degraded")
+    return <AlertTriangle className="h-4 w-4 text-amber-600" />;
   return <XCircle className="h-4 w-4 text-red-600" />;
 }
 
@@ -55,7 +57,8 @@ export default function AdminSystem() {
   useEffect(() => {
     if (settingsQuery.data) {
       const next: Record<string, string> = {};
-      for (const row of settingsQuery.data) next[row.settingKey] = row.settingValue;
+      for (const row of settingsQuery.data)
+        next[row.settingKey] = row.settingValue;
       setForm(next);
     }
   }, [settingsQuery.data]);
@@ -81,13 +84,41 @@ export default function AdminSystem() {
     : "degraded";
 
   const defaultKeys = [
-    { key: "resend_api_key", label: "Resend API Key", placeholder: "re_...", masked: true },
-    { key: "email_from", label: "From address", placeholder: "noreply@profoundiq.com" },
-    { key: "email_from_name", label: "From name", placeholder: "Profound IQ Consulting" },
-    { key: "paystack_key", label: "Paystack Key", placeholder: "pk_live_...", masked: true },
-    { key: "paystack_secret", label: "Paystack Secret", placeholder: "sk_live_...", masked: true },
+    {
+      key: "resend_api_key",
+      label: "Resend API Key",
+      placeholder: "re_...",
+      masked: true,
+    },
+    {
+      key: "email_from",
+      label: "From address",
+      placeholder: "noreply@profoundiq.com",
+    },
+    {
+      key: "email_from_name",
+      label: "From name",
+      placeholder: "Profound IQ Consulting",
+    },
+    {
+      key: "paystack_key",
+      label: "Paystack Key",
+      placeholder: "pk_live_...",
+      masked: true,
+    },
+    {
+      key: "paystack_secret",
+      label: "Paystack Secret",
+      placeholder: "sk_live_...",
+      masked: true,
+    },
     { key: "google_client_id", label: "Google Client ID", placeholder: "..." },
-    { key: "google_client_secret", label: "Google Client Secret", placeholder: "••••••••", masked: true },
+    {
+      key: "google_client_secret",
+      label: "Google Client Secret",
+      placeholder: "••••••••",
+      masked: true,
+    },
   ];
 
   return (
@@ -95,10 +126,11 @@ export default function AdminSystem() {
       <div className="admin-observatory w-full space-y-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="exec-eyebrow">Infrastructure</p>
+            <p className="eyebrow">Infrastructure</p>
             <h1 className="display mt-2 text-3xl">Configuration and health</h1>
             <p className="mt-1 text-sm text-[#64748b]">
-              Manage platform credentials, verify external services, and monitor scheduled jobs.
+              Manage platform credentials, verify external services, and monitor
+              scheduled jobs.
             </p>
           </div>
           <Button
@@ -128,7 +160,9 @@ export default function AdminSystem() {
                       : "Disconnected"}
                 </p>
                 {emailConnection.data && !emailConnection.data.connected && (
-                  <p className="text-xs text-red-700">Email service is not configured.</p>
+                  <p className="text-xs text-red-700">
+                    Email service is not configured.
+                  </p>
                 )}
                 {!emailConnection.isLoading && (
                   <Button
@@ -176,7 +210,8 @@ export default function AdminSystem() {
                   Operational
                 </p>
                 <p className="text-xs text-[#64748b]">
-                  Review security logs and access controls in the security section.
+                  Review security logs and access controls in the security
+                  section.
                 </p>
               </div>
             </div>
@@ -191,7 +226,8 @@ export default function AdminSystem() {
             <div>
               <p className="exec-label-gold">Credentials and keys</p>
               <p className="mt-1 text-xs text-[#64748b]">
-                Update API keys and integration settings. Values are stored securely.
+                Update API keys and integration settings. Values are stored
+                securely.
               </p>
             </div>
           </div>
@@ -203,8 +239,12 @@ export default function AdminSystem() {
                 className="grid gap-3 sm:grid-cols-[220px_minmax(0,1fr)_auto] sm:items-center"
               >
                 <div>
-                  <p className="text-sm font-semibold text-[#0f172a]">{item.label}</p>
-                  <p className="text-[10px] uppercase tracking-[.12em] text-[#64748b]">{item.key}</p>
+                  <p className="text-sm font-semibold text-[#0f172a]">
+                    {item.label}
+                  </p>
+                  <p className="text-[10px] uppercase tracking-[.12em] text-[#64748b]">
+                    {item.key}
+                  </p>
                 </div>
                 <Input
                   value={form[item.key] ?? ""}

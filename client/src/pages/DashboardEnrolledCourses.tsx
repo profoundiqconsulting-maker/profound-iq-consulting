@@ -76,8 +76,7 @@ type CourseStatus = "not-started" | "in-progress" | "completed" | "expired";
 function getCourseStatus(
   record: CourseRecord,
   courseModules:
-    | { id: string; title: string; lessons: Array<{ id: string }> }[]
-    | undefined
+    { id: string; title: string; lessons: Array<{ id: string }> }[] | undefined
 ): CourseStatus {
   const hasLessons = (record.lessons?.length ?? 0) > 0;
   const hasPassedQuiz = (record.quizAttempts ?? []).some(
@@ -136,7 +135,7 @@ function getStatusConfig(status: CourseStatus) {
           "Courses you are actively working through. Pick up where you left off.",
         actionLabel: "Continue",
         actionIcon: ChevronRight,
-        colorClass: "text-[#7d5e1e]",
+        colorClass: "text-[var(--brand)]",
         badgeVariant: "default" as const,
       };
     case "completed":
@@ -165,7 +164,6 @@ function getStatusConfig(status: CourseStatus) {
 }
 
 export default function DashboardEnrolledCourses() {
-  
   const courseHistory = trpc.course.state.useQuery(undefined, {
     enabled: true,
   });
@@ -270,8 +268,18 @@ export default function DashboardEnrolledCourses() {
   if (courseHistory.isError) {
     return (
       <DashboardLayout role="user" title="Enrolled Courses">
-        <div className="border-l-2 border-red-700 bg-red-50 p-5 text-sm text-red-900">
-          Unable to load your enrolled courses. Please try again.
+        <div
+          role="alert"
+          className="flex flex-col gap-3 border-l-2 border-red-700 bg-red-50 p-5 text-sm text-red-900 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p>Unable to load your enrolled courses.</p>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => void courseHistory.refetch()}
+          >
+            Retry
+          </Button>
         </div>
       </DashboardLayout>
     );
@@ -280,11 +288,12 @@ export default function DashboardEnrolledCourses() {
   return (
     <DashboardLayout role="user" title="Enrolled Courses">
       <DashboardHero
+        showWelcome={false}
         eyebrow="Growth"
         title="Enrolled Courses"
         description="Track your learning progress, access your active courses, and review completed achievements."
         stats={[
-          { label: "Total enrolled", value: stats.total },
+          { label: "Not started", value: stats.notStarted },
           { label: "In progress", value: stats.inProgress },
           { label: "Completed", value: stats.completed },
           { label: "Expired", value: stats.expired },
@@ -370,6 +379,8 @@ export default function DashboardEnrolledCourses() {
                         alt={course.title}
                         title={course.title}
                         className="h-full w-full object-cover opacity-80"
+                        width={480}
+                        height={216}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                       <div className="absolute bottom-3 left-4 right-4">
@@ -382,7 +393,7 @@ export default function DashboardEnrolledCourses() {
                       </div>
                       {status === "completed" && (
                         <Badge
-                          variant="default"
+                          variant="success"
                           className="absolute top-3 right-3 bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
                         >
                           <Trophy size={12} className="mr-1" />
@@ -418,7 +429,7 @@ export default function DashboardEnrolledCourses() {
 
                       <div className="grid grid-cols-3 gap-2 mb-4">
                         <div className="text-center p-2 bg-[#f7f3e8] rounded-lg transition-colors hover:bg-[#f0e8d0]">
-                          <p className="text-[10px] font-black uppercase tracking-[.08em] text-[#7d5e1e]">
+                          <p className="text-[10px] font-black uppercase tracking-[.08em] text-[var(--brand)]">
                             Lessons
                           </p>
                           <p className="mt-1 text-sm font-bold text-foreground">
@@ -426,7 +437,7 @@ export default function DashboardEnrolledCourses() {
                           </p>
                         </div>
                         <div className="text-center p-2 bg-[#f7f3e8] rounded-lg transition-colors hover:bg-[#f0e8d0]">
-                          <p className="text-[10px] font-black uppercase tracking-[.08em] text-[#7d5e1e]">
+                          <p className="text-[10px] font-black uppercase tracking-[.08em] text-[var(--brand)]">
                             Badges
                           </p>
                           <p className="mt-1 text-sm font-bold text-foreground">
@@ -434,7 +445,7 @@ export default function DashboardEnrolledCourses() {
                           </p>
                         </div>
                         <div className="text-center p-2 bg-[#f7f3e8] rounded-lg transition-colors hover:bg-[#f0e8d0]">
-                          <p className="text-[10px] font-black uppercase tracking-[.08em] text-[#7d5e1e]">
+                          <p className="text-[10px] font-black uppercase tracking-[.08em] text-[var(--brand)]">
                             Payment
                           </p>
                           <p className="mt-1 text-sm font-bold text-foreground">
@@ -455,9 +466,11 @@ export default function DashboardEnrolledCourses() {
                             Latest quiz:
                           </span>
                           <span
-                            className={`font-bold ${latestQuiz.passed
-                  ? "text-emerald-700"
-                  : "text-[#7d5e1e]"}`}
+                            className={`font-bold ${
+                              latestQuiz.passed
+                                ? "text-emerald-700"
+                                : "text-[var(--brand)]"
+                            }`}
                           >
                             {latestQuiz.score}%
                           </span>
@@ -469,14 +482,14 @@ export default function DashboardEnrolledCourses() {
                           <Button
                             variant={
                               status === "completed" || status === "in-progress"
-                                ? "default"
+                                ? "primary"
                                 : "outline"
                             }
                             size="sm"
                             className={
                               status === "completed" || status === "in-progress"
                                 ? "bg-[#16243d] text-[#f7f3e8] hover:bg-[#0f1a2e] transition-colors"
-                                : "border-[#16243d]/25 transition-colors hover:border-[#c9a34e]"
+                                : "border-[#16243d]/25 transition-colors hover:border-[var(--brand)]"
                             }
                           >
                             <ActionIcon size={14} className="mr-1.5" />
@@ -548,9 +561,7 @@ export default function DashboardEnrolledCourses() {
               courses to begin your learning journey.
             </p>
             <Link href="/courses">
-              <Button className="bg-[#16243d] text-[#f7f3e8] hover:bg-[#0f1a2e] transition-colors">
-                Explore courses
-              </Button>
+              <Button variant="brand">Explore courses</Button>
             </Link>
           </div>
         </Section>

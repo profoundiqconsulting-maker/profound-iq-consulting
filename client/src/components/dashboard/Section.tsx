@@ -11,6 +11,7 @@ interface SectionProps {
   children: ReactNode;
   pagination?: ReactNode;
   className?: string;
+  hidden?: boolean;
   isLoading?: boolean;
   isEmpty?: boolean;
   emptyMessage?: string;
@@ -27,6 +28,7 @@ export function Section({
   children,
   pagination,
   className = "",
+  hidden = false,
   isLoading = false,
   isEmpty = false,
   emptyMessage = "No data available.",
@@ -34,7 +36,8 @@ export function Section({
   return (
     <section
       id={id}
-      className={`reveal mb-8 border border-border bg-card backdrop-blur-sm rounded-xl overflow-hidden transition-all duration-200 hover:shadow-md focus-within:shadow-md ${className}`}
+      hidden={hidden}
+      className={`reveal mb-8 border border-border bg-card rounded-xl overflow-hidden transition-all duration-200 hover:shadow-md focus-within:shadow-md ${className}`}
     >
       {(eyebrow || title || description || actions) && (
         <div className="border-b border-border bg-gradient-to-r from-card to-card/70 px-5 py-4 sm:px-7">

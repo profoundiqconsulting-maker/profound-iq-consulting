@@ -4,38 +4,58 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * Profound IQ — Standardized Button Component
+ *
+ * Design System v3.1
+ * - Base radius: 0.5rem (8px) matching --radius token
+ * - Base unit: 8px spacing rhythm
+ * - Color palette: semantic design tokens (--brand, --fg, --bg-sunken, etc.)
+ * - Typography: Manrope, font-medium default, font-extrabold for brand/success/danger
+ * - States: hover, active (scale 0.98), disabled (opacity 0.5), focus-visible (ring)
+ * - Sizing system: sm / default / lg / xl / icon / icon-sm / icon-lg
+ * - No width utilities baked in — consumers control width via className
+ */
+
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 ease-out disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive active:scale-[0.97]",
+  // Base: consistent across all variants and sizes
+  "inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-180 ease-out disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-[var(--border-focus)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ring-offset)] aria-invalid:ring-[var(--danger)]/20 dark:aria-invalid:ring-[var(--danger)]/40 aria-invalid:border-[var(--danger)] active:scale-[0.98] max-w-full overflow-hidden overflow-ellipsis",
   {
     variants: {
       variant: {
-        default:
-          "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20",
-        destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline:
-          "border-2 border-[var(--border)] bg-transparent shadow-xs hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] hover:border-[var(--accent)] dark:border-[var(--border)] dark:hover:bg-[var(--accent)] dark:hover:text-[var(--accent-foreground)]",
+        primary:
+          "bg-[var(--brand)] text-[var(--brand-fg)] hover:bg-[var(--brand-hover)] hover:shadow-lg hover:shadow-[var(--brand)]/20",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] dark:hover:bg-[var(--accent)]/50",
-        link: "text-primary underline-offset-4 hover:underline",
-        gold: "bg-[var(--gold)] text-[var(--primary-foreground)] hover:bg-[var(--gold-hover)] hover:shadow-lg hover:shadow-[var(--gold)]/25 font-extrabold uppercase tracking-[.12em]",
-        goldOutline: "border-2 border-[var(--gold)] text-[var(--gold)] bg-transparent hover:bg-[var(--gold)] hover:text-[var(--primary-foreground)] font-extrabold uppercase tracking-[.12em]",
-        subtle: "bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:bg-[var(--secondary)]/80",
-        success: "bg-[var(--success)] text-white hover:bg-[var(--success-hover)] hover:shadow-lg hover:shadow-[var(--success)]/25 font-extrabold uppercase tracking-[.12em]",
+          "bg-[var(--bg-sunken)] text-[var(--fg)] border border-[var(--border)] hover:bg-[var(--bg-sunken)]/80",
+        outline:
+          "border-2 border-[var(--border)] bg-transparent text-[var(--fg)] hover:bg-[var(--bg-sunken)] hover:border-[var(--brand)]",
+        ghost:
+          "bg-transparent text-[var(--fg-muted)] hover:bg-[var(--bg-sunken)] hover:text-[var(--fg)]",
+        link:
+          "bg-transparent text-[var(--brand)] underline underline-offset-4 hover:underline",
+        brand:
+          "bg-[var(--brand)] text-[var(--brand-fg)] hover:bg-[var(--brand-hover)] hover:shadow-lg hover:shadow-[var(--brand)]/20 font-extrabold uppercase tracking-[.12em]",
+        brandOutline:
+          "border-2 border-[var(--brand)] text-[var(--brand)] bg-transparent font-extrabold uppercase tracking-[.12em] hover:bg-[var(--brand)] hover:text-[var(--brand-fg)]",
+        subtle:
+          "bg-[var(--bg-sunken)] text-[var(--fg-muted)] hover:bg-[var(--bg-sunken)]/80",
+        success:
+          "bg-[var(--success)] text-white hover:bg-[var(--success-hover)] hover:shadow-lg hover:shadow-[var(--success)]/20 font-extrabold uppercase tracking-[.12em]",
+        danger:
+          "bg-[var(--danger)] text-white hover:bg-[var(--danger-hover)] hover:shadow-lg hover:shadow-[var(--danger)]/20 font-extrabold uppercase tracking-[.12em]",
       },
       size: {
-        default: "h-11 px-6 py-2.5 has-[>svg]:px-5",
-        sm: "h-9 rounded-md gap-1.5 px-4 has-[>svg]:px-3 text-xs",
-        lg: "h-13 rounded-xl px-8 has-[>svg]:px-6 text-base",
-        xl: "h-14 rounded-xl px-10 has-[>svg]:px-7 text-lg",
-        icon: "size-11",
-        "icon-sm": "size-9",
-        "icon-lg": "size-13",
+        sm: "h-9 rounded-md gap-1.5 px-3.5 text-xs has-[>svg]:px-3",
+        default: "h-10 px-5 text-sm has-[>svg]:px-4",
+        lg: "h-11 rounded-lg px-7 text-base has-[>svg]:px-5",
+        xl: "h-12 rounded-xl px-8 text-lg has-[>svg]:px-6",
+        icon: "size-10 gap-0",
+        "icon-sm": "size-9 gap-0",
+        "icon-lg": "size-11 gap-0",
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "primary",
       size: "default",
     },
   }

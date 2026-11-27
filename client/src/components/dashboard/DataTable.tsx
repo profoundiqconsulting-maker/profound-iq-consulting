@@ -40,9 +40,15 @@ export function DataTable<T>({
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center gap-3 py-12" role="status" aria-live="polite">
+      <div
+        className="flex flex-col items-center justify-center gap-3 py-12"
+        role="status"
+        aria-live="polite"
+      >
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        <p className="text-xs font-semibold text-muted-foreground">Loading...</p>
+        <p className="text-xs font-semibold text-muted-foreground">
+          Loading...
+        </p>
       </div>
     );
   }
@@ -51,7 +57,12 @@ export function DataTable<T>({
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-          <span className="text-lg font-bold text-muted-foreground" aria-hidden="true">!</span>
+          <span
+            className="text-lg font-bold text-muted-foreground"
+            aria-hidden="true"
+          >
+            !
+          </span>
         </div>
         <p className="text-sm text-muted-foreground">{emptyMessage}</p>
       </div>
@@ -62,7 +73,10 @@ export function DataTable<T>({
     <div className="space-y-4">
       <div className="overflow-hidden rounded-xl border border-border bg-card">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] border-collapse text-left text-sm" aria-label="Data table">
+          <table
+            className="w-full min-w-[640px] border-collapse text-left text-sm"
+            aria-label="Data table"
+          >
             <thead>
               <tr className="border-b border-border bg-muted/40">
                 {columns.map(column => (
@@ -102,7 +116,9 @@ export function DataTable<T>({
                     >
                       {column.render
                         ? column.render(row, rowIndex)
-                        : (row as Record<string, unknown>)[column.key]?.toString() ?? ""}
+                        : ((row as Record<string, unknown>)[
+                            column.key
+                          ]?.toString() ?? "")}
                     </td>
                   ))}
                 </tr>

@@ -49,17 +49,17 @@ export default function AssessmentVerification() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
+    <div className="min-h-screen bg-[#f7f3e8] text-[var(--fg)]">
       <TransformationNav active="assessment" />
       <main className="container py-12 sm:py-20">
         <div className="mx-auto max-w-3xl">
-          <p className="eyebrow text-[#7d5e1e]">
+          <p className="eyebrow text-[var(--brand)]">
             Assessment certificate verification
           </p>
           <h1 className="display mt-4 text-5xl leading-none sm:text-7xl">
             A credential you can trust.
           </h1>
-          <p className="mt-6 max-w-2xl text-base leading-7 text-[#4a566a]">
+          <p className="mt-6 max-w-2xl text-base leading-7 text-[var(--fg-muted)]">
             Use this public page to confirm that a Profound IQ Self Assessment
             certificate was issued and to compare its canonical artifact
             fingerprint.
@@ -69,25 +69,25 @@ export default function AssessmentVerification() {
               <XCircle className="shrink-0 text-red-700" size={28} />
               <div>
                 <h2 className="display text-2xl">Reference required</h2>
-                <p className="mt-3 text-sm leading-6 text-[#657084]">
+                <p className="mt-3 text-sm leading-6 text-[var(--fg-muted)]">
                   Open the complete verification link from the certificate QR
                   code or email.
                 </p>
               </div>
             </section>
           ) : verification.isLoading ? (
-            <section className="mt-10 flex items-start gap-4 border-l-2 border-[#c9a34e] bg-white/65 p-6 sm:p-8">
-              <ShieldCheck className="animate-pulse text-[#7d5e1e]" size={28} />
+            <section className="mt-10 flex items-start gap-4 border-l-2 border-[var(--brand)] bg-white/65 p-6 sm:p-8">
+              <ShieldCheck className="animate-pulse text-[var(--brand)]" size={28} />
               <div>
                 <h2 className="display text-2xl">Checking certificate</h2>
-                <p className="mt-3 text-sm leading-6 text-[#657084]">
+                <p className="mt-3 text-sm leading-6 text-[var(--fg-muted)]">
                   We are checking the assessment reference against the
                   credential register.
                 </p>
               </div>
             </section>
           ) : certificate ? (
-            <section className="mt-10 border border-[#c9a34e]/70 bg-white/70 p-6 shadow-sm sm:p-10">
+            <section className="mt-10 border border-[var(--brand)]/70 bg-white/70 p-6 shadow-sm sm:p-10">
               <div className="flex items-start gap-4">
                 <CheckCircle2
                   className="mt-1 shrink-0 text-emerald-800"
@@ -102,43 +102,43 @@ export default function AssessmentVerification() {
                   </h2>
                   <dl className="mt-7 grid gap-5 border-t border-[#16243d]/12 pt-6 sm:grid-cols-2">
                     <div>
-                      <dt className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
+                      <dt className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--fg)]">
                         Awarded to
                       </dt>
-                      <dd className="mt-2 text-lg font-semibold text-[#16243d]">
+                      <dd className="mt-2 text-lg font-semibold text-[var(--fg)]">
                         {certificate.recipientName}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
+                      <dt className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--fg)]">
                         Certificate number
                       </dt>
-                      <dd className="mt-2 break-all font-mono text-sm text-[#16243d]">
+                      <dd className="mt-2 break-all font-mono text-sm text-[var(--fg)]">
                         {certificate.certificateNumber}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
+                      <dt className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--fg)]">
                         Issued
                       </dt>
-                      <dd className="mt-2 text-sm text-[#16243d]">
+                      <dd className="mt-2 text-sm text-[var(--fg)]">
                         {new Date(certificate.createdAt).toLocaleDateString()}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
+                      <dt className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--fg)]">
                         Issuer
                       </dt>
-                      <dd className="mt-2 text-sm text-[#16243d]">
+                      <dd className="mt-2 text-sm text-[var(--fg)]">
                         Profound IQ Consulting
                       </dd>
                     </div>
                     {certificate.artifactHash && (
                       <div className="sm:col-span-2">
-                        <dt className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
+                        <dt className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--fg)]">
                           Artifact hash
                         </dt>
-                        <dd className="mt-2 break-all font-mono text-xs text-[#16243d]">
+                        <dd className="mt-2 break-all font-mono text-xs text-[var(--fg)]">
                           {certificate.artifactHash}
                         </dd>
                       </div>
@@ -164,7 +164,7 @@ export default function AssessmentVerification() {
               <XCircle className="shrink-0 text-red-700" size={28} />
               <div>
                 <h2 className="display text-2xl">Reference not found</h2>
-                <p className="mt-3 text-sm leading-6 text-[#657084]">
+                <p className="mt-3 text-sm leading-6 text-[var(--fg-muted)]">
                   We could not find a paid assessment certificate matching this
                   reference. Double-check the reference or contact support.
                 </p>

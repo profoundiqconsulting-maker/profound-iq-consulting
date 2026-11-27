@@ -20,10 +20,8 @@ vi.mock("resend", () => {
   };
 });
 
-const {
-  renderAssessmentReportPdf,
-  renderCareerPathReportPdf,
-} = await import("./reportPdf");
+const { renderAssessmentReportPdf, renderCareerPathReportPdf } =
+  await import("./reportPdf");
 const {
   claimAssessmentReportEmail,
   markAssessmentReportEmailSent,

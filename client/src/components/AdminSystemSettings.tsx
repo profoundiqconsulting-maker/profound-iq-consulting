@@ -7,12 +7,28 @@ import { Card } from "@/components/ui/card";
 
 const DEFAULT_KEYS = [
   { key: "resend_api_key", label: "Resend API Key", placeholder: "re_..." },
-  { key: "email_from", label: "From address", placeholder: "noreply@profoundiq.com" },
-  { key: "email_from_name", label: "From name", placeholder: "Profound IQ Consulting" },
+  {
+    key: "email_from",
+    label: "From address",
+    placeholder: "noreply@profoundiq.com",
+  },
+  {
+    key: "email_from_name",
+    label: "From name",
+    placeholder: "Profound IQ Consulting",
+  },
   { key: "paystack_key", label: "Paystack Key", placeholder: "pk_live_..." },
-  { key: "paystack_secret", label: "Paystack Secret", placeholder: "sk_live_..." },
+  {
+    key: "paystack_secret",
+    label: "Paystack Secret",
+    placeholder: "sk_live_...",
+  },
   { key: "google_client_id", label: "Google Client ID", placeholder: "..." },
-  { key: "google_client_secret", label: "Google Client Secret", placeholder: "••••••••" },
+  {
+    key: "google_client_secret",
+    label: "Google Client Secret",
+    placeholder: "••••••••",
+  },
 ];
 
 export default function AdminSystemSettings() {
@@ -34,7 +50,8 @@ export default function AdminSystemSettings() {
   useEffect(() => {
     if (settingsQuery.data) {
       const next: Record<string, string> = {};
-      for (const row of settingsQuery.data) next[row.settingKey] = row.settingValue;
+      for (const row of settingsQuery.data)
+        next[row.settingKey] = row.settingValue;
       setForm(next);
     }
   }, [settingsQuery.data]);
@@ -43,7 +60,11 @@ export default function AdminSystemSettings() {
     setForm(prev => ({ ...prev, [key]: value }));
 
   const save = (key: string) =>
-    saveMutation.mutate({ settingKey: key, settingValue: form[key] || "", masked: "masked" });
+    saveMutation.mutate({
+      settingKey: key,
+      settingValue: form[key] || "",
+      masked: "masked",
+    });
 
   const saveAll = () => {
     for (const key of Object.keys(form)) save(key);
@@ -53,10 +74,11 @@ export default function AdminSystemSettings() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="eyebrow text-[#b8860b]">Infrastructure</p>
+          <p className="eyebrow text-[var(--brand)]">Infrastructure</p>
           <h2 className="display mt-2 text-2xl">System settings</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#475569]">
-            Manage API keys, Resend, payment, and OAuth credentials required to run the platform.
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--fg-muted)]">
+            Manage API keys, Resend, payment, and OAuth credentials required to
+            run the platform.
           </p>
         </div>
         <Button
@@ -71,10 +93,17 @@ export default function AdminSystemSettings() {
 
       <Card className="space-y-4 border border-[#16243d]/15 bg-white p-5">
         {DEFAULT_KEYS.map(item => (
-          <div key={item.key} className="grid gap-3 sm:grid-cols-[220px_minmax(0,1fr)_auto] sm:items-center">
+          <div
+            key={item.key}
+            className="grid gap-3 sm:grid-cols-[220px_minmax(0,1fr)_auto] sm:items-center"
+          >
             <div>
-              <p className="text-sm font-semibold text-[#16243d]">{item.label}</p>
-              <p className="text-[10px] uppercase tracking-[.12em] text-[#475569]">{item.key}</p>
+              <p className="text-sm font-semibold text-[var(--fg)]">
+                {item.label}
+              </p>
+              <p className="text-[10px] uppercase tracking-[.12em] text-[var(--fg-muted)]">
+                {item.key}
+              </p>
             </div>
             <Input
               value={form[item.key] ?? ""}
@@ -96,5 +125,3 @@ export default function AdminSystemSettings() {
     </div>
   );
 }
-
-

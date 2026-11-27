@@ -1,25 +1,22 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
 import { useMemo } from "react";
-import {
-  Award,
-  Download,
-  RefreshCw,
-  Share2,
-  Users,
-} from "lucide-react";
+import { Award, Download, RefreshCw, Share2, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { DashboardHero, Section, StatCard } from "@/components/dashboard";
+import { CareerPathScoreTrends } from "@/components/CareerPathReportInsights";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import type { CareerPathReport } from "@shared/careerPath";
 
 export default function DashboardCareerPath() {
-  
-  const history = trpc.careerPath.history.useQuery(undefined, { enabled: true });
+  const history = trpc.careerPath.history.useQuery(undefined, {
+    enabled: true,
+  });
   const downloadReport = trpc.careerPath.downloadReport.useMutation({
-    onError: error => toast.error("Could not download report", { description: error.message }),
+    onError: error =>
+      toast.error("Could not download report", { description: error.message }),
   });
 
   const stats = useMemo(() => {
@@ -28,7 +25,7 @@ export default function DashboardCareerPath() {
       total: reports.length,
       latest: reports[0]?.createdAt
         ? new Date(reports[0].createdAt).toLocaleDateString()
-        : "�",
+        : "—",
     };
   }, [history.data]);
 
@@ -45,8 +42,18 @@ export default function DashboardCareerPath() {
   if (history.isError) {
     return (
       <DashboardLayout role="user" title="CareerPath Reports">
-        <div className="border-l-2 border-red-700 bg-red-50 p-5 text-sm text-red-900">
-          Unable to load CareerPath history.
+        <div
+          role="alert"
+          className="flex flex-col gap-3 border-l-2 border-red-700 bg-red-50 p-5 text-sm text-red-900 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p>Unable to load CareerPath history.</p>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => void history.refetch()}
+          >
+            Retry
+          </Button>
         </div>
       </DashboardLayout>
     );
@@ -55,6 +62,7 @@ export default function DashboardCareerPath() {
   return (
     <DashboardLayout role="user" title="CareerPath Reports">
       <DashboardHero
+        showWelcome={false}
         eyebrow="Transformation"
         title="CareerPath reports"
         description="Review your career pathway analyses and recommendations."
@@ -64,7 +72,12 @@ export default function DashboardCareerPath() {
         ]}
       />
 
-      <Section title="Your reports" description="CareerPath analyses you have completed.">
+      <CareerPathScoreTrends history={history.data ?? []} />
+
+      <Section
+        title="Your reports"
+        description="CareerPath analyses you have completed."
+      >
         <div className="mt-5 space-y-4">
           {(history.data ?? []).map(attempt => {
             const report = attempt.report as CareerPathReport | null;
@@ -107,7 +120,9 @@ export default function DashboardCareerPath() {
                         onClick={async () => {
                           try {
                             const reference = `piq-career-${attempt.id}`;
-                            const result = await downloadReport.mutateAsync({ reference });
+                            const result = await downloadReport.mutateAsync({
+                              reference,
+                            });
                             const bytes = Uint8Array.from(
                               atob(result.data),
                               c => c.charCodeAt(0)
@@ -150,5 +165,3 @@ export default function DashboardCareerPath() {
     </DashboardLayout>
   );
 }
-
-

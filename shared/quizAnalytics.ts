@@ -38,12 +38,10 @@ export function summarizeQuizAnalytics(
       new Date(a.createdAt ?? 0).getTime() -
       new Date(b.createdAt ?? 0).getTime()
   );
-  const trend = ordered
-    .slice(-8)
-    .map((attempt, index) => ({
-      label: `Attempt ${index + 1}`,
-      score: attempt.score,
-    }));
+  const trend = ordered.slice(-8).map((attempt, index) => ({
+    label: `Attempt ${index + 1}`,
+    score: attempt.score,
+  }));
   const latestByModule = new Map<string, QuizAnalyticsAttempt>();
   for (const attempt of ordered) {
     const key = `${attempt.courseSlug}:${attempt.moduleId}`;

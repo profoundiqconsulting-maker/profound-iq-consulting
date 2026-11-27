@@ -13,6 +13,8 @@ type ReflectionPromptCardProps = {
   onStatusChange: (status: ReflectionStatus) => void;
   onSelectedChange: (selected: boolean) => void;
   onSave: () => void;
+  /** Unique identifier for this card (used for form field ids/names) */
+  cardId: string;
 };
 
 const statusLabels: Record<ReflectionStatus, string> = {
@@ -31,7 +33,15 @@ export function ReflectionPromptCard({
   onStatusChange,
   onSelectedChange,
   onSave,
+  cardId,
 }: ReflectionPromptCardProps) {
+  const noteId = `${cardId}-note`;
+  const statusId = `${cardId}-status`;
+  const selectedId = `${cardId}-selected`;
+  const noteName = `reflection_note_${cardId}`;
+  const statusName = `reflection_status_${cardId}`;
+  const selectedName = `reflection_selected_${cardId}`;
+
   return (
     <article className="border-l border-[#c9a34e] bg-[#fffaf0]/70 p-4 sm:p-5">
       <div className="flex items-start gap-3">
@@ -42,6 +52,8 @@ export function ReflectionPromptCard({
         <label className="block text-[10px] font-black uppercase tracking-[.12em] text-[#657084]">
           Your reflection note
           <textarea
+            id={noteId}
+            name={noteName}
             value={note}
             onChange={event => onNoteChange(event.target.value)}
             placeholder="Capture a recent example, decision, or next action…"
@@ -53,6 +65,8 @@ export function ReflectionPromptCard({
           <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
             Action status
             <select
+              id={statusId}
+              name={statusName}
               value={status}
               onChange={event =>
                 onStatusChange(event.target.value as ReflectionStatus)
@@ -69,6 +83,8 @@ export function ReflectionPromptCard({
           </label>
           <label className="flex items-center gap-2 self-end pb-2 text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
             <input
+              id={selectedId}
+              name={selectedName}
               type="checkbox"
               checked={selected}
               onChange={event => onSelectedChange(event.target.checked)}

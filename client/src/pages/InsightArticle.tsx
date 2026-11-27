@@ -52,7 +52,7 @@ export default function InsightArticle() {
           <div className="container">
             <Link
               href="/blog"
-              className="inline-flex items-center gap-2 text-sm font-bold text-[#7d5e1e] underline underline-offset-4"
+              className="inline-flex items-center gap-2 text-sm font-bold text-[var(--brand)] underline underline-offset-4"
             >
               <ArrowLeft size={16} /> Back to Insights
             </Link>
@@ -77,7 +77,7 @@ export default function InsightArticle() {
         <div className="container">
           <ScrollReveal>
             <div className="flex flex-wrap items-center gap-5 text-[10px] font-black uppercase tracking-[.14em] text-[#657084]">
-              <span className="inline-flex items-center gap-2 text-[#7d5e1e]">
+              <span className="inline-flex items-center gap-2 text-[var(--brand)]">
                 <FileText size={15} /> {article.status}
               </span>
               <span className="inline-flex items-center gap-2">
@@ -85,7 +85,7 @@ export default function InsightArticle() {
               </span>
               <Link
                 href="/blog"
-                className="ml-auto inline-flex items-center gap-2 text-[#7d5e1e] underline underline-offset-4 transition-colors hover:text-[#7d5e1e]"
+                className="ml-auto inline-flex items-center gap-2 text-[var(--brand)] underline underline-offset-4 transition-colors hover:text-[var(--brand)]"
               >
                 <ArrowLeft size={15} /> All Insights
               </Link>
@@ -110,8 +110,8 @@ export default function InsightArticle() {
         <div className="container grid gap-16 lg:grid-cols-[.6fr_1.4fr] lg:gap-20">
           <aside className="lg:sticky lg:top-24 lg:self-start">
             <ScrollReveal>
-              <div className="border-l-2 border-[#c9a34e] bg-white/70 p-7 backdrop-blur-sm">
-                <p className="eyebrow text-[#7d5e1e]">A question to carry</p>
+              <div className="border-l-2 border-[var(--brand)] bg-[var(--bg-elevated)] p-7">
+                <p className="eyebrow text-[var(--brand)]">A question to carry</p>
                 <p className="mt-5 text-lg font-semibold leading-8 text-[#16243d]">
                   {article.accent}
                 </p>
@@ -130,7 +130,7 @@ export default function InsightArticle() {
                   key={section.heading}
                   className="border-b border-[#16243d]/10 pb-12 last:border-0"
                 >
-                  <p className="eyebrow text-[#7d5e1e]">
+                  <p className="eyebrow text-[var(--brand)]">
                     {String(index + 1).padStart(2, "0")}
                   </p>
                   <h2 className="display mt-6 text-4xl leading-tight text-[#16243d] sm:text-5xl">
@@ -149,7 +149,16 @@ export default function InsightArticle() {
                 url={window.location.href}
                 title={article.title}
                 text={article.excerpt}
-                platforms={["linkedin", "x", "facebook", "instagram", "tiktok", "whatsapp", "copy", "native"]}
+                platforms={[
+                  "linkedin",
+                  "x",
+                  "facebook",
+                  "instagram",
+                  "tiktok",
+                  "whatsapp",
+                  "copy",
+                  "native",
+                ]}
                 className="bg-transparent border-transparent shadow-none"
               />
               <Link
@@ -160,7 +169,7 @@ export default function InsightArticle() {
               </Link>
               <Link
                 href="/courses"
-                className="inline-flex min-h-12 items-center justify-center gap-3 border border-[#16243d]/20 px-6 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-all hover:border-[#c9a34e] hover:text-[#7d5e1e]"
+                className="inline-flex min-h-12 items-center justify-center gap-3 border border-[#16243d]/20 px-6 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-all hover:border-[var(--brand)] hover:text-[var(--brand)]"
               >
                 Explore courses <ArrowUpRight size={15} />
               </Link>

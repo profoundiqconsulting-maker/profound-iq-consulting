@@ -19,9 +19,25 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 
 type FilterConfig =
-  | { type: "search"; placeholder?: string; value: string; onChange: (value: string) => void }
-  | { type: "select"; label: string; value: string; onChange: (value: string) => void; options: Array<{ value: string; label: string }> }
-  | { type: "date"; label: string; value: Date | undefined; onChange: (value: Date | undefined) => void }
+  | {
+      type: "search";
+      placeholder?: string;
+      value: string;
+      onChange: (value: string) => void;
+    }
+  | {
+      type: "select";
+      label: string;
+      value: string;
+      onChange: (value: string) => void;
+      options: Array<{ value: string; label: string }>;
+    }
+  | {
+      type: "date";
+      label: string;
+      value: Date | undefined;
+      onChange: (value: Date | undefined) => void;
+    }
   | { type: "custom"; render: () => ReactNode };
 
 interface FilterBarProps {
@@ -30,7 +46,11 @@ interface FilterBarProps {
   className?: string;
 }
 
-export function FilterBar({ filters, onReset, className = "" }: FilterBarProps) {
+export function FilterBar({
+  filters,
+  onReset,
+  className = "",
+}: FilterBarProps) {
   const [showFilters, setShowFilters] = useState(false);
   const hasActiveFilters = filters.some(f => {
     if (f.type === "search") return f.value.length > 0;
@@ -62,7 +82,9 @@ export function FilterBar({ filters, onReset, className = "" }: FilterBarProps) 
                 <SelectValue placeholder={filter.label} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All {filter.label.toLowerCase()}</SelectItem>
+                <SelectItem value="all">
+                  All {filter.label.toLowerCase()}
+                </SelectItem>
                 {filter.options.map(option => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
@@ -81,7 +103,11 @@ export function FilterBar({ filters, onReset, className = "" }: FilterBarProps) 
                   className={`h-9 min-w-[140px] justify-start text-left font-normal bg-background transition-colors ${!filter.value && "text-muted-foreground"}`}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {filter.value ? format(filter.value, "PPP") : <span>{filter.label}</span>}
+                  {filter.value ? (
+                    format(filter.value, "PPP")
+                  ) : (
+                    <span>{filter.label}</span>
+                  )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -113,5 +139,3 @@ export function FilterBar({ filters, onReset, className = "" }: FilterBarProps) 
     </div>
   );
 }
-
-

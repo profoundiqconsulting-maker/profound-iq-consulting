@@ -97,14 +97,12 @@ describe("course.paymentHistory pagination", () => {
       pendingTotal: 0,
     });
 
-    await appRouter
-      .createCaller(context(user))
-      .course.paymentHistory({
-        page: 1,
-        pageSize: 10,
-        courseSlug: "all",
-        sort: "date-desc",
-      });
+    await appRouter.createCaller(context(user)).course.paymentHistory({
+      page: 1,
+      pageSize: 10,
+      courseSlug: "all",
+      sort: "date-desc",
+    });
 
     expect(mocks.listCoursePaymentHistoryPage).toHaveBeenCalledWith(
       "learner-all-courses",

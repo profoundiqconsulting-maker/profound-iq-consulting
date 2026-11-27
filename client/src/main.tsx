@@ -37,14 +37,16 @@ const root: Root | null = rootElement
 // strings. Until then this keeps enforcement on without breaking features.
 if (typeof window !== "undefined" && "trustedTypes" in window) {
   try {
-    (window as unknown as {
-      trustedTypes: {
-        createPolicy: (
-          name: string,
-          rules: Record<string, (input: string) => string>
-        ) => unknown;
-      };
-    }).trustedTypes.createPolicy("default", {
+    (
+      window as unknown as {
+        trustedTypes: {
+          createPolicy: (
+            name: string,
+            rules: Record<string, (input: string) => string>
+          ) => unknown;
+        };
+      }
+    ).trustedTypes.createPolicy("default", {
       createHTML: (input: string) => input,
       createScript: (input: string) => input,
       createScriptURL: (input: string) => input,

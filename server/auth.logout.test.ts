@@ -1,4 +1,16 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+const { getSessionByTokenHash, revokeUserSession } = vi.hoisted(() => ({
+  getSessionByTokenHash: vi.fn(),
+  revokeUserSession: vi.fn(),
+}));
+
+vi.mock("./db", async importOriginal => ({
+  ...(await importOriginal<typeof import("./db")>()),
+  getSessionByTokenHash,
+  revokeUserSession,
+}));
+
 import { appRouter } from "./routers";
 import { COOKIE_NAME } from "../shared/const";
 import type { TrpcContext } from "./_core/context";
@@ -10,7 +22,7 @@ type CookieCall = {
 
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
 
-function createAuthContext(): {
+function createAuthContext(cookie?: string): {
   ctx: TrpcContext;
   clearedCookies: CookieCall[];
 } {
@@ -32,7 +44,7 @@ function createAuthContext(): {
     user,
     req: {
       protocol: "https",
-      headers: {},
+      headers: cookie ? { cookie } : {},
     } as TrpcContext["req"],
     res: {
       clearCookie: (name: string, options: Record<string, unknown>) => {
@@ -45,6 +57,17 @@ function createAuthContext(): {
 }
 
 describe("auth.logout", () => {
+  it("revokes a non-expiring session on explicit sign-out", async () => {
+    getSessionByTokenHash.mockResolvedValue({ id: 8, expiresAt: null });
+    const { ctx } = createAuthContext(`${COOKIE_NAME}=active-session`);
+    const caller = appRouter.createCaller(ctx);
+
+    await caller.auth.logout();
+
+    expect(getSessionByTokenHash).toHaveBeenCalledTimes(1);
+    expect(revokeUserSession).toHaveBeenCalledWith("sample-user", 8);
+  });
+
   it("clears the session cookie and reports success", async () => {
     const { ctx, clearedCookies } = createAuthContext();
     const caller = appRouter.createCaller(ctx);

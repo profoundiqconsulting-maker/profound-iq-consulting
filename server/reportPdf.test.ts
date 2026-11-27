@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   renderAssessmentReportPdf,
   renderCareerPathReportPdf,
+  renderPsychometricReportPdf,
 } from "./reportPdf";
 import { buildRoleLens } from "../shared/assessment";
+import type { PsychometricReport } from "../shared/psychometrics";
 
 const report = {
   overallScore: 78,
@@ -70,6 +72,42 @@ const careerPathReport = {
   disclaimer: "This report does not determine a career.",
 };
 
+const psychometricReport: PsychometricReport = {
+  testSlug: "emotional-intelligence-profile",
+  title: "Emotional Intelligence Profile",
+  overallScore: 72,
+  overallBand: "Developing momentum",
+  domains: [
+    {
+      key: "self-awareness",
+      label: "Self-awareness",
+      description: "Noticing emotions and their influence.",
+      itemCount: 4,
+      score: 72,
+      reliability: 81,
+      band: "Developing foundation",
+      readout: "A current response signal based on this assessment.",
+      developmentActions: ["Reflect on one challenging conversation."],
+    },
+  ],
+  strengths: ["Empathy"],
+  developmentPriorities: ["Self-awareness"],
+  recommendations: ["Reflect on one challenging conversation."],
+  disclaimer: "This is an educational development profile.",
+};
+
+function getNormalizedPdfText(pdf: Buffer): string {
+  return [...pdf.toString("latin1").matchAll(/\[([\s\S]*?)\]\s*TJ/g)]
+    .map(([, run]) =>
+      [...run.matchAll(/<([0-9a-f]+)>/g)]
+        .map(([, hex]) => Buffer.from(hex, "hex").toString("latin1"))
+        .join("")
+    )
+    .join(" ")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
 describe("renderAssessmentReportPdf", () => {
   it("renders a readable PDF with the participant and report signal", async () => {
     const pdf = await renderAssessmentReportPdf({
@@ -97,6 +135,26 @@ describe("renderAssessmentReportPdf", () => {
   });
 });
 
+describe("renderPsychometricReportPdf", () => {
+  it("renders the profile charts without presenting response spread as reliability", async () => {
+    const pdf = await renderPsychometricReportPdf({
+      attemptId: 81,
+      participantName: "Amina Njeri",
+      createdAt: new Date("2026-08-22T00:00:00Z"),
+      report: psychometricReport,
+      verificationUrl: "https://example.com/verify/psychometric?reference=test",
+    });
+    const text = pdf.toString("latin1");
+    const normalizedText = getNormalizedPdfText(pdf);
+
+    expect(text.startsWith("%PDF-")).toBe(true);
+    expect(normalizedText).toContain("domainprofile");
+    expect(normalizedText).toContain("selfawareness");
+    expect(normalizedText).not.toContain("responseconsistency");
+    expect(pdf.length).toBeGreaterThan(3_000);
+  });
+});
+
 describe("renderCareerPathReportPdf", () => {
   it("renders a branded PDF with sub-pathway content", async () => {
     const pdf = await renderCareerPathReportPdf({
@@ -106,13 +164,19 @@ describe("renderCareerPathReportPdf", () => {
       report: careerPathReport,
     });
     const text = pdf.toString("latin1");
+    const normalizedText = getNormalizedPdfText(pdf);
     const decodedText = text.replace(/<([0-9a-f]+)>/g, (_match, hex: string) =>
       Buffer.from(hex, "hex").toString("latin1")
     );
     expect(text.startsWith("%PDF-")).toBe(true);
     expect(text).toContain("/Title");
     expect(decodedText).toContain("Profound IQ CareerPath Report");
-    expect(pdf.length).toBeGreaterThan(4_000);
+    expect(normalizedText).toContain("subjectcombinationscareerdirections");
+    expect(normalizedText).toContain(
+      "sportsrecreationbiologyadvancedmathematics"
+    );
+    expect(normalizedText).toContain("guidepage2row58");
+    expect(pdf.length).toBeGreaterThan(6_000);
     expect(text).toContain("%%EOF");
   });
 });

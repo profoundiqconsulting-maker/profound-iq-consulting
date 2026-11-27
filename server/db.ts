@@ -1,5 +1,9 @@
 import { createHash, randomBytes } from "node:crypto";
-import { hashPassword, hashSecurityAnswer, verifySecurityAnswer } from "./localAuthCrypto";
+import {
+  hashPassword,
+  hashSecurityAnswer,
+  verifySecurityAnswer,
+} from "./localAuthCrypto";
 import {
   and,
   asc,
@@ -27,6 +31,7 @@ import {
 } from "../shared/achievements";
 import { courseCatalog } from "../shared/courseCatalog";
 import { buildCourseModuleBadges } from "../shared/courseBadges";
+import type { CourseEnrollmentApplication } from "../shared/courseEnrollmentApplication";
 import {
   adminAnalyticsSettings,
   adminCertificateSettings,
@@ -44,9 +49,11 @@ import {
   reportShareAuditEvents,
   authLoginAttempts,
   courseEnrollments,
+  assessmentRoadmapItems,
   contactInquiries,
   contactInquiryAuditLogs,
   courseLearnerEnrollments,
+  courseEnrollmentApplications,
   courseAccessGrants,
   courseAccessGrantAudits,
   courseLessonProgress,
@@ -56,16 +63,16 @@ import {
   courseLessonIllustrationBookmarks,
   courseSavedCourses,
   courseRecommendationHistory,
-   courseQuizAttempts,
-   coursePaymentStages,
-   coursePaymentEvents,
-   paymentReconciliationLog,
-   courseActivePositions,
-   courseCertificates,
-   courseDeliveryEvents,
-   catalogItems,
-   deliveryLogExportJobs,
-   emailPreviewDeliveries,
+  courseQuizAttempts,
+  coursePaymentStages,
+  coursePaymentEvents,
+  paymentReconciliationLog,
+  courseActivePositions,
+  courseCertificates,
+  courseDeliveryEvents,
+  catalogItems,
+  deliveryLogExportJobs,
+  emailPreviewDeliveries,
   emailTemplates,
   InsertAssessmentAttempt,
   InsertUser,
@@ -100,7 +107,11 @@ import {
   type Message,
   type MessageNotification,
 } from "../drizzle/schema";
-import { buildRoleLens, compareReports, type AssessmentReport } from "../shared/assessment";
+import {
+  buildRoleLens,
+  compareReports,
+  type AssessmentReport,
+} from "../shared/assessment";
 import { renderAssessmentReportPdf } from "../server/reportPdf";
 import {
   aggregateWeeklyAnalytics,
@@ -142,7 +153,9 @@ function parseDatabaseUrl(url: string) {
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      const { host, port, user, password, database } = parseDatabaseUrl(process.env.DATABASE_URL);
+      const { host, port, user, password, database } = parseDatabaseUrl(
+        process.env.DATABASE_URL
+      );
       const connection = await createConnection({
         host: host || "127.0.0.1",
         port,
@@ -168,13 +181,11 @@ export async function createPsychometricAttempt(input: {
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const result = await db
-    .insert(psychometricAttempts)
-    .values({
-      ...input,
-      paymentStatus: "pending",
-      reportEmailStatus: "pending",
-    });
+  const result = await db.insert(psychometricAttempts).values({
+    ...input,
+    paymentStatus: "pending",
+    reportEmailStatus: "pending",
+  });
   return Number(result[0].insertId);
 }
 
@@ -572,9 +583,17 @@ export async function getConversation(id: number, openId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const conversation = (
-    await db.select().from(conversations).where(eq(conversations.id, id)).limit(1)
+    await db
+      .select()
+      .from(conversations)
+      .where(eq(conversations.id, id))
+      .limit(1)
   )[0] as Conversation | undefined;
-  if (!conversation || !(conversation.participantOpenIds as string[]).includes(openId)) return null;
+  if (
+    !conversation ||
+    !(conversation.participantOpenIds as string[]).includes(openId)
+  )
+    return null;
   const conversationMessages = await db
     .select()
     .from(messages)
@@ -619,13 +638,20 @@ export async function listConversationsForUser(
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const all = await db
+  const all = (await db
     .select()
     .from(conversations)
-    .orderBy(desc(conversations.lastMessageAt ?? conversations.createdAt)) as Conversation[];
-  return all.filter((conversation) => {
-    if (!(conversation.participantOpenIds as string[]).includes(openId)) return false;
-    if (filters?.contextType && conversation.contextType !== filters.contextType) return false;
+    .orderBy(
+      desc(conversations.lastMessageAt ?? conversations.createdAt)
+    )) as Conversation[];
+  return all.filter(conversation => {
+    if (!(conversation.participantOpenIds as string[]).includes(openId))
+      return false;
+    if (
+      filters?.contextType &&
+      conversation.contextType !== filters.contextType
+    )
+      return false;
     if (filters?.status && conversation.status !== filters.status) return false;
     return true;
   });
@@ -635,15 +661,24 @@ export async function getUnreadMessageCount(openId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const userConversations = (await db
-    .select({ id: conversations.id, participantOpenIds: conversations.participantOpenIds })
+    .select({
+      id: conversations.id,
+      participantOpenIds: conversations.participantOpenIds,
+    })
     .from(conversations)) as Pick<Conversation, "id" | "participantOpenIds">[];
   let count = 0;
   for (const conversation of userConversations) {
-    if (!(conversation.participantOpenIds as string[]).includes(openId)) continue;
+    if (!(conversation.participantOpenIds as string[]).includes(openId))
+      continue;
     const unread = await db
       .select()
       .from(messages)
-      .where(and(eq(messages.conversationId, conversation.id), sql`NOT JSON_CONTAINS(${messages.readBy}, JSON_OBJECT(?, true), '$')`));
+      .where(
+        and(
+          eq(messages.conversationId, conversation.id),
+          sql`NOT JSON_CONTAINS(${messages.readBy}, JSON_OBJECT(?, true), '$')`
+        )
+      );
     count += unread.filter(message => message.senderOpenId !== openId).length;
   }
   return count;
@@ -672,16 +707,28 @@ export async function createMessageNotification(input: {
 export async function listMessageNotifications(openId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  return db.select().from(messageNotifications).where(eq(messageNotifications.userOpenId, openId)).orderBy(desc(messageNotifications.createdAt));
+  return db
+    .select()
+    .from(messageNotifications)
+    .where(eq(messageNotifications.userOpenId, openId))
+    .orderBy(desc(messageNotifications.createdAt));
 }
 
-export async function markNotificationRead(notificationId: number, openId: string) {
+export async function markNotificationRead(
+  notificationId: number,
+  openId: string
+) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   await db
     .update(messageNotifications)
     .set({ sentEmail: true, emailSentAt: new Date() })
-    .where(and(eq(messageNotifications.id, notificationId), eq(messageNotifications.userOpenId, openId)));
+    .where(
+      and(
+        eq(messageNotifications.id, notificationId),
+        eq(messageNotifications.userOpenId, openId)
+      )
+    );
 }
 
 export async function createCommunicationCampaign(input: {
@@ -703,7 +750,10 @@ export async function createCommunicationCampaign(input: {
 export async function listCommunicationCampaigns() {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  return db.select().from(communicationCampaigns).orderBy(desc(communicationCampaigns.createdAt));
+  return db
+    .select()
+    .from(communicationCampaigns)
+    .orderBy(desc(communicationCampaigns.createdAt));
 }
 
 export async function createCommunicationTicket(input: {
@@ -729,14 +779,25 @@ export async function createCommunicationTicket(input: {
   return ticket.id;
 }
 
-export async function listCommunicationTickets(filters?: { assignedToOpenId?: string; status?: string }) {
+export async function listCommunicationTickets(filters?: {
+  assignedToOpenId?: string;
+  status?: string;
+}) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const conditions = [];
-  if (filters?.assignedToOpenId) conditions.push(eq(communicationTickets.assignedToOpenId, filters.assignedToOpenId));
-  if (filters?.status) conditions.push(eq(communicationTickets.status, filters.status));
+  if (filters?.assignedToOpenId)
+    conditions.push(
+      eq(communicationTickets.assignedToOpenId, filters.assignedToOpenId)
+    );
+  if (filters?.status)
+    conditions.push(eq(communicationTickets.status, filters.status));
   const where = conditions.length ? and(...conditions) : undefined;
-  return db.select().from(communicationTickets).where(where).orderBy(desc(communicationTickets.createdAt));
+  return db
+    .select()
+    .from(communicationTickets)
+    .where(where)
+    .orderBy(desc(communicationTickets.createdAt));
 }
 
 export async function updateCommunicationTicket(input: {
@@ -752,19 +813,28 @@ export async function updateCommunicationTicket(input: {
   if (!db) throw new Error("Database is not available");
   const updateSet: Record<string, unknown> = { updatedAt: new Date() };
   if (input.status !== undefined) updateSet.status = input.status;
-  if (input.assignedToOpenId !== undefined) updateSet.assignedToOpenId = input.assignedToOpenId;
-  if (input.assignedToName !== undefined) updateSet.assignedToName = input.assignedToName;
+  if (input.assignedToOpenId !== undefined)
+    updateSet.assignedToOpenId = input.assignedToOpenId;
+  if (input.assignedToName !== undefined)
+    updateSet.assignedToName = input.assignedToName;
   if (input.priority !== undefined) updateSet.priority = input.priority;
   if (input.dueDate !== undefined) updateSet.dueDate = input.dueDate;
   if (input.followUp !== undefined) updateSet.followUp = input.followUp;
-  await db.update(communicationTickets).set(updateSet).where(eq(communicationTickets.id, input.id));
+  await db
+    .update(communicationTickets)
+    .set(updateSet)
+    .where(eq(communicationTickets.id, input.id));
   return getCommunicationTicket(input.id);
 }
 
 export async function getCommunicationTicket(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const [ticket] = await db.select().from(communicationTickets).where(eq(communicationTickets.id, id)).limit(1);
+  const [ticket] = await db
+    .select()
+    .from(communicationTickets)
+    .where(eq(communicationTickets.id, id))
+    .limit(1);
   return ticket ?? null;
 }
 
@@ -786,7 +856,11 @@ export async function createSurveyResponse(input: {
 export async function getSurveyResponses(surveyId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  return db.select().from(surveyResponses).where(eq(surveyResponses.surveyId, surveyId)).orderBy(desc(surveyResponses.submittedAt));
+  return db
+    .select()
+    .from(surveyResponses)
+    .where(eq(surveyResponses.surveyId, surveyId))
+    .orderBy(desc(surveyResponses.submittedAt));
 }
 
 export async function upsertSurveyAnalysis(input: {
@@ -808,7 +882,11 @@ export async function upsertSurveyAnalysis(input: {
 export async function getSurveyAnalysis(surveyId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const [analysis] = await db.select().from(surveyAnalysis).where(eq(surveyAnalysis.surveyId, surveyId)).limit(1);
+  const [analysis] = await db
+    .select()
+    .from(surveyAnalysis)
+    .where(eq(surveyAnalysis.surveyId, surveyId))
+    .limit(1);
   return analysis ?? null;
 }
 
@@ -822,7 +900,7 @@ export async function createUserSession(input: {
   trustedDevice?: boolean;
   trustExpiresAt?: Date | null;
   createdAt?: Date;
-  expiresAt: Date;
+  expiresAt: Date | null;
 }) {
   const db = await getDb();
   if (!db) return;
@@ -881,7 +959,7 @@ export async function getUserSessions(openId: string, now = new Date()) {
       and(
         eq(userSessions.openId, openId),
         isNull(userSessions.revokedAt),
-        gte(userSessions.expiresAt, now)
+        or(isNull(userSessions.expiresAt), gte(userSessions.expiresAt, now))
       )
     )
     .orderBy(desc(userSessions.lastSeenAt));
@@ -1016,15 +1094,13 @@ export async function recordFailedLogin(
         await db
           .delete(authLoginAttempts)
           .where(eq(authLoginAttempts.id, existing.id));
-      await db
-        .insert(authLoginAttempts)
-        .values({
-          identifierHash,
-          networkHash,
-          failedCount: 1,
-          windowStartedAt: now,
-          lastFailedAt: now,
-        });
+      await db.insert(authLoginAttempts).values({
+        identifierHash,
+        networkHash,
+        failedCount: 1,
+        windowStartedAt: now,
+        lastFailedAt: now,
+      });
       return { failedCount: 1, shouldAlert: false };
     }
     const nextCount = existing.failedCount + 1;
@@ -1102,15 +1178,13 @@ export async function unlockUserLoginFailures(input: {
     .delete(authLoginAttempts)
     .where(inArray(authLoginAttempts.identifierHash, identifiers));
   const clearedAttemptCount = Number(result[0].affectedRows ?? 0);
-  await db
-    .insert(loginUnlockAudits)
-    .values({
-      targetOpenId: input.targetOpenId,
-      targetEmail: user.email,
-      actorOpenId: input.actorOpenId,
-      actorName: input.actorName ?? null,
-      clearedAttemptCount,
-    });
+  await db.insert(loginUnlockAudits).values({
+    targetOpenId: input.targetOpenId,
+    targetEmail: user.email,
+    actorOpenId: input.actorOpenId,
+    actorName: input.actorName ?? null,
+    clearedAttemptCount,
+  });
   return { clearedAttemptCount, targetEmail: user.email };
 }
 
@@ -1499,7 +1573,8 @@ export async function verifySecurityQuestions(
     .where(eq(users.openId, openId))
     .limit(1);
   const user = rows[0];
-  if (!user || !user.securityAnswer1Hash || !user.securityAnswer2Hash) return false;
+  if (!user || !user.securityAnswer1Hash || !user.securityAnswer2Hash)
+    return false;
   const valid1 = verifySecurityAnswer(answer1, user.securityAnswer1Hash);
   const valid2 = verifySecurityAnswer(answer2, user.securityAnswer2Hash);
   return valid1 || valid2;
@@ -1579,6 +1654,7 @@ export async function getUserProfile(openId: string) {
       openId: users.openId,
       name: users.name,
       email: users.email,
+      phone: users.phone,
       role: users.role,
       notificationPreferences: users.notificationPreferences,
       avatarUrl: users.avatarUrl,
@@ -1630,6 +1706,7 @@ export async function updateUserProfile(
   input: {
     name: string;
     timezone: string;
+    phone?: string | null;
     learningGoals?: string[];
     notificationPreferences: NotificationPreferences;
     leaderboardOptIn?: boolean;
@@ -1648,6 +1725,7 @@ export async function updateUserProfile(
     .update(users)
     .set({
       name: input.name,
+      phone: input.phone,
       timezone: input.timezone,
       learningGoals: input.learningGoals ?? [],
       notificationPreferences: input.notificationPreferences,
@@ -1675,6 +1753,7 @@ export async function adminUpdateUserProfile(
   input: {
     name: string;
     timezone: string;
+    phone?: string | null;
     learningGoals?: string[];
     notificationPreferences: NotificationPreferences;
     leaderboardOptIn?: boolean;
@@ -1693,6 +1772,7 @@ export async function adminUpdateUserProfile(
     .update(users)
     .set({
       name: input.name,
+      phone: input.phone ?? undefined,
       timezone: input.timezone,
       learningGoals: input.learningGoals ?? [],
       notificationPreferences: input.notificationPreferences,
@@ -1950,7 +2030,8 @@ export async function getCareerPathAdminOverview() {
     summary: {
       total: attempts.length,
       paid: attempts.filter(attempt => attempt.paymentStatus === "paid").length,
-      pending: attempts.filter(attempt => attempt.paymentStatus !== "paid").length,
+      pending: attempts.filter(attempt => attempt.paymentStatus !== "paid")
+        .length,
     },
   };
 }
@@ -2157,17 +2238,15 @@ export async function saveReflectionResponse(input: {
       })
       .where(eq(assessmentReflectionResponses.id, existing.id));
   } else {
-    await db
-      .insert(assessmentReflectionResponses)
-      .values({
-        attemptId: input.attemptId,
-        ownerOpenId: input.ownerOpenId,
-        dimensionKey: input.dimensionKey,
-        promptIndex: input.promptIndex,
-        promptText: input.promptText,
-        note: input.note.trim() || null,
-        status: input.status,
-      });
+    await db.insert(assessmentReflectionResponses).values({
+      attemptId: input.attemptId,
+      ownerOpenId: input.ownerOpenId,
+      dimensionKey: input.dimensionKey,
+      promptIndex: input.promptIndex,
+      promptText: input.promptText,
+      note: input.note.trim() || null,
+      status: input.status,
+    });
   }
   return (
     await db
@@ -2317,16 +2396,14 @@ export async function createReportShare(input: {
   if (!db) throw new Error("Database is not available");
   const rawToken = randomBytes(32).toString("base64url");
   const tokenHash = hashReportShareToken(rawToken);
-  await db
-    .insert(reportShares)
-    .values({
-      attemptId: input.attemptId,
-      ownerOpenId: input.ownerOpenId,
-      lens: input.lens,
-      recipientPurpose: input.recipientPurpose ?? null,
-      tokenHash,
-      expiresAt: input.expiresAt,
-    });
+  await db.insert(reportShares).values({
+    attemptId: input.attemptId,
+    ownerOpenId: input.ownerOpenId,
+    lens: input.lens,
+    recipientPurpose: input.recipientPurpose ?? null,
+    tokenHash,
+    expiresAt: input.expiresAt,
+  });
   const created = await db
     .select({ id: reportShares.id })
     .from(reportShares)
@@ -2396,15 +2473,13 @@ export async function revokeReportShare(ownerOpenId: string, shareId: number) {
     .update(reportShares)
     .set({ revokedAt: new Date() })
     .where(eq(reportShares.id, shareId));
-  await db
-    .insert(reportShareAuditEvents)
-    .values({
-      shareId,
-      attemptId: existing[0].attemptId,
-      ownerOpenId,
-      eventType: "revoked",
-      recipientPurpose: existing[0].recipientPurpose ?? null,
-    });
+  await db.insert(reportShareAuditEvents).values({
+    shareId,
+    attemptId: existing[0].attemptId,
+    ownerOpenId,
+    eventType: "revoked",
+    recipientPurpose: existing[0].recipientPurpose ?? null,
+  });
 }
 
 export async function listReportShareAuditEvents(
@@ -2879,14 +2954,12 @@ export async function recordAnalyticsEvent(input: {
 }) {
   const db = await getDb();
   if (!db) return;
-  await db
-    .insert(analyticsEvents)
-    .values({
-      eventName: input.eventName,
-      attemptId: input.attemptId,
-      userOpenId: input.userOpenId,
-      metadata: input.metadata ?? null,
-    });
+  await db.insert(analyticsEvents).values({
+    eventName: input.eventName,
+    attemptId: input.attemptId,
+    userOpenId: input.userOpenId,
+    metadata: input.metadata ?? null,
+  });
 }
 
 export async function createContactInquiry(input: {
@@ -2911,17 +2984,12 @@ export async function createContactInquiry(input: {
 export async function getContactInquiry(id: number | string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const where = Number.isNaN(Number(id)) || String(id).startsWith("PIQ-")
-    ? eq(contactInquiries.ticketNumber, String(id))
-    : eq(contactInquiries.id, Number(id));
+  const where =
+    Number.isNaN(Number(id)) || String(id).startsWith("PIQ-")
+      ? eq(contactInquiries.ticketNumber, String(id))
+      : eq(contactInquiries.id, Number(id));
   return (
-    (
-      await db
-        .select()
-        .from(contactInquiries)
-        .where(where)
-        .limit(1)
-    )[0] ?? null
+    (await db.select().from(contactInquiries).where(where).limit(1))[0] ?? null
   );
 }
 
@@ -3295,18 +3363,16 @@ export async function subscribeToNewsletter(input: {
       confirmationRequired: !isConfirmed,
     };
   }
-  const result = await db
-    .insert(newsletterSubscribers)
-    .values({
-      email,
-      source: input.source ?? "insights",
-      status: "pending",
-      consentedAt: now,
-      confirmationTokenHash: input.confirmationTokenHash,
-      confirmationExpiresAt: input.confirmationExpiresAt,
-      confirmationSentAt: input.confirmationSentAt,
-      unsubscribeTokenHash: input.unsubscribeTokenHash,
-    });
+  const result = await db.insert(newsletterSubscribers).values({
+    email,
+    source: input.source ?? "insights",
+    status: "pending",
+    consentedAt: now,
+    confirmationTokenHash: input.confirmationTokenHash,
+    confirmationExpiresAt: input.confirmationExpiresAt,
+    confirmationSentAt: input.confirmationSentAt,
+    unsubscribeTokenHash: input.unsubscribeTokenHash,
+  });
   return {
     id: Number(result[0].insertId),
     status: "pending" as const,
@@ -3550,20 +3616,18 @@ export async function setInsightArticleStatus(input: {
       })
       .where(eq(insightArticlesTable.id, existing.id));
   else
-    await db
-      .insert(insightArticlesTable)
-      .values({
-        slug: bundled.slug,
-        category: bundled.category,
-        title: bundled.title,
-        excerpt: bundled.excerpt,
-        readTime: bundled.readTime,
-        accent: bundled.accent,
-        sectionsJson: JSON.stringify(bundled.sections),
-        status: input.status,
-        socialImageUrl: input.socialImageUrl ?? null,
-        publishedAt,
-      });
+    await db.insert(insightArticlesTable).values({
+      slug: bundled.slug,
+      category: bundled.category,
+      title: bundled.title,
+      excerpt: bundled.excerpt,
+      readTime: bundled.readTime,
+      accent: bundled.accent,
+      sectionsJson: JSON.stringify(bundled.sections),
+      status: input.status,
+      socialImageUrl: input.socialImageUrl ?? null,
+      publishedAt,
+    });
   return { slug: input.slug, status: input.status };
 }
 
@@ -3610,17 +3674,15 @@ async function recordContactInquiryAudit(
   }
 ) {
   if (!db) throw new Error("Database is not available");
-  await db
-    .insert(contactInquiryAuditLogs)
-    .values({
-      inquiryId: input.inquiryId,
-      actorOpenId: input.actor.openId,
-      actorName: input.actor.name ?? null,
-      actorEmail: input.actor.email ?? null,
-      action: input.action,
-      previousValue: input.previousValue ?? null,
-      nextValue: input.nextValue ?? null,
-    });
+  await db.insert(contactInquiryAuditLogs).values({
+    inquiryId: input.inquiryId,
+    actorOpenId: input.actor.openId,
+    actorName: input.actor.name ?? null,
+    actorEmail: input.actor.email ?? null,
+    action: input.action,
+    previousValue: input.previousValue ?? null,
+    nextValue: input.nextValue ?? null,
+  });
 }
 
 export async function createStaffInvitation(input: {
@@ -3837,13 +3899,10 @@ export async function searchUsers(query: string, excludeOpenId: string) {
     })
     .from(users)
     .where(
-        and(
-          or(
-            like(users.name, term),
-            like(users.email, term)
-          ),
-          not(eq(users.openId, excludeOpenId))
-        )
+      and(
+        or(like(users.name, term), like(users.email, term)),
+        not(eq(users.openId, excludeOpenId))
+      )
     )
     .limit(20)
     .orderBy(users.name);
@@ -4787,16 +4846,14 @@ export async function revokeUserEmailVerification(
       .update(users)
       .set({ emailVerifiedAt: null })
       .where(eq(users.openId, openId));
-    await tx
-      .insert(verificationRevocationAudits)
-      .values({
-        targetOpenId: target.openId,
-        targetEmail: target.email,
-        actorOpenId: actor.openId,
-        actorName: actor.name ?? null,
-        actorEmail: actor.email ?? null,
-        reason,
-      });
+    await tx.insert(verificationRevocationAudits).values({
+      targetOpenId: target.openId,
+      targetEmail: target.email,
+      actorOpenId: actor.openId,
+      actorName: actor.name ?? null,
+      actorEmail: actor.email ?? null,
+      reason,
+    });
   });
   return getUserByOpenId(openId);
 }
@@ -5076,7 +5133,8 @@ export async function adminDownloadAssessmentReport(attemptId: number) {
   if (!attempt || attempt.paymentStatus !== "paid" || !attempt.report) {
     throw new Error("Assessment report not available.");
   }
-  const report = attempt.report as import("../shared/assessment").AssessmentReport;
+  const report =
+    attempt.report as import("../shared/assessment").AssessmentReport;
   const pdf = await renderAssessmentReportPdf({
     attemptId: attempt.id,
     participantName: attempt.name,
@@ -5127,29 +5185,25 @@ export async function getOrCreateCourseEnrollment(input: {
         .limit(1)
     )[0];
   }
-  const result = await db
-    .insert(courseLearnerEnrollments)
-    .values({
-      userOpenId: input.userOpenId,
-      courseSlug: input.courseSlug,
-      name: input.name,
-      email: input.email,
-    });
+  const result = await db.insert(courseLearnerEnrollments).values({
+    userOpenId: input.userOpenId,
+    courseSlug: input.courseSlug,
+    name: input.name,
+    email: input.email,
+  });
   const enrollmentId = Number(result[0].insertId);
   const stageAmounts =
     input.stageAmountsKes?.length === 4
       ? input.stageAmountsKes
       : [input.amountKes, input.amountKes, input.amountKes, input.amountKes];
-  await db
-    .insert(coursePaymentStages)
-    .values(
-      [1, 2, 3, 4].map(stage => ({
-        enrollmentId,
-        stage,
-        amountKes: stageAmounts[stage - 1],
-        paymentStatus: stageAmounts[stage - 1] === 0 ? "paid" : "pending",
-      }))
-    );
+  await db.insert(coursePaymentStages).values(
+    [1, 2, 3, 4].map(stage => ({
+      enrollmentId,
+      stage,
+      amountKes: stageAmounts[stage - 1],
+      paymentStatus: stageAmounts[stage - 1] === 0 ? "paid" : "pending",
+    }))
+  );
   return (
     await db
       .select()
@@ -5158,6 +5212,54 @@ export async function getOrCreateCourseEnrollment(input: {
       .limit(1)
   )[0];
 }
+
+export async function saveCourseEnrollmentApplication(input: {
+  enrollmentId: number;
+  userOpenId: string;
+  courseSlug: string;
+  application: CourseEnrollmentApplication;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db
+    .insert(courseEnrollmentApplications)
+    .values(input)
+    .onDuplicateKeyUpdate({
+      set: {
+        application: input.application,
+        updatedAt: new Date(),
+      },
+    });
+}
+
+export async function getCourseEnrollmentApplication(
+  userOpenId: string,
+  courseSlug: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return (
+    (
+      await db
+        .select({
+          enrollmentId: courseEnrollmentApplications.enrollmentId,
+          courseSlug: courseEnrollmentApplications.courseSlug,
+          application: courseEnrollmentApplications.application,
+          createdAt: courseEnrollmentApplications.createdAt,
+          updatedAt: courseEnrollmentApplications.updatedAt,
+        })
+        .from(courseEnrollmentApplications)
+        .where(
+          and(
+            eq(courseEnrollmentApplications.userOpenId, userOpenId),
+            eq(courseEnrollmentApplications.courseSlug, courseSlug)
+          )
+        )
+        .limit(1)
+    )[0] ?? null
+  );
+}
+
 export async function getCourseEnrollmentById(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -5356,25 +5458,21 @@ export async function setCourseAccessGrant(input: {
       })
       .where(eq(courseAccessGrants.id, existing.id));
   } else if (input.enabled) {
-    await db
-      .insert(courseAccessGrants)
-      .values({
-        userOpenId: input.userOpenId,
-        courseSlug: input.courseSlug,
-        grantedByOpenId: input.actorOpenId,
-        grantedByName: input.actorName ?? null,
-      });
-  }
-  await db
-    .insert(courseAccessGrantAudits)
-    .values({
+    await db.insert(courseAccessGrants).values({
       userOpenId: input.userOpenId,
       courseSlug: input.courseSlug,
-      action: input.enabled ? "grant" : "revoke",
-      actorOpenId: input.actorOpenId,
-      actorName: input.actorName ?? null,
-      actorEmail: input.actorEmail ?? null,
+      grantedByOpenId: input.actorOpenId,
+      grantedByName: input.actorName ?? null,
     });
+  }
+  await db.insert(courseAccessGrantAudits).values({
+    userOpenId: input.userOpenId,
+    courseSlug: input.courseSlug,
+    action: input.enabled ? "grant" : "revoke",
+    actorOpenId: input.actorOpenId,
+    actorName: input.actorName ?? null,
+    actorEmail: input.actorEmail ?? null,
+  });
   return (
     (
       await db
@@ -5468,6 +5566,111 @@ export async function listCourseEnrollmentState(userOpenId: string) {
     })
   );
 }
+export function roadmapDiscountFactor(count: number): number {
+  return count >= 2 ? 0.9 : 1;
+}
+
+export async function listAssessmentRoadmap(userOpenId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const items = await db
+    .select()
+    .from(assessmentRoadmapItems)
+    .where(eq(assessmentRoadmapItems.userOpenId, userOpenId))
+    .orderBy(desc(assessmentRoadmapItems.createdAt));
+  const enrollments = await db
+    .select()
+    .from(courseLearnerEnrollments)
+    .where(eq(courseLearnerEnrollments.userOpenId, userOpenId));
+  const enrollmentBySlug = new Map(
+    enrollments.map(enrollment => [enrollment.courseSlug, enrollment])
+  );
+  const discountActive = items.length >= 2;
+  const results: Array<{
+    courseSlug: string;
+    title: string;
+    category: string;
+    skillLevel: string;
+    duration: string;
+    priceKes: number;
+    discountedPriceKes: number;
+    discountApplied: boolean;
+    enrolled: boolean;
+    completedLessons: number;
+    totalLessons: number;
+    progress: number;
+  }> = [];
+  for (const item of items) {
+    const course = courseCatalog.find(entry => entry.slug === item.courseSlug);
+    if (!course) continue;
+    const enrollment = enrollmentBySlug.get(item.courseSlug);
+    let completedLessons = 0;
+    if (enrollment) {
+      const progressRows = await db
+        .select()
+        .from(courseLessonProgress)
+        .where(eq(courseLessonProgress.enrollmentId, enrollment.id));
+      completedLessons = progressRows.length;
+    }
+    const totalLessons = course.modules.reduce(
+      (sum, module) => sum + module.lessons.length,
+      0
+    );
+    const progress = totalLessons
+      ? Math.round((completedLessons / totalLessons) * 100)
+      : 0;
+    results.push({
+      courseSlug: course.slug,
+      title: course.title,
+      category: course.category,
+      skillLevel: course.skillLevel,
+      duration: course.duration,
+      priceKes: course.priceKes,
+      discountedPriceKes: discountActive
+        ? Math.round(course.priceKes * 0.9)
+        : course.priceKes,
+      discountApplied: discountActive,
+      enrolled: Boolean(enrollment),
+      completedLessons,
+      totalLessons,
+      progress: Math.max(0, Math.min(100, progress)),
+    });
+  }
+  return { items: results, discountActive, count: results.length };
+}
+
+export async function addAssessmentRoadmapItem(
+  userOpenId: string,
+  courseSlug: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const course = courseCatalog.find(entry => entry.slug === courseSlug);
+  if (!course) throw new Error("Course not found.");
+  await db
+    .insert(assessmentRoadmapItems)
+    .values({ userOpenId, courseSlug })
+    .onDuplicateKeyUpdate({ set: { updatedAt: new Date() } });
+  return listAssessmentRoadmap(userOpenId);
+}
+
+export async function removeAssessmentRoadmapItem(
+  userOpenId: string,
+  courseSlug: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db
+    .delete(assessmentRoadmapItems)
+    .where(
+      and(
+        eq(assessmentRoadmapItems.userOpenId, userOpenId),
+        eq(assessmentRoadmapItems.courseSlug, courseSlug)
+      )
+    );
+  return listAssessmentRoadmap(userOpenId);
+}
+
 export async function listCoursePaymentHistoryPage(
   userOpenId: string,
   input: {
@@ -5758,14 +5961,12 @@ export async function saveCourseRecommendationAnswers(
       recommendationAnswers: { ...answers, savedAt: savedAt.toISOString() },
     })
     .where(eq(users.openId, userOpenId));
-  await db
-    .insert(courseRecommendationHistory)
-    .values({
-      userOpenId,
-      careerGoal: answers.careerGoal,
-      skillLevel: answers.skillLevel,
-      createdAt: savedAt,
-    });
+  await db.insert(courseRecommendationHistory).values({
+    userOpenId,
+    careerGoal: answers.careerGoal,
+    skillLevel: answers.skillLevel,
+    createdAt: savedAt,
+  });
   return { saved: true as const, answers, savedAt: savedAt.toISOString() };
 }
 
@@ -6478,19 +6679,17 @@ export async function upsertCourseLessonResponseReview(input: {
       previousReview.feedback !== feedback ||
       previousReview.status !== "reviewed")
   ) {
-    await db
-      .insert(courseLessonResponseNotifications)
-      .values({
-        userOpenId: enrollment.userOpenId,
-        enrollmentId: input.enrollmentId,
-        responseId: input.responseId,
-        reviewId,
-        courseSlug: enrollment.courseSlug,
-        lessonId: input.lessonId,
-        taskId: input.taskId,
-        title: "New instructor feedback",
-        body: feedback,
-      });
+    await db.insert(courseLessonResponseNotifications).values({
+      userOpenId: enrollment.userOpenId,
+      enrollmentId: input.enrollmentId,
+      responseId: input.responseId,
+      reviewId,
+      courseSlug: enrollment.courseSlug,
+      lessonId: input.lessonId,
+      taskId: input.taskId,
+      title: "New instructor feedback",
+      body: feedback,
+    });
     notificationCreated = true;
   }
   return {
@@ -6839,9 +7038,7 @@ export async function findPublicCourseCertificate(certificateNumber: string) {
   );
 }
 
-export async function getCourseCertificateByEnrollmentId(
-  enrollmentId: number
-) {
+export async function getCourseCertificateByEnrollmentId(enrollmentId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   return (
@@ -7136,18 +7333,16 @@ export async function reviewOrganizationInvitation(input: {
         eq(organizationInvitations.status, "pending")
       )
     );
-  await db
-    .insert(organizationApprovalEvents)
-    .values({
-      invitationId: invitation.id,
-      organizationName: invitation.organizationName,
-      organizationEmail: invitation.organizationEmail,
-      requesterOpenId: invitation.requesterOpenId,
-      actorOpenId: input.actorOpenId,
-      eventType: input.status,
-      note: input.note?.trim() || null,
-      createdAt: now,
-    });
+  await db.insert(organizationApprovalEvents).values({
+    invitationId: invitation.id,
+    organizationName: invitation.organizationName,
+    organizationEmail: invitation.organizationEmail,
+    requesterOpenId: invitation.requesterOpenId,
+    actorOpenId: input.actorOpenId,
+    eventType: input.status,
+    note: input.note?.trim() || null,
+    createdAt: now,
+  });
   return { ...invitation, status: input.status, reviewedAt: now };
 }
 
@@ -7180,18 +7375,16 @@ export async function createOrganizationInvitation(input: {
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const result = await db
-    .insert(organizationInvitations)
-    .values({
-      organizationName: input.organizationName,
-      organizationEmail: input.organizationEmail,
-      requesterOpenId: input.requesterOpenId,
-      reportType: input.reportType,
-      reportId: input.reportId,
-      tokenHash: input.tokenHash,
-      expiresAt: input.expiresAt,
-      status: "pending",
-    });
+  const result = await db.insert(organizationInvitations).values({
+    organizationName: input.organizationName,
+    organizationEmail: input.organizationEmail,
+    requesterOpenId: input.requesterOpenId,
+    reportType: input.reportType,
+    reportId: input.reportId,
+    tokenHash: input.tokenHash,
+    expiresAt: input.expiresAt,
+    status: "pending",
+  });
   return { id: Number(result[0].insertId), expiresAt: input.expiresAt };
 }
 
@@ -7784,7 +7977,10 @@ export async function updateUserExportLogo(
 export async function listResources() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(resources).orderBy(desc(resources.sortOrder), desc(resources.createdAt));
+  return db
+    .select()
+    .from(resources)
+    .orderBy(desc(resources.sortOrder), desc(resources.createdAt));
 }
 
 export async function listPublishedResources() {
@@ -7800,7 +7996,11 @@ export async function listPublishedResources() {
 export async function getResource(id: number) {
   const db = await getDb();
   if (!db) return null;
-  const rows = await db.select().from(resources).where(eq(resources.id, id)).limit(1);
+  const rows = await db
+    .select()
+    .from(resources)
+    .where(eq(resources.id, id))
+    .limit(1);
   return rows[0] ?? null;
 }
 
@@ -7818,34 +8018,43 @@ export async function createResource(input: {
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const rows = await db.insert(resources).values({
-    ...input,
-    fileUrl: input.fileUrl ?? null,
-    fileType: input.fileType ?? null,
-    fileSize: input.fileSize ?? null,
-    coverImageUrl: input.coverImageUrl ?? null,
-    price: input.price ?? 0,
-    currency: input.currency ?? "KES",
-  }).$returningId();
+  const rows = await db
+    .insert(resources)
+    .values({
+      ...input,
+      fileUrl: input.fileUrl ?? null,
+      fileType: input.fileType ?? null,
+      fileSize: input.fileSize ?? null,
+      coverImageUrl: input.coverImageUrl ?? null,
+      price: input.price ?? 0,
+      currency: input.currency ?? "KES",
+    })
+    .$returningId();
   return rows[0];
 }
 
-export async function updateResource(id: number, input: {
-  title?: string;
-  description?: string;
-  category?: string;
-  fileUrl?: string;
-  fileType?: string;
-  fileSize?: number;
-  coverImageUrl?: string;
-  status?: string;
-  sortOrder?: number;
-  price?: number;
-  currency?: string;
-}) {
+export async function updateResource(
+  id: number,
+  input: {
+    title?: string;
+    description?: string;
+    category?: string;
+    fileUrl?: string;
+    fileType?: string;
+    fileSize?: number;
+    coverImageUrl?: string;
+    status?: string;
+    sortOrder?: number;
+    price?: number;
+    currency?: string;
+  }
+) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db.update(resources).set(input as any).where(eq(resources.id, id));
+  await db
+    .update(resources)
+    .set(input as any)
+    .where(eq(resources.id, id));
   return getResource(id);
 }
 
@@ -7867,42 +8076,71 @@ export async function createResourcePurchase(input: {
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const rows = await db.insert(resourcePurchases).values({
-    resourceId: input.resourceId,
-    userOpenId: input.userOpenId,
-    userEmail: input.userEmail,
-    amountKes: input.amountKes,
-    currency: input.currency ?? "KES",
-    paystackReference: input.paystackReference ?? null,
-    paymentStatus: input.paymentStatus ?? "pending",
-  }).$returningId();
+  const rows = await db
+    .insert(resourcePurchases)
+    .values({
+      resourceId: input.resourceId,
+      userOpenId: input.userOpenId,
+      userEmail: input.userEmail,
+      amountKes: input.amountKes,
+      currency: input.currency ?? "KES",
+      paystackReference: input.paystackReference ?? null,
+      paymentStatus: input.paymentStatus ?? "pending",
+    })
+    .$returningId();
   return rows[0];
 }
 
 export async function getResourcePurchaseByReference(reference: string) {
   const db = await getDb();
   if (!db) return null;
-  const rows = await db.select().from(resourcePurchases).where(eq(resourcePurchases.paystackReference, reference)).limit(1);
+  const rows = await db
+    .select()
+    .from(resourcePurchases)
+    .where(eq(resourcePurchases.paystackReference, reference))
+    .limit(1);
   return rows[0] ?? null;
 }
 
-export async function updateResourcePurchaseStatus(id: number, paymentStatus: string) {
+export async function updateResourcePurchaseStatus(
+  id: number,
+  paymentStatus: string
+) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db.update(resourcePurchases).set({ paymentStatus }).where(eq(resourcePurchases.id, id));
-  return getResourcePurchaseByReference((await db.select().from(resourcePurchases).where(eq(resourcePurchases.id, id)).limit(1))?.[0]?.paystackReference ?? "");
+  await db
+    .update(resourcePurchases)
+    .set({ paymentStatus })
+    .where(eq(resourcePurchases.id, id));
+  return getResourcePurchaseByReference(
+    (
+      await db
+        .select()
+        .from(resourcePurchases)
+        .where(eq(resourcePurchases.id, id))
+        .limit(1)
+    )?.[0]?.paystackReference ?? ""
+  );
 }
 
 export async function listUserResourcePurchases(userOpenId: string) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(resourcePurchases).where(eq(resourcePurchases.userOpenId, userOpenId)).orderBy(desc(resourcePurchases.purchasedAt));
+  return db
+    .select()
+    .from(resourcePurchases)
+    .where(eq(resourcePurchases.userOpenId, userOpenId))
+    .orderBy(desc(resourcePurchases.purchasedAt));
 }
 
 export async function listResourcePurchases(resourceId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(resourcePurchases).where(eq(resourcePurchases.resourceId, resourceId)).orderBy(desc(resourcePurchases.purchasedAt));
+  return db
+    .select()
+    .from(resourcePurchases)
+    .where(eq(resourcePurchases.resourceId, resourceId))
+    .orderBy(desc(resourcePurchases.purchasedAt));
 }
 
 export async function listSurveys() {
@@ -7914,7 +8152,11 @@ export async function listSurveys() {
 export async function getSurvey(id: number) {
   const db = await getDb();
   if (!db) return null;
-  const rows = await db.select().from(surveys).where(eq(surveys.id, id)).limit(1);
+  const rows = await db
+    .select()
+    .from(surveys)
+    .where(eq(surveys.id, id))
+    .limit(1);
   return rows[0] ?? null;
 }
 
@@ -7930,30 +8172,39 @@ export async function createSurvey(input: {
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const rows = await db.insert(surveys).values({
-    ...input,
-    responses: {},
-    totalResponses: 0,
-    startsAt: input.startsAt ?? null,
-    endsAt: input.endsAt ?? null,
-    questions: input.questions ?? null,
-  }).$returningId();
+  const rows = await db
+    .insert(surveys)
+    .values({
+      ...input,
+      responses: {},
+      totalResponses: 0,
+      startsAt: input.startsAt ?? null,
+      endsAt: input.endsAt ?? null,
+      questions: input.questions ?? null,
+    })
+    .$returningId();
   return rows[0];
 }
 
-export async function updateSurvey(id: number, input: {
-  title?: string;
-  description?: string;
-  type?: string;
-  options?: any[];
-  status?: string;
-  startsAt?: Date | null;
-  endsAt?: Date | null;
-  questions?: any[] | null;
-}) {
+export async function updateSurvey(
+  id: number,
+  input: {
+    title?: string;
+    description?: string;
+    type?: string;
+    options?: any[];
+    status?: string;
+    startsAt?: Date | null;
+    endsAt?: Date | null;
+    questions?: any[] | null;
+  }
+) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db.update(surveys).set(input as any).where(eq(surveys.id, id));
+  await db
+    .update(surveys)
+    .set(input as any)
+    .where(eq(surveys.id, id));
   return getSurvey(id);
 }
 
@@ -7972,9 +8223,12 @@ export async function submitSurveyResponse(id: number, optionIndex: number) {
   const responses = { ...(survey.responses as Record<string, number>) };
   const key = String(optionIndex);
   responses[key] = (responses[key] ?? 0) + 1;
-  await db.update(surveys).set({ 
-    responses,
-    totalResponses: survey.totalResponses + 1,
-  }).where(eq(surveys.id, id));
+  await db
+    .update(surveys)
+    .set({
+      responses,
+      totalResponses: survey.totalResponses + 1,
+    })
+    .where(eq(surveys.id, id));
   return getSurvey(id);
 }

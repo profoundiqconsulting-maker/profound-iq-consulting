@@ -1,6 +1,6 @@
-import fs from 'fs';
+import fs from "fs";
 
-const content = fs.readFileSync('client/src/pages/AdminDashboard.tsx', 'utf-8');
+const content = fs.readFileSync("client/src/pages/AdminDashboard.tsx", "utf-8");
 
 // Fix OrganizationApprovalQueue - replace opening section tag
 const oldOpen = `<section className="mt-14 border border-[#16243d]/15 bg-white/45 p-5 sm:p-6">
@@ -45,10 +45,10 @@ const newOpen = `<Section
       <div className="grid gap-3 md:grid-cols-4">`;
 
 if (content.includes(oldOpen)) {
-    content = content.replace(oldOpen, newOpen);
-    console.log("Fixed OrganizationApprovalQueue opening tag");
+  content = content.replace(oldOpen, newOpen);
+  console.log("Fixed OrganizationApprovalQueue opening tag");
 } else {
-    console.log("Opening pattern not found");
+  console.log("Opening pattern not found");
 }
 
 // Fix closing tag
@@ -61,16 +61,16 @@ const newClose = `    </Section>
 }`;
 
 if (content.includes(oldClose)) {
-    content = content.replace(oldClose, newClose);
-    console.log("Fixed OrganizationApprovalQueue closing tag");
+  content = content.replace(oldClose, newClose);
+  console.log("Fixed OrganizationApprovalQueue closing tag");
 } else {
-    console.log("Closing pattern not found");
-    // Check what's there
-    const idx = content.indexOf('itemLabel="organization approval records"');
-    if (idx > 0) {
-        console.log("Context:");
-        console.log(JSON.stringify(content.substring(idx, idx + 100)));
-    }
+  console.log("Closing pattern not found");
+  // Check what's there
+  const idx = content.indexOf('itemLabel="organization approval records"');
+  if (idx > 0) {
+    console.log("Context:");
+    console.log(JSON.stringify(content.substring(idx, idx + 100)));
+  }
 }
 
-fs.writeFileSync('client/src/pages/AdminDashboard.tsx', content, 'utf-8');
+fs.writeFileSync("client/src/pages/AdminDashboard.tsx", content, "utf-8");

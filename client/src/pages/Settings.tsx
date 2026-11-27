@@ -145,6 +145,7 @@ export default function Settings() {
     },
   });
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [timezone, setTimezone] = useState("Africa/Nairobi");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
@@ -172,6 +173,7 @@ export default function Settings() {
   useEffect(() => {
     if (!profile.data) return;
     setName(profile.data.name ?? "");
+    setPhone(profile.data.phone ?? "");
     setTimezone(profile.data.timezone ?? "Africa/Nairobi");
     setAvatarUrl(profile.data.avatarUrl ?? null);
     setPreferences({ ...defaults, ...profile.data.notificationPreferences });
@@ -281,13 +283,23 @@ export default function Settings() {
     update.mutate(
       {
         name,
+        phone: phone.trim() || null,
         timezone,
         learningGoals: learningGoals as Array<
           (typeof learningGoalOptions)[number]["value"]
         >,
         notificationPreferences: preferences,
       },
-      { onSuccess: () => setSaved(true) }
+      {
+        onSuccess: async () => {
+          await profile.refetch();
+          setSaved(true);
+        },
+        onError: error =>
+          toast.error("Could not save profile", {
+            description: error.message,
+          }),
+      }
     );
   };
 
@@ -313,6 +325,7 @@ export default function Settings() {
   return (
     <DashboardLayout role="user" title="Settings">
       <DashboardHero
+        showWelcome={false}
         eyebrow="Workspace"
         title="Settings"
         description="Keep your account details current and choose the development signals you want to receive."
@@ -361,8 +374,8 @@ export default function Settings() {
                   </button>
                 )}
                 <p className="mt-2 text-xs text-[#16243d]">
-                  PNG, JPEG, or WebP. Maximum 2MB. Remove the current picture
-                  to hide it from navigation.
+                  PNG, JPEG, or WebP. Maximum 2MB. Remove the current picture to
+                  hide it from navigation.
                 </p>
                 {cropError && (
                   <p className="mt-2 text-xs font-semibold text-red-800">
@@ -482,6 +495,20 @@ export default function Settings() {
                   value={user.email ?? ""}
                   readOnly
                   className="mt-2 cursor-not-allowed border border-[#16243d]/10 bg-[#ebe7dc] text-[#16243d]"
+                />
+              </label>
+            </div>
+            <div className="mt-6">
+              <label className="block text-xs font-black uppercase tracking-[.14em] text-[#16243d]">
+                Phone number
+                <Input
+                  type="tel"
+                  autoComplete="tel"
+                  value={phone}
+                  onChange={event => setPhone(event.target.value)}
+                  minLength={phone ? 7 : undefined}
+                  maxLength={32}
+                  className="mt-2"
                 />
               </label>
             </div>
@@ -717,7 +744,9 @@ export default function Settings() {
               ? `${courseState.data.length} active course${courseState.data.length === 1 ? "" : "s"}`
               : "No course enrollments yet."
           }
-          description={"Review your active courses and the staged payments attached to each enrollment."}
+          description={
+            "Review your active courses and the staged payments attached to each enrollment."
+          }
         >
           {courseState.isLoading ? (
             <div className="flex items-center gap-3 text-sm text-[#16243d]">

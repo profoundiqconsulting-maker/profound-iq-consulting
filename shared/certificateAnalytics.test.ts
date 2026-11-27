@@ -29,7 +29,7 @@ describe("certificate analytics", () => {
     const source = readFileSync("client/src/pages/CourseWorkspace.tsx", "utf8");
     expect(source).toContain("CourseShareActions");
     expect(source).toContain(
-      "platforms={[\"facebook\", \"linkedin\", \"whatsapp\", \"email\", \"copy\", \"native\"]}"
+      'platforms={["facebook", "linkedin", "whatsapp", "email", "copy", "native"]}'
     );
   });
 

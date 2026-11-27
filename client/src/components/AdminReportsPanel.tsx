@@ -37,15 +37,20 @@ type ReportCategory = {
 
 export default function AdminReportsPanel() {
   const [selectedCategory, setSelectedCategory] = useState<string>("overview");
-  const [dateRange, setDateRange] = useState<{ fromDate?: string; toDate?: string }>({});
+  const [dateRange, setDateRange] = useState<{
+    fromDate?: string;
+    toDate?: string;
+  }>({});
 
   const analytics = trpc.admin.analyticsSummary.useQuery(dateRange);
   const revenue = trpc.admin.revenueReport.useQuery(dateRange);
   const usersQuery = trpc.admin.listAllUsers.useQuery();
 
   const totalUsers = usersQuery.data?.length ?? 0;
-  const adminUsers = usersQuery.data?.filter(u => u.role === "admin").length ?? 0;
-  const staffUsers = usersQuery.data?.filter(u => u.role === "staff").length ?? 0;
+  const adminUsers =
+    usersQuery.data?.filter(u => u.role === "admin").length ?? 0;
+  const staffUsers =
+    usersQuery.data?.filter(u => u.role === "staff").length ?? 0;
 
   const reportCategories: ReportCategory[] = [
     {
@@ -59,21 +64,39 @@ export default function AdminReportsPanel() {
           label: "Analytics Summary",
           description: "Overall site performance and engagement metrics",
           formats: ["csv", "excel", "pdf"],
-          useQuery: () => analytics as { data?: unknown; isLoading: boolean; error?: { message?: string } },
+          useQuery: () =>
+            analytics as {
+              data?: unknown;
+              isLoading: boolean;
+              error?: { message?: string };
+            },
         },
         {
           id: "revenue-report",
           label: "Revenue Report",
           description: "Payment transactions and revenue breakdown",
           formats: ["csv", "excel", "pdf"],
-          useQuery: () => revenue as { data?: unknown; isLoading: boolean; error?: { message?: string } },
+          useQuery: () =>
+            revenue as {
+              data?: unknown;
+              isLoading: boolean;
+              error?: { message?: string };
+            },
         },
         {
           id: "user-verification",
           label: "User Verification Review",
           description: "User verification status and review queue",
           formats: ["csv", "excel"],
-          useQuery: () => trpc.admin.userVerificationReview.useQuery({ page: 1, pageSize: 100 }) as { data?: unknown; isLoading: boolean; error?: { message?: string } },
+          useQuery: () =>
+            trpc.admin.userVerificationReview.useQuery({
+              page: 1,
+              pageSize: 100,
+            }) as {
+              data?: unknown;
+              isLoading: boolean;
+              error?: { message?: string };
+            },
         },
       ],
     },
@@ -88,21 +111,40 @@ export default function AdminReportsPanel() {
           label: "Course Access Analytics",
           description: "Access denied events and conversion tracking",
           formats: ["csv", "pdf"],
-          useQuery: () => trpc.admin.courseAccessDeniedAnalytics.useQuery(dateRange) as { data?: unknown; isLoading: boolean; error?: { message?: string } },
+          useQuery: () =>
+            trpc.admin.courseAccessDeniedAnalytics.useQuery(dateRange) as {
+              data?: unknown;
+              isLoading: boolean;
+              error?: { message?: string };
+            },
         },
         {
           id: "psychometric",
           label: "Psychometric Analytics",
           description: "Assessment performance and scoring analytics",
           formats: ["csv", "excel", "pdf"],
-          useQuery: () => trpc.admin.psychometricAttempts.useQuery({ ...dateRange, paymentStatus: "all", limit: 100 }) as { data?: unknown; isLoading: boolean; error?: { message?: string } },
+          useQuery: () =>
+            trpc.admin.psychometricAttempts.useQuery({
+              ...dateRange,
+              paymentStatus: "all",
+              limit: 100,
+            }) as {
+              data?: unknown;
+              isLoading: boolean;
+              error?: { message?: string };
+            },
         },
         {
           id: "certificate-usage",
           label: "Certificate Usage",
           description: "Certificate downloads and social shares",
           formats: ["csv"],
-          useQuery: () => trpc.admin.certificateUsageAnalytics.useQuery(dateRange) as { data?: unknown; isLoading: boolean; error?: { message?: string } },
+          useQuery: () =>
+            trpc.admin.certificateUsageAnalytics.useQuery(dateRange) as {
+              data?: unknown;
+              isLoading: boolean;
+              error?: { message?: string };
+            },
         },
       ],
     },
@@ -117,21 +159,45 @@ export default function AdminReportsPanel() {
           label: "Contact Inquiries",
           description: "Inquiry submissions and follow-up status",
           formats: ["csv", "excel"],
-          useQuery: () => trpc.admin.contactInquiries.useQuery({ page: 1, pageSize: 100 }) as { data?: unknown; isLoading: boolean; error?: { message?: string } },
+          useQuery: () =>
+            trpc.admin.contactInquiries.useQuery({
+              page: 1,
+              pageSize: 100,
+            }) as {
+              data?: unknown;
+              isLoading: boolean;
+              error?: { message?: string };
+            },
         },
         {
           id: "newsletter",
           label: "Newsletter Subscribers",
           description: "Subscription analytics and engagement",
           formats: ["csv"],
-            useQuery: () => trpc.newsletter.subscribers.useQuery({ page: 1, pageSize: 100 }) as { data?: unknown; isLoading: boolean; error?: { message?: string } },
+          useQuery: () =>
+            trpc.newsletter.subscribers.useQuery({
+              page: 1,
+              pageSize: 100,
+            }) as {
+              data?: unknown;
+              isLoading: boolean;
+              error?: { message?: string };
+            },
         },
         {
           id: "delivery-log",
           label: "Email Delivery Log",
           description: "Email template delivery status and failures",
           formats: ["csv"],
-          useQuery: () => trpc.admin.emailPreviewHistory.useQuery({ page: 1, pageSize: 100 }) as { data?: unknown; isLoading: boolean; error?: { message?: string } },
+          useQuery: () =>
+            trpc.admin.emailPreviewHistory.useQuery({
+              page: 1,
+              pageSize: 100,
+            }) as {
+              data?: unknown;
+              isLoading: boolean;
+              error?: { message?: string };
+            },
         },
       ],
     },
@@ -146,7 +212,12 @@ export default function AdminReportsPanel() {
           label: "Manual reset",
           description: "Manual reset",
           formats: ["csv"],
-          useQuery: () => trpc.admin.courseAccessGrants.useQuery({ activeOnly: false }) as { data?: unknown; isLoading: boolean; error?: { message?: string } },
+          useQuery: () =>
+            trpc.admin.courseAccessGrants.useQuery({ activeOnly: false }) as {
+              data?: unknown;
+              isLoading: boolean;
+              error?: { message?: string };
+            },
         },
       ],
     },
@@ -161,26 +232,41 @@ export default function AdminReportsPanel() {
           label: "Survey Responses",
           description: "Survey participation and response analytics",
           formats: ["csv", "excel"],
-          useQuery: () => trpc.admin.listSurveys.useQuery() as { data?: unknown; isLoading: boolean; error?: { message?: string } },
+          useQuery: () =>
+            trpc.admin.listSurveys.useQuery() as {
+              data?: unknown;
+              isLoading: boolean;
+              error?: { message?: string };
+            },
         },
         {
           id: "course-shares",
           label: "Course Share Analytics",
           description: "Social sharing activity and platform breakdown",
           formats: ["csv", "pdf"],
-          useQuery: () => trpc.admin.courseShareAnalytics.useQuery(dateRange) as { data?: unknown; isLoading: boolean; error?: { message?: string } },
+          useQuery: () =>
+            trpc.admin.courseShareAnalytics.useQuery(dateRange) as {
+              data?: unknown;
+              isLoading: boolean;
+              error?: { message?: string };
+            },
         },
       ],
     },
   ];
 
-  const selectedCategoryData = reportCategories.find(cat => cat.id === selectedCategory);
+  const selectedCategoryData = reportCategories.find(
+    cat => cat.id === selectedCategory
+  );
 
-  const analyticsSummary = analytics.data as {
-    summary: Record<string, number>;
-    previousSummary: Record<string, number>;
-    weekly: Record<string, Record<string, number>>;
-  } | null | undefined;
+  const analyticsSummary = analytics.data as
+    | {
+        summary: Record<string, number>;
+        previousSummary: Record<string, number>;
+        weekly: Record<string, Record<string, number>>;
+      }
+    | null
+    | undefined;
 
   const statCards = [
     {
@@ -195,14 +281,14 @@ export default function AdminReportsPanel() {
       value: adminUsers,
       icon: <ShieldCheck size={18} />,
       trend: null,
-      color: "bg-[#b8860b]",
+      color: "bg-[var(--brand)]",
     },
     {
       label: "Staff Users",
       value: staffUsers,
       icon: <UserPlus size={18} />,
       trend: null,
-      color: "bg-[#c9a34e]",
+      color: "bg-[var(--brand)]",
     },
     {
       label: "Site Visits",
@@ -217,14 +303,13 @@ export default function AdminReportsPanel() {
     <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow flex items-center gap-2 text-[#b8860b]">
+          <p className="eyebrow flex items-center gap-2 text-[var(--brand)]">
             <LineChart size={13} /> Reports & exports
           </p>
-          <h2 className="display mt-3 text-3xl">
-            Executive Dashboard
-          </h2>
-          <p className="mt-2 max-w-2xl text-sm text-[#475569]">
-            Platform overview, key metrics, and downloadable reports. Filter by date range and choose your preferred format.
+          <h2 className="display mt-3 text-3xl">Executive Dashboard</h2>
+          <p className="mt-2 max-w-2xl text-sm text-[var(--fg-muted)]">
+            Platform overview, key metrics, and downloadable reports. Filter by
+            date range and choose your preferred format.
           </p>
         </div>
       </div>
@@ -244,9 +329,7 @@ export default function AdminReportsPanel() {
                   {stat.value.toLocaleString()}
                 </p>
               </div>
-              <div className="text-white/80">
-                {stat.icon}
-              </div>
+              <div className="text-white/80">{stat.icon}</div>
             </div>
           </div>
         ))}
@@ -261,15 +344,17 @@ export default function AdminReportsPanel() {
                 onClick={() => setSelectedCategory(category.id)}
                 className={`w-full rounded-lg border px-3 py-2.5 text-left text-sm transition-all ${
                   selectedCategory === category.id
-                    ? "border-[#c9a34e] bg-[#c9a34e]/10 shadow-sm"
-                    : "border-[#16243d]/10 hover:border-[#c9a34e]"
+                    ? "border-[var(--brand)] bg-[var(--brand)]/10 shadow-sm"
+                    : "border-[#16243d]/10 hover:border-[var(--brand)]"
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-[#b8860b]">{category.icon}</span>
+                  <span className="text-[var(--brand)]">{category.icon}</span>
                   <span className="font-semibold">{category.label}</span>
                 </div>
-                <p className="mt-1 text-xs text-[#475569]">{category.description}</p>
+                <p className="mt-1 text-xs text-[var(--fg-muted)]">
+                  {category.description}
+                </p>
               </button>
             ))}
           </nav>
@@ -279,10 +364,16 @@ export default function AdminReportsPanel() {
           {selectedCategoryData && (
             <div>
               <div className="mb-4 flex items-center gap-2">
-                <span className="text-[#b8860b]">{selectedCategoryData.icon}</span>
-                <h3 className="text-lg font-bold">{selectedCategoryData.label}</h3>
+                <span className="text-[var(--brand)]">
+                  {selectedCategoryData.icon}
+                </span>
+                <h3 className="text-lg font-bold">
+                  {selectedCategoryData.label}
+                </h3>
               </div>
-              <p className="mb-4 text-sm text-[#475569]">{selectedCategoryData.description}</p>
+              <p className="mb-4 text-sm text-[var(--fg-muted)]">
+                {selectedCategoryData.description}
+              </p>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 {selectedCategoryData.reports.map(report => {
@@ -294,23 +385,29 @@ export default function AdminReportsPanel() {
                   return (
                     <div
                       key={report.id}
-                      className="rounded-xl border border-[#16243d]/10 bg-white p-5 shadow-sm transition-all hover:border-[#c9a34e] hover:shadow-md"
+                      className="rounded-xl border border-[#16243d]/10 bg-white p-5 shadow-sm transition-all hover:border-[var(--brand)] hover:shadow-md"
                     >
                       <div className="flex items-start justify-between">
                         <div>
                           <p className="font-semibold">{report.label}</p>
-                          <p className="mt-1 text-xs text-[#475569]">{report.description}</p>
+                          <p className="mt-1 text-xs text-[var(--fg-muted)]">
+                            {report.description}
+                          </p>
                         </div>
-                        <FileSpreadsheet size={18} className="text-[#b8860b]" />
+                        <FileSpreadsheet size={18} className="text-[var(--brand)]" />
                       </div>
 
                       {error && (
-                        <p className="mt-2 text-xs text-red-700">Failed to load report data</p>
+                        <p className="mt-2 text-xs text-red-700">
+                          Failed to load report data
+                        </p>
                       )}
 
                       {Boolean(data) && !error && (
                         <p className="mt-2 text-xs text-emerald-800 font-semibold">
-                          {Array.isArray(data) ? `${(data as unknown[]).length} records` : "Data available"}
+                          {Array.isArray(data)
+                            ? `${(data as unknown[]).length} records`
+                            : "Data available"}
                         </p>
                       )}
 
@@ -337,5 +434,3 @@ export default function AdminReportsPanel() {
     </section>
   );
 }
-
-

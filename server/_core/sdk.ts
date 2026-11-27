@@ -49,21 +49,26 @@ class SessionManager {
    */
   async createSessionToken(
     openId: string,
-    options: { expiresInMs?: number; name?: string } = {}
+    options: { expiresInMs?: number | null; name?: string } = {}
   ): Promise<string> {
     const issuedAt = Date.now();
-    const expiresInMs = options.expiresInMs ?? ONE_YEAR_MS;
-    const expirationSeconds = Math.floor((issuedAt + expiresInMs) / 1000);
+    const expiresInMs =
+      options.expiresInMs === undefined ? ONE_YEAR_MS : options.expiresInMs;
     const secretKey = this.getSessionSecret();
-
-    return new SignJWT({
+    const token = new SignJWT({
       openId,
       name: options.name || "",
     })
       .setProtectedHeader({ alg: "HS256", typ: "JWT" })
-      .setIssuedAt(Math.floor(issuedAt / 1000))
-      .setExpirationTime(expirationSeconds)
-      .sign(secretKey);
+      .setIssuedAt(Math.floor(issuedAt / 1000));
+
+    if (expiresInMs !== null) {
+      token.setExpirationTime(
+        Math.floor((issuedAt + expiresInMs) / 1000)
+      );
+    }
+
+    return token.sign(secretKey);
   }
 
   /**
@@ -142,7 +147,10 @@ class SessionManager {
       // Update or create session record for audit trail
       const existingSession = await db.getSessionByTokenHash(tokenHash);
       if (existingSession) {
-        if (existingSession.expiresAt.getTime() < signedInAt.getTime()) {
+        if (
+          existingSession.expiresAt &&
+          existingSession.expiresAt.getTime() < signedInAt.getTime()
+        ) {
           // Session expired
           return null;
         }
@@ -167,7 +175,12 @@ class SessionManager {
       return new Map();
     }
     const parsed = cookieNs.parseCookie(cookieHeader);
-    return new Map(Object.entries(parsed).filter((entry) => entry[1] !== undefined) as [string, string][]);
+    return new Map(
+      Object.entries(parsed).filter(entry => entry[1] !== undefined) as [
+        string,
+        string,
+      ][]
+    );
   }
 }
 

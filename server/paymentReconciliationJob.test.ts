@@ -12,9 +12,8 @@ vi.mock("./db", () => ({
 }));
 vi.mock("./_core/paystack", () => ({ paystackRequest }));
 
-const { reconcileStalePendingPayments } = await import(
-  "./paymentReconciliationJob"
-);
+const { reconcileStalePendingPayments } =
+  await import("./paymentReconciliationJob");
 
 describe("reconcileStalePendingPayments", () => {
   beforeEach(() => {
@@ -87,7 +86,10 @@ describe("reconcileStalePendingPayments", () => {
       errorMessage: expect.stringContaining("Nightly reconcile"),
     });
     expect(logPaymentReconciliation).toHaveBeenCalledWith(
-      expect.objectContaining({ action: "nightly_reconcile", outcome: "failed" })
+      expect.objectContaining({
+        action: "nightly_reconcile",
+        outcome: "failed",
+      })
     );
   });
 
@@ -107,7 +109,12 @@ describe("reconcileStalePendingPayments", () => {
 
     const result = await reconcileStalePendingPayments();
 
-    expect(result).toEqual({ checked: 1, paid: 0, failed: 0, errors: [{ reference: "piq-course-c", error: "Paystack is down" }] });
+    expect(result).toEqual({
+      checked: 1,
+      paid: 0,
+      failed: 0,
+      errors: [{ reference: "piq-course-c", error: "Paystack is down" }],
+    });
     expect(updateCoursePaymentStageStatus).toHaveBeenCalledWith(3, {
       status: "exception",
       errorMessage: "Paystack is down",

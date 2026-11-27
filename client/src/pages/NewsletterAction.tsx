@@ -57,12 +57,12 @@ export default function NewsletterAction({ action }: { action: Action }) {
         action === "confirm" ? (
           <>
             Your inbox is now{" "}
-            <em className="font-normal text-[#8b6914]">in the loop.</em>
+            <em className="font-normal text-[var(--brand)]">in the loop.</em>
           </>
         ) : (
           <>
             Your preferences are{" "}
-            <em className="font-normal text-[#8b6914]">updated.</em>
+            <em className="font-normal text-[var(--brand)]">updated.</em>
           </>
         )
       }
@@ -76,7 +76,7 @@ export default function NewsletterAction({ action }: { action: Action }) {
       <section className="bg-[#f7f3e8] py-20 lg:py-28">
         <div className="container max-w-3xl">
           <div
-            className={`border p-8 sm:p-12 ${state === "success" ? "border-[#6c8b62]/40 bg-[#eef5ea] text-[#29452c]" : state === "error" ? "border-[#8b4f63]/30 bg-[#fbf0f3] text-[#6b3045]" : "border-[#c9a34e]/50 bg-white/70 text-[#16243d]"}`}
+            className={`border p-8 sm:p-12 ${state === "success" ? "border-[#6c8b62]/40 bg-[#eef5ea] text-[#29452c]" : state === "error" ? "border-[#8b4f63]/30 bg-[#fbf0f3] text-[#6b3045]" : "border-[var(--brand)]/50 bg-white/70 text-[#16243d]"}`}
             role="status"
             aria-live="polite"
           >
@@ -110,7 +110,7 @@ export default function NewsletterAction({ action }: { action: Action }) {
             <Link
               href="/blog"
               onClick={() => navigate("/blog")}
-              className="mt-8 inline-flex min-h-12 items-center justify-center bg-[#16243d] px-5 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition hover:bg-[#c9a34e] hover:text-[#101d35]"
+              className="mt-8 inline-flex min-h-12 items-center justify-center bg-[#16243d] px-5 text-[10px] font-black uppercase tracking-[.14em] text-[#f7f3e8] transition hover:bg-[var(--brand)] hover:text-[var(--brand-fg)]"
             >
               Return to Insights
             </Link>

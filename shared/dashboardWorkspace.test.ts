@@ -6,21 +6,28 @@ import {
   visibleDashboardNavItems,
 } from "../client/src/components/dashboardNavigation";
 
-describe("My Space workspace navigation", () => {
+describe("Learner workspace navigation", () => {
   it("keeps role-aware destinations ordered into role-specific groups", () => {
     expect(visibleDashboardNavGroups("user").map(group => group.id)).toEqual([
-      "mySpace",
-      "growth",
+      "myLearning",
+      "progress",
+      "explore",
       "account",
     ]);
     expect(
-      visibleDashboardNavItems("user").some(item => item.id === "admin-observatory")
+      visibleDashboardNavItems("user").some(
+        item => item.id === "admin-observatory"
+      )
     ).toBe(false);
     expect(
-      visibleDashboardNavItems("staff").some(item => item.id === "staff-workspace")
+      visibleDashboardNavItems("staff").some(
+        item => item.id === "staff-workspace"
+      )
     ).toBe(true);
     expect(
-      visibleDashboardNavItems("admin").some(item => item.id === "admin-observatory")
+      visibleDashboardNavItems("admin").some(
+        item => item.id === "admin-observatory"
+      )
     ).toBe(true);
   });
 

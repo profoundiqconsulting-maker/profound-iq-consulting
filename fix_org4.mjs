@@ -1,6 +1,6 @@
-import fs from 'fs';
+import fs from "fs";
 
-let content = fs.readFileSync('client/src/pages/AdminDashboard.tsx', 'utf-8');
+let content = fs.readFileSync("client/src/pages/AdminDashboard.tsx", "utf-8");
 
 // Fix closing tag - find the exact one for OrganizationApprovalQueue
 // It's the one right after "itemLabel="organization approval records""
@@ -15,22 +15,22 @@ const newClose = `      />
 }`;
 
 if (content.includes(oldClose)) {
-    content = content.replace(oldClose, newClose);
-    console.log("Fixed OrganizationApprovalQueue closing tag");
+  content = content.replace(oldClose, newClose);
+  console.log("Fixed OrganizationApprovalQueue closing tag");
 } else {
-    console.log("Closing pattern not found - trying without the trailing )}");
-    const altClose = `    </section>
+  console.log("Closing pattern not found - trying without the trailing )}");
+  const altClose = `    </section>
   );
 }`;
-    const altNewClose = `    </Section>
+  const altNewClose = `    </Section>
   );
 }`;
-    if (content.includes(altClose)) {
-        content = content.replace(altClose, altNewClose);
-        console.log("Fixed with alt closing pattern");
-    } else {
-        console.log("Alt closing not found either");
-    }
+  if (content.includes(altClose)) {
+    content = content.replace(altClose, altNewClose);
+    console.log("Fixed with alt closing pattern");
+  } else {
+    console.log("Alt closing not found either");
+  }
 }
 
 // Fix header and grid - find the one with "Organization review queue"
@@ -58,17 +58,17 @@ const oldHeaderAndGrid = `      <div className="flex flex-col justify-between ga
 const newHeaderAndGrid = `      <div className="grid gap-3 md:grid-cols-4">`;
 
 if (content.includes(oldHeaderAndGrid)) {
-    content = content.replace(oldHeaderAndGrid, newHeaderAndGrid);
-    console.log("Fixed OrganizationApprovalQueue header and grid");
+  content = content.replace(oldHeaderAndGrid, newHeaderAndGrid);
+  console.log("Fixed OrganizationApprovalQueue header and grid");
 } else {
-    console.log("Header and grid pattern not found");
-    // Find all occurrences of "Organization review queue"
-    let idx = content.indexOf('Organization review queue');
-    while (idx !== -1) {
-        console.log(`Found at ${idx}:`);
-        console.log(JSON.stringify(content.substring(idx, idx + 300)));
-        idx = content.indexOf('Organization review queue', idx + 1);
-    }
+  console.log("Header and grid pattern not found");
+  // Find all occurrences of "Organization review queue"
+  let idx = content.indexOf("Organization review queue");
+  while (idx !== -1) {
+    console.log(`Found at ${idx}:`);
+    console.log(JSON.stringify(content.substring(idx, idx + 300)));
+    idx = content.indexOf("Organization review queue", idx + 1);
+  }
 }
 
-fs.writeFileSync('client/src/pages/AdminDashboard.tsx', content, 'utf-8');
+fs.writeFileSync("client/src/pages/AdminDashboard.tsx", content, "utf-8");

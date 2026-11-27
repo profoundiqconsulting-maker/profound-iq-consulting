@@ -10,7 +10,11 @@ import {
   AbandonedCheckoutBanner,
 } from "./EngagementPopups";
 
-export function EngagementProvider({ children }: { children: React.ReactNode }) {
+export function EngagementProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const store = useEngagementStore();
 
   const [showExitIntent, setShowExitIntent] = useState(false);
@@ -40,7 +44,10 @@ export function EngagementProvider({ children }: { children: React.ReactNode }) 
 
     return () => {
       window.removeEventListener("piq:show-exit-intent", handleExitIntent);
-      window.removeEventListener("piq:show-scroll-capture", handleScrollCapture);
+      window.removeEventListener(
+        "piq:show-scroll-capture",
+        handleScrollCapture
+      );
     };
   }, []);
 
@@ -70,22 +77,32 @@ export function EngagementProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   // Public API for other components to trigger popups
-  const triggerPostPurchaseUpsell = useCallback((
-    productName: string,
-    upsellName: string,
-    upsellPrice: number,
-    discount: number,
-    onAccept: () => void
-  ) => {
-    setShowPostPurchaseUpsell({ isOpen: true, productName, upsellName, upsellPrice, discount, onAccept });
-  }, []);
+  const triggerPostPurchaseUpsell = useCallback(
+    (
+      productName: string,
+      upsellName: string,
+      upsellPrice: number,
+      discount: number,
+      onAccept: () => void
+    ) => {
+      setShowPostPurchaseUpsell({
+        isOpen: true,
+        productName,
+        upsellName,
+        upsellPrice,
+        discount,
+        onAccept,
+      });
+    },
+    []
+  );
 
-  const triggerAbandonedCheckout = useCallback((
-    productName: string,
-    onResume: () => void
-  ) => {
-    setShowAbandonedCheckout({ isOpen: true, productName, onResume });
-  }, []);
+  const triggerAbandonedCheckout = useCallback(
+    (productName: string, onResume: () => void) => {
+      setShowAbandonedCheckout({ isOpen: true, productName, onResume });
+    },
+    []
+  );
 
   const handlePostPurchaseClose = useCallback(() => {
     setShowPostPurchaseUpsell(null);
@@ -120,8 +137,14 @@ export function EngagementProvider({ children }: { children: React.ReactNode }) 
     <>
       {children}
       {/* Global Popups */}
-      <ExitIntentModal isOpen={showExitIntent} onClose={handleExitIntentClose} />
-      <ScrollCaptureModal isOpen={showScrollCapture} onClose={handleScrollCaptureClose} />
+      <ExitIntentModal
+        isOpen={showExitIntent}
+        onClose={handleExitIntentClose}
+      />
+      <ScrollCaptureModal
+        isOpen={showScrollCapture}
+        onClose={handleScrollCaptureClose}
+      />
       <WelcomeBackBanner
         isOpen={showWelcomeBack}
         onClose={handleWelcomeBackClose}
@@ -153,10 +176,12 @@ export function EngagementProvider({ children }: { children: React.ReactNode }) 
 // Hook for components to access engagement API
 export function useEngagement() {
   if (typeof window !== "undefined") {
-    return (window as any).__PIQ_ENGAGEMENT__ || {
-      triggerPostPurchaseUpsell: () => {},
-      triggerAbandonedCheckout: () => {},
-    };
+    return (
+      (window as any).__PIQ_ENGAGEMENT__ || {
+        triggerPostPurchaseUpsell: () => {},
+        triggerAbandonedCheckout: () => {},
+      }
+    );
   }
   return {
     triggerPostPurchaseUpsell: () => {},

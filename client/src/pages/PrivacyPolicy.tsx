@@ -1,6 +1,5 @@
-import { ArrowLeft, ChevronDown, ShieldCheck } from "lucide-react";
-import { Link } from "wouter";
-
+import { ChevronDown, ShieldCheck } from "lucide-react";
+import { SiteNavigation } from "@/components/SiteNavigation";
 
 const sections = [
   [
@@ -51,25 +50,12 @@ const sections = [
 ];
 
 export default function PrivacyPolicy() {
-  
   return (
     <main className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-      <header className="border-b border-[#16243d]/10 bg-[#101d35] text-[#f7f3e8]">
-        <div className="container flex items-center justify-between gap-4 py-5">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.14em] text-[#8b6914] transition-opacity hover:opacity-80"
-          >
-            <ArrowLeft size={15} /> {"Back to site"}
-          </Link>
-          <span className="hidden text-[10px] uppercase tracking-[.16em] text-[#aab5c6] sm:block">
-            Profound IQ Consulting
-          </span>
-        </div>
-      </header>
+      <SiteNavigation variant="public" />
       <section className="container max-w-6xl py-16 sm:py-24">
         <div className="max-w-3xl">
-          <div className="flex items-center gap-3 text-[#7d5e1e]">
+          <div className="flex items-center gap-3 text-[var(--brand)]">
             <ShieldCheck size={20} />
             <p className="text-[10px] font-black uppercase tracking-[.16em]">
               Trust and transparency
@@ -83,7 +69,7 @@ export default function PrivacyPolicy() {
             transformational learning, assessments, reports, certificates,
             payments, and support.
           </p>
-          <p className="mt-5 text-xs uppercase tracking-[.14em] text-[#7d5e1e]">
+          <p className="mt-5 text-xs uppercase tracking-[.14em] text-[var(--brand)]">
             {"Effective date"}: 26 August 2026
           </p>
         </div>
@@ -93,7 +79,7 @@ export default function PrivacyPolicy() {
             aria-label="Privacy Policy contents"
           >
             <details className="group border border-[#16243d]/15 bg-[#fffaf0] lg:open">
-              <summary className="flex cursor-pointer list-none items-center justify-between p-4 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e] lg:pointer-events-none">
+              <summary className="flex cursor-pointer list-none items-center justify-between p-4 text-[10px] font-black uppercase tracking-[.14em] text-[var(--brand)] lg:pointer-events-none">
                 <span>On this page</span>
                 <ChevronDown
                   size={15}
@@ -106,9 +92,9 @@ export default function PrivacyPolicy() {
                     <li key={id}>
                       <a
                         href={`#${id}`}
-                        className="flex gap-3 py-2 text-xs leading-5 text-[#657084] transition-colors hover:text-[#7d5e1e]"
+                        className="flex gap-3 py-2 text-xs leading-5 text-[#657084] transition-colors hover:text-[var(--brand)]"
                       >
-                        <span className="font-black text-[#8b6914]">
+                        <span className="font-black text-[var(--brand)]">
                           {String(index + 1).padStart(2, "0")}
                         </span>
                         <span>{title}</span>
@@ -118,9 +104,9 @@ export default function PrivacyPolicy() {
                   <li>
                     <a
                       href="#questions"
-                      className="flex gap-3 py-2 text-xs leading-5 text-[#657084] transition-colors hover:text-[#7d5e1e]"
+                      className="flex gap-3 py-2 text-xs leading-5 text-[#657084] transition-colors hover:text-[var(--brand)]"
                     >
-                      <span className="font-black text-[#8b6914]">10</span>
+                      <span className="font-black text-[var(--brand)]">10</span>
                       <span>{"Questions or requests?"}</span>
                     </a>
                   </li>
@@ -136,7 +122,7 @@ export default function PrivacyPolicy() {
                 className="scroll-mt-8 border-b border-[#16243d]/10 py-8 sm:scroll-mt-10"
               >
                 <div className="grid gap-3 sm:grid-cols-[180px_1fr] sm:gap-10">
-                  <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]">
+                  <p className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--brand)]">
                     {String(index + 1).padStart(2, "0")}
                   </p>
                   <div>
@@ -150,7 +136,7 @@ export default function PrivacyPolicy() {
             ))}
             <section
               id="questions"
-              className="scroll-mt-8 border border-[#c9a34e]/50 bg-[#fffaf0] p-6 sm:scroll-mt-10 sm:p-8"
+              className="scroll-mt-8 border border-[var(--brand)]/50 bg-[#fffaf0] p-6 sm:scroll-mt-10 sm:p-8"
             >
               <h2 className="text-2xl font-semibold">
                 {"Questions or requests?"}

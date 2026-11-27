@@ -2,12 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Copy, Share2, X } from "lucide-react";
 import { Link } from "wouter";
 import { toast } from "sonner";
-import { BrandLogo } from "@/components/BrandLogo";
+import { SiteNavigation } from "@/components/SiteNavigation";
 import { CourseCoverImage } from "@/components/CourseCoverImage";
 import { CourseShareActions } from "@/components/CourseShareActions";
 import { courseCatalog } from "@shared/courseCatalog";
-
-
 
 export default function CourseComparison() {
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
@@ -95,33 +93,21 @@ export default function CourseComparison() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-      <header className="border-b border-[#16243d]/15 bg-[#101d35] text-[#f7f3e8]">
-        <div className="container flex items-center justify-between py-5">
-          <Link href="/" aria-label="Profound IQ Consulting home">
-            <BrandLogo context="home" className="border border-[#c9a34e]/70" />
-          </Link>
-          <Link
-            href="/courses"
-            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.15em] text-[#d8dfeb] hover:text-[#8b6914]"
-          >
-            <ArrowLeft size={14} /> Back to courses
-          </Link>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#f7f3e8] text-[var(--fg)]">
+      <SiteNavigation variant="public" />
       <main>
-        <section className="bg-[#101d35] px-5 pb-20 pt-14 text-[#f7f3e8] sm:px-10 lg:pb-24 lg:pt-20">
+        <section className="dark bg-[#101d35] px-5 pb-20 pt-14 text-[var(--fg)] sm:px-10 lg:pb-24 lg:pt-20">
           <div className="container">
-            <p className="eyebrow flex items-center gap-3 text-[#8b6914]">
-              <span className="h-px w-10 bg-[#c9a34e]" /> COURSE COMPARISON
+            <p className="eyebrow flex items-center gap-3 text-[var(--brand)]">
+              <span className="h-px w-10 bg-[var(--brand)]" /> COURSE COMPARISON
             </p>
             <div className="mt-7 flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
               <div>
                 <h1 className="display max-w-4xl text-5xl leading-[.95] sm:text-7xl">
                   Choose with{" "}
-                  <em className="font-normal text-[#8b6914]">confidence.</em>
+                  <em className="font-normal text-[var(--brand)]">confidence.</em>
                 </h1>
-                <p className="mt-5 max-w-2xl text-base leading-7 text-[#c1cad7]">
+                <p className="mt-5 max-w-2xl text-base leading-7 text-[var(--fg-muted)]">
                   A focused view of the pathways you selected—so the next step
                   is grounded in outcomes, not guesswork.
                 </p>
@@ -142,18 +128,18 @@ export default function CourseComparison() {
         </section>
         <section className="container py-12 lg:py-20">
           {!selectedCourses.length ? (
-            <div className="border-l-2 border-[#c9a34e] bg-white/60 p-8">
-              <p className="eyebrow text-[#7d5e1e]">NO COURSES SELECTED</p>
+            <div className="border-l-2 border-[var(--brand)] bg-white/60 p-8">
+              <p className="eyebrow text-[var(--brand)]">NO COURSES SELECTED</p>
               <h2 className="display mt-3 text-3xl">
                 Build your comparison from the catalog.
               </h2>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-[#657084]">
+              <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--fg-muted)]">
                 Select up to three courses on the catalog page, then use the
                 comparison link to return here or share it with a colleague.
               </p>
               <Link
                 href="/courses"
-                className="mt-6 inline-flex items-center gap-2 border-b border-[#a27e2e] pb-1 text-[10px] font-black uppercase tracking-[.14em] text-[#7d5e1e]"
+                className="mt-6 inline-flex items-center gap-2 border-b border-[var(--brand)] pb-1 text-[10px] font-black uppercase tracking-[.14em] text-[var(--brand)]"
               >
                 Explore courses <ArrowLeft className="rotate-180" size={14} />
               </Link>
@@ -162,7 +148,7 @@ export default function CourseComparison() {
             <>
               <div className="mb-7 flex items-end justify-between gap-4">
                 <div>
-                  <p className="eyebrow text-[#7d5e1e]">
+                  <p className="eyebrow text-[var(--brand)]">
                     {selectedCourses.length} PATHWAY
                     {selectedCourses.length === 1 ? "" : "S"}
                   </p>
@@ -171,7 +157,7 @@ export default function CourseComparison() {
                 <button
                   type="button"
                   onClick={() => void copyLink()}
-                  className="hidden items-center gap-2 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#7d5e1e] sm:inline-flex"
+                  className="hidden items-center gap-2 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)] sm:inline-flex"
                 >
                   <Copy size={14} /> Copy URL
                 </button>
@@ -190,15 +176,17 @@ export default function CourseComparison() {
                           alt=""
                           title={course.title}
                           className="h-40 w-full object-cover"
+                          width={480}
+                          height={160}
                         />
                         <div className="p-6">
                           <div className="flex items-start justify-between gap-3">
                             <div>
                               <div className="flex flex-wrap gap-2 text-[9px] font-black uppercase tracking-[.1em]">
-                                <span className="border border-[#16243d]/20 px-2 py-1 text-[#657084]">
+                                <span className="border border-[#16243d]/20 px-2 py-1 text-[var(--fg-muted)]">
                                   {course.category}
                                 </span>
-                                <span className="border border-[#c9a34e]/60 px-2 py-1 text-[#7d5e1e]">
+                                <span className="border border-[var(--brand)]/60 px-2 py-1 text-[var(--brand)]">
                                   {course.skillLevel}
                                 </span>
                               </div>
@@ -210,21 +198,21 @@ export default function CourseComparison() {
                               type="button"
                               onClick={() => removeCourse(course.slug)}
                               aria-label={`Remove ${course.title}`}
-                              className="text-[#657084] hover:text-[#7d5e1e]"
+                              className="text-[var(--fg-muted)] hover:text-[var(--brand)]"
                             >
                               <X size={16} />
                             </button>
                           </div>
                           <dl className="mt-7 space-y-5 text-sm">
                             <div>
-                              <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
+                              <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[var(--brand)]">
                                 Outcomes
                               </dt>
                               <dd className="mt-2 space-y-2">
                                 {course.outcomes.map(outcome => (
                                   <p
                                     key={outcome}
-                                    className="border-l border-[#c9a34e] pl-3 leading-5"
+                                    className="border-l border-[var(--brand)] pl-3 leading-5"
                                   >
                                     {outcome}
                                   </p>
@@ -233,7 +221,7 @@ export default function CourseComparison() {
                             </div>
                             <div className="grid grid-cols-2 gap-4 border-t border-[#16243d]/10 pt-5">
                               <div>
-                                <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
+                                <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[var(--brand)]">
                                   Duration
                                 </dt>
                                 <dd className="mt-1 leading-5">
@@ -241,7 +229,7 @@ export default function CourseComparison() {
                                 </dd>
                               </div>
                               <div>
-                                <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
+                                <dt className="text-[9px] font-black uppercase tracking-[.12em] text-[var(--brand)]">
                                   Investment
                                 </dt>
                                 <dd className="mt-1 leading-5">
@@ -253,13 +241,13 @@ export default function CourseComparison() {
                           <div className="mt-7 flex flex-col gap-3">
                             <Link
                               href={`/courses/${course.slug}?workspace=1`}
-                              className="inline-flex items-center justify-center border border-[#16243d]/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.13em] text-[#7d5e1e]"
+                              className="inline-flex items-center justify-center border border-[#16243d]/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.13em] text-[var(--brand)]"
                             >
                               View syllabus
                             </Link>
                             <Link
-                              href={`/courses?enroll=${course.slug}`}
-                              className="inline-flex items-center justify-center bg-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.13em] text-[#16243d]"
+                              href={`/courses/${course.slug}?workspace=1`}
+                              className="inline-flex items-center justify-center bg-[var(--brand)] px-4 py-3 text-[10px] font-black uppercase tracking-[.13em] text-[var(--brand-fg)]"
                             >
                               Start enrollment
                             </Link>

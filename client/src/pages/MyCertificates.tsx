@@ -178,9 +178,9 @@ export default function MyCertificates() {
 
   if (authLoading) {
     return (
-      <DashboardLayout>
+      <DashboardLayout role="user" title="Certificates">
         <div className="grid place-items-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-[#8b6914]" />
+          <Loader2 className="h-8 w-8 animate-spin text-[var(--brand)]" />
         </div>
       </DashboardLayout>
     );
@@ -188,9 +188,9 @@ export default function MyCertificates() {
 
   if (!user) {
     return (
-      <DashboardLayout>
+      <DashboardLayout role="user" title="Certificates">
         <div className="mx-auto max-w-md py-20 text-center">
-          <Award className="mx-auto h-12 w-12 text-[#8b6914]" />
+          <Award className="mx-auto h-12 w-12 text-[var(--brand)]" />
           <h1 className="mt-6 display text-3xl text-[#16243d]">
             Sign in to view your certificates
           </h1>
@@ -199,7 +199,7 @@ export default function MyCertificates() {
           </p>
           <Link
             href="/auth?mode=login&returnTo=/dashboard/certificates"
-            className="mt-6 inline-flex items-center gap-2 border border-[#c9a34e] px-5 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-colors hover:bg-[#c9a34e]"
+            className="mt-6 inline-flex items-center gap-2 border border-[var(--brand)] px-5 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-colors hover:bg-[var(--brand)]"
           >
             Sign in <ArrowUpRight size={14} />
           </Link>
@@ -209,11 +209,11 @@ export default function MyCertificates() {
   }
 
   return (
-    <DashboardLayout>
+    <DashboardLayout role="user" title="Certificates">
       <div className="space-y-8">
         <header className="flex flex-col gap-3 border-b border-[#16243d]/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="eyebrow text-[#7d5e1e]">YOUR CREDENTIALS</p>
+            <p className="eyebrow text-[var(--brand)]">YOUR CREDENTIALS</p>
             <h1 className="display mt-3 text-4xl leading-tight text-[#16243d] sm:text-5xl">
               My Certificates
             </h1>
@@ -243,7 +243,7 @@ export default function MyCertificates() {
           </div>
         ) : allCertificates.length === 0 ? (
           <div className="border border-dashed border-[#16243d]/20 py-16 text-center">
-            <Award className="mx-auto h-10 w-10 text-[#8b6914]/60" />
+            <Award className="mx-auto h-10 w-10 text-[var(--brand)]/60" />
             <h2 className="mt-5 display text-2xl text-[#16243d]">
               No certificates yet
             </h2>
@@ -253,7 +253,7 @@ export default function MyCertificates() {
             </p>
             <Link
               href="/dashboard"
-              className="mt-6 inline-flex items-center gap-2 border border-[#c9a34e] px-5 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-colors hover:bg-[#c9a34e]"
+              className="mt-6 inline-flex items-center gap-2 border border-[var(--brand)] px-5 py-3 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] transition-colors hover:bg-[var(--brand)]"
             >
               Back to dashboard <ArrowUpRight size={14} />
             </Link>
@@ -263,13 +263,13 @@ export default function MyCertificates() {
             {allCertificates.map(cert => (
               <article
                 key={cert.certificateNumber}
-                className="group flex flex-col border border-[#16243d]/10 bg-white p-5 transition-all hover:border-[#c9a34e] hover:shadow-[0_8px_24px_rgba(16,29,53,.08)]"
+                className="group flex flex-col border border-[#16243d]/10 bg-white p-5 transition-all hover:border-[var(--brand)] hover:shadow-[0_8px_24px_rgba(16,29,53,.08)]"
               >
                 <div className="flex items-start justify-between">
-                  <Award className="h-7 w-7 text-[#8b6914]" />
+                  <Award className="h-7 w-7 text-[var(--brand)]" />
                   {cert.emailStatus === "sent" ||
                   cert.emailStatus === "delivered" ? (
-                    <span className="inline-flex items-center gap-1 border border-[#c9a34e]/40 bg-[#c9a34e]/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-[.12em] text-[#7d5e1e]">
+                    <span className="inline-flex items-center gap-1 border border-[var(--brand)]/40 bg-[var(--brand)]/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-[.12em] text-[var(--brand)]">
                       <MailCheck size={10} /> Emailed
                     </span>
                   ) : cert.emailStatus === "failed" ? (
@@ -322,7 +322,7 @@ export default function MyCertificates() {
                     type="button"
                     onClick={() => handleDownloadPdf(cert)}
                     disabled={downloadPdf.isPending}
-                    className="inline-flex items-center gap-1.5 border border-[#c9a34e] px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition-colors hover:bg-[#c9a34e] disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 border border-[var(--brand)] px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition-colors hover:bg-[var(--brand)] disabled:opacity-50"
                   >
                     <FileText size={12} /> PDF
                   </button>
@@ -330,7 +330,7 @@ export default function MyCertificates() {
                     type="button"
                     onClick={() => handleDownloadPng(cert)}
                     disabled={!cert.fileUrl}
-                    className="inline-flex items-center gap-1.5 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition-colors hover:border-[#c9a34e] hover:text-[#7d5e1e] disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition-colors hover:border-[var(--brand)] hover:text-[var(--brand)] disabled:opacity-50"
                   >
                     <ImageDown size={12} /> PNG
                   </button>
@@ -338,14 +338,14 @@ export default function MyCertificates() {
                     type="button"
                     onClick={() => handlePrint(cert)}
                     disabled={!cert.fileUrl}
-                    className="inline-flex items-center gap-1.5 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition-colors hover:border-[#c9a34e] hover:text-[#7d5e1e] disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition-colors hover:border-[var(--brand)] hover:text-[var(--brand)] disabled:opacity-50"
                   >
                     <Printer size={12} /> Print
                   </button>
                   <button
                     type="button"
                     onClick={() => handleShare(cert)}
-                    className="inline-flex items-center gap-1.5 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition-colors hover:border-[#c9a34e] hover:text-[#7d5e1e]"
+                    className="inline-flex items-center gap-1.5 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] transition-colors hover:border-[var(--brand)] hover:text-[var(--brand)]"
                   >
                     <Share2 size={12} /> Share
                   </button>
@@ -354,7 +354,7 @@ export default function MyCertificates() {
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Link
                     href={`/verify/certificate?certificate=${encodeURIComponent(cert.certificateNumber)}`}
-                    className="inline-flex items-center gap-1.5 px-1 text-[10px] font-bold uppercase tracking-[.12em] text-[#7d5e1e] hover:text-[#16243d]"
+                    className="inline-flex items-center gap-1.5 px-1 text-[10px] font-bold uppercase tracking-[.12em] text-[var(--brand)] hover:text-[#16243d]"
                   >
                     <ShieldCheck size={11} /> Verify credential{" "}
                     <ExternalLink size={10} />
@@ -374,11 +374,11 @@ export default function MyCertificates() {
 
         {previewing && (
           <div
-            className="fixed inset-0 z-50 grid place-items-center bg-[#071225]/80 p-5 backdrop-blur-sm"
+            className="fixed inset-0 z-50 grid place-items-center bg-[var(--brand)]/10 p-5"
             role="presentation"
             onClick={e => e.target === e.currentTarget && setPreviewing(null)}
           >
-            <div className="max-h-[92vh] w-full max-w-4xl overflow-y-auto border border-[#c9a34e]/70 bg-white p-5 shadow-2xl">
+            <div className="max-h-[92vh] w-full max-w-4xl overflow-y-auto border border-[var(--brand)]/70 bg-white p-5 shadow-2xl">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="display text-xl text-[#16243d]">
                   Certificate preview

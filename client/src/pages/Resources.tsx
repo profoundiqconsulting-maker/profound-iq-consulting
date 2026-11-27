@@ -50,10 +50,21 @@ export default function Resources() {
     retry: false,
     refetchOnWindowFocus: true,
   });
-  const [paymentResource, setPaymentResource] = useState<{ id: number; title: string; price: number; currency: string; reference?: string; accessCode?: string } | null>(null);
+  const [paymentResource, setPaymentResource] = useState<{
+    id: number;
+    title: string;
+    price: number;
+    currency: string;
+    reference?: string;
+    accessCode?: string;
+  } | null>(null);
   const initializePayment = trpc.resources.initializePayment.useMutation({
     onSuccess: data => {
-      setPaymentResource(prev => prev ? { ...prev, reference: data.reference, accessCode: data.accessCode } : prev);
+      setPaymentResource(prev =>
+        prev
+          ? { ...prev, reference: data.reference, accessCode: data.accessCode }
+          : prev
+      );
     },
     onError: error => toast.error(error.message),
   });
@@ -69,7 +80,12 @@ export default function Resources() {
   });
   const [purchasedIds, setPurchasedIds] = useState<number[]>([]);
 
-  const handlePurchase = async (resource: { id: number; title: string; price: number; currency: string }) => {
+  const handlePurchase = async (resource: {
+    id: number;
+    title: string;
+    price: number;
+    currency: string;
+  }) => {
     if (!isAuthenticated) {
       window.location.href = "/auth?mode=login";
       return;
@@ -132,7 +148,10 @@ export default function Resources() {
             </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 3 }).map((_, index) => (
-                <div key={index} className="h-48 animate-pulse rounded-xl border border-[#16243d]/10 bg-[#f7f3e8]" />
+                <div
+                  key={index}
+                  className="h-48 animate-pulse rounded-xl border border-[#16243d]/10 bg-[#f7f3e8]"
+                />
               ))}
             </div>
           </div>
@@ -148,61 +167,94 @@ export default function Resources() {
             </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {(resources.data ?? [])
-                .sort((a: { sortOrder: number }, b: { sortOrder: number }) => a.sortOrder - b.sortOrder)
-                .map((resource: { id: number; title: string; description: string; category: string; price: number; currency: string; fileUrl?: string | null }, index: number) => (
-                  <ScrollReveal key={resource.id} delay={index * 70}>
-                    <article className="group border border-[#16243d]/10 bg-[#f7f3e8] p-8 transition-all duration-200 hover:border-[#c9a34e] hover:bg-white hover:shadow-lg">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-[#16243d] text-[#c9a34e]">
-                          <BookOpen size={22} />
+                .sort(
+                  (a: { sortOrder: number }, b: { sortOrder: number }) =>
+                    a.sortOrder - b.sortOrder
+                )
+                .map(
+                  (
+                    resource: {
+                      id: number;
+                      title: string;
+                      description: string;
+                      category: string;
+                      price: number;
+                      currency: string;
+                      fileUrl?: string | null;
+                    },
+                    index: number
+                  ) => (
+                    <ScrollReveal key={resource.id} delay={index * 70}>
+                      <article className="group border border-[#16243d]/10 bg-[#f7f3e8] p-8 transition-all duration-200 hover:border-[#c9a34e] hover:bg-white hover:shadow-lg">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-[#16243d] text-[#c9a34e]">
+                            <BookOpen size={22} />
+                          </div>
+                          <span className="text-[10px] font-black tracking-[.16em] text-[#7d5e1e]">
+                            {resource.category}
+                          </span>
                         </div>
-                        <span className="text-[10px] font-black tracking-[.16em] text-[#7d5e1e]">
-                          {resource.category}
-                        </span>
-                      </div>
-                      <h3 className="mt-6 text-xl font-semibold leading-tight">
-                        {resource.title}
-                      </h3>
-                      <p className="mt-3 text-sm leading-7 text-[#657084]">
-                        {resource.description}
-                      </p>
-                      {resource.fileUrl && (
-                        <div className="mt-6 flex flex-wrap items-center gap-3">
-                          {(resource.price ?? 0) > 0 ? (
-                            <>
-                              <span className="text-sm font-semibold text-[#16243d]">
-                                {resource.currency} {resource.price?.toLocaleString()}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => handlePurchase({ id: resource.id, title: resource.title, price: resource.price ?? 0, currency: resource.currency ?? "KES" })}
+                        <h3 className="mt-6 text-xl font-semibold leading-tight">
+                          {resource.title}
+                        </h3>
+                        <p className="mt-3 text-sm leading-7 text-[#657084]">
+                          {resource.description}
+                        </p>
+                        {resource.fileUrl && (
+                          <div className="mt-6 flex flex-wrap items-center gap-3">
+                            {(resource.price ?? 0) > 0 ? (
+                              <>
+                                <span className="text-sm font-semibold text-[#16243d]">
+                                  {resource.currency}{" "}
+                                  {resource.price?.toLocaleString()}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handlePurchase({
+                                      id: resource.id,
+                                      title: resource.title,
+                                      price: resource.price ?? 0,
+                                      currency: resource.currency ?? "KES",
+                                    })
+                                  }
+                                  className="inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-4 py-2 text-[10px] font-black uppercase tracking-[.12em] text-white transition-all hover:bg-[#0f172a]"
+                                >
+                                  Purchase
+                                </button>
+                              </>
+                            ) : (
+                              <a
+                                href={resource.fileUrl}
+                                target="_blank"
+                                rel="noreferrer"
                                 className="inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-4 py-2 text-[10px] font-black uppercase tracking-[.12em] text-white transition-all hover:bg-[#0f172a]"
                               >
-                                Purchase
-                              </button>
-                            </>
-                          ) : (
-                            <a
-                              href={resource.fileUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center gap-2 rounded-lg bg-[#16243d] px-4 py-2 text-[10px] font-black uppercase tracking-[.12em] text-white transition-all hover:bg-[#0f172a]"
-                            >
-                              Download <ExternalLink size={14} />
-                            </a>
-                          )}
-                        </div>
-                      )}
-                      <SocialSharing
-                        url={resource.fileUrl || `${window.location.origin}/resources`}
-                        title={resource.title}
-                        text={resource.description}
-                        platforms={["linkedin", "x", "facebook", "whatsapp", "copy"]}
-                        className="mt-4"
-                      />
-                    </article>
-                  </ScrollReveal>
-                ))}
+                                Download <ExternalLink size={14} />
+                              </a>
+                            )}
+                          </div>
+                        )}
+                        <SocialSharing
+                          url={
+                            resource.fileUrl ||
+                            `${window.location.origin}/resources`
+                          }
+                          title={resource.title}
+                          text={resource.description}
+                          platforms={[
+                            "linkedin",
+                            "x",
+                            "facebook",
+                            "whatsapp",
+                            "copy",
+                          ]}
+                          className="mt-4"
+                        />
+                      </article>
+                    </ScrollReveal>
+                  )
+                )}
             </div>
           </div>
         </section>
@@ -215,7 +267,9 @@ export default function Resources() {
                 Curated materials
               </h2>
               <p className="mt-6 text-base leading-7 text-[#657084]">
-                The resource library is being developed. In the meantime, explore our professional courses or suggest a topic for the team.
+                The resource library is being developed. In the meantime,
+                explore our professional courses or suggest a topic for the
+                team.
               </p>
               <div className="mt-8 flex flex-wrap justify-center gap-4">
                 <Link
@@ -280,7 +334,7 @@ export default function Resources() {
             <div className="grid gap-5 sm:grid-cols-2">
               <Link
                 href="/assessment"
-                className="group border border-[#c9a34e]/40 bg-[#1b3152]/60 p-8 transition-all hover:border-[#c9a34e] hover:bg-[#254263] backdrop-blur-sm"
+                className="group border border-[#c9a34e]/40 bg-[#1b3152]/60 p-8 transition-all hover:border-[#c9a34e] hover:bg-[#254263]"
               >
                 <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#8b6914]">
                   Personal insight
@@ -294,7 +348,7 @@ export default function Resources() {
               </Link>
               <Link
                 href="/contact"
-                className="group border border-white/20 bg-[#1b3152]/40 p-8 transition-all hover:border-[#c9a34e] hover:bg-[#254263] backdrop-blur-sm"
+                className="group border border-white/20 bg-[#1b3152]/40 p-8 transition-all hover:border-[#c9a34e] hover:bg-[#254263]"
               >
                 <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#8b6914]">
                   Organizational insight

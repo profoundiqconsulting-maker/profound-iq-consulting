@@ -1,4 +1,5 @@
-export const COURSE_CATALOG_TITLE = "Professional Courses | Profound IQ Consulting";
+export const COURSE_CATALOG_TITLE =
+  "Professional Courses | Profound IQ Consulting";
 export const COURSE_CATALOG_DESCRIPTION =
   "Explore globally relevant professional courses with interactive lessons, applied practice, quizzes, and completion certificates.";
 

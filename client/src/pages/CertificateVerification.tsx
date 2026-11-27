@@ -457,7 +457,7 @@ export default function CertificateVerification() {
     explore,
   ] = copy.en;
   const status = (icon: React.ReactNode, heading: string, body: string) => (
-    <section className="mt-10 flex items-start gap-4 border-l-2 border-[#c9a34e] bg-white/65 p-6 sm:p-8">
+    <section className="mt-10 flex items-start gap-4 border-l-2 border-[var(--brand)] bg-white/65 p-6 sm:p-8">
       <div>{icon}</div>
       <div>
         <h2 className="display text-2xl">{heading}</h2>
@@ -466,11 +466,11 @@ export default function CertificateVerification() {
     </section>
   );
   return (
-    <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
+    <div className="min-h-screen bg-[#f7f3e8] text-[var(--fg)]">
       <TransformationNav active="assessment" />
       <main className="container py-12 sm:py-20">
         <div className="mx-auto max-w-3xl">
-          <p className="eyebrow text-[#7d5e1e]">{eyebrow}</p>
+          <p className="eyebrow text-[var(--brand)]">{eyebrow}</p>
           <h1 className="display mt-4 text-5xl leading-none sm:text-7xl">
             {title}
           </h1>
@@ -486,14 +486,14 @@ export default function CertificateVerification() {
           ) : verification.isLoading ? (
             status(
               <ShieldCheck
-                className="animate-pulse text-[#7d5e1e]"
+                className="animate-pulse text-[var(--brand)]"
                 size={28}
               />,
               checking,
               checkingBody
             )
           ) : certificate ? (
-            <section className="mt-10 border border-[#c9a34e]/70 bg-white/70 p-6 shadow-sm sm:p-10">
+            <section className="mt-10 border border-[var(--brand)]/70 bg-white/70 p-6 shadow-sm sm:p-10">
               <div className="flex items-start gap-4">
                 <CheckCircle2
                   className="mt-1 shrink-0 text-emerald-800"
@@ -562,7 +562,7 @@ export default function CertificateVerification() {
                         <button
                           type="button"
                           onClick={() => void copyVerificationUrl()}
-                          className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] hover:border-[#c9a34e]"
+                          className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] hover:border-[var(--brand)]"
                         >
                           {copied ? <Check size={14} /> : <Copy size={14} />}{" "}
                           {copied ? actions.copied : actions.copy}
@@ -571,7 +571,7 @@ export default function CertificateVerification() {
                           <button
                             type="button"
                             onClick={() => void nativeShare()}
-                            className="inline-flex items-center gap-2 bg-[#c9a34e] px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] hover:bg-[#d7b762]"
+                            className="inline-flex items-center gap-2 bg-[var(--brand)] px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand-fg)] hover:bg-[#d7b762]"
                           >
                             <Share2 size={14} /> {actions.nativeShare}
                           </button>
@@ -622,7 +622,7 @@ export default function CertificateVerification() {
           )}
           <Link
             href="/courses"
-            className="mt-8 inline-flex items-center gap-2 border border-[#16243d]/25 px-5 py-3 text-[10px] font-black uppercase tracking-[.14em] hover:border-[#c9a34e]"
+            className="mt-8 inline-flex items-center gap-2 border border-[#16243d]/25 px-5 py-3 text-[10px] font-black uppercase tracking-[.14em] hover:border-[var(--brand)]"
           >
             {explore} <ExternalLink size={14} />
           </Link>

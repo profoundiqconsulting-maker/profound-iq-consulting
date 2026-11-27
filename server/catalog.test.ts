@@ -72,20 +72,18 @@ describe("catalog workflow", () => {
 
   it("keeps catalog creation admin-only", async () => {
     await expect(
-      appRouter
-        .createCaller(context("user"))
-        .catalog.create({
-          slug: "decision-lab",
-          itemType: "course",
-          title: "Decision Lab",
-          strapline: "Practice better decisions",
-          description: "A focused program for teams making important choices.",
-          audience: "Leaders",
-          duration: "4 weeks",
-          outcomes: ["Frame options"],
-          priceKes: 4999,
-          published: false,
-        })
+      appRouter.createCaller(context("user")).catalog.create({
+        slug: "decision-lab",
+        itemType: "course",
+        title: "Decision Lab",
+        strapline: "Practice better decisions",
+        description: "A focused program for teams making important choices.",
+        audience: "Leaders",
+        duration: "4 weeks",
+        outcomes: ["Frame options"],
+        priceKes: 4999,
+        published: false,
+      })
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
@@ -118,20 +116,18 @@ describe("catalog workflow", () => {
 
   it("rejects unsafe slugs before reaching the database", async () => {
     await expect(
-      appRouter
-        .createCaller(context("admin"))
-        .catalog.create({
-          slug: "Not Safe",
-          itemType: "course",
-          title: "Decision Lab",
-          strapline: "Practice better decisions",
-          description: "A focused program for teams making important choices.",
-          audience: "Leaders",
-          duration: "4 weeks",
-          outcomes: ["Frame options"],
-          priceKes: 4999,
-          published: false,
-        })
+      appRouter.createCaller(context("admin")).catalog.create({
+        slug: "Not Safe",
+        itemType: "course",
+        title: "Decision Lab",
+        strapline: "Practice better decisions",
+        description: "A focused program for teams making important choices.",
+        audience: "Leaders",
+        duration: "4 weeks",
+        outcomes: ["Frame options"],
+        priceKes: 4999,
+        published: false,
+      })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
     expect(mocks.createCatalogItem).not.toHaveBeenCalled();
   });

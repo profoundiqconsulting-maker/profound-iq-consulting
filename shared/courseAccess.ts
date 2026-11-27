@@ -1,12 +1,8 @@
-export function canBypassCoursePayment(input: {
-  hasAccessGrant: boolean;
-}) {
+export function canBypassCoursePayment(input: { hasAccessGrant: boolean }) {
   return input.hasAccessGrant;
 }
 
-export function qualityControlQuizScore(input: {
-  rawScore: number;
-}) {
+export function qualityControlQuizScore(input: { rawScore: number }) {
   return input.rawScore;
 }
 
@@ -19,7 +15,9 @@ export function canAccessAssessmentCertificate(input: {
   paymentStatus: string | null | undefined;
   hasReport: boolean;
 }) {
-  return input.identityMatches && input.hasReport && input.paymentStatus === "paid";
+  return (
+    input.identityMatches && input.hasReport && input.paymentStatus === "paid"
+  );
 }
 
 export type CourseAccessInput = {

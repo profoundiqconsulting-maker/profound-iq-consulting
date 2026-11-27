@@ -1,13 +1,7 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
 import { useMemo } from "react";
-import {
-  Award,
-  BarChart3,
-  Download,
-  RefreshCw,
-  Share2,
-} from "lucide-react";
+import { Award, BarChart3, Download, RefreshCw, Share2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { DashboardHero, Section, StatCard } from "@/components/dashboard";
@@ -19,24 +13,27 @@ type AssessmentReportRef = {
 };
 
 export default function DashboardAssessment() {
-  
   const history = trpc.dashboard.mine.useQuery(undefined, { enabled: true });
   const downloadReport = trpc.dashboard.downloadReport.useMutation({
-    onError: error => toast.error("Could not download report", { description: error.message }),
+    onError: error =>
+      toast.error("Could not download report", { description: error.message }),
   });
 
   const stats = useMemo(() => {
     const attempts = history.data ?? [];
-    const paid = attempts.filter(attempt => attempt.paymentStatus === "paid").length;
-    const avgScore =
-      attempts.length > 0
-        ? Math.round(
-            attempts.reduce((sum, attempt) => sum + (attempt.overallScore ?? 0), 0) /
-              attempts.length
-          )
-        : 0;
+    const scoredAttempts = attempts.filter(
+      attempt => typeof attempt.overallScore === "number"
+    );
+    const avgScore = scoredAttempts.length
+      ? Math.round(
+          scoredAttempts.reduce(
+            (sum, attempt) => sum + (attempt.overallScore ?? 0),
+            0
+          ) / scoredAttempts.length
+        )
+      : "—";
     const withReport = attempts.filter(attempt => attempt.report).length;
-    return { total: attempts.length, paid, avgScore, withReport };
+    return { total: attempts.length, avgScore, withReport };
   }, [history.data]);
 
   if (history.isLoading) {
@@ -52,8 +49,18 @@ export default function DashboardAssessment() {
   if (history.isError) {
     return (
       <DashboardLayout role="user" title="Assessment Reports">
-        <div className="border-l-2 border-red-700 bg-red-50 p-5 text-sm text-red-900">
-          Unable to load assessment history.
+        <div
+          role="alert"
+          className="flex flex-col gap-3 border-l-2 border-red-700 bg-red-50 p-5 text-sm text-red-900 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p>Unable to load assessment history.</p>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => void history.refetch()}
+          >
+            Retry
+          </Button>
         </div>
       </DashboardLayout>
     );
@@ -62,6 +69,7 @@ export default function DashboardAssessment() {
   return (
     <DashboardLayout role="user" title="Assessment Reports">
       <DashboardHero
+        showWelcome={false}
         eyebrow="Transformation"
         title="Assessment history"
         description="Review your self-assessment attempts, scores, and reports."
@@ -72,7 +80,10 @@ export default function DashboardAssessment() {
         ]}
       />
 
-      <Section title="All attempts" description="Your complete assessment history.">
+      <Section
+        title="All attempts"
+        description="Your complete assessment history."
+      >
         <div className="mt-5 space-y-4">
           {(history.data ?? []).map(attempt => {
             const report = attempt.report as AssessmentReportRef | null;
@@ -107,7 +118,7 @@ export default function DashboardAssessment() {
                         <p className="display text-2xl text-foreground">
                           {attempt.overallScore}
                         </p>
-                          <p className="text-[10px] uppercase tracking-[.1em] text-muted-foreground">
+                        <p className="text-[10px] uppercase tracking-[.1em] text-muted-foreground">
                           Score
                         </p>
                       </div>
@@ -132,7 +143,9 @@ export default function DashboardAssessment() {
                             variant="outline"
                             onClick={async () => {
                               try {
-                                const result = await downloadReport.mutateAsync({ attemptId: attempt.id });
+                                const result = await downloadReport.mutateAsync(
+                                  { attemptId: attempt.id }
+                                );
                                 const bytes = Uint8Array.from(
                                   atob(result.data),
                                   c => c.charCodeAt(0)
@@ -156,6 +169,18 @@ export default function DashboardAssessment() {
                             <Download size={13} className="mr-1.5" />
                             PDF
                           </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              (window.location.href = "/assessment")
+                            }
+                            className="text-[10px] font-black uppercase tracking-[.08em]"
+                          >
+                            <RefreshCw size={13} className="mr-1.5" />
+                            Retake
+                          </Button>
                         </>
                       )}
                       {attempt.paymentStatus === "paid" && (
@@ -164,13 +189,16 @@ export default function DashboardAssessment() {
                           size="sm"
                           variant="ghost"
                           onClick={() => {
-                            fetch(`/api/trpc/dashboard.resendReportEmail?batch=1`, {
-                              method: "POST",
-                              headers: { "content-type": "application/json" },
-                              body: JSON.stringify({
-                                json: { attemptId: attempt.id },
-                              }),
-                            }).then(() => toast.success("Report email resent"));
+                            fetch(
+                              `/api/trpc/dashboard.resendReportEmail?batch=1`,
+                              {
+                                method: "POST",
+                                headers: { "content-type": "application/json" },
+                                body: JSON.stringify({
+                                  json: { attemptId: attempt.id },
+                                }),
+                              }
+                            ).then(() => toast.success("Report email resent"));
                           }}
                           className="text-[10px] font-black uppercase tracking-[.08em]"
                         >
@@ -197,5 +225,3 @@ export default function DashboardAssessment() {
     </DashboardLayout>
   );
 }
-
-

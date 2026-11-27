@@ -14,10 +14,10 @@ export function ModuleCompletionBadge({
   const isInProgress = badge.status === "in-progress";
   const content = (
     <div
-      className={`flex items-center gap-3 border p-3 transition ${isEarned ? "border-[#c9a34e] bg-[#fff7dc]" : isInProgress ? "border-[#a27e2e]/35 bg-white/65" : "border-[#16243d]/10 bg-[#f7f3e8]"}`}
+      className={`flex items-center gap-3 border p-3 transition ${isEarned ? "border-[var(--brand)] bg-[#fff7dc]" : isInProgress ? "border-[#a27e2e]/35 bg-white/65" : "border-[#16243d]/10 bg-[#f7f3e8]"}`}
     >
       <span
-        className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${isEarned ? "bg-[#c9a34e] text-[#16243d]" : isInProgress ? "border border-[#a27e2e] text-[#7d5e1e]" : "border border-[#16243d]/20 text-[#657084]"}`}
+        className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${isEarned ? "bg-[var(--brand)] text-[#16243d]" : isInProgress ? "border border-[#a27e2e] text-[var(--brand)]" : "border border-[#16243d]/20 text-[#657084]"}`}
       >
         {isEarned ? (
           <Check size={16} strokeWidth={3} />
@@ -28,7 +28,7 @@ export function ModuleCompletionBadge({
         )}
       </span>
       <span className="min-w-0">
-        <span className="block text-[10px] font-black uppercase tracking-[.11em] text-[#7d5e1e]">
+        <span className="block text-[10px] font-black uppercase tracking-[.11em] text-[var(--brand)]">
           Module {badge.moduleIndex + 1} · {badge.label}
         </span>
         {!compact && (
@@ -43,7 +43,7 @@ export function ModuleCompletionBadge({
       </span>
       {isEarned && (
         <Sparkles
-          className="ml-auto shrink-0 text-[#7d5e1e]"
+          className="ml-auto shrink-0 text-[var(--brand)]"
           size={15}
           aria-label="Completion badge earned"
         />
@@ -54,7 +54,7 @@ export function ModuleCompletionBadge({
     <button
       type="button"
       onClick={onSelect}
-      className="w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a34e]"
+      className="w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
     >
       {content}
     </button>

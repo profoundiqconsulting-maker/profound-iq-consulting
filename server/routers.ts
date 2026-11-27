@@ -29,12 +29,15 @@ import {
   COURSE_PRICE_KES,
   STANDARD_COURSE_STAGE_AMOUNTS_KES,
 } from "../shared/courseCatalog";
+import { courseEnrollmentApplicationSchema } from "../shared/courseEnrollmentApplication";
 import { buildCoursePaymentSuccessPath } from "../shared/coursePaymentRouting";
 import { PUBLISHED_SITE_ORIGIN } from "../shared/siteOrigin";
+import { checkoutAmountFromMetadata } from "../shared/paymentInit";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const cookieNs = require("cookie");import { paystackRequest } from "./_core/paystack";
+const cookieNs = require("cookie");
+import { paystackRequest } from "./_core/paystack";
 import { reconcileStalePendingPayments } from "./paymentReconciliationJob";
 
 const PUBLIC_SITE_ORIGIN = PUBLISHED_SITE_ORIGIN;
@@ -70,6 +73,12 @@ import {
   getCareerPathActiveModule,
   upsertCareerPathActiveModule,
   getOrCreateCourseEnrollment,
+  saveCourseEnrollmentApplication,
+  getCourseEnrollmentApplication,
+  listAssessmentRoadmap,
+  addAssessmentRoadmapItem,
+  removeAssessmentRoadmapItem,
+  roadmapDiscountFactor,
   updateCourseEnrollmentIdentity,
   listPsychometricAttemptsForAdmin,
   resetPsychometricReportEmail,
@@ -333,9 +342,9 @@ import {
   emailPsychometricReportIfNeeded,
   sendPsychometricReportEmail,
   sendAssessmentResumeEmail,
-   sendFailedLoginAlert,
-   verifySmtpConnection,
-   sendTemplateTestEmail,
+  sendFailedLoginAlert,
+  verifySmtpConnection,
+  sendTemplateTestEmail,
   sendCourseCertificateEmail,
   sendOrganizationReviewRequestEmail,
   sendNewsletterConfirmationEmail,
@@ -566,7 +575,14 @@ export const appRouter = router({
           z.object({
             title: z.string().trim().min(2).max(240),
             body: z.string().trim().min(2),
-            recipientType: z.enum(["all", "psychometrics", "careerpath", "courses", "enrollment", "assessment"]),
+            recipientType: z.enum([
+              "all",
+              "psychometrics",
+              "careerpath",
+              "courses",
+              "enrollment",
+              "assessment",
+            ]),
             filters: z.record(z.string(), z.any()).optional(),
           })
         )
@@ -593,7 +609,7 @@ export const appRouter = router({
           listCommunicationTickets({
             assignedToOpenId:
               ctx.user.role === "staff" || ctx.user.role === "admin"
-                ? input?.assignedToOpenId ?? ctx.user.openId
+                ? (input?.assignedToOpenId ?? ctx.user.openId)
                 : ctx.user.openId,
             status: input?.status,
           })
@@ -1008,8 +1024,10 @@ export const appRouter = router({
             code: "INTERNAL_SERVER_ERROR",
             message: "Unable to create the account.",
           });
+        const hasNonExpiringSession = user.role === "user";
         const token = await sdk.createSessionToken(user.openId, {
           name: user.name ?? input.name,
+          ...(hasNonExpiringSession ? { expiresInMs: null } : {}),
         });
         const meta = requestSecurityMeta(ctx.req);
         await createUserSession({
@@ -1017,7 +1035,9 @@ export const appRouter = router({
           tokenHash: hashRateLimitKey(token),
           ...meta,
           trustedDevice: false,
-          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          expiresAt: hasNonExpiringSession
+            ? null
+            : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         });
         await recordLoginEvent({
           openId: user.openId,
@@ -1083,18 +1103,24 @@ export const appRouter = router({
             message: "Invalid identifier or password.",
           });
         }
+        const hasNonExpiringSession = user.role === "user";
         const token = await sdk.createSessionToken(user.openId, {
           name: user.name ?? identifier,
+          ...(hasNonExpiringSession ? { expiresInMs: null } : {}),
         });
-        const sessionExpiry = new Date(
-          Date.now() + (input.trustDevice ? 365 : 1) * 24 * 60 * 60 * 1000
-        );
+        const sessionExpiry = hasNonExpiringSession
+          ? null
+          : new Date(
+              Date.now() +
+                (input.trustDevice ? 365 : 1) * 24 * 60 * 60 * 1000
+            );
         await createUserSession({
           openId: user.openId,
           tokenHash: hashRateLimitKey(token),
           ...meta,
           trustedDevice: input.trustDevice,
-          trustExpiresAt: input.trustDevice ? sessionExpiry : null,
+          trustExpiresAt:
+            input.trustDevice && sessionExpiry ? sessionExpiry : null,
           expiresAt: sessionExpiry,
         });
         await recordLoginEvent({
@@ -1363,6 +1389,13 @@ export const appRouter = router({
       .input(
         z.object({
           name: z.string().trim().min(2).max(160),
+          phone: z
+            .string()
+            .trim()
+            .min(7)
+            .max(32)
+            .nullable()
+            .optional(),
           timezone: z
             .string()
             .regex(
@@ -1402,7 +1435,68 @@ export const appRouter = router({
             .optional(),
         })
       )
-      .mutation(({ ctx, input }) => updateUserProfile(ctx.user.openId, input)),
+      .mutation(async ({ ctx, input }) => {
+        const phone = input.phone
+          ? normalizeIdentifier(input.phone)
+          : input.phone;
+        if (phone) {
+          const existing = await findUserByLocalIdentifier(phone);
+          if (existing && existing.openId !== ctx.user.openId)
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: "That phone number is already connected to another account.",
+            });
+        }
+        return updateUserProfile(ctx.user.openId, { ...input, phone });
+      }),
+    syncEnrollment: protectedProcedure
+      .input(
+        z.object({
+          courseSlug: z.string(),
+          firstName: z.string().trim().min(1),
+          lastName: z.string().trim().min(1),
+          email: z.string().email(),
+          phone: z.string().trim().min(7).max(32).optional(),
+          city: z.string().trim().optional(),
+          country: z.string().trim().optional(),
+          qualification: z.string().trim().optional(),
+          fieldOfStudy: z.string().trim().optional(),
+          institution: z.string().trim().optional(),
+          gradYear: z.string().trim().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const name = `${input.firstName} ${input.lastName}`.trim();
+
+        const learningGoals: string[] = [];
+        if (input.qualification) learningGoals.push(`qualification:${input.qualification}`);
+        if (input.fieldOfStudy) learningGoals.push(`field:${input.fieldOfStudy}`);
+        if (input.institution) learningGoals.push(`institution:${input.institution}`);
+        if (input.gradYear) learningGoals.push(`gradYear:${input.gradYear}`);
+        if (input.city) learningGoals.push(`city:${input.city}`);
+        if (input.country) learningGoals.push(`country:${input.country}`);
+
+        const current = await getUserProfile(ctx.user.openId);
+        const existingGoals = Array.isArray(current?.learningGoals)
+          ? (current.learningGoals as string[])
+          : [];
+        const mergedGoals = [...existingGoals, ...learningGoals].slice(0, 5);
+
+        await updateUserProfile(ctx.user.openId, {
+          name,
+          timezone: current?.timezone ?? "Africa/Nairobi",
+          phone: input.phone ?? null,
+          learningGoals: mergedGoals,
+          notificationPreferences: current?.notificationPreferences ?? {
+            assessmentUpdates: true,
+            courseAnnouncements: true,
+            monthlyInsights: false,
+            showAvatar: true,
+          },
+        });
+
+        return { success: true as const, name, phone: input.phone ?? null };
+      }),
     removeAvatar: protectedProcedure.mutation(async ({ ctx }) => {
       await updateUserAvatar(ctx.user.openId, "");
       return { avatarUrl: null };
@@ -1500,8 +1594,15 @@ export const appRouter = router({
       .input(z.object({ id: z.number().int().positive() }))
       .query(async ({ input }) => getSurvey(input.id)),
     submitSurveyResponse: publicProcedure
-      .input(z.object({ id: z.number().int().positive(), optionIndex: z.number().int().min(0) }))
-      .mutation(async ({ input }) => submitSurveyResponse(input.id, input.optionIndex)),
+      .input(
+        z.object({
+          id: z.number().int().positive(),
+          optionIndex: z.number().int().min(0),
+        })
+      )
+      .mutation(async ({ input }) =>
+        submitSurveyResponse(input.id, input.optionIndex)
+      ),
     activeSurveys: publicProcedure.query(async () => {
       const now = new Date();
       try {
@@ -1585,9 +1686,13 @@ export const appRouter = router({
             message: "This resource is free. No payment required.",
           });
         }
-        const reference = `piq-resource-${Date.now()}-${Math.random().toString(36).replace(/[^a-zA-Z0-9]/g, "").slice(0, 10)}`;
+        const reference = `piq-resource-${Date.now()}-${Math.random()
+          .toString(36)
+          .replace(/[^a-zA-Z0-9]/g, "")
+          .slice(0, 10)}`;
         const originHeader = ctx.req.headers.origin;
-        const origin = typeof originHeader === "string" ? originHeader : PUBLIC_SITE_ORIGIN;
+        const origin =
+          typeof originHeader === "string" ? originHeader : PUBLIC_SITE_ORIGIN;
         const payment = await paystackRequest("/transaction/initialize", {
           method: "POST",
           body: JSON.stringify({
@@ -1602,7 +1707,10 @@ export const appRouter = router({
             }),
           }),
         });
-        const accessCode = payment.data as { access_code?: string; authorization_url?: string };
+        const accessCode = payment.data as {
+          access_code?: string;
+          authorization_url?: string;
+        };
         await createResourcePurchase({
           resourceId: input.resourceId,
           userOpenId: ctx.user.openId,
@@ -1641,6 +1749,7 @@ export const appRouter = router({
             downloadUrl: resource?.fileUrl ?? null,
           };
         }
+
         const verification = await paystackRequest(
           `/transaction/verify/${encodeURIComponent(input.reference)}`
         );
@@ -1726,9 +1835,8 @@ export const appRouter = router({
       )
       .query(async ({ ctx, input }) => {
         const rows = await getNewsletterSubscribersForExport(input ?? {});
-        const { buildNewsletterSubscriberCsv } = await import(
-          "../shared/adminExport"
-        );
+        const { buildNewsletterSubscriberCsv } =
+          await import("../shared/adminExport");
         await recordAnalyticsEvent({
           eventName: "newsletter_subscribers_exported",
           userOpenId: ctx.user.openId,
@@ -1915,11 +2023,7 @@ export const appRouter = router({
         z.object({
           slug: z.string().trim().min(1).max(160),
           status: z.enum(["draft", "published"]),
-          socialImageUrl: z
-            .string()
-            .max(12_000_000)
-            .nullable()
-            .optional(),
+          socialImageUrl: z.string().max(12_000_000).nullable().optional(),
           contentType: z
             .enum(["image/png", "image/jpeg", "image/webp"])
             .optional(),
@@ -1978,6 +2082,21 @@ export const appRouter = router({
         });
         return { id };
       }),
+  }),
+  roadmap: router({
+    list: protectedProcedure.query(({ ctx }) =>
+      listAssessmentRoadmap(ctx.user.openId)
+    ),
+    add: protectedProcedure
+      .input(z.object({ courseSlug: z.string().trim().min(2).max(120) }))
+      .mutation(({ ctx, input }) =>
+        addAssessmentRoadmapItem(ctx.user.openId, input.courseSlug)
+      ),
+    remove: protectedProcedure
+      .input(z.object({ courseSlug: z.string().trim().min(2).max(120) }))
+      .mutation(({ ctx, input }) =>
+        removeAssessmentRoadmapItem(ctx.user.openId, input.courseSlug)
+      ),
   }),
   course: router({
     verifyCertificate: publicProcedure
@@ -2075,6 +2194,7 @@ export const appRouter = router({
           name: z.string().trim().min(2).max(160),
           email: z.string().email(),
           consent: z.literal(true),
+          application: courseEnrollmentApplicationSchema.optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -2096,16 +2216,84 @@ export const appRouter = router({
             message:
               "Use the email address associated with your authenticated account.",
           });
+        if (
+          input.application &&
+          (input.application.fullName !== input.name ||
+            normalizeIdentifier(input.application.email) !==
+              normalizeIdentifier(input.email))
+        )
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message:
+              "Enrollment application details must match the name and email submitted for enrollment.",
+          });
+        if (input.application) {
+          const existingPhone = await findUserByLocalIdentifier(
+            normalizeIdentifier(input.application.phone)
+          );
+          if (existingPhone && existingPhone.openId !== ctx.user.openId)
+            throw new TRPCError({
+              code: "CONFLICT",
+              message:
+                "That phone number is already connected to another account.",
+            });
+        }
+        const roadmap = await listAssessmentRoadmap(ctx.user.openId);
+        const inRoadmap = roadmap.items.some(
+          item => item.courseSlug === course.slug
+        );
+        const factor = inRoadmap ? roadmapDiscountFactor(roadmap.count) : 1;
+        const stageAmountsKes = course.stageAmountsKes.map(amount =>
+          Math.round(amount * factor)
+        );
         const enrollment = await getOrCreateCourseEnrollment({
           userOpenId: ctx.user.openId,
           courseSlug: course.slug,
           name: input.name,
           email: input.email,
-          amountKes: course.stageAmountsKes[0] ?? 0,
-          stageAmountsKes: course.stageAmountsKes,
+          amountKes: stageAmountsKes[0] ?? 0,
+          stageAmountsKes,
         });
-        return { enrollmentId: enrollment?.id, courseSlug: course.slug };
+        if (!enrollment)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Course enrollment could not be created.",
+          });
+        if (input.application) {
+          const profile = await getUserProfile(ctx.user.openId);
+          await updateUserProfile(ctx.user.openId, {
+            name: input.application.fullName,
+            phone: normalizeIdentifier(input.application.phone),
+            timezone: profile?.timezone ?? "Africa/Nairobi",
+            learningGoals: Array.isArray(profile?.learningGoals)
+              ? (profile.learningGoals as string[])
+              : [],
+            notificationPreferences: profile?.notificationPreferences ?? {
+              assessmentUpdates: true,
+              courseAnnouncements: true,
+              monthlyInsights: false,
+              showAvatar: true,
+            },
+          });
+          await saveCourseEnrollmentApplication({
+            enrollmentId: enrollment.id,
+            userOpenId: ctx.user.openId,
+            courseSlug: course.slug,
+            application: input.application,
+          });
+        }
+        return {
+          enrollmentId: enrollment.id,
+          courseSlug: course.slug,
+          discountApplied: factor < 1,
+          applicationSubmitted: Boolean(input.application),
+        };
       }),
+    enrollmentApplication: protectedProcedure
+      .input(z.object({ courseSlug: z.string().trim().min(3).max(120) }))
+      .query(({ ctx, input }) =>
+        getCourseEnrollmentApplication(ctx.user.openId, input.courseSlug)
+      ),
     state: protectedProcedure
       .input(
         z.object({ courseSlug: z.string().trim().min(2).max(120) }).optional()
@@ -2518,7 +2706,14 @@ export const appRouter = router({
         const moduleNumber = Number(
           input.lessonId.match(/module-(\\d+)/)?.[1] ?? 0
         );
-        const requiredStage = moduleNumber >= 8 ? 4 : moduleNumber >= 5 ? 3 : moduleNumber >= 2 ? 2 : 0;
+        const requiredStage =
+          moduleNumber >= 8
+            ? 4
+            : moduleNumber >= 5
+              ? 3
+              : moduleNumber >= 2
+                ? 2
+                : 0;
         const accessOverride = canBypassCoursePayment({
           hasAccessGrant: await hasCourseAccessGrant(
             ctx.user.openId,
@@ -2584,7 +2779,14 @@ export const appRouter = router({
         const moduleNumber = Number(
           input.lessonId.match(/module-(\\d+)/)?.[1] ?? 0
         );
-        const requiredStage = moduleNumber >= 8 ? 4 : moduleNumber >= 5 ? 3 : moduleNumber >= 2 ? 2 : 0;
+        const requiredStage =
+          moduleNumber >= 8
+            ? 4
+            : moduleNumber >= 5
+              ? 3
+              : moduleNumber >= 2
+                ? 2
+                : 0;
         const accessOverride = canBypassCoursePayment({
           hasAccessGrant: await hasCourseAccessGrant(
             ctx.user.openId,
@@ -2652,7 +2854,14 @@ export const appRouter = router({
         const moduleNumber = Number(
           input.moduleId.match(/module-(\\d+)/)?.[1] ?? 0
         );
-        const requiredStage = moduleNumber >= 8 ? 4 : moduleNumber >= 5 ? 3 : moduleNumber >= 2 ? 2 : 0;
+        const requiredStage =
+          moduleNumber >= 8
+            ? 4
+            : moduleNumber >= 5
+              ? 3
+              : moduleNumber >= 2
+                ? 2
+                : 0;
         const accessOverride = canBypassCoursePayment({
           hasAccessGrant: await hasCourseAccessGrant(
             ctx.user.openId,
@@ -2887,93 +3096,93 @@ export const appRouter = router({
             message: "This payment is not available to your account.",
           });
         if (stage.paymentStatus === "paid") {
-            const passed = new Set(
-              record.quizAttempts
-                .filter(attempt => attempt.passed)
-                .map(attempt => attempt.moduleId)
+          const passed = new Set(
+            record.quizAttempts
+              .filter(attempt => attempt.passed)
+              .map(attempt => attempt.moduleId)
+          );
+          const course = courseCatalog.find(
+            item => item.slug === record.enrollment.courseSlug
+          );
+          if (
+            course &&
+            record.lessons.length >= course.modules.length * 7 &&
+            passed.size >= course.modules.length &&
+            !record.certificates.length
+          ) {
+            const certificateNumber = `PIQ-${new Date().getFullYear()}-${randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
+            const originHeader = ctx.req.headers.origin;
+            const origin =
+              typeof originHeader === "string"
+                ? originHeader
+                : PUBLIC_SITE_ORIGIN;
+            const verificationUrl = `${origin}/verify/certificate?certificate=${encodeURIComponent(certificateNumber)}`;
+            const certificateSettings = await getAdminCertificateSettings(
+              ENV.ownerOpenId || ctx.user.openId
             );
-            const course = courseCatalog.find(
-              item => item.slug === record.enrollment.courseSlug
-            );
-            if (
-              course &&
-              record.lessons.length >= course.modules.length * 7 &&
-              passed.size >= course.modules.length &&
-              !record.certificates.length
-            ) {
-              const certificateNumber = `PIQ-${new Date().getFullYear()}-${randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
-              const originHeader = ctx.req.headers.origin;
-              const origin =
-                typeof originHeader === "string"
-                  ? originHeader
-                  : PUBLIC_SITE_ORIGIN;
-              const verificationUrl = `${origin}/verify/certificate?certificate=${encodeURIComponent(certificateNumber)}`;
-              const certificateSettings = await getAdminCertificateSettings(
-                ENV.ownerOpenId || ctx.user.openId
-              );
-              const certificateSvg = renderCourseCertificateSvg({
-                recipientName: record.enrollment.name,
-                recipientEmail: record.enrollment.email,
-                courseTitle: course.title,
-                certificateNumber,
-                issuedOn: new Date(),
-                verificationUrl,
-                trainerName: certificateSettings.trainerName,
-                trainerTitle: certificateSettings.trainerTitle,
-                signatureDataUri: certificateSettings.signatureDataUri,
-                customElements:
-                  (
-                    certificateSettings as typeof certificateSettings & {
-                      customElements?: Record<string, string>;
+            const certificateSvg = renderCourseCertificateSvg({
+              recipientName: record.enrollment.name,
+              recipientEmail: record.enrollment.email,
+              courseTitle: course.title,
+              certificateNumber,
+              issuedOn: new Date(),
+              verificationUrl,
+              trainerName: certificateSettings.trainerName,
+              trainerTitle: certificateSettings.trainerTitle,
+              signatureDataUri: certificateSettings.signatureDataUri,
+              customElements:
+                (
+                  certificateSettings as typeof certificateSettings & {
+                    customElements?: Record<string, string>;
+                  }
+                ).customElements ?? undefined,
+              fieldLayout: certificateSettings.fieldLayout as
+                | Record<
+                    string,
+                    {
+                      x?: number;
+                      y?: number;
+                      width?: number;
+                      height?: number;
+                      visible?: boolean;
+                      text?: string;
                     }
-                  ).customElements ?? undefined,
-                fieldLayout: certificateSettings.fieldLayout as
-                  | Record<
-                      string,
-                      {
-                        x?: number;
-                        y?: number;
-                        width?: number;
-                        height?: number;
-                        visible?: boolean;
-                        text?: string;
-                      }
-                    >
-                  | undefined,
-              });
-              const artifactHash = createHash("sha256")
-                .update(certificateSvg)
-                .digest("hex");
-              const uploaded = await storagePut(
-                `course-certificates/${certificateNumber}.svg`,
-                certificateSvg,
-                "image/svg+xml"
-              );
-              const certificate = await createCourseCertificate({
-                enrollmentId: record.enrollment.id,
+                  >
+                | undefined,
+            });
+            const artifactHash = createHash("sha256")
+              .update(certificateSvg)
+              .digest("hex");
+            const uploaded = await storagePut(
+              `course-certificates/${certificateNumber}.svg`,
+              certificateSvg,
+              "image/svg+xml"
+            );
+            const certificate = await createCourseCertificate({
+              enrollmentId: record.enrollment.id,
+              recipientName: record.enrollment.name,
+              courseTitle: course.title,
+              certificateNumber,
+              fileKey: uploaded.key,
+              fileUrl: uploaded.url,
+              artifactHash,
+            });
+            try {
+              await sendCourseCertificateEmail({
                 recipientName: record.enrollment.name,
+                email: record.enrollment.email,
                 courseTitle: course.title,
                 certificateNumber,
-                fileKey: uploaded.key,
-                fileUrl: uploaded.url,
-                artifactHash,
+                certificateSvg,
               });
-              try {
-                await sendCourseCertificateEmail({
-                  recipientName: record.enrollment.name,
-                  email: record.enrollment.email,
-                  courseTitle: course.title,
-                  certificateNumber,
-                  certificateSvg,
-                });
-              } catch (error) {
-                console.error(
-                  "[Paystack] Course certificate email failed:",
-                  error
-                );
-              }
+            } catch (error) {
+              console.error(
+                "[Paystack] Course certificate email failed:",
+                error
+              );
             }
-            return { verified: true as const, stage: stage.stage };
+          }
+          return { verified: true as const, stage: stage.stage };
         }
         const verification = await paystackRequest(
           `/transaction/verify/${encodeURIComponent(input.reference)}`
@@ -3523,10 +3732,10 @@ export const appRouter = router({
               "A valid staff session is required to enable review analytics delivery.",
           });
         if (existing?.scheduleTaskUid) {
-          await updateHeartbeatJob(
-            existing.scheduleTaskUid,
-            { cron, enable: true }
-          );
+          await updateHeartbeatJob(existing.scheduleTaskUid, {
+            cron,
+            enable: true,
+          });
           await updateScheduledExport(COURSE_REVIEW_WEEKLY_EXPORT_KEY, {
             pausedAt: null,
             pausedByOpenId: null,
@@ -3538,15 +3747,13 @@ export const appRouter = router({
             cron,
           };
         }
-        const job = await createHeartbeatJob(
-          {
-            name: "weekly-course-lesson-review-analytics",
-            cron,
-            path: "/api/scheduled/weeklyCourseLessonReviewAnalytics",
-            description:
-              "Email the branded course lesson review analytics report to staff every week.",
-          }
-        );
+        const job = await createHeartbeatJob({
+          name: "weekly-course-lesson-review-analytics",
+          cron,
+          path: "/api/scheduled/weeklyCourseLessonReviewAnalytics",
+          description:
+            "Email the branded course lesson review analytics report to staff every week.",
+        });
         await updateScheduledExport(COURSE_REVIEW_WEEKLY_EXPORT_KEY, {
           scheduleTaskUid: job.taskUid,
           pausedAt: null,
@@ -3572,10 +3779,7 @@ export const appRouter = router({
           message:
             "A valid staff session is required to pause review analytics delivery.",
         });
-      await updateHeartbeatJob(
-        record.scheduleTaskUid,
-        { enable: false }
-      );
+      await updateHeartbeatJob(record.scheduleTaskUid, { enable: false });
       await updateScheduledExport(COURSE_REVIEW_WEEKLY_EXPORT_KEY, {
         pausedAt: new Date(),
         pausedByOpenId: ctx.user.openId,
@@ -4434,7 +4638,9 @@ export const appRouter = router({
     adminDownloadCertificatePdf: adminProcedure
       .input(z.object({ enrollmentId: z.number().int().positive() }))
       .mutation(async ({ input }) => {
-        const certificate = await getCourseCertificateByEnrollmentId(input.enrollmentId);
+        const certificate = await getCourseCertificateByEnrollmentId(
+          input.enrollmentId
+        );
         if (!certificate) {
           throw new TRPCError({
             code: "NOT_FOUND",
@@ -4629,15 +4835,13 @@ export const appRouter = router({
             message:
               "A valid admin session is required to enable newsletter delivery.",
           });
-        const job = await createHeartbeatJob(
-          {
-            name: "biweekly-insights-newsletter",
-            cron: "0 0 9 * * 1",
-            path: "/api/scheduled/biweeklyNewsletter",
-            description:
-              "Send the Profound IQ Insights newsletter every other Monday at 09:00 UTC to confirmed subscribers.",
-          }
-        );
+        const job = await createHeartbeatJob({
+          name: "biweekly-insights-newsletter",
+          cron: "0 0 9 * * 1",
+          path: "/api/scheduled/biweeklyNewsletter",
+          description:
+            "Send the Profound IQ Insights newsletter every other Monday at 09:00 UTC to confirmed subscribers.",
+        });
         await updateScheduledExport(BIWEEKLY_NEWSLETTER_KEY, {
           scheduleTaskUid: job.taskUid,
         });
@@ -4663,15 +4867,13 @@ export const appRouter = router({
             message:
               "A valid admin session is required to enable weekly delivery.",
           });
-        const job = await createHeartbeatJob(
-          {
-            name: "weekly-psychometric-analytics",
-            cron: "0 0 9 * * 1",
-            path: "/api/scheduled/weeklyPsychometricAnalytics",
-            description:
-              "Email the branded psychometric analytics report to administrators every Monday at 09:00 UTC.",
-          }
-        );
+        const job = await createHeartbeatJob({
+          name: "weekly-psychometric-analytics",
+          cron: "0 0 9 * * 1",
+          path: "/api/scheduled/weeklyPsychometricAnalytics",
+          description:
+            "Email the branded psychometric analytics report to administrators every Monday at 09:00 UTC.",
+        });
         await updateScheduledExport(PSYCHOMETRIC_WEEKLY_EXPORT_KEY, {
           scheduleTaskUid: job.taskUid,
         });
@@ -4842,28 +5044,28 @@ export const appRouter = router({
           .object({
             page: z.number().int().min(1).default(1),
             pageSize: z.number().int().min(1).max(50).default(10),
-             search: z.string().trim().max(160).optional(),
-             category: z
-               .enum([
-                 "all",
-                 "professional-courses",
-                 "educational-consulting",
-                 "psychometric-testing",
-                 "research-surveys",
-                 "organizational-development",
-                 "general",
-               ])
-               .default("all"),
-             status: z
-               .enum(["all", "new", "contacted", "closed"])
-               .default("all"),
-             assignedToOpenId: z.string().max(64).default("all"),
-             fromDate: z.string().optional(),
-             toDate: z.string().optional(),
-           })
-           .optional()
-       )
-       .query(({ input }) =>
+            search: z.string().trim().max(160).optional(),
+            category: z
+              .enum([
+                "all",
+                "professional-courses",
+                "educational-consulting",
+                "psychometric-testing",
+                "research-surveys",
+                "organizational-development",
+                "general",
+              ])
+              .default("all"),
+            status: z
+              .enum(["all", "new", "contacted", "closed"])
+              .default("all"),
+            assignedToOpenId: z.string().max(64).default("all"),
+            fromDate: z.string().optional(),
+            toDate: z.string().optional(),
+          })
+          .optional()
+      )
+      .query(({ input }) =>
         listContactInquiries({
           page: input?.page ?? 1,
           pageSize: input?.pageSize ?? 10,
@@ -4881,7 +5083,11 @@ export const appRouter = router({
       ),
     teamMembers: adminProcedure.query(() => getAdminTeamMembers()),
     getContactInquiry: adminProcedure
-      .input(z.object({ id: z.union([z.number().int().positive(), z.string()]).optional() }))
+      .input(
+        z.object({
+          id: z.union([z.number().int().positive(), z.string()]).optional(),
+        })
+      )
       .query(async ({ input }) => {
         if (input?.id) return getContactInquiry(input.id);
         return null;
@@ -4936,7 +5142,12 @@ export const appRouter = router({
             showAvatar: z.boolean().default(true),
           }),
           leaderboardOptIn: z.boolean().optional(),
-          leaderboardDisplayName: z.string().trim().max(160).nullable().optional(),
+          leaderboardDisplayName: z
+            .string()
+            .trim()
+            .max(160)
+            .nullable()
+            .optional(),
         })
       )
       .mutation(({ input }) =>
@@ -4945,9 +5156,12 @@ export const appRouter = router({
           timezone: input.timezone ?? "Africa/Nairobi",
           learningGoals: input.learningGoals,
           notificationPreferences: {
-            assessmentUpdates: input.notificationPreferences?.assessmentUpdates ?? true,
-            courseAnnouncements: input.notificationPreferences?.courseAnnouncements ?? true,
-            monthlyInsights: input.notificationPreferences?.monthlyInsights ?? false,
+            assessmentUpdates:
+              input.notificationPreferences?.assessmentUpdates ?? true,
+            courseAnnouncements:
+              input.notificationPreferences?.courseAnnouncements ?? true,
+            monthlyInsights:
+              input.notificationPreferences?.monthlyInsights ?? false,
             showAvatar: input.notificationPreferences?.showAvatar ?? true,
           },
           leaderboardOptIn: input.leaderboardOptIn,
@@ -4977,18 +5191,17 @@ export const appRouter = router({
           const raw = fileUrl.replace(/^data:[^;]+;base64,/, "");
           const bytes = Buffer.from(raw, "base64");
           const contentType = input.fileType ?? "application/octet-stream";
-          const extension =
-            contentType.includes("pdf")
-              ? "pdf"
-              : contentType.includes("zip")
-                ? "zip"
-                : contentType.includes("sheet")
-                  ? "xlsx"
-                  : contentType.includes("document")
-                    ? "docx"
-                    : contentType.includes("image")
-                      ? "png"
-                      : "bin";
+          const extension = contentType.includes("pdf")
+            ? "pdf"
+            : contentType.includes("zip")
+              ? "zip"
+              : contentType.includes("sheet")
+                ? "xlsx"
+                : contentType.includes("document")
+                  ? "docx"
+                  : contentType.includes("image")
+                    ? "png"
+                    : "bin";
           const stored = await storagePut(
             `resource-files/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`,
             bytes,
@@ -5038,18 +5251,17 @@ export const appRouter = router({
           const raw = fileUrl.replace(/^data:[^;]+;base64,/, "");
           const bytes = Buffer.from(raw, "base64");
           const contentType = input.fileType ?? "application/octet-stream";
-          const extension =
-            contentType.includes("pdf")
-              ? "pdf"
-              : contentType.includes("zip")
-                ? "zip"
-                : contentType.includes("sheet")
-                  ? "xlsx"
-                  : contentType.includes("document")
-                    ? "docx"
-                    : contentType.includes("image")
-                      ? "png"
-                      : "bin";
+          const extension = contentType.includes("pdf")
+            ? "pdf"
+            : contentType.includes("zip")
+              ? "zip"
+              : contentType.includes("sheet")
+                ? "xlsx"
+                : contentType.includes("document")
+                  ? "docx"
+                  : contentType.includes("image")
+                    ? "png"
+                    : "bin";
           const stored = await storagePut(
             `resource-files/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`,
             bytes,
@@ -5111,16 +5323,26 @@ export const appRouter = router({
           options: z.array(z.string().trim().min(1).max(120)).min(2).max(6),
           startsAt: z.string().datetime().optional(),
           endsAt: z.string().datetime().optional(),
-          questions: z.array(z.object({
-            id: z.string(),
-            type: z.enum(["single_choice", "multiple_choice", "text", "rating", "yes_no"]),
-            title: z.string().trim().min(1).max(240),
-            description: z.string().trim().optional(),
-            required: z.boolean().default(true),
-            options: z.array(z.string().trim().min(1).max(120)).optional(),
-            minRating: z.number().int().min(1).max(10).optional(),
-            maxRating: z.number().int().min(1).max(10).optional(),
-          })).optional(),
+          questions: z
+            .array(
+              z.object({
+                id: z.string(),
+                type: z.enum([
+                  "single_choice",
+                  "multiple_choice",
+                  "text",
+                  "rating",
+                  "yes_no",
+                ]),
+                title: z.string().trim().min(1).max(240),
+                description: z.string().trim().optional(),
+                required: z.boolean().default(true),
+                options: z.array(z.string().trim().min(1).max(120)).optional(),
+                minRating: z.number().int().min(1).max(10).optional(),
+                maxRating: z.number().int().min(1).max(10).optional(),
+              })
+            )
+            .optional(),
         })
       )
       .mutation(({ ctx, input }) =>
@@ -5142,20 +5364,34 @@ export const appRouter = router({
           title: z.string().trim().min(2).max(240).optional(),
           description: z.string().trim().min(2).optional(),
           type: z.enum(["poll", "survey", "review"]).optional(),
-          options: z.array(z.string().trim().min(1).max(120)).min(2).max(6).optional(),
+          options: z
+            .array(z.string().trim().min(1).max(120))
+            .min(2)
+            .max(6)
+            .optional(),
           status: z.enum(["draft", "published", "closed"]).optional(),
           startsAt: z.string().datetime().optional(),
           endsAt: z.string().datetime().optional(),
-          questions: z.array(z.object({
-            id: z.string(),
-            type: z.enum(["single_choice", "multiple_choice", "text", "rating", "yes_no"]),
-            title: z.string().trim().min(1).max(240),
-            description: z.string().trim().optional(),
-            required: z.boolean().default(true),
-            options: z.array(z.string().trim().min(1).max(120)).optional(),
-            minRating: z.number().int().min(1).max(10).optional(),
-            maxRating: z.number().int().min(1).max(10).optional(),
-          })).optional(),
+          questions: z
+            .array(
+              z.object({
+                id: z.string(),
+                type: z.enum([
+                  "single_choice",
+                  "multiple_choice",
+                  "text",
+                  "rating",
+                  "yes_no",
+                ]),
+                title: z.string().trim().min(1).max(240),
+                description: z.string().trim().optional(),
+                required: z.boolean().default(true),
+                options: z.array(z.string().trim().min(1).max(120)).optional(),
+                minRating: z.number().int().min(1).max(10).optional(),
+                maxRating: z.number().int().min(1).max(10).optional(),
+              })
+            )
+            .optional(),
         })
       )
       .mutation(({ input }) =>
@@ -5330,7 +5566,14 @@ export const appRouter = router({
         z
           .object({
             status: z
-              .enum(["all", "pending", "failed", "exception", "refunded", "paid"])
+              .enum([
+                "all",
+                "pending",
+                "failed",
+                "exception",
+                "refunded",
+                "paid",
+              ])
               .default("all"),
             search: z.string().trim().max(160).optional(),
             limit: z.number().int().min(1).max(250).default(100),
@@ -5364,7 +5607,7 @@ export const appRouter = router({
         const ip =
           typeof forwardedFor === "string"
             ? forwardedFor.split(",")[0].trim()
-            : ctx.req.socket?.remoteAddress ?? null;
+            : (ctx.req.socket?.remoteAddress ?? null);
         const log = (outcome: string) =>
           logPaymentReconciliation({
             stageId: stage.id,
@@ -5456,28 +5699,24 @@ export const appRouter = router({
           throw error;
         }
       }),
-      paymentReconciliationLog: adminProcedure
-        .input(
-          z
-            .object({
-              limit: z.number().int().min(1).max(200).default(50),
-            })
-            .optional()
-        )
-        .query(({ input }) =>
-          listRecentReconciliationLog(input?.limit ?? 50)
-        ),
-      reconcileStalePayments: adminProcedure
-        .input(
-          z
-            .object({
-              maxAgeMinutes: z.number().int().positive().optional(),
-            })
-            .optional()
-        )
-        .mutation(async ({ input }) =>
-          reconcileStalePendingPayments(input)
-        ),
+    paymentReconciliationLog: adminProcedure
+      .input(
+        z
+          .object({
+            limit: z.number().int().min(1).max(200).default(50),
+          })
+          .optional()
+      )
+      .query(({ input }) => listRecentReconciliationLog(input?.limit ?? 50)),
+    reconcileStalePayments: adminProcedure
+      .input(
+        z
+          .object({
+            maxAgeMinutes: z.number().int().positive().optional(),
+          })
+          .optional()
+      )
+      .mutation(async ({ input }) => reconcileStalePendingPayments(input)),
     exportContactInquiries: adminProcedure
       .input(
         z
@@ -5611,15 +5850,12 @@ export const appRouter = router({
           message:
             "A valid admin session is required to enable background processing.",
         });
-      const job = await createHeartbeatJob(
-        {
-          name: "delivery-log-export-worker",
-          cron: "0 * * * * *",
-          path: "/api/scheduled/deliveryLogExportWorker",
-          description:
-            "Process one queued delivery-log CSV export each minute.",
-        }
-      );
+      const job = await createHeartbeatJob({
+        name: "delivery-log-export-worker",
+        cron: "0 * * * * *",
+        path: "/api/scheduled/deliveryLogExportWorker",
+        description: "Process one queued delivery-log CSV export each minute.",
+      });
       await updateScheduledExport(DELIVERY_LOG_EXPORT_KEY, {
         scheduleTaskUid: job.taskUid,
       });
@@ -6107,7 +6343,8 @@ export const appRouter = router({
       } catch (error) {
         return {
           connected: false,
-          error: error instanceof Error ? error.message : "Unknown connection error",
+          error:
+            error instanceof Error ? error.message : "Unknown connection error",
         };
       }
     }),
@@ -6179,15 +6416,13 @@ export const appRouter = router({
           code: "UNAUTHORIZED",
           message: "A valid admin session is required to enable scheduling.",
         });
-      const job = await createHeartbeatJob(
-        {
-          name: "weekly-course-enrollment-export",
-          cron: "0 0 9 * * 1",
-          path: "/api/scheduled/weeklyEnrollmentExport",
-          description:
-            "Generate and store the weekly course enrollment CSV export.",
-        }
-      );
+      const job = await createHeartbeatJob({
+        name: "weekly-course-enrollment-export",
+        cron: "0 0 9 * * 1",
+        path: "/api/scheduled/weeklyEnrollmentExport",
+        description:
+          "Generate and store the weekly course enrollment CSV export.",
+      });
       await updateScheduledExport(WEEKLY_EXPORT_KEY, {
         scheduleTaskUid: job.taskUid,
       });
@@ -6366,7 +6601,10 @@ export const appRouter = router({
     }),
     scheduleStatus: adminProcedure.query(async () => {
       const configured = Boolean(process.env.RESEND_API_KEY);
-      return { configured, scheduleTaskUid: configured ? "resend-biweekly" : null };
+      return {
+        configured,
+        scheduleTaskUid: configured ? "resend-biweekly" : null,
+      };
     }),
     upsertSystemSetting: adminProcedure
       .input(
@@ -7158,6 +7396,46 @@ export const appRouter = router({
     ),
     questions: publicProcedure
       .input(z.object({ testSlug: z.string().min(1).max(120) }))
+      .output(
+        z.object({
+          slug: z.string(),
+          title: z.string(),
+          shortTitle: z.string(),
+          strapline: z.string(),
+          purpose: z.string(),
+          coreQuestion: z.string(),
+          audience: z.string(),
+          estimatedMinutes: z.string(),
+          responseScale: z.enum(["likert5", "multipleChoice"]),
+          domains: z.array(
+            z.object({
+              key: z.string(),
+              label: z.string(),
+              description: z.string(),
+              itemCount: z.number(),
+            })
+          ),
+          reportSections: z.array(z.string()),
+          disclaimer: z.string(),
+          questions: z.array(
+            z.object({
+              id: z.string(),
+              testSlug: z.string(),
+              domainKey: z.string(),
+              domainLabel: z.string(),
+              prompt: z.string(),
+              options: z.array(z.string()),
+              correctOptionIndex: z.number().optional(),
+              responseScale: z.enum(["likert5", "multipleChoice"]),
+              difficulty: z
+                .enum(["easy", "moderate", "challenging"])
+                .optional(),
+              application: z.string(),
+            })
+          ),
+          priceKes: z.number(),
+        })
+      )
       .query(({ input }) => {
         const test = getPsychometricTest(input.testSlug);
         if (!test)
@@ -7315,14 +7593,20 @@ export const appRouter = router({
             emailSent,
           };
         }
+
         const verification = await paystackRequest(
           `/transaction/verify/${encodeURIComponent(input.reference)}`
         );
         const transaction = verification.data;
+        const expectedAmountKes = checkoutAmountFromMetadata(
+          "psychometric",
+          transaction.metadata
+        );
         if (
           transaction.reference !== input.reference ||
           transaction.status !== "success" ||
-          transaction.amount !== PSYCHOMETRIC_PRICE_KES * 100 ||
+          expectedAmountKes === null ||
+          transaction.amount !== expectedAmountKes * 100 ||
           transaction.currency !== "KES"
         )
           throw new TRPCError({
@@ -7354,7 +7638,7 @@ export const appRouter = router({
           metadata: {
             product: test.slug,
             currency: "KES",
-            amount: PSYCHOMETRIC_PRICE_KES,
+            amount: expectedAmountKes,
           },
         });
         return {
@@ -7647,14 +7931,20 @@ export const appRouter = router({
             emailSent,
           };
         }
+
         const verification = await paystackRequest(
           `/transaction/verify/${encodeURIComponent(input.reference)}`
         );
         const transaction = verification.data;
+        const expectedAmountKes = checkoutAmountFromMetadata(
+          "careerpath",
+          transaction.metadata
+        );
         if (
           transaction.reference !== input.reference ||
           transaction.status !== "success" ||
-          transaction.amount !== CAREER_PATH_PRICE_KES * 100 ||
+          expectedAmountKes === null ||
+          transaction.amount !== expectedAmountKes * 100 ||
           transaction.currency !== "KES"
         )
           throw new TRPCError({
@@ -7671,7 +7961,7 @@ export const appRouter = router({
           metadata: {
             product: "careerpath",
             currency: "KES",
-            amount: CAREER_PATH_PRICE_KES,
+            amount: expectedAmountKes,
           },
         });
         let emailSent = false;
@@ -7764,12 +8054,32 @@ export const appRouter = router({
           });
         const origin = input.origin ?? PUBLIC_SITE_ORIGIN;
         const verificationUrl = `${origin.replace(/\/$/, "")}/verify-credential/${encodeURIComponent(input.reference)}`;
+        const verification = await paystackRequest(
+          `/transaction/verify/${encodeURIComponent(input.reference)}`
+        );
+        const transaction = verification.data;
+        const amountKes = checkoutAmountFromMetadata(
+          "careerpath",
+          transaction.metadata
+        );
+        if (
+          transaction.reference !== input.reference ||
+          transaction.status !== "success" ||
+          amountKes === null ||
+          transaction.amount !== amountKes * 100 ||
+          transaction.currency !== "KES"
+        ) {
+          throw new TRPCError({
+            code: "PAYMENT_REQUIRED",
+            message: "CareerPath payment could not be verified.",
+          });
+        }
         const pdf = await renderPaymentReceiptPdf({
           attemptId: attempt.id,
           participantName: attempt.name,
           email: attempt.email,
           reference: input.reference,
-          amountKes: CAREER_PATH_PRICE_KES,
+          amountKes,
           paidAt: attempt.paidAt ?? attempt.createdAt,
           verificationUrl,
         });
@@ -7802,7 +8112,9 @@ export const appRouter = router({
     adminOverview: adminProcedure.query(() => getAssessmentAdminOverview()),
     adminDownloadAssessmentReport: adminProcedure
       .input(z.object({ attemptId: z.number().int().positive() }))
-      .mutation(async ({ input }) => adminDownloadAssessmentReport(input.attemptId)),
+      .mutation(async ({ input }) =>
+        adminDownloadAssessmentReport(input.attemptId)
+      ),
     saveDraft: publicProcedure
       .input(
         z.object({
@@ -8016,6 +8328,7 @@ export const appRouter = router({
             emailSent,
           };
         }
+
         const verification = await paystackRequest(
           `/transaction/verify/${encodeURIComponent(input.reference)}`
         );
@@ -8053,6 +8366,53 @@ export const appRouter = router({
           console.error("[Assessment] Report email delivery failed:", error);
         }
         return { report, reference: input.reference, emailSent };
+      }),
+    saveReport: publicProcedure
+      .input(
+        z.object({
+          name: z.string().trim().min(2).max(160),
+          email: z.string().email(),
+          answers: answersSchema,
+          consent: z.literal(true),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const attemptId = await createAssessmentAttempt({
+          name: input.name,
+          email: input.email,
+          answers: input.answers,
+        });
+        const report = buildReport(input.answers);
+        await markAssessmentPaid(attemptId, report);
+        await recordAnalyticsEvent({
+          eventName: "assessment_completed",
+          attemptId,
+          metadata: { channel: "free" },
+        });
+        return { attemptId, report };
+      }),
+    renderPdf: publicProcedure
+      .input(
+        z.object({
+          participantName: z.string().trim().min(2).max(160),
+          email: z.string().email().optional(),
+          report: z.any(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const pdf = await renderAssessmentReportPdf({
+          attemptId: 0,
+          participantName: input.participantName,
+          email: input.email,
+          createdAt: new Date(),
+          report: input.report as AssessmentReport,
+          reportNumber: `PIQ-SSA-${Date.now().toString(36).toUpperCase()}`,
+        });
+        return {
+          filename: "profound-iq-assessment-report.pdf",
+          contentType: "application/pdf",
+          data: pdf.toString("base64"),
+        };
       }),
     verifyAssessmentCertificate: publicProcedure
       .input(z.object({ reference: z.string().min(10).max(120) }))
@@ -8236,7 +8596,8 @@ export const appRouter = router({
         if (
           !attempt ||
           !ctx.user.email ||
-          attempt.email.trim().toLowerCase() !== ctx.user.email.trim().toLowerCase() ||
+          attempt.email.trim().toLowerCase() !==
+            ctx.user.email.trim().toLowerCase() ||
           attempt.paymentStatus !== "paid" ||
           !attempt.report
         )
@@ -8268,7 +8629,8 @@ export const appRouter = router({
         if (
           !attempt ||
           !ctx.user.email ||
-          attempt.email.trim().toLowerCase() !== ctx.user.email.trim().toLowerCase() ||
+          attempt.email.trim().toLowerCase() !==
+            ctx.user.email.trim().toLowerCase() ||
           attempt.paymentStatus !== "paid" ||
           !attempt.report
         )
@@ -8323,7 +8685,8 @@ export const appRouter = router({
         if (
           !attempt ||
           !ctx.user.email ||
-          attempt.email.trim().toLowerCase() !== ctx.user.email.trim().toLowerCase() ||
+          attempt.email.trim().toLowerCase() !==
+            ctx.user.email.trim().toLowerCase() ||
           attempt.paymentStatus !== "paid" ||
           !attempt.report
         )

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, Cookie, Settings2, X } from "lucide-react";
 
-
 const CONSENT_KEY = "profound-iq-cookie-consent";
 type ConsentState = { essential: true; analytics: boolean };
 
@@ -11,7 +10,6 @@ export function CookieConsent() {
   const [analytics, setAnalytics] = useState(true);
   const panelRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
-  
 
   useEffect(() => {
     try {
@@ -79,23 +77,24 @@ export function CookieConsent() {
 
   return (
     <div
-      className="fixed inset-x-3 bottom-3 z-[70] border border-[#c9a34e]/60 bg-[#101d35] p-4 text-[#f7f3e8] shadow-2xl sm:inset-x-auto sm:right-5 sm:bottom-5 sm:w-[430px]"
+      className="dark fixed inset-x-3 bottom-3 z-[70] border border-[var(--brand)]/60 bg-[#101d35] p-4 text-[var(--fg)] shadow-2xl sm:inset-x-auto sm:right-5 sm:bottom-5 sm:w-[430px]"
       role="dialog"
       aria-modal="true"
+      aria-labelledby="cookie-consent-heading"
       aria-label={"Your privacy choices"}
     >
       <div ref={panelRef}>
         <div className="flex items-start gap-3">
-          <div className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center bg-[#c9a34e] text-[#101d35]">
+          <div className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center bg-[var(--brand)] text-[var(--brand-fg)]">
             <Cookie size={17} />
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[.15em] text-[#c9a34e]">
+                <p className="text-[10px] font-black uppercase tracking-[.15em] text-[var(--brand)]">
                   {"Your privacy choices"}
                 </p>
-                <h2 className="mt-1 text-base font-semibold">
+                <h2 className="mt-1 text-base font-semibold" id="cookie-consent-heading">
                   {"A clearer way to use cookies."}
                 </h2>
               </div>
@@ -103,7 +102,7 @@ export function CookieConsent() {
                 <button
                   type="button"
                   onClick={() => setCustomizing(false)}
-                  className="text-[#aab5c6] transition-colors hover:text-[#f7f3e8]"
+                  className="text-[var(--fg-muted)] transition-colors hover:text-[var(--fg)]"
                   aria-label={"Close"}
                 >
                   <X size={16} />
@@ -112,27 +111,29 @@ export function CookieConsent() {
             </div>
             {!customizing ? (
               <>
-                <p className="mt-2 text-xs leading-5 text-[#c1cad7]">
-                  {"We use essential browser storage to keep the site secure and remember progress. Optional analytics help us understand journeys such as course sharing and assessment starts."}
+                <p className="mt-2 text-xs leading-5 text-[var(--fg-muted)]">
+                  {
+                    "We use essential browser storage to keep the site secure and remember progress. Optional analytics help us understand journeys such as course sharing and assessment starts."
+                  }
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button
                     type="button"
                     onClick={() => save({ essential: true, analytics: true })}
-                    className="inline-flex items-center gap-2 bg-[#c9a34e] px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#101d35] transition-transform active:scale-95"
+                    className="inline-flex items-center gap-2 bg-[var(--brand)] px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand-fg)] transition-transform active:scale-95"
                   >
                     <Check size={13} /> {"Accept all"}
                   </button>
                   <button
                     type="button"
                     onClick={() => setCustomizing(true)}
-                    className="inline-flex items-center gap-2 border border-[#aab5c6]/40 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8] transition-colors hover:border-[#c9a34e] hover:text-[#8b6914]"
+                    className="inline-flex items-center gap-2 border border-[#aab5c6]/40 px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg)] transition-colors hover:border-[var(--brand)] hover:text-[var(--brand)]"
                   >
                     <Settings2 size={13} /> {"Customize"}
                   </button>
                   <a
                     href="/privacy-policy"
-                    className="inline-flex items-center px-2 py-2 text-[10px] font-bold uppercase tracking-[.12em] text-[#c9a34e] underline underline-offset-4"
+                    className="inline-flex items-center px-2 py-2 text-[10px] font-bold uppercase tracking-[.12em] text-[var(--brand)] underline underline-offset-4"
                   >
                     {"Privacy Policy"}
                   </a>
@@ -145,11 +146,11 @@ export function CookieConsent() {
                     <p className="text-sm font-semibold">
                       {"Essential cookies"}
                     </p>
-                    <p className="mt-1 text-xs leading-5 text-[#aab5c6]">
+                    <p className="mt-1 text-xs leading-5 text-[var(--fg-muted)]">
                       Required for sessions, security, and saved progress.
                     </p>
                   </div>
-                  <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#c9a34e]">
+                  <span className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)]">
                     {"Always active"}
                   </span>
                 </div>
@@ -158,22 +159,24 @@ export function CookieConsent() {
                     <span className="block text-sm font-semibold">
                       {"Analytics cookies"}
                     </span>
-                    <span className="mt-1 block text-xs leading-5 text-[#aab5c6]">
+                    <span className="mt-1 block text-xs leading-5 text-[var(--fg-muted)]">
                       Helps us measure platform journeys and improve learning
                       experiences.
                     </span>
                   </span>
                   <input
                     type="checkbox"
+                    id="analytics-consent"
+                    name="analytics-consent"
                     checked={analytics}
                     onChange={event => setAnalytics(event.target.checked)}
-                    className="mt-1 h-4 w-4 accent-[#c9a34e]"
+                    className="mt-1 h-4 w-4 accent-[var(--brand)]"
                   />
                 </label>
                 <button
                   type="button"
                   onClick={() => save({ essential: true, analytics })}
-                  className="inline-flex items-center gap-2 bg-[#c9a34e] px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#101d35] transition-transform active:scale-95"
+                  className="inline-flex items-center gap-2 bg-[var(--brand)] px-3 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand-fg)] transition-transform active:scale-95"
                 >
                   {"Save preferences"}
                 </button>

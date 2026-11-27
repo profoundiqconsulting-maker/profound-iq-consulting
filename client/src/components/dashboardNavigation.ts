@@ -8,12 +8,17 @@ import {
   ClipboardCheck,
   ClipboardList,
   Database,
+  FileText,
   Folder,
+  Gauge,
   LayoutDashboard,
   Mail,
   MessageSquare,
+  Route,
+  ShieldCheck,
   Settings,
   Users,
+  Building2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -33,8 +38,14 @@ export type RoleNavItem = {
     | "courses"
     | "myWorkspace"
     | "enrolledCourses"
+    | "myRoadmap"
     | "myIllustrations"
     | "adminObservatory"
+    | "inbox"
+    | "intelligence"
+    | "organization"
+    | "reports"
+    | "security"
     | "staffWorkspace"
     | "userManagement"
     | "cohortManagement"
@@ -78,6 +89,38 @@ export const adminNavItems: RoleNavItem[] = [
     group: "platform",
   },
   {
+    id: "admin-organization",
+    labelKey: "organization",
+    fallbackLabel: "Organizations",
+    path: "/admin/organization",
+    icon: Building2,
+    group: "platform",
+  },
+  {
+    id: "admin-intelligence",
+    labelKey: "intelligence",
+    fallbackLabel: "Intelligence",
+    path: "/admin/intelligence",
+    icon: Gauge,
+    group: "insights",
+  },
+  {
+    id: "admin-reports",
+    labelKey: "reports",
+    fallbackLabel: "Reports",
+    path: "/admin/reports",
+    icon: FileText,
+    group: "insights",
+  },
+  {
+    id: "admin-security",
+    labelKey: "security",
+    fallbackLabel: "Security",
+    path: "/admin/security",
+    icon: ShieldCheck,
+    group: "insights",
+  },
+  {
     id: "admin-operations",
     labelKey: "operations",
     fallbackLabel: "Operations",
@@ -95,9 +138,9 @@ export const adminNavItems: RoleNavItem[] = [
   },
   {
     id: "admin-inbox",
-    labelKey: "contactInquiries",
+    labelKey: "inbox",
     fallbackLabel: "Inquiries",
-    path: "/admin/inquiries",
+    path: "/admin/inbox",
     icon: Mail,
     group: "operations",
   },
@@ -115,7 +158,7 @@ export const adminNavItems: RoleNavItem[] = [
     fallbackLabel: "Certificates",
     path: "/admin/certificates",
     icon: Award,
-    group: "operations",
+    group: "learning",
   },
   {
     id: "admin-psychometrics",
@@ -163,7 +206,7 @@ export const adminNavItems: RoleNavItem[] = [
     fallbackLabel: "Resources",
     path: "/admin/resources",
     icon: Folder,
-    group: "operations",
+    group: "learning",
   },
   {
     id: "admin-surveys",
@@ -171,7 +214,7 @@ export const adminNavItems: RoleNavItem[] = [
     fallbackLabel: "Surveys",
     path: "/admin/surveys",
     icon: BarChart3,
-    group: "operations",
+    group: "learning",
   },
   {
     id: "admin-system",
@@ -230,42 +273,50 @@ export const learnerNavItems: RoleNavItem[] = [
   {
     id: "learner-space",
     labelKey: "overview",
-    fallbackLabel: "My Space",
+    fallbackLabel: "Overview",
     path: "/dashboard/overview",
     icon: LayoutDashboard,
-    group: "mySpace",
+    group: "myLearning",
   },
   {
     id: "learner-certificates",
     labelKey: "certificates",
-    fallbackLabel: "My Certificates",
+    fallbackLabel: "Certificates",
     path: "/dashboard/certificates",
     icon: Award,
-    group: "mySpace",
+    group: "progress",
   },
   {
     id: "learner-illustrations",
     labelKey: "myIllustrations",
-    fallbackLabel: "My Illustrations",
+    fallbackLabel: "Saved Illustrations",
     path: "/my-illustrations",
     icon: Bookmark,
-    group: "mySpace",
+    group: "myLearning",
   },
   {
     id: "learner-workspaces",
     labelKey: "myWorkspace",
-    fallbackLabel: "My Workspaces",
+    fallbackLabel: "Course Workspaces",
     path: "/dashboard/my-workspaces",
     icon: BookOpen,
-    group: "mySpace",
+    group: "myLearning",
   },
   {
     id: "learner-enrolled",
     labelKey: "enrolledCourses",
-    fallbackLabel: "Enrolled Courses",
+    fallbackLabel: "My Courses",
     path: "/dashboard/enrolled-courses",
     icon: BookOpen,
-    group: "mySpace",
+    group: "myLearning",
+  },
+  {
+    id: "learner-roadmap",
+    labelKey: "myRoadmap",
+    fallbackLabel: "Learning Roadmap",
+    path: "/dashboard/roadmap",
+    icon: Route,
+    group: "myLearning",
   },
   {
     id: "learner-assessment",
@@ -273,7 +324,7 @@ export const learnerNavItems: RoleNavItem[] = [
     fallbackLabel: "Assessment Reports",
     path: "/dashboard/assessment",
     icon: ClipboardCheck,
-    group: "growth",
+    group: "progress",
   },
   {
     id: "learner-psychometrics",
@@ -281,7 +332,7 @@ export const learnerNavItems: RoleNavItem[] = [
     fallbackLabel: "Psychometric Reports",
     path: "/dashboard/psychometrics",
     icon: BrainCircuit,
-    group: "growth",
+    group: "progress",
   },
   {
     id: "learner-careerpath",
@@ -289,39 +340,39 @@ export const learnerNavItems: RoleNavItem[] = [
     fallbackLabel: "CareerPath Reports",
     path: "/dashboard/careerpath",
     icon: Users,
-    group: "growth",
+    group: "progress",
   },
   {
     id: "learner-courses",
     labelKey: "courses",
-    fallbackLabel: "Courses",
+    fallbackLabel: "Explore Courses",
     path: "/courses",
     icon: BookOpen,
-    group: "growth",
+    group: "explore",
   },
   {
     id: "learner-self-assessment",
     labelKey: "selfAssessment",
-    fallbackLabel: "Self Assessment",
+    fallbackLabel: "Take Self-assessment",
     path: "/assessment",
     icon: ClipboardCheck,
-    group: "growth",
+    group: "explore",
   },
   {
     id: "learner-psychometrics-standalone",
     labelKey: "psychometrics",
-    fallbackLabel: "Psychometrics",
+    fallbackLabel: "Take Psychometrics",
     path: "/psychometrics",
     icon: BrainCircuit,
-    group: "growth",
+    group: "explore",
   },
   {
     id: "learner-careerpath-standalone",
     labelKey: "careerPath",
-    fallbackLabel: "CareerPath",
+    fallbackLabel: "Explore CareerPath",
     path: "/careerpath",
     icon: Users,
-    group: "growth",
+    group: "explore",
   },
   {
     id: "learner-messages",
@@ -344,6 +395,7 @@ export const learnerNavItems: RoleNavItem[] = [
 export const adminGroups = [
   { id: "platform", fallbackLabel: "Platform" },
   { id: "learning", fallbackLabel: "Learning" },
+  { id: "insights", fallbackLabel: "Insights" },
   { id: "operations", fallbackLabel: "Operations" },
   { id: "system", fallbackLabel: "System" },
 ] as const;
@@ -355,8 +407,9 @@ export const staffGroups = [
 ] as const;
 
 export const learnerGroups = [
-  { id: "mySpace", fallbackLabel: "My Space" },
-  { id: "growth", fallbackLabel: "Growth" },
+  { id: "myLearning", fallbackLabel: "My learning" },
+  { id: "progress", fallbackLabel: "Reports & achievements" },
+  { id: "explore", fallbackLabel: "Explore & grow" },
   { id: "account", fallbackLabel: "Account" },
 ] as const;
 

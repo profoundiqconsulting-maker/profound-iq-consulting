@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Profound IQ Consulting — Course Enrollment Form</title>
+<style>
+  :root {
+    --navy: #16243d;
+    --navy-deep: #0f1a2e;
+    --gold: #a27e2e;
+    --gold-soft: #c9a34e;
+    --bg: #f7f5f0;
+    --card: #ffffff;
+    --border: #d8d1c1;
+    --muted: #5f6a7b;
+    --success: #2e8b57;
+    --danger: #c0392b;
+    --warning: #b7791f;
+    --radius: 12px;
+    --maxw: 920px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--navy);
+    background: var(--bg);
+    line-height: 1.5;
+    font-size: 16px;
+  }
+
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 24px 16px 64px; }
+
+  /* Header */
+  .form-header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
+    color: #f7f3e8;
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    margin-bottom: 24px;
+  }
+  .form-header .brand {
+    font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
+    font-size: 12px; color: var(--gold-soft);
+  }
+  .form-header h1 { margin: 8px 0 4px; font-size: 26px; line-height: 1.2; }
+  .form-header p { margin: 0; color: #cfd6e4; font-size: 14px; }
+  .form-header .meta { margin-top: 12px; font-size: 12px; color: #9fb0c9; }
+
+  /* Sections */
+  fieldset {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+    padding: 20px 20px 24px;
+    margin: 0 0 20px;
+  }
+  legend {
+    font-weight: 800; font-size: 15px; color: var(--navy);
+    padding: 0 8px; letter-spacing: .01em;
+  }
+  legend .step {
+    display: inline-grid; place-items: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--gold); color: #fff; font-size: 12px;
+    margin-right: 8px; vertical-align: middle;
+  }
+  .section-hint { margin: 2px 0 16px; color: var(--muted); font-size: 13px; }
+
+  /* Grid */
+  .grid { display: grid; gap: 14px 18px; }
+  .grid.two { grid-template-columns: repeat(2, 1fr); }
+  .grid.three { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 640px) {
+    .grid.two, .grid.three { grid-template-columns: 1fr; }
+  }
+
+  .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .field.full { grid-column: 1 / -1; }
+
+  label { font-weight: 600; font-size: 13.5px; color: var(--navy); }
+  .req { color: var(--danger); font-weight: 700; margin-left: 2px; }
+  .opt {
+    font-weight: 600; font-size: 10.5px; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--muted);
+    background: #eef0f4; border-radius: 999px; padding: 1px 8px; margin-left: 6px;
+  }
+  .hint { font-size: 12px; color: var(--muted); }
+
+  input, select, textarea {
+    font: inherit; color: var(--navy);
+    padding: 11px 12px; border: 1px solid var(--border);
+    border-radius: 10px; background: #fff; width: 100%;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(162,126,46,.18);
+  }
+  textarea { min-height: 84px; resize: vertical; }
+  input[type="file"] { padding: 8px; background: #fbfaf7; }
+
+  .invalid input, .invalid select, .invalid textarea { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(192,57,43,.12); }
+  .error { color: var(--danger); font-size: 12px; font-weight: 600; display: none; }
+  .invalid .error { display: block; }
+
+  /* Repeatable rows */
+  .repeat-row {
+    display: grid; gap: 12px; grid-template-columns: 1fr 1fr;
+    border: 1px dashed var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px;
+  }
+  @media (max-width: 640px) { .repeat-row { grid-template-columns: 1fr; } }
+
+  /* Buttons */
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+  button {
+    font: inherit; font-weight: 700; cursor: pointer;
+    padding: 12px 20px; border-radius: 10px; border: 1px solid transparent;
+  }
+  .btn-primary { background: var(--gold); color: #fff; }
+  .btn-primary:hover { background: #8f6f26; }
+  .btn-ghost { background: #fff; color: var(--navy); border-color: var(--border); }
+  .btn-ghost:hover { border-color: var(--gold); }
+  button:focus-visible { outline: 3px solid rgba(162,126,46,.4); outline-offset: 2px; }
+
+  /* Declaration */
+  .declaration {
+    border: 1px solid var(--border); background: #fbfaf7;
+    border-radius: 10px; padding: 14px; margin-bottom: 14px;
+  }
+  .checkline { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; }
+  .checkline input { width: auto; margin-top: 3px; }
+
+  /* Admin checklist */
+  .admin {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: #fff; padding: 20px; margin-top: 8px;
+  }
+  .admin h2 { margin: 0 0 4px; font-size: 16px; }
+  .admin ul { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }
+  .admin li { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; }
+  .admin li input { width: auto; margin-top: 2px; }
+  .admin .sig { margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) { .admin .sig { grid-template-columns: 1fr; } }
+  .sig .line { border-bottom: 1px solid var(--navy); height: 34px; }
+
+  .note { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .success-banner {
+    display: none; border: 1px solid var(--success); background: rgba(46,139,87,.1);
+    color: var(--success); font-weight: 700; padding: 12px 16px; border-radius: 10px; margin-bottom: 16px;
+  }
+  .success-banner.show { display: block; }
+
+  /* Print */
+  @media print {
+    @page { margin: 14mm; }
+    body { background: #fff; font-size: 12px; }
+    .wrap { max-width: none; padding: 0; }
+    .no-print { display: none !important; }
+    .form-header { background: #fff !important; color: var(--navy); border: 1px solid var(--border); }
+    .form-header .brand, .form-header .meta { color: var(--muted); }
+    fieldset { break-inside: avoid; page-break-inside: avoid; border-color: #bbb; }
+    input, select, textarea { border-color: #bbb; }
+    a[href]::after { content: ""; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="form-header">
+    <div class="brand">Profound IQ / Consulting</div>
+    <h1>Course Enrollment Form</h1>
+    <p>Complete all required fields. Fields marked <span class="req">*</span> are required; <span class="opt">Optional</span> fields may be left blank.</p>
+    <div class="meta">Form reference: ENR-2026 · Page 1 of 1 · Retain a copy for your records.</div>
+  </header>
+
+  <div id="success" class="success-banner" role="status">Enrollment submitted. Keep a printed copy for your records.</div>
+
+  <form id="enrollForm" novalidate>
+
+    <!-- 1. PERSONAL INFORMATION -->
+    <fieldset>
+      <legend><span class="step">1</span>Applicant Personal Information</legend>
+      <p class="section-hint">Legal name as it appears on your identification documents.</p>
+      <div class="grid two">
+        <div class="field">
+          <label for="firstName">First name <span class="req">*</span></label>
+          <input id="firstName" name="firstName" type="text" autocomplete="given-name" required />
+          <span class="error">First name is required.</span>
+        </div>
+        <div class="field">
+          <label for="lastName">Last name <span class="req">*</span></label>
+          <input id="lastName" name="lastName" type="text" autocomplete="family-name" required />
+          <span class="error">Last name is required.</span>
+        </div>
+        <div class="field">
+          <label for="preferredName">Preferred name <span class="opt">Optional</span></label>
+          <input id="preferredName" name="preferredName" type="text" autocomplete="nickname" />
+        </div>
+        <div class="field">
+          <label for="dob">Date of birth <span class="req">*</span></label>
+          <input id="dob" name="dob" type="date" autocomplete="bday" required />
+          <span class="hint">Must be a valid past date (age 16–100).</span>
+          <span class="error">Enter a valid past date of birth.</span>
+        </div>
+        <div class="field">
+          <label for="nationality">Nationality <span class="req">*</span></label>
+          <input id="nationality" name="nationality" type="text" autocomplete="country-name" required />
+          <span class="error">Nationality is required.</span>
+        </div>
+        <div class="field">
+          <label for="idNumber">ID / Passport number <span class="req">*</span></label>
+          <input id="idNumber" name="idNumber" type="text" required />
+          <span class="hint">Used only to verify identity and prerequisites.</span>
+          <span class="error">ID / Passport number is required.</span>
+        </div>
+        <div class="field full">
+          <label for="photo">Passport-style photo <span class="opt">Optional</span></label>
+          <input id="photo" name="photo" type="file" accept="image/png,image/jpeg" />
+          <span class="hint">JPG or PNG, max 5&nbsp;MB.</span>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- 2. CONTACT DETAILS -->
+    <fieldset>
+      <legend><span class="step">2</span>Contact Details</legend>
+      <p class="section-hint">We use these only for enrollment and course communications.</p>
+      <div class="grid two">
+        <div class="field">
+          <label for="email">Email address <span class="req">*</span></label>
+          <input id="email" name="email" type="email" autocomplete="email" inputmode="email" required />
+          <span class="hint">e.g. name@example.com</span>
+          <span class="error">Enter a valid email address.</span>
+        </div>
+        <div class="field">
+          <label for="phone">Primary phone <span class="req">*</span></label>
+          <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required
+                 pattern="\+?[0-9 ()\-]{7,20}" />
+          <span class="hint">Include country code, e.g. +254 712 345 678.</span>
+          <span class="error">Enter a valid phone number (7–20 chars).</span>
+        </div>
+        <div class="field">
+          <label for="altPhone">Alternate phone <span class="opt">Optional</span></label>
+          <input id="altPhone" name="altPhone" type="tel" inputmode="tel" pattern="\+?[0-9 ()\-]{7,20}" />
+          <span class="error">Enter a valid phone number.</span>
+        </div>
+        <div class="field">
+          <label for="city">City <span class="req">*</span></label>
+          <input id="city" name="city" type="text" autocomplete="address-level2" required />
+          <span class="error">City is required.</span>
+        </div>
+        <div class="field full">
+          <label for="address">Postal address <span class="req">*</span></label>
+          <textarea id="address" name="address" autocomplete="street-address" required></textarea>
+          <span class="error">Address is required.</span>
+        </div>
+        <div class="field">
+          <label for="country">Country <span class="req">*</span></label>
+          <input id="country" name="country" type="text" autocomplete="country-name" required />
+          <span class="error">Country is required.</span>
+        </div>
+        <div class="field">
+          <label for="postal">Postal code <span class="opt">Optional</span></label>
+          <input id="postal" name="postal" type="text" autocomplete="postal-code" />
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- 3. EDUCATIONAL HISTORY -->
+    <fieldset>
+      <legend><span class="step">3</span>Educational History</legend>
+      <p class="section-hint">Highest completed qualification.</p>
+      <div class="grid two">
+        <div class="field">
+          <label for="qualification">Highest qualification <span class="req">*</span></label>
+          <select id="qualification" name="qualification" required>
+            <option value="">Select…</option>
+            <option>Secondary / High school</option>
+            <option>Diploma</option>
+            <option>Bachelor's degree</option>
+            <option>Master's degree</option>
+            <option>Doctorate</option>
+            <option>Other</option>
+          </select>
+          <span class="error">Select your highest qualification.</span>
+        </div>
+        <div class="field">
+          <label for="fieldOfStudy">Field of study <span class="req">*</span></label>
+          <input id="fieldOfStudy" name="fieldOfStudy" type="text" required />
+          <span class="error">Field of study is required.</span>
+        </div>
+        <div class="field">
+          <label for="institution">Institution <span class="req">*</span></label>
+          <input id="institution" name="institution" type="text" required />
+          <span class="error">Institution is required.</span>
+        </div>
+        <div class="field">
+          <label for="gradYear">Graduation year <span class="req">*</span></label>
+          <input id="gradYear" name="gradYear" type="number" min="1950" max="2026" inputmode="numeric" required />
+          <span class="hint">Four-digit year (1950–current).</span>
+          <span class="error">Enter a valid graduation year.</span>
+        </div>
+        <div class="field full">
+          <label for="transcript">Transcript / certificate <span class="opt">Optional</span></label>
+          <input id="transcript" name="transcript" type="file" accept="application/pdf,image/*" />
+          <span class="hint">PDF or image, max 10&nbsp;MB.</span>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- 4. PRIOR COURSEWORK / CERTIFICATIONS -->
+    <fieldset>
+      <legend><span class="step">4</span>Prior Coursework or Certifications</legend>
+      <p class="section-hint">List credentials used to verify prerequisites. Add as many rows as needed (at least one is required).</p>
+      <div id="credentialRows">
+        <div class="repeat-row">
+          <div class="field">
+            <label for="credTitle1">Course / certification title <span class="req">*</span></label>
+            <input id="credTitle1" name="credTitle[]" type="text" required />
+            <span class="error">Title is required.</span>
+          </div>
+          <div class="field">
+            <label for="credIssuer1">Issuing institution <span class="req">*</span></label>
+            <input id="credIssuer1" name="credIssuer[]" type="text" required />
+            <span class="error">Issuer is required.</span>
+          </div>
+          <div class="field">
+            <label for="credDate1">Completion date <span class="req">*</span></label>
+            <input id="credDate1" name="credDate[]" type="date" required />
+            <span class="error">Enter a valid past date.</span>
+          </div>
+          <div class="field">
+            <label for="credId1">Credential ID / license no. <span class="opt">Optional</span></label>
+            <input id="credId1" name="credId[]" type="text" />
+          </div>
+          <div class="field full">
+            <label for="credFile1">Upload proof <span class="opt">Optional</span></label>
+            <input id="credFile1" name="credFile[]" type="file" accept="application/pdf,image/*" />
+          </div>
+        </div>
+      </div>
+      <div class="actions no-print">
+        <button type="button" class="btn-ghost" id="addCred">+ Add another credential</button>
+      </div>
+    </fieldset>
+
+    <!-- 5. EMERGENCY CONTACT -->
+    <fieldset>
+      <legend><span class="step">5</span>Emergency Contact</legend>
+      <p class="section-hint">Someone we may contact on your behalf if needed.</p>
+      <div class="grid two">
+        <div class="field">
+          <label for="ecName">Full name <span class="req">*</span></label>
+          <input id="ecName" name="ecName" type="text" required />
+          <span class="error">Emergency contact name is required.</span>
+        </div>
+        <div class="field">
+          <label for="ecRelation">Relationship <span class="req">*</span></label>
+          <input id="ecRelation" name="ecRelation" type="text" required />
+          <span class="error">Relationship is required.</span>
+        </div>
+        <div class="field">
+          <label for="ecPhone">Phone <span class="req">*</span></label>
+          <input id="ecPhone" name="ecPhone" type="tel" inputmode="tel" required pattern="\+?[0-9 ()\-]{7,20}" />
+          <span class="error">Enter a valid phone number.</span>
+        </div>
+        <div class="field">
+          <label for="ecEmail">Email <span class="opt">Optional</span></label>
+          <input id="ecEmail" name="ecEmail" type="email" inputmode="email" />
+          <span class="error">Enter a valid email address.</span>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- 6. DECLARATION & SIGNATURE -->
+    <fieldset>
+      <legend><span class="step">6</span>Declaration &amp; Signature</legend>
+      <div class="declaration">
+        <label class="checkline" for="declaration">
+          <input id="declaration" name="declaration" type="checkbox" required />
+          <span>I declare that the information provided is accurate and complete, and I consent to its use for enrollment and course administration. <span class="req">*</span></span>
+        </label>
+        <span class="error">You must accept the declaration to submit.</span>
+      </div>
+      <div class="grid two">
+        <div class="field">
+          <label for="signature">Signature (type full legal name) <span class="req">*</span></label>
+          <input id="signature" name="signature" type="text" required autocomplete="off" />
+          <span class="hint">Typing your name constitutes an electronic signature.</span>
+          <span class="error">Signature is required.</span>
+        </div>
+        <div class="field">
+          <label for="signDate">Date <span class="req">*</span></label>
+          <input id="signDate" name="signDate" type="date" required />
+          <span class="error">Date is required.</span>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="actions no-print">
+      <button type="submit" class="btn-primary">Submit enrollment</button>
+      <button type="button" class="btn-ghost" id="printBtn">Print form</button>
+    </div>
+    <p class="note no-print">A copy of this form is stored for your records. For printing, use “Print form” or your browser’s Print command.</p>
+  </form>
+
+  <!-- ADMIN CHECKLIST -->
+  <section class="admin no-print" aria-label="Administrator verification checklist">
+    <h2>Administrator — Prerequisite Verification Checklist</h2>
+    <p class="section-hint">Use during enrollment review. Tick each item only after verifying the original or certified copy.</p>
+    <ul>
+      <li><input type="checkbox" id="adm1" /><span>Identity document (ID / passport) matches applicant name and photo.</span></li>
+      <li><input type="checkbox" id="adm2" /><span>Email and phone confirmed reachable (test message sent).</span></li>
+      <li><input type="checkbox" id="adm3" /><span>Educational qualification and graduation year verified against transcript/certificate.</span></li>
+      <li><input type="checkbox" id="adm4" /><span>Each listed prior course/certification verified with issuer or credential ID.</span></li>
+      <li><input type="checkbox" id="adm5" /><span>Prerequisite subject/level requirements met for the applied course.</span></li>
+      <li><input type="checkbox" id="adm6" /><span>Emergency contact reachable and relationship confirmed.</span></li>
+      <li><input type="checkbox" id="adm7" /><span>Declaration signed and dated; consent recorded.</span></li>
+      <li><input type="checkbox" id="adm8" /><span>Missing or illegible documents requested from applicant.</span></li>
+      <li><input type="checkbox" id="adm9" /><span>Decision recorded (Approved / Pending / Rejected) with reviewer name and date.</span></li>
+    </ul>
+    <div class="sig">
+      <div>
+        <div class="line"></div>
+        <span class="hint">Reviewer name &amp; signature</span>
+      </div>
+      <div>
+        <div class="line"></div>
+        <span class="hint">Date</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  (function () {
+    var form = document.getElementById('enrollForm');
+    var dob = document.getElementById('dob');
+    var gradYear = document.getElementById('gradYear');
+    var signDate = document.getElementById('signDate');
+    var success = document.getElementById('success');
+    var currentYear = new Date().getFullYear();
+    var today = new Date().toISOString().slice(0, 10);
+
+    // Date constraints
+    if (dob) dob.max = today;
+    if (signDate) { signDate.max = today; signDate.value = today; }
+    if (gradYear) gradYear.max = String(currentYear);
+
+    function setInvalid(el, invalid) {
+      var field = el.closest('.field') || el.closest('.declaration');
+      if (!field) return;
+      field.classList.toggle('invalid', invalid);
+    }
+
+    function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+    function validPhone(v) { return /^\+?[0-9 ()-]{7,20}$/.test(v); }
+
+    function validate() {
+      var ok = true;
+      // required text/select
+      form.querySelectorAll('input[required], select[required], textarea[required]').forEach(function (el) {
+        if (el.type === 'checkbox') {
+          setInvalid(el, !el.checked); if (!el.checked) ok = false; return;
+        }
+        var v = (el.value || '').trim();
+        var bad = v === '';
+        if (!bad && el.type === 'email') bad = !validEmail(v);
+        if (!bad && el.type === 'tel') bad = !validPhone(v);
+        if (!bad && el.type === 'date') bad = el.max ? v > el.max : false;
+        if (!bad && el.type === 'number') bad = (el.min && +v < +el.min) || (el.max && +v > +el.max);
+        setInvalid(el, bad);
+        if (bad) ok = false;
+      });
+      // optional email/phone should still be valid if provided
+      form.querySelectorAll('input[type="email"]:not([required]), input[type="tel"]:not([required])').forEach(function (el) {
+        var v = (el.value || '').trim();
+        if (v === '') { setInvalid(el, false); return; }
+        var bad = el.type === 'email' ? !validEmail(v) : !validPhone(v);
+        setInvalid(el, bad); if (bad) ok = false;
+      });
+      // signature must match a name-like value
+      var sig = document.getElementById('signature');
+      if (sig) { var bad = sig.value.trim().length < 3; setInvalid(sig, bad); if (bad) ok = false; }
+      return ok;
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (validate()) {
+        success.classList.add('show');
+        success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // For real submission, POST to your endpoint here instead of the demo banner.
+      } else {
+        var firstBad = form.querySelector('.invalid input, .invalid select, .invalid textarea');
+        if (firstBad) firstBad.focus();
+      }
+    });
+
+    // Clear error state on input
+    form.addEventListener('input', function (e) {
+      var field = e.target.closest('.field, .declaration');
+      if (field) field.classList.remove('invalid');
+    });
+
+    // Add another credential row
+    document.getElementById('addCred').addEventListener('click', function () {
+      var container = document.getElementById('credentialRows');
+      var count = container.querySelectorAll('.repeat-row').length + 1;
+      var row = document.createElement('div');
+      row.className = 'repeat-row';
+      row.innerHTML =
+        '<div class="field"><label>Title <span class="req">*</span></label><input name="credTitle[]" type="text" required /><span class="error">Title is required.</span></div>' +
+        '<div class="field"><label>Issuing institution <span class="req">*</span></label><input name="credIssuer[]" type="text" required /><span class="error">Issuer is required.</span></div>' +
+        '<div class="field"><label>Completion date <span class="req">*</span></label><input name="credDate[]" type="date" required /><span class="error">Enter a valid past date.</span></div>' +
+        '<div class="field"><label>Credential ID <span class="opt">Optional</span></label><input name="credId[]" type="text" /></div>' +
+        '<div class="field full"><label>Upload proof <span class="opt">Optional</span></label><input name="credFile[]" type="file" accept="application/pdf,image/*" /></div>';
+      container.appendChild(row);
+      row.querySelectorAll('input[type="date"]').forEach(function (d) { d.max = today; });
+    });
+
+    document.getElementById('printBtn').addEventListener('click', function () { window.print(); });
+  })();
+</script>
+</body>
+</html>

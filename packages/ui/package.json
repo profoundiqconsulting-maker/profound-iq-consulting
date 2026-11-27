@@ -1,0 +1,40 @@
+{
+  "name": "@profound-iq/ui",
+  "version": "1.0.0",
+  "description": "Shared UI component library for Profound IQ Consulting — brand-aligned primitives (Button, Card, Input, Dialog, Sheet, Badge, etc.) used across public and admin surfaces.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "VERSION"
+  ],
+  "scripts": {
+    "build": "echo 'build via client tsconfig'",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0 || ^19.0.0",
+    "react-dom": "^18.2.0 || ^19.0.0",
+    "class-variance-authority": "^0.7.0",
+    "lucide-react": "^0.300.0",
+    "tailwind-merge": "^2.2.0",
+    "@radix-ui/react-slot": "^1.0.0",
+    "@radix-ui/react-dialog": "^1.0.0",
+    "@radix-ui/react-popover": "^1.0.0"
+  },
+  "keywords": [
+    "profound-iq",
+    "ui",
+    "design-system",
+    "brand"
+  ],
+  "license": "MIT"
+}

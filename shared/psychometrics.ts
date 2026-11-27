@@ -37,6 +37,7 @@ export type PsychometricTest = {
 export type PsychometricAnswer = { questionId: string; value: number };
 export type PsychometricDomainResult = PsychometricDomain & {
   score: number;
+  reliability: number;
   band: string;
   readout: string;
   developmentActions: string[];
@@ -112,7 +113,8 @@ function buildCognitiveQuestions(
   testSlug: string,
   domains: PsychometricDomain[]
 ): PsychometricQuestion[] {
-  const stems = [
+  type Stem = [string, string[], number];
+  const numericalStems: Stem[] = [
     [
       "A project budget is KES 80,000 and 15% is reserved for training. How much is reserved?",
       ["KES 8,000", "KES 12,000", "KES 15,000", "KES 68,000"],
@@ -124,6 +126,153 @@ function buildCognitiveQuestions(
       2,
     ],
     [
+      "If a team completes 60% of a task in 3 hours, how many more hours to finish at the same rate?",
+      ["1.5", "2.0", "2.5", "3.0"],
+      1,
+    ],
+    [
+      "Revenue grew from KES 2.4M to KES 3.0M. What is the growth rate?",
+      ["15%", "20%", "25%", "30%"],
+      2,
+    ],
+    [
+      "A dataset has 120 entries. After removing 25% as outliers, how many remain?",
+      ["80", "90", "95", "100"],
+      1,
+    ],
+    [
+      "Production costs are KES 450/unit at 1,000 units. At 1,500 units, cost drops 12%. New cost?",
+      ["KES 396", "KES 380", "KES 375", "KES 360"],
+      0,
+    ],
+    [
+      "A survey of 400 people shows 62% preference. What is the margin of error (approx, 95% CI)?",
+      ["±3%", "±5%", "±7%", "±10%"],
+      1,
+    ],
+    [
+      "Investment of KES 500,000 earns 8% compound annually. Value after 3 years?",
+      ["KES 629,856", "KES 620,000", "KES 640,000", "KES 600,000"],
+      0,
+    ],
+    [
+      "A process has 4% defect rate. In a batch of 2,500, how many defects expected?",
+      ["80", "100", "120", "150"],
+      1,
+    ],
+    [
+      "Quarterly sales: Q1=120, Q2=150, Q3=180, Q4=210. Average quarterly growth?",
+      ["20%", "25%", "30%", "15%"],
+      0,
+    ],
+    [
+      "If 3 workers take 8 hours to complete a task, how long for 6 workers (assuming linear)?",
+      ["2 hours", "4 hours", "5 hours", "6 hours"],
+      1,
+    ],
+    [
+      "A price increased by 20% then decreased by 20%. Net change?",
+      ["-4%", "0%", "+4%", "-2%"],
+      0,
+    ],
+    [
+      "Break-even: fixed costs KES 200K, variable cost KES 50/unit, price KES 120/unit. Units needed?",
+      ["2,500", "2,857", "3,000", "4,000"],
+      1,
+    ],
+    [
+      "Customer lifetime value: avg purchase KES 5,000, frequency 4/year, retention 3 years. CLV?",
+      ["KES 40,000", "KES 50,000", "KES 60,000", "KES 75,000"],
+      2,
+    ],
+    [
+      "Net promoter score: 60% promoters, 25% passives, 15% detractors. NPS?",
+      ["35", "40", "45", "50"],
+      2,
+    ],
+    [
+      "A/B test: variant A 12% conversion (n=500), variant B 15% (n=500). Significant difference?",
+      ["Yes, p<0.05", "No, p>0.05", "Need more data", "Cannot determine"],
+      0,
+    ],
+    [
+      "Correlation between training hours and performance is r=0.7. What % variance explained?",
+      ["49%", "70%", "30%", "51%"],
+      0,
+    ],
+    [
+      "Inventory turnover: COGS KES 1.2M, avg inventory KES 200K. Turns per year?",
+      ["4", "5", "6", "8"],
+      2,
+    ],
+    [
+      "Project ROI: cost KES 300K, benefit KES 420K over 2 years. Annual ROI?",
+      ["15%", "20%", "25%", "30%"],
+      1,
+    ],
+    [
+      "Standard deviation of [10, 12, 14, 16, 18]?",
+      ["2.0", "2.8", "3.2", "4.0"],
+      1,
+    ],
+    [
+      "If probability of A is 0.3, B is 0.5, and A&B independent, P(A or B)?",
+      ["0.65", "0.75", "0.80", "0.85"],
+      0,
+    ],
+    [
+      "Weighted average: 40% weight score 85, 60% weight score 92. Result?",
+      ["88.2", "89.0", "89.8", "90.5"],
+      0,
+    ],
+    [
+      "A loan of KES 1M at 12% for 5 years, annual payment?",
+      ["KES 277,410", "KES 250,000", "KES 300,000", "KES 225,000"],
+      0,
+    ],
+    [
+      "Price elasticity: 10% price increase causes 15% demand drop. Elasticity?",
+      ["-0.67", "-1.0", "-1.5", "-2.0"],
+      2,
+    ],
+    [
+      "Sample size needed for 95% CI ±3% with 50% proportion estimate?",
+      ["~1,067", "~600", "~385", "~1,500"],
+      0,
+    ],
+    [
+      "Two assets: A returns 8% (σ=12%), B returns 12% (σ=20%), ρ=0.3. Portfolio 50/50 return?",
+      ["10%", "9%", "11%", "8%"],
+      0,
+    ],
+    [
+      "Present value: KES 100K/year for 5 years at 10% discount. PV?",
+      ["KES 379,079", "KES 400,000", "KES 350,000", "KES 420,000"],
+      0,
+    ],
+    [
+      "A process produces 2% defects. Sample of 50, probability of 0 defects?",
+      ["0.36", "0.45", "0.55", "0.28"],
+      0,
+    ],
+    [
+      "Regression: y = 50 + 3x. Predict y when x = 15.",
+      ["95", "90", "85", "100"],
+      0,
+    ],
+    [
+      "Annuity: KES 10K/month for 10 years at 6% annual. Future value?",
+      ["KES 1.64M", "KES 1.58M", "KES 1.72M", "KES 1.48M"],
+      0,
+    ],
+    [
+      "Coefficient of variation: mean=80, sd=12. CV?",
+      ["15%", "12%", "18%", "10%"],
+      0,
+    ],
+  ];
+  const verbalStems: Stem[] = [
+    [
       "Passage: A team tested two approaches, measured both outcomes, and selected the approach with stronger evidence. Which principle is shown?",
       [
         "Evidence-based comparison",
@@ -134,14 +283,342 @@ function buildCognitiveQuestions(
       0,
     ],
     [
-      "If every A is B and no B is C, which conclusion must follow?",
-      ["Some A are C", "No A is C", "Every C is A", "Some B are not A"],
+      "The manager's directive was clear, yet the team interpreted it differently. What communication principle explains this?",
+      [
+        "Encoding/decoding variance",
+        "Information overload",
+        "Semantic noise",
+        "Feedback delay",
+      ],
+      0,
+    ],
+    [
+      "Choose the word that best completes: 'The proposal was ____; it addressed every concern raised.'",
+      ["comprehensive", "comprehensible", "compressing", "compromising"],
+      0,
+    ],
+    [
+      "Which sentence uses 'affect' correctly?",
+      [
+        "The change will affect outcomes.",
+        "The affect of the change was large.",
+        "He showed little affect.",
+        "Affect the results positively.",
+      ],
+      0,
+    ],
+    [
+      "Passage: 'Despite initial resistance, the policy gained acceptance after stakeholders saw measurable benefits.' Inference?",
+      [
+        "Evidence overcame skepticism.",
+        "Resistance was irrational.",
+        "Policy was poorly designed.",
+        "Stakeholders were misled.",
+      ],
+      0,
+    ],
+    [
+      "Analogous pair: STRATEGY : TACTICS :: ?",
+      [
+        "ARCHITECTURE : CONSTRUCTION",
+        "PLANNING : EXECUTION",
+        "THEORY : PRACTICE",
+        "GOAL : ACTION",
+      ],
+      0,
+    ],
+    [
+      "Which phrase is grammatically correct?",
+      [
+        "Between you and me",
+        "Between you and I",
+        "Between me and you",
+        "Between I and you",
+      ],
+      0,
+    ],
+    [
+      "Passage: 'The report concludes that remote work increases productivity for knowledge workers but decreases it for collaborative tasks.' Best summary?",
+      [
+        "Remote work has mixed effects on productivity.",
+        "Remote work always increases productivity.",
+        "Collaborative tasks suffer in remote settings.",
+        "Knowledge workers prefer remote work.",
+      ],
+      0,
+    ],
+    [
+      "Choose the correct word: 'The committee will ____ the proposal next week.'",
+      ["review", "reveiw", "revue", "revuew"],
+      0,
+    ],
+    [
+      "What is the antecedent of 'they' in: 'When managers listen to employees, they feel valued.'?",
+      ["Ambiguous (managers or employees)", "Managers", "Employees", "Both"],
+      0,
+    ],
+    [
+      "Passage: 'Critical thinking requires evaluating evidence, identifying assumptions, and drawing reasoned conclusions.' Which is NOT a component?",
+      [
+        "Memorizing facts",
+        "Evaluating evidence",
+        "Identifying assumptions",
+        "Drawing conclusions",
+      ],
+      0,
+    ],
+    [
+      "Which sentence is written in active voice?",
+      [
+        "The team completed the project.",
+        "The project was completed by the team.",
+        "The project had been completed.",
+        "The project is being completed.",
+      ],
+      0,
+    ],
+    [
+      "Select the word meaning 'to make worse':",
+      ["Exacerbate", "Exonerate", "Exemplify", "Exonerate"],
+      0,
+    ],
+    [
+      "Passage: 'Policy X reduced errors by 30% but increased processing time by 15%. Management accepted the trade-off.' Implication?",
+      [
+        "Quality prioritized over speed",
+        "Speed prioritized over quality",
+        "Neither improved",
+        "Both improved",
+      ],
+      0,
+    ],
+    [
+      "Which correctly uses 'who' vs 'whom'?",
+      [
+        "Who did you give the report to?",
+        "To whom did you give the report?",
+        "Whom gave you the report?",
+        "Who gave the report to whom?",
+      ],
       1,
     ],
+    [
+      "Passage: 'The metaphor of 'organizational DNA' suggests culture is inherited and stable.' Counter-argument?",
+      [
+        "Culture evolves through interaction.",
+        "DNA never changes.",
+        "Metaphors are literal.",
+        "Organizations don't have DNA.",
+      ],
+      0,
+    ],
+    [
+      "Choose the correctly punctuated sentence:",
+      [
+        "However, the results were inconclusive.",
+        "However the results were inconclusive.",
+        "However; the results were inconclusive.",
+        "However. The results were inconclusive.",
+      ],
+      0,
+    ],
+    [
+      "Passage: 'Stakeholders demanded transparency; leadership provided summaries, not raw data.' Issue?",
+      [
+        "Partial disclosure",
+        "Full transparency",
+        "Excessive detail",
+        "No communication",
+      ],
+      0,
+    ],
+    [
+      "What is the main clause in: 'Although the budget was tight, the project launched on schedule.'?",
+      [
+        "the project launched on schedule",
+        "Although the budget was tight",
+        "the budget was tight",
+        "on schedule",
+      ],
+      0,
+    ],
+    [
+      "Which word is a synonym for 'ubiquitous'?",
+      ["Omnipresent", "Rare", "Unique", "Temporary"],
+      0,
+    ],
+    [
+      "Passage: 'Decision fatigue degrades choice quality after prolonged deliberation.' Practical implication?",
+      [
+        "Schedule important decisions earlier.",
+        "Avoid making decisions.",
+        "Deliberate longer.",
+        "Delegate all decisions.",
+      ],
+      0,
+    ],
+    [
+      "Select the correct plural:",
+      ["Criteria", "Criterias", "Criterium", "Criteriums"],
+      0,
+    ],
+    [
+      "Passage: 'The executive summary must synthesize, not merely summarize.' Difference?",
+      [
+        "Synthesis integrates insights; summary lists points.",
+        "They are identical.",
+        "Summary is shorter.",
+        "Synthesis is longer.",
+      ],
+      0,
+    ],
+    [
+      "Which sentence avoids a dangling modifier?",
+      [
+        "After reviewing the data, the team drew conclusions.",
+        "After reviewing the data, conclusions were drawn.",
+        "Reviewing the data, conclusions emerged.",
+        "The data was reviewed, conclusions drawn.",
+      ],
+      0,
+    ],
+    [
+      "Passage: 'Correlation does not imply causation, but it guides hypothesis generation.' Logical status?",
+      [
+        "Necessary but insufficient for causation",
+        "Sufficient for causation",
+        "Irrelevant to causation",
+        "Proof of causation",
+      ],
+      0,
+    ],
+    [
+      "Choose the word: 'The ____ of the argument was compelling.'",
+      ["thrust", "thirst", "thresh", "thrash"],
+      0,
+    ],
+    [
+      "Passage: 'Ambiguity in requirements leads to scope creep and rework.' Prevention?",
+      [
+        "Precise specification",
+        "Frequent changes",
+        "Minimal documentation",
+        "Assumption-based planning",
+      ],
+      0,
+    ],
+  ];
+  const abstractStems: Stem[] = [
     [
       "Sequence: 3, 6, 12, 24, ... What comes next?",
       ["27", "36", "48", "60"],
       2,
+    ],
+    ["Pattern: △ ○ □ △ ○ □ △ ○ ?", ["△", "○", "□", "◇"], 1],
+    ["Sequence: 2, 5, 11, 23, 47, ... Next?", ["95", "94", "96", "93"], 0],
+    [
+      "Which figure completes the matrix? [2×2 grid: top row has circle, square; bottom row has triangle, ?]",
+      ["Circle", "Square", "Triangle", "Hexagon"],
+      2,
+    ],
+    ["Sequence: 1, 4, 9, 16, 25, ... Next?", ["36", "30", "40", "35"], 0],
+    [
+      "Analogy: NOISE : SILENCE :: LIGHT : ?",
+      ["BRIGHTNESS", "DARKNESS", "COLOR", "SHADOW"],
+      1,
+    ],
+    [
+      "Which shape does not belong? [Circle, Sphere, Cube, Cylinder]",
+      ["Circle", "Sphere", "Cube", "Cylinder"],
+      0,
+    ],
+    ["Sequence: A, C, F, J, O, ... Next?", ["U", "T", "V", "S"], 0],
+    [
+      "Pattern: 1, 1, 2, 3, 5, 8, 13, ... Next? (Fibonacci)",
+      ["21", "19", "20", "22"],
+      0,
+    ],
+    ["Matrix: [▲ ● ■; ■ ▲ ●; ● ■ ?] What completes?", ["▲", "●", "■", "◆"], 0],
+    [
+      "Sequence: 100, 50, 25, 12.5, ... Next?",
+      ["6.25", "7.5", "5", "3.125"],
+      0,
+    ],
+    ["Odd one out: 16, 25, 36, 48, 64", ["16", "25", "36", "48", "64"], 3],
+    ["Pattern: Z, X, V, T, R, ... Next?", ["P", "Q", "O", "S"], 0],
+    ["Sequence: 2, 6, 18, 54, ... Next?", ["162", "108", "126", "144"], 0],
+    [
+      "Visual analogy: [□→■] [○→?] Options: [●, ◇, ◆, ■]",
+      ["●", "◇", "◆", "■"],
+      0,
+    ],
+    ["Sequence: 5, 10, 17, 26, 37, ... Next?", ["50", "48", "52", "49"], 0],
+    [
+      "Which completes the series: 1/2, 2/3, 3/4, 4/5, ?",
+      ["5/6", "6/7", "4/6", "5/7"],
+      0,
+    ],
+    ["Pattern: 3, 8, 15, 24, 35, ... Next?", ["48", "47", "46", "49"], 0],
+    ["Matrix rotation: [← ↑ →; ↓ ← ↑; → ↓ ?] Next?", ["←", "→", "↑", "↓"], 0],
+    [
+      "Sequence: 1, 8, 27, 64, 125, ... Next? (Cubes)",
+      ["216", "196", "225", "243"],
+      0,
+    ],
+    [
+      "Odd one out: 121, 144, 169, 190, 225",
+      ["121", "144", "169", "190", "225"],
+      3,
+    ],
+    ["Pattern: A1, B3, C5, D7, E9, ... Next?", ["F11", "G11", "F10", "G10"], 0],
+    [
+      "Sequence: 2, 3, 5, 7, 11, 13, 17, ... Next? (Primes)",
+      ["19", "21", "23", "20"],
+      0,
+    ],
+    ["Visual pattern: [◐ ◑ ◒ ◓] Next?", ["◐", "◑", "◒", "◓"], 0],
+    [
+      "Sequence: 1, 3, 7, 15, 31, ... Next? (2^n - 1)",
+      ["63", "61", "65", "59"],
+      0,
+    ],
+    [
+      "Which figure has rotational symmetry of order 4? [Square, Equilateral triangle, Rectangle, Pentagon]",
+      ["Square", "Equilateral triangle", "Rectangle", "Pentagon"],
+      0,
+    ],
+    [
+      "Sequence: 10, 11, 13, 16, 20, 25, ... Next?",
+      ["31", "30", "32", "29"],
+      0,
+    ],
+    [
+      "Pattern: 2, 4, 8, 16, 32, ... Next power of 2?",
+      ["64", "48", "56", "72"],
+      0,
+    ],
+    [
+      "Complete: 1, 4, 27, 256, 3125, ... (n^n) Next?",
+      ["46656", "36000", "42000", "50000"],
+      0,
+    ],
+    ["Matrix: [★ ☆ ♢; ♢ ★ ☆; ☆ ♢ ?] Next?", ["★", "☆", "♢", "♥"], 0],
+    [
+      "Sequence: 1, 2, 6, 24, 120, ... Next? (Factorials)",
+      ["720", "600", "840", "504"],
+      0,
+    ],
+    [
+      "Which number is not a perfect square? [144, 169, 196, 220, 225]",
+      ["144", "169", "196", "220", "225"],
+      3,
+    ],
+  ];
+  const logicalStems: Stem[] = [
+    [
+      "If every A is B and no B is C, which conclusion must follow?",
+      ["Some A are C", "No A is C", "Every C is A", "Some B are not A"],
+      1,
     ],
     [
       "A plan fails because its key assumption is false. What is the most useful next step?",
@@ -153,11 +630,311 @@ function buildCognitiveQuestions(
       ],
       1,
     ],
-  ] as const;
+    [
+      "Premise: All managers are leaders. Some leaders are innovators. Conclusion: Some managers are innovators. Valid?",
+      ["Yes", "No", "Cannot determine", "Only if all leaders are managers"],
+      2,
+    ],
+    [
+      "If P implies Q, and Q is false, what follows about P?",
+      ["P is true", "P is false", "P could be either", "No conclusion"],
+      1,
+    ],
+    [
+      "Either the system is secure or the data is compromised. The system is not secure. Therefore?",
+      [
+        "The data is compromised",
+        "The data is safe",
+        "Cannot conclude",
+        "Both are true",
+      ],
+      0,
+    ],
+    [
+      "All effective teams communicate well. Team X does not communicate well. Therefore?",
+      [
+        "Team X is not effective",
+        "Team X is effective",
+        "Team X might be effective",
+        "Communication is irrelevant",
+      ],
+      0,
+    ],
+    [
+      "No successful project lacks clear goals. Project Y has clear goals. Therefore?",
+      [
+        "Project Y is successful",
+        "Project Y might fail",
+        "Project Y lacks goals",
+        "No conclusion about success",
+      ],
+      1,
+    ],
+    [
+      "If we invest in training, productivity increases. Productivity did not increase. Therefore?",
+      [
+        "We did not invest in training",
+        "We invested in training",
+        "Training is ineffective",
+        "Cannot conclude",
+      ],
+      0,
+    ],
+    [
+      "Some risks are worth taking. All innovations involve risk. Therefore?",
+      [
+        "Some innovations are worth pursuing",
+        "All innovations are worth pursuing",
+        "No innovations are worth pursuing",
+        "Cannot conclude",
+      ],
+      0,
+    ],
+    [
+      "Every decision has a cost. Doing nothing is a decision. Therefore?",
+      [
+        "Doing nothing has a cost",
+        "Doing nothing is free",
+        "Costs can be avoided",
+        "Decisions should be avoided",
+      ],
+      0,
+    ],
+    [
+      "Premise: If it rains, the ground is wet. The ground is wet. Does it follow that it rained?",
+      ["Yes", "No", "Maybe", "Only if no other cause"],
+      1,
+    ],
+    [
+      "All A are B. Some B are C. No C are D. What follows?",
+      ["Some A are not D", "Some A are D", "No A are D", "Cannot determine"],
+      0,
+    ],
+    [
+      "If the strategy works, we meet targets. We met targets. Does the strategy work?",
+      ["Yes", "No", "Not necessarily", "Only if no other factor"],
+      2,
+    ],
+    [
+      "No ethical action harms innocents. Action X harms innocents. Therefore?",
+      [
+        "Action X is not ethical",
+        "Action X is ethical",
+        "Ethics are subjective",
+        "Cannot judge",
+      ],
+      0,
+    ],
+    [
+      "Some data is incomplete. All incomplete data is unreliable. Therefore?",
+      [
+        "Some data is unreliable",
+        "All data is unreliable",
+        "No data is unreliable",
+        "Incomplete data is reliable",
+      ],
+      0,
+    ],
+    [
+      "If we hire, we must train. We cannot train now. Therefore?",
+      [
+        "We cannot hire now",
+        "We must hire anyway",
+        "Training is optional",
+        "Hiring is optional",
+      ],
+      0,
+    ],
+    [
+      "Either we cut costs or we increase revenue. We will not cut costs. Therefore?",
+      [
+        "We must increase revenue",
+        "We can do neither",
+        "We can do both",
+        "Revenue will increase automatically",
+      ],
+      0,
+    ],
+    [
+      "All experts have experience. Some experienced people are not experts. Therefore?",
+      [
+        "Experience is necessary but not sufficient for expertise",
+        "Experience is sufficient",
+        "Experience is irrelevant",
+        "All experienced are experts",
+      ],
+      0,
+    ],
+    [
+      "If the report is accurate, the forecast holds. The forecast failed. Therefore?",
+      [
+        "The report was inaccurate",
+        "The report was accurate",
+        "The forecast was wrong",
+        "Cannot conclude",
+      ],
+      0,
+    ],
+    [
+      "No decision under uncertainty is risk-free. Decision D is under uncertainty. Therefore?",
+      [
+        "Decision D has risk",
+        "Decision D is risk-free",
+        "Decision D should be avoided",
+        "Risk can be eliminated",
+      ],
+      0,
+    ],
+    [
+      "Some problems are complex. All complex problems require analysis. Therefore?",
+      [
+        "Some problems require analysis",
+        "All problems require analysis",
+        "No problems require analysis",
+        "Complex problems are simple",
+      ],
+      0,
+    ],
+    [
+      "If we standardize, we reduce variation. We need variation for innovation. Therefore?",
+      [
+        "Standardization may hinder innovation",
+        "Standardization helps innovation",
+        "Innovation requires no variation",
+        "No relationship",
+      ],
+      0,
+    ],
+    [
+      "All policies have trade-offs. Policy P has no visible trade-offs. Therefore?",
+      [
+        "Trade-offs are hidden",
+        "Policy P has no trade-offs",
+        "Policy P is perfect",
+        "Trade-offs are optional",
+      ],
+      0,
+    ],
+    [
+      "If we measure it, we can manage it. We cannot measure culture directly. Therefore?",
+      [
+        "We cannot fully manage culture",
+        "We can fully manage culture",
+        "Culture is unmanageable",
+        "Measurement is unnecessary",
+      ],
+      0,
+    ],
+    [
+      "Some leaders are born. Some leaders are made. Therefore?",
+      [
+        "Leadership has multiple paths",
+        "All leaders are born",
+        "All leaders are made",
+        "Leadership is impossible",
+      ],
+      0,
+    ],
+    [
+      "If we automate, we reduce errors but increase rigidity. We need flexibility. Therefore?",
+      [
+        "Partial automation may be optimal",
+        "Full automation is best",
+        "No automation is best",
+        "Errors are acceptable",
+      ],
+      0,
+    ],
+    [
+      "All models are wrong. Some models are useful. Therefore?",
+      [
+        "Useful models can be wrong",
+        "Wrong models cannot be useful",
+        "All useful models are correct",
+        "No models are useful",
+      ],
+      0,
+    ],
+    [
+      "No single metric captures performance. Metric M is a single metric. Therefore?",
+      [
+        "Metric M cannot fully capture performance",
+        "Metric M fully captures performance",
+        "Single metrics are sufficient",
+        "Performance is unmeasurable",
+      ],
+      0,
+    ],
+    [
+      "If we delegate, we must trust. We cannot verify everything. Therefore?",
+      [
+        "Trust is necessary for delegation",
+        "Delegation is impossible",
+        "Verification replaces trust",
+        "Micromanagement is better",
+      ],
+      0,
+    ],
+    [
+      "Some changes are reversible. Structural changes are rarely reversible. Therefore?",
+      [
+        "Structural changes require extra caution",
+        "Structural changes are safe",
+        "All changes are reversible",
+        "No changes should be made",
+      ],
+      0,
+    ],
+    [
+      "If we optimize for speed, quality may suffer. If we optimize for quality, speed may suffer. Therefore?",
+      [
+        "Trade-off exists between speed and quality",
+        "Both can be maximized simultaneously",
+        "Neither can be improved",
+        "Speed and quality are independent",
+      ],
+      0,
+    ],
+    [
+      "All systems have constraints. System S has no identified constraints. Therefore?",
+      [
+        "Constraints are unidentified",
+        "System S has no constraints",
+        "Constraints don't exist",
+        "System S is infinite",
+      ],
+      0,
+    ],
+    [
+      "If we ignore feedback, we miss signals. We missed a critical signal. Therefore?",
+      [
+        "We may have ignored feedback",
+        "We definitely ignored feedback",
+        "Feedback was unavailable",
+        "Signals are always caught",
+      ],
+      0,
+    ],
+  ];
+  const allStems = {
+    numerical: numericalStems,
+    verbal: verbalStems,
+    abstract: abstractStems,
+    logical: logicalStems,
+  };
   return domains.flatMap((domain, domainIndex) =>
     Array.from({ length: domain.itemCount }, (_, index) => {
-      const [base, options, correct] =
-        stems[(domainIndex * 3 + index) % stems.length];
+      const key = domain.key.includes("numerical")
+        ? "numerical"
+        : domain.key.includes("verbal")
+          ? "verbal"
+          : domain.key.includes("abstract") || domain.key.includes("inductive")
+            ? "abstract"
+            : domain.key.includes("logical")
+              ? "logical"
+              : "numerical";
+      const stems = allStems[key];
+      const [base, options, correct] = stems[index % stems.length];
       const difficulty =
         index < 6 ? "easy" : index < 21 ? "moderate" : "challenging";
       return {
@@ -165,7 +942,7 @@ function buildCognitiveQuestions(
         testSlug,
         domainKey: domain.key,
         domainLabel: domain.label,
-        prompt: `${base} (Item ${index + 1})`,
+        prompt: base,
         options: [...options],
         correctOptionIndex: correct,
         responseScale: "multipleChoice" as const,
@@ -538,12 +1315,22 @@ export function scorePsychometricTest(
           : value;
       })
       .filter((value): value is number => typeof value === "number");
+    const mean = selected.length
+      ? selected.reduce((sum, value) => sum + value, 0) / selected.length
+      : 1;
     const score = selected.length
-      ? Math.round(
-          (selected.reduce((sum, value) => sum + value, 0) / selected.length) *
-            20
-        )
+      ? Math.max(0, Math.min(100, Math.round(((mean - 1) / 4) * 100)))
       : 0;
+    const reliability = (() => {
+      if (selected.length < 2) return 0;
+      const variance =
+        selected.reduce((sum, value) => sum + (value - mean) ** 2, 0) /
+        selected.length;
+      return Math.max(
+        0,
+        Math.min(100, Math.round(100 * (1 - Math.sqrt(variance) / 2)))
+      );
+    })();
     const band =
       score >= 80
         ? "Strong current signal"
@@ -553,6 +1340,7 @@ export function scorePsychometricTest(
     return {
       ...domain,
       score,
+      reliability,
       band,
       readout: `${domain.label} is currently showing ${band.toLowerCase()} based on the responses provided.`,
       developmentActions: [

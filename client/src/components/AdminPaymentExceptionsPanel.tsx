@@ -33,7 +33,11 @@ export default function AdminPaymentExceptionsPanel() {
   const setStatus = (value: Status) => setValue("status", value);
   const setPage = (value: number | ((prev: number) => number)) =>
     setValue("page", value);
-  const input = { status: state.status, search: state.search.trim() || undefined, limit: 100 };
+  const input = {
+    status: state.status,
+    search: state.search.trim() || undefined,
+    limit: 100,
+  };
   const payments = trpc.admin.coursePaymentExceptions.useQuery(input, {
     retry: false,
     refetchInterval: 30000,
@@ -71,14 +75,14 @@ export default function AdminPaymentExceptionsPanel() {
   });
 
   return (
-    <section className="mt-10 border border-[#c9a34e]/60 bg-[#fffaf0] p-5 sm:p-6">
+    <section className="mt-10 border border-[var(--brand)]/60 bg-[#fffaf0] p-5 sm:p-6">
       <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 lg:flex-row lg:items-end">
         <div>
-          <p className="eyebrow flex items-center gap-2 text-[#b8860b]">
+          <p className="eyebrow flex items-center gap-2 text-[var(--brand)]">
             <ShieldCheck size={13} /> Payments / exception control
           </p>
           <h2 className="display mt-3 text-3xl">Reconcile the edges.</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#475569]">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--fg-muted)]">
             Review pending or mismatched staged transactions, verify them
             against Paystack, and keep course access aligned with confirmed
             payment evidence.
@@ -87,7 +91,7 @@ export default function AdminPaymentExceptionsPanel() {
         <button
           type="button"
           onClick={() => void payments.refetch()}
-          className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] hover:border-[#c9a34e]"
+          className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] hover:border-[var(--brand)]"
         >
           <RefreshCw
             size={13}
@@ -113,9 +117,9 @@ export default function AdminPaymentExceptionsPanel() {
               onClick={() =>
                 setStatus(key === "total" ? "all" : (key as Status))
               }
-              className={`border p-3 text-left ${state.status === (key === "total" ? "all" : key) ? "border-[#c9a34e] bg-[#ead9ae]/40" : "border-[#16243d]/10 bg-white/60"}`}
+              className={`border p-3 text-left ${state.status === (key === "total" ? "all" : key) ? "border-[var(--brand)] bg-[#ead9ae]/40" : "border-[#16243d]/10 bg-white/60"}`}
             >
-              <p className="text-[9px] font-black uppercase tracking-[.12em] text-[#475569]">
+              <p className="text-[9px] font-black uppercase tracking-[.12em] text-[var(--fg-muted)]">
                 {key}
               </p>
               <p className="mt-1 display text-2xl">
@@ -127,18 +131,19 @@ export default function AdminPaymentExceptionsPanel() {
       </div>
       <div className="mt-5 flex flex-col gap-3 sm:flex-row">
         <label className="relative flex-1">
-          <Search size={15} className="absolute left-3 top-3 text-[#475569]" />
+          <Search size={15} className="absolute left-3 top-3 text-[var(--fg-muted)]" />
           <input
+            id="payment-exceptions-search"
             value={state.search}
             onChange={event => setSearch(event.target.value)}
             placeholder="Search learner, course, or Paystack reference"
-            className="w-full border border-[#16243d]/15 bg-white/70 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#c9a34e]"
+            className="w-full border border-[#16243d]/15 bg-white/70 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[var(--brand)]"
           />
         </label>
         <select
           value={state.status}
           onChange={event => setStatus(event.target.value as Status)}
-          className="border border-[#16243d]/15 bg-white/70 px-3 py-2.5 text-sm outline-none focus:border-[#c9a34e]"
+          className="border border-[#16243d]/15 bg-white/70 px-3 py-2.5 text-sm outline-none focus:border-[var(--brand)]"
         >
           <option value="all">All statuses</option>
           <option value="pending">Pending</option>
@@ -149,8 +154,8 @@ export default function AdminPaymentExceptionsPanel() {
         </select>
       </div>
       {payments.isLoading ? (
-        <div className="mt-6 flex items-center gap-2 text-sm text-[#475569]">
-          <RefreshCw size={15} className="animate-spin text-[#b8860b]" />{" "}
+        <div className="mt-6 flex items-center gap-2 text-sm text-[var(--fg-muted)]">
+          <RefreshCw size={15} className="animate-spin text-[var(--brand)]" />{" "}
           Loading payment records…
         </div>
       ) : payments.isError ? (
@@ -179,12 +184,12 @@ export default function AdminPaymentExceptionsPanel() {
                       )}
                       {stage.paymentStatus}
                     </span>
-                    <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+                    <span className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)]">
                       Stage {stage.stage} / 4
                     </span>
                   </div>
                   <h3 className="display mt-2 text-2xl">{enrollment.name}</h3>
-                  <p className="mt-1 text-sm text-[#475569]">
+                  <p className="mt-1 text-sm text-[var(--fg-muted)]">
                     {enrollment.email} · {enrollment.courseSlug}
                   </p>
                 </div>
@@ -192,12 +197,12 @@ export default function AdminPaymentExceptionsPanel() {
                   <p className="display text-2xl">
                     KES {stage.amountKes.toLocaleString()}
                   </p>
-                  <p className="mt-1 break-all text-[10px] text-[#475569]">
+                  <p className="mt-1 break-all text-[10px] text-[var(--fg-muted)]">
                     {stage.paystackReference ?? "No reference yet"}
                   </p>
                 </div>
               </div>
-              <div className="mt-4 grid gap-3 border-t border-[#16243d]/10 pt-4 text-xs text-[#475569] sm:grid-cols-3">
+              <div className="mt-4 grid gap-3 border-t border-[#16243d]/10 pt-4 text-xs text-[var(--fg-muted)] sm:grid-cols-3">
                 <span>
                   Initialized:{" "}
                   {stage.initializedAt
@@ -241,7 +246,7 @@ export default function AdminPaymentExceptionsPanel() {
                       note: "Flagged for manual admin review.",
                     })
                   }
-                  className="border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] hover:border-[#c9a34e] disabled:opacity-50"
+                  className="border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] hover:border-[var(--brand)]"
                 >
                   Flag exception
                 </button>
@@ -257,7 +262,7 @@ export default function AdminPaymentExceptionsPanel() {
                       note: "Returned to pending for follow-up.",
                     })
                   }
-                  className="border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] hover:border-[#c9a34e] disabled:opacity-50"
+                  className="border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] hover:border-[var(--brand)]"
                 >
                   Return to pending
                 </button>
@@ -266,7 +271,7 @@ export default function AdminPaymentExceptionsPanel() {
           ))}
         </div>
       ) : (
-        <div className="mt-6 border border-dashed border-[#16243d]/20 bg-white/55 p-5 text-sm text-[#475569]">
+        <div className="mt-6 border border-dashed border-[#16243d]/20 bg-white/55 p-5 text-sm text-[var(--fg-muted)]">
           No payment records match this view.
         </div>
       )}
@@ -276,11 +281,11 @@ export default function AdminPaymentExceptionsPanel() {
         </p>
       ) : (
         <div className="mt-8 border-t border-[#16243d]/10 pt-6">
-          <p className="eyebrow flex items-center gap-2 text-[#b8860b]">
+          <p className="eyebrow flex items-center gap-2 text-[var(--brand)]">
             <Clock size={13} /> Reconciliation activity
           </p>
           {recentLog.data?.length === 0 && !recentLog.isLoading ? (
-            <p className="mt-2 text-xs text-[#475569]">
+            <p className="mt-2 text-xs text-[var(--fg-muted)]">
               No reconciliation actions recorded yet.
             </p>
           ) : (
@@ -288,16 +293,16 @@ export default function AdminPaymentExceptionsPanel() {
               <table className="exec-table min-w-[380px] text-left text-xs">
                 <thead>
                   <tr>
-                    <th className="px-2 py-1 text-[10px] uppercase text-[#475569]">
+                    <th className="px-2 py-1 text-[10px] uppercase text-[var(--fg-muted)]">
                       When
                     </th>
-                    <th className="px-2 py-1 text-[10px] uppercase text-[#475569]">
+                    <th className="px-2 py-1 text-[10px] uppercase text-[var(--fg-muted)]">
                       Operator
                     </th>
-                    <th className="px-2 py-1 text-[10px] uppercase text-[#475569]">
+                    <th className="px-2 py-1 text-[10px] uppercase text-[var(--fg-muted)]">
                       Action
                     </th>
-                    <th className="px-2 py-1 text-[10px] uppercase text-[#475569]">
+                    <th className="px-2 py-1 text-[10px] uppercase text-[var(--fg-muted)]">
                       Outcome
                     </th>
                   </tr>
@@ -326,7 +331,7 @@ export default function AdminPaymentExceptionsPanel() {
             </div>
           )}
           {recentLog.isLoading && (
-            <p className="mt-3 flex items-center gap-2 text-xs text-[#475569]">
+            <p className="mt-3 flex items-center gap-2 text-xs text-[var(--fg-muted)]">
               <RefreshCw size={12} className="animate-spin" /> Loading…
             </p>
           )}
@@ -335,4 +340,3 @@ export default function AdminPaymentExceptionsPanel() {
     </section>
   );
 }
-

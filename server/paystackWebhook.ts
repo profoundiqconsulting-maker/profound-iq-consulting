@@ -6,12 +6,10 @@ import {
   buildReport,
   type AssessmentReport,
 } from "../shared/assessment";
-import { CAREER_PATH_PRICE_KES } from "../shared/careerPath";
 import {
   COURSE_STAGE_AMOUNT_KES,
   courseCatalog,
 } from "../shared/courseCatalog";
-import { PSYCHOMETRIC_PRICE_KES } from "../shared/psychometrics";
 import {
   buildCareerPathReport,
   type CareerPathReport,
@@ -21,6 +19,7 @@ import {
   type PsychometricAnswer,
   type PsychometricReport,
 } from "../shared/psychometrics";
+import { checkoutAmountFromMetadata } from "../shared/paymentInit";
 import {
   getAssessmentAttemptByReference,
   markAssessmentPaid,
@@ -254,7 +253,11 @@ async function reconcileCoursePayment(
     return true;
   }
 
-  if (event.event === "charge.refunded" || event.event === "charge.dispute.stopped" || event.event === "charge.dispute.closed") {
+  if (
+    event.event === "charge.refunded" ||
+    event.event === "charge.dispute.stopped" ||
+    event.event === "charge.dispute.closed"
+  ) {
     await updateCoursePaymentStageStatus(stage.id, {
       status: "refunded",
       errorMessage:
@@ -329,10 +332,15 @@ async function reconcileAssessmentPayment(event: PaystackEvent) {
 
 async function reconcilePsychometricPayment(event: PaystackEvent) {
   const data = event.data;
+  const expectedAmountKes = checkoutAmountFromMetadata(
+    "psychometric",
+    data?.metadata
+  );
   if (
     !event.data?.reference ||
     event.data.status !== "success" ||
-    event.data.amount !== PSYCHOMETRIC_PRICE_KES * 100 ||
+    expectedAmountKes === null ||
+    event.data.amount !== expectedAmountKes * 100 ||
     event.data.currency !== "KES"
   )
     return false;
@@ -354,7 +362,7 @@ async function reconcilePsychometricPayment(event: PaystackEvent) {
     metadata: {
       product: testSlug,
       currency: "KES",
-      amount: PSYCHOMETRIC_PRICE_KES,
+      amount: expectedAmountKes,
       source: "webhook",
     },
   });
@@ -381,7 +389,7 @@ async function reconcilePsychometricPayment(event: PaystackEvent) {
       participantName: attempt.name,
       reference: event.data.reference,
       productName: test.title,
-      amountKes: PSYCHOMETRIC_PRICE_KES,
+      amountKes: expectedAmountKes,
       paidAt: new Date(),
       productType: "psychometric",
     });
@@ -393,10 +401,15 @@ async function reconcilePsychometricPayment(event: PaystackEvent) {
 
 async function reconcileCareerPathPayment(event: PaystackEvent) {
   const data = event.data;
+  const expectedAmountKes = checkoutAmountFromMetadata(
+    "careerpath",
+    data?.metadata
+  );
   if (
     !event.data?.reference ||
     event.data.status !== "success" ||
-    event.data.amount !== CAREER_PATH_PRICE_KES * 100 ||
+    expectedAmountKes === null ||
+    event.data.amount !== expectedAmountKes * 100 ||
     event.data.currency !== "KES"
   )
     return false;
@@ -412,7 +425,7 @@ async function reconcileCareerPathPayment(event: PaystackEvent) {
     metadata: {
       product: "careerpath",
       currency: "KES",
-      amount: CAREER_PATH_PRICE_KES,
+      amount: expectedAmountKes,
       source: "webhook",
     },
   });
@@ -435,7 +448,7 @@ async function reconcileCareerPathPayment(event: PaystackEvent) {
       participantName: attempt.name,
       reference: event.data.reference,
       productName: "CareerPath Talent Fit",
-      amountKes: CAREER_PATH_PRICE_KES,
+      amountKes: expectedAmountKes,
       paidAt: new Date(),
       productType: "careerpath",
     });

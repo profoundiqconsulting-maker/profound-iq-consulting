@@ -3,10 +3,20 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { X, ChevronDown, Mail, ArrowUpRight, Bell, Tag, Clock3, CheckCircle2 } from "lucide-react";
+import {
+  X,
+  ChevronDown,
+  Mail,
+  ArrowUpRight,
+  Bell,
+  Tag,
+  Clock3,
+  CheckCircle2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -38,31 +48,36 @@ export const useEngagementStore = create<EngagementState>()(
 
       setDraftExists: (exists: boolean) => set({ draftExists: exists }),
 
-      markExitIntentSeen: () => set({
-        hasSeenExitIntent: true,
-        lastExitIntent: Date.now(),
-      }),
+      markExitIntentSeen: () =>
+        set({
+          hasSeenExitIntent: true,
+          lastExitIntent: Date.now(),
+        }),
 
-      markScrollCaptureSeen: () => set({
-        hasSeenScrollCapture: true,
-        lastScrollCapture: Date.now(),
-      }),
+      markScrollCaptureSeen: () =>
+        set({
+          hasSeenScrollCapture: true,
+          lastScrollCapture: Date.now(),
+        }),
 
-      markWelcomeBackSeen: () => set({
-        hasSeenWelcomeBack: true,
-      }),
+      markWelcomeBackSeen: () =>
+        set({
+          hasSeenWelcomeBack: true,
+        }),
 
       canShowExitIntent: () => {
         const { hasSeenExitIntent, lastExitIntent, draftExists } = get();
         if (hasSeenExitIntent && !draftExists) return false;
-        if (Date.now() - lastExitIntent < 30 * 24 * 60 * 60 * 1000) return false; // 30 days
+        if (Date.now() - lastExitIntent < 30 * 24 * 60 * 60 * 1000)
+          return false; // 30 days
         return true;
       },
 
       canShowScrollCapture: () => {
         const { hasSeenScrollCapture, lastScrollCapture } = get();
         if (hasSeenScrollCapture) return false;
-        if (Date.now() - lastScrollCapture < 7 * 24 * 60 * 60 * 1000) return false; // 7 days
+        if (Date.now() - lastScrollCapture < 7 * 24 * 60 * 60 * 1000)
+          return false; // 7 days
         return true;
       },
 
@@ -85,7 +100,12 @@ interface PopupProps {
   className?: string;
 }
 
-export function PopupOverlay({ isOpen, onClose, children, className }: PopupProps) {
+export function PopupOverlay({
+  isOpen,
+  onClose,
+  children,
+  className,
+}: PopupProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
@@ -93,7 +113,8 @@ export function PopupOverlay({ isOpen, onClose, children, className }: PopupProp
     if (isOpen) {
       previousFocusRef.current = document.activeElement as HTMLElement;
       document.body.style.overflow = "hidden";
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      const scrollbarWidth =
+        window.innerWidth - document.documentElement.clientWidth;
       if (scrollbarWidth > 0) {
         document.body.style.paddingRight = `${scrollbarWidth}px`;
       }
@@ -137,7 +158,7 @@ export function PopupOverlay({ isOpen, onClose, children, className }: PopupProp
   return (
     <div
       className={cn(
-        "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm",
+        "fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--brand)]/10",
         className
       )}
       onClick={onClose}
@@ -190,7 +211,9 @@ export function ScrollCapturePopup({ onClose }: { onClose: () => void }) {
 
     const handleScroll = () => {
       if (ticking || hasShown) return;
-      const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+      const scrollPercent =
+        window.scrollY /
+        (document.documentElement.scrollHeight - window.innerHeight);
       if (scrollPercent >= 0.7 && store.canShowScrollCapture()) {
         ticking = true;
         setHasShown(true);
@@ -206,7 +229,15 @@ export function ScrollCapturePopup({ onClose }: { onClose: () => void }) {
   return null;
 }
 
-export function WelcomeBackBanner({ isOpen, onClose, onResume }: { isOpen: boolean; onClose: () => void; onResume: () => void }) {
+export function WelcomeBackBanner({
+  isOpen,
+  onClose,
+  onResume,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onResume: () => void;
+}) {
   const store = useEngagementStore();
   const [isVisible, setIsVisible] = useState(false);
 
@@ -227,14 +258,16 @@ export function WelcomeBackBanner({ isOpen, onClose, onResume }: { isOpen: boole
       role="status"
       aria-live="polite"
     >
-      <Card className="border-[var(--gold)]/50 bg-[var(--gold-muted)] shadow-xl">
+      <Card className="border-[var(--brand)]/50 bg-[var(--brand-muted)] shadow-xl">
         <CardContent className="p-5">
           <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[var(--gold)]/20 flex items-center justify-center">
-              <Bell className="w-5 h-5 text-[var(--gold)]" />
+            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[var(--brand)]/20 flex items-center justify-center">
+              <Bell className="w-5 h-5 text-[var(--brand)]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-[var(--foreground)]">Welcome back!</p>
+              <p className="font-semibold text-[var(--foreground)]">
+                Welcome back!
+              </p>
               <p className="text-sm text-[var(--muted-foreground)] mt-1">
                 Your assessment draft is saved. Pick up where you left off.
               </p>
@@ -242,7 +275,10 @@ export function WelcomeBackBanner({ isOpen, onClose, onResume }: { isOpen: boole
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => { onClose(); setIsVisible(false); }}
+              onClick={() => {
+                onClose();
+                setIsVisible(false);
+              }}
               className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
               aria-label="Dismiss"
             >
@@ -251,10 +287,14 @@ export function WelcomeBackBanner({ isOpen, onClose, onResume }: { isOpen: boole
           </div>
           <div className="mt-4 flex gap-2">
             <Button
-              variant="gold"
+              variant="brand"
               size="sm"
               className="flex-1"
-              onClick={() => { onResume(); onClose(); setIsVisible(false); }}
+              onClick={() => {
+                onResume();
+                onClose();
+                setIsVisible(false);
+              }}
             >
               <ArrowUpRight size={14} className="mr-1" />
               Resume Assessment
@@ -262,7 +302,10 @@ export function WelcomeBackBanner({ isOpen, onClose, onResume }: { isOpen: boole
             <Button
               variant="outline"
               size="sm"
-              onClick={() => { onClose(); setIsVisible(false); }}
+              onClick={() => {
+                onClose();
+                setIsVisible(false);
+              }}
             >
               Dismiss
             </Button>
@@ -273,22 +316,29 @@ export function WelcomeBackBanner({ isOpen, onClose, onResume }: { isOpen: boole
   );
 }
 
-export function ExitIntentModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+export function ExitIntentModal({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) {
   return (
     <PopupOverlay isOpen={isOpen} onClose={onClose}>
       <div className="p-6 text-center">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--gold)]/10 flex items-center justify-center">
-          <Tag className="w-8 h-8 text-[var(--gold)]" />
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--brand)]/10 flex items-center justify-center">
+          <Tag className="w-8 h-8 text-[var(--brand)]" />
         </div>
         <h2 className="text-display text-2xl font-semibold text-[var(--foreground)] mb-2">
           Wait! Start free — no card needed
         </h2>
         <p className="text-[var(--muted-foreground)] mb-6 max-w-sm mx-auto">
-          Try 10 questions of any assessment free. See your profile before you decide.
+          Try 10 questions of any assessment free. See your profile before you
+          decide.
         </p>
         <div className="flex flex-col gap-3">
           <Button
-            variant="gold"
+            variant="brand"
             size="lg"
             className="w-full"
             onClick={() => {
@@ -316,7 +366,15 @@ export function ExitIntentModal({ isOpen, onClose }: { isOpen: boolean; onClose:
   );
 }
 
-export function ScrollCaptureModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+export function ScrollCaptureModal({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  const newsletter = trpc.newsletter.subscribe.useMutation();
+
   return (
     <PopupOverlay isOpen={isOpen} onClose={onClose}>
       <div className="p-6">
@@ -324,28 +382,55 @@ export function ScrollCaptureModal({ isOpen, onClose }: { isOpen: boolean; onClo
           <h2 className="text-display text-xl font-semibold text-[var(--foreground)]">
             Join 10,000+ professionals
           </h2>
-          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            aria-label="Close"
+          >
             <X size={20} />
           </Button>
         </div>
         <p className="text-[var(--muted-foreground)] mb-6">
-          Get weekly insights on leadership, strategy, and growth — free in your inbox.
+          Get weekly insights on leadership, strategy, and growth — free in your
+          inbox.
         </p>
         <form
-          onSubmit={async (e) => {
+          onSubmit={async e => {
             e.preventDefault();
             const formData = new FormData(e.currentTarget);
-            const email = formData.get("email") as string;
+            const email = formData.get("email");
+            if (typeof email !== "string" || !email.trim()) {
+              toast.error("Enter a valid email address.");
+              return;
+            }
+            if (formData.get("consent") !== "on") {
+              toast.error("Please confirm your newsletter consent.");
+              return;
+            }
+
             try {
-              await fetch("/api/newsletter/subscribe", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email }),
+              const result = await newsletter.mutateAsync({
+                email,
+                consent: true,
               });
-              toast.success("Subscribed!", { description: "Check your inbox for confirmation." });
+              toast.success(
+                result.alreadySubscribed
+                  ? "You’re already subscribed"
+                  : "Check your inbox",
+                {
+                  description: result.alreadySubscribed
+                    ? "This email address is already on the newsletter list."
+                    : "Confirm your subscription using the link we sent.",
+                }
+              );
               onClose();
-            } catch {
-              toast.error("Something went wrong. Please try again.");
+            } catch (error) {
+              toast.error(
+                error instanceof Error
+                  ? error.message
+                  : "Subscription failed. Please try again."
+              );
             }
           }}
           className="space-y-3"
@@ -359,13 +444,36 @@ export function ScrollCaptureModal({ isOpen, onClose }: { isOpen: boolean; onClo
               autoComplete="email"
               className="flex-1 h-12 focus-gold-ring"
             />
-            <Button type="submit" variant="gold" className="h-12 px-6">
+            <Button
+              type="submit"
+              variant="brand"
+              size="lg"
+              disabled={newsletter.isPending}
+            >
               <Mail size={18} className="mr-1" />
-              Subscribe
+              {newsletter.isPending ? "Subscribing…" : "Subscribe"}
             </Button>
           </div>
+          <label className="flex items-start gap-2 text-xs leading-5 text-[var(--muted-foreground)]">
+            <input
+              name="consent"
+              type="checkbox"
+              required
+              className="mt-1 h-4 w-4 accent-[#16243d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand)]"
+            />
+            <span>
+              I agree to receive the newsletter and have read the{" "}
+              <a href="/privacy-policy" className="underline">
+                privacy policy
+              </a>
+              .
+            </span>
+          </label>
           <p className="text-xs text-[var(--muted-foreground)] text-center">
-            No spam. Unsubscribe anytime. <a href="/privacy-policy" className="underline">Privacy</a>
+            No spam. Unsubscribe anytime.{" "}
+            <a href="/privacy-policy" className="underline">
+              Privacy
+            </a>
           </p>
         </form>
       </div>
@@ -401,21 +509,33 @@ export function PostPurchaseUpsell({
             <CheckCircle2 className="w-6 h-6 text-[var(--success)]" />
           </div>
           <div>
-            <p className="font-semibold text-[var(--foreground)]">{productName} complete!</p>
-            <p className="text-sm text-[var(--muted-foreground)]">Your report is ready.</p>
+            <p className="font-semibold text-[var(--foreground)]">
+              {productName} complete!
+            </p>
+            <p className="text-sm text-[var(--muted-foreground)]">
+              Your report is ready.
+            </p>
           </div>
         </div>
 
-        <Card className="border-[var(--gold)]/50 bg-[var(--gold-muted)] mb-4">
+        <Card className="border-[var(--brand)]/50 bg-[var(--brand-muted)] mb-4">
           <CardContent className="p-4">
-            <p className="text-sm font-medium text-[var(--gold)] mb-1">Special offer — {discount}% off</p>
-            <h3 className="text-display text-lg font-semibold text-[var(--foreground)]">{upsellName}</h3>
+            <p className="text-sm font-medium text-[var(--brand)] mb-1">
+              Special offer — {discount}% off
+            </p>
+            <h3 className="text-display text-lg font-semibold text-[var(--foreground)]">
+              {upsellName}
+            </h3>
             <p className="text-sm text-[var(--muted-foreground)] mt-1">
               Perfect next step based on your profile.
             </p>
             <div className="mt-3 flex items-center gap-3">
-              <span className="text-display text-xl font-bold text-[var(--gold)]">{formatPrice(discountedPrice)}</span>
-              <span className="text-sm line-through text-[var(--muted-foreground)]">{formatPrice(upsellPrice)}</span>
+              <span className="text-display text-xl font-bold text-[var(--brand)]">
+                {formatPrice(discountedPrice)}
+              </span>
+              <span className="text-sm line-through text-[var(--muted-foreground)]">
+                {formatPrice(upsellPrice)}
+              </span>
               <span className="text-xs font-bold text-[var(--success)] bg-[var(--success-muted)] px-2 py-0.5 rounded">
                 Save {discount}%
               </span>
@@ -424,10 +544,23 @@ export function PostPurchaseUpsell({
         </Card>
 
         <div className="flex gap-3">
-          <Button variant="gold" size="lg" className="flex-1" onClick={() => { onAccept(); onClose(); }}>
+          <Button
+            variant="brand"
+            size="lg"
+            className="flex-1"
+            onClick={() => {
+              onAccept();
+              onClose();
+            }}
+          >
             Yes, add this
           </Button>
-          <Button variant="outline" size="lg" className="flex-1" onClick={onClose}>
+          <Button
+            variant="outline"
+            size="lg"
+            className="flex-1"
+            onClick={onClose}
+          >
             No thanks
           </Button>
         </div>
@@ -456,23 +589,38 @@ export function AbandonedCheckoutBanner({
       role="status"
       aria-live="polite"
     >
-      <Card className="border-[var(--gold)]/50 bg-[var(--gold-muted)] shadow-xl">
+      <Card className="border-[var(--brand)]/50 bg-[var(--brand-muted)] shadow-xl">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[var(--gold)]/20 flex items-center justify-center">
-              <Clock3 className="w-4 h-4 text-[var(--gold)]" />
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[var(--brand)]/20 flex items-center justify-center">
+              <Clock3 className="w-4 h-4 text-[var(--brand)]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-[var(--foreground)]">Complete your purchase</p>
+              <p className="font-semibold text-[var(--foreground)]">
+                Complete your purchase
+              </p>
               <p className="text-sm text-[var(--muted-foreground)]">
                 Your {productName} is waiting. Report ready in 2 minutes.
               </p>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose} aria-label="Dismiss">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              aria-label="Dismiss"
+            >
               <X size={18} />
             </Button>
           </div>
-          <Button variant="gold" size="sm" className="w-full mt-3" onClick={() => { onResume(); onClose(); }}>
+          <Button
+            variant="brand"
+            size="sm"
+            className="w-full mt-3"
+            onClick={() => {
+              onResume();
+              onClose();
+            }}
+          >
             Complete Purchase
           </Button>
         </CardContent>

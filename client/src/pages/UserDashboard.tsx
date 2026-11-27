@@ -334,10 +334,7 @@ export default function UserDashboard() {
         paymentFilters.status === "all"
           ? undefined
           : (paymentFilters.status as
-              | "paid"
-              | "pending"
-              | "failed"
-              | "cancelled"),
+              "paid" | "pending" | "failed" | "cancelled"),
       from: paymentFilters.from || undefined,
       to: paymentFilters.to || undefined,
       sort: paymentFilters.sort,
@@ -459,9 +456,7 @@ export default function UserDashboard() {
   const courseRecords = (courseHistory.data ??
     []) as unknown as CourseDeliveryRecord[];
   const recommendationAnswers = profile.data?.recommendationAnswers as
-    | { careerGoal?: string; skillLevel?: string }
-    | null
-    | undefined;
+    { careerGoal?: string; skillLevel?: string } | null | undefined;
   const followUpSuggestions = useMemo(() => {
     const categoryByGoal: Record<string, string> = {
       ai: "AI & Digital",
@@ -534,7 +529,14 @@ export default function UserDashboard() {
   ) as DashboardVersion[];
   const reportHistoryCourseOptions = ["Profound IQ Self Assessment"];
   const filteredReportHistory = displayHistory.filter(item => {
-    const date = new Date(item.createdAt).toISOString().slice(0, 10);
+    const createdAt = new Date(item.createdAt);
+    if (Number.isNaN(createdAt.getTime())) {
+      console.error("Skipping dashboard report with an invalid creation date", {
+        reportId: item.id,
+      });
+      return false;
+    }
+    const date = createdAt.toISOString().slice(0, 10);
     return (
       (reportHistoryCourse === "all" ||
         reportHistoryCourse === "Profound IQ Self Assessment") &&
@@ -598,11 +600,6 @@ export default function UserDashboard() {
   ];
   const profileCompletion = Math.round(
     (profileFields.filter(Boolean).length / profileFields.length) * 100
-  );
-  const [showAssessmentHint, setShowAssessmentHint] = useState(
-    () =>
-      window.localStorage.getItem("piq-new-assessment-hint-dismissed") !==
-      "true"
   );
   const [bookmarkVersion, setBookmarkVersion] = useState(0);
   const [bookmarkSearch, setBookmarkSearch] = useState("");
@@ -747,19 +744,17 @@ export default function UserDashboard() {
     ? [...previewVersions].reverse()
     : displayHistory.filter(item => item.paymentStatus === "paid");
   const currentVersion = paidVersions[0];
-  const trendData = [...paidVersions]
-    .reverse()
-    .map(item => ({
-      version: item.version ?? `v${item.id}`,
-      score: item.overallScore ?? 0,
-      date: new Date(item.createdAt).toLocaleDateString(),
-      ...Object.fromEntries(
-        (item.dimensionScores ?? []).map(dimension => [
-          dimension.key,
-          dimension.score,
-        ])
-      ),
-    }));
+  const trendData = [...paidVersions].reverse().map(item => ({
+    version: item.version ?? `v${item.id}`,
+    score: item.overallScore ?? 0,
+    date: new Date(item.createdAt).toLocaleDateString(),
+    ...Object.fromEntries(
+      (item.dimensionScores ?? []).map(dimension => [
+        dimension.key,
+        dimension.score,
+      ])
+    ),
+  }));
   const trendDimensions = paidVersions[0]?.dimensionScores ?? [];
   const trendColors = [
     "#a27e2e",
@@ -792,8 +787,7 @@ export default function UserDashboard() {
     ? reportComparisonPreview
     : comparison.data;
   const latestCareerPathReport = careerPathHistory.data?.[0]?.report as
-    | CareerPathReport
-    | undefined;
+    CareerPathReport | undefined;
   const shares = trpc.dashboard.reportShares.useQuery(undefined, {
     enabled: Boolean(user),
     retry: false,
@@ -1134,256 +1128,304 @@ export default function UserDashboard() {
   if (!user) return <AccessState />;
 
   return (
-    <DashboardLayout role="user" title="Learner Dashboard">
-      <DashboardHero
-        eyebrow="Your space"
-        title="Your dashboard"
-        description="Review your assessment history, saved pathways, and recommendations."
-        badge={user?.role === "quality_control_admin" ? { label: "QC Mode", variant: "secondary" } : undefined}
-      />
-      <div className="mt-6 flex flex-wrap items-center gap-2 border-b border-[#16243d]/10 pb-4">
-        <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">Quick actions</span>
-        <Link href="/assessment">
-          <Button size="sm" className="bg-[#16243d] text-[10px] font-black uppercase tracking-[.12em] text-[#f7f3e8] hover:bg-[#16243d]/90">
-            <ClipboardCheck size={14} /> Self Assessment
+    <DashboardLayout role="user" title="Overview">
+      <main className="min-w-0 flex-1">
+        <DashboardHero
+          showWelcome={false}
+          eyebrow="Learner workspace"
+          title="Your learning overview"
+          description="See your course progress, assessment history, and next steps."
+          badge={
+            user?.role === "quality_control_admin"
+              ? { label: "QC Mode", variant: "secondary" }
+              : undefined
+          }
+          actions={
+            <>
+              <Button asChild size="sm" variant="brand">
+                <Link
+                  href={
+                    courseRecords.length
+                      ? "/dashboard/enrolled-courses"
+                      : "/courses"
+                  }
+                >
+                  <BookOpen size={15} aria-hidden="true" />
+                  {courseRecords.length ? "My courses" : "Explore courses"}
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link href="/assessment">
+                  <ClipboardCheck size={15} aria-hidden="true" />
+                  New assessment
+                </Link>
+              </Button>
+            </>
+          }
+        />
+        <div
+          role="tablist"
+          aria-label="Dashboard sections"
+          className="mb-6 flex flex-wrap gap-2"
+        >
+          <Button
+            type="button"
+            role="tab"
+            id="dashboard-overview-tab"
+            aria-controls="dashboard-overview-panel"
+            aria-selected={activeTab === "overview"}
+            onClick={() => {
+              setActiveTab("overview");
+              window.history.replaceState({}, "", "/dashboard/overview");
+            }}
+            variant={activeTab === "overview" ? "brand" : "outline"}
+            size="sm"
+          >
+            Overview
           </Button>
-        </Link>
-        <Link href="/careerpath">
-          <Button size="sm" className="border border-[#16243d]/25 bg-white text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] hover:border-[#16243d]/60">
-            <Users size={14} /> CareerPath
+          <Button
+            type="button"
+            role="tab"
+            id="dashboard-payments-tab"
+            aria-controls="dashboard-payments-panel"
+            aria-selected={activeTab === "payments"}
+            onClick={() => {
+              setActiveTab("payments");
+              window.history.replaceState(
+                {},
+                "",
+                "/dashboard/overview?tab=payments"
+              );
+            }}
+            variant={activeTab === "payments" ? "brand" : "outline"}
+            size="sm"
+          >
+            Payment history
           </Button>
-        </Link>
-        <Link href="/psychometrics">
-          <Button size="sm" className="border border-[#16243d]/25 bg-white text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] hover:border-[#16243d]/60">
-            <BrainCircuit size={14} /> Psychometrics
-          </Button>
-        </Link>
-        <Link href="/courses">
-          <Button size="sm" className="border border-[#16243d]/25 bg-white text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] hover:border-[#16243d]/60">
-            <BookOpen size={14} /> Courses
-          </Button>
-        </Link>
-      </div>
-      <main className="min-w-0 flex-1 p-3 sm:p-4 lg:p-6">
-        
-        {/* Stats Overview */}
-        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        </div>
+        <div
+          hidden={activeTab !== "overview"}
+          className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+        >
           <StatCard
-            label="Assessments"
-            value={history.data?.length ?? 0}
+            label="Course enrollments"
+            value={
+              courseHistory.isError
+                ? "Unavailable"
+                : courseHistory.isLoading
+                  ? "—"
+                  : courseRecords.length
+            }
+            icon={<BookOpen size={18} />}
+            href="/dashboard/enrolled-courses"
+          />
+          <StatCard
+            label="Assessment attempts"
+            value={
+              history.isError
+                ? "Unavailable"
+                : history.isLoading && !previewMode
+                  ? "—"
+                  : displayHistory.length
+            }
             icon={<BarChart3 size={18} />}
             href="/dashboard/assessment"
           />
           <StatCard
             label="CareerPath reports"
-            value={careerPathHistory.data?.length ?? 0}
+            value={
+              careerPathHistory.isError
+                ? "Unavailable"
+                : careerPathHistory.isLoading
+                  ? "—"
+                  : (careerPathHistory.data?.length ?? 0)
+            }
             icon={<Users size={18} />}
             href="/dashboard/careerpath"
           />
           <StatCard
-            label="Psychometrics"
-            value={psychometricHistory.data?.length ?? 0}
-            icon={<BrainCircuit size={18} />}
-            href="/dashboard/psychometrics"
-          />
-          <StatCard
             label="Certificates"
-            value={achievements.data?.earnedBadges ?? 0}
+            value={
+              courseHistory.isError
+                ? "Unavailable"
+                : courseHistory.isLoading
+                  ? "—"
+                  : courseRecords.reduce(
+                      (total, record) =>
+                        total + (record.certificates?.length ?? 0),
+                      0
+                    )
+            }
             icon={<Award size={18} />}
             href="/dashboard/certificates"
           />
         </div>
 
-        {/* Recent Recommendations */}
-        {recommendations.data?.hasAssessment && (
-          <div className="mb-8">
-            <h2 className="display text-2xl text-foreground">
-              Recommended for you
-            </h2>
-            <p className="mt-1 text-sm text-foreground">
-              Based on your latest assessment results.
-            </p>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {recommendations.data.recommendations.slice(0, 3).map(rec => (
-                <a
-                  key={rec.course.slug}
-                  href={`/courses/${rec.course.slug}`}
-                  className="rounded-xl border border-[#16243d]/10 bg-white/80 p-5 transition-all hover:border-[#c9a34e]/40 hover:shadow-lg"
-                >
-                  <p className="text-sm font-semibold text-[#16243d]">
-                    {rec.course.title}
-                  </p>
-                  <p className="mt-1 text-xs text-[#16243d]">
-                    {rec.rationale}
-                  </p>
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Original dashboard sections continue below */}
         <Section
           eyebrow="SAVED PATHWAYS"
           title="Keep your next move close."
           description="Courses saved from syllabus previews appear here for quick return. Your course-finder preferences help shape future recommendations."
           className="bg-[#fffaf0]"
+          hidden={activeTab !== "overview"}
         >
           <div className="flex flex-wrap items-center gap-3">
-              <div
-                className="flex items-center gap-1 border border-[#16243d]/15 p-1"
-                aria-label="PDF layout"
-              >
-                <button
-                  type="button"
-                  onClick={() => setSavedPathwaysLayout("summary")}
-                  className={`px-2 py-1 text-[9px] font-black uppercase tracking-[.08em] ${savedPathwaysLayout === "summary" ? "bg-[#16243d] text-[#f7f3e8]" : "text-[#16243d]"}`}
-                >
-                  {pdfLayoutCopy.summary}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSavedPathwaysLayout("detailed")}
-                  className={`px-2 py-1 text-[9px] font-black uppercase tracking-[.08em] ${savedPathwaysLayout === "detailed" ? "bg-[#16243d] text-[#f7f3e8]" : "text-[#16243d]"}`}
-                >
-                  {pdfLayoutCopy.detailed}
-                </button>
-              </div>
-              <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#16243d]">
-                Page size{" "}
-                <select
-                  value={savedPathwaysPageSize}
-                  onChange={event => {
-                    const value =
-                      event.target.value === "LETTER" ? "LETTER" : "A4";
-                    setSavedPathwaysPageSize(value);
-                    updateExportPreferences.mutate({
-                      pageSize: value,
-                      watermark: savedPathwaysWatermark,
-                      coverPage: savedPathwaysCoverPage,
-                      coverTemplate: savedPathwaysCoverTemplate,
-                    });
-                  }}
-                  className="border border-[#16243d]/20 bg-transparent px-1 py-1 text-[9px] font-black"
-                >
-                  <option value="A4">A4</option>
-                  <option value="LETTER">Letter</option>
-                </select>
-              </label>
-              <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#16243d]">
-                Cover style{" "}
-                <select
-                  value={savedPathwaysCoverTemplate}
-                  onChange={event => {
-                    const value =
-                      event.target.value === "editorial" ||
-                      event.target.value === "signal"
-                        ? event.target.value
-                        : "classic";
-                    setSavedPathwaysCoverTemplate(value);
-                    updateExportPreferences.mutate({
-                      pageSize: savedPathwaysPageSize,
-                      watermark: savedPathwaysWatermark,
-                      coverPage: savedPathwaysCoverPage,
-                      coverTemplate: value,
-                    });
-                  }}
-                  className="border border-[#16243d]/20 bg-transparent px-1 py-1 text-[9px] font-black"
-                >
-                  <option value="classic">Classic</option>
-                  <option value="editorial">Editorial</option>
-                  <option value="signal">Signal</option>
-                </select>
-              </label>
-              <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#16243d]">
-                Logo{" "}
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp"
-                  onChange={event => {
-                    const file = event.target.files?.[0];
-                    if (!file) return;
-                    if (file.size > 2 * 1024 * 1024) {
-                      toast.error("Logo must be 2MB or smaller");
-                      return;
-                    }
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                      if (typeof reader.result === "string")
-                        uploadExportLogo.mutate({ dataUrl: reader.result });
-                    };
-                    reader.readAsDataURL(file);
-                  }}
-                  className="w-32 text-[9px]"
-                />
-              </label>
-              <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#16243d]">
-                <input
-                  type="checkbox"
-                  checked={savedPathwaysWatermark}
-                  onChange={event => {
-                    const val = event.target.checked;
-                    setSavedPathwaysWatermark(val);
-                    updateExportPreferences.mutate({
-                      pageSize: savedPathwaysPageSize,
-                      watermark: val,
-                      coverPage: savedPathwaysCoverPage,
-                      coverTemplate: savedPathwaysCoverTemplate,
-                    });
-                  }}
-                  className="accent-[#a27e2e]"
-                />{" "}
-                Watermark
-              </label>
-              <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#16243d]">
-                <input
-                  type="checkbox"
-                  checked={savedPathwaysCoverPage}
-                  onChange={event => {
-                    const val = event.target.checked;
-                    setSavedPathwaysCoverPage(val);
-                    updateExportPreferences.mutate({
-                      pageSize: savedPathwaysPageSize,
-                      watermark: savedPathwaysWatermark,
-                      coverPage: val,
-                      coverTemplate: savedPathwaysCoverTemplate,
-                    });
-                  }}
-                  className="accent-[#a27e2e]"
-                />{" "}
-                Cover page
-              </label>
-              <button
+            <div className="flex items-center gap-1 border border-[#16243d]/15 p-1"
+              aria-label="PDF layout"
+            >
+              <Button
                 type="button"
-                onClick={() =>
-                  exportSavedPathways.mutate({
-                    layout: savedPathwaysLayout,
-                    pageSize: savedPathwaysPageSize,
+                onClick={() => setSavedPathwaysLayout("summary")}
+                variant={savedPathwaysLayout === "summary" ? "brand" : "ghost"}
+                size="sm"
+                className="px-2 py-1 text-xs"
+              >
+                {pdfLayoutCopy.summary}
+              </Button>
+              <Button
+                type="button"
+                onClick={() => setSavedPathwaysLayout("detailed")}
+                variant={savedPathwaysLayout === "detailed" ? "brand" : "ghost"}
+                size="sm"
+                className="px-2 py-1 text-xs"
+              >
+                {pdfLayoutCopy.detailed}
+              </Button>
+            </div>
+            <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#16243d]">
+              Page size{" "}
+              <select
+                value={savedPathwaysPageSize}
+                onChange={event => {
+                  const value =
+                    event.target.value === "LETTER" ? "LETTER" : "A4";
+                  setSavedPathwaysPageSize(value);
+                  updateExportPreferences.mutate({
+                    pageSize: value,
                     watermark: savedPathwaysWatermark,
                     coverPage: savedPathwaysCoverPage,
                     coverTemplate: savedPathwaysCoverTemplate,
-                    customLogoUrl: profile.data?.exportLogoUrl ?? undefined,
-                  })
-                }
-                disabled={exportSavedPathways.isPending}
-                className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14] transition hover:border-[#c9a34e] disabled:cursor-wait disabled:opacity-50"
+                  });
+                }}
+                className="border border-[#16243d]/20 bg-transparent px-1 py-1 text-[9px] font-black"
               >
-                {exportSavedPathways.isPending ? (
-                  <Loader2 size={14} className="animate-spin" />
-                ) : (
-                  <Download size={14} />
-                )}{" "}
-                {exportSavedPathways.isPending
-                  ? "Preparing PDF…"
-                  : "Export PDF"}
-              </button>
-              <Link
-                href="/courses"
-                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.13em] text-[#8b5e14] transition-colors"
+                <option value="A4">A4</option>
+                <option value="LETTER">Letter</option>
+              </select>
+            </label>
+            <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#16243d]">
+              Cover style{" "}
+              <select
+                value={savedPathwaysCoverTemplate}
+                onChange={event => {
+                  const value =
+                    event.target.value === "editorial" ||
+                    event.target.value === "signal"
+                      ? event.target.value
+                      : "classic";
+                  setSavedPathwaysCoverTemplate(value);
+                  updateExportPreferences.mutate({
+                    pageSize: savedPathwaysPageSize,
+                    watermark: savedPathwaysWatermark,
+                    coverPage: savedPathwaysCoverPage,
+                    coverTemplate: value,
+                  });
+                }}
+                className="border border-[#16243d]/20 bg-transparent px-1 py-1 text-[9px] font-black"
               >
-                Explore catalog <ArrowUpRight size={14} />
-              </Link>
-            </div>
+                <option value="classic">Classic</option>
+                <option value="editorial">Editorial</option>
+                <option value="signal">Signal</option>
+              </select>
+            </label>
+            <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#16243d]">
+              Logo{" "}
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={event => {
+                  const file = event.target.files?.[0];
+                  if (!file) return;
+                  if (file.size > 2 * 1024 * 1024) {
+                    toast.error("Logo must be 2MB or smaller");
+                    return;
+                  }
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    if (typeof reader.result === "string")
+                      uploadExportLogo.mutate({ dataUrl: reader.result });
+                  };
+                  reader.readAsDataURL(file);
+                }}
+                className="w-32 text-[9px]"
+              />
+            </label>
+            <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#16243d]">
+              <input
+                type="checkbox"
+                checked={savedPathwaysWatermark}
+                onChange={event => {
+                  const val = event.target.checked;
+                  setSavedPathwaysWatermark(val);
+                  updateExportPreferences.mutate({
+                    pageSize: savedPathwaysPageSize,
+                    watermark: val,
+                    coverPage: savedPathwaysCoverPage,
+                    coverTemplate: savedPathwaysCoverTemplate,
+                  });
+                }}
+                className="accent-[#a27e2e]"
+              />{" "}
+              Watermark
+            </label>
+            <label className="flex items-center gap-2 px-2 text-[9px] font-black uppercase tracking-[.08em] text-[#16243d]">
+              <input
+                type="checkbox"
+                checked={savedPathwaysCoverPage}
+                onChange={event => {
+                  const val = event.target.checked;
+                  setSavedPathwaysCoverPage(val);
+                  updateExportPreferences.mutate({
+                    pageSize: savedPathwaysPageSize,
+                    watermark: savedPathwaysWatermark,
+                    coverPage: val,
+                    coverTemplate: savedPathwaysCoverTemplate,
+                  });
+                }}
+                className="accent-[#a27e2e]"
+              />{" "}
+              Cover page
+            </label>
+            <Button
+              type="button"
+              onClick={() =>
+                exportSavedPathways.mutate({
+                  layout: savedPathwaysLayout,
+                  pageSize: savedPathwaysPageSize,
+                  watermark: savedPathwaysWatermark,
+                  coverPage: savedPathwaysCoverPage,
+                  coverTemplate: savedPathwaysCoverTemplate,
+                  customLogoUrl: profile.data?.exportLogoUrl ?? undefined,
+                })
+              }
+              disabled={exportSavedPathways.isPending}
+              variant="outline"
+              size="sm"
+              className="text-[#8b5e14] transition hover:border-[#c9a34e] disabled:cursor-wait disabled:opacity-50"
+            >
+              {exportSavedPathways.isPending ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <Download size={14} />
+              )}{" "}
+              {exportSavedPathways.isPending ? "Preparing PDF…" : "Export PDF"}
+            </Button>
+            <Link
+              href="/courses"
+              className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.13em] text-[#8b5e14] transition-colors"
+            >
+              Explore catalog <ArrowUpRight size={14} />
+            </Link>
+          </div>
           {savedCourses.isLoading ? (
             <div
               className="mt-5 grid gap-3 md:grid-cols-2"
@@ -1427,7 +1469,7 @@ export default function UserDashboard() {
                             />
                           </span>
                         </Link>
-                        <button
+                        <Button
                           type="button"
                           onClick={() =>
                             unsaveCourse.mutate({
@@ -1436,11 +1478,13 @@ export default function UserDashboard() {
                             })
                           }
                           disabled={unsaveCourse.isPending}
-                          className="shrink-0 border border-[#16243d]/20 px-2 py-1 text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] hover:border-red-700 hover:text-red-700 disabled:opacity-50"
+                          variant="outline"
+                          size="sm"
+                          className="text-[#16243d] hover:border-red-700 hover:text-red-700 disabled:opacity-50"
                           aria-label={`Remove ${course?.title ?? saved.courseSlug} from saved pathways`}
                         >
                           Remove
-                        </button>
+                        </Button>
                       </div>
                     </article>
                   );
@@ -1454,17 +1498,19 @@ export default function UserDashboard() {
                     saved pathway{savedCourses.data.total === 1 ? "" : "s"}
                   </p>
                   <div className="flex gap-2">
-                    <button
+                    <Button
                       type="button"
                       onClick={() =>
                         setSavedCoursePage(page => Math.max(1, page - 1))
                       }
                       disabled={savedCoursePage === 1}
-                      className="border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-40"
+                      variant="outline"
+                      size="sm"
+                      className="disabled:opacity-40"
                     >
                       Previous
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
                       onClick={() =>
                         setSavedCoursePage(page =>
@@ -1475,10 +1521,12 @@ export default function UserDashboard() {
                         )
                       }
                       disabled={savedCoursePage >= savedCourses.data.pageCount}
-                      className="border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-40"
+                      variant="outline"
+                      size="sm"
+                      className="disabled:opacity-40"
                     >
                       Next
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
@@ -1601,47 +1649,15 @@ export default function UserDashboard() {
                 Retake course finder <ArrowUpRight size={13} />
               </Link>
             </div>
-            ) : null}
+          ) : null}
         </Section>
         <div
-          role="tablist"
-          aria-label="Dashboard sections"
-          className="mb-8 flex flex-wrap gap-2"
+          role="tabpanel"
+          id="dashboard-payments-panel"
+          aria-labelledby="dashboard-payments-tab"
+          tabIndex={0}
+          hidden={activeTab !== "payments"}
         >
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === "overview"}
-            onClick={() => {
-              setActiveTab("overview");
-              window.history.replaceState({}, "", "/dashboard");
-            }}
-            className={`rounded-lg border px-4 py-2.5 text-[10px] font-black uppercase tracking-[.12em] transition-all ${
-              activeTab === "overview"
-                ? "border-[#16243d] bg-[#16243d] text-[#f7f3e8] shadow-sm"
-                : "border-[#16243d]/20 hover:border-[#c9a34e] hover:bg-[#c9a34e]/5"
-            }`}
-          >
-            {"Overview"}
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === "payments"}
-            onClick={() => {
-              setActiveTab("payments");
-              window.history.replaceState({}, "", "/dashboard?tab=payments");
-            }}
-            className={`rounded-lg border px-4 py-2.5 text-[10px] font-black uppercase tracking-[.12em] transition-all ${
-              activeTab === "payments"
-                ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d] shadow-sm"
-                : "border-[#16243d]/20 hover:border-[#c9a34e] hover:bg-[#c9a34e]/5"
-            }`}
-          >
-            {"Payment history"}
-          </button>
-        </div>
-        {activeTab === "payments" && (
           <PaymentHistoryTab
             page={paymentHistory.data as PaymentHistoryPage | undefined}
             isLoading={paymentHistory.isLoading}
@@ -1653,57 +1669,14 @@ export default function UserDashboard() {
             onClearFilters={clearPaymentFilters}
             onPageChange={setPaymentPage}
           />
-        )}
-        <div className="border-b border-[#16243d]/20 pb-8">
-          <p className="eyebrow text-accent">
-            Private workspace / personal development
-          </p>
-          <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <h1 className="display text-5xl leading-none tracking-[-.04em] sm:text-6xl">
-              Your <em className="font-normal text-accent-on-dark">pathway</em>.
-            </h1>
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-[#c9a34e] animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#8b5e14]">
-                Active workspace
-              </span>
-            </div>
-          </div>
-          <div className="mt-6 max-w-2xl rounded-xl border-l-2 border-[#c9a34e] bg-white/55 p-5">
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
-                Progress summary
-              </span>
-              <span className="text-sm font-bold text-[#8b5e14]">
-                {displayHistory.length
-                  ? `${Math.round((paidVersions.length / Math.max(displayHistory.length, 1)) * 100)}% unlocked`
-                  : "Ready to begin"}
-              </span>
-            </div>
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#16243d]/10">
-              <div
-                role="progressbar"
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={displayHistory.length ? Math.min(100, Math.round((paidVersions.length / Math.max(displayHistory.length, 1)) * 100)) : 0}
-                className="h-full rounded-full bg-[#b8860b] transition-all"
-                style={{
-                  width: `${displayHistory.length ? Math.min(100, Math.round((paidVersions.length / Math.max(displayHistory.length, 1)) * 100)) : 0}%`,
-                }}
-              />
-            </div>
-            <p className="mt-3 text-xs text-[#16243d]">
-              {paidVersions.length} paid report
-              {paidVersions.length === 1 ? "" : "s"} available from{" "}
-              {displayHistory.length} assessment
-              {displayHistory.length === 1 ? "" : "s"}.
-            </p>
-          </div>
-          <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">
-            Review your Profound IQ assessment activity and return to any report
-            unlocked through verified payment.
-          </p>
         </div>
+        <div
+          role="tabpanel"
+          id="dashboard-overview-panel"
+          aria-labelledby="dashboard-overview-tab"
+          tabIndex={0}
+          hidden={activeTab !== "overview"}
+        >
         {history.isLoading && (
           <div className="mt-10 flex items-center gap-3 border-l-2 border-[#c9a34e] bg-white/50 px-5 py-4 text-sm">
             <RefreshCw size={16} className="animate-spin text-[#b8860b]" />{" "}
@@ -1783,7 +1756,7 @@ export default function UserDashboard() {
                         item => item.slug === record.enrollment.courseSlug
                       );
                       const rollup = summarizeCourseEnrollment({
-                        stages: record.stages,
+                        stages: record.stages ?? [],
                         lessonsCompleted: record.lessons?.length,
                         moduleCount: course?.modules.length,
                         stageAmountsKes: course?.stageAmountsKes,
@@ -1821,16 +1794,16 @@ export default function UserDashboard() {
                               {rollup.paidStages}/{rollup.totalStages} paid
                             </span>
                           </div>
-                           <div className="mt-5 h-2 overflow-hidden bg-[#16243d]/10">
-                             <div
-                               role="progressbar"
-                               aria-valuemin={0}
-                               aria-valuemax={100}
-                               aria-valuenow={Math.round(rollup.paymentPercent)}
-                               className="h-full bg-[#b8860b] transition-all"
-                               style={{ width: `${rollup.paymentPercent}%` }}
-                             />
-                           </div>
+                          <div className="mt-5 h-2 overflow-hidden bg-[#16243d]/10">
+                            <div
+                              role="progressbar"
+                              aria-valuemin={0}
+                              aria-valuemax={100}
+                              aria-valuenow={Math.round(rollup.paymentPercent)}
+                              className="h-full bg-[#b8860b] transition-all"
+                              style={{ width: `${rollup.paymentPercent}%` }}
+                            />
+                          </div>
                           <div className="mt-3 flex flex-wrap justify-between gap-2 text-xs text-[#16243d]">
                             <span>
                               KES {rollup.paidAmountKes.toLocaleString()} paid
@@ -2005,7 +1978,7 @@ export default function UserDashboard() {
                                 View profile{" "}
                                 <ArrowLeft size={13} className="rotate-180" />
                               </Link>
-                              <button
+                              <Button
                                 type="button"
                                 onClick={() =>
                                   resendPsychometricReport.mutate({
@@ -2013,13 +1986,15 @@ export default function UserDashboard() {
                                   })
                                 }
                                 disabled={resendPsychometricReport.isPending}
-                                className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-50"
+                                variant="outline"
+                                size="sm"
+                                className="disabled:opacity-50"
                               >
                                 <Mail size={13} />{" "}
                                 {resendPsychometricReport.isPending
                                   ? "Resending…"
                                   : "Resend report"}
-                              </button>
+                              </Button>
                             </>
                           ) : (
                             <Link
@@ -2202,16 +2177,16 @@ export default function UserDashboard() {
                                   {area.score}%
                                 </strong>
                               </div>
-                               <div className="mt-1 h-1.5 bg-[#16243d]/10">
-                                 <div
-                                   role="progressbar"
-                                   aria-valuemin={0}
-                                   aria-valuemax={100}
-                                   aria-valuenow={Math.round(area.score)}
-                                   className="h-full bg-[#8b4f63]"
-                                   style={{ width: `${area.score}%` }}
-                                 />
-                               </div>
+                              <div className="mt-1 h-1.5 bg-[#16243d]/10">
+                                <div
+                                  role="progressbar"
+                                  aria-valuemin={0}
+                                  aria-valuemax={100}
+                                  aria-valuenow={Math.round(area.score)}
+                                  className="h-full bg-[#8b4f63]"
+                                  style={{ width: `${area.score}%` }}
+                                />
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -2268,7 +2243,7 @@ export default function UserDashboard() {
                       item => item.slug === record.enrollment.courseSlug
                     );
                     const rollup = summarizeCourseEnrollment({
-                      stages: record.stages,
+                      stages: record.stages ?? [],
                       lessonsCompleted: record.lessons?.length,
                       moduleCount: course?.modules.length,
                       stageAmountsKes: course?.stageAmountsKes,
@@ -2286,7 +2261,7 @@ export default function UserDashboard() {
                       }))
                       .filter(item => item.attempt)
                       .slice(0, 4);
-                    const nextStage = record.stages.find(
+                    const nextStage = record.stages?.find(
                       stage => stage.paymentStatus !== "paid"
                     );
                     const milestone = nextStage
@@ -2405,17 +2380,19 @@ export default function UserDashboard() {
                               <ArrowLeft size={13} className="rotate-180" />
                             </Link>
                             {record.certificates?.[0]?.fileUrl && (
-                              <button
+                              <Button
                                 type="button"
                                 onClick={() => {
                                   setDeliveryEnrollmentId(record.enrollment.id);
                                   setCertificatePrintOpen(true);
                                 }}
-                                className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14] hover:border-[#c9a34e]"
+                                variant="outline"
+                                size="sm"
+                                className="text-[#8b5e14] hover:border-[#c9a34e]"
                                 aria-label={`Preview ${record.certificates[0].courseTitle} certificate for printing`}
                               >
                                 <Printer size={13} /> Print preview
-                              </button>
+                              </Button>
                             )}
                           </div>
                         </div>
@@ -2445,13 +2422,14 @@ export default function UserDashboard() {
                 <div className="min-w-48">
                   <div className="flex justify-between text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
                     <span>{profileCompletion}% complete</span>
-                    <button
+                    <Button
                       type="button"
                       onClick={() => setProfileModalOpen(true)}
-                      className="text-[#8b5e14] underline-offset-4 hover:underline"
+                      variant="link"
+                      size="sm"
                     >
                       Complete profile
-                    </button>
+                    </Button>
                   </div>
                   <div className="mt-2 h-2 bg-[#16243d]/10">
                     <div
@@ -2532,7 +2510,7 @@ export default function UserDashboard() {
                       </p>
                       {item.paymentStatus === "paid" && (
                         <div className="mt-4 flex flex-wrap gap-2">
-                          <button
+                          <Button
                             type="button"
                             onClick={event => {
                               event.preventDefault();
@@ -2540,7 +2518,9 @@ export default function UserDashboard() {
                               void handleDownload(item.id);
                             }}
                             disabled={downloadReport.isPending}
-                            className="inline-flex items-center gap-2 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14] hover:border-[#c9a34e] disabled:cursor-wait disabled:opacity-60"
+                            variant="outline"
+                            size="sm"
+                            className="text-[#8b5e14] hover:border-[#c9a34e] disabled:cursor-wait disabled:opacity-60"
                           >
                             {downloadReport.isPending ? (
                               <Loader2 size={13} className="animate-spin" />
@@ -2550,8 +2530,8 @@ export default function UserDashboard() {
                             {downloadReport.isPending
                               ? "Preparing…"
                               : "Export PDF"}
-                          </button>
-                          <button
+                          </Button>
+                          <Button
                             type="button"
                             onClick={event => {
                               event.preventDefault();
@@ -2559,13 +2539,15 @@ export default function UserDashboard() {
                               void shareResultByEmail(item.id);
                             }}
                             disabled={createShareLink.isPending}
-                            className="inline-flex items-center gap-2 border border-[#16243d]/20 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14] hover:border-[#c9a34e] disabled:cursor-wait disabled:opacity-60"
+                            variant="outline"
+                            size="sm"
+                            className="text-[#8b5e14] hover:border-[#c9a34e] disabled:cursor-wait disabled:opacity-60"
                           >
                             <Mail size={13} />{" "}
                             {createShareLink.isPending
                               ? "Preparing…"
                               : "Share by email"}
-                          </button>
+                          </Button>
                         </div>
                       )}
                     </Link>
@@ -2613,6 +2595,24 @@ export default function UserDashboard() {
                     className="animate-spin text-accent-on-dark"
                   />{" "}
                   Reading your assessment signals…
+                </div>
+              ) : recommendations.isError ? (
+                <div
+                  role="alert"
+                  className="mt-5 flex flex-wrap items-center justify-between gap-3 border border-red-800/20 bg-red-50 p-4 text-sm text-red-900"
+                >
+                  <span>
+                    Recommendations are temporarily unavailable. Please try
+                    again.
+                  </span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => void recommendations.refetch()}
+                  >
+                    Retry
+                  </Button>
                 </div>
               ) : recommendations.data?.recommendations?.length ? (
                 <div className="mt-6 grid gap-4 lg:grid-cols-3">
@@ -2677,60 +2677,6 @@ export default function UserDashboard() {
                 </div>
               )}
             </section>
-            <section className="mt-10 border border-[#c9a34e]/50 bg-[#16243d] p-5 text-[#f7f3e8] sm:p-6">
-              <p className="eyebrow text-accent">Recommended next step</p>
-              <h2 className="display mt-2 text-2xl">
-                A useful signal to explore.
-              </h2>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#c1cad7]">
-                Based on your profile setup and current workspace activity,
-                choose the pathway that best matches what you want to develop
-                next.
-              </p>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <Link
-                  href="/assessment"
-                  className="border border-[#c9a34e]/60 bg-[#f7f3e8] p-4 text-[#16243d] transition hover:shadow-sm"
-                >
-                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
-                    Recommended for you
-                  </p>
-                  <p className="mt-2 text-sm font-bold">
-                    Self Assessment refresh
-                  </p>
-                  <p className="mt-1 text-xs text-[#16243d]">
-                    Revisit your strengths and create a new paid report version.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      toast.info("Why this is recommended", {
-                        description: profile.data?.avatarUrl
-                          ? "Your profile is complete enough to support a focused refresh of your existing development signal."
-                          : "Completing your profile helps us keep this recommendation relevant to your development context.",
-                      })
-                    }
-                    className="mt-3 text-[10px] font-black uppercase tracking-[.1em] text-[#8b5e14] underline-offset-4 hover:underline"
-                  >
-                    View details
-                  </button>
-                </Link>
-                <Link
-                  href="/careerpath"
-                  className="border border-white/20 p-4 transition hover:shadow-sm"
-                >
-                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
-                    Explore next
-                  </p>
-                  <p className="mt-2 text-sm font-bold">
-                    CareerPath fit assessment
-                  </p>
-                  <p className="mt-1 text-xs text-[#c1cad7]">
-                    Translate your profile signals into pathway possibilities.
-                  </p>
-                </Link>
-              </div>
-            </section>
             <section className="mt-10 border border-[#c9a34e] bg-[#16243d] p-5 text-[#f7f3e8] sm:p-6">
               <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                 <div>
@@ -2775,7 +2721,7 @@ export default function UserDashboard() {
                         }}
                         className={`border px-3 py-2 text-left text-[10px] font-black uppercase tracking-[.1em] ${activeDelivery?.enrollment.id === record.enrollment.id ? "border-[#c9a34e] bg-[#c9a34e] text-[#16243d]" : "border-white/20 text-[#c1cad7] hover:border-[#c9a34e]"}`}
                       >
-                        {record.certificates[0]?.courseTitle ??
+                        {record.certificates?.[0]?.courseTitle ??
                           record.enrollment.courseSlug}
                       </button>
                     ))}
@@ -3136,10 +3082,7 @@ export default function UserDashboard() {
                         onChange={event =>
                           setAuditEventType(
                             event.target.value as
-                              | ""
-                              | "consented"
-                              | "created"
-                              | "revoked"
+                              "" | "consented" | "created" | "revoked"
                           )
                         }
                         className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-xs"
@@ -3377,7 +3320,11 @@ export default function UserDashboard() {
                 </div>
               )}
             </section>
-            <Section eyebrow="Self Assessment results history" title="Keep the signal moving." className="mt-12">
+            <Section
+              eyebrow="Self Assessment results history"
+              title="Keep the signal moving."
+              className="mt-12"
+            >
               {currentVersion && currentVersion.paymentStatus === "paid" && (
                 <div className="mt-6 grid gap-4 border border-[#c9a34e]/45 bg-[#fffaf0] p-5 sm:grid-cols-3">
                   <div>
@@ -3561,8 +3508,8 @@ export default function UserDashboard() {
                               Paid
                             </span>
                           ) : (
-<span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] text-[#8b5e14]">
-                            <span className="h-2 w-2 rounded-full bg-[#c9a34e]" />{" "}
+                            <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] text-[#8b5e14]">
+                              <span className="h-2 w-2 rounded-full bg-[#c9a34e]" />{" "}
                               Pending
                             </span>
                           )}
@@ -3658,13 +3605,10 @@ export default function UserDashboard() {
                     </article>
                   ))}
                 </div>
-            )}
-          </Section>
-          <div className="mt-10 flex items-start gap-3 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-sm leading-6 text-[#c1cad7]">
-              <ShieldCheck
-                size={18}
-                className="mt-0.5 shrink-0 text-accent"
-              />
+              )}
+            </Section>
+            <div className="mt-10 flex items-start gap-3 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-sm leading-6 text-[#c1cad7]">
+              <ShieldCheck size={18} className="mt-0.5 shrink-0 text-accent" />
               <p>
                 <strong className="text-[#f7f3e8]">Your privacy.</strong> This
                 dashboard is scoped to your authenticated account email. It does
@@ -3721,8 +3665,8 @@ export default function UserDashboard() {
                             {item.enrollment.courseSlug.replace(/-/g, " ")}
                           </h3>
                         </div>
-<span className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
-                  {paidStages}/4 stages paid
+                        <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
+                          {paidStages}/4 stages paid
                         </span>
                       </div>
                       <div className="mt-5 h-2 bg-[#16243d]/10">
@@ -3730,7 +3674,16 @@ export default function UserDashboard() {
                           role="progressbar"
                           aria-valuemin={0}
                           aria-valuemax={100}
-                          aria-valuenow={Math.round((item.lessons.length / 70) * 70 + (new Set(item.quizAttempts.filter(attempt => attempt.passed).map(attempt => attempt.moduleId)).size / 10) * 30)}
+                          aria-valuenow={Math.round(
+                            (item.lessons.length / 70) * 70 +
+                              (new Set(
+                                item.quizAttempts
+                                  .filter(attempt => attempt.passed)
+                                  .map(attempt => attempt.moduleId)
+                              ).size /
+                                10) *
+                                30
+                          )}
                           className="h-2 bg-[#b8860b]"
                           style={{
                             width: `${Math.round((item.lessons.length / 70) * 70 + (new Set(item.quizAttempts.filter(attempt => attempt.passed).map(attempt => attempt.moduleId)).size / 10) * 30)}%`,
@@ -3909,7 +3862,16 @@ export default function UserDashboard() {
               </div>
             ))}
         </section>
-        <Section eyebrow="Saved for later" title="My Bookmarks" actions={<div className="flex flex-wrap gap-2">{/* search and filter inputs */}</div>} className="border-t border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
+        <Section
+          eyebrow="Saved for later"
+          title="My Bookmarks"
+          actions={
+            <div className="flex flex-wrap gap-2">
+              {/* search and filter inputs */}
+            </div>
+          }
+          className="border-t border-[#16243d]/15 bg-white/55 p-5 sm:p-8"
+        >
           {filteredBookmarks.length ? (
             <>
               <div className="mt-5 grid gap-3">
@@ -3922,8 +3884,8 @@ export default function UserDashboard() {
                       {bookmark.kind === "simulation" ? "S" : "§"}
                     </div>
                     <div className="min-w-0 flex-1">
-<p className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
-                      {bookmark.course.title} ·{" "}
+                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14]">
+                        {bookmark.course.title} ·{" "}
                         {bookmark.kind === "simulation"
                           ? "Decision simulation"
                           : `Lesson section ${Number(bookmark.index) + 1}`}
@@ -3969,7 +3931,22 @@ export default function UserDashboard() {
             </p>
           )}
         </Section>
-        <Section eyebrow="Study archive" title="My Notes" description="Review lesson takeaways and generated summaries in one place." actions={<button type="button" onClick={exportAllNotes} disabled={!dashboardNotes.length} className="border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-50">Export Markdown</button>} className="border-t border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
+        <Section
+          eyebrow="Study archive"
+          title="My Notes"
+          description="Review lesson takeaways and generated summaries in one place."
+          actions={
+            <button
+              type="button"
+              onClick={exportAllNotes}
+              disabled={!dashboardNotes.length}
+              className="border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] disabled:opacity-50"
+            >
+              Export Markdown
+            </button>
+          }
+          className="border-t border-[#16243d]/15 bg-white/55 p-5 sm:p-8"
+        >
           {dashboardNotes.length ? (
             <>
               <div className="mt-5 space-y-4">
@@ -4013,11 +3990,15 @@ export default function UserDashboard() {
             <p className="mt-5 border border-dashed border-[#16243d]/15 p-5 text-sm leading-6 text-[#16243d]">
               Notes you save in a lesson player will be collected here.
             </p>
-            )}
-          </Section>
-        </main>
-        {achievements.data && (
-        <section className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-8">
+          )}
+        </Section>
+          </div>
+      </main>
+      {achievements.data && (
+        <section
+          hidden={activeTab !== "overview"}
+          className="mt-10 border border-[#16243d]/15 bg-white/55 p-5 sm:p-8"
+        >
           <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#16243d]/15 pb-5">
             <div>
               <p className="eyebrow text-accent">
@@ -4156,7 +4137,10 @@ export default function UserDashboard() {
           </div>
         </section>
       )}
-      <section className="mt-10 border border-[#16243d]/15 bg-[#16243d] p-5 text-[#f7f3e8] sm:p-8">
+      <section
+        hidden={activeTab !== "overview"}
+        className="mt-10 border border-[#16243d]/15 bg-[#16243d] p-5 text-[#f7f3e8] sm:p-8"
+      >
         <div className="flex flex-wrap items-start justify-between gap-5">
           <div>
             <p className="eyebrow text-[#d7b762]">Opt-in cohort motivation</p>
@@ -4199,9 +4183,9 @@ export default function UserDashboard() {
               }
               onChange={event => setLeaderboardName(event.target.value)}
               maxLength={80}
-               placeholder={profile.data?.name || "Learner"}
-               className="mt-2 w-full border border-white/20 bg-transparent px-3 py-2 text-sm text-white outline-none placeholder:text-[#aeb8c8] transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
-             />
+              placeholder={profile.data?.name || "Learner"}
+              className="mt-2 w-full border border-white/20 bg-transparent px-3 py-2 text-sm text-white outline-none placeholder:text-[#aeb8c8] transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
+            />
           </label>
         </div>
         {profile.data?.leaderboardOptIn && (
@@ -4334,17 +4318,19 @@ export default function UserDashboard() {
                 aria-label="Live cover page preview"
               >
                 <div className="mx-auto max-w-md">
-                   <img
-                     src={
-                       profile.data?.exportLogoUrl ??
-                       "/local-storage/ProfoundIQLogo-header.jpg"
-                     }
-                     alt=""
-                     className="mx-auto mb-3 h-12 max-w-28 object-contain"
-                     width={160}
-                     height={74}
-                   />
-                  <p className={`text-[9px] font-black uppercase tracking-[.18em] ${savedPathwaysCoverTemplate === "editorial" ? "text-[#8b5e14]" : "text-[#b8860b]"}`}>
+                  <img
+                    src={
+                      profile.data?.exportLogoUrl ??
+                      "/local-storage/ProfoundIQLogo-header.jpg"
+                    }
+                    alt=""
+                    className="mx-auto mb-3 h-12 max-w-28 object-contain"
+                    width={160}
+                    height={74}
+                  />
+                  <p
+                    className={`text-[9px] font-black uppercase tracking-[.18em] ${savedPathwaysCoverTemplate === "editorial" ? "text-[#8b5e14]" : "text-[#b8860b]"}`}
+                  >
                     PROFOUND IQ / CONSULTING
                   </p>
                   <p className="mt-3 font-serif text-2xl">
@@ -4413,9 +4399,7 @@ export default function UserDashboard() {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="eyebrow text-accent">
-                  Certificate print preview
-                </p>
+                <p className="eyebrow text-accent">Certificate print preview</p>
                 <h2
                   id="dashboard-certificate-print-title"
                   className="display mt-2 text-2xl sm:text-3xl"
@@ -4505,7 +4489,7 @@ export default function UserDashboard() {
             <div className="mt-6 space-y-3">
               {!profile.data?.name && (
                 <Link
-                  href="/settings"
+                  href="/dashboard/settings"
                   onClick={() => setProfileModalOpen(false)}
                   className="block border border-[#16243d]/15 bg-white/60 p-4 text-sm font-bold hover:border-[#c9a34e]"
                 >
@@ -4514,7 +4498,7 @@ export default function UserDashboard() {
               )}
               {!profile.data?.timezone && (
                 <Link
-                  href="/settings"
+                  href="/dashboard/settings"
                   onClick={() => setProfileModalOpen(false)}
                   className="block border border-[#16243d]/15 bg-white/60 p-4 text-sm font-bold hover:border-[#c9a34e]"
                 >
@@ -4523,7 +4507,7 @@ export default function UserDashboard() {
               )}
               {!profile.data?.avatarUrl && (
                 <Link
-                  href="/settings"
+                  href="/dashboard/settings"
                   onClick={() => setProfileModalOpen(false)}
                   className="block border border-[#16243d]/15 bg-white/60 p-4 text-sm font-bold hover:border-[#c9a34e]"
                 >
@@ -4532,7 +4516,7 @@ export default function UserDashboard() {
               )}
               {!profile.data?.notificationPreferences && (
                 <Link
-                  href="/settings"
+                  href="/dashboard/settings"
                   onClick={() => setProfileModalOpen(false)}
                   className="block border border-[#16243d]/15 bg-white/60 p-4 text-sm font-bold hover:border-[#c9a34e]"
                 >
@@ -4549,42 +4533,6 @@ export default function UserDashboard() {
           </div>
         </div>
       )}
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2">
-        <Link
-          href="/settings#payment-history"
-          className="inline-flex items-center gap-2 border border-[#16243d]/20 bg-[#f7f3e8] px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] shadow-lg transition hover:border-[#c9a34e]"
-          title={"View enrollments and staged payments"}
-        >
-          <CreditCard size={14} className="text-[#b8860b]" />{" "}
-          {"Payment history"}
-        </Link>
-        <div
-          className={`max-w-xs border border-[#c9a34e] bg-[#fffaf0] p-3 text-xs leading-5 text-[#16243d] shadow-lg transition ${showAssessmentHint ? "opacity-100" : "pointer-events-none translate-y-2 opacity-0"}`}
-          role="status"
-        >
-          Start a fresh self-assessment whenever you want to explore a new
-          development signal.
-          <button
-            type="button"
-            onClick={() => {
-              setShowAssessmentHint(false);
-              window.localStorage.setItem(
-                "piq-new-assessment-hint-dismissed",
-                "true"
-              );
-            }}
-            className="ml-2 font-black uppercase tracking-[.08em] text-[#8b5e14]"
-          >
-            Dismiss
-          </button>
-        </div>
-        <Link
-          href="/assessment"
-          className="inline-flex items-center gap-2 rounded-full bg-[#c9a34e] px-5 py-4 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] shadow-xl transition hover:shadow-sm hover:bg-[#d7b762] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#16243d] focus-visible:ring-offset-2"
-        >
-          <span className="text-lg leading-none">+</span> New self-assessment
-        </Link>
-      </div>
     </DashboardLayout>
   );
 }
@@ -4615,7 +4563,6 @@ function PaymentHistoryTab({
   onClearFilters,
   onPageChange,
 }: PaymentHistoryTabProps) {
-  
   const courseOptions = useMemo(
     () => courseCatalog.map(course => course.slug).sort(),
     []
@@ -4624,9 +4571,7 @@ function PaymentHistoryTab({
   const pageCount = page?.pageCount ?? 1;
   const courseLabel = (slug: string) => {
     const course = courseCatalog.find(item => item.slug === slug);
-    return course
-      ? course.title
-      : slug;
+    return course ? course.title : slug;
   };
   const statusLabel = (status: string) =>
     status === "paid"
@@ -4651,20 +4596,22 @@ function PaymentHistoryTab({
     >
       <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 lg:flex-row lg:items-start">
         <div>
-          <p className="eyebrow text-accent">
-            {"Payment history"}
-          </p>
-          <h2 className="display mt-2 text-3xl">{"Course enrollment status"}</h2>
+          <p className="eyebrow text-accent">{"Billing"}</p>
+          <h2 className="display mt-2 text-3xl">
+            {"Course payment history"}
+          </h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
-            {"Review your active courses and the staged payments attached to each enrollment."}
+            {
+              "Review the payment records associated with your course enrollments."
+            }
           </p>
         </div>
         <Link
-          href="/settings#payment-history"
+          href="/dashboard/settings#payment-history"
           className="inline-flex h-fit items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] hover:border-[#c9a34e]"
         >
           <CreditCard size={14} className="text-[#b8860b]" />{" "}
-          {"Payment history"}
+          {"Enrollment overview"}
         </Link>
       </div>
       {!hasEnrollments && !isLoading && !isError ? (
@@ -4952,7 +4899,3 @@ function AccessState() {
     </div>
   );
 }
-
-
-
-

@@ -506,29 +506,29 @@ export function AdminCertificatePreview() {
 
   return (
     <section
-      className="border border-[#c9a34e]/70 bg-[#fffaf0] p-5 text-[#16243d] shadow-sm sm:p-6"
+      className="border border-[var(--brand)]/70 bg-[#fffaf0] p-5 text-[var(--fg)] shadow-sm sm:p-6"
       aria-labelledby="admin-certificate-preview-title"
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="eyebrow text-[#b8860b]">Quality control</p>
+          <p className="eyebrow text-[var(--brand)]">Quality control</p>
           <h2
             id="admin-certificate-preview-title"
             className="display mt-2 text-3xl"
           >
             Certificate preview & settings
           </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#4a566a]">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--fg-muted)]">
             Move, hide, restore, or edit supported fields. Changes apply to
             future certificate generations after saving.
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs font-bold text-[#b8860b]">
+        <div className="flex items-center gap-2 text-xs font-bold text-[var(--brand)]">
           <Eye size={16} /> Sample data only
         </div>
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-2 border border-[#16243d]/15 bg-white p-3">
-        <span className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
+        <span className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--brand)]">
           Design versions
         </span>
         <button
@@ -543,13 +543,13 @@ export function AdminCertificatePreview() {
             key={snapshot.id}
             type="button"
             onClick={() => restoreSnapshot(snapshot)}
-            className="border border-[#16243d]/20 px-3 py-2 text-[10px] text-[#4a566a]"
+            className="border border-[#16243d]/20 px-3 py-2 text-[10px] text-[var(--fg-muted)]"
           >
             <span className="flex items-center gap-2">
               <img
                 src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(snapshot.svg)}`}
                 alt="Saved certificate layout thumbnail"
-                className="h-10 w-16 border border-[#c9a34e]/50 bg-white object-cover"
+                className="h-10 w-16 border border-[var(--brand)]/50 bg-white object-cover"
               />
               <span>
                 <strong className="block text-left">Restore snapshot</strong>
@@ -562,21 +562,21 @@ export function AdminCertificatePreview() {
         ))}
       </div>
       <div className="mt-5 grid gap-4 md:grid-cols-2">
-        <label className="block text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]">
+        <label className="block text-[10px] font-black uppercase tracking-[.14em] text-[var(--brand)]">
           Trainer name
           <input
             value={trainerName}
             onChange={event => setTrainerName(event.target.value)}
-            className="mt-2 block w-full border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal tracking-normal outline-none focus:border-[#c9a34e]"
+            className="mt-2 block w-full border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal tracking-normal outline-none focus:border-[var(--brand)]"
             maxLength={160}
           />
         </label>
-        <label className="block text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]">
+        <label className="block text-[10px] font-black uppercase tracking-[.14em] text-[var(--brand)]">
           Trainer title
           <input
             value={trainerTitle}
             onChange={event => setTrainerTitle(event.target.value)}
-            className="mt-2 block w-full border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal tracking-normal outline-none focus:border-[#c9a34e]"
+            className="mt-2 block w-full border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal tracking-normal outline-none focus:border-[var(--brand)]"
             maxLength={160}
           />
         </label>
@@ -600,7 +600,7 @@ export function AdminCertificatePreview() {
             className="flex items-center gap-2 border border-[#16243d]/15 bg-white p-2"
           >
             <div
-              className="relative flex h-20 w-28 touch-none items-center justify-center overflow-hidden border border-dashed border-[#c9a34e] bg-[#f7f3e8]"
+              className="relative flex h-20 w-28 touch-none items-center justify-center overflow-hidden border border-dashed border-[var(--brand)] bg-[#f7f3e8]"
               onPointerDown={event => {
                 setSelectedField(`custom:${name}`);
                 beginAssetPointer(event, `custom:${name}`, "move");
@@ -619,7 +619,7 @@ export function AdminCertificatePreview() {
               <button
                 type="button"
                 aria-label={`Resize custom asset ${name}`}
-                className="absolute bottom-0 right-0 h-4 w-4 cursor-nwse-resize bg-[#c9a34e]"
+                className="absolute bottom-0 right-0 h-4 w-4 cursor-nwse-resize bg-[var(--brand)]"
                 onPointerDown={event => {
                   event.stopPropagation();
                   setSelectedField(`custom:${name}`);
@@ -630,7 +630,7 @@ export function AdminCertificatePreview() {
                 onPointerCancel={endAssetPointer}
               />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-[.08em] text-[#475569]">
+            <span className="text-[10px] font-black uppercase tracking-[.08em] text-[var(--fg-muted)]">
               Drag / resize
             </span>
           </div>
@@ -647,7 +647,7 @@ export function AdminCertificatePreview() {
             }}
           />
         </label>
-        <span className="text-xs text-[#475569]">
+        <span className="text-xs text-[var(--fg-muted)]">
           {signatureDataUri
             ? "A signature image is ready to save."
             : "Using the default signature until you save a replacement."}
@@ -680,7 +680,7 @@ export function AdminCertificatePreview() {
       </div>
       <div className="mt-5 grid gap-4 lg:grid-cols-[210px_1fr]">
         <div className="border border-[#16243d]/15 bg-white p-3">
-          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)]">
             Certificate fields
           </p>
           <div className="mt-3 space-y-2">
@@ -691,10 +691,10 @@ export function AdminCertificatePreview() {
                 draggable
                 onDragStart={() => setSelectedField(field)}
                 onClick={() => setSelectedField(field)}
-                className={`flex w-full items-center justify-between border px-3 py-2 text-left text-xs ${selectedField === field ? "border-[#c9a34e] bg-[#fff5cf]" : "border-[#16243d]/10 bg-[#f7f3e8]"}`}
+                className={`flex w-full items-center justify-between border px-3 py-2 text-left text-xs ${selectedField === field ? "border-[var(--brand)] bg-[#fff5cf]" : "border-[#16243d]/10 bg-[#f7f3e8]"}`}
               >
                 <span>{fieldLabels[field]}</span>
-                <span className="text-[10px] text-[#475569]">
+                <span className="text-[10px] text-[var(--fg-muted)]">
                   {fieldLayout[field]?.visible === false ? "Hidden" : "Visible"}
                 </span>
               </button>
@@ -704,7 +704,7 @@ export function AdminCertificatePreview() {
         <div className="border border-[#16243d]/15 bg-[#f7f3e8] p-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)]">
                 Edit selected field
               </p>
               <h3 className="mt-1 text-lg font-bold">
@@ -745,7 +745,7 @@ export function AdminCertificatePreview() {
             </div>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
               Horizontal position
               <input
                 type="range"
@@ -755,13 +755,13 @@ export function AdminCertificatePreview() {
                 onChange={event =>
                   updateField({ x: Number(event.target.value), visible: true })
                 }
-                className="mt-2 w-full accent-[#c9a34e]"
+                className="mt-2 w-full accent-[var(--brand)]"
               />
-              <span className="text-xs font-bold text-[#16243d]">
+              <span className="text-xs font-bold text-[var(--fg)]">
                 {selected.x ?? 0}
               </span>
             </label>
-            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+            <label className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
               Vertical position
               <input
                 type="range"
@@ -771,9 +771,9 @@ export function AdminCertificatePreview() {
                 onChange={event =>
                   updateField({ y: Number(event.target.value), visible: true })
                 }
-                className="mt-2 w-full accent-[#c9a34e]"
+                className="mt-2 w-full accent-[var(--brand)]"
               />
-              <span className="text-xs font-bold text-[#16243d]">
+              <span className="text-xs font-bold text-[var(--fg)]">
                 {selected.y ?? 0}
               </span>
             </label>
@@ -795,7 +795,7 @@ export function AdminCertificatePreview() {
             "logo",
             "signature",
           ].includes(selectedField) && (
-            <label className="mt-3 block text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+            <label className="mt-3 block text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
               Custom display text
               <input
                 value={selected.text ?? ""}
@@ -809,12 +809,12 @@ export function AdminCertificatePreview() {
         </div>
       </div>
       <div className="mt-5 grid gap-4 md:grid-cols-2">
-        <label className="block text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]">
+        <label className="block text-[10px] font-black uppercase tracking-[.14em] text-[var(--brand)]">
           Course title
           <select
             value={courseTitle}
             onChange={event => setCourseTitle(event.target.value)}
-            className="mt-2 block w-full border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal tracking-normal outline-none focus:border-[#c9a34e] sm:max-w-md"
+            className="mt-2 block w-full border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal tracking-normal outline-none focus:border-[var(--brand)] sm:max-w-md"
           >
             {courseCatalog.slice(0, 30).map(course => (
               <option key={course.slug} value={course.title}>
@@ -823,22 +823,22 @@ export function AdminCertificatePreview() {
             ))}
           </select>
         </label>
-        <label className="block text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]">
+        <label className="block text-[10px] font-black uppercase tracking-[.14em] text-[var(--brand)]">
           Print paper size
           <select
             value={pageSize}
             onChange={event =>
               setPageSize(event.target.value as "a4" | "letter")
             }
-            className="mt-2 block w-full border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal tracking-normal outline-none focus:border-[#c9a34e]"
+            className="mt-2 block w-full border border-[#16243d]/20 bg-white px-3 py-3 text-sm font-normal tracking-normal outline-none focus:border-[var(--brand)]"
           >
             <option value="a4">A4 · landscape</option>
             <option value="letter">Letter · landscape</option>
           </select>
         </label>
       </div>
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border border-[#c9a34e]/50 bg-[#fffaf0] px-3 py-2 text-xs">
-        <span className="font-black uppercase tracking-[.1em] text-[#b8860b]">
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border border-[var(--brand)]/50 bg-[#fffaf0] px-3 py-2 text-xs">
+        <span className="font-black uppercase tracking-[.1em] text-[var(--brand)]">
           Artifact equality hash
         </span>
         <span
@@ -850,7 +850,7 @@ export function AdminCertificatePreview() {
               : "Mismatch"
             : "Checking…"}
         </span>
-        <span className="break-all font-mono text-[10px] text-[#4a566a]">
+        <span className="break-all font-mono text-[10px] text-[var(--fg-muted)]">
           {previewHash || "Calculating…"}
         </span>
       </div>
@@ -864,7 +864,7 @@ export function AdminCertificatePreview() {
       </div>
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <div className="inline-flex items-center gap-1 border border-[#16243d]/20 bg-white px-2 py-1">
-          <span className="px-2 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+          <span className="px-2 text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
             Preview {Math.round(zoom * 100)}%
           </span>
           <button
@@ -915,7 +915,7 @@ export function AdminCertificatePreview() {
             type="button"
             disabled={!liveSvgData || downloading}
             onClick={() => void downloadPng()}
-            className="inline-flex items-center gap-2 bg-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] disabled:opacity-50"
+            className="inline-flex items-center gap-2 bg-[var(--brand)] px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand-fg)] disabled:opacity-50"
           >
             <ImageDown size={14} />{" "}
             {downloading ? "Rendering PNG…" : "Download PNG"}
@@ -947,17 +947,17 @@ export function AdminCertificatePreview() {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <BarChart3 size={15} className="text-[#b8860b]" />
-              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+              <BarChart3 size={15} className="text-[var(--brand)]" />
+              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)]">
                 Certificate usage observatory
               </p>
             </div>
-            <p className="mt-2 text-xs leading-5 text-[#475569]">
+            <p className="mt-2 text-xs leading-5 text-[var(--fg-muted)]">
               Filter verified learner activity by UTC date range.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <label className="text-[9px] font-black uppercase tracking-[.1em] text-[#475569]">
+            <label className="text-[9px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
               From
               <input
                 type="date"
@@ -966,7 +966,7 @@ export function AdminCertificatePreview() {
                 className="ml-1 border border-[#16243d]/20 px-2 py-1 text-xs font-normal tracking-normal"
               />
             </label>
-            <label className="text-[9px] font-black uppercase tracking-[.1em] text-[#475569]">
+            <label className="text-[9px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
               To
               <input
                 type="date"
@@ -1006,8 +1006,8 @@ export function AdminCertificatePreview() {
           </div>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <div className="border-t-2 border-[#c9a34e] bg-[#fffaf0] p-3">
-            <p className="text-[9px] font-black uppercase tracking-[.1em] text-[#b8860b]">
+          <div className="border-t-2 border-[var(--brand)] bg-[#fffaf0] p-3">
+            <p className="text-[9px] font-black uppercase tracking-[.1em] text-[var(--brand)]">
               Downloads in range
             </p>
             <p className="mt-2 text-3xl font-bold">
@@ -1015,7 +1015,7 @@ export function AdminCertificatePreview() {
             </p>
           </div>
           <div className="border-t-2 border-[#16243d]/30 bg-[#f7f3e8] p-3">
-            <p className="text-[9px] font-black uppercase tracking-[.1em] text-[#b8860b]">
+            <p className="text-[9px] font-black uppercase tracking-[.1em] text-[var(--brand)]">
               Shares in range
             </p>
             <p className="mt-2 text-3xl font-bold">
@@ -1025,7 +1025,7 @@ export function AdminCertificatePreview() {
         </div>
         <div className="mt-5 grid gap-5 lg:grid-cols-2">
           <div>
-            <p className="text-[9px] font-black uppercase tracking-[.12em] text-[#475569]">
+            <p className="text-[9px] font-black uppercase tracking-[.12em] text-[var(--fg-muted)]">
               Downloads by platform
             </p>
             {platformDownloads.length ? (
@@ -1060,20 +1060,20 @@ export function AdminCertificatePreview() {
                     <Bar
                       dataKey="count"
                       name="Downloads"
-                      fill="#c9a34e"
+                      fill="var(--brand)"
                       radius={[0, 2, 2, 0]}
                     />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             ) : (
-              <p className="mt-3 border border-dashed border-[#16243d]/20 p-4 text-xs text-[#475569]">
+              <p className="mt-3 border border-dashed border-[#16243d]/20 p-4 text-xs text-[var(--fg-muted)]">
                 No certificate downloads in this range.
               </p>
             )}
           </div>
           <div>
-            <p className="text-[9px] font-black uppercase tracking-[.12em] text-[#475569]">
+            <p className="text-[9px] font-black uppercase tracking-[.12em] text-[var(--fg-muted)]">
               Daily download trend
             </p>
             {dailyDownloads.length ? (
@@ -1103,30 +1103,30 @@ export function AdminCertificatePreview() {
                       name="Downloads"
                       stroke="#16243d"
                       strokeWidth={3}
-                      dot={{ r: 3, fill: "#c9a34e" }}
+                      dot={{ r: 3, fill: "var(--brand)" }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
             ) : (
-              <p className="mt-3 border border-dashed border-[#16243d]/20 p-4 text-xs text-[#475569]">
+              <p className="mt-3 border border-dashed border-[#16243d]/20 p-4 text-xs text-[var(--fg-muted)]">
                 No daily download activity in this range.
               </p>
             )}
           </div>
         </div>
-        <div className="mt-5 border-t border-[#c9a34e]/50 pt-4">
+        <div className="mt-5 border-t border-[var(--brand)]/50 pt-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-[9px] font-black uppercase tracking-[.12em] text-[#b8860b]">
+              <p className="text-[9px] font-black uppercase tracking-[.12em] text-[var(--brand)]">
                 Public verification shares
               </p>
-              <p className="mt-1 text-xs text-[#475569]">
+              <p className="mt-1 text-xs text-[var(--fg-muted)]">
                 Native and platform shares recorded from public certificate
                 verification pages.
               </p>
             </div>
-            <span className="text-2xl font-bold text-[#16243d]">
+            <span className="text-2xl font-bold text-[var(--fg)]">
               {publicShares.data?.total ?? 0}
             </span>
           </div>
@@ -1135,14 +1135,14 @@ export function AdminCertificatePreview() {
               {publicShares.data.byPlatform.map(item => (
                 <span
                   key={item.platform}
-                  className="border border-[#16243d]/15 bg-[#fffaf0] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#4a566a]"
+                  className="border border-[#16243d]/15 bg-[#fffaf0] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]"
                 >
                   {item.platform}: {item.count}
                 </span>
               ))}
             </div>
           ) : (
-            <p className="mt-3 border border-dashed border-[#16243d]/20 p-3 text-xs text-[#475569]">
+            <p className="mt-3 border border-dashed border-[#16243d]/20 p-3 text-xs text-[var(--fg-muted)]">
               No public verification shares in this range.
             </p>
           )}
@@ -1151,5 +1151,3 @@ export function AdminCertificatePreview() {
     </section>
   );
 }
-
-

@@ -60,11 +60,7 @@ import { clsx } from "clsx";
 import DashboardLayout from "@/components/DashboardLayout";
 import { DashboardPagination } from "@/components/DashboardPagination";
 import { Button } from "@/components/ui/button";
-import {
-  DashboardHero,
-  Section,
-  StatCard,
-} from "@/components/dashboard";
+import { DashboardHero, Section, StatCard } from "@/components/dashboard";
 import "@/components/dashboard/admin-observatory.css";
 import { buildFunnelComparison } from "@shared/adminAnalytics";
 import { renderEmailTemplate } from "@shared/emailTemplate";
@@ -76,23 +72,56 @@ import { toast } from "sonner";
 const AdminInquiryPanel = lazy(() => import("@/components/AdminInquiryPanel"));
 const AdminRevenuePanel = lazy(() => import("@/components/AdminRevenuePanel"));
 const AdminStaffPanel = lazy(() => import("@/components/AdminStaffPanel"));
-const AdminSystemSettings = lazy(() => import("@/components/AdminSystemSettings"));
-const AdminCourseDeliveryPanel = lazy(() => import("@/components/AdminCourseDeliveryPanel"));
-const AdminCourseChronologyPanel = lazy(() => import("@/components/AdminCourseChronologyPanel"));
+const AdminSystemSettings = lazy(
+  () => import("@/components/AdminSystemSettings")
+);
+const AdminCourseDeliveryPanel = lazy(
+  () => import("@/components/AdminCourseDeliveryPanel")
+);
+const AdminCourseChronologyPanel = lazy(
+  () => import("@/components/AdminCourseChronologyPanel")
+);
 const AdminReportsPanel = lazy(() => import("@/components/AdminReportsPanel"));
-const AdminPaymentExceptionsPanel = lazy(() => import("@/components/AdminPaymentExceptionsPanel"));
-const AdminNewsletterPanel = lazy(() => import("@/components/AdminNewsletterPanel"));
-const AdminInsightsPanel = lazy(() => import("@/components/AdminInsightsPanel"));
-const AdminCommunicationPanel = lazy(() => import("@/components/AdminCommunicationPanel"));
-const AdminCourseAccessAudit = lazy(() => import("@/components/AdminCourseAccessAudit").then(module => ({ default: module.AdminCourseAccessAudit })));
-const AdminCertificatePreview = lazy(() => import("@/components/AdminCertificatePreview").then(module => ({ default: module.AdminCertificatePreview })));
-const AdminRecentQCCertificates = lazy(() => import("@/components/AdminRecentQCCertificates").then(module => ({ default: module.AdminRecentQCCertificates })));
-const AdminCourseShareAnalytics = lazy(() => import("@/components/AdminCourseShareAnalytics"));
-const AdminResourcesPanel = lazy(() => import("@/components/AdminResourcesPanel"));
+const AdminPaymentExceptionsPanel = lazy(
+  () => import("@/components/AdminPaymentExceptionsPanel")
+);
+const AdminNewsletterPanel = lazy(
+  () => import("@/components/AdminNewsletterPanel")
+);
+const AdminInsightsPanel = lazy(
+  () => import("@/components/AdminInsightsPanel")
+);
+const AdminCommunicationPanel = lazy(
+  () => import("@/components/AdminCommunicationPanel")
+);
+const AdminCourseAccessAudit = lazy(() =>
+  import("@/components/AdminCourseAccessAudit").then(module => ({
+    default: module.AdminCourseAccessAudit,
+  }))
+);
+const AdminCertificatePreview = lazy(() =>
+  import("@/components/AdminCertificatePreview").then(module => ({
+    default: module.AdminCertificatePreview,
+  }))
+);
+const AdminRecentQCCertificates = lazy(() =>
+  import("@/components/AdminRecentQCCertificates").then(module => ({
+    default: module.AdminRecentQCCertificates,
+  }))
+);
+const AdminCourseShareAnalytics = lazy(
+  () => import("@/components/AdminCourseShareAnalytics")
+);
+const AdminResourcesPanel = lazy(
+  () => import("@/components/AdminResourcesPanel")
+);
 const AdminSurveysPanel = lazy(() => import("@/components/AdminSurveysPanel"));
-const AdminAssessmentPanel = lazy(() => import("@/components/AdminAssessmentPanel"));
-const AdminCareerPathPanel = lazy(() => import("@/components/AdminCareerPathPanel"));
-
+const AdminAssessmentPanel = lazy(
+  () => import("@/components/AdminAssessmentPanel")
+);
+const AdminCareerPathPanel = lazy(
+  () => import("@/components/AdminCareerPathPanel")
+);
 
 function statusLabel(status: string) {
   return status === "paid" ? "Paid" : "Pending";
@@ -128,7 +157,7 @@ function isValidAdminTab(tab: string): boolean {
 function PanelLoader() {
   return (
     <div className="flex items-center justify-center py-12">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#16243d] border-t-[#c9a34e]" />
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#16243d] border-t-[var(--brand)]" />
     </div>
   );
 }
@@ -167,7 +196,7 @@ interface AdminDashboardProps {
 }
 
 const adminTabTitles: Record<string, string> = {
-  overview: "Reports",
+  overview: "Overview",
   operations: "Operations",
   revenue: "Revenue",
   intelligence: "Intelligence",
@@ -186,9 +215,46 @@ const adminTabTitles: Record<string, string> = {
   careerPath: "CareerPath",
 };
 
-export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDashboardProps = {}) {
-  
+const adminTabDescriptions: Record<string, string> = {
+  overview:
+    "Monitor assessment activity, payments, report usage, and incoming inquiries.",
+  operations:
+    "Review course delivery, access, and operational exceptions across the platform.",
+  revenue:
+    "Track payment activity, enrollment conversions, and outstanding payment issues.",
+  intelligence:
+    "Explore platform-wide trends and signals that inform administrative decisions.",
+  psychometrics:
+    "Review psychometric assessment activity, completion, and report delivery.",
+  inquiries:
+    "Triage contact requests, assign follow-up, and track each inquiry through resolution.",
+  staff:
+    "Manage staff access and review assigned operational work.",
+  communications:
+    "Manage message templates and review communication delivery activity.",
+  surveys:
+    "Manage survey settings and review submitted feedback.",
+  security:
+    "Review account security events and current access controls.",
+  organization:
+    "Manage organization-level settings and platform relationships.",
+  learning:
+    "Oversee course access, learner progress, and learning delivery.",
+  resources:
+    "Manage learning resources and the content available to learners.",
+  courses:
+    "Manage course details, delivery, and learner access.",
+  assessment:
+    "Review self-assessment activity and report availability.",
+  careerPath:
+    "Review career-path content and learner progress.",
+};
 
+export default function AdminDashboard({
+  defaultTab,
+  hideTabs,
+  title,
+}: AdminDashboardProps = {}) {
   const { user, loading: authLoading } = useAuth();
 
   const [activeTab, setActiveTab] = useState<string>(() => {
@@ -1258,8 +1324,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
   if (authLoading)
     return (
-      <div className="grid min-h-screen place-items-center bg-[#f7f3e8] text-[#16243d]">
-        <RefreshCw className="animate-spin text-[#b8860b]" />
+      <div className="grid min-h-screen place-items-center bg-[#f7f3e8] text-[var(--fg)]">
+        <RefreshCw className="animate-spin text-[var(--brand)]" />
       </div>
     );
 
@@ -1281,25 +1347,31 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
   const initialLoading = overview.isLoading;
 
-  const resolvedTitle = title || adminTabTitles[activeTab] || "Admin Observatory";
+  const resolvedTitle =
+    title || adminTabTitles[activeTab] || "Admin Observatory";
 
   return (
     <DashboardLayout role="admin" title={resolvedTitle}>
       <div id="admin-observatory" className="admin-observatory w-full">
         <DashboardHero
-          eyebrow={activeTab === "overview" ? "Assessment intelligence" : activeTab}
-          title={resolvedTitle}
-          description={
-            activeTab === "overview"
-              ? "Download branded reports for every area of the platform."
-              : `${resolvedTitle} workspace.`
+          eyebrow={
+            activeTab === "overview" ? "Admin overview" : "Admin workspace"
           }
+          title={resolvedTitle}
+          description={adminTabDescriptions[activeTab] ?? ""}
           badge={{ label: "Admin only", variant: "secondary" }}
         />
         {initialLoading && (
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Loading admin data" role="status">
+          <div
+            className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+            aria-label="Loading admin data"
+            role="status"
+          >
             {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="h-32 animate-pulse rounded-xl border border-[#16243d]/10 bg-[#f7f3e8]" />
+              <div
+                key={index}
+                className="h-32 animate-pulse rounded-xl border border-[#16243d]/10 bg-[#f7f3e8]"
+              />
             ))}
           </div>
         )}
@@ -1312,7 +1384,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
             >
               <TabButton
                 tab="overview"
-                label="Reports"
+                label="Overview"
                 icon={<BarChart3 size={14} />}
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
@@ -1439,7 +1511,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
               />
             </div>
             <div className="mt-4 flex flex-wrap items-center gap-3 border-b border-[#16243d]/10 pb-4">
-              <span className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
+              <span className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg-muted)]">
                 Quick actions
               </span>
               <QuickActionButton
@@ -1476,7 +1548,10 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 <AdminSurveysPanel />
               </Suspense>
               <div className="mt-4">
-                <Link href="/surveys" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
+                <Link
+                  href="/surveys"
+                  className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)] underline-offset-4 hover:underline hover:text-[var(--brand-hover)]"
+                >
                   View public surveys <ArrowUpRight size={13} />
                 </Link>
               </div>
@@ -1489,7 +1564,10 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 <AdminResourcesPanel />
               </Suspense>
               <div className="mt-4">
-                <Link href="/resources" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
+                <Link
+                  href="/resources"
+                  className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)] underline-offset-4 hover:underline hover:text-[var(--brand-hover)]"
+                >
                   View public resources <ArrowUpRight size={13} />
                 </Link>
               </div>
@@ -1502,7 +1580,10 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 <AdminReportsPanel />
               </Suspense>
               <div className="mt-4">
-                <Link href="/admin/overview" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
+                <Link
+                  href="/admin/overview"
+                  className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)] underline-offset-4 hover:underline hover:text-[var(--brand-hover)]"
+                >
                   View reports <ArrowUpRight size={13} />
                 </Link>
               </div>
@@ -1511,19 +1592,23 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
           {activeTab === "revenue" && (
             <>
-               <div id="revenue" className="scroll-mt-8">
-                 <Section
-                   eyebrow="Revenue overview"
-                   title="Money in motion."
-                   description={
-                     <span>
-                       Track assessment payments, completed transactions, and outstanding balances.
-                       <Link href="/admin/revenue" className="ml-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
-                         View revenue <ArrowUpRight size={13} />
-                       </Link>
-                     </span>
-                   }
-                 >
+              <div id="revenue" className="scroll-mt-8">
+                <Section
+                  eyebrow="Revenue overview"
+                  title="Money in motion."
+                  description={
+                    <span>
+                      Track assessment payments, completed transactions, and
+                      outstanding balances.
+                      <Link
+                        href="/admin/revenue"
+                        className="ml-2 text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)] underline-offset-4 hover:underline hover:text-[var(--brand-hover)]"
+                      >
+                        View revenue <ArrowUpRight size={13} />
+                      </Link>
+                    </span>
+                  }
+                >
                   <div className="grid gap-6 lg:grid-cols-3">
                     <div className="exec-surface p-5">
                       <p className="exec-label-gold">Payments</p>
@@ -1562,8 +1647,12 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 title="Insights that move the needle."
                 description={
                   <span>
-                    Aggregated analytics, conversion benchmarks, and trend analysis across all assessment and enrollment journeys.
-                    <Link href="/admin/overview" className="ml-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
+                    Aggregated analytics, conversion benchmarks, and trend
+                    analysis across all assessment and enrollment journeys.
+                    <Link
+                      href="/admin/overview"
+                      className="ml-2 text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)] underline-offset-4 hover:underline hover:text-[var(--brand-hover)]"
+                    >
                       View reports <ArrowUpRight size={13} />
                     </Link>
                   </span>
@@ -1575,7 +1664,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                     <p className="mt-2 text-3xl font-bold">
                       {analytics.data?.summary?.assessment_started ?? 0}
                     </p>
-                    <p className="mt-1 text-xs text-[#16243d]">
+                    <p className="mt-1 text-xs text-[var(--fg)]">
                       Total in selected range
                     </p>
                   </div>
@@ -1584,7 +1673,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                     <p className="mt-2 text-3xl font-bold">
                       {analytics.data?.summary?.payment_completed ?? 0}
                     </p>
-                    <p className="mt-1 text-xs text-[#16243d]">
+                    <p className="mt-1 text-xs text-[var(--fg)]">
                       Verified conversions
                     </p>
                   </div>
@@ -1602,7 +1691,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         : 0}
                       %
                     </p>
-                    <p className="mt-1 text-xs text-[#16243d]">
+                    <p className="mt-1 text-xs text-[var(--fg)]">
                       Start-to-payment
                     </p>
                   </div>
@@ -1617,11 +1706,11 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
               >
                 <div className="mt-5 h-72">
                   {analytics.isLoading ? (
-                    <div className="grid h-full place-items-center text-sm text-[#16243d]">
+                    <div className="grid h-full place-items-center text-sm text-[var(--fg)]">
                       Loading intelligence…
                     </div>
                   ) : (analytics.data?.weekly ?? []).length === 0 ? (
-                    <div className="grid h-full place-items-center text-sm text-[#16243d]">
+                    <div className="grid h-full place-items-center text-sm text-[var(--fg)]">
                       No trend data in this range.
                     </div>
                   ) : (
@@ -1653,17 +1742,17 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                           type="monotone"
                           dataKey="assessment_started"
                           name="Starts"
-                          stroke="#c9a34e"
+                          stroke="var(--brand)"
                           strokeWidth={2.5}
-                          dot={{ r: 3, fill: "#c9a34e" }}
+                          dot={{ r: 3, fill: "var(--brand)" }}
                         />
                         <Line
                           type="monotone"
                           dataKey="payment_completed"
                           name="Paid"
-                          stroke="#7d5e1e"
+                          stroke="var(--brand)"
                           strokeWidth={2}
-                          dot={{ r: 3, fill: "#7d5e1e" }}
+                          dot={{ r: 3, fill: "var(--brand)" }}
                         />
                       </LineChart>
                     </ResponsiveContainer>
@@ -1688,7 +1777,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       key={platform.key}
                       className="border border-[#16243d]/10 bg-white p-4 text-center"
                     >
-                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
+                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg-muted)]">
                         {platform.label}
                       </p>
                       <p className="mt-1 text-2xl font-bold">
@@ -1726,7 +1815,10 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 </div>
               </div>
               <div className="mt-4">
-                <Link href="/admin/staff" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
+                <Link
+                  href="/admin/staff"
+                  className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)] underline-offset-4 hover:underline hover:text-[var(--brand-hover)]"
+                >
                   Manage staff <ArrowUpRight size={13} />
                 </Link>
               </div>
@@ -1748,7 +1840,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 >
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <div className="border border-[#16243d]/10 bg-white p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
+                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg-muted)]">
                         Export retention
                       </p>
                       <p className="mt-1 text-lg font-bold">
@@ -1756,7 +1848,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       </p>
                     </div>
                     <div className="border border-[#16243d]/10 bg-white p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
+                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg-muted)]">
                         Last export
                       </p>
                       <p className="mt-1 text-sm font-bold">
@@ -1768,7 +1860,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       </p>
                     </div>
                     <div className="border border-[#16243d]/10 bg-white p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
+                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg-muted)]">
                         Report runs
                       </p>
                       <p className="mt-1 text-lg font-bold">
@@ -1776,7 +1868,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       </p>
                     </div>
                     <div className="border border-[#16243d]/10 bg-white p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#475569]">
+                      <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg-muted)]">
                         Status
                       </p>
                       <p className="mt-1 text-sm font-bold text-emerald-800">
@@ -1812,7 +1904,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                           : "Failed"}
                     </p>
                     {emailConnection.data?.error ? (
-                      <p className="mt-1 text-xs text-[#ef4444]">
+                      <p className="mt-1 text-xs text-[var(--danger)]">
                         {emailConnection.data.error}
                       </p>
                     ) : null}
@@ -1864,7 +1956,10 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 <AdminRecentQCCertificates />
               </Suspense>
               <div className="mt-4">
-                <Link href="/admin/learning" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14] underline-offset-4 hover:underline hover:text-[#6b4410]">
+                <Link
+                  href="/admin/learning"
+                  className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)] underline-offset-4 hover:underline hover:text-[#6b4410]"
+                >
                   Learning overview <ArrowUpRight size={13} />
                 </Link>
               </div>
@@ -1879,7 +1974,10 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 </Suspense>
               </div>
               <div className="mt-4">
-                <Link href="/admin/learning" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14] underline-offset-4 hover:underline hover:text-[#6b4410]">
+                <Link
+                  href="/admin/learning"
+                  className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)] underline-offset-4 hover:underline hover:text-[#6b4410]"
+                >
                   Learning overview <ArrowUpRight size={13} />
                 </Link>
               </div>
@@ -1917,7 +2015,10 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 <AdminInsightsPanel />
               </Suspense>
               <div className="mt-4">
-                <Link href="/admin/communications" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#8b5e14] underline-offset-4 hover:underline hover:text-[#6b4410]">
+                <Link
+                  href="/admin/communications"
+                  className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)] underline-offset-4 hover:underline hover:text-[#6b4410]"
+                >
                   Communications <ArrowUpRight size={13} />
                 </Link>
               </div>
@@ -1932,34 +2033,38 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
               >
                 <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                   <div>
-                    <p className="eyebrow text-[#b8860b]">
+                    <p className="eyebrow text-[var(--brand)]">
                       Psychometric suite / conversion intelligence
                     </p>
                     <h2 className="display mt-2 text-2xl">
                       From start to delivered report.
                     </h2>
-                    <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
+                    <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--fg)]">
                       Track real attempts, verified payments, and report-email
                       outcomes by profile and selected date range.
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <input
-                      type="date"
-                      value={psychometricFrom}
-                      onChange={event =>
-                        setPsychometricFrom(event.target.value)
-                      }
-                      aria-label="Psychometric analytics start date"
-                      className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm"
-                    />
-                    <input
-                      type="date"
-                      value={psychometricTo}
-                      onChange={event => setPsychometricTo(event.target.value)}
-                      aria-label="Psychometric analytics end date"
-                      className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm"
-                    />
+<input
+                    id="psychometric-from"
+                    name="psychometric-from"
+                    type="date"
+                    value={psychometricFrom}
+                    onChange={event =>
+                      setPsychometricFrom(event.target.value)
+                    }
+                    aria-label="Psychometric analytics start date"
+                    className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm"
+                  />
+                  <input
+                    id="psychometric-to"
+                    name="psychometric-to"
+                    type="date"
+                    value={psychometricTo}
+                    onChange={event => setPsychometricTo(event.target.value)}
+                    aria-label="Psychometric analytics end date"
+                    className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm"
+                  />
                     <button
                       type="button"
                       onClick={() => downloadPsychometricAnalytics("csv")}
@@ -2009,7 +2114,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   </div>
                 )}
                 {psychometricAnalytics.isLoading ? (
-                  <p className="mt-5 text-sm text-[#16243d]">
+                  <p className="mt-5 text-sm text-[var(--fg)]">
                     Loading psychometric analytics…
                   </p>
                 ) : (
@@ -2057,7 +2162,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                                 </div>
                                 <div className="mt-1 h-2 bg-[#16243d]/10">
                                   <div
-                                    className="h-full bg-[#c9a34e]"
+                                    className="h-full bg-[var(--brand)]"
                                     style={{
                                       width: `${profile.conversionRate}%`,
                                     }}
@@ -2067,7 +2172,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                             )
                           )}
                           {!psychometricAnalytics.data?.byProfile?.length && (
-                            <p className="text-sm text-[#16243d]">
+                            <p className="text-sm text-[var(--fg)]">
                               No psychometric attempts in this range.
                             </p>
                           )}
@@ -2083,7 +2188,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                                 key={point.date}
                                 className="grid grid-cols-[75px_1fr] items-center gap-3 text-xs"
                               >
-                                <span className="text-[#16243d]">
+                                <span className="text-[var(--fg)]">
                                   {point.date.slice(5)}
                                 </span>
                                 <div className="flex h-5 overflow-hidden bg-[#16243d]/10">
@@ -2095,7 +2200,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                                     title={`${point.paid} paid of ${point.started} starts`}
                                   />
                                   <div
-                                    className="bg-[#c9a34e]"
+                                    className="bg-[var(--brand)]"
                                     style={{
                                       width: `${point.started ? Math.max(0, ((point.sent - point.paid) / point.started) * 100) : 0}%`,
                                     }}
@@ -2104,7 +2209,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                               </div>
                             ))}
                           {!psychometricAnalytics.data?.trend?.length && (
-                            <p className="text-sm text-[#16243d]">
+                            <p className="text-sm text-[var(--fg)]">
                               Trend data will appear after attempts are
                               recorded.
                             </p>
@@ -2116,21 +2221,21 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 )}
               </section>
 
-              <section className="mt-10 border border-[#c9a34e]/60 bg-white p-5 sm:p-6">
+              <section className="mt-10 border border-[var(--brand)]/60 bg-white p-5 sm:p-6">
                 <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                   <div>
-                    <p className="eyebrow text-[#b8860b]">
+                    <p className="eyebrow text-[var(--brand)]">
                       Psychometric suite / operations
                     </p>
                     <h2 className="display mt-2 text-2xl">
                       Profile attempts and delivery.
                     </h2>
-                    <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
+                    <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--fg)]">
                       Review payment state, report readiness, and email delivery
                       without exposing raw responses or report payloads.
                     </p>
                   </div>
-                  <span className="text-xs font-bold text-[#b8860b]">
+                  <span className="text-xs font-bold text-[var(--brand)]">
                     {psychometricAttempts.data?.length ?? 0} shown
                   </span>
                 </div>
@@ -2150,6 +2255,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                     <option value="pending">Pending</option>
                   </select>
                   <input
+                    id="psychometric-attempts-from"
+                    name="psychometric-attempts-from"
                     type="date"
                     value={psychometricFrom}
                     onChange={event => setPsychometricFrom(event.target.value)}
@@ -2157,6 +2264,8 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                     className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm"
                   />
                   <input
+                    id="psychometric-attempts-to"
+                    name="psychometric-attempts-to"
                     type="date"
                     value={psychometricTo}
                     onChange={event => setPsychometricTo(event.target.value)}
@@ -2165,7 +2274,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   />
                 </div>
                 {psychometricAttempts.isLoading ? (
-                  <p className="mt-5 text-sm text-[#16243d]">
+                  <p className="mt-5 text-sm text-[var(--fg)]">
                     Loading psychometric attempts…
                   </p>
                 ) : psychometricAttempts.isError ? (
@@ -2175,7 +2284,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 ) : psychometricAttempts.data?.length ? (
                   <div className="mt-5 overflow-x-auto">
                     <table className="w-full min-w-[760px] text-left text-sm">
-                      <thead className="border-b border-[#16243d]/15 text-[10px] uppercase tracking-[.12em] text-[#16243d]">
+                      <thead className="border-b border-[#16243d]/15 text-[10px] uppercase tracking-[.12em] text-[var(--fg)]">
                         <tr>
                           <th className="py-3">Participant</th>
                           <th className="py-3">Profile</th>
@@ -2196,11 +2305,13 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                             >
                               <td className="py-3">
                                 <strong>{attempt.name}</strong>
-                                <span className="block text-xs text-[#16243d]">
+                                <span className="block text-xs text-[var(--fg)]">
                                   {attempt.email}
                                 </span>
                               </td>
-                              <td className="py-3 text-xs">{attempt.testSlug}</td>
+                              <td className="py-3 text-xs">
+                                {attempt.testSlug}
+                              </td>
                               <td className="py-3 text-xs">
                                 {reference ? (
                                   <button
@@ -2218,8 +2329,10 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                                             const blob = new Blob([bytes], {
                                               type: result.contentType,
                                             });
-                                            const url = URL.createObjectURL(blob);
-                                            const anchor = document.createElement("a");
+                                            const url =
+                                              URL.createObjectURL(blob);
+                                            const anchor =
+                                              document.createElement("a");
                                             anchor.href = url;
                                             anchor.download = result.filename;
                                             document.body.appendChild(anchor);
@@ -2231,7 +2344,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                                       )
                                     }
                                     disabled={psychometricDownload.isPending}
-                                    className="text-[#7d5e1e] underline underline-offset-4 hover:text-[#5c4513] disabled:opacity-50"
+                                    className="text-[var(--brand)] underline underline-offset-4 hover:text-[#5c4513] disabled:opacity-50"
                                   >
                                     {reference}
                                   </button>
@@ -2239,48 +2352,48 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                                   "—"
                                 )}
                               </td>
-                            <td className="py-3">
-                              <span
-                                className={
-                                  attempt.paymentStatus === "paid"
-                                    ? "font-bold text-emerald-800"
-                                    : "font-bold text-[#8b4f63]"
-                                }
-                              >
-                                {attempt.paymentStatus}
-                              </span>
-                            </td>
-                            <td className="py-3">
-                              {attempt.overallScore ?? "—"}
-                              {attempt.overallScore !== null ? "/100" : ""}
-                            </td>
-                            <td className="py-3 text-xs">
-                              {attempt.reportEmailStatus ?? "pending"}
-                            </td>
-                            <td className="py-3 text-xs text-[#16243d]">
-                              {new Date(attempt.createdAt).toLocaleString()}
-                            </td>
-                          </tr>
+                              <td className="py-3">
+                                <span
+                                  className={
+                                    attempt.paymentStatus === "paid"
+                                      ? "font-bold text-emerald-800"
+                                      : "font-bold text-[#8b4f63]"
+                                  }
+                                >
+                                  {attempt.paymentStatus}
+                                </span>
+                              </td>
+                              <td className="py-3">
+                                {attempt.overallScore ?? "—"}
+                                {attempt.overallScore !== null ? "/100" : ""}
+                              </td>
+                              <td className="py-3 text-xs">
+                                {attempt.reportEmailStatus ?? "pending"}
+                              </td>
+                              <td className="py-3 text-xs text-[var(--fg)]">
+                                {new Date(attempt.createdAt).toLocaleString()}
+                              </td>
+                            </tr>
                           );
                         })}
                       </tbody>
                     </table>
                   </div>
                 ) : (
-                  <p className="mt-5 border border-dashed border-[#16243d]/20 bg-white/60 p-5 text-sm text-[#16243d]">
+                  <p className="mt-5 border border-dashed border-[#16243d]/20 bg-white/60 p-5 text-sm text-[var(--fg)]">
                     No psychometric attempts match the current filters.
                   </p>
                 )}
               </section>
 
-              <section className="mt-10 border border-[#c9a34e]/60 bg-white p-5 sm:p-6">
+              <section className="mt-10 border border-[var(--brand)]/60 bg-white p-5 sm:p-6">
                 <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
                   <div>
-                    <p className="eyebrow text-[#b8860b]">Weekly delivery</p>
+                    <p className="eyebrow text-[var(--brand)]">Weekly delivery</p>
                     <h2 className="display mt-2 text-2xl">
                       Keep the signal moving.
                     </h2>
-                    <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
+                    <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--fg)]">
                       Email the branded psychometric analytics PDF to verified
                       administrators every Monday at 09:00 UTC.
                     </p>
@@ -2367,10 +2480,10 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 <div className="mt-6 border-t border-[#16243d]/10 pt-5">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
+                      <p className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--brand)]">
                         Failure acknowledgement
                       </p>
-                      <p className="mt-1 text-xs text-[#16243d]">
+                      <p className="mt-1 text-xs text-[var(--fg)]">
                         Record which administrator has taken ownership of a
                         failed delivery.
                       </p>
@@ -2426,7 +2539,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                     {!(failedPsychometricDeliveries.data ?? []).some(
                       item => !item.deliveryAcknowledgedAt
                     ) && (
-                      <p className="text-sm text-[#16243d]">
+                      <p className="text-sm text-[var(--fg)]">
                         No open delivery failures require acknowledgement.
                       </p>
                     )}
@@ -2454,20 +2567,23 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 </div>
               </div>
               <div className="mt-4">
-                <Link href="/admin/inquiries" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
+                <Link
+                  href="/admin/inbox"
+                  className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)] underline-offset-4 hover:underline hover:text-[var(--brand-hover)]"
+                >
                   View inquiries <ArrowUpRight size={13} />
                 </Link>
               </div>
               <section className="mt-8 border border-[#16243d]/15 bg-white p-5 sm:p-6">
                 <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                   <div>
-                    <p className="eyebrow text-[#b8860b]">
+                    <p className="eyebrow text-[var(--brand)]">
                       Acknowledgement audit
                     </p>
                     <h3 className="display mt-2 text-xl">
                       Operational notes, preserved.
                     </h3>
-                    <p className="mt-1 text-xs text-[#16243d]">
+                    <p className="mt-1 text-xs text-[var(--fg)]">
                       Recent administrator actions on failed report deliveries.
                     </p>
                   </div>
@@ -2487,20 +2603,20 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       <div key={entry.id} className="exec-surface p-3">
                         <div className="flex flex-wrap justify-between gap-2 text-xs">
                           <strong>{entry.actorName}</strong>
-                          <span className="text-[#16243d]">
+                          <span className="text-[var(--fg)]">
                             {new Date(entry.createdAt).toLocaleString()}
                           </span>
                         </div>
-                        <p className="mt-1 text-sm text-[#16243d]">
+                        <p className="mt-1 text-sm text-[var(--fg)]">
                           {entry.note}
                         </p>
-                        <p className="mt-1 text-[10px] uppercase tracking-[.08em] text-[#16243d]">
+                        <p className="mt-1 text-[10px] uppercase tracking-[.08em] text-[var(--fg)]">
                           Attempt #{entry.attemptId}
                         </p>
                       </div>
                     ))}
                   {!psychometricAcknowledgementAudit.data?.length && (
-                    <p className="text-sm text-[#16243d]">
+                    <p className="text-sm text-[var(--fg)]">
                       No acknowledgement actions have been recorded yet.
                     </p>
                   )}
@@ -2522,8 +2638,12 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 title="Keep the platform running."
                 description={
                   <span>
-                    Monitor scheduled exports, delivery log jobs, and automated analytics pipelines.
-                    <Link href="/admin/operations" className="ml-2 text-[10px] font-black uppercase tracking-[.12em] text-[#b8860b] underline-offset-4 hover:underline hover:text-[#976a1b]">
+                    Monitor scheduled exports, delivery log jobs, and automated
+                    analytics pipelines.
+                    <Link
+                      href="/admin/operations"
+                      className="ml-2 text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand)] underline-offset-4 hover:underline hover:text-[var(--brand-hover)]"
+                    >
                       Operations <ArrowUpRight size={13} />
                     </Link>
                   </span>
@@ -2537,7 +2657,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         ? "Active"
                         : "Inactive"}
                     </p>
-                    <p className="mt-1 text-xs text-[#16243d]">
+                    <p className="mt-1 text-xs text-[var(--fg)]">
                       {scheduleStatus.data?.config?.scheduleTaskUid
                         ? `Last run: ${
                             scheduleStatus.data.config.lastRunAt
@@ -2554,7 +2674,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                     <p className="mt-2 text-2xl font-bold">
                       {deliveryLogExportJobs.data?.length ?? 0}
                     </p>
-                    <p className="mt-1 text-xs text-[#16243d]">
+                    <p className="mt-1 text-xs text-[var(--fg)]">
                       {(deliveryLogExportJobs.data?.length ?? 0) > 0
                         ? `${
                             deliveryLogExportJobs.data?.filter(
@@ -2569,7 +2689,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                     <p className="mt-2 text-2xl font-bold">
                       {analytics.data?.summary?.assessment_started ?? 0}
                     </p>
-                    <p className="mt-1 text-xs text-[#16243d]">
+                    <p className="mt-1 text-xs text-[var(--fg)]">
                       Assessment starts in selected range
                     </p>
                   </div>
@@ -2609,7 +2729,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 {analyticsSettings.data && (
                   <div className="mt-8 exec-surface p-4">
                     <p className="exec-label-gold">Saved benchmarks</p>
-                    <p className="mt-1 text-xs text-[#16243d]">
+                    <p className="mt-1 text-xs text-[var(--fg)]">
                       Target conversion rate:{" "}
                       {analyticsSettings.data.paidBenchmark ?? "-"}%
                     </p>
@@ -2634,7 +2754,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                           <p className="text-sm font-bold">
                             {job.fileKey ?? job.fileUrl ?? "Export file"}
                           </p>
-                          <p className="mt-1 text-xs text-[#16243d]">
+                          <p className="mt-1 text-xs text-[var(--fg)]">
                             Created {new Date(job.createdAt).toLocaleString()}
                           </p>
                         </div>
@@ -2643,7 +2763,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                             job.status === "completed"
                               ? "text-emerald-800"
                               : job.status === "running"
-                                ? "text-[#b8860b]"
+                                ? "text-[var(--brand)]"
                                 : "text-red-800"
                           }`}
                         >
@@ -2652,7 +2772,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                               job.status === "completed"
                                 ? "bg-emerald-600"
                                 : job.status === "running"
-                                  ? "bg-[#c9a34e]"
+                                  ? "bg-[var(--brand)]"
                                   : "bg-red-600"
                             }`}
                           />
@@ -2662,7 +2782,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                     ))}
                   </div>
                 ) : (
-                  <p className="mt-5 text-sm text-[#16243d]">
+                  <p className="mt-5 text-sm text-[var(--fg)]">
                     No delivery log export jobs yet.
                   </p>
                 )}
@@ -2676,9 +2796,9 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 id="security"
                 className="mt-10 scroll-mt-8 border border-[#16243d]/15 bg-[#16243d] p-5 text-[#f7f3e8] sm:p-7"
               >
-                <div className="flex flex-col justify-between gap-4 border-b border-[#c9a34e]/35 pb-5 sm:flex-row sm:items-end">
+                <div className="flex flex-col justify-between gap-4 border-b border-[var(--brand)]/35 pb-5 sm:flex-row sm:items-end">
                   <div>
-                    <p className="eyebrow text-[#b8860b]">
+                    <p className="eyebrow text-[var(--brand)]">
                       Security observatory
                     </p>
 
@@ -2695,7 +2815,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
                   <div className="flex items-center gap-3">
                     <div
-                      className="inline-flex border border-[#c9a34e]/60 p-1"
+                      className="inline-flex border border-[var(--brand)]/60 p-1"
                       role="group"
                       aria-label="Chart granularity"
                     >
@@ -2703,7 +2823,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         type="button"
                         onClick={() => setLoginGranularity("daily")}
                         aria-pressed={loginGranularity === "daily"}
-                        className={`px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] ${loginGranularity === "daily" ? "bg-[#c9a34e] text-[#101d35]" : "text-[#c1cad7]"}`}
+                        className={`px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] ${loginGranularity === "daily" ? "bg-[var(--brand)] text-[#101d35]" : "text-[#c1cad7]"}`}
                       >
                         Daily
                       </button>
@@ -2712,14 +2832,14 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         type="button"
                         onClick={() => setLoginGranularity("weekly")}
                         aria-pressed={loginGranularity === "weekly"}
-                        className={`px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] ${loginGranularity === "weekly" ? "bg-[#c9a34e] text-[#101d35]" : "text-[#c1cad7]"}`}
+                        className={`px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] ${loginGranularity === "weekly" ? "bg-[var(--brand)] text-[#101d35]" : "text-[#c1cad7]"}`}
                       >
                         Weekly
                       </button>
                     </div>
 
                     <ShieldCheck
-                      className="hidden text-[#b8860b] sm:block"
+                      className="hidden text-[var(--brand)] sm:block"
                       size={24}
                     />
                   </div>
@@ -2729,7 +2849,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   <div className="border border-[#c1cad7]/15 bg-[#101d35]/70 p-4 sm:p-5">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]">
+                        <p className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--brand)]">
                           Access outcomes
                         </p>
 
@@ -2740,7 +2860,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       </div>
 
                       <div className="flex gap-3 text-[10px] font-black uppercase tracking-[.1em]">
-                        <span className="text-[#b8860b]">Success</span>
+                        <span className="text-[var(--brand)]">Success</span>
 
                         <span className="text-red-300">Blocked</span>
                       </div>
@@ -2796,9 +2916,9 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                               type="monotone"
                               dataKey="success"
                               name="Success"
-                              stroke="#c9a34e"
+                              stroke="var(--brand)"
                               strokeWidth={2.5}
-                              dot={{ r: 3, fill: "#c9a34e" }}
+dot={{ r: 3, fill: "var(--brand)" }}
                             />
 
                             <Line
@@ -2826,7 +2946,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
                   <div className="border border-[#c1cad7]/15 bg-[#101d35]/70 p-4 sm:p-5">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]">
+                      <p className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--brand)]">
                         Device classifications
                       </p>
 
@@ -2886,7 +3006,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                               dataKey="desktop"
                               name="Desktop"
                               stackId="devices"
-                              fill="#c9a34e"
+                              fill="var(--brand)"
                             />
 
                             <Bar
@@ -2916,7 +3036,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
                     <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-[10px] font-black uppercase tracking-[.1em] text-[#c1cad7]">
                       <span>
-                        <i className="mr-1 inline-block h-2 w-2 bg-[#c9a34e]" />
+                        <i className="mr-1 inline-block h-2 w-2 bg-[var(--brand)]" />
                         Desktop
                       </span>
 
@@ -2949,32 +3069,34 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       Events in view
                     </p>
 
-                    <p className="mt-1 text-2xl font-bold text-[#b8860b]">
+                    <p className="mt-1 text-2xl font-bold text-[var(--brand)]">
                       {failedLoginEvents.data?.total ?? 0}
                     </p>
                   </div>
                 }
                 className="mt-8 bg-[#16243d] text-[#f7f3e8]"
               >
-                <div className="mt-5 border border-[#a27e2e]/30 bg-[#f7f3e8] p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]">
+                <div className="mt-5 border border-[var(--brand)]/30 bg-[#f7f3e8] p-4">
+                  <p className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--brand)]">
                     Manual reset
                   </p>
 
-                  <p className="mt-1 text-xs leading-5 text-[#16243d]">
+                  <p className="mt-1 text-xs leading-5 text-[var(--fg)]">
                     Generate a single-use reset link for an administrator when
                     email delivery is unavailable. The link expires in 10
                     minutes.
                   </p>
 
                   <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-                    <input
-                      type="email"
-                      value={adminResetEmail || user?.email || ""}
-                      onChange={event => setAdminResetEmail(event.target.value)}
-                      placeholder="Administrator email"
-                      className="min-w-0 flex-1 border border-[#16243d]/20 bg-white px-3 py-2 text-sm text-[#16243d]"
-                    />
+<input
+                    id="admin-reset-email"
+                    name="admin-reset-email"
+                    type="email"
+                    value={adminResetEmail || user?.email || ""}
+                    onChange={event => setAdminResetEmail(event.target.value)}
+                    placeholder="Administrator email"
+                    className="min-w-0 flex-1 border border-[#16243d]/20 bg-white px-3 py-2 text-sm text-[var(--fg)]"
+                  />
                     <button
                       type="button"
                       disabled={generateAdminResetLink.isPending}
@@ -2994,7 +3116,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   </div>
 
                   {adminResetLink && (
-                    <div className="mt-3 border-l-2 border-[#a27e2e] bg-white p-3 text-xs text-[#16243d]">
+                    <div className="mt-3 border-l-2 border-[var(--brand)] bg-white p-3 text-xs text-[var(--fg)]">
                       <div className="break-all">
                         <strong>One-time link:</strong> {adminResetLink}
                       </div>
@@ -3022,7 +3144,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         >
                           Revoke link
                         </button>
-                        <span className="text-[11px] text-[#16243d]">
+                        <span className="text-[11px] text-[var(--fg)]">
                           {adminResetRemaining > 0
                             ? `Expires in ${Math.floor(adminResetRemaining / 60)}:${String(adminResetRemaining % 60).padStart(2, "0")}`
                             : "Expired — generate a new link."}
@@ -3033,7 +3155,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 </div>
 
                 <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto]">
-                  <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
+                  <label className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg)]">
                     From
                     <DateField
                       label="From"
@@ -3042,7 +3164,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                     />
                   </label>
 
-                  <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
+                  <label className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg)]">
                     To
                     <DateField
                       label="To"
@@ -3051,7 +3173,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                     />
                   </label>
 
-                  <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
+                  <label className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg)]">
                     IP search
                     <input
                       value={securityIpSearch}
@@ -3061,11 +3183,11 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       }}
                       placeholder="Search IP"
                       aria-label="Search failed logins by IP"
-                      className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm text-[#16243d] outline-none focus:border-[#c9a34e]"
+                      className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm text-[var(--fg)] outline-none focus:border-[var(--brand)]"
                     />
                   </label>
 
-                  <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
+                  <label className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg)]">
                     Location
                     <input
                       value={securityLocationSearch}
@@ -3075,7 +3197,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       }}
                       placeholder="Search location"
                       aria-label="Search failed logins by location"
-                      className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm text-[#16243d] outline-none focus:border-[#c9a34e]"
+                      className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-2 text-sm text-[var(--fg)] outline-none focus:border-[var(--brand)]"
                     />
                   </label>
 
@@ -3083,7 +3205,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                     type="button"
                     onClick={handleExportSecurityLogs}
                     disabled={exportSecurityLogs.isFetching}
-                    className="inline-flex items-center justify-center gap-2 border border-[#16243d]/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] disabled:opacity-60"
+                    className="inline-flex items-center justify-center gap-2 border border-[#16243d]/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg)] disabled:opacity-60"
                   >
                     {exportSecurityLogs.isFetching ? (
                       <RefreshCw size={13} className="animate-spin" />
@@ -3105,11 +3227,11 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
                 <div className="mt-8 border border-[#16243d]/10 bg-[#f7f3e8] p-4">
                   <div className="flex items-center justify-between">
-                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
+                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg)]">
                       Security settings
                     </p>
 
-                    <span className="text-xs font-bold text-[#16243d]">
+                    <span className="text-xs font-bold text-[var(--fg)]">
                       {failedLoginEvents.data?.total ?? 0} events
                     </span>
                   </div>
@@ -3117,7 +3239,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   {securitySettings.data && (
                     <div className="mt-4 grid gap-4 sm:grid-cols-2">
                       <div>
-                        <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
+                        <label className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--fg)]">
                           Alert threshold (failed logins)
                         </label>
                         <input
@@ -3128,12 +3250,12 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                           onChange={event =>
                             setAlertThreshold(Number(event.target.value))
                           }
-                          className="mt-2 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm text-[#16243d]"
+                          className="mt-2 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm text-[var(--fg)]"
                         />
                       </div>
 
                       <div>
-                        <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
+                        <label className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--fg)]">
                           Review window (days)
                         </label>
                         <input
@@ -3144,7 +3266,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                           onChange={event =>
                             setReviewWindowDays(Number(event.target.value))
                           }
-                          className="mt-2 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm text-[#16243d]"
+                          className="mt-2 w-full border border-[#16243d]/20 bg-white px-3 py-2 text-sm text-[var(--fg)]"
                         />
                       </div>
                     </div>
@@ -3165,7 +3287,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         })
                       }
                       disabled={saveSecuritySettings.isPending}
-                      className="inline-flex items-center gap-2 border border-[#16243d]/25 px-4 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[#16243d] disabled:opacity-60"
+                      className="inline-flex items-center gap-2 border border-[#16243d]/25 px-4 py-2 text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg)] disabled:opacity-60"
                     >
                       {saveSecuritySettings.isPending ? (
                         <RefreshCw size={12} className="animate-spin" />
@@ -3191,11 +3313,11 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
           {activeTab === "organization" && (
             <>
               <div className="mb-6">
-                <p className="eyebrow text-[#b8860b]">Organization</p>
+                <p className="eyebrow text-[var(--brand)]">Organization</p>
                 <h2 className="display mt-2 text-4xl">
                   Team and access management.
                 </h2>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-[#16243d]">
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--fg)]">
                   Review organization invitations, approval workflows, and team
                   structure.
                 </p>
@@ -3233,7 +3355,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
               >
                 <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                   <div>
-                    <p className="eyebrow flex items-center gap-2 text-[#b8860b]">
+                    <p className="eyebrow flex items-center gap-2 text-[var(--brand)]">
                       <BarChart3 size={13} /> Platform signals
                     </p>
 
@@ -3241,7 +3363,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       Momentum, at a glance.
                     </h2>
 
-                    <p className="mt-2 text-sm text-[#16243d]">
+                    <p className="mt-2 text-sm text-[var(--fg)]">
                       Tracked events across the assessment and enrollment
                       journeys.
                     </p>
@@ -3289,17 +3411,17 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                             tick={{ fontSize: 10 }}
                           />
 
-                            <Tooltip
-                              contentStyle={{
-                                background: "var(--popover)",
-                                border: "1px solid var(--popover-foreground)",
-                                color: "var(--popover-foreground)",
-                              }}
-                            />
+                          <Tooltip
+                            contentStyle={{
+                              background: "var(--popover)",
+                              border: "1px solid var(--popover-foreground)",
+                              color: "var(--popover-foreground)",
+                            }}
+                          />
 
-                            <Bar
+                          <Bar
                             dataKey="value"
-                            fill="#c9a34e"
+                            fill="var(--brand)"
                             radius={[2, 2, 0, 0]}
                           />
                         </BarChart>
@@ -3324,15 +3446,15 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                             tick={{ fontSize: 10 }}
                           />
 
-                            <Tooltip
-                              contentStyle={{
-                                background: "var(--popover)",
-                                border: "1px solid var(--popover-foreground)",
-                                color: "var(--popover-foreground)",
-                              }}
-                            />
+                          <Tooltip
+                            contentStyle={{
+                              background: "var(--popover)",
+                              border: "1px solid var(--popover-foreground)",
+                              color: "var(--popover-foreground)",
+                            }}
+                          />
 
-                            <Line
+                          <Line
                             type="monotone"
                             dataKey="assessment_started"
                             stroke="#16243d"
@@ -3343,7 +3465,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                           <Line
                             type="monotone"
                             dataKey="payment_completed"
-                            stroke="#c9a34e"
+                            stroke="var(--brand)"
                             strokeWidth={2}
                             dot={false}
                           />
@@ -3366,11 +3488,11 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         key={item.label}
                         className="border-t border-[#16243d]/20 bg-[#f7f3e8] p-4"
                       >
-                        <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
+                        <p className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg)]">
                           {item.label}
                         </p>
 
-                        <p className="display mt-3 text-3xl text-[#b8860b]">
+                        <p className="display mt-3 text-3xl text-[var(--brand)]">
                           {item.value}
                         </p>
                       </div>
@@ -3385,18 +3507,18 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
               >
                 <div className="flex items-end justify-between gap-4">
                   <div>
-                    <p className="eyebrow flex items-center gap-2 text-[#b8860b]">
+                    <p className="eyebrow flex items-center gap-2 text-[var(--brand)]">
                       <Share2 size={13} /> Share observatory
                     </p>
 
                     <h2 className="display mt-3 text-3xl">Credential reach</h2>
 
-                    <p className="mt-2 text-sm text-[#16243d]">
+                    <p className="mt-2 text-sm text-[var(--fg)]">
                       Authenticated share events by platform across all users.
                     </p>
                   </div>
 
-                  <span className="text-xs font-bold uppercase tracking-[.1em] text-[#16243d]">
+                  <span className="text-xs font-bold uppercase tracking-[.1em] text-[var(--fg)]">
                     {(shareAnalytics.data ?? []).reduce(
                       (sum, item) => sum + item.count,
 
@@ -3420,18 +3542,18 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         className="border-t border-[#16243d]/20 bg-[#f7f3e8] p-4"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
+                          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg)]">
                             {item.platform}
                           </p>
 
-                          <span className="text-lg font-semibold text-[#b8860b]">
+                          <span className="text-lg font-semibold text-[var(--brand)]">
                             {item.count}
                           </span>
                         </div>
 
                         <div className="mt-3 h-2 bg-[#16243d]/10">
                           <div
-                            className="h-2 bg-[#c9a34e]"
+                            className="h-2 bg-[var(--brand)]"
                             style={{
                               width: `${Math.round((item.count / max) * 100)}%`,
                             }}
@@ -3443,7 +3565,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 </div>
 
                 {(shareAnalytics.data?.length ?? 0) === 0 && (
-                  <p className="mt-5 text-sm text-[#16243d]">
+                  <p className="mt-5 text-sm text-[var(--fg)]">
                     No certificate or report shares have been recorded yet.
                   </p>
                 )}
@@ -3451,16 +3573,16 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
               <section className="mt-6 border border-[#16243d]/15 bg-[#16243d] p-5 text-[#f7f3e8]">
                 <div className="flex items-center gap-2">
-                  <BarChart3 size={14} className="text-[#b8860b]" />
+                  <BarChart3 size={14} className="text-[var(--brand)]" />
 
-                  <p className="eyebrow text-[#b8860b]">Assessment funnel</p>
+                  <p className="eyebrow text-[var(--brand)]">Assessment funnel</p>
                 </div>
 
                 <div className="mt-4 grid gap-3 sm:grid-cols-3">
                   {funnelData.map((stage, index) => (
                     <div
                       key={stage.label}
-                      className="border-l border-[#c9a34e]/60 pl-4"
+                      className="border-l border-[var(--brand)]/60 pl-4"
                     >
                       <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#c1cad7]">
                         {stage.label}
@@ -3475,7 +3597,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       </p>
 
                       <p
-                        className={`mt-2 text-[10px] uppercase tracking-[.1em] ${stage.rate >= stage.benchmark ? "text-[#b8860b]" : "text-red-300"}`}
+                        className={`mt-2 text-[10px] uppercase tracking-[.1em] ${stage.rate >= stage.benchmark ? "text-[var(--brand)]" : "text-red-300"}`}
                       >
                         {stage.rate >= stage.benchmark
                           ? `Benchmark ${stage.benchmark}% · on track`
@@ -3491,7 +3613,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   ))}
                 </div>
 
-                <div className="mt-5 flex flex-wrap items-center gap-4 border-t border-[#c9a34e]/30 pt-4 text-xs text-[#c1cad7]">
+                <div className="mt-5 flex flex-wrap items-center gap-4 border-t border-[var(--brand)]/30 pt-4 text-xs text-[#c1cad7]">
                   <label>
                     Paid benchmark{" "}
                     <input
@@ -3502,7 +3624,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       onChange={event =>
                         setPaidBenchmark(Number(event.target.value))
                       }
-                      className="ml-2 w-16 bg-[#f7f3e8] px-2 py-1 text-[#16243d]"
+                      className="ml-2 w-16 bg-[#f7f3e8] px-2 py-1 text-[var(--fg)]"
                     />
                     %
                   </label>
@@ -3517,7 +3639,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       onChange={event =>
                         setDownloadBenchmark(Number(event.target.value))
                       }
-                      className="ml-2 w-16 bg-[#f7f3e8] px-2 py-1 text-[#16243d]"
+                      className="ml-2 w-16 bg-[#f7f3e8] px-2 py-1 text-[var(--fg)]"
                     />
                     %
                   </label>
@@ -3526,7 +3648,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                     type="button"
                     onClick={handleSaveBenchmarks}
                     disabled={saveAnalyticsSettings.isPending}
-                    className="inline-flex items-center gap-2 border border-[#c9a34e] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] disabled:opacity-60"
+                    className="inline-flex items-center gap-2 border border-[var(--brand)] px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] disabled:opacity-60"
                   >
                     {saveAnalyticsSettings.isPending ? (
                       <RefreshCw size={12} className="animate-spin" />
@@ -3553,7 +3675,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   hasFilters && (
                     <button
                       onClick={resetFilters}
-                      className="inline-flex items-center gap-2 self-start text-[10px] font-black uppercase tracking-[.14em] text-[#b8860b]"
+                      className="inline-flex items-center gap-2 self-start text-[10px] font-black uppercase tracking-[.14em] text-[var(--brand)]"
                     >
                       <X size={14} /> Clear filters
                     </button>
@@ -3610,7 +3732,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 eyebrow="Attempt register"
                 title="Recent participants"
                 actions={
-                  <span className="text-xs font-bold uppercase tracking-[.12em] text-[#16243d]">
+                  <span className="text-xs font-bold uppercase tracking-[.12em] text-[var(--fg)]">
                     Showing {filteredAttempts.length} of{" "}
                     {overview.data.attempts.length}
                   </span>
@@ -3618,7 +3740,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 className="mt-12"
               >
                 {filteredAttempts.length === 0 ? (
-                  <div className="mt-6 border border-dashed border-[#16243d]/25 p-8 text-sm text-[#16243d]">
+                  <div className="mt-6 border border-dashed border-[#16243d]/25 p-8 text-sm text-[var(--fg)]">
                     No attempts match the current filters.
                   </div>
                 ) : (
@@ -3657,7 +3779,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                               <td className="px-5 py-5">
                                 <p className="font-bold">{attempt.name}</p>
 
-                                <p className="mt-1 text-xs text-[#16243d]">
+                                <p className="mt-1 text-xs text-[var(--fg)]">
                                   {attempt.email}
                                 </p>
                               </td>
@@ -3668,10 +3790,10 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
                               <td className="px-5 py-5">
                                 <span
-                                  className={`inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] ${attempt.paymentStatus === "paid" ? "text-emerald-800" : "text-[#b8860b]"}`}
+                                  className={`inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] ${attempt.paymentStatus === "paid" ? "text-emerald-800" : "text-[var(--brand)]"}`}
                                 >
                                   <span
-                                    className={`h-2 w-2 rounded-full ${attempt.paymentStatus === "paid" ? "bg-emerald-600" : "bg-[#c9a34e]"}`}
+                                    className={`h-2 w-2 rounded-full ${attempt.paymentStatus === "paid" ? "bg-emerald-600" : "bg-[var(--brand)]"}`}
                                   />
 
                                   {statusLabel(attempt.paymentStatus)}
@@ -3680,23 +3802,23 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
                               <td className="px-5 py-5">
                                 {attempt.overallScore === null ? (
-                                  <span className="text-sm text-[#16243d]">
+                                  <span className="text-sm text-[var(--fg)]">
                                     Locked
                                   </span>
                                 ) : (
                                   <div>
-                                    <span className="display text-2xl text-[#b8860b]">
+                                    <span className="display text-2xl text-[var(--brand)]">
                                       {attempt.overallScore}
                                     </span>
 
-                                    <span className="ml-2 text-xs text-[#16243d]">
+                                    <span className="ml-2 text-xs text-[var(--fg)]">
                                       {attempt.overallBand}
                                     </span>
                                   </div>
                                 )}
                               </td>
 
-                              <td className="max-w-[180px] truncate px-5 py-5 font-mono text-xs text-[#16243d]">
+                              <td className="max-w-[180px] truncate px-5 py-5 font-mono text-xs text-[var(--fg)]">
                                 {attempt.paystackReference ?? "—"}
                               </td>
                             </tr>
@@ -3717,7 +3839,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 title="Email-verification eligibility."
                 description="Review which accounts can receive scheduled admin alerts. Revoking an account removes its eligibility immediately; the account can become eligible again after its next trusted OAuth sign-in."
                 actions={
-                  <span className="text-xs font-bold uppercase tracking-[.12em] text-[#16243d]">
+                  <span className="text-xs font-bold uppercase tracking-[.12em] text-[var(--fg)]">
                     {userVerificationReview.data?.total ?? 0} accounts
                   </span>
                 }
@@ -3727,7 +3849,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   <label className="relative">
                     <Search
                       size={13}
-                      className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[#16243d]"
+                      className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[var(--fg)]"
                     />
 
                     <span className="sr-only">Search users</span>
@@ -3742,7 +3864,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         )
                       }
                       placeholder="Search name, email, or ID"
-                      className="w-full border border-[#16243d]/20 bg-[#f7f3e8] py-2 pl-7 pr-2 text-xs text-[#16243d] outline-none focus:border-[#c9a34e]"
+                      className="w-full border border-[#16243d]/20 bg-[#f7f3e8] py-2 pl-7 pr-2 text-xs text-[var(--fg)] outline-none focus:border-[var(--brand)]"
                     />
                   </label>
 
@@ -3756,7 +3878,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       setVerificationPage(1);
                     }}
                     aria-label="Filter users by email verification"
-                    className="border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs font-semibold text-[#16243d]"
+                    className="border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs font-semibold text-[var(--fg)]"
                   >
                     <option value="all">All eligibility</option>
 
@@ -3765,14 +3887,14 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                     <option value="unverified">Unverified only</option>
                   </select>
 
-                  <div className="flex items-center justify-end text-xs text-[#16243d]">
+                  <div className="flex items-center justify-end text-xs text-[var(--fg)]">
                     Page {userVerificationReview.data?.page ?? 1} of{" "}
                     {userVerificationReview.data?.totalPages ?? 1}
                   </div>
                 </div>
 
                 {(userVerificationReview.data?.rows.length ?? 0) === 0 ? (
-                  <div className="mt-4 border border-dashed border-[#16243d]/20 p-4 text-sm text-[#16243d]">
+                  <div className="mt-4 border border-dashed border-[#16243d]/20 p-4 text-sm text-[var(--fg)]">
                     No users match this search and eligibility filter.
                   </div>
                 ) : (
@@ -3785,16 +3907,16 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         <div>
                           <p className="font-bold">
                             {account.name || "Unnamed account"}{" "}
-                            <span className="ml-2 text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
+                            <span className="ml-2 text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg)]">
                               {account.role}
                             </span>
                           </p>
 
-                          <p className="mt-1 text-xs text-[#16243d]">
+                          <p className="mt-1 text-xs text-[var(--fg)]">
                             {account.email || "No email address"}
                           </p>
 
-                          <p className="mt-1 text-[10px] uppercase tracking-[.1em] text-[#16243d]">
+                          <p className="mt-1 text-[10px] uppercase tracking-[.1em] text-[var(--fg)]">
                             Last sign-in{" "}
                             {new Date(account.lastSignedIn).toLocaleString()}
                           </p>
@@ -3802,10 +3924,10 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
                         <div className="flex flex-wrap items-center gap-3">
                           <span
-                            className={`inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${account.emailVerifiedAt ? "text-emerald-800" : "text-[#b8860b]"}`}
+                            className={`inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] ${account.emailVerifiedAt ? "text-emerald-800" : "text-[var(--brand)]"}`}
                           >
                             <span
-                              className={`h-2 w-2 rounded-full ${account.emailVerifiedAt ? "bg-emerald-600" : "bg-[#c9a34e]"}`}
+                              className={`h-2 w-2 rounded-full ${account.emailVerifiedAt ? "bg-emerald-600" : "bg-[var(--brand)]"}`}
                             />
 
                             {account.emailVerifiedAt
@@ -3884,7 +4006,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   <label className="relative">
                     <Search
                       size={13}
-                      className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[#16243d]"
+                      className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[var(--fg)]"
                     />
 
                     <span className="sr-only">Filter by administrator</span>
@@ -3897,7 +4019,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         setAuditPage(1);
                       }}
                       placeholder="Filter by admin name, email, or ID"
-                      className="w-full border border-[#16243d]/20 bg-[#f7f3e8] py-2 pl-7 pr-2 text-xs text-[#16243d] outline-none focus:border-[#c9a34e]"
+                      className="w-full border border-[#16243d]/20 bg-[#f7f3e8] py-2 pl-7 pr-2 text-xs text-[var(--fg)] outline-none focus:border-[var(--brand)]"
                     />
                   </label>
 
@@ -3922,7 +4044,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   />
                 </div>
 
-                <div className="mt-3 flex items-center justify-between text-xs text-[#16243d]">
+                <div className="mt-3 flex items-center justify-between text-xs text-[var(--fg)]">
                   <span>
                     {revocationAudits.data?.total ?? 0} matching records
                   </span>
@@ -3934,7 +4056,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 </div>
 
                 {(revocationAudits.data?.rows.length ?? 0) === 0 ? (
-                  <p className="mt-4 border border-dashed border-[#16243d]/20 p-4 text-sm text-[#16243d]">
+                  <p className="mt-4 border border-dashed border-[#16243d]/20 p-4 text-sm text-[var(--fg)]">
                     No verification revocations match these filters.
                   </p>
                 ) : (
@@ -3961,11 +4083,11 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         </div>
 
                         <div>
-                          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#16243d]">
+                          <p className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg)]">
                             By {audit.actorName || audit.actorOpenId}
                           </p>
 
-                          <p className="mt-1 text-xs text-[#16243d]">
+                          <p className="mt-1 text-xs text-[var(--fg)]">
                             {audit.actorEmail || "No actor email"}
                           </p>
                         </div>
@@ -4045,7 +4167,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                           enableWeeklyExport.isPending ||
                           enableWeeklyExport.isSuccess
                         }
-                        className="inline-flex items-center gap-2 border border-[#16243d]/25 px-5 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] disabled:opacity-60"
+                        className="inline-flex items-center gap-2 border border-[#16243d]/25 px-5 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[var(--fg)] disabled:opacity-60"
                       >
                         {enableWeeklyExport.isPending ? (
                           <RefreshCw size={15} className="animate-spin" />
@@ -4069,7 +4191,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   <div className="border border-[#16243d]/15 bg-white/45 p-6 sm:p-8">
                     <div className="flex items-start justify-between gap-5">
                       <div>
-                        <p className="eyebrow flex items-center gap-2 text-[#b8860b]">
+                        <p className="eyebrow flex items-center gap-2 text-[var(--brand)]">
                           <Mail size={13} /> Branded communications
                         </p>
 
@@ -4078,18 +4200,18 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         </h2>
                       </div>
 
-                      <span className="text-[10px] font-black uppercase tracking-[.13em] text-[#16243d]">
+                      <span className="text-[10px] font-black uppercase tracking-[.13em] text-[var(--fg)]">
                         Admin only
                       </span>
                     </div>
 
-                    <p className="mt-4 text-sm leading-6 text-[#16243d]">
+                    <p className="mt-4 text-sm leading-6 text-[var(--fg)]">
                       Prepare reusable copy for future report delivery and
                       course follow-up. Supported fields:{" "}
-                      <code className="text-[#b8860b]">{"{{name}}"}</code>,{" "}
-                      <code className="text-[#b8860b]">{"{{email}}"}</code>,{" "}
-                      <code className="text-[#b8860b]">{"{{date}}"}</code>, and{" "}
-                      <code className="text-[#b8860b]">{"{{course}}"}</code>.
+                      <code className="text-[var(--brand)]">{"{{name}}"}</code>,{" "}
+                      <code className="text-[var(--brand)]">{"{{email}}"}</code>,{" "}
+                      <code className="text-[var(--brand)]">{"{{date}}"}</code>, and{" "}
+                      <code className="text-[var(--brand)]">{"{{course}}"}</code>.
                     </p>
 
                     <div className="mt-6 grid gap-4">
@@ -4104,36 +4226,36 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         ]}
                       />
 
-                      <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
+                      <label className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--fg)]">
                         Label
                         <input
                           value={templateLabel}
                           onChange={event =>
                             setTemplateLabel(event.target.value)
                           }
-                          className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-semibold text-[#16243d] outline-none focus:border-[#c9a34e]"
+                          className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-semibold text-[var(--fg)] outline-none focus:border-[var(--brand)]"
                         />
                       </label>
 
-                      <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
+                      <label className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--fg)]">
                         Subject
                         <input
                           value={templateSubject}
                           onChange={event =>
                             setTemplateSubject(event.target.value)
                           }
-                          className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-semibold text-[#16243d] outline-none focus:border-[#c9a34e]"
+                          className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-semibold text-[var(--fg)] outline-none focus:border-[var(--brand)]"
                         />
                       </label>
 
-                      <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
+                      <label className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--fg)]">
                         Body
                         <div className="mt-2 flex flex-wrap gap-2 border border-b-0 border-[#16243d]/20 bg-[#ebe7dc] p-2">
                           <button
                             type="button"
                             onClick={() => applyFormat("**")}
                             title="Bold"
-                            className="grid h-8 w-8 place-items-center border border-[#16243d]/15 hover:border-[#c9a34e]"
+                            className="grid h-8 w-8 place-items-center border border-[#16243d]/15 hover:border-[var(--brand)]"
                           >
                             <Bold size={14} />
                           </button>
@@ -4142,7 +4264,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                             type="button"
                             onClick={() => applyFormat("_")}
                             title="Italic"
-                            className="grid h-8 w-8 place-items-center border border-[#16243d]/15 hover:border-[#c9a34e]"
+                            className="grid h-8 w-8 place-items-center border border-[#16243d]/15 hover:border-[var(--brand)]"
                           >
                             <Italic size={14} />
                           </button>
@@ -4152,7 +4274,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                               type="button"
                               key={token}
                               onClick={() => applyFormat(`{{${token}}}`, "")}
-                              className="border border-[#16243d]/15 px-2 py-1 text-[10px] font-bold uppercase tracking-[.08em] hover:border-[#c9a34e]"
+                              className="border border-[#16243d]/15 px-2 py-1 text-[10px] font-bold uppercase tracking-[.08em] hover:border-[var(--brand)]"
                             >{`{{${token}}}`}</button>
                           ))}
                         </div>
@@ -4163,13 +4285,13 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                           onChange={event =>
                             setTemplateBody(event.target.value)
                           }
-                          className="mt-2 w-full resize-y border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm leading-6 text-[#16243d] outline-none focus:border-[#c9a34e]"
+                          className="mt-2 w-full resize-y border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm leading-6 text-[var(--fg)] outline-none focus:border-[var(--brand)]"
                         />
                       </label>
                     </div>
 
-                    <div className="border-l-2 border-[#c9a34e] bg-[#16243d] p-4 text-sm leading-6 text-[#c1cad7]">
-                      <p className="eyebrow text-[#b8860b]">Live preview</p>
+                    <div className="border-l-2 border-[var(--brand)] bg-[#16243d] p-4 text-sm leading-6 text-[#c1cad7]">
+                      <p className="eyebrow text-[var(--brand)]">Live preview</p>
 
                       <div className="prose prose-sm prose-invert mt-3 max-w-none">
                         <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
@@ -4183,7 +4305,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         type="button"
                         onClick={handleSaveTemplate}
                         disabled={saveTemplate.isPending}
-                        className="inline-flex items-center gap-2 bg-[#c9a34e] px-5 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#101d35] disabled:opacity-60"
+                        className="inline-flex items-center gap-2 bg-[var(--brand)] px-5 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#101d35] disabled:opacity-60"
                       >
                         {saveTemplate.isPending ? (
                           <RefreshCw size={15} className="animate-spin" />
@@ -4203,7 +4325,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         type="button"
                         onClick={handleSendTest}
                         disabled={sendTemplateTest.isPending}
-                        className="inline-flex items-center gap-2 border border-[#16243d]/25 px-5 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[#16243d] disabled:opacity-60"
+                        className="inline-flex items-center gap-2 border border-[#16243d]/25 px-5 py-4 text-[10px] font-black uppercase tracking-[.14em] text-[var(--fg)] disabled:opacity-60"
                       >
                         {sendTemplateTest.isPending ? (
                           <RefreshCw size={15} className="animate-spin" />
@@ -4224,7 +4346,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
 
                     <div className="mt-6 border-t border-[#16243d]/15 pt-5">
                       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-                        <p className="eyebrow text-[#b8860b]">
+                        <p className="eyebrow text-[var(--brand)]">
                           Preview history
                         </p>
 
@@ -4232,7 +4354,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                           <label className="relative">
                             <Search
                               size={13}
-                              className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[#16243d]"
+                              className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[var(--fg)]"
                             />
 
                             <span className="sr-only">
@@ -4249,7 +4371,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                                 )
                               }
                               placeholder="Search recipient or subject"
-                              className="w-full border border-[#16243d]/20 bg-[#f7f3e8] py-2 pl-7 pr-2 text-xs text-[#16243d] outline-none focus:border-[#c9a34e]"
+                              className="w-full border border-[#16243d]/20 bg-[#f7f3e8] py-2 pl-7 pr-2 text-xs text-[var(--fg)] outline-none focus:border-[var(--brand)]"
                             />
                           </label>
 
@@ -4263,7 +4385,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                               setDeliveryPage(1);
                             }}
                             aria-label="Filter delivery history by status"
-                            className="border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs font-semibold text-[#16243d]"
+                            className="border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs font-semibold text-[var(--fg)]"
                           >
                             <option value="all">All statuses</option>
 
@@ -4290,7 +4412,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         </div>
 
                         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                          <span className="text-xs text-[#16243d]">
+                          <span className="text-xs text-[var(--fg)]">
                             {emailPreviewHistory.data?.total ?? 0} matching
                             delivery attempts
                           </span>
@@ -4302,7 +4424,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                               queueDeliveryLogExport.isPending ||
                               !emailPreviewHistory.data?.total
                             }
-                            className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] disabled:opacity-50"
+                            className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg)] disabled:opacity-50"
                           >
                             {queueDeliveryLogExport.isPending ? (
                               <RefreshCw size={12} className="animate-spin" />
@@ -4320,7 +4442,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                               enableDeliveryLogExportWorker.mutate()
                             }
                             disabled={enableDeliveryLogExportWorker.isPending}
-                            className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] disabled:opacity-50"
+                            className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg)] disabled:opacity-50"
                           >
                             {enableDeliveryLogExportWorker.isPending ? (
                               <RefreshCw size={12} className="animate-spin" />
@@ -4331,7 +4453,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                           </button>
                         </div>
 
-                        <p className="mt-2 text-[10px] uppercase tracking-[.1em] text-[#16243d]">
+                        <p className="mt-2 text-[10px] uppercase tracking-[.1em] text-[var(--fg)]">
                           Queued exports are processed in the background once
                           per minute after the worker is enabled.
                         </p>
@@ -4348,7 +4470,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                                   <span>
                                     <strong>Export #{job.id}</strong>
 
-                                    <span className="ml-2 uppercase tracking-[.1em] text-[#16243d]">
+                                    <span className="ml-2 uppercase tracking-[.1em] text-[var(--fg)]">
                                       {job.status}
                                     </span>
                                   </span>
@@ -4357,12 +4479,12 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                                     <a
                                       href={job.fileUrl}
                                       download
-                                      className="font-black uppercase tracking-[.1em] text-[#b8860b]"
+                                      className="font-black uppercase tracking-[.1em] text-[var(--brand)]"
                                     >
                                       Download
                                     </a>
                                   ) : (
-                                    <span className="text-[#16243d]">
+                                    <span className="text-[var(--fg)]">
                                       {job.rowCount ?? 0} rows
                                     </span>
                                   )}
@@ -4373,7 +4495,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       </div>
 
                       {filteredPreviewHistory.length === 0 ? (
-                        <div className="mt-4 border border-dashed border-[#16243d]/20 p-4 text-sm text-[#16243d]">
+                        <div className="mt-4 border border-dashed border-[#16243d]/20 p-4 text-sm text-[var(--fg)]">
                           No delivery attempts match this search and status
                           filter.
                         </div>
@@ -4387,7 +4509,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                               <div>
                                 <p className="font-bold">{delivery.subject}</p>
 
-                                <p className="mt-1 text-[#16243d]">
+                                <p className="mt-1 text-[var(--fg)]">
                                   {delivery.recipientEmail} ·{" "}
                                   {new Date(
                                     delivery.createdAt
@@ -4411,7 +4533,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                                       })
                                     }
                                     disabled={retryTemplateTestEmail.isPending}
-                                    className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]"
+                                    className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.1em] text-[var(--brand)]"
                                   >
                                     {retryTemplateTestEmail.isPending ? (
                                       <RefreshCw
@@ -4440,7 +4562,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   </div>
 
                   <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#16243d]/10 pt-4">
-                    <span className="text-xs text-[#16243d]">
+                    <span className="text-xs text-[var(--fg)]">
                       Page {emailPreviewHistory.data?.page ?? 1} of{" "}
                       {emailPreviewHistory.data?.totalPages ?? 1}
                     </span>
@@ -4489,7 +4611,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 description="Securely generated enrollment reports remain available here for admin download."
                 actions={
                   <span
-                    className={`text-[10px] font-black uppercase tracking-[.13em] ${scheduleStatus.data?.config?.scheduleTaskUid ? "text-emerald-800" : "text-[#b8860b]"}`}
+                    className={`text-[10px] font-black uppercase tracking-[.13em] ${scheduleStatus.data?.config?.scheduleTaskUid ? "text-emerald-800" : "text-[var(--brand)]"}`}
                   >
                     {scheduleStatus.data?.config?.scheduleTaskUid
                       ? "Enabled"
@@ -4500,7 +4622,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
               >
                 <div className="grid gap-4 sm:grid-cols-3">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
+                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg)]">
                       Last run
                     </p>
 
@@ -4514,28 +4636,28 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   </div>
 
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
+                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg)]">
                       Reports saved
                     </p>
 
-                    <p className="mt-2 text-2xl font-bold text-[#b8860b]">
+                    <p className="mt-2 text-2xl font-bold text-[var(--brand)]">
                       {scheduleStatus.data?.runs.length ?? 0}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
+                    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg)]">
                       Latest rows
                     </p>
 
-                    <p className="mt-2 text-2xl font-bold text-[#b8860b]">
+                    <p className="mt-2 text-2xl font-bold text-[var(--brand)]">
                       {scheduleStatus.data?.runs[0]?.rowCount ?? 0}
                     </p>
                   </div>
                 </div>
 
                 <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-[#16243d]/10 pt-5">
-                  <label className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
+                  <label className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg)]">
                     Retention days
                     <input
                       type="number"
@@ -4545,7 +4667,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       onChange={event =>
                         setRetentionDays(Number(event.target.value))
                       }
-                      className="ml-2 w-20 border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-sm font-bold text-[#16243d]"
+                      className="ml-2 w-20 border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-sm font-bold text-[var(--fg)]"
                     />
                   </label>
 
@@ -4553,7 +4675,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                     type="button"
                     onClick={() => handleRetentionSave(retentionDays)}
                     disabled={updateExportRetention.isPending}
-                    className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] disabled:opacity-60"
+                    className="inline-flex items-center gap-2 border border-[#16243d]/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg)] disabled:opacity-60"
                   >
                     {updateExportRetention.isPending ? (
                       <RefreshCw size={12} className="animate-spin" />
@@ -4563,7 +4685,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                     Save policy
                   </button>
 
-                  <span className="text-xs text-[#16243d]">
+                  <span className="text-xs text-[var(--fg)]">
                     Reports older than this are unlinked from admin history; the
                     storage layer does not expose an object-delete endpoint.
                   </span>
@@ -4582,7 +4704,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                             {new Date(run.createdAt).toLocaleDateString()}
                           </p>
 
-                          <p className="mt-1 text-xs text-[#16243d]">
+                          <p className="mt-1 text-xs text-[var(--fg)]">
                             {run.rowCount} enrollment rows
                           </p>
                         </div>
@@ -4590,7 +4712,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         <a
                           href={run.fileUrl}
                           download
-                          className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.13em] text-[#b8860b] hover:text-[#16243d]"
+                          className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.13em] text-[var(--brand)] hover:text-[var(--fg)]"
                         >
                           <Download size={14} /> Download CSV
                         </a>
@@ -4607,7 +4729,7 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   aria-modal="true"
                   aria-labelledby="reset-revoke-title"
                 >
-                  <div className="w-full max-w-md border-t-2 border-red-800 bg-[#f7f3e8] p-6 text-[#16243d] shadow-2xl sm:p-8">
+                  <div className="w-full max-w-md border-t-2 border-red-800 bg-[#f7f3e8] p-6 text-[var(--fg)] shadow-2xl sm:p-8">
                     <p className="eyebrow text-red-800">
                       Security confirmation
                     </p>
@@ -4659,10 +4781,10 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                   aria-modal="true"
                   aria-labelledby="revoke-dialog-title"
                 >
-                  <div className="w-full max-w-lg border-t-2 border-[#c9a34e] bg-[#f7f3e8] p-6 text-[#16243d] shadow-2xl sm:p-8">
+                  <div className="w-full max-w-lg border-t-2 border-[var(--brand)] bg-[#f7f3e8] p-6 text-[var(--fg)] shadow-2xl sm:p-8">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="eyebrow text-[#b8860b]">
+                        <p className="eyebrow text-[var(--brand)]">
                           Verification control
                         </p>
 
@@ -4684,16 +4806,16 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                       </button>
                     </div>
 
-                    <p className="mt-4 text-sm leading-6 text-[#16243d]">
+                    <p className="mt-4 text-sm leading-6 text-[var(--fg)]">
                       This will stop{" "}
-                      <strong className="text-[#16243d]">
+                      <strong className="text-[var(--fg)]">
                         {revokeTarget.email || revokeTarget.openId}
                       </strong>{" "}
                       from receiving scheduled admin alerts. Record a reason for
                       the audit trail.
                     </p>
 
-                    <label className="mt-6 block text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
+                    <label className="mt-6 block text-[10px] font-black uppercase tracking-[.14em] text-[var(--fg)]">
                       Reason
                       <textarea
                         autoFocus
@@ -4701,11 +4823,11 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                         value={revokeReason}
                         onChange={event => setRevokeReason(event.target.value)}
                         placeholder="Example: mailbox ownership could not be confirmed"
-                        className="mt-2 w-full resize-y border border-[#16243d]/20 bg-white px-3 py-3 text-sm normal-case leading-6 text-[#16243d] outline-none focus:border-[#c9a34e]"
+                        className="mt-2 w-full resize-y border border-[#16243d]/20 bg-white px-3 py-3 text-sm normal-case leading-6 text-[var(--fg)] outline-none focus:border-[var(--brand)]"
                       />
                     </label>
 
-                    <p className="mt-2 text-xs text-[#16243d]">
+                    <p className="mt-2 text-xs text-[var(--fg)]">
                       Minimum 5 characters. This reason is visible to
                       administrators in the audit log.
                     </p>
@@ -4748,10 +4870,10 @@ export default function AdminDashboard({ defaultTab, hideTabs, title }: AdminDas
                 <OrganizationApprovalQueue />
               </div>
 
-              <div className="mt-10 flex items-start gap-3 border-l-2 border-[#c9a34e] bg-[#16243d] p-5 text-sm leading-6 text-[#c1cad7]">
+              <div className="mt-10 flex items-start gap-3 border-l-2 border-[var(--brand)] bg-[#16243d] p-5 text-sm leading-6 text-[#c1cad7]">
                 <ShieldCheck
                   size={18}
-                  className="mt-0.5 shrink-0 text-[#b8860b]"
+                  className="mt-0.5 shrink-0 text-[var(--brand)]"
                 />
 
                 <p>
@@ -4787,13 +4909,13 @@ function SelectField({
   options: Array<[string, string]>;
 }) {
   return (
-    <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
+    <label className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--fg)]">
       {label}
 
       <select
         value={value}
         onChange={event => onChange(event.target.value)}
-        className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-semibold text-[#16243d] outline-none focus:border-[#c9a34e]"
+        className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm font-semibold text-[var(--fg)] outline-none focus:border-[var(--brand)]"
       >
         {options.map(([option, text]) => (
           <option key={option} value={option}>
@@ -4819,14 +4941,14 @@ function DateField({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="text-[10px] font-black uppercase tracking-[.14em] text-[#16243d]">
+    <label className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--fg)]">
       {label}
 
       <input
         type="date"
         value={value}
         onChange={event => onChange(event.target.value)}
-        className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-[11px] text-sm font-semibold text-[#16243d] outline-none focus:border-[#c9a34e]"
+        className="mt-2 w-full border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-[11px] text-sm font-semibold text-[var(--fg)] outline-none focus:border-[var(--brand)]"
       />
     </label>
   );
@@ -5048,7 +5170,7 @@ function OrganizationApprovalQueue() {
           onChange={event => setSearch(event.target.value)}
           placeholder="Search organization or email"
           aria-label="Search organization approvals"
-          className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm outline-none focus:border-[#c9a34e]"
+          className="border border-[#16243d]/20 bg-[#f7f3e8] px-3 py-3 text-sm outline-none focus:border-[var(--brand)]"
         />
         <select
           value={status}
@@ -5078,10 +5200,10 @@ function OrganizationApprovalQueue() {
       </div>
       <div className="mt-6 border border-[#16243d]/10 bg-[#f7f3e8] p-4">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
+          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg)]">
             Approval trend · last 30 days
           </p>
-          <span className="text-[10px] text-[#16243d]">
+          <span className="text-[10px] text-[var(--fg)]">
             {trendByDay.length} active days
           </span>
         </div>
@@ -5108,20 +5230,20 @@ function OrganizationApprovalQueue() {
             />
           </svg>
         </div>
-        <div className="mt-2 flex justify-between text-[10px] text-[#16243d]">
+        <div className="mt-2 flex justify-between text-[10px] text-[var(--fg)]">
           <span>{trendByDay[0]?.[0] ?? "No events yet"}</span>
           <span>{trendByDay.at(-1)?.[0] ?? ""}</span>
         </div>
       </div>
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
-        <div className="border-t-2 border-[#c9a34e] bg-white p-4">
-          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
+        <div className="border-t-2 border-[var(--brand)] bg-white p-4">
+          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg)]">
             Approval events
           </p>
           <p className="mt-2 text-2xl font-bold">{history.data?.total ?? 0}</p>
         </div>
         <div className="border-t-2 border-emerald-700 bg-white p-4">
-          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
+          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg)]">
             Approved
           </p>
           <p className="mt-2 text-2xl font-bold text-emerald-800">
@@ -5129,7 +5251,7 @@ function OrganizationApprovalQueue() {
           </p>
         </div>
         <div className="border-t-2 border-red-700 bg-white p-4">
-          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#16243d]">
+          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--fg)]">
             Rejected
           </p>
           <p className="mt-2 text-2xl font-bold text-red-800">
@@ -5154,13 +5276,13 @@ function OrganizationApprovalQueue() {
                   <p className="text-sm font-bold">
                     {invitation.organizationName}
                   </p>
-                  <p className="mt-1 text-xs text-[#16243d]">
+                  <p className="mt-1 text-xs text-[var(--fg)]">
                     {invitation.organizationEmail} · {invitation.reportType} #
                     {invitation.reportId}
                   </p>
                 </div>
                 <span
-                  className={`inline-flex w-fit items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] ${invitation.status === "approved" ? "text-emerald-800" : invitation.status === "rejected" ? "text-red-800" : urgent ? "text-red-800" : "text-[#b8860b]"}`}
+                  className={`inline-flex w-fit items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] ${invitation.status === "approved" ? "text-emerald-800" : invitation.status === "rejected" ? "text-red-800" : urgent ? "text-red-800" : "text-[var(--brand)]"}`}
                 >
                   <Clock3 size={13} />{" "}
                   {invitation.status === "pending"
@@ -5212,7 +5334,7 @@ function OrganizationApprovalQueue() {
         })}
       </div>
       {(history.data?.rows.length ?? 0) === 0 && (
-        <p className="mt-5 text-sm text-[#16243d]">
+        <p className="mt-5 text-sm text-[var(--fg)]">
           No approval events match the current filters.
         </p>
       )}
@@ -5266,7 +5388,7 @@ function AdminSectionMenu() {
       className="mt-4 overflow-x-auto border border-[#16243d]/10 bg-white p-2"
     >
       <div className="flex min-w-max items-center gap-1">
-        <span className="px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#b8860b]">
+        <span className="px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[var(--brand)]">
           Jump to
         </span>
 
@@ -5274,7 +5396,7 @@ function AdminSectionMenu() {
           <a
             key={id}
             href={`#${id}`}
-            className="px-3 py-2 text-[10px] font-black uppercase tracking-[.08em] text-[#4a566a] transition-colors hover:bg-[#fffaf0] hover:text-[#16243d] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a34e]"
+            className="px-3 py-2 text-[10px] font-black uppercase tracking-[.08em] text-[#4a566a] transition-colors hover:bg-[#fffaf0] hover:text-[var(--fg)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
           >
             {label}
           </a>

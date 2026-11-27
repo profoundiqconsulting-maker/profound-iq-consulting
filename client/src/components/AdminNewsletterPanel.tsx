@@ -40,7 +40,10 @@ export default function AdminNewsletterPanel() {
     }),
     [state.search, state.status, state.fromDate, state.toDate]
   );
-  const setFilter = <K extends keyof SubscriberFilters>(key: K, value: SubscriberFilters[K]) => {
+  const setFilter = <K extends keyof SubscriberFilters>(
+    key: K,
+    value: SubscriberFilters[K]
+  ) => {
     setValue(key, value as any);
     setValue("page", 1);
   };
@@ -104,10 +107,7 @@ export default function AdminNewsletterPanel() {
     setValue("page", 1);
   };
   const hasFilters = Boolean(
-    state.search ||
-      state.fromDate ||
-      state.toDate ||
-      state.status !== "all"
+    state.search || state.fromDate || state.toDate || state.status !== "all"
   );
 
   const downloadCsv = async () => {
@@ -135,15 +135,15 @@ export default function AdminNewsletterPanel() {
   return (
     <section
       id="newsletter-subscribers"
-      className="mt-10 scroll-mt-8 border border-[#c9a34e]/45 bg-[#fffaf0] p-5 sm:p-6"
+      className="mt-10 scroll-mt-8 border border-[var(--brand)]/45 bg-[#fffaf0] p-5 sm:p-6"
     >
       <div className="flex flex-col justify-between gap-4 border-b border-[#16243d]/10 pb-5 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow text-[#b8860b]">Audience / newsletter</p>
+          <p className="eyebrow text-[var(--brand)]">Audience / newsletter</p>
           <h2 className="display mt-2 text-2xl">
             Keep the conversation permission-based.
           </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#475569]">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--fg-muted)]">
             Review consented Insights subscribers, narrow the list by email,
             status, or consent date, and export only the records needed for an
             approved communication workflow.
@@ -153,7 +153,7 @@ export default function AdminNewsletterPanel() {
           type="button"
           onClick={downloadCsv}
           disabled={exportCsv.isFetching}
-          className="inline-flex min-h-10 items-center justify-center gap-2 border border-[#16243d]/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-[#16243d] transition-colors hover:border-[#c9a34e] hover:bg-white disabled:cursor-wait disabled:opacity-50"
+          className="inline-flex min-h-10 items-center justify-center gap-2 border border-[#16243d]/25 px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg)] transition-colors hover:border-[var(--brand)] hover:bg-white disabled:cursor-wait disabled:opacity-50"
         >
           {exportCsv.isFetching ? (
             <RefreshCw size={14} className="animate-spin" />
@@ -163,17 +163,17 @@ export default function AdminNewsletterPanel() {
           {exportCsv.isFetching ? "Preparing…" : "Export filtered CSV"}
         </button>
       </div>
-      <div className="mt-5 flex flex-col gap-3 border border-[#c9a34e]/35 bg-[#16243d] p-4 text-[#f7f3e8] sm:flex-row sm:items-center sm:justify-between">
+      <div className="dark mt-5 flex flex-col gap-3 border border-[var(--brand)]/35 bg-[#16243d] p-4 text-[var(--fg)] sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#c9a34e]">
+          <p className="text-[10px] font-black uppercase tracking-[.12em] text-[var(--brand-light)]">
             Delivery / bi-weekly newsletter
           </p>
-          <p className="mt-1 text-sm text-[#d8deea]">
+          <p className="mt-1 text-sm text-[var(--fg-muted)]">
             Sends the latest published Insights to confirmed subscribers every
             other Monday at 09:00 UTC.
           </p>
           {schedule.data?.config?.lastRunAt && (
-            <p className="mt-1 text-xs text-[#aeb9c9]">
+            <p className="mt-1 text-xs text-[var(--fg-muted)]">
               Last run:{" "}
               {new Date(schedule.data.config.lastRunAt).toLocaleString()}
             </p>
@@ -186,7 +186,7 @@ export default function AdminNewsletterPanel() {
             Boolean(schedule.data?.config?.scheduleTaskUid) ||
             enableSchedule.isPending
           }
-          className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 border border-[#c9a34e] px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] hover:bg-[#c9a34e] hover:text-[#16243d] disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 border border-[var(--brand)] px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg)] hover:bg-[var(--brand)] hover:text-[var(--brand-fg)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           <RefreshCw
             size={14}
@@ -195,41 +195,41 @@ export default function AdminNewsletterPanel() {
           {schedule.data?.config?.scheduleTaskUid
             ? "Schedule enabled"
             : enableSchedule.isPending
-            ? "Enabling…"
-            : "Enable schedule"}
+              ? "Enabling…"
+              : "Enable schedule"}
         </button>
       </div>
       <div className="mt-5 grid gap-3 border border-[#16243d]/10 bg-white/55 p-4 md:grid-cols-[1.4fr_.8fr_.8fr_.8fr_auto] md:items-end">
-        <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[#475569]">
+        <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[var(--fg-muted)]">
           Search email or source
           <span className="flex min-h-11 items-center gap-2 border border-[#16243d]/15 bg-[#fffaf0] px-3">
-            <Search size={15} className="text-[#b8860b]" />
-             <input
+            <Search size={15} className="text-[var(--brand)]" />
+            <input
               id="newsletter-search"
               name="search"
               value={filters.search}
               onChange={event => setFilter("search", event.target.value)}
               placeholder="e.g. learner@example.com"
               aria-label="Search newsletter subscribers"
-              className="w-full bg-transparent text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
+              className="w-full bg-transparent text-sm font-normal normal-case tracking-normal text-[var(--fg)] outline-none transition-colors focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/30"
             />
           </span>
         </label>
-        <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[#475569]">
+        <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[var(--fg-muted)]">
           Status
-             <select
-              id="newsletter-status"
-              name="status"
-              value={state.status}
-              onChange={event =>
-                setFilter(
-                  "status",
-                  event.target.value as SubscriberFilters["status"]
-                )
-              }
-              aria-label="Filter newsletter subscribers by status"
-              className="min-h-11 border border-[#16243d]/15 bg-[#fffaf0] px-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
-            >
+          <select
+            id="newsletter-status"
+            name="status"
+            value={state.status}
+            onChange={event =>
+              setFilter(
+                "status",
+                event.target.value as SubscriberFilters["status"]
+              )
+            }
+            aria-label="Filter newsletter subscribers by status"
+            className="min-h-11 border border-[#16243d]/15 bg-[#fffaf0] px-3 text-sm font-normal normal-case tracking-normal text-[var(--fg)] outline-none transition-colors focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/30"
+          >
             <option value="all">All statuses</option>
             <option value="pending">Pending confirmation</option>
             <option value="confirmed">Confirmed</option>
@@ -237,42 +237,42 @@ export default function AdminNewsletterPanel() {
             <option value="unsubscribed">Unsubscribed</option>
           </select>
         </label>
-        <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[#475569]">
+        <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em] text-[var(--fg-muted)]">
           From date
-           <input
-             id="newsletter-from-date"
-             name="fromDate"
-             type="date"
-              value={state.fromDate}
-              onChange={event => setFilter("fromDate", event.target.value)}
-             aria-label="Newsletter subscriber start date"
-             className="min-h-11 border border-[#16243d]/15 bg-[#fffaf0] px-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
-           />
+          <input
+            id="newsletter-from-date"
+            name="fromDate"
+            type="date"
+            value={state.fromDate}
+            onChange={event => setFilter("fromDate", event.target.value)}
+            aria-label="Newsletter subscriber start date"
+            className="min-h-11 border border-[#16243d]/15 bg-[#fffaf0] px-3 text-sm font-normal normal-case tracking-normal text-[var(--fg)] outline-none transition-colors focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/30"
+          />
         </label>
-        <label className="grid gap-2 text-xs font-black uppercase tracking-[.08em] text-[#475569]">
+        <label className="grid gap-2 text-xs font-black uppercase tracking-[.08em] text-[var(--fg-muted)]">
           To date
-           <input
-             id="newsletter-to-date"
-             name="toDate"
-             type="date"
-              value={state.toDate}
-              onChange={event => setFilter("toDate", event.target.value)}
-             aria-label="Newsletter subscriber end date"
-             className="min-h-11 border border-[#16243d]/15 bg-[#fffaf0] px-3 text-sm font-normal normal-case tracking-normal text-[#16243d] outline-none transition-colors focus:border-[#c9a34e] focus:ring-2 focus:ring-[#c9a34e]/30"
-           />
+          <input
+            id="newsletter-to-date"
+            name="toDate"
+            type="date"
+            value={state.toDate}
+            onChange={event => setFilter("toDate", event.target.value)}
+            aria-label="Newsletter subscriber end date"
+            className="min-h-11 border border-[#16243d]/15 bg-[#fffaf0] px-3 text-sm font-normal normal-case tracking-normal text-[var(--fg)] outline-none transition-colors focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/30"
+          />
         </label>
         <button
           type="button"
           onClick={clearFilters}
           disabled={!hasFilters}
-          className="inline-flex min-h-11 items-center justify-center gap-2 border border-[#16243d]/20 px-3 text-[10px] font-black uppercase tracking-[.08em] text-[#475569] hover:border-[#c9a34e] hover:text-[#16243d] disabled:opacity-40"
+          className="inline-flex min-h-11 items-center justify-center gap-2 border border-[#16243d]/20 px-3 text-[10px] font-black uppercase tracking-[.08em] text-[var(--fg-muted)] hover:border-[var(--brand)] hover:text-[var(--fg)] disabled:opacity-40"
         >
           <SlidersHorizontal size={14} /> Clear
         </button>
       </div>
       {subscribers.isLoading ? (
-        <div className="mt-6 flex items-center gap-3 text-sm text-[#475569]">
-          <RefreshCw size={16} className="animate-spin text-[#b8860b]" />{" "}
+        <div className="mt-6 flex items-center gap-3 text-sm text-[var(--fg-muted)]">
+          <RefreshCw size={16} className="animate-spin text-[var(--brand)]" />{" "}
           Loading subscribers…
         </div>
       ) : subscribers.isError ? (
@@ -287,19 +287,19 @@ export default function AdminNewsletterPanel() {
         </div>
       ) : (
         <>
-          <div className="mt-5 flex items-center gap-3 text-xs font-bold uppercase tracking-[.1em] text-[#475569]">
-            <Mail size={15} className="text-[#b8860b]" />{" "}
+          <div className="mt-5 flex items-center gap-3 text-xs font-bold uppercase tracking-[.1em] text-[var(--fg-muted)]">
+            <Mail size={15} className="text-[var(--brand)]" />{" "}
             {subscribers.data?.total ?? 0} matching address
             {(subscribers.data?.total ?? 0) === 1 ? "" : "es"}
           </div>
           {(subscribers.data?.rows.length ?? 0) === 0 ? (
-            <div className="mt-5 border border-dashed border-[#16243d]/20 bg-white/60 p-5 text-sm text-[#475569]">
+            <div className="mt-5 border border-dashed border-[#16243d]/20 bg-white/60 p-5 text-sm text-[var(--fg-muted)]">
               No newsletter subscribers match the current filters.
             </div>
           ) : (
             <div className="mt-5 overflow-x-auto">
               <table className="w-full min-w-[650px] text-left text-sm">
-                <thead className="border-b border-[#16243d]/15 text-[10px] uppercase tracking-[.12em] text-[#475569]">
+                <thead className="border-b border-[#16243d]/15 text-[10px] uppercase tracking-[.12em] text-[var(--fg-muted)]">
                   <tr>
                     <th className="py-3 pr-4">Email</th>
                     <th className="py-3 pr-4">Source</th>
@@ -316,7 +316,7 @@ export default function AdminNewsletterPanel() {
                       <td className="py-3 pr-4 font-semibold">
                         {subscriber.email}
                       </td>
-                      <td className="py-3 pr-4 text-xs text-[#475569]">
+                      <td className="py-3 pr-4 text-xs text-[var(--fg-muted)]">
                         {subscriber.source}
                       </td>
                       <td className="py-3 pr-4">
@@ -331,7 +331,7 @@ export default function AdminNewsletterPanel() {
                             })
                           }
                           aria-label={`Update status for ${subscriber.email}`}
-                          className={`border-0 bg-transparent p-0 text-xs font-bold outline-none focus:ring-2 focus:ring-[#c9a34e]/40 ${subscriber.status === "confirmed" || subscriber.status === "subscribed" ? "text-emerald-800" : subscriber.status === "unsubscribed" ? "text-[#8b4f63]" : "text-[#b8860b]"}`}
+                          className={`border-0 bg-transparent p-0 text-xs font-bold outline-none focus:ring-2 focus:ring-[var(--brand)]/40 ${subscriber.status === "confirmed" || subscriber.status === "subscribed" ? "text-emerald-800" : subscriber.status === "unsubscribed" ? "text-[#8b4f63]" : "text-[var(--brand)]"}`}
                         >
                           <option value="pending">Pending</option>
                           <option value="confirmed">Confirmed</option>
@@ -339,7 +339,7 @@ export default function AdminNewsletterPanel() {
                           <option value="unsubscribed">Unsubscribed</option>
                         </select>
                       </td>
-                      <td className="py-3 text-xs text-[#475569]">
+                      <td className="py-3 text-xs text-[var(--fg-muted)]">
                         {new Date(subscriber.consentedAt).toLocaleString()}
                       </td>
                     </tr>
@@ -361,4 +361,3 @@ export default function AdminNewsletterPanel() {
     </section>
   );
 }
-

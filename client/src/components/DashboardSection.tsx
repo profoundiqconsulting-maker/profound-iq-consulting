@@ -18,18 +18,12 @@ export function DashboardSectionHeader({
     <div className={`mb-6 ${className}`}>
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          {eyebrow && (
-            <p className="eyebrow text-[#b8860b]">
-              {eyebrow}
-            </p>
-          )}
+          {eyebrow && <p className="eyebrow text-[var(--brand)]">{eyebrow}</p>}
           {title && (
-            <h2 className="display mt-2 text-3xl text-[#16243d]">
-              {title}
-            </h2>
+            <h2 className="display mt-2 text-3xl text-[var(--fg)]">{title}</h2>
           )}
           {description && (
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#475569]">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--fg-muted)]">
               {description}
             </p>
           )}

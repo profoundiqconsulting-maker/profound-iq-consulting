@@ -1,5 +1,6 @@
 ﻿import { Card } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Link } from "wouter";
 
 interface StatCardProps {
   label: string;
@@ -28,19 +29,22 @@ export function StatCard({
 
   const content = (
     <Card
-      className={`border border-border bg-card backdrop-blur-sm p-5 transition-all duration-200 hover:shadow-md focus-within:shadow-md ${className}`}
+      className={`border border-[var(--border)] bg-[var(--bg-elevated)] p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--brand)]/35 hover:shadow-md focus-within:shadow-md ${className}`}
     >
       <div className="flex items-center justify-between">
-        <p className="text-[10px] font-black uppercase tracking-[.12em] text-slate-600">
+        <p className="text-[10px] font-bold uppercase tracking-[.12em] text-[var(--fg-muted)]">
           {label}
         </p>
         {icon && (
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <div
+            aria-hidden="true"
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--brand-muted)] text-[var(--fg)]"
+          >
             {icon}
           </div>
         )}
       </div>
-      <p className="mt-3 text-3xl font-bold tracking-tight text-foreground">
+      <p className="mt-3 text-3xl font-bold tabular-nums tracking-tight text-[var(--fg)]">
         {value}
       </p>
       {trend && TrendIcon && (
@@ -48,19 +52,19 @@ export function StatCard({
           <TrendIcon
             className={`h-3.5 w-3.5 ${
               trend.value > 0
-                ? "text-emerald-800"
+                ? "text-[var(--success)]"
                 : trend.value < 0
-                  ? "text-red-800"
-                  : "text-slate-600"
+                  ? "text-[var(--danger)]"
+                  : "text-[var(--fg-muted)]"
             }`}
           />
           <span
             className={
               trend.value > 0
-                ? "text-emerald-800"
+                ? "text-[var(--success)]"
                 : trend.value < 0
-                  ? "text-red-800"
-                  : "text-slate-600"
+                  ? "text-[var(--danger)]"
+                  : "text-[var(--fg-muted)]"
             }
           >
             {trend.value > 0 ? "+" : ""}
@@ -73,12 +77,12 @@ export function StatCard({
 
   if (href) {
     return (
-      <a
+      <Link
         href={href}
-        className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl"
+        className="group block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2"
       >
         {content}
-      </a>
+      </Link>
     );
   }
 

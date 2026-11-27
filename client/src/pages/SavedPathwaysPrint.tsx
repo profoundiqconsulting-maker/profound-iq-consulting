@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { BrandLogo } from "@/components/BrandLogo";
+import { SiteNavigation } from "@/components/SiteNavigation";
 import { trpc } from "@/lib/trpc";
 import { courseCatalog } from "@shared/courseCatalog";
 import { PUBLISHED_SITE_ORIGIN } from "@shared/siteOrigin";
@@ -40,7 +41,7 @@ const copy: {
   page: "Page",
   watermark: "Brand watermark",
   previous: "Previous",
-  next: "Next",
+  next: "Next",
 };
 
 export default function SavedPathwaysPrint() {
@@ -78,10 +79,10 @@ export default function SavedPathwaysPrint() {
     { length: Math.max(1, Math.ceil(courses.length / chunkSize)) },
     (_, index) => courses.slice(index * chunkSize, (index + 1) * chunkSize)
   );
-  const formattedDate = new Date().toLocaleString(
-    "en-KE",
-    { dateStyle: "medium", timeStyle: "short" }
-  );
+  const formattedDate = new Date().toLocaleString("en-KE", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
 
   if (loading)
     return (
@@ -113,24 +114,20 @@ export default function SavedPathwaysPrint() {
         dir="ltr"
         className="min-h-screen bg-[#f7f3e8] text-[#16243d] print:bg-white"
       >
-        <header className="border-b border-[#16243d]/15 bg-[#101d35] text-[#f7f3e8] print:hidden">
-          <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-4">
-            <Link href="/dashboard" className="flex items-center gap-3">
-              <BrandLogo context="my space" compactOnMobile />
-              <span className="text-[10px] font-black uppercase tracking-[.16em]">
-                / MY SPACE
-              </span>
-            </Link>
-            <div className="flex items-center gap-3">
+        <div className="print:hidden">
+          <SiteNavigation
+            variant="public"
+            showAuthActions={false}
+            actions={
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.12em] text-[#c1cad7]"
+                className="inline-flex items-center gap-2 rounded-full border border-white/25 px-3 py-2 text-[10px] font-bold uppercase tracking-[.1em] text-[#f7f3e8]"
               >
                 <ArrowLeft size={14} /> {labels.back}
               </Link>
-            </div>
-          </div>
-        </header>
+            }
+          />
+        </div>
         <section className="mx-auto max-w-5xl px-5 py-10 sm:py-14 print:max-w-none print:px-12 print:py-8">
           <div className="flex flex-col justify-between gap-6 border-b-2 border-[#c9a34e] pb-7 sm:flex-row sm:items-end">
             <div>
@@ -268,14 +265,6 @@ export default function SavedPathwaysPrint() {
                       </span>
                     </div>
                   )}
-                  <footer className="mt-10 flex justify-between border-t border-[#16243d]/15 pt-5 text-[10px] uppercase tracking-[.14em] text-[#657084]">
-                    <span>
-                      {PUBLISHED_SITE_ORIGIN.replace(/^https?:\/\//, "")} · Profound IQ Consulting
-                    </span>
-                    <span>
-                      {labels.page} {pageIndex + 1} / {pages.length}
-                    </span>
-                  </footer>
                 </section>
               ))}
               <nav
@@ -305,11 +294,6 @@ export default function SavedPathwaysPrint() {
                 </button>
               </nav>
             </>
-          )}
-          {saved.isLoading ? null : (
-            <footer className="mt-10 border-t border-[#16243d]/15 pt-5 text-center text-[10px] uppercase tracking-[.14em] text-[#657084] print:hidden">
-              {PUBLISHED_SITE_ORIGIN.replace(/^https?:\/\//, "")} · Profound IQ Consulting
-            </footer>
           )}
         </section>
       </main>

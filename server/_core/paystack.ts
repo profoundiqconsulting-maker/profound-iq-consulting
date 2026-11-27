@@ -37,6 +37,15 @@ export async function paystackRequest(path: string, init?: RequestInit) {
       code: "PRECONDITION_FAILED",
       message: "Paystack is not configured.",
     });
+
+  return _paystackRequest(path, init, secretKey);
+}
+
+async function _paystackRequest(
+  path: string,
+  init: RequestInit | undefined,
+  secretKey: string
+) {
   const response = await paystackFetch(`${PAYSTACK_API_BASE}${path}`, {
     ...init,
     headers: {

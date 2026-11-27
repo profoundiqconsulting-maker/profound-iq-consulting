@@ -3,10 +3,7 @@ export const CERTIFICATE_DOWNLOAD_PLATFORMS = {
   png: "png",
 } as const;
 export type CertificateSharePlatform =
-  | "linkedin"
-  | "facebook"
-  | "whatsapp"
-  | "twitter";
+  "linkedin" | "facebook" | "whatsapp" | "twitter";
 
 export function buildCertificateShareUrl(
   platform: CertificateSharePlatform,

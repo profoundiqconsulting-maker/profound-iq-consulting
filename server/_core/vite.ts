@@ -43,14 +43,14 @@ function serveAstroRoutes(app: Express) {
   app.use(express.static(astroPath, { extensions: ["html"] }));
 }
 
-
 export async function setupVite(app: Express, server: Server) {
   const { createServer: createViteServer } = await import("vite");
   const viteConfigPath = "../../vite.config";
   const viteConfigModule = await import(viteConfigPath);
-  const viteConfig = typeof viteConfigModule.default === "function"
-    ? viteConfigModule.default({ mode: "development" })
-    : viteConfigModule.default;
+  const viteConfig =
+    typeof viteConfigModule.default === "function"
+      ? viteConfigModule.default({ mode: "development" })
+      : viteConfigModule.default;
 
   const serverOptions = {
     middlewareMode: true,
@@ -90,7 +90,10 @@ export async function setupVite(app: Express, server: Server) {
       );
       const page = await vite.transformIndexHtml(url, template);
       const nonce = (res.locals?.cspNonce as string | undefined) ?? "";
-      const securedPage = page.replace(/<script\b/g, `<script nonce="${nonce}"`);
+      const securedPage = page.replace(
+        /<script\b/g,
+        `<script nonce="${nonce}"`
+      );
       res
         .status(200)
         .set({

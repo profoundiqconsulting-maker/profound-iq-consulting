@@ -24,4 +24,3 @@ export const psychometricWorkflowCopy: PsychometricWorkflowCopy = {
     "I consent to Profound IQ Consulting processing my responses to generate and deliver this educational profile. I understand it is not a clinical or employment diagnosis.",
   generateProfile: "and generate profile",
 };
-

@@ -16,23 +16,14 @@ export function DashboardStatCard({
   className = "",
 }: DashboardStatCardProps) {
   return (
-    <div
-      className={`border border-[#16243d]/10 bg-white/50 p-4 ${className}`}
-    >
+    <div className={`border border-[var(--border)] bg-[var(--bg-card)] p-4 ${className}`}>
       <div className="flex items-center justify-between">
-        <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#657084]">
+        <p className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
           {label}
         </p>
-        {Icon && (
-          <Icon
-            className="h-4 w-4 text-[#657084]"
-            aria-hidden="true"
-          />
-        )}
+        {Icon && <Icon className="h-4 w-4 text-[var(--fg-muted)]" aria-hidden="true" />}
       </div>
-      <p className="mt-2 text-3xl font-bold text-[#16243d]">
-        {value}
-      </p>
+      <p className="mt-2 text-3xl font-bold text-[var(--fg)]">{value}</p>
       {trend && (
         <p
           className={`mt-1 text-xs font-medium ${trend.value >= 0 ? "text-emerald-800" : "text-red-800"}`}

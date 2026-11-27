@@ -23,19 +23,19 @@ WCAG AA target: minimum 4.5:1 contrast for normal text, 3:1 for large text and U
 
 ## Contrast pairs fixed
 
-| Before | Pair | After | Ratio |
-| --- | --- | --- | --- |
-| `text-[#4a566a]` on `bg-[#f7f3e8]` | Courses body copy | `text-[#16243d]` on `bg-[#f7f3e8]` | 15.1:1 |
-| `text-[#657084]` on `bg-[#f7f3e8]` | Secondary text | `text-muted-foreground` (dark) | 8.2:1 |
-| `text-[#c1cad7]` on `bg-[#101d35]` | Hero subtext | `text-[#d6dce6]` on `bg-[#101d35]` | 7.1:1 |
-| `text-[#aab5c6]` on `bg-[#172844]` | Offerings subtext | `text-[#c1cad7]` on `bg-[#172844]` | 8.0:1 |
-| `text-[#8f9db3]` on `bg-[#101d35]` | Footer muted | `text-muted-on-dark` on `bg-[#101d35]` | 7.0:1 |
-| `text-[#8090a8]` on `bg-[#101d35]` | Proof section | `text-[#aab5c6]` on `bg-[#101d35]` | 8.0:1 |
-| `text-[#5d4613]` on `bg-[#fff5cf]` | QC banner | `text-[#7d5e1e]` on `bg-[#fffaf0]` | 8.5:1 |
-| `text-[#a27e2e]` on `bg-[#fffaf0]` | Gold on cream | `text-[#7d5e1e]` on `bg-[#fffaf0]` | 9.1:1 |
-| `text-[#4a566a]` on `bg-[#f7f3e8]` | Certificate body | `text-[#16243d]` on `bg-[#f7f3e8]` | 15.1:1 |
-| `text-muted-foreground` on `bg-[#16243d]` | Workspace muted | `text-muted-on-dark` on `bg-[#16243d]` | 7.0:1 |
-| `text-[#657084]` on `bg-[#f7f3e8]` | Admin panel body | `text-[#4a566a]` on `bg-[#f7f3e8]` | 9.2:1 |
+| Before                                    | Pair              | After                                  | Ratio  |
+| ----------------------------------------- | ----------------- | -------------------------------------- | ------ |
+| `text-[#4a566a]` on `bg-[#f7f3e8]`        | Courses body copy | `text-[#16243d]` on `bg-[#f7f3e8]`     | 15.1:1 |
+| `text-[#657084]` on `bg-[#f7f3e8]`        | Secondary text    | `text-muted-foreground` (dark)         | 8.2:1  |
+| `text-[#c1cad7]` on `bg-[#101d35]`        | Hero subtext      | `text-[#d6dce6]` on `bg-[#101d35]`     | 7.1:1  |
+| `text-[#aab5c6]` on `bg-[#172844]`        | Offerings subtext | `text-[#c1cad7]` on `bg-[#172844]`     | 8.0:1  |
+| `text-[#8f9db3]` on `bg-[#101d35]`        | Footer muted      | `text-muted-on-dark` on `bg-[#101d35]` | 7.0:1  |
+| `text-[#8090a8]` on `bg-[#101d35]`        | Proof section     | `text-[#aab5c6]` on `bg-[#101d35]`     | 8.0:1  |
+| `text-[#5d4613]` on `bg-[#fff5cf]`        | QC banner         | `text-[#7d5e1e]` on `bg-[#fffaf0]`     | 8.5:1  |
+| `text-[#a27e2e]` on `bg-[#fffaf0]`        | Gold on cream     | `text-[#7d5e1e]` on `bg-[#fffaf0]`     | 9.1:1  |
+| `text-[#4a566a]` on `bg-[#f7f3e8]`        | Certificate body  | `text-[#16243d]` on `bg-[#f7f3e8]`     | 15.1:1 |
+| `text-muted-foreground` on `bg-[#16243d]` | Workspace muted   | `text-muted-on-dark` on `bg-[#16243d]` | 7.0:1  |
+| `text-[#657084]` on `bg-[#f7f3e8]`        | Admin panel body  | `text-[#4a566a]` on `bg-[#f7f3e8]`     | 9.2:1  |
 
 ## Issues fixed
 

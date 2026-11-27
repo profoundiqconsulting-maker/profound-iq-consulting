@@ -4,7 +4,14 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Upload, Download, ChevronLeft, ChevronRight, Users } from "lucide-react";
+import {
+  Search,
+  Upload,
+  Download,
+  ChevronLeft,
+  ChevronRight,
+  Users,
+} from "lucide-react";
 import { useAdminTableState } from "@/hooks/useAdminTableState";
 import "@/components/dashboard/admin-observatory.css";
 
@@ -26,9 +33,11 @@ function CohortManagementInner() {
   const selected = table.selected as string[];
 
   const setSearch = (value: string) => setTable("search", value);
-  const setPage = (value: number | ((prev: number) => number)) => setTable("page", value);
+  const setPage = (value: number | ((prev: number) => number)) =>
+    setTable("page", value);
   const setCohort = (value: string) => setTable("cohort", value);
-  const setSelected = (value: string[] | ((prev: string[]) => string[])) => setTable("selected", value);
+  const setSelected = (value: string[] | ((prev: string[]) => string[])) =>
+    setTable("selected", value);
   const [importStatus, setImportStatus] = useState("");
   const [importError, setImportError] = useState("");
 
@@ -57,10 +66,10 @@ function CohortManagementInner() {
       setImportError("");
       void users.refetch();
     },
-    onError: (error) => {
+    onError: error => {
       setImportError(error.message || "Import failed");
       setImportStatus("");
-    }
+    },
   });
 
   const parseCsv = (text: string) => {
@@ -105,7 +114,9 @@ function CohortManagementInner() {
       const rows = parseCsv(await file.text());
       importCohorts.mutate({ rows });
     } catch (error) {
-      setImportError(error instanceof Error ? error.message : "Could not read this CSV.");
+      setImportError(
+        error instanceof Error ? error.message : "Could not read this CSV."
+      );
       setImportStatus("");
     }
   };
@@ -123,10 +134,11 @@ function CohortManagementInner() {
     <div className="admin-observatory w-full max-w-full space-y-6 overflow-x-hidden">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <p className="exec-eyebrow">Admin workspace</p>
+          <p className="eyebrow">Admin workspace</p>
           <h1 className="display mt-2 text-3xl">Cohort management</h1>
-          <p className="mt-1 text-sm text-[#64748b]">
-            Group learners intentionally for conversion analysis. Assignments are stored on the user record and can be changed at any time.
+          <p className="mt-1 text-sm text-[var(--fg-muted)]">
+            Group learners intentionally for conversion analysis. Assignments
+            are stored on the user record and can be changed at any time.
           </p>
         </div>
         <div className="exec-badge w-fit">
@@ -140,7 +152,10 @@ function CohortManagementInner() {
           <div className="exec-card p-4 sm:p-5">
             <div className="flex flex-wrap items-center gap-3">
               <div className="relative w-full sm:w-auto">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#64748b]" aria-hidden="true" />
+                <Search
+                  className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--fg-muted)]"
+                  aria-hidden="true"
+                />
                 <Input
                   value={search}
                   onChange={event => {
@@ -160,13 +175,21 @@ function CohortManagementInner() {
               <Button
                 disabled={!selected.length || assign.isPending}
                 onClick={() =>
-                  assign.mutate({ openIds: selected, cohort: cohort.trim() || null })
+                  assign.mutate({
+                    openIds: selected,
+                    cohort: cohort.trim() || null,
+                  })
                 }
                 className="h-10 w-full sm:w-auto bg-[#16243d] text-[10px] font-black uppercase tracking-[.1em] text-[#f7f3e8] disabled:opacity-40"
               >
-                {assign.isPending ? "Assigning…" : `Assign ${selected.length || "selected"}`}
+                {assign.isPending
+                  ? "Assigning…"
+                  : `Assign ${selected.length || "selected"}`}
               </Button>
-              <Badge variant="secondary" className="text-[10px] font-black uppercase tracking-[.1em]">
+              <Badge
+                variant="secondary"
+                className="text-[10px] font-black uppercase tracking-[.1em]"
+              >
                 {selected.length} selected
               </Badge>
             </div>
@@ -191,26 +214,31 @@ function CohortManagementInner() {
                         <td>
                           <input
                             type="checkbox"
+                            id={`select-user-${user.openId}`}
+                            name="selectedUsers"
                             checked={selected.includes(user.openId)}
                             onChange={() => toggle(user.openId)}
                             aria-label={`Select ${user.name || user.email || user.openId}`}
                             className="h-4 w-4 rounded border-[#16243d]/20"
                           />
                         </td>
-                        <td className="font-medium text-[#0f172a]">
+                        <td className="font-medium text-[var(--fg)]">
                           {user.name || "Unnamed learner"}
                         </td>
-                        <td className="text-[#475569]">{user.email || "—"}</td>
+                        <td className="text-[var(--fg-muted)]">{user.email || "—"}</td>
                         <td>
                           {user.cohort ? (
-                            <Badge variant="secondary" className="text-[10px] font-black uppercase tracking-[.08em]">
+                            <Badge
+                              variant="secondary"
+                              className="text-[10px] font-black uppercase tracking-[.08em]"
+                            >
                               {user.cohort}
                             </Badge>
                           ) : (
-                            <span className="text-[#64748b]">Unassigned</span>
+                            <span className="text-[var(--fg-muted)]">Unassigned</span>
                           )}
                         </td>
-                        <td className="text-[#64748b]">
+                        <td className="text-[var(--fg-muted)]">
                           {new Date(user.lastSignedIn).toLocaleDateString()}
                         </td>
                       </tr>
@@ -221,10 +249,12 @@ function CohortManagementInner() {
             </div>
             {!users.isLoading && !users.data?.rows.length && (
               <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-                <p className="text-sm font-semibold text-[#64748b]">No learners match this search.</p>
+                <p className="text-sm font-semibold text-[var(--fg-muted)]">
+                  No learners match this search.
+                </p>
               </div>
             )}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#e2e8f0] px-4 py-4 text-xs text-[#64748b] sm:px-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#e2e8f0] px-4 py-4 text-xs text-[var(--fg-muted)] sm:px-5">
               <span>
                 {totalLearners} learners · page {users.data?.page ?? page} of{" "}
                 {users.data?.totalPages ?? 1}
@@ -256,22 +286,22 @@ function CohortManagementInner() {
         <div className="space-y-4">
           <div className="exec-card p-4 sm:p-5">
             <p className="exec-label-gold">Bulk import CSV</p>
-            <p className="mt-2 text-sm leading-6 text-[#475569]">
+            <p className="mt-2 text-sm leading-6 text-[var(--fg-muted)]">
               Upload a CSV to assign cohorts in bulk. Required headers:{" "}
-              <code className="rounded bg-[#f1f5f9] px-1.5 py-0.5 text-xs font-semibold text-[#7d5e1e]">
+              <code className="rounded bg-[#f1f5f9] px-1.5 py-0.5 text-xs font-semibold text-[var(--brand)]">
                 email
               </code>{" "}
               or{" "}
-              <code className="rounded bg-[#f1f5f9] px-1.5 py-0.5 text-xs font-semibold text-[#7d5e1e]">
+              <code className="rounded bg-[#f1f5f9] px-1.5 py-0.5 text-xs font-semibold text-[var(--brand)]">
                 open_id
               </code>
               , and{" "}
-              <code className="rounded bg-[#f1f5f9] px-1.5 py-0.5 text-xs font-semibold text-[#7d5e1e]">
+              <code className="rounded bg-[#f1f5f9] px-1.5 py-0.5 text-xs font-semibold text-[var(--brand)]">
                 cohort
               </code>
               .
             </p>
-            <label className="mt-4 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-[#e2e8f0] px-4 py-3 text-xs font-semibold text-[#64748b] transition-colors hover:border-[#c9a34e] hover:text-[#16243d]">
+            <label className="mt-4 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-[#e2e8f0] px-4 py-3 text-xs font-semibold text-[var(--fg-muted)] transition-colors hover:border-[var(--brand)] hover:text-[#16243d]">
               <Upload className="h-4 w-4" />
               Upload CSV
               <input
@@ -286,17 +316,25 @@ function CohortManagementInner() {
               />
             </label>
             {importStatus && (
-              <p role="status" className="mt-3 text-xs font-semibold text-emerald-800">
+              <p
+                role="status"
+                className="mt-3 text-xs font-semibold text-emerald-800"
+              >
                 {importStatus}
               </p>
             )}
             {importError && (
-              <p role="alert" className="mt-3 text-xs font-semibold text-red-700">
+              <p
+                role="alert"
+                className="mt-3 text-xs font-semibold text-red-700"
+              >
                 {importError}
               </p>
             )}
             {importCohorts.isPending && (
-              <p className="mt-3 text-xs font-semibold text-[#64748b]">Importing…</p>
+              <p className="mt-3 text-xs font-semibold text-[var(--fg-muted)]">
+                Importing…
+              </p>
             )}
           </div>
 

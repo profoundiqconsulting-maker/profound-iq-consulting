@@ -105,13 +105,12 @@ export const DOMAIN_PALETTES: Record<string, VisualPalette> = {
   },
 } as const;
 
-export function paletteForCategory(
-  category: CourseCategory
-): VisualPalette {
+export function paletteForCategory(category: CourseCategory): VisualPalette {
   return DOMAIN_PALETTES[category] ?? DOMAIN_PALETTES["Business & Analytics"];
 }
 
-export type VisualAssetType = "flowchart" | "diagram" | "illustration" | "infographic";
+export type VisualAssetType =
+  "flowchart" | "diagram" | "illustration" | "infographic";
 
 export type GeneratedVisualAsset = {
   type: VisualAssetType;
@@ -162,11 +161,7 @@ function range(n: number): number[] {
  * SVG helpers
  * ============================================================================ */
 
-function svgAttrs(
-  width: number,
-  height: number,
-  viewBox: string
-): string {
+function svgAttrs(width: number, height: number, viewBox: string): string {
   return `width="${width}" height="${height}" viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg"`;
 }
 
@@ -181,7 +176,10 @@ function rect(
   strokeWidth?: number
 ): string {
   const rxAttr = rx !== undefined ? ` rx="${rx}"` : "";
-  const strokeAttr = stroke !== undefined ? ` stroke="${stroke}" stroke-width="${strokeWidth ?? 1}"` : "";
+  const strokeAttr =
+    stroke !== undefined
+      ? ` stroke="${stroke}" stroke-width="${strokeWidth ?? 1}"`
+      : "";
   return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"${rxAttr}${strokeAttr} />`;
 }
 
@@ -193,7 +191,10 @@ function circle(
   stroke?: string,
   strokeWidth?: number
 ): string {
-  const strokeAttr = stroke !== undefined ? ` stroke="${stroke}" stroke-width="${strokeWidth ?? 1}"` : "";
+  const strokeAttr =
+    stroke !== undefined
+      ? ` stroke="${stroke}" stroke-width="${strokeWidth ?? 1}"`
+      : "";
   return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}"${strokeAttr} />`;
 }
 
@@ -208,7 +209,12 @@ function line(
   return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linecap="round" />`;
 }
 
-function path(d: string, fill: string = "none", stroke: string, strokeWidth: number = 2): string {
+function path(
+  d: string,
+  fill: string = "none",
+  stroke: string,
+  strokeWidth: number = 2
+): string {
   return `<path d="${d}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round" />`;
 }
 
@@ -222,11 +228,18 @@ function text(
   anchor: string = "start",
   fontFamily: string = "system-ui, -apple-system, sans-serif"
 ): string {
-  const escaped = content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const escaped = content
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
   return `<text x="${x}" y="${y}" fill="${fill}" font-size="${size}" font-weight="${weight}" text-anchor="${anchor}" font-family="${fontFamily}">${escaped}</text>`;
 }
 
-function polyline(points: string, stroke: string, strokeWidth: number = 2): string {
+function polyline(
+  points: string,
+  stroke: string,
+  strokeWidth: number = 2
+): string {
   return `<polyline points="${points}" fill="none" stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round" />`;
 }
 
@@ -251,28 +264,40 @@ export function generateFlowchartSvg(
   const lines: string[] = [];
   lines.push(`<svg ${svgAttrs(w, h, `0 0 ${w} ${h}`)}>`);
   lines.push(rect(0, 0, w, h, palette.light));
-  lines.push(
-    rect(20, 20, w - 40, 40, palette.primary, 8)
-  );
-  lines.push(
-    text(cx, 44, title, "#ffffff", 16, "bold", "middle")
-  );
+  lines.push(rect(20, 20, w - 40, 40, palette.primary, 8));
+  lines.push(text(cx, 44, title, "#ffffff", 16, "bold", "middle"));
 
   let currentY = startY;
   for (let i = 0; i < steps.length; i++) {
     const boxY = currentY;
     const boxX = 60;
     const boxW = w - 120;
-    const accentColor = pickFrom([palette.secondary, palette.accent, palette.primary], rng);
+    const accentColor = pickFrom(
+      [palette.secondary, palette.accent, palette.primary],
+      rng
+    );
 
-    lines.push(rect(boxX, boxY, boxW, stepH, palette.surface, 10, accentColor, 2));
-    lines.push(text(boxX + 24, boxY + 30, `${i + 1}.`, accentColor, 14, "bold", "start"));
-    lines.push(text(boxX + 48, boxY + 30, steps[i], palette.text, 13, "normal", "start"));
+    lines.push(
+      rect(boxX, boxY, boxW, stepH, palette.surface, 10, accentColor, 2)
+    );
+    lines.push(
+      text(boxX + 24, boxY + 30, `${i + 1}.`, accentColor, 14, "bold", "start")
+    );
+    lines.push(
+      text(boxX + 48, boxY + 30, steps[i], palette.text, 13, "normal", "start")
+    );
 
     if (i < steps.length - 1) {
       const arrowY = boxY + stepH + gap / 2;
       lines.push(line(cx, boxY + stepH, cx, arrowY, accentColor, 2));
-      lines.push(path(`M ${cx - 6} ${arrowY - 6} L ${cx} ${arrowY} L ${cx + 6} ${arrowY - 6}`, "none", accentColor, 2));
+      lines.push(
+        path(
+          `M ${cx - 6} ${arrowY - 6} L ${cx} ${arrowY} L ${cx + 6} ${arrowY - 6}`,
+          "none",
+          accentColor,
+          2
+        )
+      );
     }
 
     currentY += stepH + gap;
@@ -310,19 +335,43 @@ export function generateDiagramSvg(
   const orbitR = 150;
   const nodeCount = nodes.length;
   for (let i = 0; i < nodeCount; i++) {
-    const angle = (-Math.PI / 2) + (i * (2 * Math.PI) / nodeCount);
+    const angle = -Math.PI / 2 + (i * (2 * Math.PI)) / nodeCount;
     const nx = cx + orbitR * Math.cos(angle);
     const ny = cy + orbitR * Math.sin(angle);
-    const nodeColor = pickFrom([palette.secondary, palette.accent, palette.primary], rng);
+    const nodeColor = pickFrom(
+      [palette.secondary, palette.accent, palette.primary],
+      rng
+    );
 
     // Connection line
-    lines.push(line(cx + nodeR * Math.cos(angle), cy + nodeR * Math.sin(angle), nx - nodeR * 0.5 * Math.cos(angle), ny - nodeR * 0.5 * Math.sin(angle), palette.muted, 2));
+    lines.push(
+      line(
+        cx + nodeR * Math.cos(angle),
+        cy + nodeR * Math.sin(angle),
+        nx - nodeR * 0.5 * Math.cos(angle),
+        ny - nodeR * 0.5 * Math.sin(angle),
+        palette.muted,
+        2
+      )
+    );
 
     lines.push(circle(nx, ny, 26, nodeColor));
-    lines.push(text(nx, ny + 5, nodes[i].length > 12 ? nodes[i].slice(0, 12) + "…" : nodes[i], "#ffffff", 10, "bold", "middle"));
+    lines.push(
+      text(
+        nx,
+        ny + 5,
+        nodes[i].length > 12 ? nodes[i].slice(0, 12) + "…" : nodes[i],
+        "#ffffff",
+        10,
+        "bold",
+        "middle"
+      )
+    );
   }
 
-  lines.push(text(cx, cy + nodeR + 28, concept, palette.text, 13, "bold", "middle"));
+  lines.push(
+    text(cx, cy + nodeR + 28, concept, palette.text, 13, "bold", "middle")
+  );
   lines.push(`</svg>`);
   return lines.join("\n");
 }
@@ -347,12 +396,13 @@ export function generateIllustrationSvg(
   lines.push(
     `<image href="/assets/logo/piq-logo.png" x="${w - 130}" y="${h - 70}" width="110" height="50" preserveAspectRatio="xMidYMid meet" opacity="0.9" />`
   );
-  lines.push(
-    text(w - 70, h - 24, "PIQ", palette.muted, 10, "bold", "end")
-  );
+  lines.push(text(w - 70, h - 24, "PIQ", palette.muted, 10, "bold", "end"));
 
   // Abstract illustrative composition
-  const accentColor = pickFrom([palette.secondary, palette.accent, palette.primary], rng);
+  const accentColor = pickFrom(
+    [palette.secondary, palette.accent, palette.primary],
+    rng
+  );
 
   // Background shapes
   for (let i = 0; i < 6; i++) {
@@ -360,10 +410,16 @@ export function generateIllustrationSvg(
     const ry = rng() * (h - 140) + 140;
     const rs = rng() * 40 + 20;
     const ro = 0.15 + rng() * 0.25;
-    const rcolor = pickFrom([palette.primary, palette.secondary, palette.accent], rng);
+    const rcolor = pickFrom(
+      [palette.primary, palette.secondary, palette.accent],
+      rng
+    );
     lines.push(circle(rx, ry, rs, rcolor, "none", 0));
     // opacity via fill-opacity attribute
-    lines[lines.length - 1] = lines[lines.length - 1].replace(` fill="${rcolor}"`, ` fill="${rcolor}" fill-opacity="${ro}"`);
+    lines[lines.length - 1] = lines[lines.length - 1].replace(
+      ` fill="${rcolor}"`,
+      ` fill="${rcolor}" fill-opacity="${ro}"`
+    );
   }
 
   // Central motif: an open book / document with a path
@@ -376,10 +432,26 @@ export function generateIllustrationSvg(
 
   // Path arrows leading to the book
   const pathColor = palette.accent;
-  lines.push(path(`M ${w * 0.15} ${h * 0.8} Q ${w * 0.35} ${h * 0.85} ${bookX} ${bookY}`, "none", pathColor, 3));
-  lines.push(path(`M ${w * 0.85} ${h * 0.75} Q ${w * 0.65} ${h * 0.8} ${bookX + 140} ${bookY + 50}`, "none", pathColor, 3));
+  lines.push(
+    path(
+      `M ${w * 0.15} ${h * 0.8} Q ${w * 0.35} ${h * 0.85} ${bookX} ${bookY}`,
+      "none",
+      pathColor,
+      3
+    )
+  );
+  lines.push(
+    path(
+      `M ${w * 0.85} ${h * 0.75} Q ${w * 0.65} ${h * 0.8} ${bookX + 140} ${bookY + 50}`,
+      "none",
+      pathColor,
+      3
+    )
+  );
 
-  lines.push(text(w / 2, h - 100, metaphor, palette.muted, 12, "normal", "middle"));
+  lines.push(
+    text(w / 2, h - 100, metaphor, palette.muted, 12, "normal", "middle")
+  );
   lines.push(text(w / 2, h - 84, title, palette.text, 13, "bold", "middle"));
 
   lines.push(`</svg>`);
@@ -414,22 +486,84 @@ export function generateInfographicSvg(
   const cards = [stat1, stat2, stat3];
   for (let i = 0; i < cards.length; i++) {
     const x = startX + i * (cardW + gap);
-    const cardColor = pickFrom([palette.surface, palette.light, palette.surface], rng);
-    const accentColor = pickFrom([palette.secondary, palette.accent, palette.primary], rng);
+    const cardColor = pickFrom(
+      [palette.surface, palette.light, palette.surface],
+      rng
+    );
+    const accentColor = pickFrom(
+      [palette.secondary, palette.accent, palette.primary],
+      rng
+    );
 
     lines.push(rect(x, cardY, cardW, cardH, cardColor, 12, accentColor, 2));
     lines.push(rect(x + 24, cardY + 24, 48, 48, accentColor, 10));
-    lines.push(text(x + cardW / 2, cardY + 52, cards[i].value, accentColor, 22, "bold", "middle"));
-    lines.push(text(x + cardW / 2, cardY + 86, cards[i].label, palette.text, 11, "bold", "middle"));
-    lines.push(text(x + cardW / 2, cardY + cardH - 30, "PIQ", palette.muted, 10, "bold", "middle"));
+    lines.push(
+      text(
+        x + cardW / 2,
+        cardY + 52,
+        cards[i].value,
+        accentColor,
+        22,
+        "bold",
+        "middle"
+      )
+    );
+    lines.push(
+      text(
+        x + cardW / 2,
+        cardY + 86,
+        cards[i].label,
+        palette.text,
+        11,
+        "bold",
+        "middle"
+      )
+    );
+    lines.push(
+      text(
+        x + cardW / 2,
+        cardY + cardH - 30,
+        "PIQ",
+        palette.muted,
+        10,
+        "bold",
+        "middle"
+      )
+    );
 
     if (i < cards.length - 1) {
-      lines.push(line(x + cardW, cardY + cardH / 2, x + cardW + gap, cardY + cardH / 2, palette.muted, 2));
-      lines.push(path(`M ${x + cardW + gap - 6} ${cardY + cardH / 2 - 6} L ${x + cardW + gap} ${cardY + cardH / 2} L ${x + cardW + gap - 6} ${cardY + cardH / 2 + 6}`, "none", palette.muted, 2));
+      lines.push(
+        line(
+          x + cardW,
+          cardY + cardH / 2,
+          x + cardW + gap,
+          cardY + cardH / 2,
+          palette.muted,
+          2
+        )
+      );
+      lines.push(
+        path(
+          `M ${x + cardW + gap - 6} ${cardY + cardH / 2 - 6} L ${x + cardW + gap} ${cardY + cardH / 2} L ${x + cardW + gap - 6} ${cardY + cardH / 2 + 6}`,
+          "none",
+          palette.muted,
+          2
+        )
+      );
     }
   }
 
-  lines.push(text(cx, h - 30, "Profound IQ Consulting · Branded insight", palette.muted, 11, "normal", "middle"));
+  lines.push(
+    text(
+      cx,
+      h - 30,
+      "Profound IQ Consulting · Branded insight",
+      palette.muted,
+      11,
+      "normal",
+      "middle"
+    )
+  );
   lines.push(`</svg>`);
   return lines.join("\n");
 }
@@ -448,12 +582,40 @@ export function generateLessonVisuals(
   lessonIndex: number
 ): GeneratedVisualAsset[] {
   const palette = paletteForCategory(category);
-  const seedFlow = lessonVisualSeed(courseSlug, moduleIndex, lessonIndex, "flowchart");
-  const seedDiag = lessonVisualSeed(courseSlug, moduleIndex, lessonIndex, "diagram");
-  const seedIll = lessonVisualSeed(courseSlug, moduleIndex, lessonIndex, "illustration");
-  const seedInfo = lessonVisualSeed(courseSlug, moduleIndex, lessonIndex, "infographic");
+  const seedFlow = lessonVisualSeed(
+    courseSlug,
+    moduleIndex,
+    lessonIndex,
+    "flowchart"
+  );
+  const seedDiag = lessonVisualSeed(
+    courseSlug,
+    moduleIndex,
+    lessonIndex,
+    "diagram"
+  );
+  const seedIll = lessonVisualSeed(
+    courseSlug,
+    moduleIndex,
+    lessonIndex,
+    "illustration"
+  );
+  const seedInfo = lessonVisualSeed(
+    courseSlug,
+    moduleIndex,
+    lessonIndex,
+    "infographic"
+  );
 
-  const practiceVerbs = ["frame", "test", "review", "apply", "reflect", "adjust", "connect"];
+  const practiceVerbs = [
+    "frame",
+    "test",
+    "review",
+    "apply",
+    "reflect",
+    "adjust",
+    "connect",
+  ];
   const practice = practiceVerbs[lessonIndex % practiceVerbs.length];
 
   const flowchartSteps = [
@@ -464,13 +626,7 @@ export function generateLessonVisuals(
     "Review the evidence",
   ];
 
-  const diagramNodes = [
-    "Input",
-    theme,
-    "Decision",
-    "Action",
-    "Outcome",
-  ];
+  const diagramNodes = ["Input", theme, "Decision", "Action", "Outcome"];
 
   const illustrationMetaphor = lessonMetaphor(lessonTitle, theme, practice);
 
@@ -490,21 +646,39 @@ export function generateLessonVisuals(
     },
     {
       type: "diagram",
-      svg: generateDiagramSvg(seedDiag, palette, lessonTitle, theme, diagramNodes),
+      svg: generateDiagramSvg(
+        seedDiag,
+        palette,
+        lessonTitle,
+        theme,
+        diagramNodes
+      ),
       alt: `Concept diagram for ${lessonTitle}`,
       caption: `The working parts of ${lessonTitle.toLowerCase()} within ${theme}.`,
       label: `Signal ${String(moduleIndex + 1).padStart(2, "0")}.${lessonIndex + 1} · Map`,
     },
     {
       type: "illustration",
-      svg: generateIllustrationSvg(seedIll, palette, lessonTitle, illustrationMetaphor),
+      svg: generateIllustrationSvg(
+        seedIll,
+        palette,
+        lessonTitle,
+        illustrationMetaphor
+      ),
       alt: `Illustration for ${lessonTitle}`,
       caption: `${lessonTitle} — from ${theme} to an observable move.`,
       label: `Signal ${String(moduleIndex + 1).padStart(2, "0")}.${lessonIndex + 1} · View`,
     },
     {
       type: "infographic",
-      svg: generateInfographicSvg(seedInfo, palette, lessonTitle, stats[0], stats[1], stats[2]),
+      svg: generateInfographicSvg(
+        seedInfo,
+        palette,
+        lessonTitle,
+        stats[0],
+        stats[1],
+        stats[2]
+      ),
       alt: `Infographic for ${lessonTitle}`,
       caption: `Key signals for ${lessonTitle.toLowerCase()}.`,
       label: `Signal ${String(moduleIndex + 1).padStart(2, "0")}.${lessonIndex + 1} · Insight`,
@@ -530,5 +704,8 @@ function lessonMetaphor(
     connect: `Connect ${lessonTitle} to ${theme}: link the intended outcome to one visible learner action, and review the result.`,
   };
 
-  return metaphors[practice] ?? `One ${lessonTitle} decision inside ${theme}, tested against evidence and adjusted for the next move.`;
+  return (
+    metaphors[practice] ??
+    `One ${lessonTitle} decision inside ${theme}, tested against evidence and adjusted for the next move.`
+  );
 }

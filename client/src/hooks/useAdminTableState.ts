@@ -39,7 +39,10 @@ export function useAdminTableState<T extends TableStateShape>(
   const hydrated = useMemo(() => {
     const next: TableStateShape = { ...initialState };
     for (const key of persistedKeys) {
-      const stored = readStoredValue(storageKey(prefix, String(key)), initialState[key as keyof T]);
+      const stored = readStoredValue(
+        storageKey(prefix, String(key)),
+        initialState[key as keyof T]
+      );
       next[key as string] = stored;
     }
     return next as T;
@@ -49,7 +52,10 @@ export function useAdminTableState<T extends TableStateShape>(
 
   useEffect(() => {
     for (const key of persistedKeys) {
-      writeStoredValue(storageKey(prefix, String(key)), (state as TableStateShape)[key as string]);
+      writeStoredValue(
+        storageKey(prefix, String(key)),
+        (state as TableStateShape)[key as string]
+      );
     }
   }, [prefix, state, persistedKeys, initialState]);
 

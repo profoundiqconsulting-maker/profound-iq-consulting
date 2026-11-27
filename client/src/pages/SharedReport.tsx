@@ -1,12 +1,9 @@
 import { AlertCircle, ShieldCheck } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { Link } from "wouter";
 import { getDimensionReflectionPoints } from "@shared/assessment";
-import { BrandLogo } from "@/components/BrandLogo";
-
+import { SiteNavigation } from "@/components/SiteNavigation";
 
 export default function SharedReport() {
-  
   const token = new URLSearchParams(window.location.search).get("token") ?? "";
   const result = trpc.sharedReport.get.useQuery(
     { token },
@@ -15,11 +12,7 @@ export default function SharedReport() {
   if (!token || result.isError)
     return (
       <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-        <header className="border-b border-[#16243d]/15 bg-[#101d35] py-5">
-          <div className="container">
-            <BrandLogo />
-          </div>
-        </header>
+        <SiteNavigation variant="public" />
         <main className="container py-24">
           <div className="mx-auto max-w-xl border-l-2 border-red-700 bg-red-50 p-6 text-red-900">
             <AlertCircle className="mb-4" />
@@ -36,8 +29,9 @@ export default function SharedReport() {
     );
   if (result.isLoading)
     return (
-      <div className="min-h-screen bg-[#f7f3e8] p-8 text-[#16243d]">
-        Loading shared report…
+      <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
+        <SiteNavigation variant="public" />
+        <main className="container p-8">Loading shared report…</main>
       </div>
     );
   const data = result.data;
@@ -46,17 +40,7 @@ export default function SharedReport() {
   const lens = data.roleLens;
   return (
     <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
-      <header className="border-b border-[#16243d]/15 bg-[#101d35] py-5">
-        <div className="container flex items-center justify-between">
-          <BrandLogo />
-          <Link
-            href="/"
-            className="text-[10px] font-black uppercase tracking-[.14em] text-[#c1cad7] hover:text-[#8b6914]"
-          >
-            {"Back to site"}
-          </Link>
-        </div>
-      </header>
+      <SiteNavigation variant="public" />
       <main className="container py-10 sm:py-16">
         <div className="mx-auto max-w-5xl">
           <p className="eyebrow text-[#7d5e1e]">

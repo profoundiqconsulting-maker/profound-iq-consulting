@@ -26,7 +26,6 @@ export const lessonInteractiveCopy: LessonInteractiveCopy = {
     "Your required lesson work is complete. You can now test your understanding.",
 };
 
-
 export type LessonIllustrationCopy = {
   explanatory: string;
   applicational: string;
@@ -38,4 +37,3 @@ export const lessonIllustrationCopy: LessonIllustrationCopy = {
   applicational: "Everyday application",
   experiential: "Experiential moment",
 };
-

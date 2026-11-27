@@ -9,6 +9,7 @@ import {
   uniqueIndex,
   varchar,
 } from "drizzle-orm/mysql-core";
+import type { CourseEnrollmentApplication } from "../shared/courseEnrollmentApplication";
 
 export const users = mysqlTable(
   "users",
@@ -213,6 +214,29 @@ export const courseLearnerEnrollments = mysqlTable(
     ),
   })
 );
+export const courseEnrollmentApplications = mysqlTable(
+  "course_enrollment_applications",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    enrollmentId: int("enrollment_id").notNull(),
+    userOpenId: varchar("user_open_id", { length: 64 }).notNull(),
+    courseSlug: varchar("course_slug", { length: 120 }).notNull(),
+    application: json("application")
+      .$type<CourseEnrollmentApplication>()
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  },
+  table => ({
+    enrollmentUnique: uniqueIndex(
+      "course_enrollment_applications_enrollment_unique"
+    ).on(table.enrollmentId),
+    ownerCourseIdx: index("course_enrollment_applications_owner_course_idx").on(
+      table.userOpenId,
+      table.courseSlug
+    ),
+  })
+);
 export const courseAccessGrants = mysqlTable(
   "course_access_grants",
   {
@@ -251,6 +275,24 @@ export const courseAccessGrantAudits = mysqlTable(
     createdIdx: index("course_access_grant_audit_created_idx").on(
       table.createdAt
     ),
+  })
+);
+
+export const assessmentRoadmapItems = mysqlTable(
+  "assessment_roadmap_items",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    userOpenId: varchar("userOpenId", { length: 64 }).notNull(),
+    courseSlug: varchar("courseSlug", { length: 120 }).notNull(),
+    source: varchar("source", { length: 32 }).default("assessment").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => ({
+    roadmapUserCourseUnique: uniqueIndex(
+      "assessment_roadmap_user_course_unique"
+    ).on(table.userOpenId, table.courseSlug),
+    roadmapUserIdx: index("assessment_roadmap_user_idx").on(table.userOpenId),
   })
 );
 
@@ -578,7 +620,7 @@ export const userSessions = mysqlTable(
     trustExpiresAt: timestamp("trustExpiresAt"),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
     lastSeenAt: timestamp("lastSeenAt").defaultNow().notNull(),
-    expiresAt: timestamp("expiresAt").notNull(),
+    expiresAt: timestamp("expiresAt"),
     revokedAt: timestamp("revokedAt"),
   },
   table => ({
@@ -935,7 +977,8 @@ export type CourseLessonProgress = typeof courseLessonProgress.$inferSelect;
 export type CourseQuizAttempt = typeof courseQuizAttempts.$inferSelect;
 export type CoursePaymentStage = typeof coursePaymentStages.$inferSelect;
 export type CoursePaymentEvent = typeof coursePaymentEvents.$inferSelect;
-export type PaymentReconciliationLog = typeof paymentReconciliationLog.$inferSelect;
+export type PaymentReconciliationLog =
+  typeof paymentReconciliationLog.$inferSelect;
 export type CourseActivePosition = typeof courseActivePositions.$inferSelect;
 export type CourseCertificate = typeof courseCertificates.$inferSelect;
 export type EmailTemplate = typeof emailTemplates.$inferSelect;
@@ -1045,7 +1088,8 @@ export type InsertConversation = typeof conversations.$inferInsert;
 export type Message = typeof messages.$inferSelect;
 export type InsertMessage = typeof messages.$inferInsert;
 export type MessageNotification = typeof messageNotifications.$inferSelect;
-export type InsertMessageNotification = typeof messageNotifications.$inferInsert;
+export type InsertMessageNotification =
+  typeof messageNotifications.$inferInsert;
 
 export const resources = mysqlTable("resources", {
   id: int("id").autoincrement().primaryKey(),
@@ -1073,7 +1117,9 @@ export const resourcePurchases = mysqlTable("resource_purchases", {
   amountKes: int("amountKes").notNull(),
   currency: varchar("currency", { length: 3 }).default("KES").notNull(),
   paystackReference: varchar("paystackReference", { length: 120 }).unique(),
-  paymentStatus: varchar("paymentStatus", { length: 24 }).default("pending").notNull(),
+  paymentStatus: varchar("paymentStatus", { length: 24 })
+    .default("pending")
+    .notNull(),
   purchasedAt: timestamp("purchasedAt").defaultNow().notNull(),
 });
 
@@ -1084,7 +1130,10 @@ export const surveys = mysqlTable("surveys", {
   type: varchar("type", { length: 24 }).notNull(),
   status: varchar("status", { length: 24 }).default("draft").notNull(),
   options: json("options").notNull(),
-  responses: json("responses").$type<Record<string, number>>().default({}).notNull(),
+  responses: json("responses")
+    .$type<Record<string, number>>()
+    .default({})
+    .notNull(),
   totalResponses: int("totalResponses").default(0).notNull(),
   startsAt: timestamp("startsAt"),
   endsAt: timestamp("endsAt"),
@@ -1099,7 +1148,10 @@ export const communicationCampaigns = mysqlTable("communication_campaigns", {
   title: varchar("title", { length: 240 }).notNull(),
   body: text("body").notNull(),
   recipientType: varchar("recipientType", { length: 24 }).notNull(),
-  filters: json("filters").$type<Record<string, unknown>>().default({}).notNull(),
+  filters: json("filters")
+    .$type<Record<string, unknown>>()
+    .default({})
+    .notNull(),
   sentByOpenId: varchar("sentByOpenId", { length: 64 }).notNull(),
   sentAt: timestamp("sentAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -1145,9 +1197,11 @@ export type InsertResource = typeof resources.$inferInsert;
 export type Survey = typeof surveys.$inferSelect;
 export type InsertSurvey = typeof surveys.$inferInsert;
 export type CommunicationCampaign = typeof communicationCampaigns.$inferSelect;
-export type InsertCommunicationCampaign = typeof communicationCampaigns.$inferInsert;
+export type InsertCommunicationCampaign =
+  typeof communicationCampaigns.$inferInsert;
 export type CommunicationTicket = typeof communicationTickets.$inferSelect;
-export type InsertCommunicationTicket = typeof communicationTickets.$inferInsert;
+export type InsertCommunicationTicket =
+  typeof communicationTickets.$inferInsert;
 export type SurveyResponse = typeof surveyResponses.$inferSelect;
 export type InsertSurveyResponse = typeof surveyResponses.$inferInsert;
 export type SurveyAnalysis = typeof surveyAnalysis.$inferSelect;

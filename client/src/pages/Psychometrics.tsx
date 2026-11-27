@@ -1,5 +1,5 @@
 /* Profound IQ Consulting — Psychometrics redesigned for executive conversion */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useRoute } from "wouter";
 import {
   ArrowLeft,
@@ -17,6 +17,7 @@ import {
   ChevronRight,
   Loader2,
 } from "lucide-react";
+import { ProfessionalPsychometricReport } from "@/components/PsychometricReport";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -30,8 +31,10 @@ import { toast } from "sonner";
 import { getPsychometricCourseRecommendations } from "@shared/psychometricRecommendations";
 import { CheckoutForm } from "@/components/CheckoutForm";
 import { ProgressRing } from "@/components/ui/progress-ring";
+import { ProgressMotionBar, EncouragementMessage } from "@/components/ProgressMotion";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { usePostPaymentRedirect } from "@/hooks/usePostPaymentRedirect";
 
 import { psychometricWorkflowCopy as workflowCopy } from "@shared/psychometricWorkflowLocalization";
 import PaystackInlineModal, {
@@ -46,7 +49,7 @@ type PsychometricStage = "catalog" | "questions" | "checkout" | "report";
 export default function Psychometrics() {
   const utils = trpc.useUtils();
   const [, params] = useRoute("/psychometrics/:slug");
-  const [, navigate] = useLocation();
+  const [, setLocation] = useLocation();
   const { user } = useAuth();
 
   const slug = params?.slug;
@@ -63,7 +66,9 @@ export default function Psychometrics() {
   const initializeInline =
     trpc.psychometric.initializeInlinePayment.useMutation();
 
-  const [stage, setStage] = useState<PsychometricStage>(slug ? "questions" : "catalog");
+  const [stage, setStage] = useState<PsychometricStage>(
+    slug ? "questions" : "catalog"
+  );
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [name, setName] = useState("");
@@ -71,12 +76,21 @@ export default function Psychometrics() {
   const [consent, setConsent] = useState(false);
   const [report, setReport] = useState<any>(null);
   const [paidReference, setPaidReference] = useState<string | null>(null);
-  const [feedbackScores, setFeedbackScores] = useState<Record<string, number>>({});
+  const [feedbackScores, setFeedbackScores] = useState<Record<string, number>>(
+    {}
+  );
   const [paymentMessage, setPaymentMessage] = useState("");
   const [inlineModalOpen, setInlineModalOpen] = useState(false);
-  const [inlineProduct, setInlineProduct] = useState<PaystackInlineProduct | null>(null);
+  const [inlineProduct, setInlineProduct] =
+    useState<PaystackInlineProduct | null>(null);
   const [showCheckout, setShowCheckout] = useState(false);
   const [tasterCompleted, setTasterCompleted] = useState(false);
+
+  const { redirect, navigate: navigateRedirect } = usePostPaymentRedirect({
+    productType: "psychometric",
+    reference: paidReference || undefined,
+    enabled: false, // We'll manually call redirect when needed
+  });
 
   const recommendationFeedback =
     trpc.psychometric.recommendationFeedback.useMutation({
@@ -86,12 +100,15 @@ export default function Psychometrics() {
         toast.error("Could not save feedback", { description: error.message }),
     });
 
-  const questions = detail.data?.questions ?? [];
-  const current = questions[index];
-  const completion = questions.length
-    ? Math.round((Object.keys(answers).length / questions.length) * 100)
-    : 0;
-  const isTasterQuestion = index < 3; // First 3 questions are free taster
+const questions = detail.data?.questions ?? [];
+  const clampedIndex = Math.min(index, Math.max(0, questions.length - 1));
+  const current = questions[clampedIndex];
+  const answeredCount = Object.keys(answers).length;
+  const completion =
+    questions.length > 0
+      ? Math.min(100, Math.round((answeredCount / questions.length) * 100))
+      : 0;
+  const isTasterQuestion = clampedIndex < 3; // First 3 questions are free taster
 
   // Handle payment verification from URL
   useEffect(() => {
@@ -215,21 +232,27 @@ export default function Psychometrics() {
     [answers, current]
   );
 
-  const choose = (value: number) => {
-    if (!current) return;
-    const next = { ...answers, [current.id]: value };
-    setAnswers(next);
-    if (slug) {
-      window.localStorage.setItem(
-        "piq-psychometric-answers",
-        JSON.stringify(next)
-      );
-    }
-    // Auto-advance after answering
-    if (index < questions.length - 1) {
-      setIndex(i => i + 1);
-    }
-  };
+  const choose = useCallback(
+    (value: number) => {
+      if (!current) return;
+      const next = { ...answers, [current.id]: value };
+      setAnswers(next);
+      if (slug) {
+        window.localStorage.setItem(
+          "piq-psychometric-answers",
+          JSON.stringify(next)
+        );
+      }
+      // Auto-advance after answering, but pause at end of free taster (question 3)
+      if (index < questions.length - 1) {
+        // Don't auto-advance past the 3rd taster question (index 2)
+        if (!(isTasterQuestion && index === 2)) {
+          setIndex(i => i + 1);
+        }
+      }
+    },
+    [current, answers, slug, index, questions.length, isTasterQuestion]
+  );
 
   const downloadPaidReport = async () => {
     const reference =
@@ -297,14 +320,22 @@ export default function Psychometrics() {
         "Payment verified. Your personalized profile is ready."
       );
       toast.success("Assessment complete");
-      setStage("report");
+      // Use redirect hook to navigate to report page
+      const decision = redirect();
+      if (decision) {
+        navigateRedirect();
+      } else {
+        setStage("report");
+      }
     } catch (err) {
       setPaymentState("failed");
       setError(err instanceof Error ? err.message : "Failed to load report");
     }
   };
 
-  const [paymentState, setPaymentState] = useState<"idle" | "verifying" | "paid" | "failed">("idle");
+  const [paymentState, setPaymentState] = useState<
+    "idle" | "verifying" | "paid" | "failed"
+  >("idle");
   const [error, setError] = useState<string | null>(null);
 
   const shareUrl = `${window.location.origin}/psychometrics/${slug}?reference=${paidReference ?? ""}`;
@@ -322,53 +353,82 @@ export default function Psychometrics() {
         <TransformationNav active="psychometrics" />
         <section className="bg-[var(--navy-deep)] px-6 py-20 text-[var(--background)]">
           <div className="container">
-            <p className="eyebrow text-[var(--gold)]">PROFOUND IQ / TRANSFORMATION SERVICES</p>
+            <p className="eyebrow text-[var(--brand)]">
+              PROFOUND IQ / TRANSFORMATION SERVICES
+            </p>
             <h1 className="text-display text-4xl font-semibold leading-[1.05] tracking-tight mt-3 sm:text-5xl lg:text-6xl text-[var(--background)]">
-              Professional psychometric profiles for <em className="font-normal text-[var(--gold)]">better decisions.</em>
+              Professional psychometric profiles for{" "}
+              <em className="font-normal text-[var(--brand)]">
+                better decisions.
+              </em>
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-relaxed text-[var(--muted-foreground)]">
-              Six complementary assessments for career exploration, cognitive reasoning, emotional intelligence, employability, leadership, and occupational fit. Each profile turns structured responses into practical development conversations.
+              Six complementary assessments for career exploration, cognitive
+              reasoning, emotional intelligence, employability, leadership, and
+              occupational fit. Each profile turns structured responses into
+              practical development conversations.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/">
-                <Button variant="outline" className="border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--navy-deep)]">
+                <Button
+                  variant="outline"
+                  className="border-[var(--brand)] text-[var(--brand)] hover:bg-[var(--brand)] hover:text-[var(--navy-deep)]"
+                >
                   Back to home
                 </Button>
               </Link>
               <span className="inline-flex items-center gap-2 px-4 py-2 text-sm text-[var(--muted-foreground)]">
-                <LockKeyhole size={16} className="text-[var(--gold)]" /> Secure Paystack checkout · KES {PSYCHOMETRIC_PRICE_KES}
+                <LockKeyhole size={16} className="text-[var(--brand)]" /> Secure
+                Paystack checkout · KES {PSYCHOMETRIC_PRICE_KES}
               </span>
             </div>
           </div>
         </section>
         <section className="container py-12">
           {catalog.isLoading ? (
-            <div className="flex items-center gap-3 text-sm" role="status" aria-live="polite">
-              <Loader2 size={16} className="animate-spin text-[var(--gold)]" /> Loading profiles…
+            <div
+              className="flex items-center gap-3 text-sm"
+              role="status"
+              aria-live="polite"
+            >
+              <Loader2 size={16} className="animate-spin text-[var(--brand)]" />{" "}
+              Loading profiles…
             </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {catalog.data?.map(test => (
                 <article
                   key={test.slug}
-                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all hover:shadow-xl hover:border-[var(--gold)]/30"
+                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all hover:shadow-xl hover:border-[var(--brand)]/30"
                 >
                   <div className="flex items-center justify-between gap-3 mb-4">
-                    <span className="eyebrow text-[var(--gold)]">{test.questionCount} items</span>
-                    <span className="text-sm font-semibold text-[var(--gold)]">KES {PSYCHOMETRIC_PRICE_KES}</span>
+                    <span className="eyebrow text-[var(--brand)]">
+                      {test.questionCount} items
+                    </span>
                   </div>
-                  <h3 className="text-display text-2xl font-semibold text-[var(--foreground)] mb-3">{test.title}</h3>
-                  <p className="text-sm leading-7 text-[var(--muted-foreground)] mb-2">{test.strapline}</p>
-                  <p className="text-sm leading-6 text-[var(--muted-foreground)] mb-4">{test.purpose}</p>
+                  <h3 className="text-display text-2xl font-semibold text-[var(--foreground)] mb-3">
+                    {test.title}
+                  </h3>
+                  <p className="text-sm leading-7 text-[var(--muted-foreground)] mb-2">
+                    {test.strapline}
+                  </p>
+                  <p className="text-sm leading-6 text-[var(--muted-foreground)] mb-4">
+                    {test.purpose}
+                  </p>
                   <div className="mt-auto flex items-center justify-between text-xs font-bold uppercase tracking-[.12em] text-[var(--muted-foreground)]">
                     <span className="inline-flex items-center gap-1">
                       <Clock3 size={14} /> {test.estimatedMinutes} min
                     </span>
-                    <Link href={`/psychometrics/${test.slug}`}>
-                      <Button variant="gold" size="sm" className="gap-2">
-                        Start profile <ChevronRight size={14} />
-                      </Button>
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-[var(--brand)]">
+                        KES {PSYCHOMETRIC_PRICE_KES}
+                      </span>
+                      <Link href={`/psychometrics/${test.slug}`}>
+                        <Button variant="brand" size="sm" className="gap-2">
+                          Start profile <ChevronRight size={14} />
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                   {/* Free taster badge */}
                   <div className="absolute top-4 right-4">
@@ -400,67 +460,40 @@ export default function Psychometrics() {
               <ArrowLeft size={16} /> All profiles
             </Button>
           </Link>
-          <Card className="border-[var(--gold)]/50 bg-[var(--card)]">
-            <CardHeader>
-              <p className="eyebrow text-[var(--gold)]">PERSONALIZED PROFILE</p>
-              <CardTitle className="text-display text-3xl font-semibold text-[var(--foreground)]">{report.title}</CardTitle>
-              <p className="text-[var(--muted-foreground)]">{paymentMessage}</p>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-8 lg:grid-cols-[1fr_1.5fr]">
-                <div className="rounded-2xl bg-[var(--navy-deep)] p-7 text-[var(--background)]">
-                  <p className="eyebrow text-[var(--gold)]">Overall signal</p>
-                  <p className="text-display text-5xl font-semibold mt-4 text-[var(--gold)]">
-                    {report.overallScore}
-                    <span className="text-2xl text-[var(--muted-foreground)]">/100</span>
-                  </p>
-                  <p className="mt-3 text-lg text-[var(--muted-foreground)]">{report.overallBand}</p>
-                </div>
-                <div>
-                  <h2 className="text-display text-2xl font-semibold text-[var(--foreground)]">Your strongest signals</h2>
-                  <div className="mt-4 grid gap-3">
-                    {report.strengths?.map((strength: string) => (
-                      <div
-                        key={strength}
-                        className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
-                      >
-                        <CheckCircle2 className="text-[var(--gold)]" size={18} />
-                        <span className="text-sm font-semibold text-[var(--foreground)]">{strength}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="mt-8 grid gap-4 md:grid-cols-2">
-                {report.domains?.map((domain: any) => (
-                  <Card key={domain.key} className="border-[var(--border)] bg-[var(--card)]">
-                    <CardContent className="p-5">
-                      <div className="flex justify-between gap-3">
-                        <strong className="text-[var(--foreground)]">{domain.label}</strong>
-                        <span className="font-bold text-[var(--gold)]">{domain.score}/100</span>
-                      </div>
-                      <Progress value={domain.score} className="mt-3" />
-                      <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">{domain.readout}</p>
-                      <p className="mt-3 text-sm font-semibold text-[var(--foreground)]">Next: {domain.developmentActions?.[0]}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+          <ProfessionalPsychometricReport
+            report={{
+              title: report.title,
+              overallScore: report.overallScore,
+              overallBand: report.overallBand,
+              strengths: report.strengths,
+              domains: report.domains,
+              testSlug: report.testSlug,
+              developmentPriorities: report.developmentPriorities,
+              recommendations: report.recommendations,
+              disclaimer: report.disclaimer,
+            }}
+            testSlug={report.testSlug}
+          />
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button
                   onClick={downloadPaidReport}
                   disabled={downloadReport.isPending}
-                  variant="gold"
+                  variant="brand"
                   className="gap-2"
                 >
-                  {downloadReport.isPending ? "Preparing PDF…" : "Download branded PDF"}
+                  {downloadReport.isPending
+                    ? "Preparing PDF…"
+                    : "Download branded PDF"}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => {
                     window.localStorage.setItem(
                       `piq-psychometric-saved-${paidReference || new URLSearchParams(window.location.search).get("reference")}`,
-                      JSON.stringify({ ...report, savedAt: new Date().toISOString() })
+                      JSON.stringify({
+                        ...report,
+                        savedAt: new Date().toISOString(),
+                      })
                     );
                     toast.success("Profile saved to dashboard");
                   }}
@@ -468,48 +501,85 @@ export default function Psychometrics() {
                 >
                   Save to dashboard
                 </Button>
-                <Link href="/dashboard" className="inline-flex items-center border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)]">
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
+                >
                   My workspace
                 </Link>
                 <SocialSharing
                   url={shareUrl}
                   title={shareTitle}
                   text={shareMessage}
-                  platforms={["linkedin", "x", "facebook", "instagram", "tiktok", "whatsapp", "copy", "native"]}
+                  platforms={[
+                    "linkedin",
+                    "x",
+                    "facebook",
+                    "instagram",
+                    "tiktok",
+                    "whatsapp",
+                    "copy",
+                    "native",
+                  ]}
                   onShare={handleShare}
                   className="bg-transparent border-transparent shadow-none"
                 />
               </div>
               <section className="mt-8 border-t border-[var(--border)] pt-7">
-                <p className="eyebrow text-[var(--gold)]">Recommended next steps</p>
-                <h2 className="text-display text-2xl font-semibold mt-2 text-[var(--foreground)]">Turn insight into practice.</h2>
+                <p className="eyebrow text-[var(--brand)]">
+                  Recommended next steps
+                </p>
+                <h2 className="text-display text-2xl font-semibold mt-2 text-[var(--foreground)]">
+                  Turn insight into practice.
+                </h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted-foreground)]">
-                  These Profound IQ courses are matched to this profile to help you move from reflection to observable action.
+                  These Profound IQ courses are matched to this profile to help
+                  you move from reflection to observable action.
                 </p>
                 <div className="mt-5 grid gap-3 md:grid-cols-3">
                   {getPsychometricCourseRecommendations({
                     testSlug: report.testSlug,
                     domains: report.domains,
                   }).map(course => (
-                    <article key={course.slug} className="rounded-xl border border-[var(--border)] bg-[var(--muted)]/30 p-4 transition hover:border-[var(--gold)]">
+                    <article
+                      key={course.slug}
+                      className="rounded-xl border border-[var(--border)] bg-[var(--muted)]/30 p-4 transition hover:border-[var(--brand)]"
+                    >
                       <Link href={`/courses/${course.slug}`}>
-                        <span className="block text-sm font-bold text-[var(--foreground)]">{course.title}</span>
-                        <span className="mt-2 block text-xs leading-5 text-[var(--muted-foreground)]">{course.reason}</span>
-                        <span className="mt-3 block text-xs font-bold text-[var(--gold)]">{course.action}</span>
+                        <span className="block text-sm font-bold text-[var(--foreground)]">
+                          {course.title}
+                        </span>
+                        <span className="mt-2 block text-xs leading-5 text-[var(--muted-foreground)]">
+                          {course.reason}
+                        </span>
+                        <span className="mt-3 block text-xs font-bold text-[var(--brand)]">
+                          {course.action}
+                        </span>
                       </Link>
                       <div className="mt-4 border-t border-[var(--border)] pt-3">
-                        <p className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--muted-foreground)]">Was this useful?</p>
-                        <div className="mt-2 flex gap-1" role="radiogroup" aria-label={`Rate ${course.title} recommendation`}>
+                        <p className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--muted-foreground)]">
+                          Was this useful?
+                        </p>
+                        <div
+                          className="mt-2 flex gap-1"
+                          role="radiogroup"
+                          aria-label={`Rate ${course.title} recommendation`}
+                        >
                           {[1, 2, 3, 4, 5].map(rating => (
                             <button
                               key={rating}
                               type="button"
-                              onClick={() => rateRecommendation(course.slug, rating)}
+                              onClick={() =>
+                                rateRecommendation(course.slug, rating)
+                              }
                               aria-label={`${rating} out of 5`}
-                              aria-pressed={feedbackScores[course.slug] === rating}
+                              aria-pressed={
+                                feedbackScores[course.slug] === rating
+                              }
                               className={cn(
-                                feedbackScores[course.slug] && feedbackScores[course.slug] >= rating
-                                  ? "text-[var(--gold)]"
+                                feedbackScores[course.slug] &&
+                                  feedbackScores[course.slug] >= rating
+                                  ? "text-[var(--brand)]"
                                   : "text-[var(--muted-foreground)]"
                               )}
                             >
@@ -522,15 +592,23 @@ export default function Psychometrics() {
                   ))}
                 </div>
                 {/* CareerPath Cross-sell */}
-                <div className="mt-8 p-6 rounded-2xl border-2 border-[var(--gold)] bg-[var(--gold)]/10">
+                <div className="mt-8 p-6 rounded-2xl border-2 border-[var(--brand)] bg-[var(--brand)]/10">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="eyebrow text-[var(--gold)]">Complete your development picture</p>
-                      <h3 className="text-display text-xl font-semibold mt-2 text-[var(--navy-deep)]">Add CareerPath for strategic career alignment</h3>
-                      <p className="mt-2 text-sm text-[var(--muted-foreground)]">Combine this psychometric profile with CareerPath's values-fit analysis and role-matching for a complete talent development roadmap.</p>
+                      <p className="eyebrow text-[var(--brand)]">
+                        Complete your development picture
+                      </p>
+                      <h3 className="text-display text-xl font-semibold mt-2 text-[var(--navy-deep)]">
+                        Add CareerPath for strategic career alignment
+                      </h3>
+                      <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+                        Combine this psychometric profile with CareerPath's
+                        values-fit analysis and role-matching for a complete
+                        talent development roadmap.
+                      </p>
                     </div>
                     <Link href="/careerpath">
-                      <Button variant="gold" size="lg" className="gap-2">
+                      <Button variant="brand" size="lg" className="gap-2">
                         Explore CareerPath <ChevronRight size={16} />
                       </Button>
                     </Link>
@@ -538,11 +616,11 @@ export default function Psychometrics() {
                 </div>
               </section>
               <div className="mt-8 rounded-xl bg-[var(--muted)]/30 p-5 text-sm leading-7 text-[var(--foreground)]">
-                <strong className="text-[var(--foreground)]">Important context. </strong>
+                <strong className="text-[var(--foreground)]">
+                  Important context.{" "}
+                </strong>
                 {report.disclaimer}
               </div>
-            </CardContent>
-          </Card>
           <PaystackInlineModal
             open={inlineModalOpen}
             product={inlineProduct}
@@ -560,13 +638,17 @@ export default function Psychometrics() {
                   onSuccess: result => {
                     setReport(result.report);
                     setPaidReference(reference);
-                    setPaymentMessage("Payment verified. Your personalized profile is ready.");
+                    setPaymentMessage(
+                      "Payment verified. Your personalized profile is ready."
+                    );
                     toast.success("Assessment complete");
                     setStage("report");
                   },
                   onError: error => {
                     setPaymentMessage(error.message);
-                    toast.error("Payment failed", { description: error.message });
+                    toast.error("Payment failed", {
+                      description: error.message,
+                    });
                   },
                 }
               );
@@ -582,31 +664,336 @@ export default function Psychometrics() {
       </main>
     );
 
-  // Assessment view (questions stage)
+  // Checkout view (separate step after completing questions)
+  if (stage === "checkout") {
+    return (
+      <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-body">
+        <TransformationNav active="psychometrics" />
+        <div className="container max-w-5xl py-8 lg:py-12">
+          {/* Progress Steps */}
+          <nav
+            aria-label="Psychometrics progress"
+            className="sticky top-16 z-40 border-b border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-4 sm:px-6"
+          >
+            <ol className="flex items-center gap-2">
+              <li
+                className={cn(
+                  "flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em]",
+                  "text-[var(--muted-foreground)]"
+                )}
+              >
+                <span
+                  className={cn(
+                    "grid h-8 w-8 shrink-0 place-items-center rounded-full border text-[10px]",
+                    "border-[var(--brand)] bg-[var(--brand)] text-[var(--navy-deep)]"
+                  )}
+                >
+                  1
+                </span>
+                <span className="hidden sm:inline">Profiles</span>
+              </li>
+              <span
+                className="h-px flex-1 bg-[var(--border)]"
+                aria-hidden="true"
+              />
+              <li
+                className={cn(
+                  "flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em]",
+                  "text-[var(--muted-foreground)]"
+                )}
+              >
+                <span
+                  className={cn(
+                    "grid h-8 w-8 shrink-0 place-items-center rounded-full border text-[10px]",
+                    "border-[var(--brand)] bg-[var(--brand)] text-[var(--navy-deep)]"
+                  )}
+                >
+                  2
+                </span>
+                <span className="hidden sm:inline">Assessment</span>
+              </li>
+              <span
+                className="h-px flex-1 bg-[var(--border)]"
+                aria-hidden="true"
+              />
+              <li
+                className={cn(
+                  "flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em]",
+                  "text-[var(--foreground)]"
+                )}
+              >
+                <span
+                  className={cn(
+                    "grid h-8 w-8 shrink-0 place-items-center rounded-full border text-[10px]",
+                    "border-[var(--brand)] bg-[var(--brand)] text-[var(--navy-deep)]"
+                  )}
+                >
+                  3
+                </span>
+                <span className="hidden sm:inline">Checkout</span>
+              </li>
+              <span
+                className="h-px flex-1 bg-[var(--border)]"
+                aria-hidden="true"
+              />
+              <li
+                className={cn(
+                  "flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em]",
+                  "text-[var(--muted-foreground)]"
+                )}
+              >
+                <span
+                  className={cn(
+                    "grid h-8 w-8 shrink-0 place-items-center rounded-full border text-[10px]",
+                    "border-[var(--border)]"
+                  )}
+                >
+                  4
+                </span>
+                <span className="hidden sm:inline">Profile</span>
+              </li>
+            </ol>
+          </nav>
+
+          <div className="flex items-center justify-between gap-4 mb-6">
+            <Link href="/psychometrics">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <ArrowLeft size={16} /> All profiles
+              </Button>
+            </Link>
+            <span className="eyebrow text-[var(--brand)]">
+              KES {PSYCHOMETRIC_PRICE_KES} · Paystack
+            </span>
+          </div>
+
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center mb-8">
+              <p className="eyebrow text-[var(--brand)]">{test.shortTitle}</p>
+              <h1 className="text-display text-3xl font-semibold leading-[1.05] tracking-tight mt-3 text-[var(--navy-deep)]">
+                {test.strapline}
+              </h1>
+              <p className="mt-4 text-lg leading-relaxed text-[var(--muted-foreground)]">
+                You've completed all {questions.length} questions. Enter your
+                details to receive your personalized profile.
+              </p>
+              <div className="mt-6 flex items-center justify-center gap-4 text-sm font-semibold">
+                <span className="flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-[var(--success)]" />
+                  Assessment complete ({completion}%)
+                </span>
+              </div>
+            </div>
+
+            <Card className="border-[var(--brand)]/50 bg-[var(--card)]">
+              <CardHeader>
+                <p className="eyebrow text-[var(--brand)]">
+                  {workflowCopy.secureCheckout}
+                </p>
+                <CardTitle className="text-display text-2xl font-semibold text-[var(--navy-deep)]">
+                  Send your profile to yourself
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Input
+                    id="psychometrics-name"
+                    name="name"
+                    placeholder={workflowCopy.fullName}
+                    value={name}
+                    onChange={event => setName(event.target.value)}
+                    autoComplete="name"
+                  />
+                  <Input
+                    id="psychometrics-email"
+                    name="email"
+                    type="email"
+                    placeholder={workflowCopy.emailAddress}
+                    value={email}
+                    onChange={event => setEmail(event.target.value)}
+                    autoComplete="email"
+                  />
+                </div>
+                <label className="mt-5 flex items-start gap-3 text-sm leading-6 text-[var(--foreground)]">
+                  <Checkbox
+                    checked={consent}
+                    onCheckedChange={value => setConsent(Boolean(value))}
+                  />{" "}
+                  {workflowCopy.consent}
+                </label>
+                <Button
+                  onClick={submit}
+                  disabled={initializeInline.isPending}
+                  variant="brand"
+                  size="lg"
+                  className="mt-5 w-full gap-2"
+                >
+                  {initializeInline.isPending
+                    ? "Preparing secure checkout…"
+                    : `Pay KES ${PSYCHOMETRIC_PRICE_KES} ${workflowCopy.generateProfile}`}
+                </Button>
+              </CardContent>
+            </Card>
+
+            <div className="mt-6 text-center text-sm text-[var(--muted-foreground)]">
+              <p>
+                By proceeding, you agree to our terms. Your data is encrypted
+                and never shared.
+              </p>
+            </div>
+          </div>
+
+          {/* Checkout Modal */}
+          {showCheckout && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--brand)]/10"
+              role="dialog"
+              aria-modal="true"
+            >
+              <CheckoutForm
+                product={{
+                  name: `${test.title} Profile`,
+                  priceKes: PSYCHOMETRIC_PRICE_KES,
+                  type: "psychometric",
+                  slug: test.slug,
+                  answers: Object.entries(answers).map(
+                    ([questionId, value]) => ({ questionId, value })
+                  ),
+                }}
+                prefilled={
+                  user
+                    ? {
+                        email: user.email || undefined,
+                        name: user.name || undefined,
+                      }
+                    : undefined
+                }
+                upsells={[
+                  {
+                    id: "careerpath",
+                    name: "CareerPath Bundle",
+                    priceKes: 15000,
+                    description:
+                      "Psychometric + CareerPath report + development plan",
+                  },
+                  {
+                    id: "coaching",
+                    name: "1-on-1 Debrief Session",
+                    priceKes: 5000,
+                    description:
+                      "60-minute personalized profile review with a certified coach",
+                  },
+                ]}
+                onSuccess={handleCheckoutSuccess}
+                onClose={() => setShowCheckout(false)}
+              />
+            </div>
+          )}
+
+          <PaystackInlineModal
+            open={inlineModalOpen}
+            product={inlineProduct}
+            customerEmail={email}
+            onClose={() => {
+              setInlineModalOpen(false);
+              setInlineProduct(null);
+            }}
+            onSuccess={reference => {
+              setInlineModalOpen(false);
+              setInlineProduct(null);
+              verify.mutate(
+                { reference },
+                {
+                  onSuccess: result => {
+                    setReport(result.report);
+                    setPaidReference(reference);
+                    setPaymentMessage(
+                      "Payment verified. Your personalized profile is ready."
+                    );
+                    toast.success("Assessment complete");
+                    setStage("report");
+                  },
+                  onError: error => {
+                    setPaymentMessage(error.message);
+                    toast.error("Payment failed", {
+                      description: error.message,
+                    });
+                  },
+                }
+              );
+            }}
+            onError={message => {
+              setInlineModalOpen(false);
+              setInlineProduct(null);
+              setPaymentMessage(message);
+              toast.error("Payment failed", { description: message });
+            }}
+          />
+        </div>
+      </main>
+    );
+  }
+
+  // Assessment view (questions stage only)
+  if (!detail.data || !detail.data.questions?.length) {
+    return (
+      <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-body">
+        <TransformationNav active="psychometrics" />
+        <div className="container max-w-5xl py-8 lg:py-12 flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-[var(--border)] border-t-[var(--brand)] mx-auto" />
+            <p className="mt-4 text-[var(--muted-foreground)]">
+              Loading assessment questions…
+            </p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-body">
       <TransformationNav active="psychometrics" />
       <div className="container max-w-5xl py-8 lg:py-12">
         {/* Progress Steps */}
-        <nav aria-label="Psychometrics progress" className="sticky top-16 z-40 border-b border-[var(--border)] bg-[var(--background)]/95 backdrop-blur-sm px-4 py-4 sm:px-6">
+        <nav
+          aria-label="Psychometrics progress"
+          className="sticky top-16 z-40 border-b border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-4 sm:px-6"
+        >
           <ol className="flex items-center gap-2">
-            <li className={cn("flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em]", stage !== "catalog" ? "text-[var(--foreground)]" : "text-[var(--muted-foreground)]")}>
-              <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-full border text-[10px]", stage !== "catalog" ? "border-[var(--gold)] bg-[var(--gold)] text-[var(--navy-deep)]" : "border-[var(--border)]")}>1</span>
+            <li className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] text-[var(--muted-foreground)]">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border text-[10px] border-[var(--brand)] bg-[var(--brand)] text-[var(--navy-deep)]">
+                1
+              </span>
               <span className="hidden sm:inline">Profiles</span>
             </li>
-            <span className="h-px flex-1 bg-[var(--border)]" aria-hidden="true" />
-            <li className={cn("flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em]", stage === "questions" || stage === "checkout" ? "text-[var(--foreground)]" : "text-[var(--muted-foreground)]")}>
-              <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-full border text-[10px]", stage === "questions" || stage === "checkout" ? "border-[var(--gold)] bg-[var(--gold)] text-[var(--navy-deep)]" : "border-[var(--border)]")}>2</span>
+            <span
+              className="h-px flex-1 bg-[var(--border)]"
+              aria-hidden="true"
+            />
+            <li className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] text-[var(--foreground)]">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border text-[10px] border-[var(--brand)] bg-[var(--brand)] text-[var(--navy-deep)]">
+                2
+              </span>
               <span className="hidden sm:inline">Assessment</span>
             </li>
-            <span className="h-px flex-1 bg-[var(--border)]" aria-hidden="true" />
-            <li className={cn("flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em]", stage === "checkout" ? "text-[var(--foreground)]" : "text-[var(--muted-foreground)]")}>
-              <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-full border text-[10px]", stage === "checkout" ? "border-[var(--gold)] bg-[var(--gold)] text-[var(--navy-deep)]" : "border-[var(--border)]")}>3</span>
+            <span
+              className="h-px flex-1 bg-[var(--border)]"
+              aria-hidden="true"
+            />
+            <li className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] text-[var(--muted-foreground)]">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border text-[10px] border-[var(--border)]">
+                3
+              </span>
               <span className="hidden sm:inline">Checkout</span>
             </li>
-            <span className="h-px flex-1 bg-[var(--border)]" aria-hidden="true" />
-            <li className={cn("flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em]", stage === "report" ? "text-[var(--foreground)]" : "text-[var(--muted-foreground)]")}>
-              <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-full border text-[10px]", stage === "report" ? "border-[var(--gold)] bg-[var(--gold)] text-[var(--navy-deep)]" : "border-[var(--border)]")}>4</span>
+            <span
+              className="h-px flex-1 bg-[var(--border)]"
+              aria-hidden="true"
+            />
+            <li className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.1em] text-[var(--muted-foreground)]">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border text-[10px] border-[var(--border)]">
+                4
+              </span>
               <span className="hidden sm:inline">Profile</span>
             </li>
           </ol>
@@ -618,50 +1005,79 @@ export default function Psychometrics() {
               <ArrowLeft size={16} /> All profiles
             </Button>
           </Link>
-          <span className="eyebrow text-[var(--gold)]">KES {PSYCHOMETRIC_PRICE_KES} · Paystack</span>
+          <span className="eyebrow text-[var(--brand)]">
+            KES {PSYCHOMETRIC_PRICE_KES} · Paystack
+          </span>
         </div>
 
         <section className="grid gap-8 lg:grid-cols-[1fr_350px]">
           <div>
-            <p className="eyebrow text-[var(--gold)]">{test.shortTitle}</p>
-            <h1 className="text-display text-4xl font-semibold leading-[1.05] tracking-tight mt-3 text-[var(--navy-deep)]">{test.strapline}</h1>
-            <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[var(--muted-foreground)]">{test.purpose}</p>
+            <p className="eyebrow text-[var(--brand)]">{test.shortTitle}</p>
+            <h1 className="text-display text-4xl font-semibold leading-[1.05] tracking-tight mt-3 text-[var(--navy-deep)]">
+              {test.strapline}
+            </h1>
+            <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[var(--muted-foreground)]">
+              {test.purpose}
+            </p>
 
             {/* Progress & Question */}
-            <Card className="mt-8 border-[var(--border)] bg-[var(--card)]">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between gap-4 text-sm font-semibold mb-4">
-                  <span>{workflowCopy.progress}</span>
-                  <span>{completion}% · {index + 1} of {questions.length}</span>
+            <Card className="mt-8 border-[var(--border)] bg-[var(--card)] overflow-hidden">
+              {/* Progress header */}
+              <div className="px-6 pt-6 pb-4 border-b border-[var(--border)]">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-semibold text-[var(--foreground)]">
+                    {workflowCopy.progress}
+                  </span>
+<span className="text-sm font-semibold text-[var(--brand)]">
+                    {completion}% · {answeredCount} of {questions.length} answered
+                   </span>
                 </div>
-                <Progress value={completion} className="mb-6" />
-
-                {/* Free taster indicator */}
-                {isTasterQuestion && (
-                  <div className="mb-4 inline-flex items-center gap-2 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.1em] bg-[var(--success)]/10 text-[var(--success)] border border-[var(--success)] rounded-full">
-                    <Sparkles size={12} /> Free taster question {index + 1} of 3
-                  </div>
-                )}
-
-                <div className="mb-6">
-                  <p className="eyebrow text-[var(--gold)]">{current?.domainLabel}</p>
-                  <h2 className="mt-3 text-xl font-semibold leading-8 text-[var(--foreground)]">{current?.prompt}</h2>
-                  {current && (
-                    <LikertScale
-                      id={current.id}
-                      question={current.prompt}
-                      value={selected}
-                      onChange={choose}
-                      options={current.options.map((option, optionIndex) => ({
-                        value: optionIndex + 1,
-                        label: option,
-                      }))}
-                    />
+                <ProgressMotionBar value={completion} height={8} />
+                <EncouragementMessage value={completion} className="mt-2" />
+                <div className="flex items-center justify-between mt-3">
+                  <span className="text-xs text-[var(--muted-foreground)]">
+                    {current?.domainLabel}
+                  </span>
+                  {isTasterQuestion && (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.08em] bg-[var(--success)]/10 text-[var(--success)] border border-[var(--success)] rounded-full">
+                      <Sparkles size={10} /> Free taster {clampedIndex + 1} of 3
+                    </span>
                   )}
                 </div>
+              </div>
+
+              {/* Question content */}
+              <CardContent className="p-6 sm:p-8">
+                <div className="mb-8">
+                  <span className="text-xs font-bold text-[var(--brand)] sm:text-sm">
+                    Q{clampedIndex + 1}
+                  </span>
+                  <h2 className="mt-2 text-xl sm:text-2xl font-semibold leading-8 text-[var(--foreground)]">
+                    {current?.prompt}
+                  </h2>
+                </div>
+
+                {current && (
+                  <LikertScale
+                    id={current.id}
+                    question={current.prompt}
+                    value={selected}
+                    onChange={choose}
+                    options={current.options.map((option, optionIndex) => ({
+                      value: optionIndex + 1,
+                      label: option,
+                    }))}
+                    lowLabel={
+                      current.responseScale === "likert5" ? "Not like me" : ""
+                    }
+                    highLabel={
+                      current.responseScale === "likert5" ? "Very like me" : ""
+                    }
+                  />
+                )}
 
                 {/* Navigation */}
-                <div className="flex flex-wrap justify-between gap-3">
+                <div className="flex items-center justify-between gap-3 mt-8 pt-6 border-t border-[var(--border)]">
                   <Button
                     variant="outline"
                     size="lg"
@@ -674,9 +1090,13 @@ export default function Psychometrics() {
                   <div className="flex gap-3">
                     {index < questions.length - 1 ? (
                       <Button
-                        variant="gold"
+                        variant="brand"
                         size="lg"
-                        onClick={() => setIndex(value => Math.min(questions.length - 1, value + 1))}
+                        onClick={() =>
+                          setIndex(value =>
+                            Math.min(questions.length - 1, value + 1)
+                          )
+                        }
                         disabled={selected === undefined}
                         className="gap-2"
                       >
@@ -684,10 +1104,13 @@ export default function Psychometrics() {
                       </Button>
                     ) : (
                       <Button
-                        variant="gold"
+                        variant="brand"
                         size="lg"
-                        onClick={() => { setIndex(questions.length); setStage("checkout"); }}
-                        disabled={selected === undefined}
+                        onClick={() => setStage("checkout")}
+                        disabled={
+                          selected === undefined ||
+                          answeredCount < questions.length
+                        }
                         className="gap-2"
                       >
                         {workflowCopy.reviewAndPay} <Sparkles size={16} />
@@ -698,13 +1121,25 @@ export default function Psychometrics() {
 
                 {/* Taster completion prompt */}
                 {index === 2 && questions.length > 3 && !tasterCompleted && (
-                  <div className="mt-6 p-4 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/30">
+                  <div className="mt-6 p-4 rounded-xl bg-[var(--brand)]/10 border border-[var(--brand)]/30">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-semibold text-[var(--navy-deep)]">Free taster complete!</p>
-                        <p className="text-xs text-[var(--muted-foreground)]">You've completed 3 of {questions.length} questions. Continue to unlock your full profile.</p>
+                        <p className="text-sm font-semibold text-[var(--navy-deep)]">
+                          Free taster complete!
+                        </p>
+                        <p className="text-xs text-[var(--muted-foreground)]">
+                          You've completed 3 of {questions.length} questions.
+                          Continue to unlock your full profile.
+                        </p>
                       </div>
-                      <Button variant="gold" size="sm" onClick={() => { setTasterCompleted(true); setIndex(3); }}>
+                      <Button
+                        variant="brand"
+                        size="sm"
+                        onClick={() => {
+                          setTasterCompleted(true);
+                          setIndex(3);
+                        }}
+                      >
                         Continue <ArrowRight size={14} />
                       </Button>
                     </div>
@@ -715,14 +1150,24 @@ export default function Psychometrics() {
           </div>
 
           <aside className="h-fit rounded-2xl bg-[var(--navy-deep)] p-6 text-[var(--background)] lg:sticky lg:top-24">
-            <p className="eyebrow text-[var(--gold)]">{workflowCopy.beforeYouBegin}</p>
-            <h2 className="text-display text-2xl font-semibold mt-3 text-[var(--background)]">A useful signal, not a label.</h2>
-            <p className="mt-4 text-sm leading-7 text-[var(--muted-foreground)]">Your responses create a development profile for reflection, learning, and career conversations. They do not diagnose you or determine your future.</p>
+            <p className="eyebrow text-[var(--brand)]">
+              {workflowCopy.beforeYouBegin}
+            </p>
+            <h2 className="text-display text-2xl font-semibold mt-3 text-[var(--background)]">
+              A useful signal, not a label.
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-[var(--muted-foreground)]">
+              Your responses create a development profile for reflection,
+              learning, and career conversations. They do not diagnose you or
+              determine your future.
+            </p>
             <div className="mt-6 flex items-center gap-2 text-sm">
-              <Clock3 size={16} className="text-[var(--gold)]" /> {test.estimatedMinutes} minutes
+              <Clock3 size={16} className="text-[var(--brand)]" />{" "}
+              {test.estimatedMinutes} minutes
             </div>
             <div className="mt-2 flex items-center gap-2 text-sm">
-              <LockKeyhole size={16} className="text-[var(--gold)]" /> KES {PSYCHOMETRIC_PRICE_KES} after completion
+              <LockKeyhole size={16} className="text-[var(--brand)]" /> KES{" "}
+              {PSYCHOMETRIC_PRICE_KES} after completion
             </div>
             {/* Free taster highlight */}
             <div className="mt-4 p-3 rounded-lg bg-[var(--success)]/10 border border-[var(--success)]/30">
@@ -733,63 +1178,46 @@ export default function Psychometrics() {
           </aside>
         </section>
 
-        {/* Checkout Section */}
-        {stage === "checkout" && (
-          <section className="mt-8 rounded-2xl border border-[var(--gold)]/50 bg-[var(--card)] p-6">
-            <p className="eyebrow text-[var(--gold)]">{workflowCopy.secureCheckout}</p>
-            <h2 className="text-display text-2xl font-semibold mt-3 text-[var(--navy-deep)]">Send your profile to yourself</h2>
-            <div className="mt-5 grid gap-4 md:grid-cols-2">
-              <Input
-                id="psychometrics-name"
-                name="name"
-                placeholder={workflowCopy.fullName}
-                value={name}
-                onChange={event => setName(event.target.value)}
-                autoComplete="name"
-              />
-              <Input
-                id="psychometrics-email"
-                name="email"
-                type="email"
-                placeholder={workflowCopy.emailAddress}
-                value={email}
-                onChange={event => setEmail(event.target.value)}
-                autoComplete="email"
-              />
-            </div>
-            <label className="mt-5 flex items-start gap-3 text-sm leading-6 text-[var(--foreground)]">
-              <Checkbox
-                checked={consent}
-                onCheckedChange={value => setConsent(Boolean(value))}
-              />{" "}
-              {workflowCopy.consent}
-            </label>
-            <Button
-              onClick={submit}
-              disabled={initializeInline.isPending}
-              variant="gold"
-              size="lg"
-              className="mt-5 w-full gap-2"
-            >
-              {initializeInline.isPending ? "Preparing secure checkout…" : `Pay KES ${PSYCHOMETRIC_PRICE_KES} ${workflowCopy.generateProfile}`}
-            </Button>
-          </section>
-        )}
-
         {/* Checkout Modal */}
         {showCheckout && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--navy-deep)]/80 backdrop-blur-sm" role="dialog" aria-modal="true">
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--brand)]/10"
+            role="dialog"
+            aria-modal="true"
+          >
             <CheckoutForm
               product={{
                 name: `${test.title} Profile`,
                 priceKes: PSYCHOMETRIC_PRICE_KES,
                 type: "psychometric",
                 slug: test.slug,
+                answers: Object.entries(answers).map(
+                  ([questionId, value]) => ({ questionId, value })
+                ),
               }}
-              prefilled={user ? { email: user.email || undefined, name: user.name || undefined } : undefined}
+              prefilled={
+                user
+                  ? {
+                      email: user.email || undefined,
+                      name: user.name || undefined,
+                    }
+                  : undefined
+              }
               upsells={[
-                { id: "careerpath", name: "CareerPath Bundle", priceKes: 15000, description: "Psychometric + CareerPath report + development plan" },
-                { id: "coaching", name: "1-on-1 Debrief Session", priceKes: 5000, description: "60-minute personalized profile review with a certified coach" },
+                {
+                  id: "careerpath",
+                  name: "CareerPath Bundle",
+                  priceKes: 15000,
+                  description:
+                    "Psychometric + CareerPath report + development plan",
+                },
+                {
+                  id: "coaching",
+                  name: "1-on-1 Debrief Session",
+                  priceKes: 5000,
+                  description:
+                    "60-minute personalized profile review with a certified coach",
+                },
               ]}
               onSuccess={handleCheckoutSuccess}
               onClose={() => setShowCheckout(false)}
@@ -814,7 +1242,9 @@ export default function Psychometrics() {
                 onSuccess: result => {
                   setReport(result.report);
                   setPaidReference(reference);
-                  setPaymentMessage("Payment verified. Your personalized profile is ready.");
+                  setPaymentMessage(
+                    "Payment verified. Your personalized profile is ready."
+                  );
                   toast.success("Assessment complete");
                   setStage("report");
                 },

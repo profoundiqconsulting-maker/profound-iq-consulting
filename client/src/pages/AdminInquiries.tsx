@@ -15,9 +15,9 @@ export default function AdminInquiries() {
       <div className="admin-observatory w-full">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <p className="exec-eyebrow">Contact Inquiries</p>
+            <p className="eyebrow">Contact Inquiries</p>
             <h1 className="display mt-2 text-3xl">Inquiries</h1>
-            <p className="mt-1 text-sm text-[#64748b]">
+            <p className="mt-1 text-sm text-[var(--fg-muted)]">
               Review and manage contact form submissions from the website.
             </p>
           </div>
@@ -32,7 +32,7 @@ export default function AdminInquiries() {
 
         <div className="exec-card overflow-hidden">
           {inquiries.isLoading ? (
-            <div className="p-6 text-center text-sm text-[#64748b]">
+            <div className="p-6 text-center text-sm text-[var(--fg-muted)]">
               Loading inquiries…
             </div>
           ) : inquiries.isError ? (
@@ -40,12 +40,12 @@ export default function AdminInquiries() {
               Failed to load inquiries.
             </div>
           ) : rows.length === 0 ? (
-            <div className="p-6 text-center text-sm text-[#64748b]">
+            <div className="p-6 text-center text-sm text-[var(--fg-muted)]">
               No inquiries yet.
             </div>
           ) : (
             <div className="overflow-x-auto">
-                <table className="exec-table">
+              <table className="exec-table">
                 <thead>
                   <tr>
                     <th>Name</th>
@@ -59,12 +59,12 @@ export default function AdminInquiries() {
                 <tbody>
                   {rows.map(inquiry => (
                     <tr key={inquiry.id}>
-                      <td className="font-medium text-[#0f172a]">
+                      <td className="font-medium text-[var(--fg)]">
                         {inquiry.name}
                       </td>
-                      <td className="text-[#475569]">{inquiry.email}</td>
-                      <td className="text-[#475569]">{inquiry.category}</td>
-                      <td className="text-[#475569]">
+                      <td className="text-[var(--fg-muted)]">{inquiry.email}</td>
+                      <td className="text-[var(--fg-muted)]">{inquiry.category}</td>
+                      <td className="text-[var(--fg-muted)]">
                         {inquiry.message.slice(0, 60)}
                         {inquiry.message.length > 60 ? "…" : ""}
                       </td>
@@ -75,13 +75,13 @@ export default function AdminInquiries() {
                               ? "bg-[#fef3c7] text-[#92400e]"
                               : inquiry.status === "read"
                                 ? "bg-[#dbeafe] text-[#1e40af]"
-                                : "bg-[#f1f5f9] text-[#475569]"
+                                : "bg-[#f1f5f9] text-[var(--fg-muted)]"
                           }`}
                         >
                           {inquiry.status}
                         </span>
                       </td>
-                      <td className="text-[#64748b]">
+                      <td className="text-[var(--fg-muted)]">
                         {new Date(inquiry.createdAt).toLocaleDateString()}
                       </td>
                     </tr>

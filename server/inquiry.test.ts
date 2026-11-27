@@ -6,35 +6,31 @@ const mocks = vi.hoisted(() => ({
     id: 27,
     ticketNumber: "PIQ-2026-000027",
   }),
-  listContactInquiries: vi
-    .fn()
-    .mockResolvedValue({
-      rows: [],
-      total: 0,
-      page: 1,
-      pageSize: 8,
-      totalPages: 1,
-    }),
-  listAssignedContactInquiries: vi
-    .fn()
-    .mockResolvedValue({
-      rows: [
-        {
-          id: 12,
-          name: "Amina",
-          email: "amina@example.com",
-          category: "general",
-          message: "Hello",
-          status: "new",
-          internalNotes: null,
-          createdAt: new Date("2026-08-24T00:00:00Z"),
-        },
-      ],
-      total: 1,
-      page: 1,
-      pageSize: 10,
-      totalPages: 1,
-    }),
+  listContactInquiries: vi.fn().mockResolvedValue({
+    rows: [],
+    total: 0,
+    page: 1,
+    pageSize: 8,
+    totalPages: 1,
+  }),
+  listAssignedContactInquiries: vi.fn().mockResolvedValue({
+    rows: [
+      {
+        id: 12,
+        name: "Amina",
+        email: "amina@example.com",
+        category: "general",
+        message: "Hello",
+        status: "new",
+        internalNotes: null,
+        createdAt: new Date("2026-08-24T00:00:00Z"),
+      },
+    ],
+    total: 1,
+    page: 1,
+    pageSize: 10,
+    totalPages: 1,
+  }),
   updateAssignedContactInquiryStatus: vi
     .fn()
     .mockResolvedValue({ id: 12, status: "contacted" }),
@@ -44,34 +40,30 @@ const mocks = vi.hoisted(() => ({
   updateContactInquiryStatus: vi
     .fn()
     .mockResolvedValue({ id: 12, status: "contacted" }),
-  getContactInquiriesForExport: vi
-    .fn()
-    .mockResolvedValue([
-      {
-        id: 12,
-        name: "Amina",
-        email: "amina@example.com",
-        category: "general",
-        message: "Hello",
-        status: "new",
-        createdAt: new Date("2026-08-24T00:00:00Z"),
-      },
-    ]),
-  getContactInquiriesForExportWithAudit: vi
-    .fn()
-    .mockResolvedValue([
-      {
-        id: 12,
-        name: "Amina",
-        email: "amina@example.com",
-        category: "general",
-        message: "Hello",
-        status: "new",
-        assignedToName: null,
-        createdAt: new Date("2026-08-24T00:00:00Z"),
-        auditHistory: [],
-      },
-    ]),
+  getContactInquiriesForExport: vi.fn().mockResolvedValue([
+    {
+      id: 12,
+      name: "Amina",
+      email: "amina@example.com",
+      category: "general",
+      message: "Hello",
+      status: "new",
+      createdAt: new Date("2026-08-24T00:00:00Z"),
+    },
+  ]),
+  getContactInquiriesForExportWithAudit: vi.fn().mockResolvedValue([
+    {
+      id: 12,
+      name: "Amina",
+      email: "amina@example.com",
+      category: "general",
+      message: "Hello",
+      status: "new",
+      assignedToName: null,
+      createdAt: new Date("2026-08-24T00:00:00Z"),
+      auditHistory: [],
+    },
+  ]),
   getContactInquiryCategoryCounts: vi
     .fn()
     .mockResolvedValue([{ category: "general", count: 3 }]),
@@ -85,33 +77,27 @@ const mocks = vi.hoisted(() => ({
       { openId: "admin-2", name: "Team Member", email: "team@example.com" },
     ]),
   getContactInquiryAuditHistory: vi.fn().mockResolvedValue([]),
-  updateContactInquiryAssignment: vi
-    .fn()
-    .mockResolvedValue({
-      id: 12,
-      assignedToOpenId: "admin-2",
-      assignedToName: "Team Member",
-    }),
+  updateContactInquiryAssignment: vi.fn().mockResolvedValue({
+    id: 12,
+    assignedToOpenId: "admin-2",
+    assignedToName: "Team Member",
+  }),
   recordAnalyticsEvent: vi.fn().mockResolvedValue(undefined),
-  listCourseLessonResponsesForStaff: vi
-    .fn()
-    .mockResolvedValue({
-      rows: [],
-      total: 0,
-      page: 1,
-      pageSize: 8,
-      totalPages: 1,
-    }),
-  getCourseLessonReviewAnalytics: vi
-    .fn()
-    .mockResolvedValue({
-      totalResponses: 0,
-      reviewedResponses: 0,
-      needsReviewResponses: 0,
-      reviewRate: 0,
-      byCourse: [],
-      byModule: [],
-    }),
+  listCourseLessonResponsesForStaff: vi.fn().mockResolvedValue({
+    rows: [],
+    total: 0,
+    page: 1,
+    pageSize: 8,
+    totalPages: 1,
+  }),
+  getCourseLessonReviewAnalytics: vi.fn().mockResolvedValue({
+    totalResponses: 0,
+    reviewedResponses: 0,
+    needsReviewResponses: 0,
+    reviewRate: 0,
+    byCourse: [],
+    byModule: [],
+  }),
   upsertCourseLessonResponseReview: vi.fn().mockResolvedValue({ saved: true }),
 }));
 
@@ -216,17 +202,15 @@ describe("inquiry.create", () => {
 
   it("rejects messages that are too short", async () => {
     await expect(
-      appRouter
-        .createCaller(publicContext())
-        .inquiry.create({
-          name: "Amina Njeri",
-          email: "amina@example.com",
-          category: "general",
-          message: "Help",
-          mathA: 3,
-          mathB: 4,
-          mathAnswer: 7,
-        })
+      appRouter.createCaller(publicContext()).inquiry.create({
+        name: "Amina Njeri",
+        email: "amina@example.com",
+        category: "general",
+        message: "Help",
+        mathA: 3,
+        mathB: 4,
+        mathAnswer: 7,
+      })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 
@@ -403,32 +387,28 @@ describe("inquiry.create", () => {
       appRouter.createCaller(userContext).staff.lessonResponses()
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(
-      appRouter
-        .createCaller(userContext)
-        .staff.reviewLessonResponse({
-          responseId: 21,
-          enrollmentId: 9,
-          lessonId: "module-1-lesson-1",
-          taskId: "notice",
-          feedback: "Feedback",
-          status: "reviewed",
-        })
+      appRouter.createCaller(userContext).staff.reviewLessonResponse({
+        responseId: 21,
+        enrollmentId: 9,
+        lessonId: "module-1-lesson-1",
+        taskId: "notice",
+        feedback: "Feedback",
+        status: "reviewed",
+      })
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
   it("rejects an incorrect math answer before persistence", async () => {
     await expect(
-      appRouter
-        .createCaller(publicContext())
-        .inquiry.create({
-          name: "Amina Njeri",
-          email: "amina@example.com",
-          category: "general",
-          message: "Please send more information about your services.",
-          mathA: 3,
-          mathB: 4,
-          mathAnswer: 8,
-        })
+      appRouter.createCaller(publicContext()).inquiry.create({
+        name: "Amina Njeri",
+        email: "amina@example.com",
+        category: "general",
+        message: "Please send more information about your services.",
+        mathA: 3,
+        mathB: 4,
+        mathAnswer: 8,
+      })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
     expect(mocks.createContactInquiry).not.toHaveBeenCalled();
   });

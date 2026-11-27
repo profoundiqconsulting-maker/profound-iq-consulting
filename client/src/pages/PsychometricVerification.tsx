@@ -7,7 +7,6 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
 export default function PsychometricVerification() {
-  
   const reference =
     new URLSearchParams(window.location.search).get("reference") ?? "";
   const result = trpc.psychometric.verifyPublic.useQuery(

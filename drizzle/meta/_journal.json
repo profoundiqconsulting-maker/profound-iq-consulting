@@ -540,6 +540,27 @@
       "when": 1789935057046,
       "tag": "0076_amused_lionheart",
       "breakpoints": true
+    },
+    {
+      "idx": 77,
+      "version": "5",
+      "when": 1795614304328,
+      "tag": "0077_boring_silver_sable",
+      "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "5",
+      "when": 1795694318060,
+      "tag": "0078_course_enrollment_applications",
+      "breakpoints": true
+    },
+    {
+      "idx": 79,
+      "version": "5",
+      "when": 1795719270683,
+      "tag": "0079_non_expiring_learner_sessions",
+      "breakpoints": true
     }
   ]
 }

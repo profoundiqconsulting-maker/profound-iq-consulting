@@ -11,8 +11,7 @@ export default function AdminCertificates() {
     }
   );
   const downloadPdf = trpc.admin.adminDownloadCertificatePdf.useMutation({
-    onError: error =>
-      console.error("Certificate download failed:", error),
+    onError: error => console.error("Certificate download failed:", error),
   });
 
   const rows = certificates.data ?? [];
@@ -51,9 +50,9 @@ export default function AdminCertificates() {
       <div className="admin-observatory w-full">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <p className="exec-eyebrow">Certificates</p>
+            <p className="eyebrow">Certificates</p>
             <h1 className="display mt-2 text-3xl">Course Certificates</h1>
-            <p className="mt-1 text-sm text-[#64748b]">
+            <p className="mt-1 text-sm text-[var(--fg-muted)]">
               Review and manage issued course completion certificates.
             </p>
           </div>
@@ -65,7 +64,7 @@ export default function AdminCertificates() {
 
         <div className="exec-card overflow-hidden">
           {certificates.isLoading ? (
-            <div className="p-6 text-center text-sm text-[#64748b]">
+            <div className="p-6 text-center text-sm text-[var(--fg-muted)]">
               Loading certificates…
             </div>
           ) : certificates.isError ? (
@@ -73,7 +72,7 @@ export default function AdminCertificates() {
               Failed to load certificates.
             </div>
           ) : rows.length === 0 ? (
-            <div className="p-6 text-center text-sm text-[#64748b]">
+            <div className="p-6 text-center text-sm text-[var(--fg-muted)]">
               No certificates issued yet.
             </div>
           ) : (
@@ -90,22 +89,22 @@ export default function AdminCertificates() {
                 <tbody>
                   {rows.map(cert => (
                     <tr key={cert.id}>
-                      <td className="font-medium text-[#0f172a]">
+                      <td className="font-medium text-[var(--fg)]">
                         {cert.recipientName}
                       </td>
-                      <td className="text-[#475569]">{cert.courseTitle}</td>
+                      <td className="text-[var(--fg-muted)]">{cert.courseTitle}</td>
                       <td>
                         <button
                           type="button"
                           onClick={() => handleDownload(cert)}
                           disabled={downloadPdf.isPending}
-                          className="inline-flex items-center gap-1 text-[#7d5e1e] underline underline-offset-4 hover:text-[#5c4513] disabled:opacity-50"
+                          className="inline-flex items-center gap-1 text-[var(--brand)] underline underline-offset-4 hover:text-[#5c4513] disabled:opacity-50"
                         >
                           <Download size={13} />
                           {cert.certificateNumber}
                         </button>
                       </td>
-                      <td className="text-[#64748b]">
+                      <td className="text-[var(--fg-muted)]">
                         {new Date(cert.createdAt).toLocaleDateString()}
                       </td>
                     </tr>

@@ -47,23 +47,23 @@ export default function AdminRevenuePanel() {
     >
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow flex items-center gap-2 text-[#b8860b]">
+          <p className="eyebrow flex items-center gap-2 text-[var(--brand)]">
             <BarChart3 size={13} /> Revenue observatory
           </p>
           <h2 id="revenue-title" className="display mt-3 text-3xl">
             Collected revenue.
           </h2>
-          <p className="mt-2 text-sm text-[#475569]">
+          <p className="mt-2 text-sm text-[var(--fg-muted)]">
             Successful Paystack payments across assessments, CareerPath, and
             professional courses.
           </p>
         </div>
-        <span className="text-xs font-bold uppercase tracking-[.12em] text-[#475569]">
+        <span className="text-xs font-bold uppercase tracking-[.12em] text-[var(--fg-muted)]">
           Admin only
         </span>
       </div>
       <div className="mt-6 flex flex-wrap items-end gap-2">
-        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
           From
           <input
             id="revenue-from-date"
@@ -71,11 +71,11 @@ export default function AdminRevenuePanel() {
             type="date"
             value={fromDate}
             onChange={event => setFromDate(event.target.value)}
-            className="mt-1 border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs font-normal tracking-normal text-[#16243d]"
+            className="mt-1 border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs font-normal tracking-normal text-[var(--fg)]"
             aria-label="Revenue from date"
           />
         </label>
-        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+        <label className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
           To
           <input
             id="revenue-to-date"
@@ -83,7 +83,7 @@ export default function AdminRevenuePanel() {
             type="date"
             value={toDate}
             onChange={event => setToDate(event.target.value)}
-            className="mt-1 border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs font-normal tracking-normal text-[#16243d]"
+            className="mt-1 border border-[#16243d]/20 bg-[#f7f3e8] px-2 py-2 text-xs font-normal tracking-normal text-[var(--fg)]"
             aria-label="Revenue to date"
           />
         </label>
@@ -104,13 +104,13 @@ export default function AdminRevenuePanel() {
         <button
           type="button"
           onClick={clearDates}
-          className="px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[#475569]"
+          className="px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]"
         >
           Clear
         </button>
       </div>
       {report.isLoading ? (
-        <div className="mt-8 flex items-center gap-2 text-sm text-[#475569]">
+        <div className="mt-8 flex items-center gap-2 text-sm text-[var(--fg-muted)]">
           <RefreshCw size={15} className="animate-spin" /> Loading revenue
           report…
         </div>
@@ -122,26 +122,26 @@ export default function AdminRevenuePanel() {
         <>
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
             <div className="border border-[#16243d]/10 bg-[#f7f3e8] p-4">
-              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
                 Total collected
               </p>
-              <p className="mt-2 text-2xl font-bold text-[#16243d]">
+              <p className="mt-2 text-2xl font-bold text-[var(--fg)]">
                 {kes(data.totalRevenueKes)}
               </p>
             </div>
             <div className="border border-[#16243d]/10 bg-[#f7f3e8] p-4">
-              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
                 Successful payments
               </p>
-              <p className="mt-2 text-2xl font-bold text-[#16243d]">
+              <p className="mt-2 text-2xl font-bold text-[var(--fg)]">
                 {data.transactionCount}
               </p>
             </div>
             <div className="border border-[#16243d]/10 bg-[#f7f3e8] p-4">
-              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#475569]">
+              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--fg-muted)]">
                 Average payment
               </p>
-              <p className="mt-2 text-2xl font-bold text-[#16243d]">
+              <p className="mt-2 text-2xl font-bold text-[var(--fg)]">
                 {kes(data.averageTransactionKes)}
               </p>
             </div>
@@ -159,7 +159,7 @@ export default function AdminRevenuePanel() {
                     <XAxis dataKey="source" tick={{ fontSize: 10 }} />
                     <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
                     <Tooltip
-                      formatter={(value) => kes(Number(value ?? 0))}
+                      formatter={value => kes(Number(value ?? 0))}
                       contentStyle={{
                         background: "var(--popover)",
                         border: "1px solid var(--popover-foreground)",
@@ -169,7 +169,7 @@ export default function AdminRevenuePanel() {
                     />
                     <Bar
                       dataKey="revenueKes"
-                      fill="#c9a34e"
+                      fill="var(--brand)"
                       radius={[2, 2, 0, 0]}
                     />
                   </BarChart>
@@ -188,7 +188,7 @@ export default function AdminRevenuePanel() {
                     <XAxis dataKey="date" tick={{ fontSize: 9 }} />
                     <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
                     <Tooltip
-                      formatter={(value) => kes(Number(value ?? 0))}
+                      formatter={value => kes(Number(value ?? 0))}
                       contentStyle={{
                         background: "var(--popover)",
                         border: "1px solid var(--popover-foreground)",
@@ -213,5 +213,3 @@ export default function AdminRevenuePanel() {
     </section>
   );
 }
-
-

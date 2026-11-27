@@ -35,4 +35,3 @@ export const courseEnrollmentCopy: CourseEnrollmentCopy = {
   detailsSaved: "Details saved",
   yourPlaceReady: "Your place is ready for checkout.",
 };
-

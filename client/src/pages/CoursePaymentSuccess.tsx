@@ -3,14 +3,15 @@ import { CheckCircle2, Loader2, ArrowRight, AlertCircle } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { usePostPaymentRedirect } from "@/hooks/usePostPaymentRedirect";
 
 import { TransformationNav } from "@/components/TransformationNav";
 import { startLogin } from "@/const";
 
 export default function CoursePaymentSuccess() {
   const [, setLocation] = useLocation();
-  const { user, loading } = useAuth();
-  
+  const { user, loading, isAuthenticated } = useAuth();
+
   const params = new URLSearchParams(window.location.search);
   const reference = params.get("reference");
   const courseSlug = params.get("course") || "";
@@ -33,6 +34,21 @@ export default function CoursePaymentSuccess() {
       window.location.pathname + window.location.search + window.location.hash
     );
   };
+
+  // Initialize the redirect hook for course_stage payments
+  const {
+    redirect,
+    navigate,
+    loading: redirectLoading,
+  } = usePostPaymentRedirect({
+    productType: "course_stage",
+    courseSlug: courseSlug || undefined,
+    reference: reference || undefined,
+    enabled: status === "success",
+    onRedirect: decision => {
+      console.log("[CoursePaymentSuccess] Redirect decision:", decision);
+    },
+  });
 
   useEffect(() => {
     if (!user || !reference || status !== "verifying" || verify.isPending)
@@ -76,21 +92,21 @@ export default function CoursePaymentSuccess() {
 
   if (loading || (user && status === "verifying"))
     return (
-      <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
+      <div className="min-h-screen bg-[#f7f3e8] text-[var(--fg)]">
         <TransformationNav active="assessment" />
         <main className="container grid min-h-[70vh] place-items-center py-16">
           <div className="text-center">
             <Loader2
-              className="mx-auto animate-spin text-[#7d5e1e]"
+              className="mx-auto animate-spin text-[var(--brand)]"
               size={34}
             />
-            <p className="eyebrow mt-5 text-[#7d5e1e]">Secure verification</p>
+            <p className="eyebrow mt-5 text-[var(--brand)]">Secure verification</p>
             <h1 className="display mt-3 text-4xl">Confirming your payment.</h1>
-            <p className="mt-4 text-sm text-[#4a566a]">
+            <p className="mt-4 text-sm text-[var(--fg-muted)]">
               We are checking the Paystack transaction before unlocking your
               next course step.
             </p>
-            <p className="mt-2 text-xs text-[#4a566a]">
+            <p className="mt-2 text-xs text-[var(--fg-muted)]">
               Retrying automatically… attempt {attempt + 1} of {MAX_ATTEMPTS}
             </p>
           </div>
@@ -100,15 +116,15 @@ export default function CoursePaymentSuccess() {
 
   if (!user)
     return (
-      <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
+      <div className="min-h-screen bg-[#f7f3e8] text-[var(--fg)]">
         <TransformationNav active="assessment" />
         <main className="container grid min-h-[70vh] place-items-center py-16">
           <div className="max-w-md text-center">
-            <AlertCircle className="mx-auto text-[#7d5e1e]" size={34} />
+            <AlertCircle className="mx-auto text-[var(--brand)]" size={34} />
             <h1 className="display mt-4 text-4xl">
               Sign in to confirm payment.
             </h1>
-            <p className="mt-4 text-sm leading-6 text-[#4a566a]">
+            <p className="mt-4 text-sm leading-6 text-[var(--fg-muted)]">
               Return to your authenticated workspace so we can securely match
               this payment to your course enrollment.
             </p>
@@ -125,7 +141,7 @@ export default function CoursePaymentSuccess() {
 
   if (status === "error")
     return (
-      <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
+      <div className="min-h-screen bg-[#f7f3e8] text-[var(--fg)]">
         <TransformationNav active="assessment" />
         <main className="container grid min-h-[70vh] place-items-center py-16">
           <div className="max-w-md text-center">
@@ -133,7 +149,7 @@ export default function CoursePaymentSuccess() {
             <h1 className="display mt-4 text-4xl">
               Payment needs another check.
             </h1>
-            <p className="mt-4 text-sm leading-6 text-[#4a566a]">
+            <p className="mt-4 text-sm leading-6 text-[var(--fg-muted)]">
               We could not verify this transaction yet. We are retrying in the
               background, or you can try again. If this still fails, your
               payment record is on file and an administrator can verify it
@@ -162,40 +178,39 @@ export default function CoursePaymentSuccess() {
       </div>
     );
 
+  // Success state: use the redirect hook to navigate to the appropriate next step
+  useEffect(() => {
+    if (status === "success" && !redirectLoading) {
+      const decision = redirect();
+      if (decision) {
+        console.log("[CoursePaymentSuccess] Navigating to:", decision.path);
+        if (decision.replace) {
+          setLocation(decision.path, { replace: true });
+        } else {
+          setLocation(decision.path);
+        }
+      }
+    }
+  }, [status, redirect, redirectLoading, setLocation]);
+
+  // Show a brief success message before redirect
   return (
-    <div className="min-h-screen bg-[#f7f3e8] text-[#16243d]">
+    <div className="min-h-screen bg-[#f7f3e8] text-[var(--fg)]">
       <TransformationNav active="assessment" />
       <main className="container grid min-h-[70vh] place-items-center py-16">
-        <div className="w-full max-w-2xl border border-[#c9a34e]/60 bg-white/60 p-7 text-center shadow-sm sm:p-12">
+        <div className="w-full max-w-2xl border border-[var(--brand)]/60 bg-white/60 p-7 text-center shadow-sm sm:p-12">
           <CheckCircle2 className="mx-auto text-emerald-800" size={42} />
-          <p className="eyebrow mt-6 text-[#7d5e1e]">Payment successful</p>
+          <p className="eyebrow mt-6 text-[var(--brand)]">Payment successful</p>
           <h1 className="display mt-3 text-5xl">
             Your learning path is ready.
           </h1>
-          <p className="mx-auto mt-5 max-w-lg text-sm leading-7 text-[#4a566a]">
-            Stage {Math.max(1, paidStages)} is verified. Your course dashboard
-            is updated, and the next available learning step is now unlocked.
+          <p className="mx-auto mt-5 max-w-lg text-sm leading-7 text-[var(--fg-muted)]">
+            Stage {Math.max(1, paidStages)} is verified. Redirecting…
           </p>
-          <div className="mt-8 grid gap-3 sm:grid-cols-2">
-            <button
-              type="button"
-              onClick={() =>
-                setLocation(
-                  courseSlug ? `/courses/${courseSlug}` : "/dashboard"
-                )
-              }
-              className="inline-flex items-center justify-center gap-2 bg-[#16243d] px-5 py-3 text-xs font-black uppercase tracking-[.12em] text-[#f7f3e8]"
-            >
-              Continue to course <ArrowRight size={14} />
-            </button>
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center justify-center gap-2 border border-[#16243d]/25 px-5 py-3 text-xs font-black uppercase tracking-[.12em]"
-            >
-              Open dashboard
-            </Link>
+          <div className="mt-8 flex justify-center">
+            <Loader2 className="animate-spin text-[var(--brand-light)]" size={24} />
           </div>
-          <p className="mt-7 text-[11px] text-[#4a566a]">
+          <p className="mt-7 text-[11px] text-[var(--fg-muted)]">
             Keep this page for your records. Your receipt and payment history
             are available in your dashboard.
           </p>

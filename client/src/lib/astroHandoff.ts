@@ -17,16 +17,16 @@ const resolveTarget = (url: string | URL | null | undefined) => {
  */
 export const installAstroRouteHandoff = (ownedRoutes: RegExp) => {
   const originalPushState = window.history.pushState.bind(window.history);
-  const originalReplaceState = window.history.replaceState.bind(
-    window.history
-  );
+  const originalReplaceState = window.history.replaceState.bind(window.history);
 
   let handoff: string | null = null;
 
   const syncRouter = () => {
     queueMicrotask(() => {
       if (handoff) return;
-      window.dispatchEvent(new PopStateEvent("popstate", { state: window.history.state }));
+      window.dispatchEvent(
+        new PopStateEvent("popstate", { state: window.history.state })
+      );
     });
   };
 
@@ -46,11 +46,7 @@ export const installAstroRouteHandoff = (ownedRoutes: RegExp) => {
     syncRouter();
   };
 
-  window.history.pushState = function patchedPushState(
-    data,
-    unused,
-    url
-  ) {
+  window.history.pushState = function patchedPushState(data, unused, url) {
     handle(originalPushState, data, unused, url);
   } as typeof window.history.pushState;
 

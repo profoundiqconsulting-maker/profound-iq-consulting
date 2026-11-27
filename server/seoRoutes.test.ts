@@ -16,7 +16,12 @@ const originalFetch = globalThis.fetch;
 
 beforeAll(() => {
   globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+    const url =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+          ? input.toString()
+          : input.url;
     if (url.includes("invalid.example")) {
       return new Response(null, { status: 404, statusText: "Not Found" });
     }

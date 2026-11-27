@@ -2,20 +2,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { TrpcContext } from "./_core/context";
 
 const mocks = vi.hoisted(() => ({
-  getAdminRevenueReport: vi
-    .fn()
-    .mockResolvedValue({
-      totalRevenueKes: 60,
-      transactionCount: 3,
-      averageTransactionKes: 20,
-      bySource: [
-        { source: "Self-assessment", revenueKes: 40, transactions: 2 },
-      ],
-      trend: [],
-      transactions: [],
-      fromDate: new Date("2026-08-01T00:00:00.000Z"),
-      toDate: new Date("2026-08-31T23:59:59.999Z"),
-    }),
+  getAdminRevenueReport: vi.fn().mockResolvedValue({
+    totalRevenueKes: 60,
+    transactionCount: 3,
+    averageTransactionKes: 20,
+    bySource: [{ source: "Self-assessment", revenueKes: 40, transactions: 2 }],
+    trend: [],
+    transactions: [],
+    fromDate: new Date("2026-08-01T00:00:00.000Z"),
+    toDate: new Date("2026-08-31T23:59:59.999Z"),
+  }),
 }));
 vi.mock("./db", async importOriginal => ({
   ...(await importOriginal<typeof import("./db")>()),

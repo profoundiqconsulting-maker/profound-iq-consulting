@@ -12,13 +12,18 @@ const targets = [
   {
     src: path.join(root, "client/public/ProfoundIQSocialSharingImage.png"),
     dst: path.join(root, "client/public/ProfoundIQSocialSharingImage.png"),
-    opts: { resize: { width: 1200 }, png: { compressionLevel: 9, quality: 88 } },
+    opts: {
+      resize: { width: 1200 },
+      png: { compressionLevel: 9, quality: 88 },
+    },
   },
 ];
 
 for (const t of targets) {
   const srcStat = fs.statSync(t.src);
-  console.log(`\nOptimizing ${path.basename(t.src)} (${(srcStat.size / 1024).toFixed(1)} KB)`);
+  console.log(
+    `\nOptimizing ${path.basename(t.src)} (${(srcStat.size / 1024).toFixed(1)} KB)`
+  );
 
   const pipeline = sharp(t.src);
   if (t.opts.resize) pipeline.resize(t.opts.resize);
@@ -28,7 +33,9 @@ for (const t of targets) {
   const dstStat = fs.statSync(t.dst);
   const saved = ((srcStat.size - dstStat.size) / 1024).toFixed(1);
   const pct = (((srcStat.size - dstStat.size) / srcStat.size) * 100).toFixed(1);
-  console.log(`  -> ${(dstStat.size / 1024).toFixed(1)} KB (saved ${saved} KB, ${pct}%)`);
+  console.log(
+    `  -> ${(dstStat.size / 1024).toFixed(1)} KB (saved ${saved} KB, ${pct}%)`
+  );
 }
 
 console.log("\nDone.");

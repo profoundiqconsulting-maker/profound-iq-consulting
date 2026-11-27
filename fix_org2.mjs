@@ -1,6 +1,6 @@
-import fs from 'fs';
+import fs from "fs";
 
-const content = fs.readFileSync('client/src/pages/AdminDashboard.tsx', 'utf-8');
+const content = fs.readFileSync("client/src/pages/AdminDashboard.tsx", "utf-8");
 
 // Fix closing tag - use the actual context
 const oldClose = `      />
@@ -14,10 +14,10 @@ const newClose = `      />
 }`;
 
 if (content.includes(oldClose)) {
-    content = content.replace(oldClose, newClose);
-    console.log("Fixed OrganizationApprovalQueue closing tag");
+  content = content.replace(oldClose, newClose);
+  console.log("Fixed OrganizationApprovalQueue closing tag");
 } else {
-    console.log("Closing pattern not found");
+  console.log("Closing pattern not found");
 }
 
 // Fix opening tag - use a simpler approach, just replace the section opening
@@ -41,10 +41,10 @@ const newOpenStart = `<Section
     >`;
 
 if (content.includes(oldOpenStart)) {
-    content = content.replace(oldOpenStart, newOpenStart);
-    console.log("Fixed OrganizationApprovalQueue opening tag");
+  content = content.replace(oldOpenStart, newOpenStart);
+  console.log("Fixed OrganizationApprovalQueue opening tag");
 } else {
-    console.log("Opening start pattern not found");
+  console.log("Opening start pattern not found");
 }
 
 // Also need to fix the div that follows - it currently starts with <div className="flex flex-col..."> but should start with <div className="grid gap-3 md:grid-cols-4">
@@ -76,16 +76,18 @@ const oldHeaderAndGrid = `      <div className="flex flex-col justify-between ga
 const newHeaderAndGrid = `      <div className="grid gap-3 md:grid-cols-4">`;
 
 if (content.includes(oldHeaderAndGrid)) {
-    content = content.replace(oldHeaderAndGrid, newHeaderAndGrid);
-    console.log("Fixed OrganizationApprovalQueue header and grid");
+  content = content.replace(oldHeaderAndGrid, newHeaderAndGrid);
+  console.log("Fixed OrganizationApprovalQueue header and grid");
 } else {
-    console.log("Header and grid pattern not found");
-    // Find what's there
-    const idx = content.indexOf('className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"');
-    if (idx > 0) {
-        console.log("Context at header:");
-        console.log(JSON.stringify(content.substring(idx, idx + 500)));
-    }
+  console.log("Header and grid pattern not found");
+  // Find what's there
+  const idx = content.indexOf(
+    'className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"'
+  );
+  if (idx > 0) {
+    console.log("Context at header:");
+    console.log(JSON.stringify(content.substring(idx, idx + 500)));
+  }
 }
 
-fs.writeFileSync('client/src/pages/AdminDashboard.tsx', content, 'utf-8');
+fs.writeFileSync("client/src/pages/AdminDashboard.tsx", content, "utf-8");
